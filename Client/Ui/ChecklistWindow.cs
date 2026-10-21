@@ -16,7 +16,7 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class ChecklistWindow : Window
 {
-    private readonly WrapPanel _characters = new();
+    private readonly StackPanel _characters = new();
     private readonly TextBlock _seen = new();
     private readonly StackPanel _body = new();
     /// <summary>Not in the daily list (the user's choice): the reward counts of the conquest dungeons (alone and in pairs) and the Shugofesta keys.</summary>
@@ -44,23 +44,19 @@ public sealed class ChecklistWindow : Window
     {
         LocalizationManager loc = LocalizationManager.Instance;
         Title = loc["Checklist.Title"];
-        Width = 480;
+        Width = 700;
         SizeToContent = SizeToContent.Height;
         MaxHeight = SystemParameters.WorkArea.Height - 40;
-        MinWidth = 440;
+        MinWidth = 640;
         MinHeight = 400;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
         var root = new DockPanel { Margin = new Thickness(12, 10, 12, 12) };
-        var header = new DockPanel { Margin = new Thickness(0, 0, 0, 10) };
-        DockPanel.SetDock(header, Dock.Top);
-        _seen.VerticalAlignment = VerticalAlignment.Center;
-        _seen.Margin = new Thickness(14, 0, 0, 0);
-        _seen.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
-        DockPanel.SetDock(_seen, Dock.Right);
-        header.Children.Add(_seen);
-        header.Children.Add(_characters);
-        root.Children.Add(header);
+        // the characters as a column of cards on the left (Stacy's fork has the idea: class icon, name in the class colour, class and level below)
+        var sidebar = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Width = 184, Margin = new Thickness(0, 0, 2, 0), Content = _characters };
+        DockPanel.SetDock(sidebar, Dock.Left);
+        root.Children.Add(sidebar);
+        // the "Stand: date" line is no longer shown (_seen is still kept up to date)
 
         var scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _body };
         root.Children.Add(scroll);
@@ -90,24 +86,116 @@ public sealed class ChecklistWindow : Window
         foreach (TicketCharacter c in all)
         {
             string name = c.Name;
-            bool active = name == wanted;
-            var chip = new Border
-            {
-                Padding = new Thickness(16, 5, 16, 5), Margin = new Thickness(0, 0, 8, 4), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
-                Cursor = System.Windows.Input.Cursors.Hand, Child = Label(name, c.Tickets.Count > 0 ? "Brush.Text" : "Brush.TextSubtle", 14, bold: true),
-            };
-            chip.SetResourceReference(Border.BackgroundProperty, active ? "Brush.ControlRaised" : "Brush.Control");
-            chip.SetResourceReference(Border.BorderBrushProperty, active ? "Brush.Accent" : "Brush.Border");
-            chip.MouseLeftButtonDown += (_, _) =>
+            _characters.Children.Add(CharacterCard(c, name == wanted, name == current, () =>
             {
                 _selected = name;
                 Refresh();
-            };
-            _characters.Children.Add(chip);
+            }));
         }
 
         _selected = wanted;
         Render();
+    }
+
+    /// <summary>
+    /// One character of the column on the left: the class icon, the name in the class colour (a dot when it is the one logged in), the class, level and server below and, in
+    /// small type, when it was last online. The form is Stacy's (her fork, 17 October 2026: alts with close names were hard to tell apart); smaller type than hers.
+    /// </summary>
+    private static UIElement CharacterCard(TicketCharacter c, bool active, bool online, Action choose)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        string language = loc.Language;
+        string? className = c.ClassCode > 0 ? Aion2.Protocol.Aion2SkillNames.ClassFromCode(c.ClassCode) : null;
+        var lines = new StackPanel();
+        var top = new DockPanel();
+        if (online)
+        {
+            var dot = new System.Windows.Shapes.Ellipse { Width = 7, Height = 7, Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = loc["Checklist.OnlineNow"] };
+            dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Brush.Accent");
+            DockPanel.SetDock(dot, Dock.Right);
+            top.Children.Add(dot);
+        }
+
+        if (className is not null && new ClassIconConverter().Convert(className, typeof(ImageSource), null, CultureInfo.CurrentCulture) is ImageSource icon)
+        {
+            var image = new Image { Source = icon, Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center };
+            DockPanel.SetDock(image, Dock.Left);
+            top.Children.Add(image);
+        }
+
+        TextBlock title = Label(c.Name, c.Tickets.Count > 0 ? "Brush.Text" : "Brush.TextSubtle", 12.5, bold: true);
+        title.TextTrimming = TextTrimming.CharacterEllipsis;
+        if (className is not null)
+        {
+            title.Foreground = ClassBrushes.Solid(className);
+        }
+
+        // the legion right behind the name (not at the far edge), so the column stays narrow
+        var nameLine = new StackPanel { Orientation = Orientation.Horizontal };
+        nameLine.Children.Add(title);
+        if (!string.IsNullOrEmpty(c.Legion))
+        {
+            TextBlock legion = Label("<" + c.Legion + ">", "Brush.TextMuted", 10);
+            legion.Margin = new Thickness(6, 1, 0, 0);
+            legion.MaxWidth = 90;
+            legion.TextTrimming = TextTrimming.CharacterEllipsis;
+            nameLine.Children.Add(legion);
+        }
+
+        top.Children.Add(nameLine);
+        lines.Children.Add(top);
+
+        var parts = new List<string>();
+        if (className is not null)
+        {
+            parts.Add(ClassCatalog.DisplayName(className, language));
+        }
+
+        if (c.Level > 0)
+        {
+            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.Level"], c.Level));
+        }
+
+        if (c.ServerId > 0)
+        {
+            parts.Add(Aion2.Protocol.Aion2Servers.NameOf(c.ServerId).Replace("Europe - ", "", StringComparison.Ordinal));
+        }
+
+        if (parts.Count > 0)
+        {
+            TextBlock info = Label(string.Join(" \u00b7 ", parts), "Brush.TextSubtle", 10.5);
+            info.Margin = new Thickness(0, 2, 0, 0);
+            info.TextTrimming = TextTrimming.CharacterEllipsis;
+            lines.Children.Add(info);
+        }
+
+        // the character that is online now shows the time of its list as the last time: only the others tell something
+        if (!online && c.LastOnlineMs > 0)
+        {
+            TextBlock seen = Label(string.Format(CultureInfo.CurrentCulture, loc["Checklist.LastOnline"], DateTimeOffset.FromUnixTimeMilliseconds(c.LastOnlineMs).LocalDateTime.ToString("g", CultureInfo.CurrentCulture)), "Brush.TextMuted", 10);
+            seen.Margin = new Thickness(0, 1, 0, 0);
+            seen.TextTrimming = TextTrimming.CharacterEllipsis;
+            lines.Children.Add(seen);
+        }
+
+        var card = new Border
+        {
+            CornerRadius = new CornerRadius(7), Padding = new Thickness(10, 6, 9, 6), Margin = new Thickness(0, 0, 0, 3), BorderThickness = new Thickness(1),
+            Child = lines, Cursor = System.Windows.Input.Cursors.Hand, Background = Brushes.Transparent, BorderBrush = Brushes.Transparent,
+        };
+        if (active)
+        {
+            card.SetResourceReference(Border.BackgroundProperty, "Brush.ControlRaised");
+            card.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+        }
+        else
+        {
+            card.MouseEnter += (_, _) => card.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
+            card.MouseLeave += (_, _) => card.Background = Brushes.Transparent;
+        }
+
+        card.MouseLeftButtonDown += (_, _) => choose();
+        return card;
     }
 
     private void Render()
@@ -129,28 +217,12 @@ public sealed class ChecklistWindow : Window
             _seen.Text = "";
             var listed = new StackPanel();
             listed.Children.Add(Label(character.Name, "Brush.Text", 16, bold: true));
-            if (BasicsText(character, language) is { Length: > 0 } basicsText)
-            {
-                TextBlock basicsLine = Label(basicsText, "Brush.TextSubtle", 12);
-                basicsLine.TextWrapping = TextWrapping.Wrap;
-                basicsLine.Margin = new Thickness(0, 3, 0, 0);
-                listed.Children.Add(basicsLine);
-            }
-
             TextBlock relogNew = Label(loc["Checklist.RelogNew"], "Brush.Accent", 12);
             relogNew.TextWrapping = TextWrapping.Wrap;
             relogNew.Margin = new Thickness(0, 8, 0, 0);
             listed.Children.Add(relogNew);
             _body.Children.Add(Card(listed));
             return;
-        }
-
-        if (BasicsText(character, language) is { Length: > 0 } characterLine)
-        {
-            TextBlock basics = Label(characterLine, "Brush.TextSubtle", 12);
-            basics.TextWrapping = TextWrapping.Wrap;
-            basics.Margin = new Thickness(4, 0, 4, 6);
-            _body.Children.Add(basics);
         }
 
         if (Aion2Tickets.CurrentName is { } online && online != character.Name)
@@ -401,40 +473,6 @@ public sealed class ChecklistWindow : Window
 
     /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>
     private int CapOf(TicketDef def) => _premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
-
-    /// <summary>Class, level, item level, legion and when the character was last online, as the character list of the login showed them ("" when it showed none).</summary>
-    private static string BasicsText(TicketCharacter character, string language)
-    {
-        LocalizationManager loc = LocalizationManager.Instance;
-        var parts = new List<string>();
-        if (character.ClassCode > 0 && Aion2.Protocol.Aion2SkillNames.ClassFromCode(character.ClassCode) is { } className)
-        {
-            parts.Add(ClassCatalog.DisplayName(className, language));
-        }
-
-        if (character.Level > 0)
-        {
-            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.Level"], character.Level));
-        }
-
-        if (character.ItemLevel > 0)
-        {
-            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.ItemLevel"], character.ItemLevel.ToString("N0", CultureInfo.CurrentCulture)));
-        }
-
-        if (!string.IsNullOrEmpty(character.Legion))
-        {
-            parts.Add("<" + character.Legion + ">");
-        }
-
-        // the character that is online now shows the time of the list as its last time: only the others tell something
-        if (character.LastOnlineMs > 0 && character.Name != Aion2Tickets.CurrentName)
-        {
-            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.LastOnline"], DateTimeOffset.FromUnixTimeMilliseconds(character.LastOnlineMs).LocalDateTime.ToString("g", CultureInfo.CurrentCulture)));
-        }
-
-        return string.Join("  \u00b7  ", parts);
-    }
 
     /// <summary>How soon a membership or ticket counts as "runs out soon" (red or amber with a warning triangle).</summary>
     private static readonly TimeSpan SoonLeft = TimeSpan.FromDays(3);

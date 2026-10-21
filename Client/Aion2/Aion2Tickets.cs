@@ -37,7 +37,7 @@ public sealed record TicketCharacter(
 /// <item><c>0x0c61</c> for a change: <c>flag u8 | mask u8 | id u32 | fields | reason u8 | (flag 1: gained u32)</c>; reason 2 = the regular refill,
 /// 3 = something was used, 1 = something was gained (the Odyle bonus: 630 -> 640 comes with 10).</item>
 /// </list>
-/// The fields are chosen by the mask: bit 1 = time left (u64 ms), bit 4 = count (varint), bit 8 = bonus (varint); a field that is not there is zero.
+/// The fields are chosen by the mask: bit 1 = time left (u64 ms), bit 2 = one more u64 (skipped), bit 4 = count (varint), bit 8 = bonus (varint); a field that is not there is zero.
 /// Verified on 25 login lists and 56 changes of the debug recordings of 2026-10-10 to 13: every frame reads to its last byte, the caps in the lists
 /// are the table's caps (28 keys, 35 boss kills, 14 and 7 reward counts, 540 of 560 Odyle energy).
 /// The last list of every character is kept in %AppData%\Aion DPS Meter\aion2-tickets.json.
@@ -103,6 +103,7 @@ public static class Aion2Tickets
     private static List<TicketDef>? _catalog;
     private static readonly Dictionary<string, TicketCharacter> Characters = new(StringComparer.Ordinal);
     private static string? _current;
+    private static string? _likely;
     private static bool _awaitingName;
     private static Dictionary<int, TicketValue>? _pending;
     private static DateTime _pendingAt;
@@ -166,6 +167,7 @@ public static class Aion2Tickets
         {
             Characters.Clear();
             _current = null;
+            _likely = null;
             _awaitingName = false;
             _pending = null;
             _dirty = false;
@@ -467,7 +469,7 @@ public static class Aion2Tickets
         }
 
         int mask = frame[p++];
-        if ((mask & ~0x0d) != 0)
+        if ((mask & ~0x0f) != 0)
         {
             return false;
         }
@@ -485,6 +487,18 @@ public static class Aion2Tickets
             }
 
             time = (long)BinaryPrimitives.ReadUInt64LittleEndian(frame[p..]);
+            p += 8;
+        }
+
+        // Bit 2: one more u64 after the time (3,600,000 = an hour for ticket 3 in an alt's login list of another player, 17 October). Not used;
+        // unknown, it made the whole list unreadable and that character missing from the checklist. None of our own 142 login lists has it.
+        if ((mask & 2) != 0)
+        {
+            if (p + 8 > frame.Length)
+            {
+                return false;
+            }
+
             p += 8;
         }
 
@@ -549,10 +563,20 @@ public static class Aion2Tickets
             {
                 _pending[reading.Id] = reading.Value;
             }
-            else if (_current is { } name && Characters.TryGetValue(name, out TicketCharacter? known))
+            else if ((_current ?? _likely) is { } name)
             {
-                var tickets = new Dictionary<int, TicketValue>(known.Tickets) { [reading.Id] = reading.Value };
-                Characters[name] = known with { SavedAt = DateTime.UtcNow, Tickets = tickets };
+                if (Characters.TryGetValue(name, out TicketCharacter? known))
+                {
+                    var tickets = new Dictionary<int, TicketValue>(known.Tickets) { [reading.Id] = reading.Value };
+                    Characters[name] = known with { SavedAt = DateTime.UtcNow, Tickets = tickets };
+                }
+                else
+                {
+                    // a character the meter has no login list for (it started while this one was already in game): what comes in is still its own, the rest stays unread
+                    Characters[name] = new TicketCharacter(name, _likelyServerId, DateTime.UtcNow, new Dictionary<int, TicketValue> { [reading.Id] = reading.Value });
+                    Trim();
+                }
+
                 _dirty = true;
                 changed = true;
             }
@@ -561,6 +585,28 @@ public static class Aion2Tickets
         if (changed)
         {
             Changed?.Invoke();
+        }
+    }
+
+    private static int _likelyServerId;
+
+    /// <summary>The character most likely in game when the meter starts while one already is (its last saved record): the changes that come
+    /// (a mission handed in, a purchase of Odyle energy) go to it until a live record names the character (<see cref="NoteCharacter"/> replaces it).
+    /// Without it they were dropped and the checklist stayed at the login value. It is only a guess for those changes: <see cref="CurrentName"/> stays empty.</summary>
+    public static void NoteLikelyCharacter(string? name, int serverId = 0)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
+        lock (Gate)
+        {
+            if (_current is null && !_awaitingName)
+            {
+                _likely = name;
+                _likelyServerId = serverId;
+            }
         }
     }
 
@@ -581,10 +627,17 @@ public static class Aion2Tickets
             if (named)
             {
                 _current = name;
+                _likely = null;
             }
 
             if (_awaitingName && _pending is not null && receivedAt >= _pendingAt)
             {
+                // The purchases of Odyle energy come only when the shop is opened (not with the login): a new login list keeps what it does not hold.
+                if (Characters.TryGetValue(name, out TicketCharacter? before) && !_pending.ContainsKey(ShopOdyleId) && before.Tickets.TryGetValue(ShopOdyleId, out TicketValue shop))
+                {
+                    _pending[ShopOdyleId] = shop;
+                }
+
                 Characters[name] = Characters.TryGetValue(name, out TicketCharacter? listed)
                     ? listed with { ServerId = serverId > 0 ? serverId : listed.ServerId, SavedAt = DateTime.UtcNow, Tickets = _pending, Level = level > 0 ? level : listed.Level }
                     : new TicketCharacter(name, serverId, DateTime.UtcNow, _pending, level);

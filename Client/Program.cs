@@ -368,7 +368,7 @@ internal static class Program
 
         if (args.Length > 0 && args[0] == "render-petmap")
         {
-            RunRenderPetMapMode(args.Length > 1 ? args[1] : "petmap.png", args.Length > 2 ? args[2] : "verteron", args.Length > 4 ? double.Parse(args[3]) : -215789, args.Length > 4 ? double.Parse(args[4]) : 262953);
+            RunRenderPetMapMode(args.Length > 1 ? args[1] : "petmap.png", args.Length > 2 ? args[2] : "verteron", args.Length > 4 ? double.Parse(args[3]) : -215789, args.Length > 4 ? double.Parse(args[4]) : 262953, args.Length > 5 && args[5] == "guards");
             return;
         }
 
@@ -2094,7 +2094,7 @@ internal static class Program
         }
     }
 
-    private static void RunRenderPetMapMode(string path, string mapKey, double x, double y)
+    private static void RunRenderPetMapMode(string path, string mapKey, double x, double y, bool guards = false)
     {
         var app = new System.Windows.Application();
         app.Resources.MergedDictionaries.Add(
@@ -2108,10 +2108,19 @@ internal static class Program
         var pets = points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
         var colors = pets.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => Ui.PetMapPalette.Of(t.i));
         var window = new Ui.PetMapWindow();
+        if (guards && window.Content is System.Windows.UIElement root)
+        {
+            // never shown: lay the frame out once so that the map knows how much of itself is visible
+            root.Measure(new System.Windows.Size(Ui.PetMapWindow.ViewSize, Ui.PetMapWindow.ViewSize));
+            root.Arrange(new System.Windows.Rect(0, 0, Ui.PetMapWindow.ViewSize, Ui.PetMapWindow.ViewSize));
+            root.UpdateLayout();
+        }
+
         // sample "live" monsters: every 7th spawn point within 120 m stands there right now
         var live = points.Where(p => Math.Abs(p.X - x) < 12000 && Math.Abs(p.Y - y) < 12000).Where((p, i) => i % 7 == 0).ToList();
         window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors,
-            Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.Items().Where(i => i.Count > 0).Select(i => i.Key).ToHashSet()));
+            Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.Items().Where(i => i.Count > 0).Select(i => i.Key).ToHashSet()),
+            guards: guards ? new List<(float X, float Y)> { ((float)x + 1500, (float)y + 700), ((float)x - 1200, (float)y - 400), ((float)x - 30000, (float)y + 5000), ((float)x + 9000, (float)y - 21000) } : null);
         var list = new Ui.PetListWindow();
         list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "en") ?? "?", "Level 2 · 22/75", "104 m", false)).ToList());
         var visual = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)) };

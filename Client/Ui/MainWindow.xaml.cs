@@ -691,8 +691,40 @@ public partial class MainWindow : Window
 
     private DateTime _lastPreviewInvalidate = DateTime.MinValue;
 
+    private int _cubeMapArrivals = -1;
+
+    /// <summary>
+    /// A Hidden Cube comes into range while the pet map module is switched off: the map (and the arrival chime) come all the same, as the cube's switch says ("show the map when a cube appears";
+    /// Stacy's idea, her fork 17 October 2026). With the module on its own controller notices the cube.
+    /// </summary>
+    private void PollCubeMap()
+    {
+        if (Headless || _source?.Entities is not Aion2EntityDirectory directory)
+        {
+            return;
+        }
+
+        int before = _cubeMapArrivals;
+        _cubeMapArrivals = directory.CubeArrivals;
+        if (before < 0 || _cubeMapArrivals <= before || _petMapController is not null)
+        {
+            return;
+        }
+
+        MeterSettings settings = MeterSettings.Load();
+        if (settings.ShowPetMap || !settings.ShowMapOnCube || !settings.PetMapGatherItems.Contains("Hidden Cube"))
+        {
+            return;
+        }
+
+        _petMapController = new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
+        _petMapController.ApplyLocked(settings.PetFarmLocked);
+        _petMapController.OnCubeArrived(settings);
+    }
+
     private void OnPollTimerTick(object? sender, EventArgs e)
     {
+        PollCubeMap();
         // The Alt+Tab picture of the overlay (see RenderOverlayPreview) is redrawn on request; saying
         // it is stale every couple of seconds keeps it close to what the overlay shows.
         if (_hideUiActive && DateTime.UtcNow - _lastPreviewInvalidate > TimeSpan.FromSeconds(2))
@@ -5267,7 +5299,7 @@ public partial class MainWindow : Window
                     {
                         page.Stop();
                         _petMapController?.RemoveViews(map, list);
-                        if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false })
+                        if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false, CubeMapOverride: false })
                         {
                             _petMapController.Dispose();
                             _petMapController = null;
@@ -5905,6 +5937,7 @@ public partial class MainWindow : Window
             return;
         }
 
+        _petMapController?.ClearCubeOverride(); // the settings were applied: a map shown for a cube goes back to what they say
         // the pet map (with its list) has its own switch
         if (settings.ShowPetMap)
         {

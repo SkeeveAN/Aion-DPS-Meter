@@ -47,6 +47,8 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             if (Aion2CharacterStore.Load(characterStorePath) is { } saved)
             {
                 _entities.RestoreFrom(saved);
+                // started while a character is already in game: its last saved record is most likely the one playing (see Aion2Tickets.NoteLikelyCharacter)
+                Aion2Tickets.NoteLikelyCharacter(saved.Name, saved.ServerId);
             }
 
             string inspectedPath = Aion2CharacterStore.InspectedPathFor(characterStorePath);

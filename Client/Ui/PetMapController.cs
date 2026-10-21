@@ -122,9 +122,9 @@ public sealed class PetMapController : IDisposable
 
     public bool HasViews => _mapViews.Count > 0;
 
-    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !InMenu && _settings.PetMapShowMap);
+    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !InMenu && (_settings.PetMapShowMap || _cubeMapOverride));
 
-    private void ShowList(bool visible) => _list.ShowOverlay(visible && !_hideOverlays && _settings.PetMapShowList);
+    private void ShowList(bool visible) => _list.ShowOverlay(visible && !_hideOverlays && _settings.ShowPetMap && _settings.PetMapShowList);
 
     /// <summary>Sample rows for the list while it is positioned: a few pets and collectibles of the game, in the settings' size.</summary>
     private static IReadOnlyList<(Color, string, string, string, bool)> SampleRows()
@@ -219,6 +219,81 @@ public sealed class PetMapController : IDisposable
     }
 
     private DateTime _lastCubeBeep = DateTime.MinValue;
+    private int _cubeArrivals = -1;
+    private bool _cubeMapOverride;
+    private DateTime? _cubesGoneAt;
+
+    /// <summary>How long the map stays after the last cube is gone (gathered, or out of range).</summary>
+    private static readonly TimeSpan CubeMapStays = TimeSpan.FromSeconds(10);
+
+    /// <summary>A Hidden Cube came into range and the map was shown for it although it was hidden (<see cref="MeterSettings.ShowMapOnCube"/>): until the switches are applied again.</summary>
+    internal bool CubeMapOverride => _cubeMapOverride;
+
+    /// <summary>The settings were applied (a hotkey, a switch, Save): a map shown for a cube goes back to what the settings say; the next cube brings it again.</summary>
+    internal void ClearCubeOverride()
+    {
+        _cubeMapOverride = false;
+        _cubesGoneAt = null;
+    }
+
+    /// <summary>The map shown for a cube goes away again 10 seconds after the last cube is gone (picked up, or left behind).</summary>
+    private void ExpireCubeOverride()
+    {
+        if (!_cubeMapOverride)
+        {
+            return;
+        }
+
+        if (_directory()?.LiveCubes().Count > 0)
+        {
+            _cubesGoneAt = null;
+        }
+        else if (_cubesGoneAt is null)
+        {
+            _cubesGoneAt = DateTime.UtcNow;
+        }
+        else if (DateTime.UtcNow - _cubesGoneAt >= CubeMapStays)
+        {
+            ClearCubeOverride();
+        }
+    }
+
+    /// <summary>
+    /// A new Hidden Cube in range (the game announces one only within some 40 to 60 m, so its coming alone means "a cube nearby"): the arrival chime at once, before the radar beeps
+    /// that wait for the player's own place, and the map comes back when it is hidden. Both are Stacy's ideas (her fork, 17 October 2026). The first reading only takes the count
+    /// (no chime for cubes seen at the start).
+    /// </summary>
+    private void NoteCubeArrivals(MeterSettings settings)
+    {
+        int arrivals = _directory()?.CubeArrivals ?? -1;
+        if (arrivals < 0)
+        {
+            return;
+        }
+
+        if (_cubeArrivals >= 0 && arrivals > _cubeArrivals)
+        {
+            OnCubeArrived(settings);
+        }
+
+        _cubeArrivals = arrivals;
+    }
+
+    /// <summary>A cube has just come into range: the chime (with the cube sound's switch and volume), and the map where the switches say so and the map shows cubes.</summary>
+    internal void OnCubeArrived(MeterSettings settings)
+    {
+        if (settings.CubeSoundEnabled)
+        {
+            NotifySounds.PlayCubeArrival(settings.CubeSoundVolume);
+            _lastCubeBeep = DateTime.UtcNow; // the next radar beep waits its turn after the chime
+        }
+
+        if (settings.ShowMapOnCube && settings.PetMapGatherItems.Contains("Hidden Cube"))
+        {
+            _cubeMapOverride = true;
+            _cubesGoneAt = null;
+        }
+    }
 
     /// <summary>
     /// The Hidden Cube sound works like a parking sensor: while a cube is in range the sound repeats, the faster the closer the player stands to the nearest one
@@ -265,13 +340,15 @@ public sealed class PetMapController : IDisposable
         }
 
         var settings = _settings;
+        NoteCubeArrivals(settings);
+        ExpireCubeOverride();
         AnnounceCubes(settings);
         bool mapLocked = settings.PetFarmLocked, listLocked = settings.PetListLocked ?? settings.PetFarmLocked;
         bool locked = mapLocked && listLocked;
         _map.ApplyLockedIfChanged(mapLocked);
         _list.ApplyLockedIfChanged(listLocked);
         bool inGame = GameWindow.ForegroundClientArea(ignoreMenu: true) is not null;
-        _hideOverlays = (!inGame && locked) || !settings.ShowPetMap; // with the module's switch off only the tool window's views are fed
+        _hideOverlays = (!inGame && locked) || !(settings.ShowPetMap || _cubeMapOverride); // with the module's switch off only the tool window's views are fed (a cube that came into range shows the map all the same)
         if (_hideOverlays)
         {
             Hide();
@@ -409,11 +486,13 @@ public sealed class PetMapController : IDisposable
         _map.MeHeading = _heading;
         if (_current is not null)
         {
-            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
+            // the militia guards, on the open maps of the other side only (they are friendly at home)
+            var guards = settings.ShowGuards && known && Aion2Guards.IsHostileMap(_current.Table, _faction) ? directory!.LiveGuards() : null;
+            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             foreach (var view in _mapViews)
             {
                 view.MeHeading = _heading;
-                view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
+                view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             }
             ShowMap(true);
         }

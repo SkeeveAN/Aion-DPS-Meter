@@ -6914,8 +6914,8 @@
     "ko": "충전 에너지"
   },
   "Checklist.NeedLogin": {
-    "en": "No character has logged in since the meter started: the counters are read at login. Log in again once (character select) and yours show up here.",
-    "de": "Seit dem Start des Meters hat sich noch kein Charakter eingeloggt: Die Zähler werden beim Login gelesen. Logge dich einmal neu ein (Charakterauswahl), dann stehen deine hier.",
+    "en": "No current data. Please log the character in again once so the data can be captured correctly.",
+    "de": "Keine aktuellen Daten. Bitte den Charakter einmal neu einloggen, damit die Daten korrekt erfasst werden können.",
     "fr": "Aucun personnage ne s'est connecté depuis le démarrage du compteur : les compteurs sont lus à la connexion. Reconnectez-vous une fois (sélection du personnage) pour voir les vôtres ici.",
     "es": "Ningún personaje ha iniciado sesión desde que arrancó el medidor: los contadores se leen al iniciar sesión. Vuelve a iniciar sesión una vez (selección de personaje) y los tuyos aparecerán aquí.",
     "ru": "С момента запуска метра ни один персонаж не входил в игру: счётчики считываются при входе. Войдите ещё раз (выбор персонажа), и ваши данные появятся здесь.",
@@ -10450,5 +10450,53 @@
     "pt": "possível",
     "ja": "出現する場合あり",
     "ko": "나올 수 있음"
+  },
+  "Settings.Gather.CubeArrival": {
+    "en": "Arrival chime: three rising notes as soon as a cube appears (same switch and volume)",
+    "de": "Ankunftston: drei aufsteigende Töne, sobald ein Kubus auftaucht (gleicher Schalter und gleiche Lautstärke)",
+    "fr": "Carillon d'arrivée : trois notes montantes dès qu'un cube apparaît (même interrupteur et même volume)",
+    "es": "Aviso de llegada: tres notas ascendentes en cuanto aparece un cubo (mismo interruptor y volumen)",
+    "pt": "Aviso de chegada: três notas ascendentes assim que um cubo aparece (mesmo interruptor e volume)",
+    "ru": "Сигнал появления: три восходящие ноты, как только появляется куб (тот же переключатель и громкость)"
+  },
+  "Settings.Gather.ShowMapOnCube": {
+    "en": "Show the map when a cube appears (even if it is hidden)",
+    "de": "Karte zeigen, wenn ein Kubus auftaucht (auch wenn sie versteckt ist)",
+    "fr": "Afficher la carte quand un cube apparaît (même si elle est cachée)",
+    "es": "Mostrar el mapa cuando aparezca un cubo (aunque esté oculto)",
+    "pt": "Mostrar o mapa quando um cubo aparecer (mesmo que esteja oculto)",
+    "ru": "Показывать карту, когда появляется куб (даже если она скрыта)"
+  },
+  "Settings.Gather.ShowMapOnCube.Tip": {
+    "en": "Only where Hidden Cubes are marked below. A map that is hidden (hotkey, module switch or map switch) comes back and goes away again 10 seconds after the last cube is gone (picked up or left behind); the switch itself stays as it was.",
+    "de": "Nur wenn unten Versteckte Kuben markiert sind. Eine versteckte Karte (Hotkey, Modul-Schalter oder Karten-Schalter) kommt zurück und verschwindet 10 Sekunden nach dem letzten Kubus wieder (eingesammelt oder zurückgelassen); der Schalter selbst bleibt unverändert.",
+    "fr": "Seulement si les cubes cachés sont cochés ci-dessous. Une carte cachée revient et disparaît 10 secondes après le dernier cube ; le réglage lui-même ne change pas.",
+    "es": "Solo si los cubos ocultos están marcados abajo. Un mapa oculto vuelve y desaparece 10 segundos después del último cubo; el interruptor en sí no cambia.",
+    "pt": "Só se os cubos ocultos estiverem marcados abaixo. Um mapa oculto volta e desaparece 10 segundos depois do último cubo; o interruptor em si não muda.",
+    "ru": "Только если ниже отмечены скрытые кубы. Скрытая карта возвращается и исчезает через 10 секунд после последнего куба; сам переключатель не меняется."
+  },
+  "Settings.Gather.Guards": {
+    "en": "Show enemy guards on the map",
+    "de": "Feindliche Wachmänner auf der Karte zeigen",
+    "fr": "Afficher les gardes ennemis sur la carte",
+    "es": "Mostrar los guardas enemigos en el mapa",
+    "pt": "Mostrar os guardas inimigos no mapa",
+    "ru": "Показывать вражеских охранников на карте"
+  },
+  "Settings.Gather.Guards.Tip": {
+    "en": "The guards (\"Wachmann\" in the German client) of the other side's cities and camps kill you at once. On the maps of the other side they show as a red badge with a skull and a 20 m danger zone, and as a red arrow with the distance on the map edge when out of view. The game announces them only when you are close. On your own side's maps nothing is drawn.",
+    "de": "Die Wachmänner in den Städten und Lagern der Gegenseite töten dich sofort. Auf den Karten der Gegenseite erscheinen sie als rote Marke mit Totenkopf und 20 m Gefahrenzone, außerhalb des Bildes als roter Pfeil mit Entfernung am Kartenrand. Das Spiel meldet sie nur, wenn du nah dran bist. Auf den Karten der eigenen Seite wird nichts gezeichnet.",
+    "fr": "Les gardes des villes et camps du camp adverse vous tuent d'un coup. Sur les cartes adverses : un badge rouge avec une tête de mort et une zone de danger de 20 m, ou une flèche rouge au bord avec la distance.",
+    "es": "Los guardas de las ciudades y campamentos del bando contrario te matan al instante. En los mapas del otro bando: una marca roja con calavera y una zona de peligro de 20 m, o una flecha roja en el borde con la distancia.",
+    "pt": "Os guardas das cidades e acampamentos do lado oposto matam-te de imediato. Nos mapas do outro lado: uma marca vermelha com caveira e uma zona de perigo de 20 m, ou uma seta vermelha na borda com a distância.",
+    "ru": "Охранники городов и лагерей противоположной стороны убивают сразу. На картах другой стороны: красная метка с черепом и зона опасности 20 м, а за пределами обзора красная стрелка с расстоянием."
+  },
+  "Checklist.OnlineNow": {
+    "en": "logged in now",
+    "de": "gerade eingeloggt",
+    "fr": "connecté en ce moment",
+    "es": "conectado ahora",
+    "pt": "ligado agora",
+    "ru": "сейчас в игре"
   }
 }

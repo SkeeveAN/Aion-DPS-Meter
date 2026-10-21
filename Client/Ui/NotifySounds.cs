@@ -15,8 +15,20 @@ public static class NotifySounds
     /// <summary>Plays a sound (volume 0 to 100); an unknown id plays nothing.</summary>
     public static void Play(string id, int volume)
     {
+        if (All.Contains(id))
+        {
+            PlayFile(id, volume);
+        }
+    }
+
+    /// <summary>The Hidden Cube arrival chime (three rising notes, unlike any radar beep): not one of the sounds to choose from, it always goes with the cube sound.
+    /// The idea is Stacy's (her fork, 17 October 2026).</summary>
+    public static void PlayCubeArrival(int volume) => PlayFile("cube-arrival", volume);
+
+    private static void PlayFile(string id, int volume)
+    {
         string path = Path.Combine(AppContext.BaseDirectory, "assets", "sounds", id + ".wav");
-        if (!All.Contains(id) || !File.Exists(path) || volume <= 0)
+        if (!File.Exists(path) || volume <= 0)
         {
             return;
         }

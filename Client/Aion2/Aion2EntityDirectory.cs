@@ -718,6 +718,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            if (kind == "Cube" && !_env.ContainsKey(entityId))
+            {
+                CubeArrivals++;
+            }
+
             _env[entityId] = (kind, key, x, y, DateTime.UtcNow);
             if (_env.Count > 3000)
             {
@@ -748,6 +753,13 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             return _env.Values.Select(c => (c.Kind, c.Key, c.X, c.Y)).ToArray();
         }
     }
+
+    /// <summary>How many Hidden Cubes have come into range so far (a new entity each, a repeated announcement of the same one does not count): the map
+    /// plays its arrival chime when the number grows (Stacy's idea, 17 October 2026).</summary>
+    public int CubeArrivals { get; private set; }
+
+    /// <summary>The militia guards announced around the player right now (see <see cref="Aion2Guards"/>).</summary>
+    public IReadOnlyList<(float X, float Y)> LiveGuards() => LiveMobs().Where(m => Aion2Guards.IsGuard(m.NpcId)).Select(m => (m.X, m.Y)).ToArray();
 
     /// <summary>The Hidden Cubes in range right now.</summary>
     public IReadOnlyList<(float X, float Y)> LiveCubes() => LiveEnv().Where(e => e.Kind == "Cube").Select(e => (e.X, e.Y)).ToArray();

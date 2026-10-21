@@ -48,6 +48,32 @@ public static class SelfCheckTickets
         bool changed = Aion2Tickets.Snapshot().First(c => c.Name == "Aahz").Tickets[7].Count == 27;
         Console.WriteLine($"  -> old announcement takes nothing={notYet}, list bound to the new character with the change that followed it={bound}, later change applied={changed}");
 
+        // an entry with mask bit 2 (one more u64 after the time) in the list of another player's alt: read to the end instead of refusing the whole list
+        bool maskBit2 = Aion2Tickets.TryParseList(Convert.FromHexString("0b61" + "02" + "03" + "03000000" + "8085800100000000" + "80ee360000000000" + "04" + "04000000" + "05"), out List<TicketReading> bit2List)
+            && bit2List.Count == 2 && bit2List[0].Id == 3 && bit2List[0].Value.TimeMs == 25_200_000 && bit2List[1].Id == 4 && bit2List[1].Value.Count == 5
+            && !Aion2Tickets.TryParseList(Convert.FromHexString("0b61" + "01" + "13" + "03000000" + "8085800100000000"), out _); // bit 16 is still unknown
+        // started while a character was already in game: the changes that come (a mission handed in) go to its last saved record, and CurrentName stays empty
+        Aion2Tickets.Reset();
+        Aion2Tickets.NoteLikelyCharacter("Aahz", 1304);
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.MissionsId, new TicketValue(3, 5, 0)), t0.AddSeconds(100));
+        bool startedInGame = Aion2Tickets.CurrentName is null && Aion2Tickets.Snapshot().FirstOrDefault(c => c.Name == "Aahz") is { ServerId: 1304 } started
+            && started.Tickets[Aion2Tickets.MissionsId].Count == 3;
+        Aion2Tickets.ReceiveList(entries, t0.AddSeconds(200)); // a real login follows: the list belongs to the character the game names, not to the guess
+        Aion2Tickets.NoteCharacter("Nunzio", 1304, t0.AddSeconds(204));
+        startedInGame = startedInGame && Aion2Tickets.CurrentName == "Nunzio" && Aion2Tickets.Snapshot().First(c => c.Name == "Nunzio").Tickets[7].Count == 28
+            && Aion2Tickets.Snapshot().First(c => c.Name == "Aahz").Tickets[Aion2Tickets.MissionsId].Count == 3;
+        // a second login of the same character: the purchases of Odyle energy (they come only when the shop is opened) stay, the rest is the new list
+        Aion2Tickets.Reset();
+        Aion2Tickets.ReceiveList(entries, t0);
+        Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(4));
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.ShopOdyleId, new TicketValue(12, 0, 1_900_000_000_000)), t0.AddSeconds(60));
+        Aion2Tickets.ReceiveUpdate(new TicketReading(7, new TicketValue(20, 0, 0)), t0.AddSeconds(61));
+        Aion2Tickets.ReceiveList(entries, t0.AddSeconds(600)); // the relog
+        Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(604));
+        TicketCharacter relogged = Aion2Tickets.Snapshot().First(c => c.Name == "Aahz");
+        bool relogKeeps = relogged.Tickets[Aion2Tickets.ShopOdyleId] is { Count: 12, TimeMs: 1_900_000_000_000 } && relogged.Tickets[7].Count == 28;
+        Console.WriteLine($"  -> an entry with mask bit 2 read={maskBit2}, started in game: changes go to the last saved character={startedInGame}, relog keeps the Odyle purchases and takes the rest from the new list={relogKeeps}");
+
         // refills since the last sight: daily +2 up to 14 (16:00), weekly 35 on Wednesday 16:00
         TicketDef? nightmare = Aion2Tickets.Find(4);
         TicketDef? kills = Aion2Tickets.Find(60000007);
@@ -273,7 +299,7 @@ public static class SelfCheckTickets
             && AionDPS.Upload.RemoteCharacterClient.Parse(nothing.RootElement) is null;
         Console.WriteLine($"  -> the server's answer for another character read (equipment with stones and god stone, attributes, wings, pet, titles; a character without a profile; no player)={remoteRead}");
         Aion2Tickets.Reset();
-        bool ok = remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;

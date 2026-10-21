@@ -415,7 +415,8 @@ public sealed class PetMapWindow : MovableOverlay
     /// </summary>
     public void Render(Aion2MapInfo map, double worldX, double worldY, double radiusMetres, double opacity,
         IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors,
-        IReadOnlyList<(string Kind, float X, float Y)>? gather = null, bool positionKnown = true, bool petArrows = true, bool gatherArrows = true)
+        IReadOnlyList<(string Kind, float X, float Y)>? gather = null, bool positionKnown = true, bool petArrows = true, bool gatherArrows = true,
+        IReadOnlyList<(float X, float Y)>? guards = null)
     {
         // the visible part of the canvas (the frame may be pulled smaller than the view): the player stays in the middle of it
         double vw = Math.Clamp(BodyWidth, 40, ViewSize), vh = Math.Clamp(BodyHeight, 40, ViewSize);
@@ -441,6 +442,7 @@ public sealed class PetMapWindow : MovableOverlay
                 if (used >= _tileImages.Count)
                 {
                     var image = new Image { Stretch = Stretch.Fill, SnapsToDevicePixels = false };
+                    Panel.SetZIndex(image, -2); // under the danger zones of the guards and everything else
                     RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
                     _tileImages.Add(image);
                     _canvas.Children.Insert(used, image);
@@ -676,6 +678,8 @@ public sealed class PetMapWindow : MovableOverlay
             _edgeArrows[i].Visibility = Visibility.Collapsed;
         }
 
+        DrawGuards(guards, worldX, worldY, ppu, cx, cy, vw, vh);
+
         Canvas.SetLeft(_me, cx);
         Canvas.SetTop(_me, cy);
         _me.RenderTransform = new RotateTransform(MeHeading);
@@ -688,6 +692,111 @@ public sealed class PetMapWindow : MovableOverlay
         _canvas.Children.Add(_me);
         _canvas.Children.Remove(_meUnknown);
         _canvas.Children.Add(_meUnknown);
+    }
+
+    private sealed class GuardMark
+    {
+        public Ellipse Zone = null!, Badge = null!;
+        public TextBlock Skull = null!, Label = null!;
+        public Polygon Arrow = null!;
+        public Border LabelBack = null!;
+
+        public void Hide()
+        {
+            Zone.Visibility = Badge.Visibility = Skull.Visibility = Arrow.Visibility = LabelBack.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private readonly List<GuardMark> _guardMarks = new();
+    private static readonly Brush GuardRed = new SolidColorBrush(Color.FromRgb(0xE5, 0x1F, 0x1F));
+    private static readonly Brush GuardZoneFill = new SolidColorBrush(Color.FromArgb(0x48, 0xFF, 0x26, 0x26));
+    private static readonly Brush GuardZoneEdge = new SolidColorBrush(Color.FromArgb(0xC0, 0xFF, 0x3B, 0x3B));
+    private static readonly Brush GuardLabelBack = new SolidColorBrush(Color.FromArgb(0xB8, 0x10, 0x10, 0x14));
+    private static readonly FontFamily SymbolFont = new("Segoe UI Symbol");
+
+    private GuardMark NewGuardMark()
+    {
+        var effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.9 };
+        var mark = new GuardMark
+        {
+            Zone = new Ellipse { Fill = GuardZoneFill, Stroke = GuardZoneEdge, StrokeThickness = 1.2, IsHitTestVisible = false },
+            Badge = new Ellipse { Width = 19, Height = 19, Fill = GuardRed, Stroke = Brushes.White, StrokeThickness = 1.8, IsHitTestVisible = false, Effect = effect },
+            Skull = new TextBlock { Text = "\u2620", FontFamily = SymbolFont, FontWeight = FontWeights.Bold, FontSize = 12, Foreground = Brushes.White, Width = 19, TextAlignment = TextAlignment.Center, IsHitTestVisible = false },
+            Arrow = new Polygon { Points = new PointCollection { new Point(11, 0), new Point(-8, -8), new Point(-4, 0), new Point(-8, 8) }, Fill = GuardRed, Stroke = Brushes.White, StrokeThickness = 1.6, IsHitTestVisible = false, Effect = effect },
+            Label = new TextBlock { FontFamily = SymbolFont, FontWeight = FontWeights.SemiBold, FontSize = 11, Foreground = GuardRed, IsHitTestVisible = false },
+        };
+        mark.LabelBack = new Border { Background = GuardLabelBack, CornerRadius = new CornerRadius(4), Padding = new Thickness(4, 1, 4, 1), Child = mark.Label, IsHitTestVisible = false };
+        Panel.SetZIndex(mark.Zone, -1);
+        foreach (UIElement e in new UIElement[] { mark.Badge, mark.Skull, mark.Arrow, mark.LabelBack })
+        {
+            Panel.SetZIndex(e, 6);
+        }
+
+        foreach (UIElement e in new UIElement[] { mark.Zone, mark.Badge, mark.Skull, mark.Arrow, mark.LabelBack })
+        {
+            _canvas.Children.Add(e);
+        }
+
+        return mark;
+    }
+
+    /// <summary>
+    /// The militia guards the game announced around the player (Stacy's idea, her fork 17 October 2026): in view a see-through red danger zone of 20 m under a red badge with a white skull,
+    /// out of view a red arrow on the edge towards it with the distance beside it.
+    /// </summary>
+    private void DrawGuards(IReadOnlyList<(float X, float Y)>? guards, double worldX, double worldY, double ppu, double cx, double cy, double vw, double vh)
+    {
+        int used = 0;
+        foreach ((float gx, float gy) in guards ?? Array.Empty<(float, float)>())
+        {
+            GuardMark mark = used < _guardMarks.Count ? _guardMarks[used] : NewGuardMark();
+            if (used >= _guardMarks.Count)
+            {
+                _guardMarks.Add(mark);
+            }
+
+            used++;
+            double dx = (gx - worldX) * ppu, dy = (gy - worldY) * ppu;
+            double px = cx + dx, py = cy + dy;
+            if (px >= 8 && py >= 8 && px <= vw - 8 && py <= vh - 8)
+            {
+                double zone = Math.Max(14, Aion2Guards.ZoneMetres * 100 * ppu);
+                mark.Zone.Width = mark.Zone.Height = zone * 2;
+                Canvas.SetLeft(mark.Zone, px - zone);
+                Canvas.SetTop(mark.Zone, py - zone);
+                Canvas.SetLeft(mark.Badge, px - 9.5);
+                Canvas.SetTop(mark.Badge, py - 9.5);
+                Canvas.SetLeft(mark.Skull, px - 9.5);
+                Canvas.SetTop(mark.Skull, py - 9);
+                mark.Zone.Visibility = mark.Badge.Visibility = mark.Skull.Visibility = Visibility.Visible;
+                mark.Arrow.Visibility = mark.LabelBack.Visibility = Visibility.Collapsed;
+                continue;
+            }
+
+            // out of view: the arrow on the edge, the distance beside it (towards the middle)
+            double reachX = cx - 13, reachY = cy - 13;
+            double t = Math.Min(reachX / Math.Max(Math.Abs(dx), 1e-6), reachY / Math.Max(Math.Abs(dy), 1e-6));
+            double angle = Math.Atan2(dy, dx);
+            double tipX = cx + dx * t, tipY = cy + dy * t;
+            mark.Arrow.RenderTransform = new RotateTransform(angle * 180 / Math.PI);
+            Canvas.SetLeft(mark.Arrow, tipX);
+            Canvas.SetTop(mark.Arrow, tipY);
+            double metres = Math.Sqrt((gx - worldX) * (double)(gx - worldX) + (gy - worldY) * (double)(gy - worldY)) / 100.0;
+            mark.Label.Text = string.Format(System.Globalization.CultureInfo.CurrentCulture, "\u2620 {0:0} m", metres);
+            mark.LabelBack.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            Size size = mark.LabelBack.DesiredSize;
+            double lx = Math.Clamp(tipX - 28 * Math.Cos(angle) - size.Width / 2, 3, Math.Max(3, vw - size.Width - 3));
+            double ly = Math.Clamp(tipY - 28 * Math.Sin(angle) - size.Height / 2, 3, Math.Max(3, vh - size.Height - 3));
+            Canvas.SetLeft(mark.LabelBack, lx);
+            Canvas.SetTop(mark.LabelBack, ly);
+            mark.Zone.Visibility = mark.Badge.Visibility = mark.Skull.Visibility = Visibility.Collapsed;
+            mark.Arrow.Visibility = mark.LabelBack.Visibility = Visibility.Visible;
+        }
+
+        for (int i = used; i < _guardMarks.Count; i++)
+        {
+            _guardMarks[i].Hide();
+        }
     }
 }
 

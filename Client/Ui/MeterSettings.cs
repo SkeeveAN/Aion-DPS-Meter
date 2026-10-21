@@ -440,6 +440,10 @@ public sealed class MeterSettings
     public bool ShowGatherArrows { get; set; } = true;
     /// <summary>A sound when a Hidden Cube appears in range (the game announces it only when the player is near): switch, sound id (see <see cref="NotifySounds.All"/>), volume 0 to 100. Off until switched on.</summary>
     public bool CubeSoundEnabled { get; set; }
+    /// <summary>A Hidden Cube coming into range brings the pet map back when it is hidden (the hotkey, the module's switch or the map's own switch), until 10 seconds after the last cube is gone, without saving the switch (Stacy's idea, 17 October 2026). Only where the map shows cubes. Off by default.</summary>
+    public bool ShowMapOnCube { get; set; }
+    /// <summary>The militia guards ("Wachmann") of the other side's maps as red badges with a skull and a danger zone on the map, and an arrow on its edge for one out of view (Stacy's idea, 17 October 2026). On by default; only the maps of the other side show any.</summary>
+    public bool ShowGuards { get; set; } = true;
     public string CubeSound { get; set; } = "ping";
     public int CubeSoundVolume { get; set; } = 70;
     /// <summary>Pet arrows / gather arrows on / off.</summary>

@@ -1044,6 +1044,7 @@
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetMap.CardMap}"/>
                                 <CheckBox x:Name="PetMapShowMapBox" Content="{local:Loc Settings.Overlay.ShowAs}"/>
                                 <CheckBox x:Name="PetFarmLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
+                                <CheckBox x:Name="ShowGuardsBox" Content="{local:Loc Settings.Gather.Guards}" ToolTip="{local:Loc Settings.Gather.Guards.Tip}" Margin="0,4,0,0"/>
                                 <local:OpacityField x:Name="PetMapOpacity" Margin="0,8,0,0"/>
                                 <Grid Margin="0,4,0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="*"/><ColumnDefinition Width="56"/></Grid.ColumnDefinitions>
@@ -1174,8 +1175,18 @@
                                     <Slider x:Name="CubeVolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" VerticalAlignment="Center" Margin="0,0,8,0" Style="{DynamicResource ThemedSlider}"/>
                                     <Button x:Name="CubeSoundTest" Grid.Column="2" Content="▶" Width="28" Height="26" Padding="0"/>
                                 </Grid>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Gather.CubeArrival}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button x:Name="CubeArrivalTest" Grid.Column="1" Content="▶" Width="28" Height="26" Padding="0"/>
+                                </Grid>
+                                <CheckBox x:Name="ShowMapOnCubeBox" Margin="0,12,0,0" Content="{local:Loc Settings.Gather.ShowMapOnCube}" ToolTip="{local:Loc Settings.Gather.ShowMapOnCube.Tip}"/>
                             </StackPanel>
                         </Border>
+
 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Gather.Hint}" Margin="2,0,0,10"/>
 <TextBlock x:Name="GatherFactionNote" Style="{StaticResource CardHint}" Margin="2,0,0,10" Visibility="Collapsed"/>
 <StackPanel x:Name="GatherCards"/>

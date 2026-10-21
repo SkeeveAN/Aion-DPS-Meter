@@ -564,6 +564,7 @@ public partial class SettingsWindow : Window
             s.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
             s.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
             s.CubeSoundVolume = (int)CubeVolumeSlider.Value;
+            s.ShowMapOnCube = ShowMapOnCubeBox.IsChecked ?? false;
             s.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         }
     }
@@ -718,6 +719,8 @@ public partial class SettingsWindow : Window
         _settings.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
         _settings.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
         _settings.CubeSoundVolume = (int)CubeVolumeSlider.Value;
+        _settings.ShowMapOnCube = ShowMapOnCubeBox.IsChecked ?? false;
+        _settings.ShowGuards = ShowGuardsBox.IsChecked ?? true;
         _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
         _settings.HotkeyOverlayHidden = HotkeyOverlayRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -1153,6 +1156,7 @@ public partial class SettingsWindow : Window
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
         ShowPetArrowsBox.IsChecked = settings.ShowPetArrows;
         ShowGatherArrowsBox.IsChecked = settings.ShowGatherArrows;
+        ShowGuardsBox.IsChecked = settings.ShowGuards;
         LoadCubeSound(settings);
         PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
         PetMapOpacity.Fraction = settings.PetMapOpacity;
@@ -1537,7 +1541,12 @@ public partial class SettingsWindow : Window
         CubeVolumeSlider.Value = Math.Clamp(settings.CubeSoundVolume, 0, 100);
         CubeSoundTest.Click -= TestCubeSound;
         CubeSoundTest.Click += TestCubeSound;
+        CubeArrivalTest.Click -= TestCubeArrival;
+        CubeArrivalTest.Click += TestCubeArrival;
+        ShowMapOnCubeBox.IsChecked = settings.ShowMapOnCube;
     }
+
+    private void TestCubeArrival(object sender, RoutedEventArgs e) => NotifySounds.PlayCubeArrival((int)CubeVolumeSlider.Value);
 
     private void TestCubeSound(object sender, RoutedEventArgs e) =>
         NotifySounds.Play((CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping", (int)CubeVolumeSlider.Value);
