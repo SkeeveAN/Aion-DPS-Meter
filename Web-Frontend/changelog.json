@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "Server status: an address that resets the connection before the connect event is reported as reachable, not as down",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.12.0",
   "date": "2026-10-21",
   "items": [
