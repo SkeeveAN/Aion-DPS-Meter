@@ -88,7 +88,8 @@ public static class ThemedChrome
 
         Button Caption(string glyph, Action action)
         {
-            var button = new Button { Content = glyph, Width = 28, Height = 30, BorderThickness = new Thickness(0), Background = Brushes.Transparent, Margin = new Thickness(0) };
+            // Padding 0: the button style of the main window pads every button by 8 px, which squeezes the glyph out of a 28 px wide caption button
+            var button = new Button { Content = glyph, Width = 28, Height = 30, BorderThickness = new Thickness(0), Background = Brushes.Transparent, Margin = new Thickness(0), Padding = new Thickness(0) };
             button.SetResourceReference(Control.ForegroundProperty, "Brush.TextMuted");
             button.Click += (_, _) => action();
             return button;
