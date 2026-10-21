@@ -30,6 +30,8 @@ export type Announcement = {
   category: Category;
   /** "done" when the title says completed / resolved. */
   status: "done" | null;
+  /** Account restrictions only: the number of restricted accounts from the "[Restriction Details]" block of the full text. undefined = not read yet, null = read, no number in it. */
+  restricted?: number | null;
 };
 
 /** Lower case without accents, so one keyword covers "Compensación" and "compensacion". */
@@ -118,6 +120,19 @@ export function parseList(lang: NcLang, json: unknown): Announcement[] {
   return out;
 }
 
+/** The "■ Accounts restricted: [15,380]" line of an account notice (any language: the number is the only thing in square brackets, with "," "." or spaces as thousands marks). */
+export function restrictedCount(html: string): number | null {
+  const text = html.replace(/<[^>]+>/g, "\n").replace(/&nbsp;/g, " ");
+  for (const line of text.split("\n")) {
+    const m = /■[^\[\]]*\[\s*(\d[\d.,   ]*)\s*\]/.exec(line);
+    const n = m ? Number(m[1].replace(/\D/g, "")) : NaN;
+    if (Number.isSafeInteger(n) && n > 0) {
+      return n;
+    }
+  }
+  return null;
+}
+
 /** NC leaves the English zone abbreviations in the German texts ("7 Oktober (CEST)"); in German they are MESZ / MEZ (PDT and PST are written the same everywhere). */
 export function localizeZones(text: string, lang: NcLang): string {
   return lang === "de" ? text.replace(/\bCEST\b/g, "MESZ").replace(/\bCET\b/g, "MEZ") : text;
@@ -196,6 +211,10 @@ function save(): void {
 /** Merges fresh items into the history (a changed title or summary replaces the old one) and trims every language to its newest KEEP_PER_LANG. */
 export function mergeItems(fresh: Announcement[]): void {
   for (const x of fresh) {
+    const old = store.get(keyOf(x));
+    if (old?.restricted !== undefined && x.restricted === undefined && old.title === x.title) {
+      x.restricted = old.restricted;
+    }
     store.set(keyOf(x), x);
   }
   const all = [...store.values()];
@@ -226,7 +245,7 @@ export function ncLangFor(siteLang: string | undefined): NcLang {
   return (NC_LANGS as readonly string[]).includes(base) ? (base as NcLang) : "en";
 }
 
-export type AnnouncementView = { id: string; title: string; summary: string; postedAt: string; category: Category; status: "done" | null; url: string };
+export type AnnouncementView = { id: string; title: string; summary: string; postedAt: string; category: Category; status: "done" | null; url: string; restricted?: number };
 
 /** The list for one site language (English where NC has no board in it), newest first. */
 export function announcementList(siteLang: string | undefined): { lang: NcLang; checkedAt: string | null; items: AnnouncementView[] } {
@@ -241,6 +260,7 @@ export function announcementList(siteLang: string | undefined): { lang: NcLang; 
       postedAt: new Date(x.posted * 1000).toISOString(),
       category: x.category,
       status: x.status,
+      ...(x.category === "account" && typeof x.restricted === "number" ? { restricted: x.restricted } : {}),
       url: `https://aion2.plaync.com/${WEB_LOCALE[lang]}/board/notice/view?articleId=${x.id}`,
     }));
   return { lang, checkedAt: checkedAt === null ? null : new Date(checkedAt).toISOString(), items };
@@ -311,9 +331,29 @@ export async function refreshAnnouncements(fetchFn: FetchFn = fetch, now = Date.
         backfilled.add(lang);
       }
     }
+    await readRestricted(fetchFn, pauseMs);
     save();
   }
   return fresh.length;
+}
+
+/** Reads the restricted-account number from the full text of every account notice that has none yet (a failed request is tried again next time). */
+async function readRestricted(fetchFn: FetchFn, pauseMs: number): Promise<void> {
+  for (const x of store.values()) {
+    if (x.category !== "account" || x.restricted !== undefined) {
+      continue;
+    }
+    try {
+      const { body } = await getNc(fetchFn, new URL(`${BASE}/notice_${x.lang}/article/${x.id}`), MAX_BYTES);
+      const html = (JSON.parse(body.toString("utf8")) as { article?: { content?: { content?: unknown } } })?.article?.content?.content;
+      x.restricted = typeof html === "string" ? restrictedCount(html) : null;
+    } catch {
+      // later
+    }
+    if (pauseMs > 0) {
+      await new Promise((r) => setTimeout(r, pauseMs));
+    }
+  }
 }
 
 /** Off under tests and with NC_MATCH_OFF=1 (like the other NC jobs). */

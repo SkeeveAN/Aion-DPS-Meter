@@ -108,3 +108,12 @@ test("German texts get MESZ / MEZ for NC's English zone abbreviations, other lan
   assert.equal(localizeZones("Oct 7 (CEST)", "en"), "Oct 7 (CEST)");
   assert.equal(localizeZones("CESTA", "de"), "CESTA");
 });
+
+test("restrictedCount: the number in the restriction details of every language", async () => {
+  const { restrictedCount } = await import("./announcements.js");
+  assert.equal(restrictedCount("<p>■ Date and time: October 20, 18:00 PDT&nbsp;</p><p>■ Accounts restricted: [15,380]&nbsp;</p>"), 15380);
+  assert.equal(restrictedCount("■ Eingeschränkte Konten: [4.996]"), 4996);
+  assert.equal(restrictedCount("■ Comptes restreints : [10 326]"), 10326);
+  assert.equal(restrictedCount("■ Cuentas restringidas: [4996]"), 4996);
+  assert.equal(restrictedCount("Hey, Daevas, we restricted a number of accounts."), null);
+});

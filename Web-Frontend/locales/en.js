@@ -717,6 +717,7 @@ export default {
   "ann.fallback": "NCSoft publishes announcements in English, German, French, Spanish, Portuguese and Japanese only. This page shows the English ones.",
   "ann.empty": "No announcements yet.",
   "ann.read": "Read the full announcement",
+  "ann.restricted": "accounts restricted",
   "ann.done": "Completed",
   "ann.cat.maintenance": "Maintenance",
   "ann.cat.outage": "Outage",

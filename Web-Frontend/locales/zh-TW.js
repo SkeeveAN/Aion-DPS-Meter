@@ -609,6 +609,7 @@ export default {
   "ann.fallback": "NCSoft 僅以英語、德語、法語、西班牙語、葡萄牙語和日語發布公告。本頁顯示英文公告。",
   "ann.empty": "尚無公告。",
   "ann.read": "閱讀完整公告",
+  "ann.restricted": "個帳號遭限制",
   "ann.done": "已完成",
   "ann.cat.maintenance": "維護",
   "ann.cat.outage": "故障",

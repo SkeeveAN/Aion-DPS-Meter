@@ -609,6 +609,7 @@ export default {
   "ann.fallback": "NCSoft のお知らせは英語・ドイツ語・フランス語・スペイン語・ポルトガル語・日本語のみです。このページでは英語版を表示しています。",
   "ann.empty": "お知らせはまだありません。",
   "ann.read": "お知らせ全文を読む",
+  "ann.restricted": "件のアカウントを制限",
   "ann.done": "完了",
   "ann.cat.maintenance": "メンテナンス",
   "ann.cat.outage": "障害",

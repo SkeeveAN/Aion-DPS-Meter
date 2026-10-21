@@ -2977,6 +2977,9 @@ body:has(.download-hero) .nav-download-link:hover,
 .ann-title a { color: var(--color-text); text-decoration: none; }
 .ann-title a:hover { text-decoration: underline; }
 .ann-summary { margin: 6px 0 0; color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.45; }
+.ann-restricted { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 0; }
+.ann-restricted strong { font-size: 2rem; line-height: 1; font-weight: 800; color: var(--lab); font-variant-numeric: tabular-nums; }
+.ann-restricted span { color: var(--color-text-muted); font-size: 0.9rem; }
 .ann-more { display: inline-block; margin-top: 8px; font-size: 0.85rem; }
 .ann-label { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--lab); background: color-mix(in srgb, var(--lab) 20%, transparent); }
 .ann-label.done { --lab: var(--color-success); }

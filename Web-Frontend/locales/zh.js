@@ -588,6 +588,7 @@ export default {
   "ann.fallback": "NCSoft 仅以英语、德语、法语、西班牙语、葡萄牙语和日语发布公告。本页显示英文公告。",
   "ann.empty": "暂无公告。",
   "ann.read": "阅读完整公告",
+  "ann.restricted": "个账号被限制",
   "ann.done": "已完成",
   "ann.cat.maintenance": "维护",
   "ann.cat.outage": "故障",

@@ -609,6 +609,7 @@ export default {
   "ann.fallback": "A NCSoft publica anúncios apenas em inglês, alemão, francês, espanhol, português e japonês. Esta página mostra os em inglês.",
   "ann.empty": "Ainda não há anúncios.",
   "ann.read": "Ler o anúncio completo",
+  "ann.restricted": "contas restritas",
   "ann.done": "Concluído",
   "ann.cat.maintenance": "Manutenção",
   "ann.cat.outage": "Instabilidade",

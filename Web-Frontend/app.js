@@ -1430,7 +1430,13 @@ async function renderAnnouncements() {
       el("time", { className: "ann-date", dateTime: x.postedAt, textContent: new Date(x.postedAt).toLocaleTimeString(intl, { hour: "2-digit", minute: "2-digit" }) }),
     ]),
     el("h3", { className: "ann-title" }, [el("a", { href: x.url, target: "_blank", rel: "noopener", textContent: x.title })]),
-    ...(x.summary ? [el("p", { className: "ann-summary", textContent: x.summary })] : []),
+    // account notices carry the number of restricted accounts instead of NC's generic opening lines
+    ...(typeof x.restricted === "number"
+      ? [el("p", { className: "ann-restricted" }, [
+        el("strong", { textContent: x.restricted.toLocaleString(intl) }),
+        el("span", { textContent: t("ann.restricted") }),
+      ])]
+      : x.summary ? [el("p", { className: "ann-summary", textContent: x.summary })] : []),
     el("a", { className: "ann-more", href: x.url, target: "_blank", rel: "noopener", textContent: t("ann.read") }),
   ]);
   // One heading per calendar day (the list is newest first), the day's notices in a grid below it.

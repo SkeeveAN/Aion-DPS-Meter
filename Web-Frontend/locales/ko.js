@@ -609,6 +609,7 @@ export default {
   "ann.fallback": "NCSoft는 공지를 영어, 독일어, 프랑스어, 스페인어, 포르투갈어, 일본어로만 게시합니다. 이 페이지에는 영어 공지가 표시됩니다.",
   "ann.empty": "아직 공지사항이 없습니다.",
   "ann.read": "공지 전문 보기",
+  "ann.restricted": "개 계정 제한",
   "ann.done": "완료",
   "ann.cat.maintenance": "점검",
   "ann.cat.outage": "장애",
