@@ -29,7 +29,7 @@
 - Skill-Aufschlüsselung mit Krit-Raten und DPS-Kurve
 - Boss-Ranglisten und öffentliche Charakterprofile auf aiondps.com (Upload optional, standardmäßig aus)
 - Interaktive Karte, Event-Zeitplan, Weltboss-Timer und ein Netzwerk-Overlay
-- Boss-Casts per Sprachausgabe angesagt, ein Beute-Log, ein Attribute-Tool und eine tägliche Checkliste
+- Boss-Casts per Sprachausgabe angesagt, ein Beute-Log, ein Attribute-Tool, ein Crafting-Rechner und eine tägliche Checkliste
 - Sicher: passiver Paketmitschnitt, kein Speicherlesen, keine Code-Injektion
 - Kostenlos, Open Source (MIT) und aktualisiert sich selbst
 
@@ -196,6 +196,10 @@ Entsperre das Overlay unter **Einstellungen → Boss-Kampf**, um es einzurichten
 
 Das **Tools**-Fenster listet diese links auf. Das **Beute**-Tool zeigt, was du vom Boden aufhebst, nach Session und Karte, als Seite und als Overlay (**Ctrl+Alt+L**). Das **Attribute**-Tool zeigt den Attributring mit deinen Punkten, was jedes Attribut und jeder Lord-Wert bewirkt (0,1 % pro Punkt), alle Boni zusammengerechnet und einen Stat-Tab, der jeden Stat mit seinem Anteil aus dem Ring erklärt. Die **Checkliste** führt deine täglichen und wöchentlichen Aufgaben, liest die Pflicht-Tagesquests und den wöchentlichen Odyle-Energie-Kauf aus dem Spiel und überlässt den Rest dem Abhaken von Hand. Jedes Tool merkt sich seine eigene Breite und Höhe.
 
+### Crafting-Rechner
+
+Markiere die Rezepte, die du herstellen willst, und wie oft (für den ganzen Account, damit auch deine Zweitcharaktere sie sehen, oder für einen Charakter), und der **Crafting-Rechner** listet Rezept für Rezept auf, welche Materialien dir noch fehlen. Zwischenprodukte werden in das aufgelöst, was du wirklich sammeln musst: drei Schmiedehämmer brauchen 18 Barren, das sind 36 Erz, und Barren, die du schon hast, zählen zuerst. Der Bestand wird aus dem Spiel gelesen, aus Inventar, Lager und Serverlager, und ein Material, das in einem Lager liegt, sagt das dazu. Lass die Seite auf einem zweiten Bildschirm offen oder zeige dieselbe Liste als Overlay im Spiel (**Ctrl+Alt+R**). Die Rezepte stammen aus den Tabellen des Spiels; die Reihenfolge deiner Liste bestimmt, welches Rezept den Bestand zuerst bekommt. Log dich einmal ein, damit der Bestand gelesen wird; was du zwischen Inventar und Lager verschiebst, erscheint nach dem nächsten Sortieren.
+
 ### Ankündigungen und Twitch Drops
 
 Ein Megafon-Knopf öffnet die offiziellen NCSoft-Ankündigungen auf aiondps.com — Wartungen, Ausfälle, neue
@@ -262,6 +266,7 @@ die nicht funktionieren können, weil der Chat von Aion 2 im Netzwerkverkehr nic
 | **Ctrl+Alt+N** | Netzwerk-Overlay |
 | **Ctrl+Alt+C** | Kampf-Overlay |
 | **Ctrl+Alt+L** | Beute-Overlay |
+| **Ctrl+Alt+R** | Crafting-Overlay |
 | **Ctrl+Alt+J** | Overlays bei diesem Menü zeigen |
 | **Ctrl+Alt+O** | Hotkey-Overlay (eine verschiebbare Liste der Tastenkürzel) |
 | **Ctrl+Alt+A** | Alle Overlays an / aus |

@@ -743,11 +743,15 @@ const FEATURE_BLOCKS = [
   // the second picture of these two is the head of the client window with the two buttons that lead here (no frame, fading out at the bottom)
   { id: "announcements", images: [["announcements", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
   { id: "twitchdrops", images: [["twitchdrops", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
+  // the last scene keeps the alternation of the sides (the one before it is flipped); the window and the overlay are rendered by the client (render-craft)
+  { id: "craft", images: [["craft", 1960, 1280, { h: 400 }], ["craft-overlay", 544, 284, { h: 170 }]] },
 ];
 // pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
 const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
 const FEATURE_FLIPPED = new Set(["modes", "bossfight", "details", "checklist", "petlevel", "worldboss", "hotkeys", "twitchdrops"]);
-const FEATURE_VERSION = "20261015k";
+const FEATURE_VERSION = "20261021a";
+// scenes whose generated backdrop is not made yet: no request for a picture that is not there
+const FEATURE_NO_BACKDROP = new Set(["craft"]);
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
@@ -767,8 +771,9 @@ const FEATURE_CARDS = [
   ["hotkeys", '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'],
   ["announcements", '<path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/>'],
   ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
+  ["craft", '<path d="m14 4 6 6-3 3-6-6zM11.500 7.500 4 15l-1 5 5-1 7.500-7.500"/>'],
 ];
-const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff", bossfight: "#ff5a4f", assist: "#6fb8ff", checklist: "#ffc55a", petlevel: "#7bd88f" };
+const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff", bossfight: "#ff5a4f", assist: "#6fb8ff", checklist: "#ffc55a", petlevel: "#7bd88f", craft: "#ff9a55" };
 // Icons of the nine "And more" cards (shield, upload, clock, refresh, globe, code, target, broadcast, lock).
 const FEATURE_MORE_ICONS = [
   '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
@@ -856,7 +861,7 @@ function renderFeatures() {
   window.addEventListener("scroll", spyLater, { passive: true });
   window.addEventListener("resize", spyLater);
   // Backdrops load when a scene is within a few screens of the viewport; without IntersectionObserver all load at once, as before.
-  const loadBackdrop = (scene) => scene.style.setProperty("--bg", `url(/images/features/scene-${scene.id.slice("feature-".length)}.webp?v=${FEATURE_VERSION})`);
+  const loadBackdrop = (scene) => !FEATURE_NO_BACKDROP.has(scene.id.slice("feature-".length)) && scene.style.setProperty("--bg", `url(/images/features/scene-${scene.id.slice("feature-".length)}.webp?v=${FEATURE_VERSION})`);
   let backdrops = null;
   if ("IntersectionObserver" in window) {
     backdrops = new IntersectionObserver((entries) => {

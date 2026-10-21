@@ -28,7 +28,7 @@
 - Desglose de habilidades con tasas de crítico y curva de DPS
 - Clasificaciones de jefes y perfiles públicos de personajes en aiondps.com (subida opcional, desactivada por defecto)
 - Mapa interactivo, calendario de eventos, temporizadores de jefes de mundo y superposición de red
-- Lanzamientos de jefes anunciados por voz, un registro de botín, una herramienta de atributos y una lista de tareas diarias
+- Lanzamientos de jefes anunciados por voz, un registro de botín, una herramienta de atributos, una calculadora de crafteo y una lista de tareas diarias
 - Seguro: captura pasiva de paquetes, sin leer la memoria ni inyectar código
 - Gratuito, de código abierto (MIT) y se actualiza solo
 
@@ -197,6 +197,10 @@ Desbloquea el overlay en **Ajustes → Combate contra jefes** para organizarlo: 
 
 La ventana **Herramientas** los enumera a la izquierda. La herramienta **Botín** muestra lo que recoges del suelo, por sesión y mapa, como página y como overlay (**Ctrl+Alt+L**). La herramienta **Atributos** muestra el anillo de atributos con tus puntos, lo que hace cada atributo y valor de Señor (0,1 % por punto), todas las bonificaciones sumadas, y una pestaña de estadísticas que explica cada estadística con su parte procedente del anillo. La **lista de tareas** guarda tus tareas diarias y semanales, lee del juego las misiones diarias obligatorias y la compra semanal de energía de Odyle, y deja el resto para marcar a mano. Cada herramienta recuerda su propio ancho y alto.
 
+### Calculadora de crafteo
+
+Marca las recetas que quieres fabricar y cuántas veces (para toda la cuenta, así tus personajes secundarios también las ven, o para un solo personaje), y la **calculadora de crafteo** enumera, receta por receta, qué materiales aún te faltan. Los productos intermedios se descomponen en lo que realmente tienes que recoger: tres martillos de herrería necesitan 18 lingotes, es decir, 36 de mineral, y los lingotes que ya tienes cuentan primero. El inventario se lee del juego, del inventario, del almacén del personaje y del almacén de la cuenta, y un material que está en un almacén lo indica. Deja la página abierta en una segunda pantalla o muestra la misma lista como overlay en el juego (**Ctrl+Alt+R**). Las recetas proceden de las tablas del propio juego; el orden de tu lista decide qué receta recibe primero las existencias. Inicia sesión una vez para que se lean las existencias; lo que muevas entre el inventario y un almacén aparece tras la siguiente ordenación.
+
 ### Anuncios y Twitch Drops
 
 Un botón con un megáfono abre los anuncios oficiales de NCSoft en aiondps.com — mantenimientos, caídas, nuevos
@@ -263,6 +267,7 @@ chat, que no pueden funcionar porque el chat de Aion 2 no se puede leer en el tr
 | **Ctrl+Alt+N** | Overlay de red |
 | **Ctrl+Alt+C** | Overlay de combate |
 | **Ctrl+Alt+L** | Overlay de botín |
+| **Ctrl+Alt+R** | Overlay de crafteo |
 | **Ctrl+Alt+J** | Mostrar overlays durante este menú |
 | **Ctrl+Alt+O** | Superposición de atajos (una lista movible de los atajos) |
 | **Ctrl+Alt+A** | Todos los overlays sí / no |

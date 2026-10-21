@@ -2433,8 +2433,7 @@ internal static class Program
         var craftPage = new Ui.CraftPage(() => null);
         var module = new Ui.ModulePage("", craftPage, s => true, (s, v) => { }, s => "Ctrl+Alt+R", () => { }, () => { }, s => { }, null, craftPage.ModeBar);
         // the page inside the tools window, with its title bar and its list of tools
-        var loc0 = Ui.LocalizationManager.Instance;
-        var groups = new[] { new[] { new Ui.ToolEntry("checklist", loc0["Main.MenuTools.Checklist"]), new Ui.ToolEntry("attributes", loc0["Main.MenuTools.Attributes"]), new Ui.ToolEntry("statcalc", loc0["Main.MenuTools.StatCalc"]), new Ui.ToolEntry("loot", loc0["Main.MenuTools.Loot"]), new Ui.ToolEntry("craft", loc0["Main.MenuTools.Craft"]), new Ui.ToolEntry("petmap", loc0["Settings.Nav.PetMap"]) } };
+        var groups = Ui.ToolsWindow.Groups();
         var toolsWindow = new Ui.ToolsWindow(groups, id => id == "craft" ? new Ui.ToolPage { Content = module } : null, _ => { });
         toolsWindow.Select("craft");
         var page = (System.Windows.UIElement)toolsWindow.Content;
@@ -2450,6 +2449,35 @@ internal static class Program
         window.Content = null;
 
         System.Windows.Media.Brush back = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black;
+        // one part only (AIONDPS_PART = window | config | overlay), for the pictures of the website: AIONDPS_RENDER_SCALE=2 makes them sharp, the overlay is drawn on a see-through ground
+        string part = Environment.GetEnvironmentVariable("AIONDPS_PART") ?? "all";
+        if (part is "window" or "config" or "overlay")
+        {
+            int pictureScale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int ps) && ps is >= 1 and <= 4 ? ps : 1;
+            System.Windows.FrameworkElement single = part switch
+            {
+                "window" => new System.Windows.Controls.Border { Width = 980, Height = 640, Background = back, Child = page },
+                "config" => new System.Windows.Controls.Border { Width = 720, Height = 1030, Background = back, Child = config },
+                _ => new System.Windows.Controls.Border { Child = overlayContent, HorizontalAlignment = System.Windows.HorizontalAlignment.Left },
+            };
+            single.Measure(new System.Windows.Size(1200, 2400));
+            int sw = (int)Math.Ceiling(single.DesiredSize.Width), sh = (int)Math.Ceiling(single.DesiredSize.Height);
+            single.Measure(new System.Windows.Size(sw, sh));
+            single.Arrange(new System.Windows.Rect(0, 0, sw, sh));
+            single.UpdateLayout();
+            var shot = new System.Windows.Media.Imaging.RenderTargetBitmap(sw * pictureScale, sh * pictureScale, 96 * pictureScale, 96 * pictureScale, System.Windows.Media.PixelFormats.Pbgra32);
+            shot.Render(single);
+            var shotEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            shotEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(shot));
+            using (var shotFile = File.Create(path))
+            {
+                shotEncoder.Save(shotFile);
+            }
+
+            Console.WriteLine($"render-craft: wrote {path} ({part}, {sw}x{sh} at x{pictureScale})");
+            Environment.Exit(0);
+        }
+
         var left = new System.Windows.Controls.StackPanel { Width = 980 };
         left.Children.Add(new System.Windows.Controls.Border { Width = 980, Height = 860, Background = back, Child = page });
         var strip = new System.Windows.Controls.Border { Padding = new System.Windows.Thickness(20), Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3a, 0x4a, 0x52), System.Windows.Media.Color.FromRgb(0x1c, 0x26, 0x2e), 60) };

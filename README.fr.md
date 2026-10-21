@@ -29,7 +29,7 @@
 - Détail des compétences avec taux de critique et courbe de DPS
 - Classements de boss et profils publics de personnages sur aiondps.com (envoi facultatif, désactivé par défaut)
 - Carte interactive, calendrier d'événements, minuteurs de boss mondiaux et surcouche réseau
-- Incantations de boss annoncées par la voix, journal de butin, outil d'attributs et checklist quotidienne
+- Incantations de boss annoncées par la voix, journal de butin, outil d'attributs, calculateur de craft et checklist quotidienne
 - Sûr : capture passive des paquets, aucune lecture de la mémoire, aucune injection
 - Gratuit, open source (MIT) et se met à jour tout seul
 
@@ -199,6 +199,10 @@ Déverrouille l'overlay dans **Paramètres → Combat de boss** pour l'organiser
 
 La fenêtre **Outils** les liste à gauche. L'outil **Butin** montre ce que tu ramasses au sol, par session et par carte, sous forme de page et d'overlay (**Ctrl+Alt+L**). L'outil **Attributs** montre l'anneau des attributs avec tes points, ce que fait chaque attribut et chaque valeur de Seigneur (0,1 % par point), tous les bonus additionnés, et un onglet de statistiques qui explique chaque statistique avec sa part venant de l'anneau. La **checklist** garde tes tâches quotidiennes et hebdomadaires, lit dans le jeu les quêtes quotidiennes obligatoires et l'achat hebdomadaire d'énergie d'Odyle, et laisse le reste à cocher à la main. Chaque outil mémorise sa propre largeur et sa propre hauteur.
 
+### Calculateur de craft
+
+Marque les recettes que tu veux fabriquer et combien de fois (pour tout le compte, afin que tes seconds personnages les voient aussi, ou pour un seul personnage), et le **calculateur de craft** liste, recette par recette, les matériaux qui te manquent encore. Les produits intermédiaires sont décomposés en ce que tu dois vraiment récolter : trois marteaux de forgeron demandent 18 lingots, soit 36 minerais, et les lingots que tu possèdes déjà comptent en premier. Le stock est lu dans le jeu, depuis l'inventaire, l'entrepôt du personnage et l'entrepôt du compte, et un matériau qui se trouve dans un entrepôt l'indique. Laisse la page ouverte sur un deuxième écran ou affiche la même liste en overlay dans le jeu (**Ctrl+Alt+R**). Les recettes viennent des tables du jeu ; l'ordre de ta liste décide quelle recette reçoit le stock en premier. Connecte-toi une fois pour que le stock soit lu ; ce que tu déplaces entre l'inventaire et un entrepôt apparaît après le prochain tri.
+
 ### Annonces et Twitch Drops
 
 Un bouton en forme de mégaphone ouvre les annonces officielles de NCSoft sur aiondps.com — maintenance, pannes,
@@ -265,6 +269,7 @@ commandes de chat, qui ne peuvent pas fonctionner car le chat d'Aion 2 n'est pas
 | **Ctrl+Alt+N** | Overlay réseau |
 | **Ctrl+Alt+C** | Overlay de combat |
 | **Ctrl+Alt+L** | Overlay de butin |
+| **Ctrl+Alt+R** | Overlay de craft |
 | **Ctrl+Alt+J** | Afficher les overlays pendant ce menu |
 | **Ctrl+Alt+O** | Overlay des raccourcis (une liste déplaçable des raccourcis) |
 | **Ctrl+Alt+A** | Tous les overlays activés / désactivés |

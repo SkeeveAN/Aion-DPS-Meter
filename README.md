@@ -29,7 +29,7 @@
 - Skill breakdown with crit rates and a DPS curve
 - Boss leaderboards and public character profiles on aiondps.com (optional upload, off by default)
 - Interactive map, event timetable, world boss timers and a network overlay
-- Boss casts announced by voice, a loot log, an attributes tool and a daily checklist
+- Boss casts announced by voice, a loot log, an attributes tool, a crafting calculator and a daily checklist
 - Safe: passive packet capture, no memory reading, no injection
 - Free, open source (MIT) and updates itself
 
@@ -196,6 +196,10 @@ Unlock the overlay in **Settings → Boss fight** to arrange it: drag an element
 
 The **Tools** window lists these on the left. The **Loot** tool shows what you pick up from the ground, by session and map, as a page and as an overlay (**Ctrl+Alt+L**). The **Attributes** tool shows the attribute ring with your points, what each attribute and Lord value does (0.1 % per point), all bonuses added up, and a stat tab that explains every stat with its share from the ring. The **checklist** keeps your daily and weekly tasks, reads the mandatory daily quests and the weekly Odyle energy purchase from the game, and leaves the rest to tick by hand. Every tool remembers its own width and height.
 
+### Crafting calculator
+
+Mark the recipes you want to craft and how often (for the whole account, so your twinks see them too, or for one character), and the **Crafting calculator** lists, recipe by recipe, which materials you still lack. Intermediates are broken down into what you really have to gather: three smithing hammers need 18 ingots, which means 36 ore, and ingots you already own count first. The stock is read from the game, from the inventory, the character storage and the account storage, and a material that lies in a storage says so. Keep the page open on a second screen or show the same list as an overlay in the game (**Ctrl+Alt+R**). The recipes come from the game's own tables; the order of your list decides which recipe gets the stock first. Log in once so the stock is read; what you move between the inventory and a storage shows up after the next sort.
+
 ### Announcements and Twitch Drops
 
 A megaphone button opens the official NCSoft announcements on aiondps.com — maintenance, outages, new
@@ -262,6 +266,7 @@ which cannot work because Aion 2's chat is not readable from the network stream.
 | **Ctrl+Alt+N** | Network overlay |
 | **Ctrl+Alt+C** | Combat overlay |
 | **Ctrl+Alt+L** | Loot overlay |
+| **Ctrl+Alt+R** | Crafting overlay |
 | **Ctrl+Alt+J** | Show the overlays during the open game menu |
 | **Ctrl+Alt+O** | Hotkey overlay (a movable list of the hotkeys) |
 | **Ctrl+Alt+A** | All overlays on / off |

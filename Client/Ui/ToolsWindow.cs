@@ -60,6 +60,20 @@ public sealed class ToolsWindow : Window
         _ => 860,
     };
 
+    /// <summary>The tools of the list on the left, in the order of the Tools menu (a line between the groups): the window of the running meter and the pictures of the website show the same list.</summary>
+    public static ToolEntry[][] Groups()
+    {
+        var loc = LocalizationManager.Instance;
+        return new[]
+        {
+            new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("craft", loc["Main.MenuTools.Craft"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
+            new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
+            new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
+            new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
+            new[] { new ToolEntry("stream", loc["Main.MenuTools.Stream"]), new ToolEntry("theme", loc["Main.MenuTools.ThemeEditor"]), new ToolEntry("network", loc["Settings.Nav.Network"]) },
+        };
+    }
+
     public ToolsWindow(IReadOnlyList<IReadOnlyList<ToolEntry>> groups, Func<string, ToolPage?> build, Action<string> openOwn)
     {
         _build = build;

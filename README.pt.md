@@ -29,7 +29,7 @@
 - Detalhamento de habilidades com taxa de crítico e curva de DPS
 - Rankings de chefes e perfis públicos de personagens em aiondps.com (envio opcional, desativado por padrão)
 - Mapa interativo, agenda de eventos, temporizadores de chefes mundiais e sobreposição de rede
-- Conjurações de chefes anunciadas por voz, um registro de saque, uma ferramenta de atributos e uma lista de tarefas diárias
+- Conjurações de chefes anunciadas por voz, um registro de saque, uma ferramenta de atributos, uma calculadora de crafting e uma lista de tarefas diárias
 - Seguro: captura passiva de pacotes, sem ler a memória nem injetar código
 - Gratuito, de código aberto (MIT) e se atualiza sozinho
 
@@ -196,6 +196,10 @@ Desbloqueie o overlay em **Configurações → Luta de chefe** para organizá-lo
 
 A janela **Ferramentas** os lista à esquerda. A ferramenta **Saque** mostra o que você pega do chão, por sessão e mapa, como uma página e como um overlay (**Ctrl+Alt+L**). A ferramenta **Atributos** mostra o anel de atributos com os seus pontos, o que cada atributo e valor de Lorde faz (0,1 % por ponto), todos os bônus somados e uma aba de estatísticas que explica cada estatística com a sua parte vinda do anel. A **lista de tarefas** guarda as suas tarefas diárias e semanais, lê do jogo as missões diárias obrigatórias e a compra semanal de energia de Odyle e deixa o resto para marcar à mão. Cada ferramenta lembra a sua própria largura e altura.
 
+### Calculadora de crafting
+
+Marque as receitas que você quer fabricar e quantas vezes (para a conta toda, assim seus personagens secundários também as veem, ou para um só personagem), e a **calculadora de crafting** lista, receita por receita, quais materiais ainda faltam. Os intermediários são decompostos no que você realmente precisa coletar: três martelos de ferreiro precisam de 18 barras, ou seja, 36 de minério, e as barras que você já tem contam primeiro. O estoque é lido do jogo, do inventário, do armazém do personagem e do armazém da conta, e um material que está em um armazém diz isso. Deixe a página aberta em um segundo monitor ou mostre a mesma lista como overlay no jogo (**Ctrl+Alt+R**). As receitas vêm das tabelas do próprio jogo; a ordem da sua lista decide qual receita recebe o estoque primeiro. Entre uma vez para o estoque ser lido; o que você move entre o inventário e um armazém aparece depois da próxima ordenação.
+
 ### Anúncios e Twitch Drops
 
 Um botão de megafone abre os anúncios oficiais da NCSoft no aiondps.com — manutenção, quedas, novos
@@ -262,6 +266,7 @@ que não podem funcionar porque o chat do Aion 2 não é legível a partir do fl
 | **Ctrl+Alt+N** | Overlay de rede |
 | **Ctrl+Alt+C** | Overlay de combate |
 | **Ctrl+Alt+L** | Overlay de saque |
+| **Ctrl+Alt+R** | Overlay de crafting |
 | **Ctrl+Alt+J** | Mostrar overlays durante este menu |
 | **Ctrl+Alt+O** | Overlay de atalhos (uma lista móvel dos atalhos) |
 | **Ctrl+Alt+A** | Todos os overlays ligados / desligados |
