@@ -653,6 +653,7 @@
                         <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Tag="checklist" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.Attributes}" Tag="attributes" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.StatCalc}" Tag="statcalc" Click="OnOpenModuleClicked"/>
+                        <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuTools.Loot}" Tag="loot" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.Craft}" Tag="craft" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.PetMap}" Tag="petmap" Click="OnOpenModuleClicked"/>
@@ -666,8 +667,8 @@
                         <MenuItem Header="{local:Loc Settings.Nav.Timetable}" Tag="timetable" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.Boss}" Tag="boss" Click="OnOpenModuleClicked"/>
                         <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Stream}" Tag="stream" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.ThemeEditor}" Tag="theme" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Stream}" Tag="stream" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.Network}" Tag="network" Click="OnOpenModuleClicked"/>
                     </MenuItem>
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
