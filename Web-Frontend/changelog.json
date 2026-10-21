@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.13.4",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "closing the settings or the design editor with unsaved changes asks first: Save, Discard or Cancel",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.13.3",
   "date": "2026-10-21",
   "items": [
