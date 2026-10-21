@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.13.2",
   "date": "2026-10-21",
   "items": [
    {
     "text": "Website: the crafting scene of the feature tour has its own background, a wooden workshop hut with the blacksmith, the alchemist and the cook",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "the close and minimize buttons in the title bar of the meter's own windows no longer lose their symbol",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-21"
    }
