@@ -26,6 +26,14 @@
      "Backend"
     ],
     "date": "2026-10-21"
+   },
+   {
+    "text": "Website: the boss link in the breadcrumbs of a run goes straight to the boss address with its name instead of the number",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-21"
    }
   ]
  },
