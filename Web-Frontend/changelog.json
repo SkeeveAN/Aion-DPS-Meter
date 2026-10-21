@@ -9,6 +9,15 @@
      "Backend"
     ],
     "date": "2026-10-21"
+   },
+   {
+    "text": "Website: Conquest has the steps Normal and Hard as in the game, so the third tab Conquest [Hard] is gone; the old address /conquest-hard moves to /conquest/hard, and the breadcrumbs show the difficulty only as the label behind the name",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-21"
    }
   ]
  },
