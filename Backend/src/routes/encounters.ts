@@ -82,6 +82,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       .select({
         id: encounters.id,
         bossId: encounters.bossId,
+        bossSlug: bosses.slug,
         bossName: bosses.name,
         lootRules: bosses.lootRules,
         startedAt: encounters.startedAt,
@@ -215,6 +216,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       .select({
         id: encounters.id,
         bossId: encounters.bossId,
+        bossSlug: bosses.slug,
         bossName: bosses.name,
         startedAt: encounters.startedAt,
         durationSeconds: encounters.durationSeconds,

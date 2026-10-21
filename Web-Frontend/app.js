@@ -2009,7 +2009,7 @@ function bossCrumbs(e) {
           : crumbWithPill(link(crumbInstanceName(e.instanceName, e.instanceNameEn), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)), instanceDiffPill(e.instanceCategory, e.instanceName)),
       ]
     : [];
-  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, el("span", {}, [link(translateGameName(e.bossName), gp(`/bosses/${e.bossId}${e.mode ? `?mode=${encodeURIComponent(e.mode)}` : ""}`)), ...[diffPill(e.instanceCategory, e.mode, e.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])])];
+  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, el("span", {}, [link(translateGameName(e.bossName), gp(`/bosses/${e.bossSlug ?? e.bossId}${e.mode ? `?mode=${encodeURIComponent(e.mode)}` : ""}`)), ...[diffPill(e.instanceCategory, e.mode, e.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])])];
 }
 
 function areaCrumbs(instance) {
@@ -4730,7 +4730,7 @@ async function renderComparePlayers(params) {
   // The comparison.
   const data = await fetchJson(`/api/compare/players?${new URLSearchParams({ a, b, boss: bossParam })}`);
   const bossName = translateGameName(data.boss.name);
-  setBreadcrumb([...gameCrumbs(), link(bossName, gp(`/bosses/${data.boss.id}`)), t("compare.playersTitle")]);
+  setBreadcrumb([...gameCrumbs(), link(bossName, gp(`/bosses/${data.boss.slug ?? data.boss.id}`)), t("compare.playersTitle")]);
 
   const head = (x) =>
     el("div", { className: "cmp-head" }, [
