@@ -133,9 +133,16 @@ export function probeEndpoint(host: string, port: number): Promise<Sample> {
       });
       socket.resume();
     });
-    // an error before the connection stands is "not reachable"; after it, the server resetting the idle connection is handled above
-    socket.on("error", () => {
-      if (ms === null) {
+    // An error before the connect event: "refused" or a timeout is not reachable. A reset is the server answering and cutting the connection at once
+    // (some servers do it so fast that Node reports it before the connect event), so that one is reachable.
+    socket.on("error", (err: NodeJS.ErrnoException) => {
+      if (ms !== null) {
+        return;
+      }
+      if (err.code === "ECONNRESET") {
+        ms = Date.now() - start;
+        done(true, "reset");
+      } else {
         done(false, null);
       }
     });
