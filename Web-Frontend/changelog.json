@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.12.0",
   "date": "2026-10-21",
   "items": [
    {
@@ -23,6 +23,13 @@
     "areas": [
      "Client",
      "Website"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "the installer is scanned with VirusTotal before every release and the download page links the report",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-21"
    }
