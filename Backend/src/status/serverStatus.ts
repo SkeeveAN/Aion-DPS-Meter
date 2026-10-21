@@ -109,7 +109,7 @@ function endpoints(): Endpoint[] {
 }
 
 /** One TCP connect: the server is "up" when it accepts the connection. Nothing is sent; the connection is then held briefly to see whether the server resets it. */
-function probe(host: string, port: number): Promise<Sample> {
+export function probeEndpoint(host: string, port: number): Promise<Sample> {
   return new Promise((resolve) => {
     const start = Date.now();
     const socket = connect({ host, port });
@@ -133,15 +133,20 @@ function probe(host: string, port: number): Promise<Sample> {
       });
       socket.resume();
     });
-    socket.once("error", () => done(false, null));
+    // an error before the connection stands is "not reachable"; after it, the server resetting the idle connection is handled above
+    socket.on("error", () => {
+      if (ms === null) {
+        done(false, null);
+      }
+    });
   });
 }
 
 async function round(): Promise<void> {
   const list = endpoints();
-  const samples = await Promise.all(list.map(async (e) => ({ e, s: await probe(e.host, e.port) })));
+  const samples = await Promise.all(list.map(async (e) => ({ e, s: await probeEndpoint(e.host, e.port) })));
   // A control connection tells "the servers are down" from "this machine cannot reach the internet / is blocked".
-  reachableControl = samples.some((x) => x.s.up) || (await probe("1.1.1.1", 443)).up;
+  reachableControl = samples.some((x) => x.s.up) || (await probeEndpoint("1.1.1.1", 443)).up;
   for (const { e, s } of samples) {
     const list2 = history.get(keyOf(e)) ?? [];
     list2.push(s);
