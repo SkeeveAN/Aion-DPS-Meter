@@ -112,7 +112,7 @@ export const instances = sqliteTable(
     sortOrder: integer("sort_order").notNull().default(0),
     // Content the EU client does not offer (yet): kept, never deleted, but not listed.
     hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
-    // Expedition difficulty: "explore" (Exploration), "conquest" (Conquest) or "advanced" (Conquest [Hard]) - separate instances with
+    // Expedition difficulty: "explore" (Exploration), "conquest" (Conquest) or "advanced" (Conquest, Hard) - separate instances with
     // their own bosses and rankings. Null for everything without such a split.
     variant: text("variant", { enum: ["explore", "conquest", "advanced"] }),
     createdAt: text("created_at")

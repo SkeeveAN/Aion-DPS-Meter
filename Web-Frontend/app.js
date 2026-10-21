@@ -2000,7 +2000,7 @@ function bossCrumbs(e) {
     ? [
         e.instanceCategory === "nightmare"
           ? link(t("category.nightmare"), gp("/instances/nightmare"))
-          : crumbWithPill(link(displayName({ name: e.instanceName, nameEn: e.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)), instanceDiffPill(e.instanceCategory, e.instanceName)),
+          : crumbWithPill(link(crumbInstanceName(e.instanceName, e.instanceNameEn), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)), instanceDiffPill(e.instanceCategory, e.instanceName)),
       ]
     : [];
   return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, el("span", {}, [link(translateGameName(e.bossName), gp(`/bosses/${e.bossId}${e.mode ? `?mode=${encodeURIComponent(e.mode)}` : ""}`)), ...[diffPill(e.instanceCategory, e.mode, e.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])])];
@@ -2010,8 +2010,14 @@ function areaCrumbs(instance) {
   return isWorldBossArea(instance) ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs();
 }
 
+/** The instance name for a breadcrumb: without the Conquest / Hard suffix, the pill behind it says the difficulty. */
+function crumbInstanceName(name, nameEn) {
+  const base = (nameEn ?? name).replace(/ \(Conquest(, Hard)?\)$/, "");
+  return displayName({ name: base, nameEn: base });
+}
+
 function baseInstanceName(i) {
-  return i.name.replace(/ \(Conquest( \[Hard\])?\)$/, "");
+  return i.name.replace(/ \(Conquest(, Hard)?\)$/, "");
 }
 
 /** Card with photo, name and facts (level, players are only shown where the data has them). */
@@ -2075,7 +2081,7 @@ function difficultyOf(category, mode, instanceName) {
   if (category === "expedition") {
     const conquest = splitConquest(instanceName);
     if (conquest) {
-      return { text: `${t(conquest.hard ? "mode.conquestHard" : "mode.conquest")} ${conquest.stars.length}`, cls: conquest.hard ? "ch" : "cq" };
+      return { text: `${t("mode.conquest")} ${conquest.stars.length}${conquest.hard ? ` · ${t("mode.hardSub")}` : ""}`, cls: conquest.hard ? "ch" : "cq" };
     }
     return { text: t("mode.explore"), cls: "ex" };
   }
@@ -2106,23 +2112,37 @@ const CATEGORY_MODE_LIST = {
   transcendence: ["1", "2", "3", "4"],
 };
 
-/** The three difficulty tabs of the expeditions, as the game's dungeon window names them: variant of the instance, address, label. */
+/** The two difficulty tabs of the expeditions as the game's dungeon window has them; Conquest has the two steps Normal and Hard below. */
 const EXPEDITION_TABS = [
   ["explore", "/instances/expedition", "mode.explore"],
   ["conquest", "/instances/expedition/conquest", "mode.conquest"],
-  ["advanced", "/instances/expedition/conquest-hard", "mode.conquestHard"],
 ];
 
-function expeditionPane(list, variant) {
-  const wanted = { conquest: "conquest", "conquest-hard": "advanced" }[variant] ?? "explore";
+function expeditionPane(list, variant, step) {
+  const tab = variant === "conquest" ? "conquest" : "explore";
+  const hard = tab === "conquest" && step === "hard";
+  const wanted = tab === "explore" ? "explore" : hard ? "advanced" : "conquest";
   const items = list.filter((i) => (i.variant ?? "explore") === wanted);
   const seg = el("div", { className: "ip-seg", role: "group" }, EXPEDITION_TABS.map(([v, href, label]) => {
     const a = el("a", { href: gp(href), textContent: t(label) });
-    a.setAttribute("aria-pressed", String(v === wanted));
+    a.setAttribute("aria-pressed", String(v === tab));
     return a;
   }));
+  const bar = [seg];
+  if (tab === "conquest") {
+    bar.push(
+      el("div", { className: "ip-seg ip-seg-step", role: "group" }, [
+        ["/instances/expedition/conquest", "mode.normalSub", false],
+        ["/instances/expedition/conquest/hard", "mode.hardSub", true],
+      ].map(([href, label, isHard]) => {
+        const a = el("a", { href: gp(href), textContent: t(label) });
+        a.setAttribute("aria-pressed", String(isHard === hard));
+        return a;
+      })),
+    );
+  }
   const body = el("div", { className: "ip-grid" }, items.map((i) => instanceFactCard(i, { label: displayName({ name: baseInstanceName(i), nameEn: baseInstanceName(i) }) })));
-  return el("div", {}, [seg, body]);
+  return el("div", {}, [...bar, body]);
 }
 
 function modeCardsPane(list, category) {
@@ -2212,7 +2232,7 @@ async function nightmarePane(list) {
   return el("div", { className: "ip-nightmare" }, [tree, detail]);
 }
 
-async function renderInstances(categoryParam, variantParam) {
+async function renderInstances(categoryParam, variantParam, stepParam) {
   const instances = await (async () => {
     setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.instances")]);
     showLoading(t("loading.instances"));
@@ -2253,7 +2273,7 @@ async function renderInstances(categoryParam, variantParam) {
   const list = [...groups.get(current)].sort((a, b) => a.sortOrder - b.sortOrder);
   let pane;
   if (current === "expedition") {
-    pane = expeditionPane(list, variantParam);
+    pane = expeditionPane(list, variantParam, stepParam);
   } else if (current === "nightmare") {
     pane = await nightmarePane(list);
   } else if (CATEGORY_MODE_LIST[current]) {
@@ -2408,7 +2428,7 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(displayName(instance), instanceDiffPill(instance.category, instance.name)), t("stats.tabStats")]);
+    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(crumbInstanceName(instance.name, instance.nameEn), instanceDiffPill(instance.category, instance.name)), t("stats.tabStats")]);
   }
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
@@ -2460,7 +2480,7 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(displayName(instance), instanceDiffPill(instance.category, instance.name))]);
+    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(crumbInstanceName(instance.name, instance.nameEn), instanceDiffPill(instance.category, instance.name))]);
   }
 
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
@@ -2844,7 +2864,7 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
   const instanceCrumb =
     data.boss.instanceCategory === "nightmare"
       ? link(t("category.nightmare"), gp("/instances/nightmare"))
-      : crumbWithPill(link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${data.boss.instanceSlug}`)), instanceDiffPill(data.boss.instanceCategory, data.boss.instanceName));
+      : crumbWithPill(link(crumbInstanceName(data.boss.instanceName, data.boss.instanceNameEn), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${data.boss.instanceSlug}`)), instanceDiffPill(data.boss.instanceCategory, data.boss.instanceName));
   setBreadcrumb([...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), instanceCrumb, el("span", {}, [bossName, ...[diffPill(data.boss.instanceCategory, data.selectedMode, data.boss.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])])]);
 
   const hero = bossHero(data);
@@ -4894,7 +4914,7 @@ async function route() {
     } else if (section === "worldbosses") {
       await renderBosses(param, params);
     } else if (section === "instances" && (!param || INSTANCE_TAB_ORDER.includes(param))) {
-      await renderInstances(param, segments[2]);
+      await renderInstances(param, segments[2], segments[3]);
     } else if (section === "instances") {
       await renderBosses(param, params);
     } else if (section === "bosses" && param) {

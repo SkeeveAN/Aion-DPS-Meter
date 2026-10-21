@@ -171,6 +171,12 @@ export async function pageRoutes(app: FastifyInstance) {
     }),
   );
 
+  app.get<GameParams>("/instances/expedition/conquest/:step", withGame((game, request, reply) => {
+    const step = (request.params as { step: string }).step;
+    const page = step === "hard" ? instanceCategoryPage(game, "expedition", "conquest-hard") : null;
+    return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
+  }));
+
   app.get<GameParams & { Params: { variant: string } }>(
     "/instances/expedition/:variant",
     withGame((game, request, reply) => {
@@ -182,7 +188,10 @@ export async function pageRoutes(app: FastifyInstance) {
       if (variant === "hard") {
         return reply.redirect("/instances/expedition/conquest", 301);
       }
-      const page = variant === "conquest" || variant === "conquest-hard" ? instanceCategoryPage(game, "expedition", variant) : null;
+      if (variant === "conquest-hard") {
+        return reply.redirect("/instances/expedition/conquest/hard", 301);
+      }
+      const page = variant === "conquest" ? instanceCategoryPage(game, "expedition", variant) : null;
       return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
     }),
   );

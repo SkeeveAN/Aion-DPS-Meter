@@ -84,7 +84,7 @@ function labelOf(category: string, mode: string, instance: string): string {
   }
   if (category === "expedition") {
     const conquest = splitConquest(instance);
-    return conquest ? `Conquest${conquest.hard ? " [Hard]" : ""} ${conquest.stars.length}` : "Explore";
+    return conquest ? `Conquest ${conquest.stars.length}${conquest.hard ? " Hard" : ""}` : "Explore";
   }
   return { hideout: "Hideout", sanctuary: "Sanctuary", worldboss: "World Boss" }[category] ?? "";
 }
@@ -192,7 +192,7 @@ export function privateStats() {
     `select coalesce(b.name_en, b.name) name, coalesce(i.name_en, i.name) instance, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id order by n desc`,
   ).map((r) => {
     const conquest = splitConquest(String(r.instance));
-    return { boss: conquest ? `${r.name} ${conquest.stars}${conquest.hard ? " [Hard]" : ""}` : String(r.name), instance: conquest ? conquest.base : String(r.instance), count: num(r.n) };
+    return { boss: conquest ? `${r.name} ${conquest.stars}${conquest.hard ? " (Hard)" : ""}` : String(r.name), instance: conquest ? conquest.base : String(r.instance), count: num(r.n) };
   });
   return {
     ...publicStats(),
