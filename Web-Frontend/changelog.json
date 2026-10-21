@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.13.1",
   "date": "2026-10-21",
   "items": [
    {
@@ -8,6 +8,20 @@
     "areas": [
      "Client",
      "Website"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "Website: in the feature tour the crafting overlay sits at the lower left over the window, and the window has the same distance to the right edge as in the other scenes",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "Tools list: the tools are grouped into new sections in the Tools menu and the tool window, with the design editor ahead of streaming",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-21"
    }
