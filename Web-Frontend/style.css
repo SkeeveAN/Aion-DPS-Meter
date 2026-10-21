@@ -2954,15 +2954,6 @@ body:has(.download-hero) .nav-download-link:hover,
 
 /* Server status page */
 .table-scroll { overflow-x: auto; }
-.status-table { width: 100%; border-collapse: collapse; }
-.status-table th, .status-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
-.status-addr { font-variant-numeric: tabular-nums; }
-.status-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--color-surface2); color: var(--color-text-muted); }
-.status-pill.up { background: color-mix(in srgb, var(--color-success) 22%, transparent); color: var(--color-success); }
-.status-pill.down { background: color-mix(in srgb, var(--color-danger) 22%, transparent); color: var(--color-danger); }
-.status-spark { display: inline-flex; gap: 1px; align-items: flex-end; height: 16px; }
-.status-spark i { display: block; width: 3px; height: 100%; border-radius: 1px; background: var(--color-success); }
-.status-spark i.down { background: var(--color-danger); }
 
 /* AION 2 announcements: one colored label per kind of notice (and a green one for "completed"). */
 .ann-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap: 12px; margin-top: 16px; align-items: start; }
@@ -4188,3 +4179,49 @@ body:has(.download-hero) .nav-download-link:hover,
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
+
+/* Server status page: banner, four figures, region tabs, one tile per game address. */
+.status-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 14px 0; padding: 14px 22px; border-radius: var(--radius-card); border: 1px solid var(--color-warning); background: linear-gradient(90deg, color-mix(in srgb, var(--color-warning) 22%, var(--color-surface)), var(--color-surface)); color: var(--color-text); text-decoration: none; }
+.status-banner.scheduled { border-color: var(--color-info); background: linear-gradient(90deg, color-mix(in srgb, var(--color-info) 18%, var(--color-surface)), var(--color-surface)); }
+.status-banner strong { font-size: 18px; }
+.status-banner em { margin-left: auto; font-style: normal; font-size: 13px; color: var(--color-text-muted); }
+.status-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--color-text-muted); flex: none; }
+.status-dot.up { background: var(--color-success); box-shadow: 0 0 8px var(--color-success); }
+.status-dot.down { background: var(--color-danger); box-shadow: 0 0 8px var(--color-danger); }
+.status-dot.maintenance { background: var(--color-warning); box-shadow: 0 0 8px var(--color-warning); }
+.status-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 14px 0; }
+.status-kpi { padding: 16px 20px; background: color-mix(in srgb, var(--color-surface) 82%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.status-kpi small { display: flex; gap: 8px; align-items: center; color: var(--color-text-muted); font-size: 13px; }
+.status-kpi b { display: block; font-size: 30px; margin-top: 4px; }
+.status-kpi span { font-size: 12px; color: var(--color-text-muted); }
+.status-kpi.up b { color: var(--color-success); }
+.status-kpi.down b { color: var(--color-danger); }
+.status-kpi.maintenance b { color: var(--color-warning); }
+.status-meter { height: 6px; margin-top: 8px; border-radius: 4px; background: var(--color-surface2); overflow: hidden; }
+.status-meter span { display: block; height: 100%; background: var(--color-success); border-radius: 4px; }
+.status-meter.maintenance span { background: var(--color-warning); }
+.status-meter.down span { background: var(--color-danger); }
+.status-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+.status-tab { flex: 1 1 200px; text-align: left; padding: 12px 18px; border-radius: var(--radius-card); background: var(--color-surface); border: 1px solid var(--color-border); border-bottom: 3px solid var(--c, var(--color-text-muted)); color: var(--color-text); cursor: pointer; font: inherit; }
+.status-tab.up { --c: var(--color-success); }
+.status-tab.maintenance { --c: var(--color-warning); }
+.status-tab.down { --c: var(--color-danger); }
+.status-tab.on { background: color-mix(in srgb, var(--c) 14%, var(--color-surface2)); border-color: var(--c); }
+.status-tab b { display: flex; gap: 10px; align-items: center; font-size: 17px; }
+.status-tab small { color: var(--color-text-muted); }
+.status-panel { padding: 22px 26px; background: color-mix(in srgb, var(--color-surface) 82%, transparent); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.status-panel-head { display: flex; align-items: baseline; gap: 16px; }
+.status-panel-head h3 { margin: 0; font-size: 22px; }
+.status-panel-head span { color: var(--color-text-muted); }
+.status-sec { display: flex; align-items: center; gap: 14px; margin: 18px 0 8px; }
+.status-sec small { color: var(--color-text-muted); }
+.status-sec .status-meter { flex: 1; max-width: 420px; margin: 0; }
+.status-tiles { display: flex; flex-wrap: wrap; gap: 6px; }
+.status-tile { --c: var(--color-text-muted); width: 112px; padding: 7px 10px; border-radius: 8px; background: color-mix(in srgb, var(--c) 20%, var(--color-surface2)); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); font-variant-numeric: tabular-nums; }
+.status-tile.up { --c: var(--color-success); }
+.status-tile.maintenance { --c: var(--color-warning); }
+.status-tile.down { --c: var(--color-danger); }
+.status-tile b { display: block; font-size: 19px; }
+.status-tile small { color: var(--color-text-muted); font-size: 11px; }
+.status-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0; font-size: 13px; color: var(--color-text-muted); }
+.status-legend span { display: inline-flex; align-items: center; gap: 6px; }

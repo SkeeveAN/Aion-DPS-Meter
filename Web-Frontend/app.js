@@ -1000,6 +1000,7 @@ async function renderDownload() {
   const faq = el("div", {}, [
     el("h2", { textContent: t("download.faqHeading") }),
     ...[1, 2, 3, 4, 5].flatMap((n) => [el("h3", { textContent: t(`download.faq${n}Q`) }), el("p", { textContent: t(`download.faq${n}A`) })]),
+    el("p", {}, [t("download.vtNote") + " ", el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.vtLink") })]),
   ]);
   const starNote = el("p", { className: "download-meta star-note" }, [t("star.hint") + " ", buildStarLink()]);
   app.replaceChildren(hero, downloadSection, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
@@ -1268,9 +1269,13 @@ async function renderStats(secret) {
   app.replaceChildren(...out);
 }
 
-// Server status, in the site language. Login servers and game servers are checked from the
-// website's server by a plain TCP connect every minute (GET /api/server-status); the page refreshes itself.
+// Server status, in the site language. Login servers and game servers are checked from the website's server by a plain TCP connect every minute
+// (GET /api/server-status); the page refreshes itself. A running maintenance (read from NC's notice) turns every "online" into "maintenance",
+// because the servers still accept connections while nobody can log in. The game addresses are split by region (read from the server ids of the
+// players who connected to them) and shown as one tile per address, grouped by network block.
+const STATUS_REGIONS = ["eu", "latam", "nae", "naw", "asia"];
 let statusTimer = null;
+let statusRegion = null; // the tab the visitor picked survives the refresh
 async function renderStatus() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("status.title")]);
   showLoading(t("status.loading"));
@@ -1279,7 +1284,8 @@ async function renderStatus() {
   }
   const draw = async () => {
     const d = await fetchJson("/api/server-status");
-    const label = { up: t("status.up"), down: t("status.down"), unknown: t("status.unknown") };
+    const intl = getLocale() === "pt" ? "pt-BR" : getLocale();
+    const label = { up: t("status.up"), down: t("status.down"), unknown: t("status.unknown"), maintenance: t("status.maintenance") };
     const ago = (iso) => {
       if (!iso) {
         return t("status.notChecked");
@@ -1287,33 +1293,112 @@ async function renderStatus() {
       const sec = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
       return sec < 90 ? t("status.secAgo", { n: sec }) : t("status.minAgo", { n: Math.round(sec / 60) });
     };
-    const row = (sv) => el("tr", {}, [
-      el("td", {}, [el("span", { className: `status-pill ${sv.state}`, textContent: label[sv.state] })]),
-      el("td", { className: "status-addr", textContent: sv.address }),
-      el("td", { textContent: sv.latencyMs === null ? "–" : `${sv.latencyMs} ms` }),
-      el("td", { textContent: sv.uptime24h === null ? "–" : `${sv.uptime24h.toLocaleString(getLocale())} %` }),
-      el("td", {}, [el("span", { className: "status-spark", title: t("status.recentTitle") }, sv.recent.map((v) => el("i", { className: v ? "up" : "down" })))]),
-      el("td", { textContent: ago(sv.checkedAt) }),
-    ]);
-    const table = (list, game) => el("div", { className: "table-scroll" }, [el("table", { className: "status-table" }, [
-      el("thead", {}, [el("tr", {}, [t("status.colStatus"), t("status.colAddress"), t("status.colResponse"), t("status.colUptime"), t("status.colRecent"), t("status.colChecked")].map((h) => el("th", { textContent: h })))]),
-      el("tbody", {}, list.map(row)),
-    ])]);
+    const span = (ms) => {
+      const min = Math.max(1, Math.round(ms / 60000));
+      return min < 90 ? t("status.minutes", { n: min }) : t("status.hours", { n: (Math.round(min / 6) / 10).toLocaleString(getLocale()) });
+    };
+    const clock = new Intl.DateTimeFormat(intl, { weekday: "short", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
+    const hhmm = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit" });
+    const pct = (v) => (v === null ? "–" : `${v.toLocaleString(getLocale())} %`);
+    const reached = (x) => x.state === "up" || x.state === "maintenance";
+    const worst = (list) => (["down", "maintenance", "unknown", "up"].find((s) => list.some((x) => x.state === s)) ?? "unknown");
+    const mean = (list, f) => {
+      const v = list.map(f).filter((x) => x !== null && x !== undefined);
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    };
     const login = d.servers.filter((x) => x.kind === "login");
     const game = d.servers.filter((x) => x.kind === "game");
-    const count = (list) => t("status.count", { up: list.filter((x) => x.state === "up").length, total: list.length });
+
+    // Banner for a running or announced maintenance, on top of everything.
+    const m = d.maintenance;
+    const banner = m
+      ? el("a", { className: `status-banner ${m.state}`, href: m.url, target: "_blank", rel: "noopener" }, [
+          el("i", { className: "status-dot maintenance" }),
+          el("strong", { textContent: m.state === "active" ? t("status.maintActiveUntil", { time: hhmm.format(m.end) }) : t("status.maintScheduled") }),
+          el("span", { textContent: m.state === "active" ? t("status.maintActiveText") : t("status.maintFrom", { time: clock.format(m.start), left: span(m.start - Date.now()), len: span(m.end - m.start) }) }),
+          el("em", { textContent: m.state === "active" ? t("status.maintLeft", { start: hhmm.format(m.start), left: span(m.end - Date.now()) }) : t("status.maintNotice") }),
+        ])
+      : null;
+
+    // The four figures.
+    const tile = (title, state, big, sub, extra) => el("div", { className: `status-kpi ${state ?? ""}` }, [
+      el("small", {}, [...(state ? [el("i", { className: `status-dot ${state}` })] : []), title]),
+      el("b", { textContent: big }),
+      el("span", { textContent: sub }),
+      ...(extra ? [extra] : []),
+    ]);
+    const upAll = game.filter(reached).length;
+    const meter = el("div", { className: `status-meter ${worst(game)}` }, [el("span", { style: `width:${game.length ? Math.round((upAll / game.length) * 100) : 0}%` })]);
+    const loginSv = login[0];
+    const msAll = mean(game, (x) => x.latencyMs);
+    const kpis = el("div", { className: "status-kpis" }, [
+      loginSv
+        ? tile(t("status.loginAll"), worst(login), label[worst(login)], loginSv.latencyMs === null ? ago(loginSv.checkedAt) : `${loginSv.latencyMs} ms · ${pct(loginSv.uptime24h)} ${t("status.in24")}`)
+        : tile(t("status.loginAll"), "unknown", label.unknown, t("status.loginUnknown")),
+      game.length ? tile(t("status.gameTotal"), worst(game), `${upAll} / ${game.length}`, t("status.reachableIn", { n: new Set(game.map((x) => x.region)).size }), meter) : tile(t("status.game"), "unknown", label.unknown, t("status.gameNone")),
+      tile(t("status.colResponse"), null, msAll === null ? "–" : `${Math.round(msAll)} ms`, t("status.avgAll")),
+      tile(t("status.colUptime"), null, pct(mean(game, (x) => x.uptime24h) === null ? null : Math.round(mean(game, (x) => x.uptime24h) * 10) / 10), m?.state === "active" ? t("status.avgMinusMaint") : t("status.avgAll")),
+    ]);
+
+    // Region tabs: the five regions in a fixed order, then the addresses whose region is not known.
+    const keys = [...STATUS_REGIONS.filter((r) => game.some((x) => x.region === r)), ...(game.some((x) => !x.region) ? ["unknown"] : [])];
+    const inRegion = (k) => game.filter((x) => (x.region ?? "unknown") === k);
+    if (!keys.includes(statusRegion)) {
+      statusRegion = keys[0] ?? null;
+    }
+    const regionName = (k) => t(`status.region.${k}`);
+    const tabs = el("div", { className: "status-tabs" }, keys.map((k) => {
+      const list = inRegion(k);
+      return el("button", { type: "button", className: `status-tab ${worst(list)}${k === statusRegion ? " on" : ""}`, onclick: () => { statusRegion = k; draw().catch(() => undefined); } }, [
+        el("b", {}, [el("i", { className: `status-dot ${worst(list)}` }), regionName(k)]),
+        el("small", { textContent: t("status.tabCount", { up: list.filter(reached).length, total: list.length, ms: Math.round(mean(list, (x) => x.latencyMs) ?? 0) }) }),
+      ]);
+    }));
+
+    // The chosen region: one tile per address, grouped by network block.
+    const blocks = new Map();
+    for (const sv of inRegion(statusRegion)) {
+      const key = sv.address.split(".").slice(0, 3).join(".");
+      blocks.set(key, [...(blocks.get(key) ?? []), sv]);
+    }
+    const panel = statusRegion
+      ? el("section", { className: "status-panel" }, [
+          el("div", { className: "status-panel-head" }, [
+            el("h3", { textContent: regionName(statusRegion) }),
+            el("span", { textContent: t("status.panelCount", { n: inRegion(statusRegion).length, blocks: blocks.size }) }),
+          ]),
+          ...[...blocks.entries()].sort((a, b) => a[0].localeCompare(b[0], "en", { numeric: true })).flatMap(([key, list]) => {
+            const ok = list.filter(reached).length;
+            return [
+              el("div", { className: "status-sec" }, [
+                el("strong", { textContent: `${key}.x` }),
+                el("small", { textContent: t("status.blockCount", { up: ok, total: list.length }) }),
+                el("div", { className: `status-meter ${worst(list)}` }, [el("span", { style: `width:${Math.round((ok / list.length) * 100)}%` })]),
+              ]),
+              el("div", { className: "status-tiles" }, list.map((sv) => el("div", {
+                className: `status-tile ${sv.state}`,
+                title: `${sv.address} · ${label[sv.state]} · ${t("status.colUptime")} ${pct(sv.uptime24h)} · ${ago(sv.checkedAt)}${sv.behavior ? ` · ${t(`status.behavior.${sv.behavior}`)}` : ""}`,
+              }, [
+                el("b", { textContent: `.${sv.address.split(":")[0].split(".")[3]}` }),
+                el("small", { textContent: sv.latencyMs === null ? label[sv.state] : `${sv.latencyMs} ms` }),
+              ]))),
+            ];
+          }),
+        ])
+      : el("p", { className: "empty", textContent: t("status.gameNone") });
+
     app.replaceChildren(
       el("h2", { textContent: t("status.title") }),
+      ...(banner ? [banner] : []),
+      kpis,
+      tabs,
+      panel,
+      el("div", { className: "status-legend" }, [
+        ...["up", "maintenance", "down"].map((s) => el("span", {}, [el("i", { className: `status-dot ${s}` }), label[s]])),
+        el("span", { textContent: t("status.legendTile") }),
+      ]),
       el("p", { className: "stat-sub", textContent: t("status.intro", { ago: ago(d.checkedAt) }) }),
-      el("section", { className: "stat-block" }, [
-        el("h3", { textContent: login.length ? `${t("status.login")} · ${count(login)}` : t("status.login") }),
-        login.length ? table(login, false) : el("p", { className: "empty", textContent: t("status.loginUnknown") }),
-      ]),
-      el("section", { className: "stat-block" }, [
-        el("h3", { textContent: game.length ? `${t("status.game")} · ${count(game)}` : t("status.game") }),
-        el("p", { className: "stat-sub", textContent: t("status.gameNote") }),
-        game.length ? table(game, true) : el("p", { className: "empty", textContent: t("status.gameNone") }),
-      ]),
+      el("p", { className: "stat-sub", textContent: t("status.gameNote") }),
     );
   };
   await draw();
