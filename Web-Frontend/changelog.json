@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Website: player pages carry equipment, attributes, wings, pet, titles and Daevanion boards as text and stay out of the index while they have neither runs nor gear; removed players and legions answer 410 instead of 404",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
