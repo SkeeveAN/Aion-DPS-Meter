@@ -1,5 +1,26 @@
 [
  {
+  "version": "1.11.6",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "Names: items, monsters and titles follow the client of 2026-10-21 (the Ariel fragments and crystal, the Wrathful expedition artworks, corrected texts of 260 titles and 435 monsters)",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "the loot log and the website name the new items of the patch (Ariel fragments, Ariel crystal, Wrathful artworks) and use the corrected title and monster texts of the client",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.11.5",
   "date": "2026-10-21",
   "items": [
