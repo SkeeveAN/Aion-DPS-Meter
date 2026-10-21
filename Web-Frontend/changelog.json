@@ -1,5 +1,42 @@
 [
  {
+  "version": "1.11.5",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "Daevanion: the new Ariel board (153 nodes per class) is known, and all node values come from the game's own table instead of the older copy",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "Boss rage: the Hard bosses of Krao Cave and Draupnir rage after 240 seconds, as the client table says",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "Website: Expeditions get the third difficulty Conquest [Hard] (Krao Cave and Draupnir); the tabs are named as in the game, the old /hard address moves to /conquest",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "the new Ariel Daevanion board shows its bonuses, and the Hard bosses of Krao Cave and Draupnir get the correct rage time of 4 minutes",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.11.4",
   "date": "2026-10-21",
   "items": [
