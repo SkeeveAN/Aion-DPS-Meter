@@ -32,6 +32,7 @@ import {
   instancesPage,
   worldBossesPage,
   notFoundPage,
+  gonePage,
   playerPage,
   privacyPage,
   termsPage,
@@ -65,11 +66,11 @@ function send(reply: FastifyReply, rendered: Rendered): FastifyReply {
   return reply.status(rendered.status).type("text/html; charset=utf-8").header("Cache-Control", "no-cache").send(rendered.html);
 }
 
-/** Renders through the page cache; a null page (unknown slug) is cached as a 404 too, so a bot hammering a dead URL stays cheap. */
-function sendCached(request: FastifyRequest, reply: FastifyReply, build: () => Page | null): FastifyReply {
+/** Renders through the page cache; a null page (unknown slug) is cached as a 404 (410 for players and legions) too, so a bot hammering a dead URL stays cheap. */
+function sendCached(request: FastifyRequest, reply: FastifyReply, build: () => Page | null, missing: (path: string) => Page = notFoundPage): FastifyReply {
   const path = requestPath(request);
   const rendered = JSON.parse(
-    cached(`page:${path}`, CONTENT_TTL_MS, () => JSON.stringify(render(build() ?? notFoundPage(request.url.split("?")[0]), path))),
+    cached(`page:${path}`, CONTENT_TTL_MS, () => JSON.stringify(render(build() ?? missing(request.url.split("?")[0]), path))),
   ) as Rendered;
   return send(reply, rendered);
 }
@@ -89,7 +90,7 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
   app.get("/twitch-drops", async (request, reply) => send(reply, render(twitchDropsPage(), requestPath(request))));
   app.get("/legions", async (request, reply) => send(reply, render(guildsPage(), requestPath(request))));
-  app.get<{ Params: { slug: string } }>("/legions/:slug", async (request, reply) => sendCached(request, reply, () => guildPage(request.params.slug)));
+  app.get<{ Params: { slug: string } }>("/legions/:slug", async (request, reply) => sendCached(request, reply, () => guildPage(request.params.slug), gonePage));
   // The pages were first published as /guilds; those links keep working.
   app.get("/guilds", async (_request, reply) => reply.redirect("/legions", 301));
   app.get<{ Params: { slug: string } }>("/guilds/:slug", async (request, reply) => reply.redirect(`/legions/${encodeURIComponent(request.params.slug)}`, 301));
@@ -261,7 +262,7 @@ export async function pageRoutes(app: FastifyInstance) {
         return slug ? reply.redirect(`/players/${slug}`, 301) : sendNotFound(request, reply);
       }
       // Cached like the other content pages: the profile page loads the player's whole run history and gear, and crawlers and link previews hit it in bulk.
-      return sendCached(request, reply, () => playerPage(game, id));
+      return sendCached(request, reply, () => playerPage(game, id), gonePage);
     }),
   );
 

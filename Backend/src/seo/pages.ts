@@ -933,12 +933,19 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   const description = `${player.name}: ${facts.join(", ")}${runText ? `. ${runText}` : ""}. Gear, skills, stigmas, Daevanion boards and run history on ${SITE}.`;
   const image = classImage(className);
   const recent = runs.slice(0, 10);
+  const gear = [...(profile?.gear ?? [])].sort((a, b) => a.slot - b.slot);
+  const attributes = profile?.attributes?.main.filter((a) => a.value > 0) ?? [];
+  const boards = (profile?.boards ?? []).filter((b) => b.count > 0);
+  const titles = profile?.titles ?? [];
+  // A character with neither a boss run nor any gear read is just a name and a level: keep it out of the index.
+  const thin = runs.length === 0 && gear.length === 0;
   return {
     status: 200,
     meta: {
       title: `${player.name} – ${classLine || "Aion 2 Character"} | ${SITE}`,
       description,
       canonicalPath: path,
+      noindex: thin,
       ogType: "profile",
       ogImage: `/og/players/${player.slug ?? player.id}.png`,
       ogImageAlt: `${player.name}${className ? `, ${className}` : ""} on ${SITE}`,
@@ -956,6 +963,26 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
             <ul class="plain">
               ${recent.map((r) => html`<li><a href="/bosses/${r.bossSlug}">${displayName({ name: r.bossName, nameEn: r.bossNameEn })}</a> – ${formatInt(r.idps)} DPS, ${r.startedAt.slice(0, 10)}</li>`)}
             </ul>`
+        : html``}
+      ${gear.length > 0
+        ? html`<h2>Equipment</h2>
+            <ul class="plain">
+              ${gear.map((g) => html`<li>${g.slotName ? `${g.slotName}: ` : ""}${g.name}${g.itemLevel ? ` (item level ${g.itemLevel})` : ""}${g.enchant > 0 ? ` +${Math.min(g.enchant, 15)}` : ""}${g.zenit > 0 ? ` Zenit ${g.zenit}` : ""}${g.godstone ? ` · ${g.godstone.name}` : ""}</li>`)}
+            </ul>`
+        : html``}
+      ${attributes.length > 0
+        ? html`<h2>Main attributes</h2><p>${attributes.map((a) => `${a.key} ${formatInt(a.value)}`).join(", ")}</p>`
+        : html``}
+      ${profile?.wing || profile?.activePet || titles.length > 0
+        ? html`<h2>Wings, pet and titles</h2>
+            <ul class="plain">
+              ${profile?.wing ? html`<li>Wings: ${profile.wing.name}</li>` : ""}
+              ${profile?.activePet ? html`<li>Pet: ${profile.activePet.name}${profile.activePet.level ? ` (level ${profile.activePet.level})` : ""}</li>` : ""}
+              ${titles.map((t) => html`<li>Title: ${t.name}</li>`)}
+            </ul>`
+        : html``}
+      ${boards.length > 0
+        ? html`<h2>Daevanion boards</h2><p>${boards.map((b) => `${b.name} ${b.count}/${b.total}`).join(", ")}</p>`
         : html``}`,
   };
 }
@@ -1183,6 +1210,15 @@ export function appOnlyPage(game: Game | null, kind: "servers" | "search" | "par
     status: 200,
     meta: { title: titles[kind], description: descriptions[kind], canonicalPath: path, noindex: true },
     body: html`<p class="empty">Loading…</p>`,
+  };
+}
+
+/** A player or legion that is no longer (or never was) in the database: 410 tells Google to drop the address sooner than a 404 does. */
+export function gonePage(path: string): Page {
+  return {
+    status: 410,
+    meta: { title: `Page removed – ${SITE}`, description: "This page has been removed.", canonicalPath: path, noindex: true },
+    body: html`<h1>Page removed</h1><p>This player or legion is no longer listed. <a href="/">Back to the start page</a>.</p>`,
   };
 }
 
