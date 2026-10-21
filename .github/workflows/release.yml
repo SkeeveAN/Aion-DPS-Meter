@@ -123,46 +123,49 @@ jobs:
         env:
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
           INSTALLER: releases/AionDpsMeter-${{ steps.version.outputs.channel }}-Setup.exe
-        shell: pwsh
+        shell: bash
         run: |
-          if (-not $env:VT_API_KEY) { Write-Host "VT_API_KEY not set, skipping the VirusTotal scan."; exit 0 }
-          $bigVendors = @('Microsoft', 'Kaspersky', 'ESET-NOD32', 'BitDefender', 'Sophos', 'Symantec', 'McAfee', 'CrowdStrike', 'Avast', 'AVG')
-          $headers = @{ 'x-apikey' = $env:VT_API_KEY }
-          $report = $null
-          try {
-            $uploadUrl = (Invoke-RestMethod -Uri 'https://www.virustotal.com/api/v3/files/upload_url' -Headers $headers).data
-            $analysisId = (Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $headers -Form @{ file = Get-Item $env:INSTALLER }).data.id
-            for ($i = 0; $i -lt 40; $i++) {
-              Start-Sleep -Seconds 30
-              $a = Invoke-RestMethod -Uri "https://www.virustotal.com/api/v3/analyses/$analysisId" -Headers $headers
-              if ($a.data.attributes.status -eq 'completed') { $report = $a; break }
-            }
-          } catch {
-            Write-Host "::warning::VirusTotal scan failed, the release continues without it: $($_.Exception.Message)"
-            exit 0
+          if [ -z "$VT_API_KEY" ]; then echo "VT_API_KEY not set, skipping the VirusTotal scan."; exit 0; fi
+          api=https://www.virustotal.com/api/v3
+          big='^(Microsoft|Kaspersky|ESET-NOD32|BitDefender|Sophos|Symantec|McAfee|CrowdStrike|Avast|AVG)$'
+          skip() { echo "::warning::VirusTotal scan failed, the release continues without it: $*"; exit 0; }
+          sha=$(sha256sum "$INSTALLER" | cut -d' ' -f1)
+
+          # The report of a file is looked up by its hash; it exists (with results) once VirusTotal finished the scan.
+          lookup() {
+            code=$(curl -sS -o vt_file.json -w '%{http_code}' -H "x-apikey: $VT_API_KEY" "$api/files/$sha") || return 1
+            [ "$code" = 200 ] && [ "$(jq '.data.attributes.last_analysis_stats | .malicious + .suspicious + .harmless + .undetected' vt_file.json)" -gt 0 ]
           }
-          if (-not $report) { Write-Host "::warning::VirusTotal analysis did not finish in time, the release continues without it."; exit 0 }
 
-          $stats = $report.data.attributes.stats
-          $hits = [int]$stats.malicious + [int]$stats.suspicious
-          $total = $hits + [int]$stats.harmless + [int]$stats.undetected
-          $sha = $report.meta.file_info.sha256
-          $link = "https://www.virustotal.com/gui/file/$sha"
-          $flagged = @($report.data.attributes.results.PSObject.Properties.Value |
-            Where-Object { $_.category -in 'malicious', 'suspicious' } | ForEach-Object { $_.engine_name })
-          $big = @($flagged | Where-Object { $bigVendors -contains $_ })
+          if ! lookup; then
+            code=$(curl -sS -o vt_url.json -w '%{http_code}' -H "x-apikey: $VT_API_KEY" "$api/files/upload_url") || skip "upload_url request"
+            [ "$code" = 200 ] || skip "upload_url HTTP $code: $(head -c 300 vt_url.json)"
+            code=$(curl -sS -o vt_upload.json -w '%{http_code}' -H "x-apikey: $VT_API_KEY" -F "file=@$INSTALLER" "$(jq -r .data vt_url.json)") || skip "upload request"
+            # 409: already submitted a moment ago (a re-run) -- just wait for that scan.
+            [ "$code" = 200 ] || [ "$code" = 409 ] || skip "upload HTTP $code: $(head -c 300 vt_upload.json)"
+            for i in $(seq 1 40); do
+              sleep 30
+              lookup && break
+            done
+            lookup || skip "analysis did not finish in time"
+          fi
 
-          "link=$link" >> $env:GITHUB_OUTPUT
-          "result=$hits/$total" >> $env:GITHUB_OUTPUT
-          $summary = "### VirusTotal: $hits / $total engines flag the installer`n$link"
-          if ($flagged) { $summary += "`nFlagged by: " + ($flagged -join ', ') }
-          $summary >> $env:GITHUB_STEP_SUMMARY
-          Write-Host $summary
+          hits=$(jq '.data.attributes.last_analysis_stats | .malicious + .suspicious' vt_file.json)
+          total=$(jq '.data.attributes.last_analysis_stats | .malicious + .suspicious + .harmless + .undetected' vt_file.json)
+          flagged=$(jq -r '[.data.attributes.last_analysis_results[] | select(.category == "malicious" or .category == "suspicious") | .engine_name] | join(", ")' vt_file.json)
+          bigflagged=$(jq -r --arg re "$big" '[.data.attributes.last_analysis_results[] | select((.category == "malicious" or .category == "suspicious") and (.engine_name | test($re))) | .engine_name] | join(", ")' vt_file.json)
+          link="https://www.virustotal.com/gui/file/$sha"
 
-          if ($hits -ge 5 -or $big.Count -gt 0) {
-            Write-Host "::error::VirusTotal verdict too bad ($hits hits, big vendors: $($big -join ', ')). Not publishing. $link"
+          echo "link=$link" >> "$GITHUB_OUTPUT"
+          echo "result=$hits/$total" >> "$GITHUB_OUTPUT"
+          summary="### VirusTotal: $hits / $total engines flag the installer"$'\n'"$link"
+          [ -n "$flagged" ] && summary="$summary"$'\n'"Flagged by: $flagged"
+          echo "$summary" | tee -a "$GITHUB_STEP_SUMMARY"
+
+          if [ "$hits" -ge 5 ] || [ -n "$bigflagged" ]; then
+            echo "::error::VirusTotal verdict too bad ($hits hits, big vendors: $bigflagged). Not publishing. $link"
             exit 1
-          }
+          fi
 
       - name: Upload the installer as a build artifact
         uses: actions/upload-artifact@v4
