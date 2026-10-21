@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.13.3",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "the crafting calculator is translated into all ten languages, with the names of the professions and the kinds of gear taken from the game's own texts",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.13.2",
   "date": "2026-10-21",
   "items": [
