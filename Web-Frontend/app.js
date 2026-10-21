@@ -749,9 +749,9 @@ const FEATURE_BLOCKS = [
 // pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
 const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
 const FEATURE_FLIPPED = new Set(["modes", "bossfight", "details", "checklist", "petlevel", "worldboss", "hotkeys", "twitchdrops"]);
-const FEATURE_VERSION = "20261021b";
+const FEATURE_VERSION = "20261021c";
 // scenes whose generated backdrop is not made yet: no request for a picture that is not there
-const FEATURE_NO_BACKDROP = new Set(["craft"]);
+const FEATURE_NO_BACKDROP = new Set();
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
