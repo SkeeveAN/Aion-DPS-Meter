@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-22",
+  "items": [
+   {
+    "text": "Website: the two legal links in the footer (Privacy policy, Terms of use) sit side by side instead of stacked",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   }
+  ]
+ },
+ {
   "version": "1.13.5",
   "date": "2026-10-21",
   "items": [
