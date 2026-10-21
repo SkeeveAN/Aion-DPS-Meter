@@ -417,6 +417,10 @@ function buildSiteFooter() {
     el("div", { className: "home-footer-logo" }, [
       el("img", { src: "/images/ui/emblem.webp", alt: "", className: "home-footer-emblem", loading: "lazy" }),
       el("img", { src: "/images/ui/aion-dps-wordmark.webp", alt: "Aion DPS", className: "wordmark", width: 186, height: 96, loading: "lazy" }),
+      el("div", { className: "home-footer-legal home-footer-legal-logo" }, [
+        link(t("legal.privacyTitle"), "/privacy"),
+        link(t("legal.termsTitle"), "/terms"),
+      ]),
     ]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
@@ -429,8 +433,6 @@ function buildSiteFooter() {
       el("div", { className: "home-footer-legal" }, [
         link("Changelog", "/changelog"),
         link(t("footer.howItWorks"), "/how-it-works"),
-        link(t("legal.privacyTitle"), "/privacy"),
-        link(t("legal.termsTitle"), "/terms"),
         buildStarLink(),
       ]),
       el("div", { className: "home-footer-social" }, [
