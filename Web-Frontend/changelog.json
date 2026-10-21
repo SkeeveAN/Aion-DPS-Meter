@@ -18,6 +18,14 @@
      "Database"
     ],
     "date": "2026-10-21"
+   },
+   {
+    "text": "Announcements: account restriction notices show the number of restricted accounts in the teaser",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-21"
    }
   ]
  },
