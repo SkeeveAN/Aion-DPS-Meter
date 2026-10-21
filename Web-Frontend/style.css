@@ -754,9 +754,9 @@ th {
 }
 
 .home-footer-legal-logo {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: 16px;
   margin-left: 14px;
 }
 
