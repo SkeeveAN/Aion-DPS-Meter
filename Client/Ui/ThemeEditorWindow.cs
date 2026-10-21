@@ -336,7 +336,45 @@ public sealed class ThemeEditorWindow : Window
         _settings.Theme = ThemeFile.SelectionFor(name);
         _currentName = name;
         FillThemeList(name);
+        _baseline = Snapshot();
         Saved?.Invoke(_settings);
+    }
+
+    private string? _baseline;
+
+    /// <summary>What the fields stand for, as text: the design file they would make.</summary>
+    private string Snapshot() => System.Text.Json.JsonSerializer.Serialize(CurrentFile());
+
+    protected override void OnContentRendered(EventArgs e)
+    {
+        base.OnContentRendered(e);
+        _baseline ??= Snapshot();
+    }
+
+    /// <summary>Closing the window of the editor with changes asks first: Save / Discard / Cancel. (The editor shown as a page of the tools window is never shown as a window of its own and never asks.)</summary>
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        if (IsVisible && _baseline is not null && Snapshot() != _baseline)
+        {
+            MessageBoxResult answer = ThemedMessageBox.AskUnsaved(this, Title);
+            if (answer == MessageBoxResult.Cancel)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            if (answer == MessageBoxResult.Yes)
+            {
+                Save();
+                if (Snapshot() != _baseline)
+                {
+                    e.Cancel = true; // the save was refused (a name is missing, the file could not be written): the window stays
+                    return;
+                }
+            }
+        }
+
+        base.OnClosing(e);
     }
 
     /// <summary>Writes the fields (not the saved settings) to a .aiondps-theme file to share or keep.</summary>

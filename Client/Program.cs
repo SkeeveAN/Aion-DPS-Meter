@@ -392,6 +392,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "settings-dirty-check")
+        {
+            RunSettingsDirtyCheckMode();
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-petmap")
         {
             RunRenderPetMapMode(args.Length > 1 ? args[1] : "petmap.png", args.Length > 2 ? args[2] : "verteron", args.Length > 4 ? double.Parse(args[3]) : -215789, args.Length > 4 ? double.Parse(args[4]) : 262953, args.Length > 5 && args[5] == "guards");
@@ -2522,6 +2528,28 @@ internal static class Program
 
         Console.WriteLine("render-craft: wrote " + path);
         Environment.Exit(0);
+    }
+
+    /// <summary>Checks that the settings window knows when something was changed (it asks before it closes then): the state read from the controls is the same twice and differs after a change. No window is shown.</summary>
+    private static void RunSettingsDirtyCheckMode()
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.SettingsWindow(settings);
+        var snapshot = typeof(Ui.SettingsWindow).GetMethod("Snapshot", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        string first = (string)snapshot.Invoke(window, null)!;
+        string second = (string)snapshot.Invoke(window, null)!;
+        var box = (System.Windows.Controls.CheckBox)window.FindName("AlwaysOnTopBox");
+        box.IsChecked = !(box.IsChecked ?? false);
+        string changed = (string)snapshot.Invoke(window, null)!;
+        box.IsChecked = !(box.IsChecked ?? false);
+        string back = (string)snapshot.Invoke(window, null)!;
+        Console.WriteLine($"settings-dirty-check: stable {first == second}, changed after a switch {changed != first}, back to the start {back == first}");
+        Environment.Exit(first == second && changed != first && back == first ? 0 : 1);
     }
 
     /// <summary>Replays a recording and prints the three stocks the crafting tool counts (see <see cref="Aion2.Aion2Stock"/>); no window, nothing saved.</summary>

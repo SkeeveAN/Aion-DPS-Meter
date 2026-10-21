@@ -230,7 +230,7 @@
   "Main.MenuSession.UploadBoss": {
     "en": "Upload current boss",
     "de": "Aktuellen Boss hochladen",
-    "fr": "Télécharger le boss actuel",
+    "fr": "Envoyer le boss actuel",
     "es": "Subir jefe actual",
     "ru": "Загрузить текущего босса",
     "zh": "上传当前首领战斗",
@@ -242,7 +242,7 @@
   "Main.MenuSession.UploadRun": {
     "en": "Upload last run (all bosses)",
     "de": "Letzten Run hochladen (alle Bosse)",
-    "fr": "Télécharger la dernière run (tous les boss)",
+    "fr": "Envoyer la dernière run (tous les boss)",
     "es": "Subir última run (todos los jefes)",
     "ru": "Загрузить последний забег (все боссы)",
     "zh": "上传本次副本(全部首领)",
@@ -386,7 +386,7 @@
   "Main.ModePve": {
     "en": "PVE",
     "de": "PvE",
-    "fr": "JcE",
+    "fr": "PvE",
     "es": "JcE",
     "ru": "PvE",
     "zh": "PVE",
@@ -398,7 +398,7 @@
   "Main.ModePvp": {
     "en": "PVP",
     "de": "PvP",
-    "fr": "JcJ",
+    "fr": "PvP",
     "es": "JcJ",
     "ru": "PvP",
     "zh": "PVP",
@@ -665,7 +665,8 @@
     "zh-TW": "我的 Aion 2 角色：",
     "pt": "Meu personagem de Aion 2:",
     "ja": "自分の Aion 2 キャラクター：",
-    "ko": "내 아이온 2 캐릭터:"
+    "ko": "내 아이온 2 캐릭터:",
+    "fr": "Mon personnage Aion 2 :"
   },
   "Settings.CaptureAdapter": {
     "en": "Network adapter:",
@@ -673,15 +674,18 @@
     "zh-TW": "網路介面卡：",
     "pt": "Adaptador de rede:",
     "ja": "ネットワークアダプター：",
-    "ko": "네트워크 어댑터:"
+    "ko": "네트워크 어댑터:",
+    "fr": "Carte réseau :"
   },
   "Npcap.Missing.Title": {
     "en": "Npcap is missing",
-    "de": "Npcap fehlt"
+    "de": "Npcap fehlt",
+    "fr": "Npcap est manquant"
   },
   "Npcap.Missing.Text": {
     "en": "The meter reads the game's network traffic through the free Npcap driver, and it is not installed on this computer. Without it nothing is measured: no damage, no pet info, no boss data.\n\nOpen the download page now? Install Npcap with the default options, then restart the meter.",
-    "de": "Der Meter liest den Netzwerkverkehr des Spiels über den kostenlosen Npcap-Treiber, und der ist auf diesem Rechner nicht installiert. Ohne ihn wird nichts gemessen: kein Schaden, keine Pet-Info, keine Bossdaten.\n\nJetzt die Download-Seite öffnen? Npcap mit den Standardoptionen installieren, danach den Meter neu starten."
+    "de": "Der Meter liest den Netzwerkverkehr des Spiels über den kostenlosen Npcap-Treiber, und der ist auf diesem Rechner nicht installiert. Ohne ihn wird nichts gemessen: kein Schaden, keine Pet-Info, keine Bossdaten.\n\nJetzt die Download-Seite öffnen? Npcap mit den Standardoptionen installieren, danach den Meter neu starten.",
+    "fr": "Le compteur lit le trafic réseau du jeu grâce au pilote gratuit Npcap, qui n'est pas installé sur cet ordinateur. Sans lui, rien n'est mesuré : ni dégâts, ni infos de familier, ni données de boss.\n\nOuvrir la page de téléchargement maintenant ? Installez Npcap avec les options par défaut, puis redémarrez le compteur."
   },
   "Settings.Aion2Hint": {
     "en": "The meter reads the game's network traffic through the Npcap driver (passive, nothing is sent and the game process is never touched). Npcap must be installed from npcap.com.",
@@ -689,7 +693,8 @@
     "zh-TW": "統計器透過 Npcap 驅動程式讀取遊戲的網路流量（被動式，不會傳送任何內容，也不會碰觸遊戲處理程序）。必須從 npcap.com 安裝 Npcap。",
     "pt": "O medidor lê o tráfego de rede do jogo por meio do driver Npcap (passivo, nada é enviado e o processo do jogo nunca é tocado). O Npcap precisa estar instalado a partir de npcap.com.",
     "ja": "メーターは Npcap ドライバーを通じてゲームのネットワーク通信を読み取ります（受動的で、何も送信せず、ゲームプロセスには一切触れません）。Npcap は npcap.com からインストールする必要があります。",
-    "ko": "미터는 Npcap 드라이버를 통해 게임의 네트워크 트래픽을 읽습니다 (수동 방식으로, 아무것도 전송하지 않으며 게임 프로세스는 건드리지 않습니다). Npcap은 npcap.com에서 설치해야 합니다."
+    "ko": "미터는 Npcap 드라이버를 통해 게임의 네트워크 트래픽을 읽습니다 (수동 방식으로, 아무것도 전송하지 않으며 게임 프로세스는 건드리지 않습니다). Npcap은 npcap.com에서 설치해야 합니다.",
+    "fr": "Le compteur lit le trafic réseau du jeu grâce au pilote Npcap (en mode passif : rien n'est envoyé et le processus du jeu n'est jamais touché). Npcap doit être installé depuis npcap.com."
   },
   "Settings.Cancel": {
     "en": "Close",
@@ -1498,7 +1503,7 @@
   "Settings.AutoReset.Tooltip": {
     "en": "When a fight starts the set number of seconds or more after the last damage, the meter starts from zero. The previous fight stays on screen until then and is kept in the fight history. Never during an unfinished boss fight.",
     "de": "Beginnt ein Kampf der eingestellten Zahl an Sekunden oder mehr nach dem letzten Schaden, beginnt das Meter bei null. Der vorige Kampf bleibt bis dahin sichtbar und wird im Kampfverlauf gespeichert. Nie während eines unbeendeten Bosskampfs.",
-    "fr": "Quand un combat commence le nombre de secondes choisi ou plus après les derniers dégâts, le meter repart de zéro. Le combat précédent reste affiché jusque-là et est gardé dans l'historique. Jamais pendant un combat de boss inachevé.",
+    "fr": "Quand un combat commence le nombre de secondes choisi ou plus après les derniers dégâts, le compteur repart de zéro. Le combat précédent reste affiché jusque-là et est gardé dans l'historique. Jamais pendant un combat de boss inachevé.",
     "es": "Cuando un combate empieza los segundos elegidos o más después del último daño, el medidor vuelve a cero. El combate anterior se ve hasta entonces y queda en el historial. Nunca durante un combate de jefe sin terminar.",
     "ru": "Если бой начинается через 10 секунд или позже после последнего урона, счётчик начинает с нуля. Предыдущий бой виден до этого момента и сохраняется в истории. Никогда во время незавершённого боя с боссом.",
     "zh": "当战斗在最后一次伤害 10 秒或更久之后开始时，统计从零开始。上一场战斗在此之前保持显示并保存在战斗记录中。未结束的首领战中绝不重置。",
@@ -1882,7 +1887,7 @@
   "Settings.Nav.Pets": {
     "en": "Pets",
     "de": "Pets",
-    "fr": "Pets",
+    "fr": "Familiers",
     "es": "Mascotas",
     "ru": "Питомцы",
     "zh": "宠物",
@@ -2278,7 +2283,7 @@
   "Settings.Hotkey.PetArrows": {
     "en": "Pet arrows at the edge of the map",
     "de": "Pet-Pfeile am Rand der Karte",
-    "fr": "Flèches des pets au bord de la carte",
+    "fr": "Flèches des familiers au bord de la carte",
     "es": "Flechas de mascotas en el borde del mapa",
     "ru": "Стрелки питомцев у края карты",
     "zh": "地图边缘的宠物箭头",
@@ -3022,7 +3027,7 @@
   "Settings.PetFarm.Title": {
     "en": "Pet farming overlay",
     "de": "Pet-Farming-Overlay",
-    "fr": "Overlay de farm de pets",
+    "fr": "Overlay de farm de familiers",
     "es": "Overlay de farmeo de mascotas",
     "zh-TW": "寵物刷取浮動層",
     "pt": "Overlay de farm de mascotes",
@@ -3032,7 +3037,7 @@
   "Settings.PetFarm.Show": {
     "en": "Show the pet level of the targeted monster",
     "de": "Pet-Level des anvisierten Monsters anzeigen",
-    "fr": "Afficher le niveau du pet du monstre ciblé",
+    "fr": "Afficher le niveau du familier du monstre ciblé",
     "es": "Mostrar el nivel de la mascota del monstruo objetivo",
     "zh-TW": "顯示所選怪物的寵物等級",
     "pt": "Mostrar o nível de mascote do monstro alvo",
@@ -3078,7 +3083,7 @@
   "PetFarm.Unknown": {
     "en": "level unknown (log in with the meter running)",
     "de": "Stufe unbekannt (mit laufendem Meter einloggen)",
-    "fr": "niveau inconnu (connectez-vous avec le meter lancé)",
+    "fr": "niveau inconnu (connectez-vous avec le compteur lancé)",
     "es": "nivel desconocido (inicia sesión con el meter en marcha)",
     "ru": "уровень неизвестен (войдите в игру при запущенном метре)",
     "zh": "等级未知（请在计量器运行时登录）",
@@ -3102,7 +3107,7 @@
   "PetFarm.Placeholder": {
     "en": "Pet farming overlay (drag to move)",
     "de": "Pet-Farming-Overlay (zum Verschieben ziehen)",
-    "fr": "Overlay de farm de pets (glisser pour déplacer)",
+    "fr": "Overlay de farm de familiers (glisser pour déplacer)",
     "es": "Overlay de farmeo (arrastra para mover)",
     "ru": "Оверлей питомцев (перетащите)",
     "zh": "宠物悬浮窗（拖动移动）",
@@ -3126,7 +3131,7 @@
   "Settings.PetInfo.Title": {
     "en": "Pet information",
     "de": "Pet-Information",
-    "fr": "Information pet",
+    "fr": "Information familier",
     "es": "Información de mascota",
     "ru": "Информация о питомце",
     "zh": "宠物信息",
@@ -3138,7 +3143,7 @@
   "Settings.PetInfo.Show": {
     "en": "Show the pet information at the monster",
     "de": "Pet-Information am Mob anzeigen",
-    "fr": "Afficher l'information du pet sur le monstre",
+    "fr": "Afficher l'information du familier sur le monstre",
     "es": "Mostrar la información de mascota en el monstruo",
     "ru": "Показывать информацию о питомце у монстра",
     "zh": "在怪物旁显示宠物信息",
@@ -3198,7 +3203,7 @@
   "Settings.PetMap.Mobs": {
     "en": "Shown pets",
     "de": "Angezeigte Pets",
-    "fr": "Pets affichés",
+    "fr": "Familiers affichés",
     "es": "Mascotas mostradas",
     "ru": "Показываемые питомцы",
     "zh": "显示的宠物",
@@ -3246,7 +3251,7 @@
   "Settings.PetMap.Total": {
     "en": "{0} of {1} pets active",
     "de": "{0} von {1} Pets aktiv",
-    "fr": "{0} pets actifs sur {1}",
+    "fr": "{0} familiers actifs sur {1}",
     "es": "{0} de {1} mascotas activas",
     "ru": "Активно {0} из {1} питомцев",
     "zh": "{1} 只宠物中 {0} 只已启用",
@@ -3263,7 +3268,8 @@
     "zh-TW": "{0} 公尺",
     "pt": "{0} m",
     "ja": "{0} m",
-    "ko": "{0} m"
+    "ko": "{0} m",
+    "fr": "{0} m"
   },
   "Settings.PetMap.Search": {
     "en": "Search …",
@@ -3280,7 +3286,7 @@
   "Settings.PetMap.BadgeTip": {
     "en": "{0} on · {1} pets · {2} at the top level (Max)",
     "de": "{0} aktiv · {1} Pets · {2} auf Max",
-    "fr": "{0} actifs · {1} pets · {2} au niveau max.",
+    "fr": "{0} actifs · {1} familiers · {2} au niveau max.",
     "es": "{0} activas · {1} mascotas · {2} al máximo",
     "ru": "{0} вкл. · {1} питомцев · {2} на максимуме",
     "zh": "{0} 已启用 · {1} 只宠物 · {2} 满级",
@@ -3304,7 +3310,7 @@
   "PetMap.Placeholder": {
     "en": "Pet list (drag to move)",
     "de": "Pet-Liste (zum Verschieben ziehen)",
-    "fr": "Liste des pets (glisser pour déplacer)",
+    "fr": "Liste des familiers (glisser pour déplacer)",
     "es": "Lista de mascotas (arrastra para mover)",
     "ru": "Список питомцев (перетащите)",
     "zh": "宠物列表（拖动移动）",
@@ -3352,7 +3358,7 @@
   "Settings.HotkeyOverlay.Show": {
     "en": "Show hotkey overlay",
     "de": "Hotkey-Overlay anzeigen",
-    "fr": "Afficher la surimpression des raccourcis",
+    "fr": "Afficher l'overlay des raccourcis",
     "es": "Mostrar superposición de atajos",
     "ru": "Показывать оверлей горячих клавиш",
     "zh": "显示快捷键浮层",
@@ -3364,7 +3370,7 @@
   "Settings.HotkeyOverlay.Hint": {
     "en": "A transparent list of your hotkeys over the game. Move it while the overlays are unlocked; the switch in front of each hotkey below decides whether it is listed.",
     "de": "Eine transparente Liste deiner Hotkeys über dem Spiel. Verschieben geht, solange die Overlays entsperrt sind; der Schalter vor jedem Hotkey unten bestimmt, ob er aufgelistet wird.",
-    "fr": "Une liste transparente de vos raccourcis par-dessus le jeu. Déplaçable tant que les surimpressions sont déverrouillées ; l'interrupteur devant chaque raccourci ci-dessous choisit s'il est listé.",
+    "fr": "Une liste transparente de vos raccourcis par-dessus le jeu. Déplaçable tant que les overlays sont déverrouillées ; l'interrupteur devant chaque raccourci ci-dessous choisit s'il est listé.",
     "es": "Una lista transparente de tus atajos sobre el juego. Se mueve mientras las superposiciones estén desbloqueadas; el interruptor delante de cada atajo decide si aparece.",
     "ru": "Прозрачный список ваших горячих клавиш поверх игры. Его можно перемещать, пока оверлеи разблокированы; переключатель перед каждой клавишей решает, показывать ли её.",
     "zh": "在游戏上方显示的透明快捷键列表。浮层解锁时可移动;下方每个快捷键前的开关决定是否列出。",
@@ -3376,7 +3382,7 @@
   "Settings.HotkeyOverlay.Row.Tip": {
     "en": "Show this hotkey in the hotkey overlay",
     "de": "Diesen Hotkey im Hotkey-Overlay anzeigen",
-    "fr": "Afficher ce raccourci dans la surimpression",
+    "fr": "Afficher ce raccourci dans l'overlay",
     "es": "Mostrar este atajo en la superposición",
     "ru": "Показывать эту клавишу в оверлее",
     "zh": "在浮层中显示此快捷键",
@@ -3568,7 +3574,7 @@
   "Settings.PetRegion.YourLevel": {
     "en": "Your pet level",
     "de": "Dein Pet-Level",
-    "fr": "Ton niveau de pet",
+    "fr": "Votre niveau de familier",
     "es": "Tu nivel de mascota",
     "ru": "Ваш уровень питомца",
     "zh": "你的宠物等级",
@@ -3604,7 +3610,7 @@
   "Settings.PetRegion.BadgeTip": {
     "en": "{0} pets in the region, {1} of them at the top level (max)",
     "de": "{0} Pets in der Region, davon {1} auf dem höchsten Level (max)",
-    "fr": "{0} pets dans la région, dont {1} au niveau maximal",
+    "fr": "{0} familiers dans la région, dont {1} au niveau maximal",
     "es": "{0} mascotas en la región, {1} de ellas al nivel máximo",
     "ru": "{0} питомцев в регионе, из них {1} на максимальном уровне",
     "zh": "该区域有 {0} 只宠物，其中 {1} 只已满级",
@@ -3664,7 +3670,7 @@
   "Character.AttrMain": {
     "en": "Main attributes",
     "de": "Hauptwerte",
-    "fr": "Main attributes",
+    "fr": "Attributs principaux",
     "es": "Main attributes",
     "ru": "Main attributes",
     "zh": "Main attributes",
@@ -3676,7 +3682,7 @@
   "Character.AttrLords": {
     "en": "Lord values",
     "de": "Lord-Werte",
-    "fr": "Lord values",
+    "fr": "Valeurs de Seigneur",
     "es": "Lord values",
     "ru": "Lord values",
     "zh": "Lord values",
@@ -3688,7 +3694,7 @@
   "Character.Skin": {
     "en": "Skin",
     "de": "Skin",
-    "fr": "Skin",
+    "fr": "Apparence",
     "es": "Skin",
     "ru": "Skin",
     "zh": "Skin",
@@ -3700,7 +3706,7 @@
   "Character.Attr.str": {
     "en": "Might",
     "de": "Macht",
-    "fr": "Might",
+    "fr": "Force",
     "es": "Might",
     "ru": "Might",
     "zh": "Might",
@@ -3712,7 +3718,7 @@
   "Character.Attr.dex": {
     "en": "Dexterity",
     "de": "Agilität",
-    "fr": "Dexterity",
+    "fr": "Dextérité",
     "es": "Dexterity",
     "ru": "Dexterity",
     "zh": "Dexterity",
@@ -3724,7 +3730,7 @@
   "Character.Attr.agi": {
     "en": "Precision",
     "de": "Präzision",
-    "fr": "Precision",
+    "fr": "Précision",
     "es": "Precision",
     "ru": "Precision",
     "zh": "Precision",
@@ -3736,7 +3742,7 @@
   "Character.Attr.wis": {
     "en": "Willpower",
     "de": "Wille",
-    "fr": "Willpower",
+    "fr": "Volonté",
     "es": "Willpower",
     "ru": "Willpower",
     "zh": "Willpower",
@@ -3760,7 +3766,7 @@
   "Character.Attr.con": {
     "en": "Constitution",
     "de": "Vitalität",
-    "fr": "Constitution",
+    "fr": "Santé",
     "es": "Constitution",
     "ru": "Constitution",
     "zh": "Constitution",
@@ -3796,7 +3802,7 @@
   "Character.Attr.death": {
     "en": "Death",
     "de": "Tod",
-    "fr": "Death",
+    "fr": "Mort",
     "es": "Death",
     "ru": "Death",
     "zh": "Death",
@@ -3808,7 +3814,7 @@
   "Character.Attr.wisdom": {
     "en": "Wisdom",
     "de": "Weisheit",
-    "fr": "Wisdom",
+    "fr": "Sagesse",
     "es": "Wisdom",
     "ru": "Wisdom",
     "zh": "Wisdom",
@@ -3820,7 +3826,7 @@
   "Character.Attr.destiny": {
     "en": "Destiny",
     "de": "Schicksal",
-    "fr": "Destiny",
+    "fr": "Destin",
     "es": "Destiny",
     "ru": "Destiny",
     "zh": "Destiny",
@@ -3832,7 +3838,7 @@
   "Character.Attr.space": {
     "en": "Space",
     "de": "Raum",
-    "fr": "Space",
+    "fr": "Espace",
     "es": "Space",
     "ru": "Space",
     "zh": "Space",
@@ -3844,7 +3850,7 @@
   "Character.Attr.time": {
     "en": "Time",
     "de": "Zeit",
-    "fr": "Time",
+    "fr": "Temps",
     "es": "Time",
     "ru": "Time",
     "zh": "Time",
@@ -3856,7 +3862,7 @@
   "Character.Attr.life": {
     "en": "Life",
     "de": "Leben",
-    "fr": "Life",
+    "fr": "Vie",
     "es": "Life",
     "ru": "Life",
     "zh": "Life",
@@ -3880,7 +3886,7 @@
   "Character.Attr.freedom": {
     "en": "Freedom",
     "de": "Freiheit",
-    "fr": "Freedom",
+    "fr": "Liberté",
     "es": "Freedom",
     "ru": "Freedom",
     "zh": "Freedom",
@@ -4036,7 +4042,7 @@
   "Upload.ClientOutdatedBody": {
     "en": "You have an old client version ({0}). Please update to {1}. No uploads are possible until you do.\n\nThe update is downloading now; restart the meter to finish it.",
     "de": "Du hast eine alte Client-Version ({0}). Bitte aktualisiere auf {1}. Solange sind keine Uploads möglich.\n\nDas Update wird jetzt geladen; starte den Meter neu, um es abzuschließen.",
-    "fr": "Vous utilisez une ancienne version du client ({0}). Veuillez passer à la version {1}. Aucun envoi n'est possible tant que ce n'est pas fait.\n\nLa mise à jour se télécharge ; redémarrez le meter pour la terminer.",
+    "fr": "Vous utilisez une ancienne version du client ({0}). Veuillez passer à la version {1}. Aucun envoi n'est possible tant que ce n'est pas fait.\n\nLa mise à jour se télécharge ; redémarrez le compteur pour la terminer.",
     "es": "Tienes una versión antigua del cliente ({0}). Actualiza a la {1}. Hasta entonces no se pueden enviar datos.\n\nLa actualización se está descargando; reinicia el medidor para terminarla.",
     "ru": "У вас устаревшая версия клиента ({0}). Обновитесь до {1}. Пока этого не сделано, отправка данных невозможна.\n\nОбновление загружается; перезапустите счётчик, чтобы завершить его.",
     "zh": "您使用的是旧版客户端（{0}）。请更新到 {1}。更新之前无法上传。\n\n更新正在下载；请重启计量器以完成更新。",
@@ -4515,123 +4521,153 @@
   },
   "Settings.Network.Overlay": {
     "en": "Show the overlay",
-    "de": "Overlay anzeigen"
+    "de": "Overlay anzeigen",
+    "fr": "Afficher l'overlay"
   },
   "Settings.Network.Hint": {
     "en": "Measures the connection to the game server from the traffic the meter already sees; nothing is sent. Ping is an estimate (time until the server acknowledges what the game sent), so it reads a little above a plain ping. Unlock the overlay to move and scale it; with it locked it only shows while the game is in front.",
-    "de": "Misst die Verbindung zum Spielserver aus dem Datenverkehr, den der Meter ohnehin sieht; es wird nichts gesendet. Der Ping ist eine Schätzung (Zeit, bis der Server das Gesendete bestätigt) und liegt daher etwas über einem normalen Ping. Zum Verschieben und Vergrößern das Overlay entsperren; gesperrt erscheint es nur, solange das Spiel vorne ist."
+    "de": "Misst die Verbindung zum Spielserver aus dem Datenverkehr, den der Meter ohnehin sieht; es wird nichts gesendet. Der Ping ist eine Schätzung (Zeit, bis der Server das Gesendete bestätigt) und liegt daher etwas über einem normalen Ping. Zum Verschieben und Vergrößern das Overlay entsperren; gesperrt erscheint es nur, solange das Spiel vorne ist.",
+    "fr": "Mesure la connexion au serveur de jeu à partir du trafic que le compteur voit déjà ; rien n'est envoyé. Le ping est une estimation (temps avant que le serveur accuse réception de ce que le jeu a envoyé), il est donc un peu supérieur à un ping classique. Déverrouillez l'overlay pour le déplacer et le redimensionner ; verrouillé, il ne s'affiche que lorsque le jeu est au premier plan."
   },
   "Settings.Network.Rows": {
     "en": "Lines in the overlay",
-    "de": "Zeilen im Overlay"
+    "de": "Zeilen im Overlay",
+    "fr": "Lignes de l'overlay"
   },
   "Settings.Hotkey.Network": {
     "en": "Network overlay on / off",
-    "de": "Netzwerk-Overlay an / aus"
+    "de": "Netzwerk-Overlay an / aus",
+    "fr": "Overlay réseau activé / désactivé"
   },
   "Network.Row.server": {
     "en": "Server",
-    "de": "Server"
+    "de": "Server",
+    "fr": "Serveur"
   },
   "Network.Row.ping": {
     "en": "Ping",
-    "de": "Ping"
+    "de": "Ping",
+    "fr": "Ping"
   },
   "Network.Row.jitter": {
     "en": "Jitter",
-    "de": "Jitter"
+    "de": "Jitter",
+    "fr": "Gigue"
   },
   "Network.Row.traffic": {
     "en": "Traffic",
-    "de": "Datenverkehr"
+    "de": "Datenverkehr",
+    "fr": "Trafic"
   },
   "Network.Row.loss": {
     "en": "Packet loss (last minute)",
-    "de": "Paketverlust (letzte Minute)"
+    "de": "Paketverlust (letzte Minute)",
+    "fr": "Perte de paquets (dernière minute)"
   },
   "Network.Row.connection": {
     "en": "Connection",
-    "de": "Verbindung"
+    "de": "Verbindung",
+    "fr": "Connexion"
   },
   "Network.Row.load": {
     "en": "Meter load",
-    "de": "Meter-Auslastung"
+    "de": "Meter-Auslastung",
+    "fr": "Charge du compteur"
   },
   "Network.Row.stalls": {
     "en": "Stalls (10 min)",
-    "de": "Aussetzer (10 Min.)"
+    "de": "Aussetzer (10 Min.)",
+    "fr": "Coupures (10 min)"
   },
   "Network.Row.gateway": {
     "en": "Router (last minute)",
-    "de": "Router (letzte Minute)"
+    "de": "Router (letzte Minute)",
+    "fr": "Routeur (dernière minute)"
   },
   "Network.Row.internet": {
     "en": "Internet (last minute)",
-    "de": "Internet (letzte Minute)"
+    "de": "Internet (letzte Minute)",
+    "fr": "Internet (dernière minute)"
   },
   "Network.Stalls.None": {
     "en": "none",
-    "de": "keine"
+    "de": "keine",
+    "fr": "aucune"
   },
   "Network.Stalls.Value": {
     "en": "{0}× · longest {1} s · last {2} ago",
-    "de": "{0}× · längster {1} s · zuletzt vor {2}"
+    "de": "{0}× · längster {1} s · zuletzt vor {2}",
+    "fr": "{0}× · la plus longue {1} s · dernière il y a {2}"
   },
   "Network.Stalls.Cause.lan": {
     "en": "router silent: LAN / router",
-    "de": "Router stumm: LAN / Router"
+    "de": "Router stumm: LAN / Router",
+    "fr": "routeur muet : réseau local / routeur"
   },
   "Network.Stalls.Cause.line": {
     "en": "internet silent: line / provider",
-    "de": "Internet stumm: Leitung / Provider"
+    "de": "Internet stumm: Leitung / Provider",
+    "fr": "internet muet : ligne / fournisseur"
   },
   "Network.Stalls.Cause.server": {
     "en": "local network fine: server / route",
-    "de": "lokales Netz ok: Server / Route"
+    "de": "lokales Netz ok: Server / Route",
+    "fr": "réseau local correct : serveur / route"
   },
   "Network.Probe.Value": {
     "en": "{0} ms · {1}/{2} lost",
-    "de": "{0} ms · {1}/{2} verloren"
+    "de": "{0} ms · {1}/{2} verloren",
+    "fr": "{0} ms · {1}/{2} perdus"
   },
   "Network.Connection.Unacked": {
     "en": "unacknowledged for {0} s",
-    "de": "unbestätigt seit {0} s"
+    "de": "unbestätigt seit {0} s",
+    "fr": "sans accusé de réception depuis {0} s"
   },
   "Network.Waiting": {
     "en": "Waiting for game traffic …",
-    "de": "Warte auf Spielverkehr …"
+    "de": "Warte auf Spielverkehr …",
+    "fr": "En attente du trafic du jeu …"
   },
   "Network.Ping.Detail": {
     "en": "avg {0} · min {1} · max {2}",
-    "de": "Ø {0} · min {1} · max {2}"
+    "de": "Ø {0} · min {1} · max {2}",
+    "fr": "moy. {0} · min. {1} · max. {2}"
   },
   "Network.Traffic.Peak": {
     "en": "peak ↓ {0}",
-    "de": "Spitze ↓ {0}"
+    "de": "Spitze ↓ {0}",
+    "fr": "pic ↓ {0}"
   },
   "Network.Loss.Value": {
     "en": "{0} retransmitted · {1} gaps",
-    "de": "{0} wiederholt · {1} Lücken"
+    "de": "{0} wiederholt · {1} Lücken",
+    "fr": "{0} retransmis · {1} trous"
   },
   "Network.Connection.Online": {
     "en": "online {0}",
-    "de": "online {0}"
+    "de": "online {0}",
+    "fr": "en ligne depuis {0}"
   },
   "Network.Connection.Stalled": {
     "en": "no data for {0} s",
-    "de": "keine Daten seit {0} s"
+    "de": "keine Daten seit {0} s",
+    "fr": "aucune donnée depuis {0} s"
   },
   "Network.Connection.Reconnects": {
     "en": "{0} reconnect(s)",
-    "de": "{0} Neuverbindung(en)"
+    "de": "{0} Neuverbindung(en)",
+    "fr": "{0} reconnexion(s)"
   },
   "Network.Load.Value": {
     "en": "queue {0} · dropped {1}",
-    "de": "Warteschlange {0} · verworfen {1}"
+    "de": "Warteschlange {0} · verworfen {1}",
+    "fr": "file {0} · perdus {1}"
   },
   "Network.Connection.Switches": {
     "en": "{0} server change(s)",
-    "de": "{0} Serverwechsel"
+    "de": "{0} Serverwechsel",
+    "fr": "{0} changement(s) de serveur"
   },
   "Sessions.All": {
     "en": "All sessions",
@@ -5788,7 +5824,7 @@
   "Rotation.ShowStagger": {
     "en": "Stagger",
     "de": "Stagger",
-    "fr": "Stagger",
+    "fr": "Déséquilibre",
     "es": "Stagger",
     "ru": "Оглушение",
     "zh": "硬直",
@@ -6232,7 +6268,7 @@
   "Settings.Stream.Hint": {
     "en": "Shows the meter live in OBS or Streamlabs: add a Browser source, paste the link and set its size. For two PCs, copy the link to the streaming PC: it holds this PC's address in your network. Only your own network can reach it (never the internet), the link holds a random key, and nothing is sent anywhere. Windows may ask once to allow the meter in the firewall: allow it for private networks. A new key makes the old link stop working. Names are off by default.",
     "de": "Zeigt den Meter live in OBS oder Streamlabs: Quelle „Browser“ hinzufügen, den Link einfügen und die Größe einstellen. Bei zwei PCs den Link auf den Streaming-PC kopieren: Er enthält die Adresse dieses PCs in deinem Netzwerk. Erreichbar ist er nur aus deinem eigenen Netzwerk (nie aus dem Internet), der Link enthält einen zufälligen Schlüssel, und nichts wird irgendwohin gesendet. Windows fragt einmal, ob der Meter durch die Firewall darf: für private Netzwerke erlauben. Ein neuer Schlüssel macht den alten Link ungültig. Namen sind standardmäßig aus.",
-    "fr": "Affiche le compteur en direct dans OBS ou Streamlabs : ajoute une source Navigateur, colle le lien et règle sa taille. Avec deux PC, copie le lien sur le PC de streaming : il contient l'adresse de ce PC dans ton réseau. Seul ton propre réseau peut y accéder (jamais Internet), le lien contient une clé aléatoire et rien n'est envoyé ailleurs. Windows peut demander une fois d'autoriser le compteur dans le pare-feu : autorise-le pour les réseaux privés. Une nouvelle clé invalide l'ancien lien. Les noms sont masqués par défaut.",
+    "fr": "Affiche le compteur en direct dans OBS ou Streamlabs : ajoutez une source Navigateur, collez le lien et réglez sa taille. Avec deux PC, copiez le lien sur le PC de streaming : il contient l'adresse de ce PC dans votre réseau. Seul votre propre réseau peut y accéder (jamais Internet), le lien contient une clé aléatoire et rien n'est envoyé ailleurs. Windows peut demander une fois d'autoriser le compteur dans le pare-feu : autorisez-le pour les réseaux privés. Une nouvelle clé invalide l'ancien lien. Les noms sont masqués par défaut.",
     "es": "Muestra el medidor en directo en OBS o Streamlabs: añade una fuente Navegador, pega el enlace y ajusta su tamaño. Con dos PC, copia el enlace al PC de streaming: contiene la dirección de este PC en tu red. Solo tu propia red puede acceder (nunca internet), el enlace lleva una clave aleatoria y no se envía nada a ningún sitio. Windows puede preguntar una vez si permite el medidor en el firewall: permítelo para redes privadas. Una clave nueva invalida el enlace anterior. Los nombres están desactivados por defecto.",
     "ru": "Показывает счётчик в реальном времени в OBS или Streamlabs: добавьте источник «Браузер», вставьте ссылку и задайте размер. Для двух ПК скопируйте ссылку на ПК для стриминга: в ней адрес этого ПК в вашей сети. Доступ только из вашей сети (не из интернета), в ссылке случайный ключ, ничего никуда не отправляется. Windows один раз может спросить о разрешении в брандмауэре: разрешите для частных сетей. Новый ключ делает старую ссылку недействительной. Имена по умолчанию скрыты.",
     "zh": "在 OBS 或 Streamlabs 中实时显示计量器：添加“浏览器”来源，粘贴链接并设置大小。使用两台电脑时，把链接复制到推流电脑：链接包含这台电脑在你网络中的地址。只有你自己的网络能访问（互联网不能），链接包含随机密钥，不会向任何地方发送数据。Windows 可能会询问一次是否允许防火墙放行：请为专用网络允许。新密钥会使旧链接失效。名称默认关闭。",
@@ -6412,7 +6448,7 @@
   "Replay.Staggered": {
     "en": "staggered",
     "de": "aus dem Gleichgewicht",
-    "fr": "déstabilisé",
+    "fr": "déséquilibré",
     "es": "aturdido",
     "ru": "оглушён",
     "zh": "硬直中",
@@ -6580,7 +6616,7 @@
   "Sessions.SaveExtras.Tip": {
     "en": "Saves the skill rotation, effects, stagger and the replay map with the file, so they can be seen when it is opened later or on another PC. The file gets several times bigger (about 0.5 to 5 MB for a boss fight of five minutes).",
     "de": "Speichert Skill-Rotation, Effekte, Taumeln und die Replay-Karte mit in der Datei, damit man sie später oder auf einem anderen PC sehen kann. Die Datei wird um ein Vielfaches größer (etwa 0,5 bis 5 MB bei einem Bosskampf von fünf Minuten).",
-    "fr": "Enregistre la rotation des compétences, les effets, le vacillement et la carte de replay dans le fichier, pour les voir plus tard ou sur un autre PC. Le fichier devient bien plus gros (environ 0,5 à 5 Mo pour un combat de boss de cinq minutes).",
+    "fr": "Enregistre la rotation des compétences, les effets, le déséquilibre et la carte de replay dans le fichier, pour les voir plus tard ou sur un autre PC. Le fichier devient bien plus gros (environ 0,5 à 5 Mo pour un combat de boss de cinq minutes).",
     "es": "Guarda la rotación de habilidades, los efectos, el aturdimiento y el mapa de repetición en el archivo, para verlos más tarde o en otro PC. El archivo se hace mucho más grande (unos 0,5 a 5 MB en un combate de jefe de cinco minutos).",
     "ru": "Сохраняет в файл ротацию умений, эффекты, пошатывание и карту повтора, чтобы увидеть их позже или на другом ПК. Файл становится заметно больше (около 0,5-5 МБ для боя с боссом в пять минут).",
     "zh": "将技能循环、效果、失衡和回放地图一并保存到文件中，以便之后或在另一台电脑上查看。文件会大很多（五分钟的首领战约 0.5 至 5 MB）。",
@@ -6676,7 +6712,7 @@
   "Settings.Card.DisplayChips": {
     "en": "Display during the fight - chips",
     "de": "Anzeige im Kampf - Chips",
-    "fr": "Affichage pendant le combat - puces",
+    "fr": "Affichage pendant le combat - pastilles",
     "es": "Visualización en el combate - fichas",
     "ru": "Отображение в бою - чипы",
     "zh": "战斗中的显示 - 小标签",
@@ -6712,7 +6748,7 @@
   "Settings.CompactClickThrough.Hint": {
     "en": "Mouse clicks go straight through the compact panel to the game, like with the chips. Then it can no longer be dragged, scaled or opened by clicking - switch it off to arrange it.",
     "de": "Mausklicks gehen durch das kompakte Panel direkt ins Spiel, wie bei den Chips. Dann lässt es sich nicht mehr per Klick verschieben, skalieren oder öffnen - zum Anordnen die Option ausschalten.",
-    "fr": "Les clics de souris traversent le panneau compact jusqu'au jeu, comme pour les puces. Il ne peut alors plus être déplacé, redimensionné ou ouvert par clic - désactivez l'option pour l'arranger.",
+    "fr": "Les clics de souris traversent le panneau compact jusqu'au jeu, comme pour les pastilles. Il ne peut alors plus être déplacé, redimensionné ou ouvert par clic - désactivez l'option pour l'arranger.",
     "es": "Los clics del ratón atraviesan el panel compacto hasta el juego, como con las fichas. Entonces no se puede mover, escalar ni abrir con clics: desactiva la opción para colocarlo.",
     "ru": "Клики мыши проходят сквозь компактную панель прямо в игру, как у плашек. Тогда её нельзя перетаскивать, масштабировать или открывать кликом - отключите опцию, чтобы расположить её.",
     "zh": "鼠标点击会直接穿过紧凑面板到达游戏,与标签相同。此时无法通过点击拖动、缩放或打开面板——需要调整位置时请关闭此选项。",
@@ -6772,7 +6808,7 @@
   "Checklist.Title": {
     "en": "Aion 2 Checklist - Odyle energy, daily and weekly counters",
     "de": "Aion 2 Checkliste - Odenergie, tägliche und wöchentliche Zähler",
-    "fr": "Aion 2 Liste de contrôle - énergie Odyle, compteurs quotidiens et hebdomadaires",
+    "fr": "Liste de contrôle Aion 2 - énergie Odyle, compteurs quotidiens et hebdomadaires",
     "es": "Aion 2 Lista de control - energía Odyle, contadores diarios y semanales",
     "ru": "Aion 2 Чек-лист - энергия Одила, ежедневные и еженедельные счётчики",
     "zh": "Aion 2 清单 - 奥迪尔能量、每日和每周计数",
@@ -6952,7 +6988,7 @@
   "Checklist.ScrollAbyss": {
     "en": "Abyss mandatory scrolls (bought this week, per server)",
     "de": "Abyss-Pflichtrollen (diese Woche gekauft, pro Server)",
-    "fr": "Parchemins obligatoires de l'Abîme (achetés cette semaine, par serveur)",
+    "fr": "Parchemins obligatoires de l'Abysse (achetés cette semaine, par serveur)",
     "es": "Pergaminos obligatorios del Abismo (comprados esta semana, por servidor)",
     "ru": "Обязательные свитки Бездны (куплено на этой неделе, на сервер)",
     "zh": "深渊必做卷轴（本周已购买，每服务器）",
@@ -7072,7 +7108,7 @@
   "Dummy.Waiting": {
     "en": "Waiting for the first hit, skill or buff",
     "de": "Wartet auf den ersten Treffer, Skill oder Buff",
-    "fr": "Attend le premier coup, compétence ou buff",
+    "fr": "En attente du premier coup, d'une compétence ou d'un buff",
     "es": "Espera el primer golpe, habilidad o buff",
     "ru": "Ждёт первого удара, умения или баффа",
     "zh": "等待第一次攻击、技能或增益",
@@ -7131,211 +7167,263 @@
   },
   "Dummy.Duration": {
     "en": "Test duration",
-    "de": "Testdauer"
+    "de": "Testdauer",
+    "fr": "Durée du test"
   },
   "Dummy.DurationHint": {
     "en": "Minutes:seconds, for example 2:00",
-    "de": "Minuten:Sekunden, zum Beispiel 2:00"
+    "de": "Minuten:Sekunden, zum Beispiel 2:00",
+    "fr": "Minutes:secondes, par exemple 2:00"
   },
   "Dummy.NoteNext": {
     "en": "Note for the next run",
-    "de": "Notiz für den nächsten Lauf"
+    "de": "Notiz für den nächsten Lauf",
+    "fr": "Note pour la prochaine série"
   },
   "Dummy.NoteHint": {
     "en": "Shown with the run in the list and in the comparison",
-    "de": "Wird beim Lauf in der Liste und im Vergleich angezeigt"
+    "de": "Wird beim Lauf in der Liste und im Vergleich angezeigt",
+    "fr": "Affichée avec la série dans la liste et dans la comparaison"
   },
   "Dummy.ClockHint": {
     "en": "The time only starts with your first hit, skill or buff.",
-    "de": "Die Zeit läuft erst ab dem ersten Treffer, Skill oder Buff."
+    "de": "Die Zeit läuft erst ab dem ersten Treffer, Skill oder Buff.",
+    "fr": "Le chrono ne démarre qu'à votre premier coup, compétence ou buff."
   },
   "Dummy.NoRun": {
     "en": "No run yet",
-    "de": "Noch kein Lauf"
+    "de": "Noch kein Lauf",
+    "fr": "Aucune série pour l'instant"
   },
   "Dummy.CurrentRun": {
     "en": "Run {0}",
-    "de": "Lauf {0}"
+    "de": "Lauf {0}",
+    "fr": "Série {0}"
   },
   "Dummy.RunNumber": {
     "en": "Run {0}",
-    "de": "Lauf {0}"
+    "de": "Lauf {0}",
+    "fr": "Série {0}"
   },
   "Dummy.StateRunning": {
     "en": "Running since {0}",
-    "de": "Läuft seit {0}"
+    "de": "Läuft seit {0}",
+    "fr": "En cours depuis {0}"
   },
   "Dummy.RunningHint": {
     "en": "Counted from your first hit",
-    "de": "Gezählt ab dem ersten Treffer"
+    "de": "Gezählt ab dem ersten Treffer",
+    "fr": "Comptée à partir de votre premier coup"
   },
   "Dummy.FinishedHint": {
     "en": "Recording stopped - result under Analyse",
-    "de": "Aufnahme beendet - Ergebnis unter Analysieren"
+    "de": "Aufnahme beendet - Ergebnis unter Analysieren",
+    "fr": "Enregistrement arrêté - résultat sous Analyser"
   },
   "Dummy.Idle": {
     "en": "Press Start, then hit the dummy.",
-    "de": "Start drücken und den Dummy schlagen."
+    "de": "Start drücken und den Dummy schlagen.",
+    "fr": "Appuyez sur Démarrer, puis frappez le mannequin."
   },
   "Dummy.OverlaySample": {
     "en": "Overlay position: unlocked, drag to move",
-    "de": "Overlay-Position: entsperrt, zum Verschieben ziehen"
+    "de": "Overlay-Position: entsperrt, zum Verschieben ziehen",
+    "fr": "Position de l'overlay : déverrouillé, glisser pour déplacer"
   },
   "Dummy.Dps": {
     "en": "DPS",
-    "de": "DPS"
+    "de": "DPS",
+    "fr": "DPS"
   },
   "Dummy.Damage": {
     "en": "Damage",
-    "de": "Schaden"
+    "de": "Schaden",
+    "fr": "Dégâts"
   },
   "Dummy.DpsNow": {
     "en": "DPS now",
-    "de": "DPS jetzt"
+    "de": "DPS jetzt",
+    "fr": "DPS actuel"
   },
   "Dummy.DamageTotal": {
     "en": "Total damage",
-    "de": "Schaden gesamt"
+    "de": "Schaden gesamt",
+    "fr": "Dégâts totaux"
   },
   "Dummy.Hits": {
     "en": "Hits",
-    "de": "Treffer"
+    "de": "Treffer",
+    "fr": "Coups"
   },
   "Dummy.Overlay": {
     "en": "Overlay",
-    "de": "Overlay"
+    "de": "Overlay",
+    "fr": "Overlay"
   },
   "Dummy.OverlayOn": {
     "en": "Overlay on / off",
-    "de": "Overlay an / aus"
+    "de": "Overlay an / aus",
+    "fr": "Overlay activé / désactivé"
   },
   "Dummy.OverlayLock": {
     "en": "Lock overlay",
-    "de": "Overlay sperren"
+    "de": "Overlay sperren",
+    "fr": "Verrouiller l'overlay"
   },
   "Dummy.OverlayAll": {
     "en": "All overlays on / off",
-    "de": "Alle Overlays an / aus"
+    "de": "Alle Overlays an / aus",
+    "fr": "Tous les overlays activés / désactivés"
   },
   "Dummy.OverlayHint": {
     "en": "Unlocked, the overlay can be moved and scaled in the game.",
-    "de": "Entsperrt lässt sich das Overlay im Spiel verschieben und skalieren."
+    "de": "Entsperrt lässt sich das Overlay im Spiel verschieben und skalieren.",
+    "fr": "Déverrouillé, l'overlay peut être déplacé et redimensionné dans le jeu."
   },
   "Dummy.Runs": {
     "en": "Recorded runs",
-    "de": "Aufgezeichnete Läufe"
+    "de": "Aufgezeichnete Läufe",
+    "fr": "Séries enregistrées"
   },
   "Dummy.RunsNone": {
     "en": "No runs yet. Every Start makes a new run.",
-    "de": "Noch keine Läufe. Jeder Start legt einen neuen Lauf an."
+    "de": "Noch keine Läufe. Jeder Start legt einen neuen Lauf an.",
+    "fr": "Aucune série pour l'instant. Chaque Démarrer crée une nouvelle série."
   },
   "Dummy.ColRun": {
     "en": "Run",
-    "de": "Lauf"
+    "de": "Lauf",
+    "fr": "Série"
   },
   "Dummy.ColStart": {
     "en": "Start",
-    "de": "Start"
+    "de": "Start",
+    "fr": "Début"
   },
   "Dummy.ColLength": {
     "en": "Length",
-    "de": "Dauer"
+    "de": "Dauer",
+    "fr": "Durée"
   },
   "Dummy.ColAvgDps": {
     "en": "Avg DPS",
-    "de": "Ø DPS"
+    "de": "Ø DPS",
+    "fr": "DPS moy."
   },
   "Dummy.ColMinDps": {
     "en": "Min DPS",
-    "de": "Min DPS"
+    "de": "Min DPS",
+    "fr": "DPS min."
   },
   "Dummy.ColMaxDps": {
     "en": "Max DPS",
-    "de": "Max DPS"
+    "de": "Max DPS",
+    "fr": "DPS max."
   },
   "Dummy.ColDamage": {
     "en": "Damage",
-    "de": "Schaden"
+    "de": "Schaden",
+    "fr": "Dégâts"
   },
   "Dummy.ColNote": {
     "en": "Note",
-    "de": "Notiz"
+    "de": "Notiz",
+    "fr": "Note"
   },
   "Dummy.ColMinHit": {
     "en": "Min hit",
-    "de": "Min Treffer"
+    "de": "Min Treffer",
+    "fr": "Coup min."
   },
   "Dummy.ColMaxHit": {
     "en": "Max hit",
-    "de": "Max Treffer"
+    "de": "Max Treffer",
+    "fr": "Coup max."
   },
   "Dummy.ColAvgHit": {
     "en": "Avg hit",
-    "de": "Ø Treffer"
+    "de": "Ø Treffer",
+    "fr": "Coup moy."
   },
   "Dummy.ColCrit": {
     "en": "Crit",
-    "de": "Krit"
+    "de": "Krit",
+    "fr": "Crit"
   },
   "Dummy.ColSkills": {
     "en": "Skills",
-    "de": "Skills"
+    "de": "Skills",
+    "fr": "Compétences"
   },
   "Dummy.ColDelta": {
     "en": "Δ Avg DPS",
-    "de": "Δ Ø DPS"
+    "de": "Δ Ø DPS",
+    "fr": "Δ DPS moy."
   },
   "Dummy.RunLive": {
     "en": "running …",
-    "de": "läuft …"
+    "de": "läuft …",
+    "fr": "en cours …"
   },
   "Dummy.NoteEdit": {
     "en": "Click to edit the note",
-    "de": "Zum Bearbeiten der Notiz klicken"
+    "de": "Zum Bearbeiten der Notiz klicken",
+    "fr": "Cliquer pour modifier la note"
   },
   "Dummy.Remove": {
     "en": "Remove run",
-    "de": "Lauf entfernen"
+    "de": "Lauf entfernen",
+    "fr": "Supprimer la série"
   },
   "Dummy.RemoveAsk": {
     "en": "Remove {0}?",
-    "de": "{0} entfernen?"
+    "de": "{0} entfernen?",
+    "fr": "Supprimer {0} ?"
   },
   "Dummy.Compare": {
     "en": "Compare",
-    "de": "Vergleichen"
+    "de": "Vergleichen",
+    "fr": "Comparer"
   },
   "Dummy.SelectAll": {
     "en": "Select all",
-    "de": "Alle wählen"
+    "de": "Alle wählen",
+    "fr": "Tout sélectionner"
   },
   "Dummy.PickNone": {
     "en": "No finished runs yet.",
-    "de": "Noch keine fertigen Läufe."
+    "de": "Noch keine fertigen Läufe.",
+    "fr": "Aucune série terminée pour l'instant."
   },
   "Dummy.CompareNone": {
     "en": "Tick the runs to compare.",
-    "de": "Läufe zum Vergleichen ankreuzen."
+    "de": "Läufe zum Vergleichen ankreuzen.",
+    "fr": "Cochez les séries à comparer."
   },
   "Dummy.Comparison": {
     "en": "Comparison",
-    "de": "Vergleich"
+    "de": "Vergleich",
+    "fr": "Comparaison"
   },
   "Dummy.Timeline": {
     "en": "Timeline: skills and effects",
-    "de": "Zeitstrahl: Skills und Effekte"
+    "de": "Zeitstrahl: Skills und Effekte",
+    "fr": "Chronologie : compétences et effets"
   },
   "Dummy.LaneSkills": {
     "en": "Skills",
-    "de": "Skills"
+    "de": "Skills",
+    "fr": "Compétences"
   },
   "Dummy.LaneEffects": {
     "en": "Effects",
-    "de": "Effekte"
+    "de": "Effekte",
+    "fr": "Effets"
   },
   "Dummy.TimelineNone": {
     "en": "No skills or effects were recorded for these runs.",
-    "de": "Für diese Läufe wurden keine Skills oder Effekte aufgezeichnet."
+    "de": "Für diese Läufe wurden keine Skills oder Effekte aufgezeichnet.",
+    "fr": "Aucune compétence ni aucun effet n'ont été enregistrés pour ces séries."
   },
   "Settings.Custom.Background": {
     "en": "Background colour:",
@@ -7376,7 +7464,7 @@
   "Settings.Custom.FontSize": {
     "en": "Own font size (left = off):",
     "de": "Eigene Schriftgröße (ganz links = aus):",
-    "fr": "Taille de police perso (à gauche = off) :",
+    "fr": "Taille de police perso (tout à gauche = désactivé) :",
     "es": "Tamaño de fuente propio (izquierda = off):",
     "ru": "Свой размер шрифта (слева = выкл.):",
     "zh": "自定义字号（最左 = 关）：",
@@ -7628,7 +7716,7 @@
   "ThemeEditor.Toggle": {
     "en": "PVE / PVP buttons (chosen):",
     "de": "PVE-/PVP-Button (gewählt):",
-    "fr": "Boutons PVE / PVP (choisi) :",
+    "fr": "Boutons PvE / PvP (choisi) :",
     "es": "Botones PVE / PVP (elegido):",
     "ru": "Кнопки PVE / PVP (выбрано):",
     "zh": "PVE / PVP 按钮（选中）：",
@@ -7784,7 +7872,7 @@
   "Main.MenuTools.Assist": {
     "en": "Skill Assist",
     "de": "Skill-Assist",
-    "fr": "Skill Assist",
+    "fr": "Assistant de compétences",
     "es": "Skill Assist",
     "ru": "Скилл-ассист",
     "zh": "技能辅助",
@@ -7796,7 +7884,7 @@
   "Assist.Title": {
     "en": "Aion 2 Assist - cooldowns and effects",
     "de": "Aion 2 Assist - Abklingzeiten und Effekte",
-    "fr": "Aion 2 Assistant - délais de récupération et effets",
+    "fr": "Assistant Aion 2 - délais de récupération et effets",
     "es": "Aion 2 Asistente - enfriamientos y efectos",
     "ru": "Aion 2 Помощник - перезарядки и эффекты",
     "zh": "Aion 2 辅助 - 冷却与效果",
@@ -8188,7 +8276,7 @@
   "Settings.PetMap.CardList": {
     "en": "Pet and collectible list",
     "de": "Pet- und Sammelliste",
-    "fr": "Liste des pets et objets à récolter",
+    "fr": "Liste des familiers et objets à récolter",
     "es": "Lista de mascotas y recolectables",
     "ru": "Список питомцев и добычи",
     "zh": "宠物与采集物列表",
@@ -8356,7 +8444,7 @@
   "Checklist.ShopOdyle": {
     "en": "Odyle Energy bought in the Brisenwind trade guild",
     "de": "Odenergie in der Handelsgilde Brisenwind gekauft",
-    "fr": "Énergie Od achetée à la guilde marchande de Brisenwind",
+    "fr": "Énergie Od achetée à la guilde marchande Brise Légère",
     "es": "Energía de Od comprada en el gremio comercial de Brisenwind",
     "ru": "Эфирная энергия куплена в торговой гильдии Бризенвинд",
     "zh": "在布里森温德商会购买的奥德能量",
@@ -8572,7 +8660,7 @@
   "Loot.Settings.Overlay": {
     "en": "Show the loot overlay in the game",
     "de": "Beute-Overlay im Spiel anzeigen",
-    "fr": "Afficher la surimpression du butin dans le jeu",
+    "fr": "Afficher l'overlay du butin dans le jeu",
     "es": "Mostrar la superposición del botín en el juego",
     "ru": "Показывать оверлей добычи в игре",
     "zh": "在游戏中显示战利品浮层",
@@ -8584,7 +8672,7 @@
   "Loot.Settings.Hint": {
     "en": "The overlay lists what you picked up from the ground, the newest first. It shows while the game is in front; unlocked, it can be moved and scaled.",
     "de": "Das Overlay listet, was du vom Boden aufgehoben hast, das Neueste zuerst. Es erscheint, solange das Spiel vorne ist; entsperrt lässt es sich verschieben und skalieren.",
-    "fr": "La surimpression liste ce que vous avez ramassé au sol, le plus récent en premier. Elle s'affiche quand le jeu est au premier plan ; déverrouillée, elle peut être déplacée et redimensionnée.",
+    "fr": "L'overlay liste ce que vous avez ramassé au sol, le plus récent en premier. Elle s'affiche quand le jeu est au premier plan ; déverrouillée, elle peut être déplacée et redimensionnée.",
     "es": "La superposición lista lo que recogiste del suelo, lo más reciente primero. Se muestra con el juego en primer plano; desbloqueada, se puede mover y escalar.",
     "ru": "Оверлей перечисляет подобранное с земли, новое сверху. Он виден, пока игра на переднем плане; в разблокированном виде его можно двигать и масштабировать.",
     "zh": "浮层列出你从地上拾取的物品，最新的在最上面。游戏位于前台时显示；解锁后可移动和缩放。",
@@ -8596,7 +8684,7 @@
   "Loot.Settings.Content": {
     "en": "What the overlay lists",
     "de": "Was das Overlay auflistet",
-    "fr": "Ce que liste la surimpression",
+    "fr": "Ce que liste l'overlay",
     "es": "Qué lista la superposición",
     "ru": "Что показывает оверлей",
     "zh": "浮层列出的内容",
@@ -8632,7 +8720,7 @@
   "Loot.Settings.Lines": {
     "en": "Lines in the overlay at most",
     "de": "Höchstens Zeilen im Overlay",
-    "fr": "Nombre maximal de lignes dans la surimpression",
+    "fr": "Nombre maximal de lignes dans l'overlay",
     "es": "Máximo de líneas en la superposición",
     "ru": "Максимум строк в оверлее",
     "zh": "浮层最多行数",
@@ -8896,7 +8984,7 @@
   "Settings.Speech.Voice": {
     "en": "Person (voice)",
     "de": "Person (Stimme)",
-    "fr": "Personne (voix)",
+    "fr": "Voix",
     "es": "Persona (voz)",
     "ru": "Голос",
     "zh": "人物（声音）",
@@ -9100,7 +9188,7 @@
   "Speech.OnYou": {
     "en": "on you",
     "de": "auf dich",
-    "fr": "sur toi",
+    "fr": "sur vous",
     "es": "sobre ti",
     "ru": "на тебя",
     "zh": "对你",
@@ -9160,7 +9248,7 @@
   "Settings.LoginShare.Title": {
     "en": "Legion: login data",
     "de": "Legion: Login-Daten",
-    "fr": "Legion: login data",
+    "fr": "Légion : données de connexion",
     "es": "Legion: login data",
     "ru": "Legion: login data",
     "zh": "Legion: login data",
@@ -9172,7 +9260,7 @@
   "Settings.LoginShare.Hint": {
     "en": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
     "de": "Wird nur Mitgliedern der Legion Akatsuki auf Kaisinel angezeigt. Wenn aktiv, wird bei jedem Login alles, was der Spielserver beim Einloggen deines Charakters sendet (der komplette Login-Datenverkehr; kein Chat, nichts, was dein PC sendet, kein Passwort), einmal auf aiondps.com hochgeladen. Es wird nur kurz gespeichert, um herauszufinden, welche Charaktere zu einem Spieler gehören, und danach gelöscht. Standardmäßig aus.",
-    "fr": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "fr": "Visible uniquement pour les membres de la légion Akatsuki sur Kaisinel. Si cette option est activée, tout ce que le serveur de jeu envoie pendant la connexion de votre personnage (le trafic de connexion complet, sans chat, sans rien de ce qu'envoie le PC, sans mot de passe) est envoyé une fois par connexion à aiondps.com. Ces données ne sont conservées que peu de temps, pour déterminer ce qui relie les personnages d'un même joueur, puis supprimées. Désactivé par défaut.",
     "es": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
     "ru": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
     "zh": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
@@ -9184,7 +9272,7 @@
   "Settings.LoginShare": {
     "en": "Upload my complete login for the legion analysis",
     "de": "Meinen kompletten Login für die Legions-Analyse hochladen",
-    "fr": "Upload my complete login for the legion analysis",
+    "fr": "Envoyer ma connexion complète pour l'analyse de la légion",
     "es": "Upload my complete login for the legion analysis",
     "ru": "Upload my complete login for the legion analysis",
     "zh": "Upload my complete login for the legion analysis",
@@ -10156,7 +10244,7 @@
   "StatCalc.Expert.CritResist": {
     "en": "Target's crit damage resistance (%)",
     "de": "Krit-Schadensresistenz des Ziels (%)",
-    "fr": "Résistance du cible aux dégâts critiques (%)",
+    "fr": "Résistance de la cible aux dégâts critiques (%)",
     "es": "Resistencia del objetivo al daño crítico (%)",
     "ru": "Сопротивление цели критическому урону (%)",
     "zh": "目标的暴击伤害抗性（%）",
@@ -10275,87 +10363,108 @@
   },
   "Checklist.Subs": {
     "en": "Subscriptions & tickets",
-    "de": "Abo & Tickets"
+    "de": "Abo & Tickets",
+    "fr": "Abonnements et tickets"
   },
   "Checklist.DaysHours": {
     "en": "{0} d {1} h",
-    "de": "{0} Tg {1} Std"
+    "de": "{0} Tg {1} Std",
+    "fr": "{0} j {1} h"
   },
   "Checklist.HoursOnly": {
     "en": "{0} h",
-    "de": "{0} Std"
+    "de": "{0} Std",
+    "fr": "{0} h"
   },
   "Checklist.Until": {
     "en": "until {0}",
-    "de": "bis {0}"
+    "de": "bis {0}",
+    "fr": "jusqu'au {0}"
   },
   "Checklist.PremiumLoses": {
     "en": "afterwards without: Remote Storage, Market, Exchange, Wind Breeze Merchants; Odyle Energy max. {0} instead of {1}; Shugo Festival keys max. {2} instead of {3}",
-    "de": "danach ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde; Odenergie max. {0} statt {1}; Shugofesta-Schlüssel max. {2} statt {3}"
+    "de": "danach ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde; Odenergie max. {0} statt {1}; Shugofesta-Schlüssel max. {2} statt {3}",
+    "fr": "ensuite sans : Entrepôt à distance, Marché, Échange, Brise Légère ; énergie Od max. {0} au lieu de {1} ; clés de la Fête des Shugos max. {2} au lieu de {3}"
   },
   "Checklist.PremiumEnded": {
     "en": "expired on {0}",
-    "de": "abgelaufen am {0}"
+    "de": "abgelaufen am {0}",
+    "fr": "expiré le {0}"
   },
   "Checklist.PremiumNow": {
     "en": "now without: Remote Storage, Market, Exchange, Wind Breeze Merchants",
-    "de": "jetzt ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde"
+    "de": "jetzt ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde",
+    "fr": "actuellement sans : Entrepôt à distance, Marché, Échange, Brise Légère"
   },
   "Checklist.AutoLootNone": {
     "en": "no ticket active",
-    "de": "kein Ticket aktiv"
+    "de": "kein Ticket aktiv",
+    "fr": "aucun ticket actif"
   },
   "Checklist.AutoLootNote": {
     "en": "keeps running while OFF",
-    "de": "läuft auch bei AUS weiter"
+    "de": "läuft auch bei AUS weiter",
+    "fr": "continue de fonctionner une fois désactivé"
   },
   "Checklist.WarnLostOne": {
     "en": "{0} is lost",
-    "de": "{0} verfällt"
+    "de": "{0} verfällt",
+    "fr": "{0} est perdu"
   },
   "Checklist.WarnLostMany": {
     "en": "{0} are lost",
-    "de": "{0} verfallen"
+    "de": "{0} verfallen",
+    "fr": "{0} sont perdus"
   },
   "Checklist.PassEnds": {
     "en": "ends {0}",
-    "de": "endet {0}"
+    "de": "endet {0}",
+    "fr": "se termine le {0}"
   },
   "Checklist.PassEnded": {
     "en": "ended {0}",
-    "de": "beendet am {0}"
+    "de": "beendet am {0}",
+    "fr": "terminé le {0}"
   },
   "Checklist.PassLevel": {
     "en": "Level {0}  ·  {1} / {2} XP",
-    "de": "Stufe {0}  ·  {1} / {2} XP"
+    "de": "Stufe {0}  ·  {1} / {2} XP",
+    "fr": "Niveau {0}  ·  {1} / {2} XP"
   },
   "Checklist.PassTotal": {
     "en": "{0} XP in total",
-    "de": "{0} XP gesamt"
+    "de": "{0} XP gesamt",
+    "fr": "{0} XP au total"
   },
   "Checklist.PassWeek": {
     "en": "Week {0} / {1}",
-    "de": "Woche {0} / {1}"
+    "de": "Woche {0} / {1}",
+    "fr": "Semaine {0} / {1}"
   },
   "Checklist.WarnLegend": {
     "en": "▲ is lost tomorrow or runs out soon",
-    "de": "▲ geht morgen verloren oder läuft bald ab"
+    "de": "▲ geht morgen verloren oder läuft bald ab",
+    "fr": "▲ est perdu demain ou expire bientôt"
   },
   "Checklist.Level": {
     "en": "Level {0}",
-    "de": "Stufe {0}"
+    "de": "Stufe {0}",
+    "fr": "Niveau {0}"
   },
   "Checklist.LastOnline": {
     "en": "last online {0}",
-    "de": "zuletzt online {0}"
+    "de": "zuletzt online {0}",
+    "fr": "dernière connexion {0}"
   },
   "Checklist.RelogNew": {
     "en": "No counters yet: log in once with this character (character switch) and its counters show up here.",
-    "de": "Noch keine Zähler: Logge dich einmal mit diesem Charakter ein (Charakterwechsel), dann stehen seine Zähler hier."
+    "de": "Noch keine Zähler: Logge dich einmal mit diesem Charakter ein (Charakterwechsel), dann stehen seine Zähler hier.",
+    "fr": "Aucun compteur pour l'instant : connectez-vous une fois avec ce personnage (changement de personnage) et ses compteurs apparaîtront ici."
   },
   "Checklist.RelogOld": {
     "en": "As of this character's last login. Log in with it again to see current data.",
-    "de": "Stand vom letzten Login dieses Charakters. Für aktuelle Daten mit ihm umloggen."
+    "de": "Stand vom letzten Login dieses Charakters. Für aktuelle Daten mit ihm umloggen.",
+    "fr": "État de la dernière connexion de ce personnage. Reconnectez-vous avec lui pour voir les données actuelles."
   },
   "Checklist.ItemLevel": {
     "de": "Gegenstandsstufe {0}",
@@ -10389,55 +10498,68 @@
   },
   "Character.OtherNeedUpload": {
     "en": "The server fetches this character's data from aiondps.com: switch on the automatic profile upload (settings) so the character is known there.",
-    "de": "Die Daten dieses Charakters holt der Server von aiondps.com: Schalte dafür den automatischen Profil-Upload ein (Einstellungen), dann ist der Charakter dort bekannt."
+    "de": "Die Daten dieses Charakters holt der Server von aiondps.com: Schalte dafür den automatischen Profil-Upload ein (Einstellungen), dann ist der Charakter dort bekannt.",
+    "fr": "Le serveur récupère les données de ce personnage sur aiondps.com : activez l'envoi automatique du profil (réglages) pour que le personnage y soit connu."
   },
   "Character.OtherNotFound": {
     "en": "The server does not know this character yet. With the profile upload on it fetches it shortly after your next login; look again later.",
-    "de": "Der Server kennt diesen Charakter noch nicht. Mit eingeschaltetem Profil-Upload holt er ihn kurz nach deinem nächsten Login; später noch einmal ansehen."
+    "de": "Der Server kennt diesen Charakter noch nicht. Mit eingeschaltetem Profil-Upload holt er ihn kurz nach deinem nächsten Login; später noch einmal ansehen.",
+    "fr": "Le serveur ne connaît pas encore ce personnage. Avec l'envoi du profil activé, il le récupère peu après votre prochaine connexion ; réessayez plus tard."
   },
   "Character.OtherOffline": {
     "en": "aiondps.com cannot be reached right now.",
-    "de": "aiondps.com ist gerade nicht erreichbar."
+    "de": "aiondps.com ist gerade nicht erreichbar.",
+    "fr": "aiondps.com est actuellement inaccessible."
   },
   "Character.OtherLoading": {
     "en": "Fetching the data from aiondps.com ...",
-    "de": "Hole die Daten von aiondps.com ..."
+    "de": "Hole die Daten von aiondps.com ...",
+    "fr": "Récupération des données depuis aiondps.com ..."
   },
   "Character.OtherUpdated": {
     "en": " (as of {0})",
-    "de": " (Stand {0})"
+    "de": " (Stand {0})",
+    "fr": " (état du {0})"
   },
   "Character.OtherFooter": {
     "en": "Basics from your character list (as of your last login), the rest from aiondps.com{0}. Log in with this character for current data.",
-    "de": "Grunddaten aus der Charakterliste (Stand deines letzten Logins), der Rest vom Server aiondps.com{0}. Für aktuelle Daten mit diesem Charakter einloggen."
+    "de": "Grunddaten aus der Charakterliste (Stand deines letzten Logins), der Rest vom Server aiondps.com{0}. Für aktuelle Daten mit diesem Charakter einloggen.",
+    "fr": "Informations de base issues de votre liste de personnages (état de votre dernière connexion), le reste depuis aiondps.com{0}. Connectez-vous avec ce personnage pour des données actuelles."
   },
   "Character.OpenWebsite": {
     "en": "Open on aiondps.com (Daevanion boards, item details, fights)",
-    "de": "Auf aiondps.com öffnen (Daevanion-Bretter, Item-Details, Kämpfe)"
+    "de": "Auf aiondps.com öffnen (Daevanion-Bretter, Item-Details, Kämpfe)",
+    "fr": "Ouvrir sur aiondps.com (tableaux Daevanion, détails des objets, combats)"
   },
   "Settings.Speech.Volume": {
     "en": "Volume per announcement",
-    "de": "Lautstärke je Ansage"
+    "de": "Lautstärke je Ansage",
+    "fr": "Volume par annonce"
   },
   "Settings.Audio.Title": {
     "en": "Audio output",
-    "de": "Audio-Ausgabe"
+    "de": "Audio-Ausgabe",
+    "fr": "Sortie audio"
   },
   "Settings.Audio.Hint": {
     "en": "Where the meter's sounds play: the voice output and the notification sounds. It can be another device than the game uses, for example the headset while the game plays on the speakers. A device that is not connected falls back to the Windows default.",
-    "de": "Wo die Töne des Meters laufen: Sprachausgabe und Hinweistöne. Das kann ein anderes Gerät sein als das des Spiels, etwa das Headset, während das Spiel über die Boxen spielt. Ist das Gerät nicht angeschlossen, nimmt der Meter das Windows-Standardgerät."
+    "de": "Wo die Töne des Meters laufen: Sprachausgabe und Hinweistöne. Das kann ein anderes Gerät sein als das des Spiels, etwa das Headset, während das Spiel über die Boxen spielt. Ist das Gerät nicht angeschlossen, nimmt der Meter das Windows-Standardgerät.",
+    "fr": "Où sont lus les sons du compteur : la sortie vocale et les sons de notification. Ce peut être un autre appareil que celui du jeu, par exemple le casque pendant que le jeu sort sur les enceintes. Un appareil non connecté revient au périphérique par défaut de Windows."
   },
   "Settings.Audio.Device": {
     "en": "Output device",
-    "de": "Ausgabegerät"
+    "de": "Ausgabegerät",
+    "fr": "Périphérique de sortie"
   },
   "Settings.Audio.DeviceDefault": {
     "en": "Windows default device",
-    "de": "Windows-Standardgerät"
+    "de": "Windows-Standardgerät",
+    "fr": "Périphérique Windows par défaut"
   },
   "Settings.Audio.DeviceMissing": {
     "en": "Saved device (not connected)",
-    "de": "Gespeichertes Gerät (nicht angeschlossen)"
+    "de": "Gespeichertes Gerät (nicht angeschlossen)",
+    "fr": "Périphérique enregistré (non connecté)"
   },
   "Timetable.Possible": {
     "en": "possible",
@@ -10550,7 +10672,7 @@
   "Craft.Empty": {
     "en": "No recipes marked yet. Open the configuration (button above) and mark the recipes you want to craft.",
     "de": "Noch keine Rezepte markiert. Öffne die Konfiguration (Knopf oben) und markiere die Rezepte, die du herstellen willst.",
-    "fr": "Aucune recette marquée pour l'instant. Ouvre la configuration (bouton ci-dessus) et marque les recettes que tu veux fabriquer.",
+    "fr": "Aucune recette marquée pour l'instant. Ouvrez la configuration (bouton ci-dessus) et marquez les recettes que vous voulez fabriquer.",
     "es": "Aún no hay recetas marcadas. Abre la configuración (botón de arriba) y marca las recetas que quieres fabricar.",
     "ru": "Рецепты пока не отмечены. Откройте настройки (кнопка выше) и отметьте рецепты, которые хотите создать.",
     "pt": "Nenhuma receita marcada ainda. Abra a configuração (botão acima) e marque as receitas que você quer fabricar.",
@@ -10778,7 +10900,7 @@
   "Craft.MoreResults": {
     "en": "{0} more – narrow the search.",
     "de": "{0} weitere – Suche verfeinern.",
-    "fr": "{0} de plus – affine la recherche.",
+    "fr": "{0} de plus – affinez la recherche.",
     "es": "{0} más – afina la búsqueda.",
     "ru": "Ещё {0} – уточните поиск.",
     "pt": "Mais {0} – refine a busca.",
@@ -10838,7 +10960,7 @@
   "Craft.MineEmpty": {
     "en": "Nothing marked yet. Unfold \"Search and mark recipes\" above and tick what you want to craft.",
     "de": "Noch nichts markiert. Klappe oben „Rezepte suchen und markieren\" auf und hake an, was du herstellen willst.",
-    "fr": "Rien de marqué pour l'instant. Déplie « Chercher et marquer des recettes » ci-dessus et coche ce que tu veux fabriquer.",
+    "fr": "Rien de marqué pour l'instant. Dépliez « Chercher et marquer des recettes » ci-dessus et cochez ce que vous voulez fabriquer.",
     "es": "Aún no hay nada marcado. Despliega «Buscar y marcar recetas» arriba y marca lo que quieres fabricar.",
     "ru": "Пока ничего не отмечено. Разверните «Поиск и отметка рецептов» выше и отметьте, что хотите создать.",
     "pt": "Nada marcado ainda. Expanda «Buscar e marcar receitas» acima e marque o que quer fabricar.",
@@ -11090,7 +11212,7 @@
   "Config.Unsaved": {
     "en": "There are unsaved changes.\nDo you want to save them?",
     "de": "Es gibt ungespeicherte Änderungen.\nMöchtest du sie speichern?",
-    "fr": "Il y a des modifications non enregistrées.\nVeux-tu les enregistrer ?",
+    "fr": "Il y a des modifications non enregistrées.\nVoulez-vous les enregistrer ?",
     "es": "Hay cambios sin guardar.\n¿Quieres guardarlos?",
     "ru": "Есть несохранённые изменения.\nСохранить их?",
     "pt": "Há alterações não salvas.\nDeseja salvá-las?",
@@ -11234,7 +11356,7 @@
   "Craft.Tab.Food": {
     "en": "Food",
     "de": "Essen",
-    "fr": "Nourritures",
+    "fr": "Nourriture",
     "es": "Comida",
     "ru": "Еда",
     "pt": "Comida",

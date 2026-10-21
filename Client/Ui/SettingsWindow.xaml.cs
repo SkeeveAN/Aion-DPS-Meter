@@ -572,6 +572,13 @@ public partial class SettingsWindow : Window
 
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
+        CollectControls();
+        _baseline = Snapshot();
+    }
+
+    /// <summary>What the controls say, written into the working copy (nothing is saved or applied yet).</summary>
+    private void CollectControls()
+    {
         // The overlays save where they were put straight to disk while this window is open; this working copy is older and
         // would write the old places back.
         MeterSettings onDisk = MeterSettings.Load();
@@ -806,8 +813,61 @@ public partial class SettingsWindow : Window
     /// RestoreBounds (not Width/Height directly) so closing while minimized/maximized doesn't
     /// persist that transient state as if it were the normal size - CanResizeWithGrip allows
     /// maximizing too, same as MainWindow's own.</summary>
+    private string? _baseline;
+    private bool _allowClose;
+
+    /// <summary>The settings the controls stand for, as text, without the places of the overlays (they are saved to the file by the overlays themselves while this window is open).</summary>
+    private string Snapshot()
+    {
+        CollectControls();
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver
+            {
+                Modifiers =
+                {
+                    typeInfo =>
+                    {
+                        for (int i = typeInfo.Properties.Count - 1; i >= 0; i--)
+                        {
+                            string name = typeInfo.Properties[i].Name;
+                            if (System.Text.RegularExpressions.Regex.IsMatch(name, "(Left|Top|Scale|Width|Height)$") || name is "ToolsNavCollapsed")
+                            {
+                                typeInfo.Properties.RemoveAt(i);
+                            }
+                        }
+                    },
+                },
+            },
+        };
+        return System.Text.Json.JsonSerializer.Serialize(_settings, options);
+    }
+
+    protected override void OnContentRendered(EventArgs e)
+    {
+        base.OnContentRendered(e);
+        _baseline ??= Snapshot();
+    }
+
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
+        // Closing with changes that were not saved asks first: Save / Discard / Cancel
+        if (!_allowClose && _baseline is not null && IsVisible && Snapshot() != _baseline)
+        {
+            MessageBoxResult answer = ThemedMessageBox.AskUnsaved(this, Title);
+            if (answer == MessageBoxResult.Cancel)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            if (answer == MessageBoxResult.Yes)
+            {
+                CollectControls();
+                Saved?.Invoke();
+            }
+        }
+
         Rect bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
         MeterSettings onDisk = MeterSettings.Load();
         onDisk.SettingsWindowWidth = bounds.Width;
@@ -1211,6 +1271,7 @@ public partial class SettingsWindow : Window
         if (_resetTimer is { IsEnabled: true })
         {
             _resetTimer.Stop();
+            _allowClose = true; // the window is closed and opened again with the defaults: nothing to ask
             ResetRequested?.Invoke();
             return;
         }
@@ -1228,6 +1289,7 @@ public partial class SettingsWindow : Window
     private void OnUndoResetClicked(object sender, RoutedEventArgs e)
     {
         _undoTimer?.Stop();
+        _allowClose = true;
         UndoRequested?.Invoke();
     }
 
