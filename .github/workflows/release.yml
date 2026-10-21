@@ -112,6 +112,58 @@ jobs:
           --channel ${{ steps.version.outputs.channel }}
           --outputDir releases
 
+      # Scans the installer with VirusTotal before anything is attached to the release. Skipped when
+      # the VT_API_KEY secret is not set. An unreachable VirusTotal never blocks a release (warning
+      # only); a verdict does: 5 or more malicious/suspicious engines, or any of the big vendors
+      # listed below, fails the job so the installer is never published. A handful of hits from
+      # small engines is normal for a new unsigned program that reads network traffic -- those are
+      # only reported. The report link ends up in the release notes (see the attach step).
+      - name: Scan the installer with VirusTotal
+        id: vt
+        env:
+          VT_API_KEY: ${{ secrets.VT_API_KEY }}
+          INSTALLER: releases/AionDpsMeter-${{ steps.version.outputs.channel }}-Setup.exe
+        shell: pwsh
+        run: |
+          if (-not $env:VT_API_KEY) { Write-Host "VT_API_KEY not set, skipping the VirusTotal scan."; exit 0 }
+          $bigVendors = @('Microsoft', 'Kaspersky', 'ESET-NOD32', 'BitDefender', 'Sophos', 'Symantec', 'McAfee', 'CrowdStrike', 'Avast', 'AVG')
+          $headers = @{ 'x-apikey' = $env:VT_API_KEY }
+          $report = $null
+          try {
+            $uploadUrl = (Invoke-RestMethod -Uri 'https://www.virustotal.com/api/v3/files/upload_url' -Headers $headers).data
+            $analysisId = (Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $headers -Form @{ file = Get-Item $env:INSTALLER }).data.id
+            for ($i = 0; $i -lt 40; $i++) {
+              Start-Sleep -Seconds 30
+              $a = Invoke-RestMethod -Uri "https://www.virustotal.com/api/v3/analyses/$analysisId" -Headers $headers
+              if ($a.data.attributes.status -eq 'completed') { $report = $a; break }
+            }
+          } catch {
+            Write-Host "::warning::VirusTotal scan failed, the release continues without it: $($_.Exception.Message)"
+            exit 0
+          }
+          if (-not $report) { Write-Host "::warning::VirusTotal analysis did not finish in time, the release continues without it."; exit 0 }
+
+          $stats = $report.data.attributes.stats
+          $hits = [int]$stats.malicious + [int]$stats.suspicious
+          $total = $hits + [int]$stats.harmless + [int]$stats.undetected
+          $sha = $report.meta.file_info.sha256
+          $link = "https://www.virustotal.com/gui/file/$sha"
+          $flagged = @($report.data.attributes.results.PSObject.Properties.Value |
+            Where-Object { $_.category -in 'malicious', 'suspicious' } | ForEach-Object { $_.engine_name })
+          $big = @($flagged | Where-Object { $bigVendors -contains $_ })
+
+          "link=$link" >> $env:GITHUB_OUTPUT
+          "result=$hits/$total" >> $env:GITHUB_OUTPUT
+          $summary = "### VirusTotal: $hits / $total engines flag the installer`n$link"
+          if ($flagged) { $summary += "`nFlagged by: " + ($flagged -join ', ') }
+          $summary >> $env:GITHUB_STEP_SUMMARY
+          Write-Host $summary
+
+          if ($hits -ge 5 -or $big.Count -gt 0) {
+            Write-Host "::error::VirusTotal verdict too bad ($hits hits, big vendors: $($big -join ', ')). Not publishing. $link"
+            exit 1
+          }
+
       - name: Upload the installer as a build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -135,6 +187,15 @@ jobs:
           }
           $files = Get-ChildItem releases -File | Where-Object { $_.Name -notlike '*-Portable.zip' }
           gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
+          # Add the VirusTotal report to the release notes (once; a re-run does not duplicate it).
+          $vtLink = "${{ steps.vt.outputs.link }}"
+          if ($vtLink) {
+            $body = gh release view $tag --json body --jq .body
+            if ($body -notmatch 'VirusTotal') {
+              $line = "VirusTotal scan of the installer: ${{ steps.vt.outputs.result }} detections - $vtLink"
+              gh release edit $tag --notes "$body`n`n$line"
+            }
+          }
           # The release stays a prerelease while the files are still being uploaded; only when
           # everything is attached does it become the normal "Latest" release (the fetch for
           # delta packages and the client's updater both still look at prereleases as well).
