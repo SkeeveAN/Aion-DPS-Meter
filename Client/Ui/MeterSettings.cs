@@ -228,6 +228,30 @@ public sealed class MeterSettings
     /// <summary>The overlay leaves out the items of the plainest grade (Common): the loot worth a look stands out.</summary>
     public bool LootOverlayHideCommon { get; set; }
 
+    /// <summary>The crafting overlay (see CraftOverlayWindow): the materials the marked recipes still lack. Off until switched on. Locked (default): click-through; unlocked: it can be moved and scaled.</summary>
+    public bool ShowCraftOverlay { get; set; }
+
+    public bool CraftOverlayLocked { get; set; } = true;
+    public double? CraftOverlayLeft { get; set; }
+    public double? CraftOverlayTop { get; set; }
+    public double CraftOverlayScale { get; set; } = 1.0;
+    public double? CraftOverlayWidth { get; set; }
+    public double? CraftOverlayHeight { get; set; }
+
+    /// <summary>How many materials the crafting overlay lists at most (the rest is summed up in a last line), 3 to 30.</summary>
+    public int CraftOverlayLines { get; set; } = 10;
+
+    /// <summary>An intermediate (an ingot for a weapon) is counted as the materials it is made of. On by default.</summary>
+    public bool CraftResolve { get; set; } = true;
+
+    /// <summary>The crafting page lists every material (true) or only what is missing (false, default).</summary>
+    public bool CraftShowAll { get; set; }
+
+    /// <summary>Which stocks the crafting tool counts: the inventory, the character storage, the account (server) storage.</summary>
+    public bool CraftCountInventory { get; set; } = true;
+    public bool CraftCountStorage { get; set; } = true;
+    public bool CraftCountAccountStorage { get; set; } = true;
+
     public double? NetworkOverlayLeft { get; set; }
     public double? NetworkOverlayTop { get; set; }
     public double NetworkOverlayScale { get; set; } = 1.0;
@@ -455,6 +479,9 @@ public sealed class MeterSettings
 
     /// <summary>Switches the loot overlay on and off.</summary>
     public string HotkeyLoot { get; set; } = "Ctrl+Alt+L";
+
+    /// <summary>Switches the crafting overlay on and off.</summary>
+    public string HotkeyCraft { get; set; } = "Ctrl+Alt+R";
 
     /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
     public bool HideUiHintDismissed { get; set; }

@@ -659,6 +659,7 @@ public sealed class Aion2FrameDecoder
                 DecodeRoster(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Equipment:
+                Aion2Stock.NoteSnapshot(frame, timestamp);
                 DecodeEquipment(frame);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Daevanion:
@@ -2045,6 +2046,7 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
+        Aion2Stock.NoteChange(frame, timestamp);
         Aion2Loot.NoteInventory(frame, timestamp);
         int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[13..]));
         if (Aion2Pets.PetOfSoulItem(itemId) is int pet)

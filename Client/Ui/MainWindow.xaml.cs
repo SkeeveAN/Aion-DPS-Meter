@@ -125,6 +125,7 @@ public partial class MainWindow : Window
     private WorldBossController? _worldBoss;
     private AssistController? _assist;
     private LootOverlayController? _loot;
+    private CraftOverlayController? _craft;
     private CombatOverlayController? _combat;
     private MenuWatcher? _menuWatcher;
     private Streaming.StreamOverlayServer? _streamServer;
@@ -636,6 +637,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleLootOverlay:
                 ToggleLootOverlay();
                 break;
+            case HotkeyAction.ToggleCraftOverlay:
+                ToggleCraftOverlay();
+                break;
             case HotkeyAction.ToggleWorldBossOverlay:
                 ToggleWorldBossOverlay();
                 break;
@@ -680,6 +684,7 @@ public partial class MainWindow : Window
             [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
             [HotkeyAction.ToggleAssistOverlay] = HotkeyBinding.Parse(settings.HotkeyAssist),
             [HotkeyAction.ToggleLootOverlay] = HotkeyBinding.Parse(settings.HotkeyLoot),
+            [HotkeyAction.ToggleCraftOverlay] = HotkeyBinding.Parse(settings.HotkeyCraft),
             [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
             [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
         });
@@ -843,6 +848,7 @@ public partial class MainWindow : Window
         _worldBoss?.RaiseToFront();
         _assist?.RaiseToFront();
         _loot?.RaiseToFront();
+        _craft?.RaiseToFront();
         _combat?.RaiseToFront();
         _network?.RaiseToFront();
         _dummy?.RaiseToFront();
@@ -1129,6 +1135,7 @@ public partial class MainWindow : Window
             _network ??= new NetworkOverlayController();
             Aion2Loot.EnablePersistence();
             _loot ??= new LootOverlayController();
+            _craft ??= new CraftOverlayController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
             _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory, BossHpCheck);
             _menuWatcher ??= new MenuWatcher();
@@ -1186,6 +1193,7 @@ public partial class MainWindow : Window
         _worldBoss?.Dispose();
         _assist?.Dispose();
         _loot?.Dispose();
+        _craft?.Dispose();
         Aion2Loot.Flush();
         _combat?.Dispose();
         _menuWatcher?.Dispose();
@@ -5114,7 +5122,7 @@ public partial class MainWindow : Window
             var loc = LocalizationManager.Instance;
             var groups = new[]
             {
-                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
+                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("craft", loc["Main.MenuTools.Craft"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
                 new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
                 new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
                 new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
@@ -5186,6 +5194,26 @@ public partial class MainWindow : Window
                 var lootPage = new LootPage();
                 var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); lootPage.Stop(); } };
+            }
+
+            case "craft":
+            {
+                var craftPage = new CraftPage(() => _liveSource?.Entities as Aion2EntityDirectory);
+                CraftConfigWindow? craftConfig = null;
+                Action openCraftConfig = () =>
+                {
+                    if (craftConfig is { IsLoaded: true })
+                    {
+                        craftConfig.Activate();
+                        return;
+                    }
+
+                    craftConfig = new CraftConfigWindow(() => _liveSource?.Entities as Aion2EntityDirectory) { Owner = (Window?)_toolsWindow ?? this };
+                    craftConfig.Closed += (_, _) => craftConfig = null;
+                    craftConfig.Show();
+                };
+                var craftModule = new ModulePage("", craftPage, s => s.ShowCraftOverlay, (s, v) => s.ShowCraftOverlay = v, s => s.HotkeyCraft, hotkeys, openCraftConfig, applied, null, craftPage.ModeBar);
+                return new ToolPage { Content = craftModule, Cleanup = () => { craftModule.Stop(); craftPage.Stop(); } };
             }
 
             case "assist":
@@ -6040,6 +6068,15 @@ public partial class MainWindow : Window
     {
         var settings = MeterSettings.Load();
         settings.ShowLootOverlay = !settings.ShowLootOverlay;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
+    /// <summary>The crafting controller reads the settings every second, so the switch is all it takes.</summary>
+    private void ToggleCraftOverlay()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowCraftOverlay = !settings.ShowCraftOverlay;
         settings.Save();
         _settingsWindow?.SyncOverlaySwitches(settings);
     }

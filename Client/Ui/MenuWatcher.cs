@@ -40,7 +40,7 @@ public sealed class MenuWatcher : IDisposable
     }
 
     private static bool AllOverlaysLocked(MeterSettings s) =>
-        s.PetFarmLocked && s.PetInfoLocked && s.TimetableLocked && s.BossOverlayLocked && s.NetworkOverlayLocked && s.CombatOverlayLocked && (s.CombatCastOverlayLocked ?? true) && (s.CombatHpOverlayLocked ?? true) && (s.PetListLocked ?? true) && (s.HotkeyOverlayLocked ?? true) && s.AssistOverlayLocked && s.LootOverlayLocked;
+        s.PetFarmLocked && s.PetInfoLocked && s.TimetableLocked && s.BossOverlayLocked && s.NetworkOverlayLocked && s.CombatOverlayLocked && (s.CombatCastOverlayLocked ?? true) && (s.CombatHpOverlayLocked ?? true) && (s.PetListLocked ?? true) && (s.HotkeyOverlayLocked ?? true) && s.AssistOverlayLocked && s.LootOverlayLocked && s.CraftOverlayLocked;
 
     private void Tick()
     {

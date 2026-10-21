@@ -44,6 +44,7 @@ public static class SelfCheck
         ok &= SelfCheckCubesGuards.Run();
         ok &= SelfCheckMaps.Run();
         ok &= SelfCheckLoot.Run();
+        ok &= SelfCheckCraft.Run();
         ok &= SelfCheckFightClock.Run();
         ok &= SelfCheckColorPicker.Run();
         ok &= SelfCheckReplay.Run();

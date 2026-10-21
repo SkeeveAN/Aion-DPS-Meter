@@ -90,6 +90,7 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyCombatBox, HotkeyBinding.Parse(settings.HotkeyCombatOverlay).ToString());
         SetHotkeyBox(HotkeyAssistBox, HotkeyBinding.Parse(settings.HotkeyAssist).ToString());
         SetHotkeyBox(HotkeyLootBox, HotkeyBinding.Parse(settings.HotkeyLoot).ToString());
+        SetHotkeyBox(HotkeyCraftBox, HotkeyBinding.Parse(settings.HotkeyCraft).ToString());
         ShowLootOverlayBox.IsChecked = settings.ShowLootOverlay;
         LootOverlayLockedBox.IsChecked = !settings.LootOverlayLocked;
         LootWholeSessionBox.IsChecked = settings.LootOverlayWholeSession;
@@ -470,7 +471,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvAssistBox, OvLootBox, OvPetArrowsBox, OvGatherArrowsBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvAssistBox, OvLootBox, OvCraftBox, OvPetArrowsBox, OvGatherArrowsBox };
 
     /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
     private IEnumerable<CheckBox> NetworkRowBoxes() =>
@@ -609,6 +610,19 @@ public partial class SettingsWindow : Window
         _settings.DummyOverlayWidth = onDisk.DummyOverlayWidth;
         _settings.DummyOverlayHeight = onDisk.DummyOverlayHeight;
         _settings.DummyTestSeconds = onDisk.DummyTestSeconds;
+        _settings.ShowCraftOverlay = onDisk.ShowCraftOverlay;
+        _settings.CraftOverlayLocked = onDisk.CraftOverlayLocked;
+        _settings.CraftOverlayLeft = onDisk.CraftOverlayLeft;
+        _settings.CraftOverlayTop = onDisk.CraftOverlayTop;
+        _settings.CraftOverlayScale = onDisk.CraftOverlayScale;
+        _settings.CraftOverlayWidth = onDisk.CraftOverlayWidth;
+        _settings.CraftOverlayHeight = onDisk.CraftOverlayHeight;
+        _settings.CraftOverlayLines = onDisk.CraftOverlayLines;
+        _settings.CraftResolve = onDisk.CraftResolve;
+        _settings.CraftCountInventory = onDisk.CraftCountInventory;
+        _settings.CraftCountStorage = onDisk.CraftCountStorage;
+        _settings.CraftCountAccountStorage = onDisk.CraftCountAccountStorage;
+        _settings.OverlayOpacities[OverlayPlaces.Craft] = onDisk.OverlayOpacities.GetValueOrDefault(OverlayPlaces.Craft, 0.6);
         _settings.LootOverlayLeft = onDisk.LootOverlayLeft;
         _settings.LootOverlayTop = onDisk.LootOverlayTop;
         _settings.LootOverlayScale = onDisk.LootOverlayScale;
@@ -696,6 +710,7 @@ public partial class SettingsWindow : Window
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
         _settings.HotkeyNetwork = (string?)HotkeyNetworkBox.Tag ?? "";
         _settings.HotkeyLoot = (string?)HotkeyLootBox.Tag ?? "";
+        _settings.HotkeyCraft = (string?)HotkeyCraftBox.Tag ?? "";
         _settings.HotkeyCombatOverlay = (string?)HotkeyCombatBox.Tag ?? "";
         _settings.HotkeyAssist = (string?)HotkeyAssistBox.Tag ?? "";
         ReadCombatPage(_settings);

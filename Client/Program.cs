@@ -366,6 +366,32 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-stock-check")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-stock-check <recording.jsonl> [server-port]");
+                Console.WriteLine("  Replays a recording through the decoder and prints what the crafting tool would count: inventory, character storage, account storage. No window.");
+                return;
+            }
+
+            RunAion2StockCheckMode(args[1], args.Length > 2 ? int.Parse(args[2]) : 13328);
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "render-craft")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS render-craft <out.png> [recording.jsonl] [language]");
+                Console.WriteLine("  Draws the crafting tool (page, overlay, configuration) with a made-up plan and the stock of a recording into one picture. No window is shown; set AIONDPS_DATA_DIR to a throw-away folder.");
+                return;
+            }
+
+            RunRenderCraftMode(args[1], args.Length > 2 ? args[2] : "", args.Length > 3 ? args[3] : "");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-petmap")
         {
             RunRenderPetMapMode(args.Length > 1 ? args[1] : "petmap.png", args.Length > 2 ? args[2] : "verteron", args.Length > 4 ? double.Parse(args[3]) : -215789, args.Length > 4 ? double.Parse(args[4]) : 262953, args.Length > 5 && args[5] == "guards");
@@ -2357,6 +2383,147 @@ internal static class Program
         }
 
         Console.WriteLine($"aion2-skill-averages: {skills.Count} skill(s), {skills.Count(kv => kv.Value.Samples >= Aion2.Protocol.Aion2HitAverages.MinSamples)} with {Aion2.Protocol.Aion2HitAverages.MinSamples}+ hits, written to {output}");
+    }
+
+    /// <summary>Draws the crafting tool (the page with its overlay, and the configuration window) into one picture: a made-up plan, the stock of a recording; no window is ever shown.</summary>
+    private static void RunRenderCraftMode(string path, string recording, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        Ui.LocalizationManager.Instance.Language = language.Length > 0 ? language : settings.Language.Length > 0 ? settings.Language : "de";
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        // in the running meter the buttons, combo boxes, check boxes and scroll bars take their styles from the main window: it is made (never shown) to take them from there
+        var hostWindow = new Ui.MainWindow();
+        app.MainWindow = hostWindow;
+        foreach (var type in new[] { typeof(System.Windows.Controls.Button), typeof(System.Windows.Controls.ComboBox), typeof(System.Windows.Controls.ComboBoxItem), typeof(System.Windows.Controls.CheckBox), typeof(System.Windows.Controls.Primitives.ScrollBar), typeof(System.Windows.Controls.ToolTip), typeof(System.Windows.Controls.MenuItem) })
+        {
+            if (hostWindow.Resources[type] is System.Windows.Style style)
+            {
+                app.Resources[type] = style;
+            }
+        }
+
+        Aion2.Aion2Stock.Reset();
+        if (recording.Length > 0)
+        {
+            using var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(recording))
+            {
+                bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":13328", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                source.Ingest(segment with { FromServer = fromServer });
+                source.Poll(false);
+            }
+        }
+
+        Aion2.CraftPlan.ReplaceFor("", new[]
+        {
+            new Aion2.CraftEntry { Recipe = 314016004, Count = 20 }, new Aion2.CraftEntry { Recipe = 314036002, Count = 10 },
+            new Aion2.CraftEntry { Recipe = 111025001, Count = 1, AccountWide = false }, new Aion2.CraftEntry { Recipe = 213034001, Count = 2 },
+            new Aion2.CraftEntry { Recipe = 514085002, Count = 10, AccountWide = false },
+        });
+
+        var craftPage = new Ui.CraftPage(() => null);
+        var module = new Ui.ModulePage("", craftPage, s => true, (s, v) => { }, s => "Ctrl+Alt+R", () => { }, () => { }, s => { }, null, craftPage.ModeBar);
+        // the page inside the tools window, with its title bar and its list of tools
+        var loc0 = Ui.LocalizationManager.Instance;
+        var groups = new[] { new[] { new Ui.ToolEntry("checklist", loc0["Main.MenuTools.Checklist"]), new Ui.ToolEntry("attributes", loc0["Main.MenuTools.Attributes"]), new Ui.ToolEntry("statcalc", loc0["Main.MenuTools.StatCalc"]), new Ui.ToolEntry("loot", loc0["Main.MenuTools.Loot"]), new Ui.ToolEntry("craft", loc0["Main.MenuTools.Craft"]), new Ui.ToolEntry("petmap", loc0["Settings.Nav.PetMap"]) } };
+        var toolsWindow = new Ui.ToolsWindow(groups, id => id == "craft" ? new Ui.ToolPage { Content = module } : null, _ => { });
+        toolsWindow.Select("craft");
+        var page = (System.Windows.UIElement)toolsWindow.Content;
+        toolsWindow.Content = null;
+        var results = Ui.CraftText.Results(null, settings);
+        var overlayLines = Ui.CraftOverlayController.OverlayLines(results, settings, sample: false);
+        var overlay = new Ui.CraftOverlayWindow();
+        overlay.Render(overlayLines.Caption, overlayLines.Lines, overlayLines.More);
+        var overlayContent = overlay.DetachBody()!;
+        var window = new Ui.CraftConfigWindow(() => null);
+        // the whole frame of the window (title bar with icon, title, minimize and close), lifted out of the never shown window
+        var config = (System.Windows.UIElement)window.Content;
+        window.Content = null;
+
+        System.Windows.Media.Brush back = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black;
+        var left = new System.Windows.Controls.StackPanel { Width = 980 };
+        left.Children.Add(new System.Windows.Controls.Border { Width = 980, Height = 860, Background = back, Child = page });
+        var strip = new System.Windows.Controls.Border { Padding = new System.Windows.Thickness(20), Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3a, 0x4a, 0x52), System.Windows.Media.Color.FromRgb(0x1c, 0x26, 0x2e), 60) };
+        strip.Child = new System.Windows.Controls.Border { Child = overlayContent, HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+        left.Children.Add(strip);
+        var right = new System.Windows.Controls.Border { Width = 720, Height = 1030, Background = back, Child = config, VerticalAlignment = System.Windows.VerticalAlignment.Top };
+        var root = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = System.Windows.Media.Brushes.Black };
+        root.Children.Add(left);
+        root.Children.Add(new System.Windows.Controls.Border { Width = 20 });
+        root.Children.Add(right);
+        root.Measure(new System.Windows.Size(1740, 2400));
+        root.Arrange(new System.Windows.Rect(0, 0, 1740, root.DesiredSize.Height));
+        root.UpdateLayout();
+        int w = 1740, h = (int)Math.Ceiling(root.DesiredSize.Height);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(root);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        // the question every configuration window asks when it is closed with changes
+        var ask = Ui.ThemedMessageBox.Build(null, Ui.LocalizationManager.Instance["Config.Unsaved"], Ui.LocalizationManager.Instance["Craft.ConfigTitle"], System.Windows.MessageBoxButton.YesNoCancel,
+            System.Windows.MessageBoxImage.Question, null, null, out _, (Ui.LocalizationManager.Instance["Config.Save"], Ui.LocalizationManager.Instance["Config.Discard"], Ui.LocalizationManager.Instance["Config.Cancel"]));
+        ask.MinWidth = 0;
+        var dialog = (System.Windows.UIElement)ask.Content;
+        dialog.Measure(new System.Windows.Size(560, double.PositiveInfinity));
+        int dw = (int)Math.Ceiling(dialog.DesiredSize.Width), dh = (int)Math.Ceiling(dialog.DesiredSize.Height);
+        dialog.Measure(new System.Windows.Size(dw, dh));
+        dialog.Arrange(new System.Windows.Rect(0, 0, dw, dh));
+        dialog.UpdateLayout();
+        var dialogBitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(dw, dh, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        dialogBitmap.Render(dialog);
+        var dialogEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        dialogEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(dialogBitmap));
+        using (var file = File.Create(Path.ChangeExtension(path, null) + "-dialog.png"))
+        {
+            dialogEncoder.Save(file);
+        }
+
+        Console.WriteLine("render-craft: wrote " + path);
+        Environment.Exit(0);
+    }
+
+    /// <summary>Replays a recording and prints the three stocks the crafting tool counts (see <see cref="Aion2.Aion2Stock"/>); no window, nothing saved.</summary>
+    private static void RunAion2StockCheckMode(string path, int serverPort)
+    {
+        var protocol = Aion2.Protocol.Aion2Protocol.Load();
+        using var source = new Aion2.Aion2PacketCombatSource(protocol);
+        Aion2.Aion2Stock.Reset();
+        foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+        {
+            bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
+            if (!fromServer && !segment.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            source.Ingest(segment with { FromServer = fromServer });
+            source.Poll(false);
+        }
+
+        Console.WriteLine($"aion2-stock-check: login frame {Aion2.Aion2Stock.SnapshotAt:HH:mm:ss}, last full listing {Aion2.Aion2Stock.ListedAt:HH:mm:ss}");
+        foreach ((string label, Aion2.StockSources sources) in new[] { ("Inventory", Aion2.StockSources.Inventory), ("Character storage", Aion2.StockSources.CharacterStorage), ("Account storage", Aion2.StockSources.AccountStorage) })
+        {
+            Dictionary<int, long> totals = Aion2.Aion2Stock.Totals(sources);
+            Console.WriteLine($"-- {label}: {totals.Count} kinds, {totals.Values.Sum():N0} pieces");
+            foreach ((int item, long count) in totals.OrderBy(t => t.Key))
+            {
+                Console.WriteLine($"   {Aion2.Protocol.Aion2ItemNames.NameOf(item, "de") ?? "#" + item} x{count:N0}");
+            }
+        }
     }
 
     private static void RunAion2ReplayMode(string path, int serverPort, string? ownName)

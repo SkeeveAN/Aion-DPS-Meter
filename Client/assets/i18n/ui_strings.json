@@ -10498,5 +10498,345 @@
     "es": "conectado ahora",
     "pt": "ligado agora",
     "ru": "сейчас в игре"
+  },
+  "Main.MenuTools.Craft": {
+    "en": "Crafting calculator",
+    "de": "Crafting-Rechner"
+  },
+  "Craft.ConfigTitle": {
+    "en": "Crafting calculator – configuration",
+    "de": "Crafting-Rechner – Konfiguration"
+  },
+  "Craft.OnlyMissing": {
+    "en": "Only missing",
+    "de": "Nur Fehlendes"
+  },
+  "Craft.Everything": {
+    "en": "Everything",
+    "de": "Alles"
+  },
+  "Craft.Empty": {
+    "en": "No recipes marked yet. Open the configuration (button above) and mark the recipes you want to craft.",
+    "de": "Noch keine Rezepte markiert. Öffne die Konfiguration (Knopf oben) und markiere die Rezepte, die du herstellen willst."
+  },
+  "Craft.AlsoMake": {
+    "en": "Also craft:",
+    "de": "Dazu herstellen:"
+  },
+  "Craft.AllThere": {
+    "en": "Everything is there ✓",
+    "de": "Alles vorhanden ✓"
+  },
+  "Craft.InStorage": {
+    "en": "{0} in storage",
+    "de": "{0} im Lager"
+  },
+  "Craft.InAccountStorage": {
+    "en": "{0} in account storage",
+    "de": "{0} im Serverlager"
+  },
+  "Craft.NoStock": {
+    "en": "No stock read yet – it is read when you enter the world (log in).",
+    "de": "Noch kein Bestand gelesen – er wird beim Betreten der Welt (Login) eingelesen."
+  },
+  "Craft.StockNote": {
+    "en": "Stock: login {0}",
+    "de": "Bestand: Login {0}"
+  },
+  "Craft.StockListed": {
+    "en": "inventory matched {0}",
+    "de": "Inventar abgeglichen {0}"
+  },
+  "Craft.More": {
+    "en": "+ {0} more",
+    "de": "+ {0} weitere"
+  },
+  "Craft.Missing": {
+    "en": "Still missing",
+    "de": "Fehlt noch"
+  },
+  "Craft.Sample.1": {
+    "en": "Fresh Fruit",
+    "de": "Frische Frucht"
+  },
+  "Craft.Sample.2": {
+    "en": "Fresh Aria",
+    "de": "Frische Aria"
+  },
+  "Craft.Sample.3": {
+    "en": "Fine Od",
+    "de": "Feines Od"
+  },
+  "Craft.Search": {
+    "en": "Search and mark recipes",
+    "de": "Rezepte suchen und markieren"
+  },
+  "Craft.FoldIn": {
+    "en": "fold in ▴",
+    "de": "zuklappen ▴"
+  },
+  "Craft.FoldOut": {
+    "en": "unfold ▾",
+    "de": "aufklappen ▾"
+  },
+  "Craft.OnlyMarked": {
+    "en": "Only marked",
+    "de": "Nur markierte"
+  },
+  "Craft.All": {
+    "en": "All",
+    "de": "Alle"
+  },
+  "Craft.NoResults": {
+    "en": "No recipes found.",
+    "de": "Keine Rezepte gefunden."
+  },
+  "Craft.MoreResults": {
+    "en": "{0} more – narrow the search.",
+    "de": "{0} weitere – Suche verfeinern."
+  },
+  "Craft.Level": {
+    "en": "Level {0}",
+    "de": "Stufe {0}"
+  },
+  "Craft.Mine": {
+    "en": "My recipes",
+    "de": "Meine Rezepte"
+  },
+  "Craft.MineSummary": {
+    "en": "{0} recipes · {1} crafts",
+    "de": "{0} Rezepte · {1} Herstellungen"
+  },
+  "Craft.OrderHint": {
+    "en": "order = who gets the stock first",
+    "de": "Reihenfolge = wer den Bestand zuerst bekommt"
+  },
+  "Craft.MineEmpty": {
+    "en": "Nothing marked yet. Unfold \"Search and mark recipes\" above and tick what you want to craft.",
+    "de": "Noch nichts markiert. Klappe oben „Rezepte suchen und markieren\" auf und hake an, was du herstellen willst."
+  },
+  "Craft.Recipe": {
+    "en": "Recipe",
+    "de": "Rezept"
+  },
+  "Craft.Count": {
+    "en": "Count",
+    "de": "Anzahl"
+  },
+  "Craft.WholeAccount": {
+    "en": "Whole account",
+    "de": "Account-weit"
+  },
+  "Craft.DragTip": {
+    "en": "Drag to change the order",
+    "de": "Ziehen zum Verschieben"
+  },
+  "Craft.Display": {
+    "en": "Display",
+    "de": "Anzeige"
+  },
+  "Craft.Overlay": {
+    "en": "Overlay",
+    "de": "Overlay"
+  },
+  "Craft.Calculation": {
+    "en": "Calculation",
+    "de": "Berechnung"
+  },
+  "Craft.Movable": {
+    "en": "Move (unlock)",
+    "de": "Verschieben (entsperren)"
+  },
+  "Craft.Lines": {
+    "en": "Lines",
+    "de": "Zeilen"
+  },
+  "Craft.Opacity": {
+    "en": "Opacity",
+    "de": "Deckkraft"
+  },
+  "Craft.PlaceLabel": {
+    "en": "Reset place",
+    "de": "Platz zurücksetzen"
+  },
+  "Craft.ResetPlace": {
+    "en": "Reset",
+    "de": "Zurücksetzen"
+  },
+  "Craft.Resolve": {
+    "en": "Break intermediates into materials",
+    "de": "Zwischenprodukte auflösen"
+  },
+  "Craft.CountInventory": {
+    "en": "Count inventory",
+    "de": "Inventar zählen"
+  },
+  "Craft.CountStorage": {
+    "en": "Count storage",
+    "de": "Lager zählen"
+  },
+  "Craft.CountAccount": {
+    "en": "Count account storage",
+    "de": "Serverlager zählen"
+  },
+  "Config.Save": {
+    "en": "Save",
+    "de": "Speichern"
+  },
+  "Config.Discard": {
+    "en": "Discard",
+    "de": "Verwerfen"
+  },
+  "Config.Cancel": {
+    "en": "Cancel",
+    "de": "Abbrechen"
+  },
+  "Config.Close": {
+    "en": "Close",
+    "de": "Schließen"
+  },
+  "Config.Unsaved": {
+    "en": "There are unsaved changes.\nDo you want to save them?",
+    "de": "Es gibt ungespeicherte Änderungen.\nMöchtest du sie speichern?"
+  },
+  "Craft.Cat.Blacksmithing": {
+    "en": "Blacksmithing",
+    "de": "Schmiedekunst"
+  },
+  "Craft.Cat.Tailoring": {
+    "en": "Tailoring",
+    "de": "Schneiderei"
+  },
+  "Craft.Cat.Jewelcrafting": {
+    "en": "Jewelcrafting",
+    "de": "Juwelierskunst"
+  },
+  "Craft.Cat.Alchemy": {
+    "en": "Alchemy",
+    "de": "Alchemie"
+  },
+  "Craft.Cat.Cooking": {
+    "en": "Cooking",
+    "de": "Kochen"
+  },
+  "Craft.Tab.Boots": {
+    "en": "Boots",
+    "de": "Stiefel"
+  },
+  "Craft.Tab.Bow": {
+    "en": "Bows",
+    "de": "Bögen"
+  },
+  "Craft.Tab.Bracelet": {
+    "en": "Bracelets",
+    "de": "Armbänder"
+  },
+  "Craft.Tab.Cape": {
+    "en": "Capes",
+    "de": "Umhänge"
+  },
+  "Craft.Tab.Dagger": {
+    "en": "Daggers",
+    "de": "Dolche"
+  },
+  "Craft.Tab.Earring": {
+    "en": "Earrings",
+    "de": "Ohrringe"
+  },
+  "Craft.Tab.Food": {
+    "en": "Food",
+    "de": "Speisen"
+  },
+  "Craft.Tab.Gloves": {
+    "en": "Gloves",
+    "de": "Handschuhe"
+  },
+  "Craft.Tab.Greatsword": {
+    "en": "Greatswords",
+    "de": "Großschwerter"
+  },
+  "Craft.Tab.Guarder": {
+    "en": "Guardians",
+    "de": "Schützer"
+  },
+  "Craft.Tab.Helmet": {
+    "en": "Helmets",
+    "de": "Helme"
+  },
+  "Craft.Tab.Mace": {
+    "en": "Maces",
+    "de": "Streitkolben"
+  },
+  "Craft.Tab.MagicStone": {
+    "en": "Magic stones",
+    "de": "Magiesteine"
+  },
+  "Craft.Tab.Magicbook": {
+    "en": "Grimoires",
+    "de": "Grimoires"
+  },
+  "Craft.Tab.Necklace": {
+    "en": "Necklaces",
+    "de": "Halsketten"
+  },
+  "Craft.Tab.Orb": {
+    "en": "Orbs",
+    "de": "Orbs"
+  },
+  "Craft.Tab.Pants": {
+    "en": "Leg guards",
+    "de": "Beinschutz"
+  },
+  "Craft.Tab.Potion": {
+    "en": "Potions",
+    "de": "Tränke"
+  },
+  "Craft.Tab.Ring": {
+    "en": "Rings",
+    "de": "Ringe"
+  },
+  "Craft.Tab.Scroll": {
+    "en": "Scrolls",
+    "de": "Rollen"
+  },
+  "Craft.Tab.Shoulder": {
+    "en": "Shoulder plates",
+    "de": "Schulterplatten"
+  },
+  "Craft.Tab.Staff": {
+    "en": "Staves",
+    "de": "Stäbe"
+  },
+  "Craft.Tab.Sword": {
+    "en": "Longswords",
+    "de": "Langschwerter"
+  },
+  "Craft.Tab.Torso": {
+    "en": "Chest armor",
+    "de": "Brustpanzer"
+  },
+  "Craft.Tab.Misc_Alchemy": {
+    "en": "Miscellaneous",
+    "de": "Sonstiges"
+  },
+  "Craft.Tab.Misc_Blacksmithing": {
+    "en": "Miscellaneous",
+    "de": "Sonstiges"
+  },
+  "Craft.Tab.Misc_Jewelcrafting": {
+    "en": "Miscellaneous",
+    "de": "Sonstiges"
+  },
+  "Craft.Tab.Misc_Tailoring": {
+    "en": "Miscellaneous",
+    "de": "Sonstiges"
+  },
+  "Craft.Tab.Misc": {
+    "en": "Miscellaneous",
+    "de": "Sonstiges"
+  },
+  "Craft.SearchHint": {
+    "en": "Search recipe …",
+    "de": "Rezept suchen …"
   }
 }

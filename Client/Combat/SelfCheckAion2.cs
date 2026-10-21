@@ -1321,7 +1321,10 @@ public static class SelfCheckAion2
         bool daevanion = boards.Count == 3
             && boards[11] is { Name: "Nezekan", ActiveNodes: 16 } n11 && n11.SkillBonuses.GetValueOrDefault(11010000) == 1      // Rending Blow +1
             && boards[12] is { Name: "Zikel", ActiveNodes: 10 } n12 && n12.SkillBonuses.GetValueOrDefault(11190000) == 1       // Leaping Slam +1
-            && boards[13] is { Name: "Vaizel", ActiveNodes: 15 } n13 && n13.SkillBonuses.GetValueOrDefault(11050000) == 1 && n13.SkillBonuses.GetValueOrDefault(11200000) == 1;
+            && boards[13] is { Name: "Vaizel", ActiveNodes: 15 } n13 && n13.SkillBonuses.GetValueOrDefault(11010000) == 1 && n13.SkillBonuses.GetValueOrDefault(11100000) == 1       // Rending Blow and Ruinous Blow +1 again
+            // the bonus levels of the skill list are what the boards add up to (the node table of the game, 2026-10-21): Rending Blow 10+2 = Nezekan + Vaizel, Ruinous Blow 6+2 = Zikel + Vaizel
+            && skills[11010000].Level - skills[11010000].BaseLevel == boards.Values.Sum(b => b.SkillBonuses.GetValueOrDefault(11010000))
+            && skills[11100000].Level - skills[11100000].BaseLevel == boards.Values.Sum(b => b.SkillBonuses.GetValueOrDefault(11100000));
         Console.WriteLine($"  -> Daevanion: Nezekan 16 / Zikel 10 / Vaizel 15 activated nodes, skill bonuses match the skill list's bonus levels: {daevanion}");
         Console.WriteLine($"  -> belt +4, amulet +3, plain helm +0 (and nothing invented elsewhere): {equipment}");
         Console.WriteLine($"  -> {skills.Count} skills with total/base level (Rending Blow 12 = 10+2, Blood Absorption 11 = 10+1 ...): {skillLevels}");

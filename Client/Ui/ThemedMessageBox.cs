@@ -19,6 +19,19 @@ public static class ThemedMessageBox
         return answer.Value;
     }
 
+    /// <summary>
+    /// The question every configuration window asks when it is closed with changes: "Save", "Discard" or "Cancel" (stay). Returns Yes (save), No (discard) or Cancel.
+    /// </summary>
+    public static MessageBoxResult AskUnsaved(Window? owner, string caption)
+    {
+        var loc = LocalizationManager.Instance;
+        var window = Build(owner, loc["Config.Unsaved"], caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, null, null, out var answer,
+            (loc["Config.Save"], loc["Config.Discard"], loc["Config.Cancel"]));
+        window.MinWidth = 0;
+        window.ShowDialog();
+        return answer.Value;
+    }
+
     /// <summary>The answer of a box that is still open.</summary>
     public sealed class Answer
     {
@@ -27,7 +40,7 @@ public static class ThemedMessageBox
 
     /// <summary>Builds the box without showing it (<see cref="Show"/> shows it; the picture mode of the tests draws it).</summary>
     public static Window Build(Window? owner, string text, string caption, MessageBoxButton buttons, MessageBoxImage image,
-        string? checkboxLabel, Action<bool>? onCheckbox, out Answer answer)
+        string? checkboxLabel, Action<bool>? onCheckbox, out Answer answer, (string Yes, string No, string Cancel)? labels = null)
     {
         var holder = new Answer
         {
@@ -84,7 +97,8 @@ public static class ThemedMessageBox
 
         body.Children.Add(message);
 
-        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(16, 8, 16, 16) };
+        // a box with its own button names (the unsaved-changes question) is as wide as its buttons: the text card ends where the row of buttons does
+        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = labels is null ? new Thickness(16, 8, 16, 16) : new Thickness(8, 8, 16, 16) };
         void AddButton(string label, MessageBoxResult value, bool isDefault = false, bool isCancel = false)
         {
             var button = new Button { Content = label, MinWidth = 84, Height = 28, Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(12, 0, 12, 0), IsDefault = isDefault, IsCancel = isCancel };
@@ -107,9 +121,9 @@ public static class ThemedMessageBox
                 AddButton("No", MessageBoxResult.No, isCancel: true);
                 break;
             case MessageBoxButton.YesNoCancel:
-                AddButton("Yes", MessageBoxResult.Yes, isDefault: true);
-                AddButton("No", MessageBoxResult.No);
-                AddButton("Cancel", MessageBoxResult.Cancel, isCancel: true);
+                AddButton(labels?.Yes ?? "Yes", MessageBoxResult.Yes, isDefault: true);
+                AddButton(labels?.No ?? "No", MessageBoxResult.No);
+                AddButton(labels?.Cancel ?? "Cancel", MessageBoxResult.Cancel, isCancel: true);
                 break;
             default:
                 AddButton("OK", MessageBoxResult.OK, isDefault: true, isCancel: true);

@@ -19,7 +19,7 @@ public sealed class ModulePage : DockPanel
     private bool _syncing;
 
     public ModulePage(string title, UIElement body, Func<MeterSettings, bool> getOn, Action<MeterSettings, bool> setOn, Func<MeterSettings, string>? getKey,
-        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null)
+        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null, UIElement? left = null)
     {
         _getOn = getOn;
         _getKey = getKey;
@@ -78,7 +78,7 @@ public sealed class ModulePage : DockPanel
         var name = new TextBlock { Text = title, FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         header.Children.Add(right);
-        header.Children.Add(name);
+        header.Children.Add(left ?? name);
 
         SetDock(header, Dock.Top);
         Children.Add(header);

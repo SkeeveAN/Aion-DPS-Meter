@@ -16,16 +16,24 @@ public static class Aion2Artwork
     private static IReadOnlyDictionary<int, string>? _skillTypes;
     private static SpeciesTexts? _species;
 
+    private static IReadOnlyDictionary<int, string>? _craftIcons;
+
     public static string? ItemIconPath(int itemId)
     {
         _itemIcons ??= ReadMap(Path.Combine(Root, "items", "item_icons.json"));
-        if (!_itemIcons.TryGetValue(itemId, out string? name))
+        if (_itemIcons.TryGetValue(itemId, out string? name) && Path.Combine(Root, "items", "icons", name + ".png") is string path && File.Exists(path))
         {
-            return null;
+            return path;
         }
 
-        string path = Path.Combine(Root, "items", "icons", name + ".png");
-        return File.Exists(path) ? path : null;
+        // the materials, potions and the like of the crafting tool (assets/aion2/craft, built by Tools/aion2-icons/build_craft_icons.py)
+        _craftIcons ??= ReadMap(Path.Combine(Root, "craft", "item_icons.json"));
+        if (_craftIcons.TryGetValue(itemId, out string? craftName) && Path.Combine(Root, "craft", "icons", craftName + ".png") is string craftPath && File.Exists(craftPath))
+        {
+            return craftPath;
+        }
+
+        return null;
     }
 
     private static IReadOnlyDictionary<int, string>? _effectIcons;

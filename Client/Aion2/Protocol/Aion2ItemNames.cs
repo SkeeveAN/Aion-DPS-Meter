@@ -26,6 +26,9 @@ public static class Aion2ItemNames
         return index >= 0 && row[1 + index].Length > 0 ? row[1 + index] : row[1];
     }
 
+    /// <summary>True when the client's item table has the item.</summary>
+    public static bool Knows(int itemId) => (_table ??= Load()).ContainsKey(itemId);
+
     /// <summary>The item's grade on the scale of the character window (1 Common ... 7 Special); 0 when unknown.</summary>
     public static int GradeOf(int itemId) => (_table ??= Load()).TryGetValue(itemId, out string[]? row) && int.TryParse(row[0], out int grade) ? grade : 0;
 
