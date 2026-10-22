@@ -16,6 +16,13 @@
      "Backend"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Backend: a player whose client reports a server id that names no server no longer lands on the uploader's server, and a second row of a character we already hold on his real server is merged into it instead of staying a conflict",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
