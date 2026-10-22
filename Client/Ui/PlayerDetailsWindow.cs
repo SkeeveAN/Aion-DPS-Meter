@@ -13,7 +13,7 @@ public sealed class PlayerDetailsWindow : Window
         FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null, ReplayData? replay = null, PlayerSeenInfo? seen = null)
     {
         Title = "Character Details";
-        Height = seen is null ? 680 : 780;
+        Height = 680;
         Width = 1000;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetResourceReference(BackgroundProperty, "Brush.Window");

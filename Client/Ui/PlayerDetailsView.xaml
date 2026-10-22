@@ -118,8 +118,6 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
-            <!-- What the game's "player appeared" frame said of this player (level, item level, combat power, worn pieces): built in code (BuildSeenPanel), only when something was seen. -->
-            <StackPanel x:Name="SeenHost" Margin="0,8,0,0" Visibility="Collapsed"/>
             <TextBlock x:Name="SummaryText" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,8,0,0"/>
         </StackPanel>
 
@@ -161,9 +159,14 @@
             <RadioButton x:Name="TabSkillsButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" IsChecked="True" Content="{local:Loc Details.Tab.Skills}" Checked="OnDetailsTabChanged"/>
             <RadioButton x:Name="TabRotationButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Content="{local:Loc Details.Tab.Rotation}" Checked="OnDetailsTabChanged"/>
             <RadioButton x:Name="TabBuffsButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Content="{local:Loc Details.Tab.Buffs}" Checked="OnDetailsTabChanged"/>
+            <RadioButton x:Name="TabPlayerButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Visibility="Collapsed" Content="{local:Loc Details.Tab.Player}" Checked="OnDetailsTabChanged"/>
             <Button x:Name="ReplayButton" Content="{local:Loc Replay.Button}" Visibility="Collapsed" Margin="16,0,0,0" Padding="12,3" VerticalAlignment="Center" Click="OnReplayClicked"/>
         </StackPanel>
         <Grid x:Name="TabHost">
+        <!-- What the game's "player appeared" frame said of the player (level, item level, combat power, worn pieces): built in code (BuildSeenPanel), a tab of its own so the damage and the player's data are looked at apart. -->
+        <ScrollViewer x:Name="PlayerPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="SeenHost" Margin="0,4,0,0"/>
+        </ScrollViewer>
         <DataGrid x:Name="SkillsGrid" AutoGenerateColumns="False" IsReadOnly="True"
                   Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
                   AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"

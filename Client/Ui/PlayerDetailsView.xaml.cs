@@ -120,7 +120,7 @@ public partial class PlayerDetailsView : UserControl
         }
 
         var loc = LocalizationManager.Instance;
-        SeenHost.Visibility = Visibility.Visible;
+        TabPlayerButton.Visibility = Visibility.Visible;
         var tiles = new StackPanel { Orientation = Orientation.Horizontal };
         if (seen.Equalized)
         {
@@ -468,6 +468,7 @@ public partial class PlayerDetailsView : UserControl
         SkillsGrid.Visibility = TabSkillsButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         RotationPanel.Visibility = TabRotationButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         BuffsPanel.Visibility = TabBuffsButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        PlayerPanel.Visibility = TabPlayerButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         bool skills = TabSkillsButton.IsChecked == true;
         TargetsGrid.Visibility = skills && _targetsShown ? Visibility.Visible : Visibility.Collapsed;
         CurvePanel.Visibility = skills && _curveShown ? Visibility.Visible : Visibility.Collapsed;
