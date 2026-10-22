@@ -1500,7 +1500,7 @@ public sealed class Aion2FrameDecoder
             }
         }
 
-        return new[] { new DamageEvent(timestamp, source, (int)target, taken, isHeal, skill, critical && !isHeal, SkillId: skillId, Kinds: isHeal ? null : kinds, HitCount: hitCount) };
+        return new[] { new DamageEvent(timestamp, source, (int)target, taken, isHeal, skill, critical && !isHeal, SkillId: skillId, Kinds: isHeal ? null : kinds, HitCount: hitCount, ViaSummon: !isHeal && source != (int)actor) };
     }
 
     /// <summary>
@@ -1609,7 +1609,7 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
-        return new[] { new DamageEvent(timestamp, source, (int)target, amount, IsHeal: false, Aion2SkillNames.NameOf(skillId), IsTick: true, SkillId: skillId) };
+        return new[] { new DamageEvent(timestamp, source, (int)target, amount, IsHeal: false, Aion2SkillNames.NameOf(skillId), IsTick: true, SkillId: skillId, ViaSummon: source != (int)actor) };
     }
 
     /// <summary>

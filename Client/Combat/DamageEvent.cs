@@ -17,6 +17,7 @@ namespace AionDPS.Combat;
 /// <param name="Estimated">The amount is not the game's number but a guess: on a crowded world boss the server sends no damage figure for other players, only the notice that a hit landed (who, whom, which skill). The amount is then the average hit of that skill (see Aion2.Protocol.Aion2HitAverages). Never set for the hits the game does report in full.</param>
 /// <param name="IsTick">A damage-over-time tick rather than a hit: it adds to the damage, but not to
 /// the hit count or crit rate (the Aion 2 combat analyzer counts a DoT skill's casts as its hits).</param>
+/// <param name="ViaSummon">The hit was struck by a summon (a Spiritmaster's spirit, a Sorcerer's wall) and counted for its owner: the source is the owner, this says it was not he who hit.</param>
 public readonly record struct DamageEvent(
     DateTime Timestamp,
     int SourceObjectId,
@@ -29,7 +30,8 @@ public readonly record struct DamageEvent(
     int SkillId = 0,
     HitKinds? Kinds = null,
     int HitCount = 1,
-    bool Estimated = false);
+    bool Estimated = false,
+    bool ViaSummon = false);
 
 /// <summary>
 /// What a hit frame says about how the hit landed, read from its flag bytes (the first byte after the damage type is a bit set: 2, 4, 8; the third says where from: 1 or 2).

@@ -2798,11 +2798,11 @@ internal static class Program
         if (Environment.GetEnvironmentVariable("AION2_DUMP") is { Length: > 0 } dumpPath)
         {
             using var dump = new StreamWriter(dumpPath);
-            dump.WriteLine("time;source;sourceName;target;amount;heal;tick;crit;skill");
+            dump.WriteLine("time;source;sourceName;target;amount;heal;tick;crit;skill;viaSummon");
             foreach (var e in events)
             {
                 dump.WriteLine(string.Join(';', e.Timestamp.ToString("O"), e.SourceObjectId, source.Entities.NameFor(e.SourceObjectId), e.TargetObjectId,
-                    e.Amount, e.IsHeal ? 1 : 0, e.IsTick ? 1 : 0, e.IsCritical ? 1 : 0, e.Skill));
+                    e.Amount, e.IsHeal ? 1 : 0, e.IsTick ? 1 : 0, e.IsCritical ? 1 : 0, e.Skill, e.ViaSummon ? 1 : 0));
             }
         }
 

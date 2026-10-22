@@ -80,7 +80,7 @@
                  "n/a" when the events span less than one second (see DpsCalculator.AllDpsWallClock's
                  null case) - a single isolated hit has no elapsed duration to divide by, and a
                  tile showing a rate in that case would be worse than one saying "n/a". -->
-            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <StackPanel x:Name="TilesPanel" Orientation="Horizontal" Margin="0,10,0,0">
                 <Border Style="{StaticResource StatTile}">
                     <StackPanel>
                         <TextBlock x:Name="AmountTileLabel" Text="DMG" Style="{StaticResource StatTileLabel}"/>

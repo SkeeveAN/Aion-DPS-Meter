@@ -12228,5 +12228,17 @@
     "ru": "Кулон",
     "zh": "吊坠",
     "zh-TW": "吊墜"
+  },
+  "Details.Tile.Summons": {
+    "en": "SUMMONS",
+    "de": "BESCHWÖRUNGEN",
+    "fr": "INVOCATIONS",
+    "es": "INVOCACIONES",
+    "ru": "ПРИЗВАННЫЕ",
+    "zh": "召唤物",
+    "zh-TW": "召喚物",
+    "pt": "INVOCAÇÕES",
+    "ja": "召喚",
+    "ko": "소환수"
   }
 }

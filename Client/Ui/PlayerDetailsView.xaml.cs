@@ -319,6 +319,21 @@ public partial class PlayerDetailsView : UserControl
 
         CritTileText.Text = hits > 0 ? (100.0 * critHits / hits).ToString("F1") + "%" : "–";
 
+        // What a summon of the player did (a Spiritmaster's spirits, a Sorcerer's walls), when any of it was counted for him: its share of the damage shown.
+        long viaSummon = damage.Where(e => e.ViaSummon).Sum(e => e.Amount);
+        if (!heals && !taken && viaSummon > 0 && total > 0)
+        {
+            var summonValue = new TextBlock { Text = $"{100.0 * viaSummon / total:0.#}%", Style = (Style)FindResource("StatTileValue") };
+            summonValue.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+            var tile = new Border
+            {
+                Style = (Style)FindResource("StatTile"),
+                ToolTip = $"{loc["Details.Tile.Summons"]}: {viaSummon:N0}",
+                Child = new StackPanel { Children = { new TextBlock { Text = loc["Details.Tile.Summons"], Style = (Style)FindResource("StatTileLabel") }, summonValue } },
+            };
+            TilesPanel.Children.Add(tile);
+        }
+
         CritNoteText.Text = loc["Details.Crit.Note"] + " " + loc["Details.Kinds.Note"];
         CritNoteText.Visibility = heals ? Visibility.Collapsed : Visibility.Visible;
 

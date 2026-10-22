@@ -25,7 +25,8 @@ public static class SessionFile
 
     private sealed record EventDto(long T, int K, int S, int G, long A, bool H, string? Sk, bool C,
         [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? F = null,
-        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? N = null);
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? N = null,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? M = null);
 
     private sealed record AvoidDto(long T, int K, int S, int G, int Kind, string? Sk);
 
@@ -50,10 +51,10 @@ public static class SessionFile
         StayDto? Stay = null);
 
     private static EventDto ToDto(DamageEvent e) => new(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical,
-        e.Kinds is { } kinds ? (int)kinds : null, e.HitCount > 1 ? e.HitCount : null);
+        e.Kinds is { } kinds ? (int)kinds : null, e.HitCount > 1 ? e.HitCount : null, e.ViaSummon ? 1 : null);
 
     private static DamageEvent FromDto(EventDto d) => new(new DateTime(d.T, (DateTimeKind)d.K), d.S, d.G, d.A, d.H, d.Sk, d.C,
-        Kinds: d.F is int f ? (HitKinds)f : null, HitCount: d.N ?? 1);
+        Kinds: d.F is int f ? (HitKinds)f : null, HitCount: d.N ?? 1, ViaSummon: d.M == 1);
 
     /// <summary>Writes one stay (from the session manager) as a file the same Load can read back; the extra part is what a stay needs.</summary>
     public static void SaveStay(string path, SessionInfo stay, Combat.FightExtras? extras = null)
