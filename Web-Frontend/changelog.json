@@ -4,6 +4,13 @@
   "date": "2026-10-22",
   "items": [
    {
+    "text": "Website: all times on the site use the 24-hour clock and English dates are written day first (22/10/2026), instead of the US AM/PM format",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
     "text": "Website: the participant page shows the player as a card on the left (class, tags, DPS, damage, crit rate, HPS, healing and the compare button) and the damage and healing skills as one table on the right with hits, crit rate, average, maximum, share and total",
     "areas": [
      "Website"

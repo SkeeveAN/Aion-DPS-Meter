@@ -3,7 +3,7 @@ import { GAME_NAME_TRANSLATIONS } from "./game-data.js";
 // language switcher in the header; `intl` is the tag handed to toLocaleString() for numbers/dates.
 export const LOCALES = [
   { code: "de", flag: "🇩🇪", label: "Deutsch", intl: "de-DE" },
-  { code: "en", flag: "🇬🇧", label: "English", intl: "en-US" },
+  { code: "en", flag: "🇬🇧", label: "English", intl: "en-GB" },
   { code: "fr", flag: "🇫🇷", label: "Français", intl: "fr-FR" },
   { code: "es", flag: "🇪🇸", label: "Español", intl: "es-ES" },
   { code: "ru", flag: "🇷🇺", label: "Русский", intl: "ru-RU" },
@@ -74,7 +74,8 @@ export async function setLocale(code) {
 
 document.documentElement.lang = currentLocale;
 
-function intlTag() {
+// 24-hour clock for every language (English is en-GB: day-first dates, no AM/PM).
+export function intlTag() {
   return LOCALES.find((l) => l.code === currentLocale)?.intl ?? "en-US";
 }
 
@@ -91,7 +92,7 @@ export function formatNumber(n) {
 }
 
 export function formatDate(date) {
-  return date.toLocaleString(intlTag());
+  return date.toLocaleString(intlTag(), { hourCycle: "h23" });
 }
 
 

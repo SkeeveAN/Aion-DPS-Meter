@@ -1,4 +1,4 @@
-import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
+import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName, intlTag } from "./i18n.js";
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
@@ -1291,7 +1291,7 @@ async function renderStatus() {
   }
   const draw = async () => {
     const d = await fetchJson("/api/server-status");
-    const intl = getLocale() === "pt" ? "pt-BR" : getLocale();
+    const intl = intlTag();
     const label = { up: t("status.up"), down: t("status.down"), unknown: t("status.unknown"), maintenance: t("status.maintenance") };
     const ago = (iso) => {
       if (!iso) {
@@ -1304,8 +1304,8 @@ async function renderStatus() {
       const min = Math.max(1, Math.round(ms / 60000));
       return min < 90 ? t("status.minutes", { n: min }) : t("status.hours", { n: (Math.round(min / 6) / 10).toLocaleString(getLocale()) });
     };
-    const clock = new Intl.DateTimeFormat(intl, { weekday: "short", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
-    const hhmm = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit" });
+    const clock = new Intl.DateTimeFormat(intl, { weekday: "short", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    const hhmm = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
     const pct = (v) => (v === null ? "–" : `${v.toLocaleString(getLocale())} %`);
     const reached = (x) => x.state === "up" || x.state === "maintenance";
     const worst = (list) => (["down", "maintenance", "unknown", "up"].find((s) => list.some((x) => x.state === s)) ?? "unknown");
@@ -1427,14 +1427,14 @@ async function renderAnnouncements() {
   showLoading(t("ann.loading"));
   const d = await fetchJson(`/api/announcements?lang=${encodeURIComponent(getLocale())}`);
   const labelOf = (category) => t(`ann.cat.${ANN_CATEGORIES.includes(category) ? category : "other"}`);
-  const intl = getLocale() === "pt" ? "pt-BR" : getLocale();
+  const intl = intlTag();
   const dayOf = (iso) => new Date(iso).toLocaleDateString("sv-SE"); // local calendar day, sortable
   const dayTitle = new Intl.DateTimeFormat(intl, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const card = (x) => el("article", { className: `ann-item cat-${ANN_CATEGORIES.includes(x.category) ? x.category : "other"}` }, [
     el("div", { className: "ann-head" }, [
       el("span", { className: "ann-label", textContent: labelOf(x.category) }),
       ...(x.status === "done" ? [el("span", { className: "ann-label done", textContent: t("ann.done") })] : []),
-      el("time", { className: "ann-date", dateTime: x.postedAt, textContent: new Date(x.postedAt).toLocaleTimeString(intl, { hour: "2-digit", minute: "2-digit" }) }),
+      el("time", { className: "ann-date", dateTime: x.postedAt, textContent: new Date(x.postedAt).toLocaleTimeString(intl, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) }),
     ]),
     el("h3", { className: "ann-title" }, [el("a", { href: x.url, target: "_blank", rel: "noopener", textContent: x.title })]),
     // account notices carry the number of restricted accounts instead of NC's generic opening lines
@@ -1866,7 +1866,7 @@ async function renderChangelog() {
     }
     groups.get(minor).push(r);
   }
-  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(lang === "de" ? "de-DE" : "en-US", { year: "numeric", month: "short", day: "numeric" });
+  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(lang === "de" ? "de-DE" : "en-GB", { year: "numeric", month: "short", day: "numeric" });
   const sections = [...groups].map(([minor, list], i) => {
     const first = list[list.length - 1];
     const last = list[0];
@@ -2834,7 +2834,7 @@ function renderGroupBoard(groups) {
           el("b", { textContent: formatNumber(g.groupIDps) }),
           ` ${t("leaderboard.idpsShort")}`,
           el("br"),
-          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`, gp(`/encounters/${g.encounterId}`), "lb-open")]),
+          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })}`, gp(`/encounters/${g.encounterId}`), "lb-open")]),
         ]),
         el("span", { className: "lb-totals" }, [`${formatNumber(g.totalDamage)} ${t("leaderboard.dmgShort")}`, el("br"), `${formatNumber(g.totalHealing)} ${t("leaderboard.healShort")}`]),
       ]);
@@ -4381,8 +4381,7 @@ function renderRunsTab(history) {
     r.record = r.ok && r.h.idps === best.get(r.key);
   }
 
-  // 24-hour clock and day-first dates in every language, English included (the default "en" would give the US formats).
-  const intl = getLocale() === "pt" ? "pt-BR" : getLocale() === "en" ? "en-GB" : getLocale();
+  const intl = intlTag();
   const dayFormat = new Intl.DateTimeFormat(intl, { weekday: "short", day: "numeric", month: "numeric", year: "numeric" });
   const clockFormat = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   const compact = new Intl.NumberFormat(intl, { notation: "compact", maximumFractionDigits: 2 });
