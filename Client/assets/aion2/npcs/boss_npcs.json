@@ -3,7 +3,8 @@
 "Aion 2 boss NPC ids -> English boss name and instance.",
 "Source: Backend/src/data/aion2/bosses.json (facts only: names as shown by the game client, NPC ids).",
 "The id is what the game sends when a monster appears (spawn frame, opcode 0x4136, u32 after the entity id and 3 type bytes) - verified on a Krao Cave run: 2300104 = Enhanced Harcon, 2300171 = Ultimate Berk.",
-"Regenerate when bosses.json changes: see assets/aion2/npcs/README.md."
+"Regenerate when bosses.json changes: see assets/aion2/npcs/README.md.",
+"maxHp: the boss's full hit points (for hpScale \"party\" bosses, the hit points for ONE player: the real maximum is maxHp times the group size, 1 to 5). Source: spawn frames of recordings and the community server (Backend/src/content/bossHpSeed.json)."
 ],
 "bosses": {
 "2300708": {
@@ -12,7 +13,8 @@
 },
 "2330708": {
 "name": "Ruthilis of Pain",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 5859000
 },
 "2340708": {
 "name": "Ruthilis of Pain",
@@ -20,7 +22,8 @@
 },
 "2350708": {
 "name": "Ruthilis of Pain",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 7245000
 },
 "2351708": {
 "name": "Ruthilis of Pain",
@@ -32,7 +35,8 @@
 },
 "2353708": {
 "name": "Ruthilis of Pain",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 9687600
 },
 "2354708": {
 "name": "Ruthilis of Pain",
@@ -44,7 +48,8 @@
 },
 "2356708": {
 "name": "Ruthilis of Pain",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 10679948
 },
 "2357708": {
 "name": "Ruthilis of Pain",
@@ -56,7 +61,8 @@
 },
 "2330707": {
 "name": "Siliator of Deceit",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 5859000
 },
 "2340707": {
 "name": "Siliator of Deceit",
@@ -64,7 +70,8 @@
 },
 "2350707": {
 "name": "Siliator of Deceit",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 7245000
 },
 "2351707": {
 "name": "Siliator of Deceit",
@@ -76,7 +83,8 @@
 },
 "2353707": {
 "name": "Siliator of Deceit",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 9685945
 },
 "2354707": {
 "name": "Siliator of Deceit",
@@ -88,7 +96,8 @@
 },
 "2356707": {
 "name": "Siliator of Deceit",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 10681200
 },
 "2357707": {
 "name": "Siliator of Deceit",
@@ -100,7 +109,8 @@
 },
 "2330709": {
 "name": "Talisra of the Void",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 11067000
 },
 "2340709": {
 "name": "Talisra of the Void",
@@ -108,7 +118,8 @@
 },
 "2350709": {
 "name": "Talisra of the Void",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 13685000
 },
 "2351709": {
 "name": "Talisra of the Void",
@@ -120,7 +131,8 @@
 },
 "2353709": {
 "name": "Talisra of the Void",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 18298800
 },
 "2354709": {
 "name": "Talisra of the Void",
@@ -132,7 +144,8 @@
 },
 "2356709": {
 "name": "Talisra of the Void",
-"instance": "Shattered Arkanis"
+"instance": "Shattered Arkanis",
+"maxHp": 20175600
 },
 "2357709": {
 "name": "Talisra of the Void",
@@ -144,7 +157,8 @@
 },
 "2300811": {
 "name": "Thamon",
-"instance": "Vakron Sky Island (Conquest)"
+"instance": "Vakron Sky Island (Conquest)",
+"maxHp": 5220000
 },
 "2300580": {
 "name": "Tiere",
@@ -152,7 +166,8 @@
 },
 "2300810": {
 "name": "Tiere",
-"instance": "Vakron Sky Island (Conquest)"
+"instance": "Vakron Sky Island (Conquest)",
+"maxHp": 5220000
 },
 "2300582": {
 "name": "Vakron",
@@ -160,7 +175,8 @@
 },
 "2300812": {
 "name": "Vakron",
-"instance": "Vakron Sky Island (Conquest)"
+"instance": "Vakron Sky Island (Conquest)",
+"maxHp": 9860000
 },
 "2300409": {
 "name": "Lab Director Zylus",
@@ -688,7 +704,8 @@
 },
 "2320601": {
 "name": "Atiel",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 11067000
 },
 "2330601": {
 "name": "Atiel",
@@ -696,7 +713,8 @@
 },
 "2340601": {
 "name": "Atiel",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 13685000
 },
 "2341601": {
 "name": "Atiel",
@@ -708,7 +726,8 @@
 },
 "2343601": {
 "name": "Atiel",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 18298800
 },
 "2344601": {
 "name": "Atiel",
@@ -720,7 +739,8 @@
 },
 "2346601": {
 "name": "Atiel",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 20175600
 },
 "2347601": {
 "name": "Atiel",
@@ -736,7 +756,8 @@
 },
 "2320616": {
 "name": "Gelcos",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 5859000
 },
 "2330616": {
 "name": "Gelcos",
@@ -744,7 +765,8 @@
 },
 "2340616": {
 "name": "Gelcos",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 7244480
 },
 "2341616": {
 "name": "Gelcos",
@@ -756,7 +778,8 @@
 },
 "2343616": {
 "name": "Gelcos",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 9686762
 },
 "2344616": {
 "name": "Gelcos",
@@ -768,7 +791,8 @@
 },
 "2346616": {
 "name": "Gelcos",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 10679953
 },
 "2347616": {
 "name": "Gelcos",
@@ -784,7 +808,8 @@
 },
 "2320615": {
 "name": "Nazmun",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 5859000
 },
 "2330615": {
 "name": "Nazmun",
@@ -792,7 +817,8 @@
 },
 "2340615": {
 "name": "Nazmun",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 7245000
 },
 "2341615": {
 "name": "Nazmun",
@@ -804,7 +830,8 @@
 },
 "2343615": {
 "name": "Nazmun",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 9687600
 },
 "2344615": {
 "name": "Nazmun",
@@ -816,7 +843,8 @@
 },
 "2346615": {
 "name": "Nazmun",
-"instance": "Deus Research Base"
+"instance": "Deus Research Base",
+"maxHp": 10679461
 },
 "2347615": {
 "name": "Nazmun",
@@ -828,15 +856,18 @@
 },
 "2300471": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir (Conquest)",
+"maxHp": 6800000
 },
 "2300401": {
 "name": "Phantasmal Lakshmi",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir (Conquest)",
+"maxHp": 3600000
 },
 "2300403": {
 "name": "Predator Saraswati",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir (Conquest)",
+"maxHp": 3600000
 },
 "2301207": {
 "name": "Black Blood Blatt",
@@ -940,31 +971,38 @@
 },
 "2300312": {
 "name": "Black Smoke Murute",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple (Conquest)",
+"maxHp": 8208000
 },
 "2300371": {
 "name": "Kromede's Desire",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple (Conquest)",
+"maxHp": 15504000
 },
 "2300311": {
 "name": "Red Spark Ignus",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple (Conquest)",
+"maxHp": 8208000
 },
 "2300310": {
 "name": "Silver Blade Rotan",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple (Conquest)",
+"maxHp": 570000
 },
 "2300104": {
 "name": "Enhanced Harcon",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave (Conquest)",
+"maxHp": 3600000
 },
 "2300108": {
 "name": "Neglected Gadioton",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave (Conquest)",
+"maxHp": 3600000
 },
 "2300171": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave (Conquest)",
+"maxHp": 6800000
 },
 "2300172": {
 "name": "Ultimate Berk",
@@ -1032,19 +1070,23 @@
 },
 "2300910": {
 "name": "Ferocious Horn Nuakum",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den (Conquest)",
+"maxHp": 15504000
 },
 "2300909": {
 "name": "Necromancer Duanka",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den (Conquest)",
+"maxHp": 8208000
 },
 "2300907": {
 "name": "Shining Mau Totem",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den (Conquest)",
+"maxHp": 304000
 },
 "2300908": {
 "name": "Watchdog Kwapo",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den (Conquest)",
+"maxHp": 8208000
 },
 "2300261": {
 "name": "Kromede's Desolation",
@@ -1168,19 +1210,23 @@
 },
 "2701753": {
 "name": "Divided Aponos",
-"instance": "Nightmare Altar"
+"instance": "Nightmare Altar",
+"maxHp": 598039
 },
 "2701789": {
 "name": "Divided Aponos",
-"instance": "Nightmare Altar"
+"instance": "Nightmare Altar",
+"maxHp": 750000
 },
 "2701807": {
 "name": "Divided Aponos",
-"instance": "Nightmare Altar"
+"instance": "Nightmare Altar",
+"maxHp": 1200000
 },
 "2701866": {
 "name": "Divided Aponos",
-"instance": "Nightmare Altar"
+"instance": "Nightmare Altar",
+"maxHp": 1750000
 },
 "2702396": {
 "name": "Divided Aponos",
@@ -1244,19 +1290,23 @@
 },
 "2701774": {
 "name": "Featherstorm Duduri",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 1747675
 },
 "2701829": {
 "name": "Featherstorm Duduri",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 1198508
 },
 "2701841": {
 "name": "Featherstorm Duduri",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 749263
 },
 "2701853": {
 "name": "Featherstorm Duduri",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 600000
 },
 "2702372": {
 "name": "Featherstorm Duduri",
@@ -1268,19 +1318,23 @@
 },
 "2701788": {
 "name": "Watchful Raptor Dodori",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 1748237
 },
 "2701830": {
 "name": "Watchful Raptor Dodori",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 1197694
 },
 "2701842": {
 "name": "Watchful Raptor Dodori",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 748708
 },
 "2701854": {
 "name": "Watchful Raptor Dodori",
-"instance": "Sanctum of Loathing"
+"instance": "Sanctum of Loathing",
+"maxHp": 600000
 },
 "2702373": {
 "name": "Watchful Raptor Dodori",
@@ -1472,23 +1526,29 @@
 },
 "2300218": {
 "name": "Divine Auldor",
-"instance": "Urugugu Canyon (Conquest)"
+"instance": "Urugugu Canyon (Conquest)",
+"maxHp": 9860000
 },
 "2300206": {
 "name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon (Conquest)"
+"instance": "Urugugu Canyon (Conquest)",
+"maxHp": 5220000
 },
 "2300207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon (Conquest)"
+"instance": "Urugugu Canyon (Conquest)",
+"maxHp": 5220000
 },
 "2310104": {
 "name": "Enhanced Harcon",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 61500,
+"hpScale": "party"
 },
 "2320104": {
 "name": "Enhanced Harcon",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave (Conquest)",
+"maxHp": 18575033
 },
 "2330104": {
 "name": "Enhanced Harcon",
@@ -1496,11 +1556,14 @@
 },
 "2310108": {
 "name": "Neglected Gadioton",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 61500,
+"hpScale": "party"
 },
 "2320108": {
 "name": "Neglected Gadioton",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave (Conquest)",
+"maxHp": 18575115
 },
 "2330108": {
 "name": "Neglected Gadioton",
@@ -1508,7 +1571,9 @@
 },
 "2310171": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 123000,
+"hpScale": "party"
 },
 "2310172": {
 "name": "Ultimate Berk",
@@ -1528,7 +1593,8 @@
 },
 "2320171": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave (Conquest)",
+"maxHp": 24316500
 },
 "2320172": {
 "name": "Ultimate Berk",
@@ -1552,7 +1618,9 @@
 },
 "2310218": {
 "name": "Divine Auldor",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon",
+"maxHp": 225000,
+"hpScale": "party"
 },
 "2320218": {
 "name": "Divine Auldor",
@@ -1564,7 +1632,9 @@
 },
 "2310206": {
 "name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon",
+"maxHp": 112449,
+"hpScale": "party"
 },
 "2320206": {
 "name": "Guardian Captain Raur",
@@ -1576,7 +1646,9 @@
 },
 "2310207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon",
+"maxHp": 112442,
+"hpScale": "party"
 },
 "2320207": {
 "name": "Judge Urahum",
@@ -1588,7 +1660,9 @@
 },
 "2310312": {
 "name": "Black Smoke Murute",
-"instance": "Fire Temple"
+"instance": "Fire Temple",
+"maxHp": 180000,
+"hpScale": "party"
 },
 "2320312": {
 "name": "Black Smoke Murute",
@@ -1600,7 +1674,9 @@
 },
 "2310371": {
 "name": "Kromede's Desire",
-"instance": "Fire Temple"
+"instance": "Fire Temple",
+"maxHp": 360000,
+"hpScale": "party"
 },
 "2320371": {
 "name": "Kromede's Desire",
@@ -1612,7 +1688,9 @@
 },
 "2310311": {
 "name": "Red Spark Ignus",
-"instance": "Fire Temple"
+"instance": "Fire Temple",
+"maxHp": 180000,
+"hpScale": "party"
 },
 "2320311": {
 "name": "Red Spark Ignus",
@@ -1624,7 +1702,9 @@
 },
 "2310310": {
 "name": "Silver Blade Rotan",
-"instance": "Fire Temple"
+"instance": "Fire Temple",
+"maxHp": 120000,
+"hpScale": "party"
 },
 "2320310": {
 "name": "Silver Blade Rotan",
@@ -1640,7 +1720,9 @@
 },
 "2310471": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir"
+"instance": "Draupnir",
+"maxHp": 600000,
+"hpScale": "party"
 },
 "2320470": {
 "name": "Transcendent Bakarma",
@@ -1648,7 +1730,8 @@
 },
 "2320471": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir (Conquest)",
+"maxHp": 24316500
 },
 "2330423": {
 "name": "Transcendent Bakarma",
@@ -1660,11 +1743,14 @@
 },
 "2310401": {
 "name": "Phantasmal Lakshmi",
-"instance": "Draupnir"
+"instance": "Draupnir",
+"maxHp": 300000,
+"hpScale": "party"
 },
 "2320401": {
 "name": "Phantasmal Lakshmi",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir (Conquest)",
+"maxHp": 18575189
 },
 "2330401": {
 "name": "Phantasmal Lakshmi",
@@ -1672,11 +1758,14 @@
 },
 "2310403": {
 "name": "Predator Saraswati",
-"instance": "Draupnir"
+"instance": "Draupnir",
+"maxHp": 299849,
+"hpScale": "party"
 },
 "2320403": {
 "name": "Predator Saraswati",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir (Conquest)",
+"maxHp": 18575127
 },
 "2330403": {
 "name": "Predator Saraswati",
@@ -1684,7 +1773,9 @@
 },
 "2310811": {
 "name": "Thamon",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island",
+"maxHp": 435000,
+"hpScale": "party"
 },
 "2320811": {
 "name": "Thamon",
@@ -1692,7 +1783,9 @@
 },
 "2310810": {
 "name": "Tiere",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island",
+"maxHp": 434852,
+"hpScale": "party"
 },
 "2320810": {
 "name": "Tiere",
@@ -1700,7 +1793,9 @@
 },
 "2310812": {
 "name": "Vakron",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island",
+"maxHp": 870000,
+"hpScale": "party"
 },
 "2320812": {
 "name": "Vakron",
@@ -1708,7 +1803,9 @@
 },
 "2310910": {
 "name": "Ferocious Horn Nuakum",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den",
+"maxHp": 1140000,
+"hpScale": "party"
 },
 "2320910": {
 "name": "Ferocious Horn Nuakum",
@@ -1716,7 +1813,9 @@
 },
 "2310909": {
 "name": "Necromancer Duanka",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den",
+"maxHp": 569686,
+"hpScale": "party"
 },
 "2320909": {
 "name": "Necromancer Duanka",
@@ -1724,7 +1823,9 @@
 },
 "2310907": {
 "name": "Shining Mau Totem",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den",
+"maxHp": 50317,
+"hpScale": "party"
 },
 "2320907": {
 "name": "Shining Mau Totem",
@@ -1732,7 +1833,9 @@
 },
 "2310908": {
 "name": "Watchdog Kwapo",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den",
+"maxHp": 570000,
+"hpScale": "party"
 },
 "2320908": {
 "name": "Watchdog Kwapo",
@@ -1740,247 +1843,308 @@
 },
 "2980040": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 1200000
 },
 "2980041": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 1439287
 },
 "2980042": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 1559197
 },
 "2980043": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 1679208
 },
 "2980044": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 1799245
 },
 "2980045": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 1918384
 },
 "2980046": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 2039162
 },
 "2980047": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 2159067
 },
 "2980048": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 2279055
 },
 "2980049": {
 "name": "Gatekeeper Pinopi",
-"instance": "Root Cellar"
+"instance": "Root Cellar",
+"maxHp": 2399234
 },
 "2980150": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 1199098
 },
 "2980151": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 1438993
 },
 "2980152": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 1558832
 },
 "2980153": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 1679102
 },
 "2980154": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 1800000
 },
 "2980155": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 1920000
 },
 "2980156": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 2040000
 },
 "2980157": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 2160000
 },
 "2980158": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 2280000
 },
 "2980159": {
 "name": "Furious Feruk",
-"instance": "Dranactus Underkeep"
+"instance": "Dranactus Underkeep",
+"maxHp": 2397792
 },
 "2980240": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 1199183
 },
 "2980241": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 1440000
 },
 "2980242": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 1560000
 },
 "2980243": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 1680000
 },
 "2980244": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 1800000
 },
 "2980245": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 1920000
 },
 "2980246": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 2040000
 },
 "2980247": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 2160000
 },
 "2980248": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 2280000
 },
 "2980249": {
 "name": "Fafnir's Poison Blood",
-"instance": "Root of the Sacred Tree"
+"instance": "Root of the Sacred Tree",
+"maxHp": 2400000
 },
 "2980250": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 1199193
 },
 "2980251": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 1440000
 },
 "2980252": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 1560000
 },
 "2980253": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 1680000
 },
 "2980254": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 1800000
 },
 "2980255": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 1920000
 },
 "2980256": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 2040000
 },
 "2980257": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 2160000
 },
 "2980258": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 2280000
 },
 "2980259": {
 "name": "Wraith Giselle",
-"instance": "Crypt"
+"instance": "Crypt",
+"maxHp": 2400000
 },
 "2980170": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 1798725
 },
 "2980171": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 2157849
 },
 "2980172": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 2336733
 },
 "2980173": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 2518349
 },
 "2980174": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 2698129
 },
 "2980175": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 2876819
 },
 "2980176": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 3058101
 },
 "2980177": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 3238067
 },
 "2980178": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 3373034
 },
 "2980179": {
 "name": "Fortress Guardian Notun",
-"instance": "Destruction Archon Underground Fortress"
+"instance": "Destruction Archon Underground Fortress",
+"maxHp": 3597085
 },
 "2980210": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 1795434
 },
 "2980211": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 2155885
 },
 "2980212": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 2338497
 },
 "2980213": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 2517184
 },
 "2980214": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 2696767
 },
 "2980215": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 2877985
 },
 "2980216": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 3056760
 },
 "2980217": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 3236087
 },
 "2980218": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 3415793
 },
 "2980219": {
 "name": "Mutated Gerod",
-"instance": "Blades Hideout"
+"instance": "Blades Hideout",
+"maxHp": 3597769
 },
 "2980220": {
 "name": "Zikel's Apparition",
-"instance": "Impetusium"
+"instance": "Impetusium",
+"maxHp": 2397486
 },
 "2980221": {
 "name": "Zikel's Apparition",
@@ -2024,7 +2188,8 @@
 },
 "2600089": {
 "name": "Watcher Kaira",
-"instance": "Abyss"
+"instance": "Abyss",
+"maxHp": 810000000
 },
 "2600084": {
 "name": "Guardian Lord Nahma",
@@ -2052,11 +2217,13 @@
 },
 "2100003": {
 "name": "Neikel of the East",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 80000000
 },
 "2100040": {
 "name": "Rotten Kutar",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 80000000
 },
 "2100050": {
 "name": "Kernon of the West",
@@ -2073,7 +2240,8 @@
 },
 "2100079": {
 "name": "Bodyguard Teegant",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 160000000
 },
 "2100141": {
 "name": "Blooming Korin",
@@ -2085,7 +2253,8 @@
 },
 "2100178": {
 "name": "Bloodfang Pnyn",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 160000000
 },
 "2100582": {
 "name": "Heretic Layla",
@@ -2133,31 +2302,38 @@
 },
 "2101074": {
 "name": "Eternal Gartua",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 311999391
 },
 "2101120": {
 "name": "Silent Dartan",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 276000000
 },
 "2101122": {
 "name": "Soul Ruler Kashapa",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 276000000
 },
 "2101131": {
 "name": "High Commander Lagta",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 275998563
 },
 "2400017": {
 "name": "Melted Danar",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 80000000
 },
 "2400074": {
 "name": "Black Warrior Aed",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 79998107
 },
 "2400140": {
 "name": "Faithful Rajit",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 80000000
 },
 "2400141": {
 "name": "Berserker Vargor",
@@ -2205,11 +2381,13 @@
 },
 "2400504": {
 "name": "Executioner Barthien",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 159972103
 },
 "2400593": {
 "name": "Drakan Battalion Weapon Guruta",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 159998426
 },
 "2400607": {
 "name": "Veteran Shujakan",
@@ -2229,19 +2407,23 @@
 },
 "2400800": {
 "name": "Immortal Gartua",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 311999037
 },
 "2400853": {
 "name": "High Commander Lagta",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 275999487
 },
 "2400854": {
 "name": "Soul Ruler Kashapa",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 275998886
 },
 "2400855": {
 "name": "Silent Dartan",
-"instance": "Altgard"
+"instance": "Altgard",
+"maxHp": 275998243
 }
 }
 }

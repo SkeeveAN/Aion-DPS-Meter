@@ -9,10 +9,11 @@ namespace AionDPS.Aion2.Protocol;
 /// the combat frames themselves carry only a per-spawn entity id, so this table is what turns "entity
 /// 30410" into "Enhanced Harcon". Only bosses are listed - an id that is not here is an ordinary mob.
 /// An entry may carry <c>maxHp</c>: the server sends no maximum, so a meter that joins mid-fight would take the first reading for it.
+/// <c>hpScale</c> "party" marks an exploration boss whose hit points grow with the group: <c>maxHp</c> is then the value for one player.
 /// </summary>
 public static class Aion2BossCatalog
 {
-    public sealed record BossInfo(int NpcId, string Name, string Instance, long MaxHp = 0);
+    public sealed record BossInfo(int NpcId, string Name, string Instance, long MaxHp = 0, bool PartyScaled = false);
 
     private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "boss_npcs.json");
     private static IReadOnlyDictionary<int, BossInfo>? _cache;
@@ -37,7 +38,8 @@ public static class Aion2BossCatalog
                     if (int.TryParse(entry.Name, out int id))
                     {
                         table[id] = new BossInfo(id, entry.Value.GetProperty("name").GetString() ?? "", entry.Value.GetProperty("instance").GetString() ?? "",
-                            entry.Value.TryGetProperty("maxHp", out JsonElement hp) && hp.TryGetInt64(out long maxHp) ? maxHp : 0);
+                            entry.Value.TryGetProperty("maxHp", out JsonElement hp) && hp.TryGetInt64(out long maxHp) ? maxHp : 0,
+                            entry.Value.TryGetProperty("hpScale", out JsonElement scale) && scale.ValueKind == JsonValueKind.String && scale.GetString() == "party");
                     }
                 }
             }

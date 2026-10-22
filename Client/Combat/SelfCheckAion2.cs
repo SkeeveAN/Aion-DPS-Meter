@@ -7,6 +7,7 @@ using AionDPS.Aion2.Capture;
 using AionDPS.Aion2.Protocol;
 using AionDPS.Combat.Sources;
 using AionDPS.Data;
+using AionDPS.Upload;
 using AionDPS.Ui;
 
 namespace AionDPS.Combat;
@@ -60,6 +61,9 @@ public static class SelfCheckAion2
         ok &= RunAion2SeenProfileScenario();
         ok &= RunRestartSnapshotScenario();
         ok &= RunAion2BossSpawnScenario();
+        ok &= RunAion2SpawnHitPointsScenario();
+        ok &= RunAion2BossRealMaxScenario();
+        ok &= RunUploadSpawnMaxScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSkillNameLanguageScenario();
         ok &= RunSettingsMigrationScenario();
@@ -1619,6 +1623,90 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> entity 24155 is Ultimate Berk (NPC 2300171): {berk}");
         Console.WriteLine($"  -> an unknown entity is no boss: {mobIgnored}");
         return harcon && berk && mobIgnored;
+    }
+
+    private static bool RunAion2SpawnHitPointsScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 spawn frame carries the boss's maximum hit points (frames cut from recordings):");
+        // Raur (NPC 2300206) as entity 36430, Kromede's Desire (NPC 2300371) as entity 41813, the first spawn of the boss scenario (Enhanced Harcon, entity 30410).
+        (int Entity, string Hex, long Max)[] frames =
+        {
+            (36430, "4136ce8c010c22002e1923000002679a0346bc70834500c0614400d83d43008701a0cdbe02a0cdbe02640000006400000000000000000000000000000000000000504600005046000001000000000000000000000000000000000000000602110181969800ffffffffffffffff8075d52abb030000ce8c010114679a0346bc70834500c06144110284969800ffffffffffffffff8075d52abb030000ce8c0101679a0346bc70834500c061440100360000000301b0040000b0040000f26d149f00", 5_220_000),
+            (41813, "4136d5c7020c2200d3192300000242f15ac6790c814600c0524500a0664300a40180a5b20780a5b207640000006400000000000000000000000000000000000000409c0000409c000001000000000000000000000000000000000000000603110181969800ffffffffffffffff8075d52abb030000d5c702012842f15ac6790c814600c05245110284969800ffffffffffffffff8075d52abb030000d5c7020142f15ac6790c814600c05245110391cf1201ffffffffffffffff8075d52abb030000d5c7020142f15ac6790c814600c0524501003f0000000301b0040000b0040000f801000600", 15_504_000),
+        };
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        uint seq = 5000;
+        foreach (var (_, hex, _) in frames)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            source.Ingest(Segment(seq, wire.ToArray()));
+            seq += (uint)wire.Count;
+        }
+
+        var entities = (Aion2EntityDirectory)source.Entities;
+        bool ok = true;
+        foreach (var (entity, _, max) in frames)
+        {
+            long? read = entities.HitPoints.SpawnMaxOf(entity);
+            Console.WriteLine($"  -> entity {entity}: spawn max {read} (expected {max}), current {entities.HitPoints.SpawnCurrentOf(entity)}");
+            ok &= read == max && entities.HitPoints.SpawnCurrentOf(entity) == max;
+        }
+
+        bool unknown = entities.HitPoints.SpawnMaxOf(999) is null && entities.HitPoints.HighestSeen(36430) is null;
+        Console.WriteLine($"  -> no spawn seen -> null, and the spawn left the reading history alone: {unknown}");
+        return ok && unknown;
+    }
+
+    private static bool RunAion2BossRealMaxScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 boss real maximum (spawn value, table value, group size, growth):");
+        bool ok = true;
+        void Check(string what, long actual, long expected)
+        {
+            Console.WriteLine($"  -> {what}: {actual:N0} (expected {expected:N0})");
+            ok &= actual == expected;
+        }
+
+        // Full-HP spawn on an ordinary boss; the first reading is full.
+        Check("spawn 5,220,000, seen at full", Aion2BossHp.Compute(5_220_000, 0, false, 1, 5_220_000, 5_220_000), 5_220_000);
+        // Late joiner: first reading at 40 %, the spawn frame was missed, the table knows the maximum.
+        Check("late joiner, table 5,220,000, first reading 40 %", Aion2BossHp.Compute(null, 5_220_000, false, 1, 2_088_000, 2_088_000), 5_220_000);
+        // Spawn frame seen, table silent.
+        Check("spawn 8,208,000, table empty, first reading 40 %", Aion2BossHp.Compute(8_208_000, 0, false, 1, 3_283_200, 3_283_200), 8_208_000);
+        // Party-scaled Harcon: one player 61,500.
+        Check("party-scaled 61,500, group of 5", Aion2BossHp.Compute(61_500, 61_500, true, 5, 307_500, 307_500), 307_500);
+        Check("party-scaled 61,500, group of 3, readings show 3x", Aion2BossHp.Compute(61_500, 61_500, true, 3, 184_500, 184_500), 184_500);
+        Check("party-scaled 61,500, group of 3, first reading 40 %", Aion2BossHp.Compute(61_500, 61_500, true, 3, 73_800, 73_800), 184_500);
+        Check("party-scaled, group size unknown (1), readings already show 2x", Aion2BossHp.Compute(null, 61_500, true, 1, 123_000, 123_000), 123_000);
+        Check("party-scaled, group of 6 clamps to 5", Aion2BossHp.Compute(61_500, 61_500, true, 6, 61_500, 61_500), 307_500);
+        // No spawn, no table: the old rule.
+        Check("no spawn, no table", Aion2BossHp.Compute(null, 0, false, 1, 1_000_000, 1_200_000), 1_200_000);
+        // Talisra-like growth: the buff raised the hit points above the spawn value.
+        Check("growth above the spawn value", Aion2BossHp.Compute(10_000_000, 10_000_000, false, 1, 10_400_000, 10_400_000), 10_400_000);
+        return ok;
+    }
+
+    private static bool RunUploadSpawnMaxScenario()
+    {
+        Console.WriteLine("[selftest] Upload model carries bossSpawnMaxHp:");
+        var withValue = new EncounterUploadRequest("1", "Raur", DateTime.UtcNow, DateTime.UtcNow, new List<ParticipantUpload>(), "fp", null, BossMaxHp: 1000, BossSpawnMaxHp: 5_220_000);
+        var without = withValue with { BossSpawnMaxHp = null };
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+        string a = JsonSerializer.Serialize(withValue, options);
+        string b = JsonSerializer.Serialize(without, options);
+        bool ok = a.Contains("\"bossSpawnMaxHp\":5220000") && a.Contains("\"bossMaxHp\":1000") && !b.Contains("bossSpawnMaxHp");
+        Console.WriteLine($"  -> serialised as bossSpawnMaxHp, bossMaxHp unchanged, null stays null: {ok}");
+        return ok;
     }
 
     private static bool RunRestartSnapshotScenario()

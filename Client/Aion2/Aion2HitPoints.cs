@@ -24,6 +24,7 @@ public sealed class Aion2HitPoints
     private const int MaxSamplesPerEntity = 20_000;
 
     private readonly Dictionary<int, Track> _tracks = new();
+    private readonly Dictionary<int, (long Current, long Max)> _spawns = new();
     private readonly object _gate = new();
 
     /// <summary>The entities a hit-point reading exists for, and how many readings each has.</summary>
@@ -84,6 +85,41 @@ public sealed class Aion2HitPoints
         lock (_gate)
         {
             return _tracks.TryGetValue(entityId, out Track? track) ? track.HighestSeen : null;
+        }
+    }
+
+    /// <summary>The hit points a monster's spawn frame carried (current and maximum; the maximum of a party-scaled boss is the value for one
+    /// player). Null clears them: the entity id is reused, an earlier spawn's values belong to something else.</summary>
+    public void NoteSpawn(int entityId, (long Current, long Max)? hp)
+    {
+        lock (_gate)
+        {
+            if (hp is { } value)
+            {
+                _spawns[entityId] = value;
+            }
+            else
+            {
+                _spawns.Remove(entityId);
+            }
+        }
+    }
+
+    /// <summary>The maximum the entity's spawn frame announced, or null when no spawn frame with hit points was seen for it.</summary>
+    public long? SpawnMaxOf(int entityId)
+    {
+        lock (_gate)
+        {
+            return _spawns.TryGetValue(entityId, out var spawn) ? spawn.Max : null;
+        }
+    }
+
+    /// <summary>The hit points the entity's spawn frame announced as current, or null when none was seen.</summary>
+    public long? SpawnCurrentOf(int entityId)
+    {
+        lock (_gate)
+        {
+            return _spawns.TryGetValue(entityId, out var spawn) ? spawn.Current : null;
         }
     }
 
@@ -167,6 +203,7 @@ public sealed class Aion2HitPoints
         lock (_gate)
         {
             _tracks.Clear();
+            _spawns.Clear();
         }
     }
 

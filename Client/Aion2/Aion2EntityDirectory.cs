@@ -2258,6 +2258,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    /// <summary>How many players the latest roster frame listed (the local player included); 0 when none has arrived.</summary>
+    public int PartySize
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _party.Count;
+            }
+        }
+    }
+
     private HashSet<string> CurrentPartyNames() => new(_party, StringComparer.Ordinal);
 
     /// <summary>A name the roster shows that is not a party member - the guild name, which every

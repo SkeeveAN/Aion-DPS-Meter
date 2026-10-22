@@ -994,6 +994,7 @@ public sealed class Aion2FrameDecoder
         int npcId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
         _entities.NoteSpawned(unchecked((int)entityId));
         _entities.RegisterNpc(unchecked((int)entityId), npcId);
+        _entities.HitPoints.NoteSpawn(unchecked((int)entityId), ReadSpawnHitPoints(frame, p + 4));
         if (ownerName is not null && Aion2Npcs.IsMonsterNotPlayerSummon(npcId))
         {
             ownerName = null; // a monster naming the player it targets (Blazing Totem), not that player's summon
@@ -1028,6 +1029,32 @@ public sealed class Aion2FrameDecoder
         {
             _entities.NoteNpcLevel(unchecked((int)entityId), level);
         }
+    }
+
+    /// <summary>
+    /// The hit points in a spawn frame: 21 bytes behind the NPC code (33 in the "extended" state) come two varints, current and maximum
+    /// (current not above maximum), then exactly <c>64 00 00 00 64 00 00 00</c>. The trailer is what keeps other bytes from passing as
+    /// hit points. Verified on recordings: Raur 5,220,000, Kromede's Desire 15,504,000, Ultimate Berk 123,000 (exploration, one player).
+    /// </summary>
+    private static (long Current, long Max)? ReadSpawnHitPoints(ReadOnlySpan<byte> frame, int afterCode)
+    {
+        ReadOnlySpan<byte> trailer = stackalloc byte[] { 0x64, 0, 0, 0, 0x64, 0, 0, 0 };
+        foreach (int skip in stackalloc[] { 21, 33 })
+        {
+            int q = afterCode + skip;
+            if (q >= frame.Length)
+            {
+                return null;
+            }
+
+            if (TryReadVarint(frame, ref q, out long current) && TryReadVarint(frame, ref q, out long max)
+                && current >= 0 && max > 0 && current <= max && frame.Length >= q + 8 && frame.Slice(q, 8).SequenceEqual(trailer))
+            {
+                return (current, max);
+            }
+        }
+
+        return null;
     }
 
     /// <summary>

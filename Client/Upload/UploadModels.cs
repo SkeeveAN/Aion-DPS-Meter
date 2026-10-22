@@ -168,6 +168,9 @@ public sealed record EncounterUploadRequest(
     // The boss's highest hit-point reading from the game's HP frame (a lower bound when the meter
     // joined mid-fight). Explore and conquest differ 2-3x in it, so the backend can tell them apart.
     long? BossMaxHp = null,
+    // The maximum the boss's spawn frame announced, raw (for a party-scaled exploration boss the value for one player).
+    // Null when no spawn frame was seen for it, e.g. the player arrived while the boss already stood there.
+    long? BossSpawnMaxHp = null,
     // The numeric server id of the own character record and the game server's address (IP:port) the
     // meter captured from. The id is only unique within one region; the address is what tells the
     // regions apart, so the backend keeps both.

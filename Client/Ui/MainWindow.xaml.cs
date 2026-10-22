@@ -2904,6 +2904,7 @@ public partial class MainWindow : Window
             Game: "aion2",
             BossNpcId: BossNpcIdOf(targetId),
             BossMaxHp: BossMaxHpOf(targetId),
+            BossSpawnMaxHp: (_source?.Entities as Aion2EntityDirectory)?.HitPoints.SpawnMaxOf(targetId),
             ServerId: Aion2OwnServerId(),
             GameServer: Aion2GameServerAddress(),
             BossLevel: (_source?.Entities as Aion2EntityDirectory)?.NpcLevelOf(targetId),

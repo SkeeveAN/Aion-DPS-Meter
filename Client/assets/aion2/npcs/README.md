@@ -14,4 +14,9 @@ out={str(n):{'name':b['name']['en'],'instance':ins.get(b['instanceKey'],b['insta
 PY
 ```
 
+The generated entries carry no hit points. `maxHp` (and `hpScale: "party"` for the exploration bosses whose hit points
+grow with the group size, 1 to 5 players) is merged in afterwards from `Backend/src/content/bossHpSeed.json`
+(the full hit points of the boss, or those for ONE player when `hpScale` is `party`); regenerating the file must keep
+those two fields.
+
 The mapping was verified on a recorded Krao Cave run (2300104 = Enhanced Harcon, 2300171 = Ultimate Berk).
