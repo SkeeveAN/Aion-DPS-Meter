@@ -33,10 +33,19 @@ export const YOUNG_FOR = 2 * DAY;
 export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 3 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
 export type MatchStatus = keyof typeof MATCH_RETRY_AFTER;
 
+const BLOCK_SHARD: Record<number, string> = { 1: "nae", 2: "naw", 3: "eu", 4: "la", 5: "as" };
 const SHARDS: Record<string, string> = { Europe: "eu", Asia: "as", "NA East": "nae", "NA West": "naw", LATAM: "la" };
 /** NC's region key of a server label ("Europe - Kaisinel" -> "eu"); null when the label has no region. */
 export function shardOf(displayName: string | null | undefined): string | null {
-  return SHARDS[(displayName ?? "").split(" - ")[0]] ?? null;
+  const label = displayName ?? "";
+  const known = SHARDS[label.split(" - ")[0]];
+  if (known) {
+    return known;
+  }
+  // "Ludra [2111]": a server beyond the live ones of its region keeps the id in the label, and the id's region digit still says where NC lists the character
+  // (1 NA East, 2 NA West, 3 Europe, 4 LATAM, 5 Asia; block 0 is no region NC's search covers).
+  const id = /\[(\d{4})\]$/.exec(label);
+  return id ? (BLOCK_SHARD[Math.floor(Number(id[1]) / 100) % 10] ?? null) : null;
 }
 
 export type Hit = { name: string; race: 1 | 2; serverId: number; level: number; classId: number | null; characterId: string | null };
@@ -260,11 +269,14 @@ export function noteClassHint(playerId: number, className: string): void {
   }
 }
 
+/** A row that did damage or healed for real. A bystander of a crowd fight only got a buff or a small heal of somebody else's class, and the class read off that skill is not his. */
+const BYSTANDER_FREE = sql`(${encounterParticipants.totalDamage} > 0 or ${encounterParticipants.totalHealing} >= 10000)`;
+
 function subjectOf(player: PlayerRow): Subject {
   const fight = db
     .select({ className: encounterParticipants.className })
     .from(encounterParticipants)
-    .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, ""), ne(encounterParticipants.className, "?")))
+    .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, ""), ne(encounterParticipants.className, "?"), BYSTANDER_FREE))
     .orderBy(sql`${encounterParticipants.id} desc`)
     .get();
   const profile = db.select({ classId: playerProfiles.classId, level: playerProfiles.level, gearScore: playerProfiles.gearScore, source: playerProfiles.source }).from(playerProfiles).where(eq(playerProfiles.playerId, player.id)).get();

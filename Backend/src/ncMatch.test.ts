@@ -66,7 +66,9 @@ test("regions", () => {
   assert.equal(shardOf("Europe - Kaisinel"), "eu");
   assert.equal(shardOf("Asia - Fregion"), "as");
   assert.equal(shardOf("NA West - Siel"), "naw");
-  assert.equal(shardOf("Hogalum [1317]"), null);
+  assert.equal(shardOf("Hogalum [1317]"), "eu", "a server beyond the live ones: the id's region digit still names NC's region");
+  assert.equal(shardOf("Ludra [2111]"), "nae");
+  assert.equal(shardOf("Nathara [1023]"), null, "block 0 is no region NC's search covers");
 });
 
 // --- processMatch against a simulated NC search ---
