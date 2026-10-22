@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.14.0",
   "date": "2026-10-22",
   "items": [
    {
@@ -40,6 +40,27 @@
    },
    {
     "text": "Client: the second server id of a party roster member is read past the marker byte that some frames put in front of it (Munin 2313 was taken for 2305, 2307 or 2311, Zemurru 2315 for 2817, 2819 or 2823)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Client: the player details show what the game tells of another player (level, item level, combat power, the worn pieces with their enchant); in the 10 against 10 arena, where the game evens everybody out, the combat power is not shown (chip \"10 vs 10 · evened out\") and players first met there go online with name, class, faction, server and legion only",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Backend: the page NC shows of a player who stands in the 10 against 10 arena (the fixed combat power 397,228 and level 20 skills) is not stored; it is looked at again after fifteen minutes",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "the player details of another player show their level, item level, combat power and worn pieces; the 10 against 10 arena gets its own chip and its players are never taken at their evened-out values",
     "areas": [
      "Client"
     ],
