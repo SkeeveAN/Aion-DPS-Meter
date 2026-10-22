@@ -16,6 +16,13 @@
      "Backend"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Saving the settings no longer ends the meter when Windows refuses to replace the settings file for a moment (virus scanner, cloud sync): it is tried again a few times, and a write that still fails is logged and written again with the next change",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
