@@ -374,8 +374,11 @@ function applyName(player: PlayerRow, ncName: string, serverId: number): string 
   return "renamed";
 }
 
-/** Applies the one matching character to the player: his real server, his faction. Returns false (nothing changed) when it contradicts what we hold. */
-function applyHit(player: PlayerRow, hit: Hit): "applied" | "conflict" {
+/**
+ * Applies the one matching character to the player: his real server, his faction. Returns "conflict" (nothing changed) when it contradicts what we hold, or the id of the
+ * row that already is this very character on his real server (verified, same NC character id): the player is a second row of it, filed under the wrong server by a client.
+ */
+function applyHit(player: PlayerRow, hit: Hit): "applied" | "conflict" | number {
   const faction = hit.race === 1 ? "Elyos" : "Asmodian";
   if (player.faction && player.faction !== faction) {
     return "conflict";
@@ -384,7 +387,9 @@ function applyHit(player: PlayerRow, hit: Hit): "applied" | "conflict" {
   if (target !== player.serverId) {
     const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, target), eq(players.nameNormalized, player.nameNormalized), ne(players.id, player.id))).get();
     if (taken) {
-      return "conflict";
+      const found = decodeCharacterId(hit.characterId);
+      const theirs = found ? db.select({ status: playerNcMatch.status, ncCharacterId: playerNcMatch.ncCharacterId }).from(playerNcMatch).where(eq(playerNcMatch.playerId, taken.id)).get() : undefined;
+      return theirs?.status === "verified" && theirs.ncCharacterId === found ? taken.id : "conflict";
     }
     // The legion belongs to one server: when two or more verified members of it say another one, this match is suspect.
     const others = legionServersOf(player);
@@ -474,6 +479,12 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   }
   if (decision.status === "verified" && decision.hit) {
     const outcome = applyHit(player, decision.hit);
+    if (typeof outcome === "number") {
+      // A second row of a character we already hold on his real server: his fights, profile and name move to that row, this one goes.
+      mergePlayerRows(outcome, playerId);
+      enrichPlayer(outcome);
+      return "verified";
+    }
     if (outcome === "conflict") {
       record(playerId, "conflict", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, candidates: decision.candidates }, now);
       return "conflict";

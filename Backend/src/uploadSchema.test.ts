@@ -16,6 +16,7 @@ test("an upload's player with a spaced name is cut out like one without server o
   const spaced = { name: "Siliator of Deceit", faction: "Elyos", serverId: 1304 };
   assert.equal(isCompletePlayer(good), true);
   assert.equal(isCompletePlayer(spaced), false);
+  assert.equal(isCompletePlayer({ ...good, serverId: 2823 }), false, "a server id that names no server is no server");
   const cut = withoutIncompletePlayers([good, spaced]);
   assert.deepEqual([cut.kept.length, cut.dropped.length], [1, 1]);
 });

@@ -450,6 +450,27 @@ test("a renamed character: the new row NC finds under the old row's character id
   assert.equal(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, fresh)).all().length, 0);
 });
 
+test("a second row of a character we already hold on his real server (a client filed him under the wrong one) is merged into that row instead of a conflict", async () => {
+  const zemurru = server("aion2:europe-zemurru", "Europe - Zemurru");
+  const right = player("Munina", zemurru, { faction: "Asmodian" });
+  db.insert(playerNcMatch).values({ playerId: right, status: "verified", ncServerId: 2315, ncRace: 2, ncCharacterId: "MergeID01=", candidates: 1, checkedAt: 1, nextTryAt: 1e15 }).run();
+  const wrong = player("Munina", kaisinel, { faction: "Asmodian" });
+  const status = await processMatch(wrong, ncAnswer([raw({ name: "<strong>Munina</strong>", race: 2, serverId: 2315, characterId: "MergeID01%3D" })]), 1_000_000);
+  assert.equal(status, "verified");
+  assert.equal(db.select().from(players).where(eq(players.id, wrong)).get(), undefined, "the row on the wrong server is gone");
+  assert.equal(db.select().from(players).where(eq(players.id, right)).get()?.serverId, zemurru, "the row on the real server stays");
+  assert.equal(matchRow(right)?.status, "verified");
+});
+
+test("a different character of the same name on that server is still a conflict", async () => {
+  const zemurru = (sqlite.prepare("select id from servers where fingerprint = ?").get("aion2:europe-zemurru") as { id: number }).id;
+  const other = player("Doppelgaenger", zemurru, { faction: "Asmodian" });
+  db.insert(playerNcMatch).values({ playerId: other, status: "verified", ncServerId: 2315, ncRace: 2, ncCharacterId: "SomebodyElse=", candidates: 1, checkedAt: 1, nextTryAt: 1e15 }).run();
+  const wrong = player("Doppelgaenger", kaisinel, { faction: "Asmodian" });
+  assert.equal(await processMatch(wrong, ncAnswer([raw({ name: "<strong>Doppelgaenger</strong>", race: 2, serverId: 2315, characterId: "MergeID02%3D" })]), 1_000_000), "conflict");
+  assert.ok(db.select().from(players).where(eq(players.id, wrong)).get(), "nothing is merged");
+});
+
 test("mergePlayerRows: the older row keeps its own newer profile and takes the other's aliases", () => {
   const keep = player("Keeper", kaisinel);
   const drop = player("Dupe", kaisinel);

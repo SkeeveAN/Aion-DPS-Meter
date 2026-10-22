@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { profileSchema } from "./profile.js";
 import { AION2_CLASS_ALIASES, AION2_CLASSES, GAMES } from "./constants.js";
+import { nameOf } from "./content/aion2Servers.js";
 
 // Generous but real ceilings - these guard against garbage/abuse, not against
 // a legitimately long or hard-hitting fight, so they're deliberately loose.
@@ -150,10 +151,11 @@ export type UploadPayload = z.infer<typeof uploadSchema>;
 
 /**
  * The top rule for players: one without name, server AND faction (all three as the client read them) is not accepted. A client from 0.26.0
- * on always sends all three; the server never fills a gap from the uploader's server or a guess.
+ * on always sends all three, and the server id must be one that names a server; the server never fills a gap from the uploader's server or a guess.
  */
 export function isCompletePlayer(p: { name: string; faction?: string; serverId?: number }): boolean {
-  return isCharacterName(p.name) && p.serverId !== undefined && (p.faction === "Elyos" || p.faction === "Asmodian");
+  // A server id that names no server at all (clients have sent 2817, 2819, 2823 for players of Zemurru) counts as no server: the player used to land on the uploader's server.
+  return isCharacterName(p.name) && p.serverId !== undefined && nameOf(p.serverId) !== null && (p.faction === "Elyos" || p.faction === "Asmodian");
 }
 
 /** A character name is letters and digits of any script, nothing else: no space, no punctuation (an NPC title like "Siliator of Deceit" read as a player is none). */
