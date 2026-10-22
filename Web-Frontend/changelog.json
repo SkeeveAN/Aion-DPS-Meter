@@ -1,12 +1,33 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.14.6",
   "date": "2026-10-23",
   "items": [
    {
     "text": "Website: each session on the Runs tab of a player page has a \"View run\" button that opens the last fight of the session",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the player data (item level, combat power, worn pieces) of another player's details sit on a tab \"Player\" of their own, so the damage and the player's data are looked at apart",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the players met in an arena go online by themselves ten seconds after the fight (with the settings \"profiles of other players\" and \"upload my profile\" on); from the 10 against 10 arena only name, class, faction, server and legion, so the server can fill them in from NC's page",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "the player data of another player on a tab of its own; the players met in an arena go online after the fight",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-23"
    }
