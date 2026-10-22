@@ -743,9 +743,33 @@ public sealed class MeterSettings
         AudioOutput.DeviceId = AudioDeviceId;
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
         string temp = SettingsPath + ".tmp";
-        File.WriteAllText(temp, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
-        File.Move(temp, SettingsPath, overwrite: true);
+        string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        lock (SaveLock)
+        {
+            // Windows refuses to replace a file another process has open for a moment (virus scanner, cloud sync, a reader), so it is tried again a few times.
+            for (int attempt = 1; ; attempt++)
+            {
+                try
+                {
+                    File.WriteAllText(temp, json);
+                    File.Move(temp, SettingsPath, overwrite: true);
+                    return;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    if (attempt >= 6)
+                    {
+                        CrashLog.Write("settings could not be saved", ex);
+                        return; // the next Save writes it again; a lost write must never end the meter
+                    }
+
+                    Thread.Sleep(50 * attempt);
+                }
+            }
+        }
     }
+
+    private static readonly object SaveLock = new();
 
     /// <summary>Copies a settings file that reads fine to the backup, once at each start; a damaged file is never copied over a good backup.</summary>
     public static void BackupOnStart()
