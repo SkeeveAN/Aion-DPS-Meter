@@ -37,6 +37,13 @@
      "Client"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Client: the second server id of a party roster member is read past the marker byte that some frames put in front of it (Munin 2313 was taken for 2305, 2307 or 2311, Zemurru 2315 for 2817, 2819 or 2823)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
