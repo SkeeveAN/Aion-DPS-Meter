@@ -23,6 +23,13 @@
      "Backend"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Client: the setting \"Hide during game menus\" now says when it is paused - while an overlay is unlocked (being positioned) the menus hide nothing, and the settings name that overlay",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
