@@ -1,36 +1,8 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.13.6",
   "date": "2026-10-22",
   "items": [
-   {
-    "text": "Website: the run comparison picker lists each run with everyone who played in it (class-coloured, your group highlighted, details on click) and filters by My group or one player of your group, sorted by newest, fastest or highest iDPS",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-22"
-   },
-   {
-    "text": "Website: all times on the site use the 24-hour clock and English dates are written day first (22/10/2026), instead of the US AM/PM format",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-22"
-   },
-   {
-    "text": "Website: the participant page shows the player as a card on the left (class, tags, DPS, damage, crit rate, HPS, healing and the compare button) and the damage and healing skills as one table on the right with hits, crit rate, average, maximum, share and total",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-22"
-   },
-   {
-    "text": "Website: the Runs tab on player pages groups the fights into sessions (one visit to an instance) that open and close, shows each fight as a tile with its iDPS against the personal best for that boss, and filters by Conquest, Expedition, Transcendence and Ascension; fights without damage data no longer clutter the list",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-22"
-   },
    {
     "text": "Website: the two legal links in the footer (Privacy policy, Terms of use) sit side by side instead of stacked",
     "areas": [
@@ -47,6 +19,86 @@
    },
    {
     "text": "Saving the settings no longer ends the meter when Windows refuses to replace the settings file for a moment (virus scanner, cloud sync): it is tried again a few times, and a write that still fails is logged and written again with the next change",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: the Runs tab of player pages groups fights into sessions with a tile per fight, iDPS against the personal best and a filter by kind of content",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: Runs tab times in the 24-hour clock with day-first dates, also in English",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: participant page with player card left and skill tables right; changelog",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: all times use the 24-hour clock and English dates are written day first",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: the run comparison picker lists each run with everyone who played in it (class-coloured, your group highlighted, details on click) and filters by My group or one player of your group, sorted by newest, fastest or highest iDPS",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: run comparison picker: date column fits on one line, class dots keep their full colour for players outside your group",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: run comparison picker: bright, clearly distinct class colours",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website: run comparison picker: players outside your group look like the others, only your group keeps the gold frame",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Website and backend: a boss fight the recorder joined late is kept as a partial fight (orange tile on the fight page, \"Partial\" badge in the lists) and stays out of every ranking, best run and statistic; the boss's real health is learned from the spawn data and the uploads, and the boss health curve of a partial fight starts at the share the recorder saw",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Client: the boss health bar shows the boss's real 100 % also when you join a fight late (the maximum comes from the boss's spawn data, exploration bosses scale with the group size), and a boss fight upload carries the boss's spawn health so the server can tell a whole kill from a fight joined late",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "boss fights you joined late are uploaded as partial fights and stay out of the rankings; the boss health bar shows the boss's real 100 %",
     "areas": [
      "Client"
     ],
