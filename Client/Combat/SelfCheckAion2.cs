@@ -40,6 +40,7 @@ public static class SelfCheckAion2
         ok &= RunAion2PartyByClassScenario();
         ok &= RunAion2AccentAndLeftoverSummonScenario();
         ok &= RunAion2RosterHomeServerScenario();
+        ok &= RunAion2RosterBogusServerScenario();
         ok &= RunAion2SpiritBasicAttackScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
@@ -869,6 +870,44 @@ public static class SelfCheckAion2
         bool others = dir.ServerIdOfName("RB") == 2311 && dir.ServerIdOfName("SentaiHenpai") == 2308 && dir.ServerIdOfName("Aahz") == 1304;
         Console.WriteLine($"  -> SaintlyOrder on 2303: {saintly}; RB 2311, SentaiHenpai 2308, Aahz 1304 (the shifted Kaisinel layout): {others}");
         return saintly && others;
+    }
+
+    /// <summary>The second id of a roster member is not always a server: 2823 (no server), in front of the name 2315, must not replace it; a real second id still does.</summary>
+    private static bool RunAion2RosterBogusServerScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 party roster: a second id that names no server is ignored (2823 behind the name, 2315 in front), a real one still wins:");
+        static void Member(List<byte> body, ushort before, string name, ushort behind)
+        {
+            body.Add((byte)before);
+            body.Add((byte)(before >> 8));
+            byte[] text = System.Text.Encoding.UTF8.GetBytes(name);
+            body.Add((byte)text.Length);
+            body.AddRange(text);
+            body.AddRange(new byte[] { 24, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, (byte)behind, (byte)(behind >> 8) });
+        }
+
+        var body = new List<byte> { 0x02, 0x97 };
+        Member(body, 2315, "Munina", 2823);
+        Member(body, 2311, "Ludrana", 2303);
+        var wire = new List<byte>();
+        int length = body.Count + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        source.Ingest(Segment(9900, wire.ToArray()));
+        source.Poll(false);
+        bool bogus = dir.ServerIdOfName("Munina") == 2315;
+        bool real = dir.ServerIdOfName("Ludrana") == 2303;
+        bool table = Aion2Servers.IsKnown(1304) && Aion2Servers.IsKnown(2315) && !Aion2Servers.IsKnown(2823) && !Aion2Servers.IsKnown(1801);
+        Console.WriteLine($"  -> Munina stays on 2315: {bogus}; Ludrana's real second id 2303 wins: {real}; the table knows 1304 and 2315 but not 2823 and 1801: {table}");
+        return bogus && real && table;
     }
 
     /// <summary>

@@ -3376,7 +3376,7 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>
     /// The second server id of a roster member, 12 bytes behind the end of his name (class u32 | level u32 | a u32 | server u16), one byte further for members whose id is
-    /// preceded by a 0x07 marker (seen for Kaisinel, 18 05). Null when neither position holds a server of the two sides - then only the id in front of the name counts.
+    /// preceded by a 0x07 marker (seen for Kaisinel, 18 05). Null when neither position holds a server of the table (the bytes there are not always an id: 1801, 2819 and 2823 passed a range check and named no server) - then only the id in front of the name counts.
     /// </summary>
     private static int? HomeServerBehindName(ReadOnlySpan<byte> frame, int afterName)
     {
@@ -3388,7 +3388,7 @@ public sealed class Aion2FrameDecoder
             }
 
             int server = frame[afterName + offset] | frame[afterName + offset + 1] << 8;
-            if (server is >= 1000 and <= 2999 && server % 100 is >= 1 and <= 30)
+            if (server is >= 1000 and <= 2999 && server % 100 is >= 1 and <= 30 && Aion2Servers.IsKnown(server))
             {
                 return server;
             }

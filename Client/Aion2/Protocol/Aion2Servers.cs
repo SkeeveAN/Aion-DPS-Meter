@@ -29,6 +29,20 @@ public static class Aion2Servers
         [5] = ("Asia", 10),
     };
 
+    /// <summary>True for an id that names a server of the table (faction digit 1 or 2, region block 0-5, a number the block lists); false for numbers that only look like one (1801, 2819, 2823).</summary>
+    public static bool IsKnown(int serverId)
+    {
+        int faction = serverId / 1000;
+        int block = serverId / 100 % 10;
+        int index = serverId % 100 - 1;
+        if (faction is not (1 or 2) || index < 0 || block > 5)
+        {
+            return false;
+        }
+
+        return index < (faction == 1 ? (block == 0 ? Elyos10 : Elyos13) : (block == 0 ? Asmo20 : Asmo23)).Length;
+    }
+
     public static string NameOf(int serverId)
     {
         int faction = serverId / 1000;
