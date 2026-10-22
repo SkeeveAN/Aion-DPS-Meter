@@ -4,6 +4,13 @@
   "date": "2026-10-22",
   "items": [
    {
+    "text": "Website: the Runs tab on player pages groups the fights into sessions (one visit to an instance) that open and close, shows each fight as a tile with its iDPS against the personal best for that boss, and filters by Conquest, Expedition, Transcendence and Ascension; fights without damage data no longer clutter the list",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
     "text": "Website: the two legal links in the footer (Privacy policy, Terms of use) sit side by side instead of stacked",
     "areas": [
      "Website"

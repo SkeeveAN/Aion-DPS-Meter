@@ -4336,35 +4336,138 @@ function renderBoardTab(profile) {
   return el("div", {}, [el("div", { className: "pf-pills" }, buttons), el("div", { className: "pf-card" }, [holder])]);
 }
 
+// The runs tab: the fights grouped into sessions (same instance and step, at most 40 minutes between two fights), newest
+// first, only the newest one open. Each fight is a tile with its iDPS measured against the player's best for that boss.
+const RUN_SESSION_GAP_MS = 40 * 60 * 1000;
+const RUN_SESSIONS_PER_PAGE = 14;
+const RUN_KINDS = ["conquest", "expedition", "transcendence", "ascension", "nightmare", "other"];
+
+function runKind(h) {
+  if (/\(Conquest/.test(h.instanceName ?? "")) {
+    return "conquest";
+  }
+  return RUN_KINDS.includes(h.instanceCategory) ? h.instanceCategory : "other";
+}
+
+function runKindLabel(kind) {
+  return kind === "conquest" ? t("mode.conquest") : kind === "other" ? t("runs.other") : t(`category.${kind}`);
+}
+
+// Runs in the order given (newest first) cut into sessions; a fight joins the open session when it is the same instance
+// and step and starts less than the gap before the session's oldest fight.
+function runSessions(runs) {
+  const sessions = [];
+  for (const r of runs) {
+    const cur = sessions.at(-1);
+    if (cur && cur.instance === r.h.instanceName && cur.mode === r.h.mode && cur.start - r.t <= RUN_SESSION_GAP_MS) {
+      cur.runs.push(r);
+      cur.start = r.t;
+    } else {
+      sessions.push({ instance: r.h.instanceName, mode: r.h.mode, runs: [r], start: r.t, end: r.t });
+    }
+  }
+  return sessions;
+}
+
 function renderRunsTab(history) {
   if (history.length === 0) {
     return el("p", { className: "empty", textContent: t("player.emptyNoFights") });
   }
-  const rows = history.map((h) =>
-    el("tr", {}, [
-      el("td", { textContent: formatDate(new Date(h.startedAt)) }),
-      el("td", {}, [link(translateGameName(h.bossName), gp(`/encounters/${h.encounterId}`)), ...[diffPill(h.instanceCategory, h.mode, h.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])]),
-      el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
-      el("td", { textContent: formatNumber(h.totalDamage) }),
-      el("td", { textContent: formatNumber(h.idps) }),
-      el("td", { textContent: `${h.critRatePercent.toFixed(1)}%` }),
-      el("td", {}, [link(t("table.details"), gp(`/participants/${h.participantId}`))]),
-    ]),
-  );
-  return el("table", {}, [
-    el("thead", {}, [
-      el("tr", {}, [
-        el("th", { textContent: t("table.date") }),
-        el("th", { textContent: t("table.boss") }),
-        el("th", { textContent: t("table.class") }),
-        el("th", { textContent: t("table.damage") }),
-        el("th", { textContent: t("table.idps") }),
-        el("th", { textContent: t("table.critPercent") }),
-        el("th", {}),
+  const runs = history
+    .map((h) => ({ h, t: Date.parse(h.startedAt), ok: h.totalDamage > 0 && h.idps > 0, kind: runKind(h), key: `${h.instanceName}|${h.mode}|${h.bossName}` }))
+    .sort((a, b) => b.t - a.t);
+  const best = new Map();
+  for (const r of runs) {
+    if (r.ok && r.h.idps > (best.get(r.key) ?? 0)) {
+      best.set(r.key, r.h.idps);
+    }
+  }
+  for (const r of runs) {
+    r.record = r.ok && r.h.idps === best.get(r.key);
+  }
+
+  const intl = getLocale() === "pt" ? "pt-BR" : getLocale();
+  const dayFormat = new Intl.DateTimeFormat(intl, { weekday: "short", day: "numeric", month: "numeric", year: "numeric" });
+  const clockFormat = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit" });
+  const compact = new Intl.NumberFormat(intl, { notation: "compact", maximumFractionDigits: 2 });
+  const stat = (value, label, accent = false) => el("div", {}, [el("strong", { className: accent ? "accent" : "", textContent: value }), el("span", { textContent: label })]);
+
+  const tile = (r) => {
+    const h = r.h;
+    const pct = r.ok ? Math.min(100, (h.idps / best.get(r.key)) * 100) : 0;
+    return el("a", { className: `run-tile${r.record ? " record" : ""}${r.ok ? "" : " empty-run"}`, href: gp(`/participants/${h.participantId}`), title: formatDate(new Date(h.startedAt)) }, [
+      r.record ? el("span", { className: "run-star", textContent: "★", title: t("runs.record") }) : null,
+      el("div", { className: "run-boss", textContent: translateGameName(h.bossName) }),
+      el("div", { className: "run-idps" }, [r.ok ? formatNumber(h.idps) : "–", el("small", { textContent: " iDPS" })]),
+      el("div", { className: "run-meter" }, [el("i", { style: `width:${pct}%` })]),
+      el("div", { className: "run-meta" }, [
+        el("span", { textContent: r.ok ? compact.format(h.totalDamage) : t("runs.noData") }),
+        el("span", { textContent: r.ok ? t("runs.crit", { n: Math.round(h.critRatePercent) }) : clockFormat.format(r.t) }),
       ]),
-    ]),
-    el("tbody", {}, rows),
-  ]);
+    ].filter((x) => x != null));
+  };
+
+  const sessionCard = (s, open) => {
+    const ok = s.runs.filter((r) => r.ok);
+    const avg = ok.length > 0 ? ok.reduce((sum, r) => sum + r.h.idps, 0) / ok.length : 0;
+    const top = ok.reduce((m, r) => Math.max(m, r.h.idps), 0);
+    const records = s.runs.filter((r) => r.record).length;
+    const first = s.runs[0].h;
+    return el("details", { className: "run-session", open }, [
+      el("summary", { className: "run-head" }, [
+        el("span", { className: "run-time", textContent: `${clockFormat.format(s.start)} – ${clockFormat.format(s.end)}` }),
+        el("h3", { textContent: displayName({ name: s.instance }) }),
+        diffPill(first.instanceCategory, first.mode, first.instanceName),
+        records > 0 ? el("span", { className: "diff-pill diff-cq", textContent: t("runs.records", { n: records }) }) : null,
+        el("div", { className: "run-stats" }, [stat(formatNumber(s.runs.length), t("runs.fights")), stat(formatNumber(avg), t("runs.avgIdps")), stat(formatNumber(top), t("runs.bestIdps"), true)]),
+      ].filter((x) => x != null)),
+      el("div", { className: "run-tiles" }, [...s.runs].reverse().map(tile)),
+    ]);
+  };
+
+  const kinds = RUN_KINDS.filter((k) => runs.some((r) => r.kind === k));
+  const filters = el("div", { className: "pf-pills run-filters" });
+  const list = el("div", { className: "run-list" });
+  const more = el("button", { type: "button", className: "pf-pill run-more" });
+  let kind = "all";
+  let sessions = [];
+  let shown = 0;
+  let lastDay = "";
+
+  // Appends the next sessions to the list, with a day heading whenever the calendar day changes.
+  const addSessions = () => {
+    const from = shown;
+    shown = Math.min(sessions.length, shown + RUN_SESSIONS_PER_PAGE);
+    for (let i = from; i < shown; i++) {
+      const day = dayFormat.format(sessions[i].end);
+      if (day !== lastDay) {
+        list.append(el("div", { className: "run-day", textContent: day }));
+        lastDay = day;
+      }
+      list.append(sessionCard(sessions[i], i === 0));
+    }
+    more.hidden = shown >= sessions.length;
+    more.textContent = t("runs.more", { n: sessions.length - shown });
+  };
+  const pick = (k) => {
+    kind = k;
+    filterButtons.forEach(([id, b]) => b.setAttribute("aria-selected", String(id === k)));
+    sessions = runSessions(runs.filter((r) => k === "all" || r.kind === k));
+    list.replaceChildren();
+    shown = 0;
+    lastDay = "";
+    addSessions();
+  };
+  const filterButtons = ["all", ...kinds].map((k) => {
+    const count = k === "all" ? runs.length : runs.filter((r) => r.kind === k).length;
+    const b = el("button", { type: "button", className: "pf-pill" }, [k === "all" ? t("runs.all") : runKindLabel(k), el("b", { textContent: ` ${count}` })]);
+    b.addEventListener("click", () => pick(k));
+    return [k, b];
+  });
+  filters.append(...filterButtons.map(([, b]) => b));
+  more.addEventListener("click", addSessions);
+  pick(kind);
+  return el("div", { className: "runs" }, [filters, list, more]);
 }
 
 // Official character portrait (cut out on the server, any player on a European server once it has been fetched); hides itself
