@@ -179,6 +179,54 @@
     "ja": "今すぐ再起動",
     "ko": "지금 다시 시작"
   },
+  "Main.UpdateAvailable.Title": {
+    "en": "Update available",
+    "de": "Update verfügbar",
+    "fr": "Mise à jour disponible",
+    "es": "Actualización disponible",
+    "ru": "Доступно обновление",
+    "zh": "有可用更新",
+    "zh-TW": "有可用更新",
+    "pt": "Atualização disponível",
+    "ja": "アップデートがあります",
+    "ko": "업데이트 사용 가능"
+  },
+  "Main.UpdateAvailable.Message": {
+    "en": "Version {0} is available (you have {1}).\n\nInstall it now? The meter restarts afterwards.",
+    "de": "Version {0} ist verfügbar (du hast {1}).\n\nJetzt installieren? Der Meter startet danach neu.",
+    "fr": "La version {0} est disponible (vous avez {1}).\n\nL'installer maintenant ? Le compteur redémarre ensuite.",
+    "es": "La versión {0} está disponible (tienes {1}).\n\n¿Instalarla ahora? El medidor se reiniciará después.",
+    "ru": "Доступна версия {0} (у вас {1}).\n\nУстановить сейчас? После этого счётчик перезапустится.",
+    "zh": "有新版本 {0}(当前版本为 {1})。\n\n现在安装吗?安装后统计器会重新启动。",
+    "zh-TW": "有新版本 {0}（您目前的版本為 {1}）。\n\n要現在安裝嗎？安裝後統計器會重新啟動。",
+    "pt": "A versão {0} está disponível (você está com a {1}).\n\nInstalar agora? O medidor reinicia em seguida.",
+    "ja": "バージョン {0} が利用可能です（現在は {1}）。\n\n今すぐインストールしますか？インストール後にメーターが再起動します。",
+    "ko": "버전 {0}을(를) 사용할 수 있습니다 (현재 버전: {1}).\n\n지금 설치할까요? 설치 후 미터가 다시 시작됩니다."
+  },
+  "Main.UpdateAvailable.No": {
+    "en": "No",
+    "de": "Nein",
+    "fr": "Non",
+    "es": "No",
+    "ru": "Нет",
+    "zh": "否",
+    "zh-TW": "否",
+    "pt": "Não",
+    "ja": "いいえ",
+    "ko": "아니요"
+  },
+  "Main.UpdateAvailable.Yes": {
+    "en": "Yes, install",
+    "de": "Ja, installieren",
+    "fr": "Oui, installer",
+    "es": "Sí, instalar",
+    "ru": "Да, установить",
+    "zh": "是,安装",
+    "zh-TW": "是，安裝",
+    "pt": "Sim, instalar",
+    "ja": "はい、インストール",
+    "ko": "예, 설치"
+  },
   "Settings.StartWithWindows": {
     "en": "Start automatically with Windows",
     "de": "Automatisch mit Windows starten",

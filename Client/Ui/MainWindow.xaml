@@ -1177,13 +1177,13 @@
                         BorderThickness="1" CornerRadius="4" Padding="20" MaxWidth="380"
                         HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel>
-                        <TextBlock Text="{local:Loc Main.UpdateReady.Title}" FontWeight="Bold" FontSize="14"
+                        <TextBlock x:Name="UpdateRestartTitle" Text="{local:Loc Main.UpdateReady.Title}" FontWeight="Bold" FontSize="14"
                                    Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,10"/>
                         <TextBlock x:Name="UpdateRestartText" TextWrapping="Wrap"
                                    Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,16"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="{local:Loc Main.UpdateReady.Later}" Click="OnUpdateRestartLaterClicked" Margin="0,0,8,0" Padding="12,4"/>
-                            <Button Content="{local:Loc Main.UpdateReady.RestartNow}" Click="OnUpdateRestartNowClicked" Padding="12,4"/>
+                            <Button x:Name="UpdateRestartLaterButton" Content="{local:Loc Main.UpdateReady.Later}" Click="OnUpdateRestartLaterClicked" Margin="0,0,8,0" Padding="12,4"/>
+                            <Button x:Name="UpdateRestartNowButton" Content="{local:Loc Main.UpdateReady.RestartNow}" Click="OnUpdateRestartNowClicked" Padding="12,4"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

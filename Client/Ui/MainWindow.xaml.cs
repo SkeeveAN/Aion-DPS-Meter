@@ -259,6 +259,8 @@ public partial class MainWindow : Window
     /// <summary>The update the in-app restart card (UpdateRestartOverlay) is currently offering,
     /// so its two buttons know what to act on without re-threading it through the event args.</summary>
     private VelopackUpdateInfo? _pendingRestartUpdate;
+    /// <summary>The update the start-up question is about (found, not downloaded yet): "Yes" fetches it and restarts, "No" leaves it to the background check.</summary>
+    private VelopackUpdateInfo? _pendingInstallUpdate;
 
     public MainWindow()
     {
@@ -323,7 +325,11 @@ public partial class MainWindow : Window
             var startupSettings = MeterSettings.Load();
             if (startupSettings.CheckForUpdates)
             {
-                _ = RunUpdateCheck(announceResult: true);
+                // Queued on the dispatcher, not started right here: this runs in the constructor, before app.Run, where no UI synchronization context
+                // exists yet, so the part of the check after the network call ran on a pool thread and failed on its first touch of the window
+                // (a crash.log entry at every start and no check until the five-minute timer).
+                // Silent when up to date or when GitHub cannot be reached; a new version is asked about (OfferInstall) before anything is downloaded.
+                Dispatcher.BeginInvoke(new Action(() => _ = RunUpdateCheck(announceResult: false, askBeforeInstall: true)), System.Windows.Threading.DispatcherPriority.Background);
             }
 
             // Only the current version may upload (the server refuses an old one). A meter that uploads by itself asks the community server at
@@ -4428,7 +4434,7 @@ public partial class MainWindow : Window
 
     /// <summary>One check at a time: the start-up check, the timer, the menu and a refused upload all come here, and two downloads of the same
     /// update at once would only fight over Velopack's staging folder. A call that arrives while one is running is dropped; the running one does the work.</summary>
-    private async Task RunUpdateCheck(bool announceResult)
+    private async Task RunUpdateCheck(bool announceResult, bool askBeforeInstall = false)
     {
         if (_updateCheckRunning)
         {
@@ -4438,7 +4444,7 @@ public partial class MainWindow : Window
         _updateCheckRunning = true;
         try
         {
-            await RunUpdateCheckCore(announceResult);
+            await RunUpdateCheckCore(announceResult, askBeforeInstall);
         }
         finally
         {
@@ -4533,7 +4539,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async Task RunUpdateCheckCore(bool announceResult)
+    private async Task RunUpdateCheckCore(bool announceResult, bool askBeforeInstall = false)
     {
         // The automatic checks respect the setting; the menu item ignores it, since clicking it IS
         // the consent that setting stands in for.
@@ -4599,6 +4605,13 @@ public partial class MainWindow : Window
                 OfferRestart(staged, staged.TargetFullRelease.Version.ToString());
             }
 
+            return;
+        }
+
+        // The start-up check asks first and downloads only on "Yes" (OnUpdateRestartNowClicked); a "No" leaves the update to the five-minute check.
+        if (askBeforeInstall)
+        {
+            OfferInstall(update, version);
             return;
         }
 
@@ -4674,15 +4687,69 @@ public partial class MainWindow : Window
     /// </summary>
     private void OfferRestart(VelopackUpdateInfo update, string version)
     {
+        var loc = LocalizationManager.Instance;
+        _pendingInstallUpdate = null;
         _pendingRestartUpdate = update;
-        UpdateRestartText.Text = string.Format(
-            LocalizationManager.Instance["Main.UpdateReady.Message"], version, AppVersion.Text);
+        UpdateRestartTitle.Text = loc["Main.UpdateReady.Title"];
+        UpdateRestartLaterButton.Content = loc["Main.UpdateReady.Later"];
+        UpdateRestartNowButton.Content = loc["Main.UpdateReady.RestartNow"];
+        UpdateRestartText.Text = string.Format(loc["Main.UpdateReady.Message"], version, AppVersion.Text);
         UpdateRestartOverlay.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>The same card as <see cref="OfferRestart"/>, asking before the download: "a new version, install it? No / Yes". Shown by the start-up check.</summary>
+    private void OfferInstall(VelopackUpdateInfo update, string version)
+    {
+        var loc = LocalizationManager.Instance;
+        _pendingRestartUpdate = null;
+        _pendingInstallUpdate = update;
+        UpdateRestartTitle.Text = loc["Main.UpdateAvailable.Title"];
+        UpdateRestartLaterButton.Content = loc["Main.UpdateAvailable.No"];
+        UpdateRestartNowButton.Content = loc["Main.UpdateAvailable.Yes"];
+        UpdateRestartText.Text = string.Format(loc["Main.UpdateAvailable.Message"], version, AppVersion.Text);
+        UpdateRestartOverlay.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>"Yes" on the start-up question: fetch the update (the notice shows the progress) and restart into it.</summary>
+    private async Task InstallUpdateNowAsync(VelopackUpdateInfo update)
+    {
+        string version = update.TargetFullRelease.Version.ToString();
+        _updateCheckRunning = true;
+        try
+        {
+            UpdateNotice.Text = $"Downloading {version}...";
+            UpdateNotice.Visibility = Visibility.Visible;
+            SetUpdateStatus(string.Format(LocalizationManager.Instance["Overlay.UpdateDownloading"], version), "↓ " + version);
+            await UpdateService.DownloadAsync(update);
+            _downloadedUpdate = update;
+            // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches: save first, then hand over (as OnUpdateRestartNowClicked).
+            SaveWindowStateToSettings();
+            SaveRestartSnapshot();
+            UpdateService.ApplyAndRestart(update);
+        }
+        catch (Exception ex)
+        {
+            UpdateNotice.Visibility = Visibility.Collapsed;
+            SetUpdateStatus(null, null);
+            ThemedMessageBox.Show(this, $"The update could not be downloaded.\n\n{ex.Message}",
+                "Check for updates", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        finally
+        {
+            _updateCheckRunning = false;
+        }
     }
 
     private void OnUpdateRestartNowClicked(object sender, RoutedEventArgs e)
     {
         UpdateRestartOverlay.Visibility = Visibility.Collapsed;
+        if (_pendingInstallUpdate is { } toInstall)
+        {
+            _pendingInstallUpdate = null;
+            _ = InstallUpdateNowAsync(toInstall);
+            return;
+        }
+
         if (_pendingRestartUpdate is not { } update)
         {
             return;
@@ -4701,6 +4768,7 @@ public partial class MainWindow : Window
     private void OnUpdateRestartLaterClicked(object sender, RoutedEventArgs e)
     {
         UpdateRestartOverlay.Visibility = Visibility.Collapsed;
+        _pendingInstallUpdate = null;
         _pendingRestartUpdate = null;
     }
 
