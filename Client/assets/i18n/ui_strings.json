@@ -12240,5 +12240,17 @@
     "pt": "INVOCAÇÕES",
     "ja": "召喚",
     "ko": "소환수"
+  },
+  "Details.Tab.Player": {
+    "en": "Player",
+    "de": "Spieler",
+    "fr": "Joueur",
+    "es": "Jugador",
+    "ru": "Игрок",
+    "zh": "玩家",
+    "zh-TW": "玩家",
+    "pt": "Jogador",
+    "ja": "プレイヤー",
+    "ko": "플레이어"
   }
 }

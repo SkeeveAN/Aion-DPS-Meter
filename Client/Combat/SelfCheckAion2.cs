@@ -68,6 +68,7 @@ public static class SelfCheckAion2
         ok &= RunEqualizedArenaScenario();
         ok &= RunSeenStatsScenario();
         ok &= RunArenaRefillScenario();
+        ok &= RunArenaUploadNamesScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSkillNameLanguageScenario();
         ok &= RunSettingsMigrationScenario();
@@ -1764,6 +1765,30 @@ public static class SelfCheckAion2
         source.Ingest(Segment(600, wire.ToArray()));
         var entities = (Aion2EntityDirectory)source.Entities;
         return entities.SeenProfileIds().Select(entities.SeenProfileOf).FirstOrDefault();
+    }
+
+    private static bool RunArenaUploadNamesScenario()
+    {
+        Console.WriteLine("[selftest] The players met in an arena are collected for the upload after the fight:");
+        var dir = new Aion2EntityDirectory();
+        DateTime t0 = new(2026, 10, 22, 19, 10, 0, DateTimeKind.Utc);
+        dir.NoteZone(1010);
+        dir.NoteMet("Hub", t0.AddSeconds(-60));
+        dir.NoteMet("Opponent", t0.AddSeconds(2));      // announced just before the zone frame
+        dir.NoteZone(60);
+        dir.NoteArenaEntered(t0.AddSeconds(4));
+        dir.NoteMet("Late", t0.AddSeconds(8));          // inside the arena
+        var first = dir.ArenaNamesToUpload();
+        bool collected = first.SetEquals(new[] { "Opponent", "Late" });
+        dir.MarkArenaUploaded(new[] { "Opponent" });
+        bool onceOnly = dir.ArenaNamesToUpload().SetEquals(new[] { "Late" });
+        dir.NoteMet("Opponent", t0.AddMinutes(5));      // met again in a new fight
+        bool again = dir.ArenaNamesToUpload().Contains("Opponent");
+        bool zones = Aion2Zones.IsArena(60) && Aion2Zones.IsArena(61) && Aion2Zones.IsArena(62) && !Aion2Zones.IsArena(1010);
+        Console.WriteLine($"  -> the opponent and a late arrival are collected, a hub player is not: {collected}");
+        Console.WriteLine($"  -> a player sent is not sent again, but is after a new fight: {onceOnly && again}");
+        Console.WriteLine($"  -> zones 60, 61 and 62 are arenas, a city is not: {zones}");
+        return collected && onceOnly && again && zones;
     }
 
     private static bool RunArenaRefillScenario()

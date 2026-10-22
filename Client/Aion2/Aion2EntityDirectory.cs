@@ -1719,6 +1719,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             }
 
             _lastMet[name] = at;
+            if (Aion2Zones.IsArena(_zoneId))
+            {
+                _metInArena.Add(name);
+                _arenaUploaded.Remove(name); // met again in a new fight: sent again after it
+            }
+
             if (Aion2Zones.IsEqualizedArena(_zoneId))
             {
                 _metInEqualizedArena.Add(name);
@@ -1741,6 +1747,45 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 {
                     _metInEqualizedArena.Add(name);
                 }
+            }
+        }
+    }
+
+    // Players met in an arena (any of them): they go online once, when the fight is over.
+    private readonly HashSet<string> _metInArena = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _arenaUploaded = new(StringComparer.Ordinal);
+
+    /// <summary>The player entered an arena: the players announced just before the zone frame belong to it.</summary>
+    public void NoteArenaEntered(DateTime at)
+    {
+        lock (_gate)
+        {
+            foreach ((string name, DateTime met) in _lastMet)
+            {
+                if (at - met >= TimeSpan.Zero && at - met <= EqualizedArenaLeadTime)
+                {
+                    _metInArena.Add(name);
+                }
+            }
+        }
+    }
+
+    /// <summary>The names of the players met in an arena that were not uploaded yet.</summary>
+    public IReadOnlySet<string> ArenaNamesToUpload()
+    {
+        lock (_gate)
+        {
+            return _metInArena.Where(n => !_arenaUploaded.Contains(n)).ToHashSet(StringComparer.Ordinal);
+        }
+    }
+
+    public void MarkArenaUploaded(IEnumerable<string> names)
+    {
+        lock (_gate)
+        {
+            foreach (string name in names)
+            {
+                _arenaUploaded.Add(name);
             }
         }
     }

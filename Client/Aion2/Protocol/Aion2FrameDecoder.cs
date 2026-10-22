@@ -208,6 +208,11 @@ public sealed class Aion2FrameDecoder
 
         _entities.NoteZone(zoneId);
         Aion2Loot.NoteZone(zoneId);
+        if (zoneId != CurrentZoneId && Aion2Zones.IsArena(zoneId))
+        {
+            _entities.NoteArenaEntered(timestamp);
+        }
+
         if (zoneId != CurrentZoneId && Aion2Zones.IsEqualizedArena(zoneId))
         {
             _entities.NoteEqualizedArenaEntered(timestamp);

@@ -19,6 +19,9 @@ public static class Aion2Zones
     /// Only this zone is verified.</summary>
     public static bool IsEqualizedArena(int zoneId) => zoneId == 62;
 
+    /// <summary>The arenas (60 Fire Temple Arena, 61 Impetusium Arena, 62 the 10 against 10 arena): the players met there are uploaded once the fight is over.</summary>
+    public static bool IsArena(int zoneId) => zoneId is 60 or 61 or 62;
+
     /// <summary>The zone's name in a language, else English; null when the id is not in the file.</summary>
     public static string? NameOf(int zoneId, string language) =>
         Table().TryGetValue(zoneId, out var zone) ? zone.Names.GetValueOrDefault(language) ?? zone.Names.GetValueOrDefault("en") : null;

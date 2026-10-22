@@ -747,6 +747,7 @@ public partial class MainWindow : Window
         // The live capture is polled whatever the grid shows, so the session recording goes on while a stored session is on view.
         CombatBatch liveBatch = _liveSource?.Poll(_paused) ?? CombatBatch.Empty;
         FeedSessions(liveBatch);
+        NoteArenaLeft(liveBatch);
         // A new stay began (map or instance change) while an older session or the all-sessions view is on show: the view follows
         // into the new stay, which the recorder has just opened. The grid is filled from the recorder, so this batch's hits are in it already.
         bool followed = liveBatch.ZoneChanges.Count > 0 && (_historyMode || _sessionView == SessionView.All);
@@ -3597,6 +3598,99 @@ public partial class MainWindow : Window
     // settings "profiles of other players" and "upload my profile" both on; every window goes once. One the community server would turn away
     // (no faction or server known yet) waits and is tried again with the next window or the next character record.
 
+    // ---- the players met in an arena go online by themselves once the fight is over -------------------
+    // Per the user: the opponents of an arena fight are meant to be on the site (and NC's page fills their profile there), without a manual upload.
+    // The 10 against 10 arena sends only name, class, faction, server and legion (see NameOnlyProfile). Same settings as the looked-at windows.
+
+    private int _lastZoneSeen;
+    private System.Windows.Threading.DispatcherTimer? _arenaUploadTimer;
+    private bool _arenaUploadBusy;
+
+    private void NoteArenaLeft(CombatBatch batch)
+    {
+        foreach (ZoneChange zone in batch.ZoneChanges)
+        {
+            if (Aion2.Protocol.Aion2Zones.IsArena(_lastZoneSeen) && !Aion2.Protocol.Aion2Zones.IsArena(zone.ZoneId))
+            {
+                ScheduleArenaUpload();
+            }
+
+            _lastZoneSeen = zone.ZoneId;
+        }
+    }
+
+    private void ScheduleArenaUpload()
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        var settings = MeterSettings.Load();
+        if (!settings.AutoUploadProfile || !settings.UploadOtherPlayersProfiles)
+        {
+            return;
+        }
+
+        if (_arenaUploadTimer is null)
+        {
+            _arenaUploadTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+            _arenaUploadTimer.Tick += async (_, _) =>
+            {
+                _arenaUploadTimer.Stop();
+                await UploadArenaPlayersAsync();
+            };
+        }
+
+        _arenaUploadTimer.Stop();
+        _arenaUploadTimer.Start();
+    }
+
+    private async Task UploadArenaPlayersAsync()
+    {
+        var settings = MeterSettings.Load();
+        if (_arenaUploadBusy || !settings.AutoUploadProfile || !settings.UploadOtherPlayersProfiles
+            || _source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { Restored: false } } directory
+            || directory.LocalEquipment.Count == 0
+            || ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            return;
+        }
+
+        IReadOnlySet<string> pending = directory.ArenaNamesToUpload();
+        if (pending.Count == 0 || BuildProfilesUpload(fingerprint, displayName, onlyNames: pending) is not { } request)
+        {
+            return;
+        }
+
+        // The server turns away a player without faction or server; those stay pending (the next arena or the next character record tries again).
+        var ready = request.Participants.Where(p => p.IsSelf || (p.Faction.Length > 0 && p.ServerId is > 0)).ToList();
+        var names = ready.Where(p => !p.IsSelf).Select(p => p.Name).ToList();
+        if (names.Count == 0)
+        {
+            return;
+        }
+
+        _arenaUploadBusy = true;
+        try
+        {
+            UploadResult result = await UploadClient.SendProfilesAsync(request with { Participants = ready });
+            if (result.Success)
+            {
+                directory.MarkArenaUploaded(names);
+                AutoUploadLog.Write($"profile upload of the arena players: {names.Count} ({string.Join(", ", names.Take(25))})");
+            }
+            else
+            {
+                AutoUploadLog.Write($"profile upload of the arena players failed: {result.Error}");
+            }
+        }
+        finally
+        {
+            _arenaUploadBusy = false;
+        }
+    }
+
     private System.Windows.Threading.DispatcherTimer? _inspectedUploadTimer;
     private bool _inspectedUploadBusy;
 
@@ -3754,9 +3848,14 @@ public partial class MainWindow : Window
                 directory.ServerIdOfName(inspected.Name) ?? inspected.ServerId));
         }
 
-        foreach (int id in ownOnly || onlyNames is not null ? Array.Empty<int>() : directory.SeenProfileIds())
+        foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())
         {
             string? name = directory.NameFor(id);
+            if (onlyNames is not null && (name is null || !onlyNames.Contains(name)))
+            {
+                continue;
+            }
+
             string? className = directory.ClassOf(id)
                 ?? (directory.SeenProfileOf(id) is { ClassId: int classId } ? Aion2.Protocol.Aion2SkillNames.ClassFromCode(classId * 4 + 1) : null);
             // Anonymous "Player #id" entries have no name to attach a profile to.
