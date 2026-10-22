@@ -11,7 +11,7 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
-const { pickCharacter, searchCharacter, downloadPortrait, fetchPortrait, isFresh, PortraitQueue, portraitUrlFor, RETRY_AFTER, CHARACTER_RETRY_AFTER, HOUR, DAY, fetchPlayer, pacedFetch, processPlayer, decodeCharacterId } = await import("./portraitService.js");
+const { pickCharacter, searchCharacter, downloadPortrait, fetchPortrait, isFresh, PortraitQueue, portraitUrlFor, RETRY_AFTER, CHARACTER_RETRY_AFTER, HOUR, DAY, fetchPlayer, pacedFetch, processPlayer, decodeCharacterId, isArenaEqualized } = await import("./portraitService.js");
 const { playerPortraits, playerNcCharacter, players, servers } = await import("./db/schema.js");
 const { europeServerOf } = await import("./content/aion2Servers.js");
 const { eq } = await import("drizzle-orm");
@@ -371,4 +371,11 @@ test("the ninth NA East servers carry their region and old 'Name [id]' fingerpri
   assert.deepEqual(serverOfName("NA East - Nemon"), { id: 2109, faction: "Asmodian" });
   assert.deepEqual(canonicalServer("aion2:hithanya-1109", "Hithanya [1109]"), { fingerprint: "aion2:na-east-hithanya", displayName: "NA East - Hithanya" });
   assert.deepEqual(canonicalServer("aion2:aion-2-server-9999", "x"), { fingerprint: "aion2:aion-2-server-9999", displayName: "x" });
+});
+
+test("NC's page of a player standing in the evened-out arena is recognised by its fixed combat power", () => {
+  assert.equal(isArenaEqualized({ combatPower: 397228 }), true);
+  assert.equal(isArenaEqualized({ combatPower: 138016 }), false);
+  assert.equal(isArenaEqualized({ combatPower: null }), false);
+  assert.equal(isArenaEqualized(null), false);
 });

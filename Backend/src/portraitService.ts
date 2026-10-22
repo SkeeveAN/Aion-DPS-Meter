@@ -41,6 +41,12 @@ export const RETRY_AFTER = { ok: 7 * DAY, none: 2 * DAY, error: 1 * HOUR } as co
 export const CHARACTER_RETRY_AFTER = { ok: 3 * DAY, none: 2 * DAY, error: 1 * HOUR } as const;
 export type PortraitStatus = keyof typeof RETRY_AFTER;
 
+/** The combat power the 10 against 10 arena gives everybody (the game evens the players out there; NC's page shows it while they stand in it, and skills at level 20). */
+export const ARENA_FIXED_COMBAT_POWER = 397228;
+/** NC's page of a player that stands in the evened-out arena: nothing on it is his real state, so none of it is stored; the look is repeated soon. */
+export const isArenaEqualized = (data: { combatPower: number | null } | null | undefined): boolean => data?.combatPower === ARENA_FIXED_COMBAT_POWER;
+export const ARENA_RETRY_AFTER = 15 * 60_000;
+
 /** `region` is NC's region key (eu, as, nae, naw, la) of the player's server; "eu" when left out. */
 export type PlayerKey = { playerId: number; name: string; faction: "Elyos" | "Asmodian" | null; ownServerId: number | null; region?: string };
 /** characterId is NC's id for the character pages (url-decoded base64url), null when the search hit had none or a strange one. */
@@ -490,7 +496,8 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
   const c = outcome.character;
   if (c) {
     // Data and its time stay on show when a later refresh fails or finds nothing; only the next try moves.
-    const values = c.status === "ok" && c.data && c.known
+    const equalized = c.status === "ok" && isArenaEqualized(c.data);
+    const values = c.status === "ok" && c.data && c.known && !equalized
       ? {
           characterId: c.known.characterId,
           ncServerId: c.known.serverId,
@@ -528,12 +535,12 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           probeJson: characterBefore?.probeJson ?? null,
           unchangedCount: characterBefore?.unchangedCount ?? 0,
           fullAt: characterBefore?.fullAt ?? null,
-          status: c.status,
+          status: equalized ? (characterBefore?.status ?? "error") : c.status,
           fetchedAt: characterBefore?.fetchedAt ?? now,
-          nextTryAt: now + CHARACTER_RETRY_AFTER[c.status],
+          nextTryAt: now + (equalized ? ARENA_RETRY_AFTER : CHARACTER_RETRY_AFTER[c.status]),
         };
     db.insert(playerNcCharacter).values({ playerId: key.playerId, ...values }).onConflictDoUpdate({ target: playerNcCharacter.playerId, set: values }).run();
-    if (c.status === "ok" && c.data) {
+    if (c.status === "ok" && c.data && !equalized) {
       upsertNcProfile(key.playerId, c.data);
     }
     // NC's legion is the better word (see reconcileGuildWithNc); also moves a player who really changed legion.
