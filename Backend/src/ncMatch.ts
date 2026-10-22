@@ -29,8 +29,8 @@ const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 /** How long after we first saw a player his runs wait for NC to know him instead of being turned away (see ncGate). */
 export const YOUNG_FOR = 2 * DAY;
-/** When to ask again, by outcome ('client': after NC could not confirm him either; a fresh client player is due at once, but last in line). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
-export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 30 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
+/** When to ask again, by outcome ('client': after NC could not confirm him either, a character NC does know but could not match - his class or profile may have arrived since; a fresh client player is due at once, but last in line). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
+export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 3 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
 export type MatchStatus = keyof typeof MATCH_RETRY_AFTER;
 
 const SHARDS: Record<string, string> = { Europe: "eu", Asia: "as", "NA East": "nae", "NA West": "naw", LATAM: "la" };
