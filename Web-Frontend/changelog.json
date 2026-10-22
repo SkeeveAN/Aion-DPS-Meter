@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.14.1",
+  "date": "2026-10-22",
+  "items": [
+   {
+    "text": "Client: the player details of another player list the rest of his equipment and the exact enchant as aiondps.com holds it (belt, rings, bracelets, amulet, runes, arcana), asked in the background once the window is open",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "the details of another player fill in the rest of his equipment from aiondps.com",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   }
+  ]
+ },
+ {
   "version": "1.14.0",
   "date": "2026-10-22",
   "items": [
