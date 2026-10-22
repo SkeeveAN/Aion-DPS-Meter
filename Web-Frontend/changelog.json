@@ -4,6 +4,13 @@
   "date": "2026-10-22",
   "items": [
    {
+    "text": "Website: the run comparison picker lists each run with everyone who played in it (class-coloured, your group highlighted, details on click) and filters by My group or one player of your group, sorted by newest, fastest or highest iDPS",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-22"
+   },
+   {
     "text": "Website: all times on the site use the 24-hour clock and English dates are written day first (22/10/2026), instead of the US AM/PM format",
     "areas": [
      "Website"
