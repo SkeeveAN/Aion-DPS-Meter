@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.14.3",
+  "date": "2026-10-22",
+  "items": [
+   {
+    "text": "Client: the hits of a Sorcerer's summon or ground effect are never left on an own row - a summon is no longer taken for its own owner, and a Fire Wall or Cold Storm whose spawn was missed goes to the party's only Sorcerer in an instance",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "a Sorcerer's summons and ground effects no longer show up as extra Player rows",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   }
+  ]
+ },
+ {
   "version": "1.14.2",
   "date": "2026-10-22",
   "items": [
