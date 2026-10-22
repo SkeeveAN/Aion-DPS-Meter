@@ -2734,7 +2734,7 @@ body:has(.download-hero) .nav-download-link:hover,
 button.cmp-mem { cursor: pointer; }
 .cmp-mem.on { background: var(--color-primary); color: var(--color-primary-on); }
 .cmp-mem.other { border: 1px dashed var(--color-border); background: transparent; color: var(--color-text-muted); }
-.cmp-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.cmp-dot { width: 14px; height: 14px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18); }
 .cmp-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
 .cmp-chip { padding: 6px 14px; border: 1px solid var(--color-border); border-radius: 99px; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 14px; cursor: pointer; }
 .cmp-chip:hover { border-color: var(--color-primary); }

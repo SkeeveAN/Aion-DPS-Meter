@@ -4687,8 +4687,19 @@ function runCaption(encounter) {
 }
 
 /** A solid dot in the class colour: pale emblem icons were too faint in a row of names. */
+const CMP_CLASS_COLORS = {
+  Gladiator: "#3fd7ff",
+  Templar: "#3d6bff",
+  Assassin: "#b266ff",
+  Ranger: "#3ddc84",
+  Sorcerer: "#ff7ad9",
+  Spiritmaster: "#ff4d6d",
+  Cleric: "#ffe27a",
+  Chanter: "#ffa31a",
+  Brawler: "#ff8c5a",
+};
 function classDot(className) {
-  return el("span", { className: "cmp-dot", style: `background: ${classMeta(className).color};`, title: classLabel(className) });
+  return el("span", { className: "cmp-dot", style: `background: ${CMP_CLASS_COLORS[className] ?? classMeta(className).color};`, title: classLabel(className) });
 }
 
 /**
