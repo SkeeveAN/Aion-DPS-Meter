@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-23",
+  "items": [
+   {
+    "text": "Website: each session on the Runs tab of a player page has a \"View run\" button that opens the last fight of the session",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-23"
+   }
+  ]
+ },
+ {
   "version": "1.14.5",
   "date": "2026-10-23",
   "items": [
