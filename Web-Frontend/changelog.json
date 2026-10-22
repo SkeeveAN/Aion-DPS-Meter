@@ -25,7 +25,14 @@
     "date": "2026-10-22"
    },
    {
-    "text": "Client: the setting \"Hide during game menus\" now says when it is paused - while an overlay is unlocked (being positioned) the menus hide nothing, and the settings name that overlay",
+    "text": "Client: the hide-during-menus setting says when it is paused and names the unlocked overlay",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "Client: the party roster's second server id counts only when it names a server (numbers like 1801, 2819 and 2823 passed the range check and put players on servers that do not exist)",
     "areas": [
      "Client"
     ],
