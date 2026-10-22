@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-22",
+  "items": [
+   {
+    "text": "Client: the self-test of the boss spawn frame used the wrong entity numbers (the frames carry 17998 and 41941), which made the whole self-test report a failure since 1.13.6",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   }
+  ]
+ },
+ {
   "version": "1.14.3",
   "date": "2026-10-22",
   "items": [
