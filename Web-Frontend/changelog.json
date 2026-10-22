@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.13.7",
+  "date": "2026-10-22",
+  "items": [
+   {
+    "text": "Client: the check for updates at start works again (it failed silently on a wrong thread at every start, so an update only came after five minutes or a click on \"Check for updates\"); at start it stays quiet when you are up to date and asks \"a new version is available, install it? No / Yes\" before downloading one",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "the check for updates at start works again and asks before it installs a new version",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   }
+  ]
+ },
+ {
   "version": "1.13.6",
   "date": "2026-10-22",
   "items": [
