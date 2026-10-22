@@ -67,6 +67,7 @@ public static class SelfCheckAion2
         ok &= RunUploadSpawnMaxScenario();
         ok &= RunEqualizedArenaScenario();
         ok &= RunSeenStatsScenario();
+        ok &= RunArenaRefillScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSkillNameLanguageScenario();
         ok &= RunSettingsMigrationScenario();
@@ -1763,6 +1764,15 @@ public static class SelfCheckAion2
         source.Ingest(Segment(600, wire.ToArray()));
         var entities = (Aion2EntityDirectory)source.Entities;
         return entities.SeenProfileIds().Select(entities.SeenProfileOf).FirstOrDefault();
+    }
+
+    private static bool RunArenaRefillScenario()
+    {
+        Console.WriteLine("[selftest] The arena's refills between rounds are no damage:");
+        bool refills = Aion2SkillNames.IsNonDamageEffect(1900908) && Aion2SkillNames.IsNonDamageEffect(1900910) && Aion2SkillNames.IsNonDamageEffect(1900911);
+        bool realDamage = !Aion2SkillNames.IsNonDamageEffect(1900906) && !Aion2SkillNames.IsNonDamageEffect(11010340);
+        Console.WriteLine($"  -> the three refill skills are effects, the arena's own damage skill and a Gladiator skill are not: {refills && realDamage}");
+        return refills && realDamage;
     }
 
     private static bool RunSeenStatsScenario()

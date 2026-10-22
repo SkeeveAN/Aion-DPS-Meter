@@ -62,6 +62,14 @@ public static class Aion2SkillNames
             return true;
         }
 
+        // The arena's own refills at the start of a round and between rounds (full HP and MP, cooldowns reset): nameless "System" skills
+        // (1900908, 1900910, 1900911) whose frames look like damage - a player "hit" himself for his whole HP, up to half of what the meter showed
+        // for the arena (recording of 2026-10-22, the tables say HpHealRatio / MpHealRatio).
+        if (skillId is 1_900_908 or 1_900_910 or 1_900_911)
+        {
+            return true;
+        }
+
         if (_buffBases is null)
         {
             var set = new HashSet<int>();
