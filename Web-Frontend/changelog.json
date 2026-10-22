@@ -9,6 +9,13 @@
      "Backend"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Backend: the check against NC no longer takes the class of a crowd bystander (no damage, a small heal) for his own, and a player on a server beyond the live ones (\"Ludra [2111]\") is searched in the region of his server id",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
