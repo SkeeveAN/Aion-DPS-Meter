@@ -14,6 +14,11 @@ public static class Aion2Zones
     public static bool IsInstance(int zoneId) =>
         Table().TryGetValue(zoneId, out var zone) ? zone.Instance : zoneId is >= 600000 and < 700000;
 
+    /// <summary>The 10 against 10 arena (zone 62, "Odyle Shard Cradle", seen on 2026-10-22). The game evens everybody out there: the combat power is the
+    /// same fixed number for all (397228) and every skill and stigma is at level 20, so what a client reads of a player there is not his real state.
+    /// Only this zone is verified.</summary>
+    public static bool IsEqualizedArena(int zoneId) => zoneId == 62;
+
     /// <summary>The zone's name in a language, else English; null when the id is not in the file.</summary>
     public static string? NameOf(int zoneId, string language) =>
         Table().TryGetValue(zoneId, out var zone) ? zone.Names.GetValueOrDefault(language) ?? zone.Names.GetValueOrDefault("en") : null;

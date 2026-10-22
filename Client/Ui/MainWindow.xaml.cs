@@ -3687,6 +3687,11 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>What goes online of a player met in the 10 against 10 arena: nothing of his level, gear, skills or boards (the server drops a profile that
+    /// carries nothing and keeps what it knows). The name, class, faction, server and legion travel with the participant.</summary>
+    internal static ProfileUpload NameOnlyProfile() =>
+        new("seen", null, null, null, Array.Empty<ProfileGearUpload>(), Array.Empty<ProfileSkillUpload>(), Array.Empty<ProfileBoardUpload>());
+
     private ProfilesUploadRequest? BuildProfilesUpload(string fingerprint, string? displayName, bool ownOnly = false, IReadOnlySet<string>? onlyNames = null)
     {
         if (_source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.LocalCharacter is not { } local)
@@ -3701,6 +3706,8 @@ public partial class MainWindow : Window
         {
             if (BuildProfileUpload(id) is { } profile)
             {
+                // A player first met in the 10 against 10 arena: the game evens everybody out there, so only name, class, server and legion go online.
+                profile = !isSelf && directory.MetInEqualizedArena(name) ? NameOnlyProfile() : profile;
                 participants.Add(new ProfileParticipantUpload(name, className, directory.FactionOf(id) ?? "", isSelf, directory.GuildOf(id, name), profile, directory.ServerIdOf(id), CharacterIdFor(directory, name, directory.ServerIdOf(id))));
             }
         }
@@ -3732,7 +3739,7 @@ public partial class MainWindow : Window
                 directory.FactionOfName(inspected.Name) ?? inspected.Faction ?? "",
                 false,
                 inspected.Guild,
-                new ProfileUpload(
+                directory.MetInEqualizedArena(inspected.Name) ? NameOnlyProfile() : new ProfileUpload(
                     "seen",
                     inspected.Level,
                     Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(inspected.ClassCode),
@@ -4825,10 +4832,22 @@ public partial class MainWindow : Window
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, mine,
             id => _source?.Entities.NameFor(id) ?? MonsterName(id) ?? ResolveDisplayName(id), heals: _healMode && !_pvpOnly, fightEvents: _aggregator.Events,
             extras: extras, playerId: _historyMode ? _historyLiveIds.GetValueOrDefault(row.ObjectId, row.ObjectId) : row.ObjectId, fightStart: fightStart, fightEnd: fightEnd,
-            replay: BuildReplayData(extras, fightStart, fightEnd, _aggregator.Events))
+            replay: BuildReplayData(extras, fightStart, fightEnd, _aggregator.Events), seen: SeenInfoOf(row))
         {
             Owner = this,
         }.Show();
+    }
+
+    /// <summary>What the "player appeared" frame told of a player (level, item level, combat power, worn pieces); null for yourself and for players it never told of.</summary>
+    private PlayerSeenInfo? SeenInfoOf(PlayerRow row)
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.SeenProfileOf(row.ObjectId) is not { } seen)
+        {
+            return null;
+        }
+
+        bool equalized = directory.MetInEqualizedArena(row.Name) || seen.CombatPower == 397228;
+        return new PlayerSeenInfo(seen.Level, seen.ItemLevel, equalized ? null : seen.CombatPower, seen.Worn ?? Array.Empty<Aion2.Aion2WornItem>(), equalized);
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e)

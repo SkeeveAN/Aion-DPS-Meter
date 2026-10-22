@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -108,10 +109,85 @@ public partial class PlayerDetailsView : UserControl
         }
     }
 
+    /// <summary>What the "player appeared" frame told of the player: a chip for the 10 against 10 arena, the item level and the combat power as tiles, and the worn
+    /// pieces in three columns. In the arena the combat power is not shown at all (the game evens it out, and so the skill levels).</summary>
+    private void BuildSeenPanel(PlayerSeenInfo? seen)
+    {
+        if (seen is null || (seen.ItemLevel is null && seen.CombatPower is null && seen.Worn.Count == 0))
+        {
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        SeenHost.Visibility = Visibility.Visible;
+        var tiles = new StackPanel { Orientation = Orientation.Horizontal };
+        if (seen.Equalized)
+        {
+            tiles.Children.Add(new Border
+            {
+                Background = (System.Windows.Media.Brush)FindResource("Brush.Panel"), BorderBrush = (System.Windows.Media.Brush)FindResource("Brush.Accent"), BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(11), Padding = new Thickness(10, 2, 10, 2), Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock { Text = loc["Details.Seen.Chip10v10"], FontSize = 12, Foreground = (System.Windows.Media.Brush)FindResource("Brush.Accent") },
+            });
+        }
+
+        Border Tile(string label, string value, bool accent)
+        {
+            var valueText = new TextBlock { Text = value, Style = (Style)FindResource("StatTileValue") };
+            if (accent)
+            {
+                valueText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+            }
+
+            return new Border { Style = (Style)FindResource("StatTile"), Child = new StackPanel { Children = { new TextBlock { Text = label, Style = (Style)FindResource("StatTileLabel") }, valueText } } };
+        }
+
+        if (seen.ItemLevel is int itemLevel)
+        {
+            tiles.Children.Add(Tile(loc["Details.Seen.ItemLevel"], itemLevel.ToString("N0", CultureInfo.CurrentCulture), false));
+        }
+
+        if (seen.Equalized)
+        {
+            tiles.Children.Add(Tile(loc["Details.Seen.CombatPower"], loc["Details.Seen.Evened"], true));
+        }
+        else if (seen.CombatPower is int power)
+        {
+            tiles.Children.Add(Tile(loc["Details.Seen.CombatPower"], power.ToString("N0", CultureInfo.CurrentCulture), false));
+        }
+
+        SeenHost.Children.Add(tiles);
+        if (seen.Worn.Count > 0)
+        {
+            var grid = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 6, 0, 0) };
+            foreach (Aion2.Aion2WornItem piece in seen.Worn)
+            {
+                string itemName = Aion2.Protocol.Aion2ItemCatalog.Find(piece.ItemId)?.Name ?? piece.ItemId.ToString(CultureInfo.InvariantCulture);
+                var line = new TextBlock { FontSize = 11, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 1, 12, 1), ToolTip = itemName };
+                line.Inlines.Add(new System.Windows.Documents.Run(loc[$"Details.Seen.Slot{piece.SlotIndex}"] + "  ") { Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted") });
+                line.Inlines.Add(new System.Windows.Documents.Run(itemName));
+                if (piece.EnchantTotal > 0)
+                {
+                    line.Inlines.Add(new System.Windows.Documents.Run($"  +{piece.EnchantTotal} {loc["Details.Seen.Total"]}") { Foreground = (System.Windows.Media.Brush)FindResource("Brush.Accent") });
+                    line.ToolTip = itemName + " - " + loc["Details.Seen.TotalTip"];
+                }
+
+                grid.Children.Add(line);
+            }
+
+            SeenHost.Children.Add(grid);
+        }
+
+        if (seen.Equalized)
+        {
+            SeenHost.Children.Add(new TextBlock { Text = loc["Details.Seen.EvenedNote"], FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0), Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted") });
+        }
+    }
+
     public PlayerDetailsView(string name, string className, string faction,
         IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false,
         IReadOnlyList<Death>? deaths = null, bool taken = false, IReadOnlyList<DamageEvent>? fightEvents = null,
-        FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null, ReplayData? replay = null)
+        FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null, ReplayData? replay = null, PlayerSeenInfo? seen = null)
     {
         // Taken: the hits this player took, one row per attacker and attack ("Transcendent
         // Bakarma : Attack"); an attacker with no name of its own is "Monster".
@@ -126,6 +202,7 @@ public partial class PlayerDetailsView : UserControl
         DataContext = new { ClassName = className, Faction = faction };
 
         HeaderText.Text = name;
+        BuildSeenPanel(seen);
 
         // The half the main window is showing: damage, or heals in heal mode.
         var damage = events.Where(e => e.IsHeal == heals).ToList();

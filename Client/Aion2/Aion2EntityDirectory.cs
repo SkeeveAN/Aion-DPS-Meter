@@ -33,7 +33,20 @@ public sealed record Aion2PresetInfo(int Index, bool Active, DateTime SeenAt, IR
 /// <summary>What the "player appeared" frame says about another player: class and the class bits (decoded
 /// from its class code; the low two bits are NOT a faction - Elyos characters carry 1 and 2) and the visible
 /// equipment (no enchant levels in that list).</summary>
-public sealed record Aion2SeenProfile(int? ClassId, int? ClassBits, IReadOnlyList<Aion2EquippedItem> Gear);
+public sealed record Aion2SeenProfile(
+    int? ClassId,
+    int? ClassBits,
+    IReadOnlyList<Aion2EquippedItem> Gear,
+    int? Level = null,
+    int? ItemLevel = null,
+    // Read for the screen only: the game's combat power as the frame carries it (the number is fixed in the 10 against 10 arena). Never uploaded.
+    int? CombatPower = null,
+    // The pieces the frame lists with the sum of enchant level and excess level (0 = not told); for the screen only, the upload uses <see cref="Gear"/>.
+    IReadOnlyList<Aion2WornItem>? Worn = null);
+
+/// <summary>A worn piece as the newer "player appeared" frame lists it: its position (1 main hand, 2 helmet, 3 shoulder, 4 chest, 5 legs, 6 gloves, 7 boots, 8 cape,
+/// 9 necklace, 10 and 11 earrings), its id and the enchant level plus the excess level together (the two are not told apart; 0 = not told).</summary>
+public sealed record Aion2WornItem(int SlotIndex, int ItemId, int EnchantTotal);
 
 /// <summary>Another player's character window as the server sent it (opcode 0x5036): no object id, only the
 /// name. <see cref="ClassCode"/> is <c>4 * class id + class bits</c> (no faction); the gear carries enchant levels.</summary>
@@ -1686,6 +1699,57 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             return _bossNpcs.TryGetValue(entityId, out int npcId) ? npcId : null;
+        }
+    }
+
+    // Players whose first sight was in the 10 against 10 arena: the game evens everybody out there (combat power, skill levels), so nothing a client read
+    // of them is real. Only name, server and legion may go online for them.
+    private readonly HashSet<string> _metInEqualizedArena = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, DateTime> _lastMet = new(StringComparer.Ordinal);
+    private static readonly TimeSpan EqualizedArenaLeadTime = TimeSpan.FromSeconds(15);
+
+    /// <summary>A player's "appeared" frame came at that time. In the arena the player is marked; seen anywhere else he is unmarked again.</summary>
+    public void NoteMet(string name, DateTime at)
+    {
+        lock (_gate)
+        {
+            if (_lastMet.Count > 20_000)
+            {
+                _lastMet.Clear(); // nothing is ever that many: a table that lost its way
+            }
+
+            _lastMet[name] = at;
+            if (Aion2Zones.IsEqualizedArena(_zoneId))
+            {
+                _metInEqualizedArena.Add(name);
+            }
+            else
+            {
+                _metInEqualizedArena.Remove(name);
+            }
+        }
+    }
+
+    /// <summary>The player entered the arena: the players announced just before the zone frame (the game sends the teams ahead of it) belong to it.</summary>
+    public void NoteEqualizedArenaEntered(DateTime at)
+    {
+        lock (_gate)
+        {
+            foreach ((string name, DateTime met) in _lastMet)
+            {
+                if (at - met >= TimeSpan.Zero && at - met <= EqualizedArenaLeadTime)
+                {
+                    _metInEqualizedArena.Add(name);
+                }
+            }
+        }
+    }
+
+    public bool MetInEqualizedArena(string name)
+    {
+        lock (_gate)
+        {
+            return _metInEqualizedArena.Contains(name);
         }
     }
 

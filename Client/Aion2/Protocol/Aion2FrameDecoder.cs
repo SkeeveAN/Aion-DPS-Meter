@@ -208,6 +208,10 @@ public sealed class Aion2FrameDecoder
 
         _entities.NoteZone(zoneId);
         Aion2Loot.NoteZone(zoneId);
+        if (zoneId != CurrentZoneId && Aion2Zones.IsEqualizedArena(zoneId))
+        {
+            _entities.NoteEqualizedArenaEntered(timestamp);
+        }
 
         // The place the frame puts the player (x, y as floats at 18 and 22), when it is long enough to hold them.
         (float X, float Y)? place = frame.Length >= 26
@@ -653,7 +657,7 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Heal:
                 return DecodeAmount(frame, timestamp, fields, isHeal: family == OpcodeFamily.Heal, layout.LittleEndian);
             case OpcodeFamily.Nickname when string.Equals(_protocol.NicknameLayout, "varint-v1", StringComparison.Ordinal):
-                DecodeVarintNickname(frame);
+                DecodeVarintNickname(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Roster:
                 DecodeRoster(frame, timestamp);
@@ -2125,7 +2129,7 @@ public sealed class Aion2FrameDecoder
     /// "Assassin #3562" into "Pencilgon". The local player never gets one (verified: in a five-member
     /// party, four nickname frames, for exactly the four others).
     /// </summary>
-    private void DecodeVarintNickname(ReadOnlySpan<byte> frame)
+    private void DecodeVarintNickname(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;
         if (!TryReadVarint(frame, ref p, out long id))
@@ -2139,6 +2143,7 @@ public sealed class Aion2FrameDecoder
             {
                 _entities.Register((int)id, name);
                 _entities.NoteIdentity((int)id, name, 0);
+                _entities.NoteMet(name, timestamp);
                 ReadSeenProfile(frame, (int)id, k + 1 + frame[k]);
 
                 // The faction: the byte after the 4 bytes that follow the name is 1 for a player of an Elyos server and 2 for one of an
@@ -3308,10 +3313,90 @@ public sealed class Aion2FrameDecoder
             }
         }
 
-        if (classId is not null || gear.Count > 0)
+        (int? level, int? itemLevel) = ReadSeenLevels(frame);
+        int? combatPower = ReadSeenCombatPower(frame);
+        var worn = ReadWornItems(frame, afterName + 4);
+
+        if (classId is not null || gear.Count > 0 || level is not null || worn.Count > 0)
         {
-            _entities.SetSeenProfile(id, new Aion2SeenProfile(classId, classBits, gear.OrderBy(g => g.SlotIndex).ToList()));
+            _entities.SetSeenProfile(id, new Aion2SeenProfile(classId, classBits, gear.OrderBy(g => g.SlotIndex).ToList(), level, itemLevel, combatPower, worn));
         }
+    }
+
+    /// <summary>
+    /// The level and the gear score of a "player appeared" frame: an anchor of <c>-3000 (i32) | level | 0 | gear score</c> some 390 bytes before the end
+    /// (checked against the profiles of 28 players and against the character window of one, 2026-10-22). The frame is of variable length, so it is looked for
+    /// from the end, and only an anchor that is followed by a level of 1 to 100 and a zero counts (some frames hold a second -3000 elsewhere).
+    /// </summary>
+    private static (int? Level, int? ItemLevel) ReadSeenLevels(ReadOnlySpan<byte> frame)
+    {
+        for (int i = frame.Length - 16; i >= 0 && frame.Length - i <= 460; i--)
+        {
+            if (BinaryPrimitives.ReadInt32LittleEndian(frame[i..]) != -3000)
+            {
+                continue;
+            }
+
+            uint level = BinaryPrimitives.ReadUInt32LittleEndian(frame[(i + 4)..]);
+            if (level is >= 1 and <= 100 && BinaryPrimitives.ReadUInt32LittleEndian(frame[(i + 8)..]) == 0)
+            {
+                uint score = BinaryPrimitives.ReadUInt32LittleEndian(frame[(i + 12)..]);
+                return ((int)level, score is > 0 and < 100_000 ? (int)score : null);
+            }
+        }
+
+        return (null, null);
+    }
+
+    /// <summary>
+    /// The combat power: a 4-byte number close behind the end of the frame (nine bytes before it, ten in one case seen). Read where the number is plausible (20,000 to
+    /// 4,000,000; the neighbouring positions read as a shifted copy or as a huge number). Verified against the profile of one player (Keuno 138,016) and the
+    /// numbers of 28 others; in the 10 against 10 arena it is the same fixed 397228 for everybody. Null when no position fits.
+    /// </summary>
+    private static int? ReadSeenCombatPower(ReadOnlySpan<byte> frame)
+    {
+        foreach (int back in stackalloc[] { 9, 10, 8, 11 })
+        {
+            int at = frame.Length - back;
+            if (at < 0 || at + 4 > frame.Length)
+            {
+                continue;
+            }
+
+            uint value = BinaryPrimitives.ReadUInt32LittleEndian(frame[at..]);
+            if (value is >= 20_000 and <= 4_000_000)
+            {
+                return (int)value;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The pieces of a "player appeared" frame as <c>item id (u32) | enchant level + excess level (u8, 0 = not told) | position (u8, 1-12) | 0</c> (the older frames carry a 0
+    /// at the third place, so this finds those as well). Verified against the equipment of two players (11 pieces each, +10 / +15 and the excess levels as the game shows them).
+    /// </summary>
+    private static List<Aion2WornItem> ReadWornItems(ReadOnlySpan<byte> frame, int from)
+    {
+        var worn = new List<Aion2WornItem>();
+        var slots = new HashSet<int>();
+        for (int q = Math.Max(from, 0); q + 8 <= frame.Length; q++)
+        {
+            int slot = frame[q + 5];
+            if (slot is < 1 or > 12 || frame[q + 6] != 0 || frame[q + 4] > 40)
+            {
+                continue;
+            }
+
+            int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[q..]));
+            if (Aion2ItemCatalog.Find(itemId) is not null && slots.Add(slot))
+            {
+                worn.Add(new Aion2WornItem(slot, itemId, frame[q + 4]));
+            }
+        }
+
+        return worn.OrderBy(w => w.SlotIndex).ToList();
     }
 
     /// <summary>

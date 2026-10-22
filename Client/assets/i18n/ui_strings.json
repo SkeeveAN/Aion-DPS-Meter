@@ -11760,5 +11760,85 @@
     "ko": "레시피 검색 …",
     "zh": "搜索配方 …",
     "zh-TW": "搜尋配方 …"
+  },
+  "Details.Seen.ItemLevel": {
+    "en": "Item level",
+    "de": "Gegenstandsstufe"
+  },
+  "Details.Seen.CombatPower": {
+    "en": "Combat power",
+    "de": "Kampfkraft"
+  },
+  "Details.Seen.Evened": {
+    "en": "evened out",
+    "de": "angeglichen"
+  },
+  "Details.Seen.Chip10v10": {
+    "en": "10 vs 10 · evened out",
+    "de": "10 gegen 10 · angeglichen"
+  },
+  "Details.Seen.Worn": {
+    "en": "Worn pieces",
+    "de": "Getragene Teile"
+  },
+  "Details.Seen.Total": {
+    "en": "total",
+    "de": "gesamt"
+  },
+  "Details.Seen.TotalTip": {
+    "en": "Enchant level plus excess level; the game does not tell them apart in this frame.",
+    "de": "Verzauberung plus Überstufe; das Spiel trennt sie in diesem Frame nicht."
+  },
+  "Details.Seen.EvenedNote": {
+    "en": "In the 10 vs 10 arena the game evens everybody out: combat power and skill levels are not real, so neither is shown, uploaded or kept. Item level and worn pieces are real.",
+    "de": "Im 10 gegen 10 gleicht das Spiel alle an: Kampfkraft und Skillstufen sind nicht echt, deshalb werden sie weder gezeigt noch hochgeladen oder gespeichert. Gegenstandsstufe und getragene Teile sind echt."
+  },
+  "Details.Seen.Slot1": {
+    "en": "Main hand",
+    "de": "Haupthand"
+  },
+  "Details.Seen.Slot2": {
+    "en": "Helmet",
+    "de": "Helm"
+  },
+  "Details.Seen.Slot3": {
+    "en": "Shoulder",
+    "de": "Schulter"
+  },
+  "Details.Seen.Slot4": {
+    "en": "Chest",
+    "de": "Brust"
+  },
+  "Details.Seen.Slot5": {
+    "en": "Legs",
+    "de": "Hose"
+  },
+  "Details.Seen.Slot6": {
+    "en": "Gloves",
+    "de": "Handschuhe"
+  },
+  "Details.Seen.Slot7": {
+    "en": "Boots",
+    "de": "Stiefel"
+  },
+  "Details.Seen.Slot8": {
+    "en": "Cape",
+    "de": "Umhang"
+  },
+  "Details.Seen.Slot9": {
+    "en": "Necklace",
+    "de": "Halskette"
+  },
+  "Details.Seen.Slot10": {
+    "en": "Earring",
+    "de": "Ohrring"
+  },
+  "Details.Seen.Slot11": {
+    "en": "Earring",
+    "de": "Ohrring"
+  },
+  "Details.Seen.Slot12": {
+    "en": "Off hand",
+    "de": "Nebenhand"
   }
 }
