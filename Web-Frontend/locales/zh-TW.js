@@ -322,6 +322,7 @@ export default {
   "stats.fewRows": "{n} 個職業的記錄少於 {rows} 筆，請謹慎參考。",
   "stats.tooFew": "記錄還太少，無法繪製箱型圖。",
   "player.emptyNoFights": "此玩家尚無已記錄的戰鬥。",
+  "runs.view": "查看本次通關",
   "profile.heading": "角色",
   "profile.classLevel": "{className} · 等級 {level}",
   "profile.faction": "陣營",

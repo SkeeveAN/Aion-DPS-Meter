@@ -322,6 +322,7 @@ export default {
   "stats.fewRows": "{n} クラスは記録が {rows} 件未満です。参考程度にご覧ください。",
   "stats.tooFew": "箱ひげ図にはまだ記録が足りません。",
   "player.emptyNoFights": "このプレイヤーの記録された戦闘はまだありません。",
+  "runs.view": "挑戦を見る",
   "profile.heading": "キャラクター",
   "profile.classLevel": "{className} · レベル {level}",
   "profile.faction": "種族",

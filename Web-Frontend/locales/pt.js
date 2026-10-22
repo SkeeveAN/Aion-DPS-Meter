@@ -322,6 +322,7 @@ export default {
   "stats.fewRows": "{n} classe(s) têm menos de {rows} entradas – leia com cuidado.",
   "stats.tooFew": "Ainda há poucas entradas para um diagrama de caixa.",
   "player.emptyNoFights": "Ainda não há combates registrados para este jogador.",
+  "runs.view": "Ver percurso",
   "profile.heading": "Personagem",
   "profile.classLevel": "{className} · Nível {level}",
   "profile.faction": "Raça",

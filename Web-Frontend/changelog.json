@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.14.5",
+  "date": "2026-10-23",
+  "items": [
+   {
+    "text": "Client: the details of a player show what his summons did as a tile \"Summons\" (its share of his damage, the amount in the tooltip), for a Spiritmaster's spirits and a Sorcerer's walls",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "the details of a player show the share of his damage that came from his summons",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   }
+  ]
+ },
+ {
   "version": "1.14.4",
   "date": "2026-10-22",
   "items": [

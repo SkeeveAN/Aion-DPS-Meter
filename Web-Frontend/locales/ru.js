@@ -355,6 +355,7 @@ export default {
   "stats.fewRows": "У {n} класс(ов) меньше {rows} записей – читайте с осторожностью.",
   "stats.tooFew": "Пока слишком мало записей для диаграммы размаха.",
   "player.emptyNoFights": "Для этого игрока пока нет зафиксированных боёв.",
+  "runs.view": "Открыть прохождение",
   "search.multipleResultsHeading": "Несколько результатов",
   "search.noResults": 'Игрок с именем "{query}" не найден.',
   "general.error": "Ошибка: {msg}",

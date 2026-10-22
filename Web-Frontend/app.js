@@ -4443,6 +4443,7 @@ function renderRunsTab(history) {
         el("h3", { textContent: displayName({ name: s.instance }) }),
         diffPill(first.instanceCategory, first.mode, first.instanceName),
         records > 0 ? el("span", { className: "diff-pill diff-cq", textContent: t("runs.records", { n: records }) }) : null,
+        el("a", { className: "run-open", href: gp(`/encounters/${s.runs.at(-1).h.encounterId}`), textContent: t("runs.view") }),
         el("div", { className: "run-stats" }, [stat(formatNumber(s.runs.length), t("runs.fights")), stat(formatNumber(avg), t("runs.avgIdps")), stat(formatNumber(top), t("runs.bestIdps"), true)]),
       ].filter((x) => x != null)),
       el("div", { className: "run-tiles" }, [...s.runs].reverse().map(tile)),

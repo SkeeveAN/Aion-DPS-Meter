@@ -355,6 +355,7 @@ export default {
   "stats.fewRows": "{n} clase(s) tienen menos de {rows} entradas: léelas con cuidado.",
   "stats.tooFew": "Aún hay pocas entradas para un diagrama de caja.",
   "player.emptyNoFights": "Aún no hay combates registrados para este jugador.",
+  "runs.view": "Ver recorrido",
   "search.multipleResultsHeading": "Varios resultados",
   "search.noResults": 'No se encontró ningún jugador llamado "{query}".',
   "general.error": "Error: {msg}",
