@@ -872,22 +872,31 @@ public static class SelfCheckAion2
         return saintly && others;
     }
 
-    /// <summary>The second id of a roster member is not always a server: 2823 (no server), in front of the name 2315, must not replace it; a real second id still does.</summary>
+    /// <summary>The second id of a roster member can have a marker byte in front: read from the marker it looked like another server (2823, 2305, 2307); a real second id still wins.</summary>
     private static bool RunAion2RosterBogusServerScenario()
     {
-        Console.WriteLine("[selftest] Aion 2 party roster: a second id that names no server is ignored (2823 behind the name, 2315 in front), a real one still wins:");
-        static void Member(List<byte> body, ushort before, string name, ushort behind)
+        Console.WriteLine("[selftest] Aion 2 party roster: a marker byte in front of the second id is not read as part of it (Munin 2313 was 2305/2307, Zemurru 2315 was 2823), a real second id still wins:");
+        // marker: the byte some frames put in front of the second id (0 = none); the id is then repeated, as the game does
+        static void Member(List<byte> body, ushort before, string name, ushort behind, byte marker = 0)
         {
             body.Add((byte)before);
             body.Add((byte)(before >> 8));
             byte[] text = System.Text.Encoding.UTF8.GetBytes(name);
             body.Add((byte)text.Length);
             body.AddRange(text);
-            body.AddRange(new byte[] { 24, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, (byte)behind, (byte)(behind >> 8) });
+            body.AddRange(new byte[] { 24, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0 });
+            if (marker != 0)
+            {
+                body.Add(marker);
+            }
+
+            body.AddRange(new byte[] { (byte)behind, (byte)(behind >> 8), (byte)behind, (byte)(behind >> 8), 4, 0 });
         }
 
         var body = new List<byte> { 0x02, 0x97 };
-        Member(body, 2315, "Munina", 2823);
+        Member(body, 2315, "Munina", 2315, marker: 7);
+        Member(body, 2313, "Raikishi", 2313, marker: 3);
+        Member(body, 2313, "Jaykuwalen", 2313, marker: 1);
         Member(body, 2311, "Ludrana", 2303);
         var wire = new List<byte>();
         int length = body.Count + 4;
@@ -903,10 +912,10 @@ public static class SelfCheckAion2
         var dir = (Aion2EntityDirectory)source.Entities;
         source.Ingest(Segment(9900, wire.ToArray()));
         source.Poll(false);
-        bool bogus = dir.ServerIdOfName("Munina") == 2315;
+        bool bogus = dir.ServerIdOfName("Munina") == 2315 && dir.ServerIdOfName("Raikishi") == 2313 && dir.ServerIdOfName("Jaykuwalen") == 2313;
         bool real = dir.ServerIdOfName("Ludrana") == 2303;
         bool table = Aion2Servers.IsKnown(1304) && Aion2Servers.IsKnown(2315) && !Aion2Servers.IsKnown(2823) && !Aion2Servers.IsKnown(1801);
-        Console.WriteLine($"  -> Munina stays on 2315: {bogus}; Ludrana's real second id 2303 wins: {real}; the table knows 1304 and 2315 but not 2823 and 1801: {table}");
+        Console.WriteLine($"  -> Munina (marker 07) 2315, Raikishi (03) and Jaykuwalen (01) 2313: {bogus}; Ludrana's real second id 2303 wins: {real}; the table knows 1304 and 2315 but not 2823 and 1801: {table}");
         return bogus && real && table;
     }
 

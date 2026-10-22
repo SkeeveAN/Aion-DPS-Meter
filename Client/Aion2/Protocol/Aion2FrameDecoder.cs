@@ -3375,20 +3375,24 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
-    /// The second server id of a roster member, 12 bytes behind the end of his name (class u32 | level u32 | a u32 | server u16), one byte further for members whose id is
-    /// preceded by a 0x07 marker (seen for Kaisinel, 18 05). Null when neither position holds a server of the table (the bytes there are not always an id: 1801, 2819 and 2823 passed a range check and named no server) - then only the id in front of the name counts.
+    /// The second server id of a roster member, 12 bytes behind the end of his name (class u32 | level u32 | a u32 | server u16 | the id again or a 0x10xx value), one byte
+    /// further when a marker byte (01, 02, 03, 06, 07; it changes from frame to frame) sits in front of it. Read at the marker, "marker + low byte of the id" looks like
+    /// a server for some of them (Munin 2313 as 2305, 2307 or 2311, Zemurru 2315 as 2817, 2819 or 2823), so a position counts only when the two bytes after it repeat the id
+    /// or are a 0x10xx value, and the id names a server of the table. Null when neither position does - then only the id in front of the name counts (it was right in
+    /// every recorded member).
     /// </summary>
     private static int? HomeServerBehindName(ReadOnlySpan<byte> frame, int afterName)
     {
         foreach (int offset in stackalloc[] { 12, 13 })
         {
-            if (afterName + offset + 2 > frame.Length)
+            if (afterName + offset + 4 > frame.Length)
             {
                 continue;
             }
 
             int server = frame[afterName + offset] | frame[afterName + offset + 1] << 8;
-            if (server is >= 1000 and <= 2999 && server % 100 is >= 1 and <= 30 && Aion2Servers.IsKnown(server))
+            int next = frame[afterName + offset + 2] | frame[afterName + offset + 3] << 8;
+            if (server is >= 1000 and <= 2999 && server % 100 is >= 1 and <= 30 && Aion2Servers.IsKnown(server) && (next == server || next >> 8 == 0x10))
             {
                 return server;
             }
