@@ -3,7 +3,7 @@ import { and, asc, avg, count, desc, eq, max, ne } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
-import { EXACT_PARTICIPANT } from "../estimated.js";
+import { EXACT_PARTICIPANT, WHOLE_FIGHT } from "../estimated.js";
 import { findBoss } from "./bosses.js";
 import { gameFromQuery } from "./instances.js";
 
@@ -16,6 +16,8 @@ import { gameFromQuery } from "./instances.js";
 const REAL_PLAYER = ne(encounterParticipants.className, "?");
 // Everything that ranks or averages damage only sees rows with real figures (see estimated.ts).
 const REAL_EXACT = and(REAL_PLAYER, EXACT_PARTICIPANT);
+// Everything that picks a "best" or averages also leaves out partial fights (see WHOLE_FIGHT); needs encounters joined.
+const RANKED = and(REAL_EXACT, WHOLE_FIGHT);
 
 function parseId(raw: unknown): number | null {
   const n = Number(raw);
@@ -34,7 +36,7 @@ function playerOnBoss(playerId: number, bossId: number) {
     return null;
   }
 
-  const scope = and(eq(encounterParticipants.playerId, playerId), eq(encounters.bossId, bossId), REAL_EXACT);
+  const scope = and(eq(encounterParticipants.playerId, playerId), eq(encounters.bossId, bossId), RANKED);
   const totals = db
     .select({
       runs: count(),
@@ -133,6 +135,7 @@ export async function compareRoutes(app: FastifyInstance) {
         durationSeconds: encounters.durationSeconds,
         groupIDps: encounters.groupIDps,
         mode: encounters.mode,
+        isPartial: encounters.isPartial,
       })
       .from(encounters)
       .where(eq(encounters.bossId, found.boss.id))
@@ -212,7 +215,7 @@ export async function compareRoutes(app: FastifyInstance) {
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
       .innerJoin(instances, eq(bosses.instanceId, instances.id))
-      .where(and(eq(encounterParticipants.playerId, playerId), REAL_EXACT))
+      .where(and(eq(encounterParticipants.playerId, playerId), RANKED))
       .groupBy(bosses.id)
       .orderBy(asc(instances.name), asc(bosses.name))
       .all();
@@ -244,7 +247,7 @@ export async function compareRoutes(app: FastifyInstance) {
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .leftJoin(servers, eq(players.serverId, servers.id))
-      .where(and(eq(encounters.bossId, found.boss.id), REAL_EXACT, exclude === null ? undefined : ne(players.id, exclude)))
+      .where(and(eq(encounters.bossId, found.boss.id), RANKED, exclude === null ? undefined : ne(players.id, exclude)))
       .groupBy(players.id)
       .orderBy(desc(max(encounterParticipants.idps)))
       .limit(300)
@@ -257,7 +260,7 @@ export async function compareRoutes(app: FastifyInstance) {
       .select({ playerId: encounterParticipants.playerId, className: encounterParticipants.className })
       .from(encounterParticipants)
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
-      .where(and(eq(encounters.bossId, found.boss.id), REAL_EXACT))
+      .where(and(eq(encounters.bossId, found.boss.id), RANKED))
       .orderBy(asc(encounters.startedAt))
       .all()) {
       classes.set(row.playerId, row.className);

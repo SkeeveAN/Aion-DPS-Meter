@@ -1,7 +1,8 @@
-import { count, countDistinct, eq, sql } from "drizzle-orm";
+import { and, count, countDistinct, eq, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances } from "../db/schema.js";
+import { WHOLE_FIGHT } from "../estimated.js";
 import { cached } from "../seo/cache.js";
 import { gameFromQuery } from "./instances.js";
 
@@ -26,7 +27,7 @@ export async function statsRoutes(app: FastifyInstance) {
         .from(encounters)
         .innerJoin(bosses, eq(encounters.bossId, bosses.id))
         .innerJoin(instances, eq(bosses.instanceId, instances.id))
-        .where(eq(instances.game, game))
+        .where(and(eq(instances.game, game), WHOLE_FIGHT))
         .get();
 
       // One "parse" = one participant's own row in one fight (matches the meter's own vocabulary -
@@ -42,7 +43,7 @@ export async function statsRoutes(app: FastifyInstance) {
         .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
         .innerJoin(bosses, eq(encounters.bossId, bosses.id))
         .innerJoin(instances, eq(bosses.instanceId, instances.id))
-        .where(eq(instances.game, game))
+        .where(and(eq(instances.game, game), WHOLE_FIGHT))
         .get();
 
       return JSON.stringify({
@@ -69,7 +70,7 @@ export async function statsRoutes(app: FastifyInstance) {
         .from(encounters)
         .innerJoin(bosses, eq(encounters.bossId, bosses.id))
         .innerJoin(instances, eq(bosses.instanceId, instances.id))
-        .where(eq(instances.game, game))
+        .where(and(eq(instances.game, game), WHOLE_FIGHT))
         .groupBy(sql`substr(${encounters.startedAt}, 1, 10)`)
         .orderBy(sql`substr(${encounters.startedAt}, 1, 10) desc`)
         .limit(days)

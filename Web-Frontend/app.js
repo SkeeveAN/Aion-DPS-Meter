@@ -476,7 +476,7 @@ function buildRecentActivitySection(rows) {
       el("span", { className: "hp-run-mid" }, [
         el("b", {}, [
           displayName({ name: r.bossName, nameEn: r.bossNameEn }),
-          ...[diffPill(r.instanceCategory, r.mode, r.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p]),
+          ...[diffPill(r.instanceCategory, r.mode, r.instanceName), partialBadge(r)].filter((x) => x != null).flatMap((p) => [" ", p]),
         ]),
         el("span", { className: "hp-run-sub" }, [
           `${plainInstanceName(r)} · ${formatDuration(r.durationSeconds)} · ${formatRelativeTime(r.createdAt)}`,
@@ -2108,6 +2108,11 @@ function difficultyOf(category, mode, instanceName) {
 }
 
 /** The difficulty label as a coloured pill (see difficultyOf); null when the fight has none. */
+/** The small orange "Partial" pill on a run row: a boss fight uploaded by someone who joined late (the API's isPartial; absent = not partial). */
+function partialBadge(row) {
+  return row?.isPartial === true ? el("span", { className: "partial-pill", title: t("encounter.partialBadgeTip"), textContent: t("encounter.partialBadge") }) : null;
+}
+
 function diffPill(category, mode, instanceName) {
   const d = difficultyOf(category, mode, instanceName);
   return d ? el("span", { className: `diff-pill diff-${d.cls}`, textContent: d.text }) : null;
@@ -2806,6 +2811,7 @@ function renderGroupBoard(groups) {
         el("div", { className: "lb-card-head" }, [
           el("b", { className: "lb-rank", textContent: `#${i + 1}` }),
           link(formatDate(new Date(g.startedAt)), gp(`/encounters/${g.encounterId}`), "lb-open"),
+          ...[partialBadge(g)].filter((x) => x != null),
           el("div", { className: "lb-big" }, [el("strong", { textContent: formatNumber(g.groupIDps) }), el("span", { textContent: t("leaderboard.groupIdps") })]),
         ]),
         el("div", { className: "lb-meta" }, [
@@ -2834,7 +2840,7 @@ function renderGroupBoard(groups) {
           el("b", { textContent: formatNumber(g.groupIDps) }),
           ` ${t("leaderboard.idpsShort")}`,
           el("br"),
-          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })}`, gp(`/encounters/${g.encounterId}`), "lb-open")]),
+          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })}`, gp(`/encounters/${g.encounterId}`), "lb-open"), ...[partialBadge(g)].filter((x) => x != null).map((p) => [" ", p]).flat()]),
         ]),
         el("span", { className: "lb-totals" }, [`${formatNumber(g.totalDamage)} ${t("leaderboard.dmgShort")}`, el("br"), `${formatNumber(g.totalHealing)} ${t("leaderboard.healShort")}`]),
       ]);
@@ -3433,6 +3439,22 @@ async function renderEncounter(encounterId) {
     statCard(formatDuration(data.encounter.durationSeconds), t("encounter.duration")),
     statCard(formatNumber(totalDamage), t("stats.totalDamage")),
   ]);
+  // A fight uploaded by someone who joined late: one orange card with the share of the boss's health the recorder saw (old data without the fields is simply not partial).
+  if (data.encounter.isPartial === true) {
+    const share = typeof data.encounter.hpSeenShare === "number" ? data.encounter.hpSeenShare : null;
+    const realMax = data.encounter.bossRealMaxHp > 0 ? data.encounter.bossRealMaxHp : null;
+    let tip = t("encounter.partialTipPlain");
+    if (share !== null) {
+      const pct = (share * 100).toFixed(1);
+      tip = realMax !== null
+        ? t("encounter.partialTip", { pct, seen: formatNumber(Math.round(share * realMax)), max: formatNumber(realMax) })
+        : t("encounter.partialTipNoHp", { pct });
+    }
+    const card = statCard(share !== null ? `${(share * 100).toFixed(1)} %` : t("encounter.partialBadge"), t("encounter.partialLabel"));
+    card.classList.add("partial");
+    card.title = tip;
+    statsRow.append(card);
+  }
   // A crowded world boss: the damage is partly estimated, so the share of the boss's hit points the list adds up to is shown (the server asks for 75 %).
   if (data.encounter.bossMaxHp > 0 && data.roster.some((p) => p.estimated)) {
     statsRow.append(statCard(`${((totalDamage / data.encounter.bossMaxHp) * 100).toFixed(0)}%`, t("stats.bossHpCovered"), t("stats.bossHpCoveredNote")));
@@ -3445,13 +3467,20 @@ async function renderEncounter(encounterId) {
     ? el("div", { className: "encounter-stack" }, [playersPanel(data.roster), aggroPanel(data.roster, true)])
     : el("div", { className: "encounter-grid" }, [meterPanel(data.roster), el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)])]);
 
-  app.replaceChildren(hero, statsRow, compareButton(t("compare.ctaRuns"), compareLink("/compare/runs", { a: data.encounter.id })), grid);
+  // The compare link is an icon tile at the far end of the stats row.
+  statsRow.append(compareTile(t("compare.ctaRuns"), compareLink("/compare/runs", { a: data.encounter.id })));
+  app.replaceChildren(hero, statsRow, grid);
 
   // Fights whose uploads carry a time axis get the group timeline and the buffs per skill below the lists (a failed request just leaves them out).
   if (data.encounter.hasTimeline) {
     try {
       const timeline = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}/timeline`);
       const deps = { el, t, formatNumber, classLabel, classIcon, iconLabel, getLocale };
+      // The health curve is thousandths of the highest reading the recorder saw, so it starts at 100 % even when they joined late;
+      // a partial fight draws it against the boss's real health instead (the seen share is where it starts).
+      if (data.encounter.isPartial === true && typeof data.encounter.hpSeenShare === "number" && Array.isArray(timeline.bossHp)) {
+        timeline.bossHp = timeline.bossHp.map(([s, permille]) => [s, Math.round(permille * data.encounter.hpSeenShare)]);
+      }
       const panels = [buildGroupTimeline(timeline, deps), buildBuffsPerSkill(timeline, deps)].filter((p) => p !== null);
       grid.after(...panels);
     } catch {
@@ -4392,7 +4421,7 @@ function renderRunsTab(history) {
     const pct = r.ok ? Math.min(100, (h.idps / best.get(r.key)) * 100) : 0;
     return el("a", { className: `run-tile${r.record ? " record" : ""}${r.ok ? "" : " empty-run"}`, href: gp(`/participants/${h.participantId}`), title: `${dayFormat.format(r.t)} ${clockFormat.format(r.t)}` }, [
       r.record ? el("span", { className: "run-star", textContent: "★", title: t("runs.record") }) : null,
-      el("div", { className: "run-boss", textContent: translateGameName(h.bossName) }),
+      el("div", { className: "run-boss" }, [translateGameName(h.bossName), ...[partialBadge(h)].filter((x) => x != null).flatMap((p) => [" ", p])]),
       el("div", { className: "run-idps" }, [r.ok ? formatNumber(h.idps) : "–", el("small", { textContent: " iDPS" })]),
       el("div", { className: "run-meter" }, [el("i", { style: `width:${pct}%` })]),
       el("div", { className: "run-meta" }, [
@@ -4682,6 +4711,17 @@ function compareButton(text, href) {
   return el("div", { className: "cmp-cta" }, [el("a", { className: "cmp-btn", href, textContent: text })]);
 }
 
+/** The icon-only compare tile (two opposite arrows) with a CSS tooltip; sits at the right end of a stats row. */
+function compareTile(text, href) {
+  return el("a", {
+    className: "stat-card cmp-tile",
+    href,
+    title: text,
+    "aria-label": text,
+    innerHTML: '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h13"/><path d="M13 3l4 4-4 4"/><path d="M20 17H7"/><path d="M11 13l-4 4 4 4"/></svg>',
+  });
+}
+
 function runCaption(encounter) {
   return `${formatDate(new Date(encounter.startedAt))}${encounter.serverName ? ` · ${serverLabel(encounter.serverName)}` : ""}`;
 }
@@ -4760,7 +4800,7 @@ function renderRunPicker(a, first, bossName) {
     const toggle = el("button", { type: "button", className: "cmp-toggle", title: t("compare.showGroup"), "aria-label": t("compare.showGroup"), textContent: "▾", onclick: () => { detail.hidden = !detail.hidden; toggle.textContent = detail.hidden ? "▾" : "▴"; } });
     return el("div", { className: "cmp-run" }, [
       el("div", { className: "cmp-run-head" }, [
-        el("span", { className: "cmp-run-date" }, [formatDate(new Date(r.startedAt)), ...[r.mode ? el("span", { className: "diff-pill cmp-mode", textContent: modeLabel(r.mode) }) : null].filter((x) => x != null).flatMap((p) => [" ", p])]),
+        el("span", { className: "cmp-run-date" }, [formatDate(new Date(r.startedAt)), ...[r.mode ? el("span", { className: "diff-pill cmp-mode", textContent: modeLabel(r.mode) }) : null, partialBadge(r)].filter((x) => x != null).flatMap((p) => [" ", p])]),
         el("span", { className: "cmp-run-idps", textContent: formatNumber(r.groupIDps) }),
         el("span", { className: diff === 0 ? "cmp-delta" : diff > 0 ? "cmp-up" : "cmp-down", textContent: baseIdps > 0 ? `${diff > 0 ? "▲" : diff < 0 ? "▼" : ""} ${formatDelta(r.groupIDps, baseIdps)}`.trim() : "–" }),
         el("span", { className: "cmp-run-dur", textContent: formatDuration(r.durationSeconds) }),

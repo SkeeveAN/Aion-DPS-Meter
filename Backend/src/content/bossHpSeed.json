@@ -1,0 +1,1302 @@
+{
+ "comment": "Echte Boss-HP je NPC-ID (baseHp = Spawn-Wert fuer EINEN Spieler bei partyScaled, sonst die volle HP). Erzeugt am 22.10.2026 aus Spawn-Frames der Aufnahmen und der Upload-Datenbank.",
+ "generated": "2026-10-22",
+ "npcs": {
+  "2100003": {
+   "name": "Neikel of the East",
+   "baseHp": 80000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 3,
+   "spawnFrames": 17
+  },
+  "2100040": {
+   "name": "Rotten Kutar",
+   "baseHp": 80000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 4,
+   "spawnFrames": 7
+  },
+  "2100076": {
+   "name": "Kusan the Mad Gladiator",
+   "baseHp": 160000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 4,
+   "spawnFrames": 1
+  },
+  "2100079": {
+   "name": "Bodyguard Teegant",
+   "baseHp": 160000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 5,
+   "spawnFrames": 12
+  },
+  "2100178": {
+   "name": "Bloodfang Pnyn",
+   "baseHp": 160000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 3,
+   "spawnFrames": 4
+  },
+  "2101074": {
+   "name": "Eternal Gartua",
+   "baseHp": 311999391,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2101120": {
+   "name": "Silent Dartan",
+   "baseHp": 276000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 6,
+   "spawnFrames": 2
+  },
+  "2101122": {
+   "name": "Soul Ruler Kashapa",
+   "baseHp": 276000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 7,
+   "spawnFrames": 2
+  },
+  "2101131": {
+   "name": "High Commander Lagta",
+   "baseHp": 275998563,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2300104": {
+   "name": "Enhanced Harcon",
+   "baseHp": 3600000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 11,
+   "spawnFrames": 5
+  },
+  "2300108": {
+   "name": "Neglected Gadioton",
+   "baseHp": 3600000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 11,
+   "spawnFrames": 10
+  },
+  "2300171": {
+   "name": "Ultimate Berk",
+   "baseHp": 6800000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 4
+  },
+  "2300206": {
+   "name": "Guardian Captain Raur",
+   "baseHp": 5220000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 396,
+   "spawnFrames": 14
+  },
+  "2300207": {
+   "name": "Judge Urahum",
+   "baseHp": 5220000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 277,
+   "spawnFrames": 14
+  },
+  "2300218": {
+   "name": "Divine Auldor",
+   "baseHp": 9860000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 277,
+   "spawnFrames": 14
+  },
+  "2300310": {
+   "name": "Silver Blade Rotan",
+   "baseHp": 570000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 164,
+   "spawnFrames": 13
+  },
+  "2300311": {
+   "name": "Red Spark Ignus",
+   "baseHp": 8208000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 261,
+   "spawnFrames": 10
+  },
+  "2300312": {
+   "name": "Black Smoke Murute",
+   "baseHp": 8208000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 263,
+   "spawnFrames": 9
+  },
+  "2300371": {
+   "name": "Kromede's Desire",
+   "baseHp": 15504000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 262,
+   "spawnFrames": 21
+  },
+  "2300401": {
+   "name": "Phantasmal Lakshmi",
+   "baseHp": 3600000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 83,
+   "spawnFrames": 1
+  },
+  "2300403": {
+   "name": "Predator Saraswati",
+   "baseHp": 3600000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 87,
+   "spawnFrames": 1
+  },
+  "2300471": {
+   "name": "Transcendent Bakarma",
+   "baseHp": 6800000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 117,
+   "spawnFrames": 2
+  },
+  "2300810": {
+   "name": "Tiere",
+   "baseHp": 5220000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 192,
+   "spawnFrames": 5
+  },
+  "2300811": {
+   "name": "Thamon",
+   "baseHp": 5220000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 187,
+   "spawnFrames": 5
+  },
+  "2300812": {
+   "name": "Vakron",
+   "baseHp": 9860000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 196,
+   "spawnFrames": 5
+  },
+  "2300907": {
+   "name": "Shining Mau Totem",
+   "baseHp": 304000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 136,
+   "spawnFrames": 2
+  },
+  "2300908": {
+   "name": "Watchdog Kwapo",
+   "baseHp": 8208000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 145,
+   "spawnFrames": 2
+  },
+  "2300909": {
+   "name": "Necromancer Duanka",
+   "baseHp": 8208000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 145,
+   "spawnFrames": 2
+  },
+  "2300910": {
+   "name": "Ferocious Horn Nuakum",
+   "baseHp": 15504000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 143,
+   "spawnFrames": 2
+  },
+  "2310104": {
+   "name": "Enhanced Harcon",
+   "baseHp": 61500,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 15,
+   "spawnFrames": 1
+  },
+  "2310108": {
+   "name": "Neglected Gadioton",
+   "baseHp": 61500,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 8,
+   "spawnFrames": 2
+  },
+  "2310171": {
+   "name": "Ultimate Berk",
+   "baseHp": 123000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 21,
+   "spawnFrames": 1
+  },
+  "2310206": {
+   "name": "Guardian Captain Raur",
+   "baseHp": 112449,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 15,
+   "spawnFrames": 0
+  },
+  "2310207": {
+   "name": "Judge Urahum",
+   "baseHp": 112442,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2310218": {
+   "name": "Divine Auldor",
+   "baseHp": 225000,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 15,
+   "spawnFrames": 0
+  },
+  "2310310": {
+   "name": "Silver Blade Rotan",
+   "baseHp": 120000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 1
+  },
+  "2310311": {
+   "name": "Red Spark Ignus",
+   "baseHp": 180000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 12,
+   "spawnFrames": 1
+  },
+  "2310312": {
+   "name": "Black Smoke Murute",
+   "baseHp": 180000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 4,
+   "spawnFrames": 1
+  },
+  "2310371": {
+   "name": "Kromede's Desire",
+   "baseHp": 360000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 16,
+   "spawnFrames": 2
+  },
+  "2310401": {
+   "name": "Phantasmal Lakshmi",
+   "baseHp": 300000,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 23,
+   "spawnFrames": 0
+  },
+  "2310403": {
+   "name": "Predator Saraswati",
+   "baseHp": 299849,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 26,
+   "spawnFrames": 1
+  },
+  "2310471": {
+   "name": "Transcendent Bakarma",
+   "baseHp": 600000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 31,
+   "spawnFrames": 1
+  },
+  "2310810": {
+   "name": "Tiere",
+   "baseHp": 434852,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 25,
+   "spawnFrames": 2
+  },
+  "2310811": {
+   "name": "Thamon",
+   "baseHp": 435000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 25,
+   "spawnFrames": 2
+  },
+  "2310812": {
+   "name": "Vakron",
+   "baseHp": 870000,
+   "partyScaled": true,
+   "source": "spawn",
+   "uploads": 28,
+   "spawnFrames": 2
+  },
+  "2310907": {
+   "name": "Shining Mau Totem",
+   "baseHp": 50317,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 16,
+   "spawnFrames": 0
+  },
+  "2310908": {
+   "name": "Watchdog Kwapo",
+   "baseHp": 570000,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 13,
+   "spawnFrames": 0
+  },
+  "2310909": {
+   "name": "Necromancer Duanka",
+   "baseHp": 569686,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 16,
+   "spawnFrames": 0
+  },
+  "2310910": {
+   "name": "Ferocious Horn Nuakum",
+   "baseHp": 1140000,
+   "partyScaled": true,
+   "source": "uploads",
+   "uploads": 14,
+   "spawnFrames": 0
+  },
+  "2320104": {
+   "name": "Enhanced Harcon",
+   "baseHp": 18575033,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2320108": {
+   "name": "Neglected Gadioton",
+   "baseHp": 18575115,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2320171": {
+   "name": "Ultimate Berk",
+   "baseHp": 24316500,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2320401": {
+   "name": "Phantasmal Lakshmi",
+   "baseHp": 18575189,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 3,
+   "spawnFrames": 0
+  },
+  "2320403": {
+   "name": "Predator Saraswati",
+   "baseHp": 18575127,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 3,
+   "spawnFrames": 0
+  },
+  "2320471": {
+   "name": "Transcendent Bakarma",
+   "baseHp": 24316500,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 3,
+   "spawnFrames": 0
+  },
+  "2320601": {
+   "name": "Atiel",
+   "baseHp": 11067000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 108,
+   "spawnFrames": 6
+  },
+  "2320615": {
+   "name": "Nazmun",
+   "baseHp": 5859000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 38,
+   "spawnFrames": 4
+  },
+  "2320616": {
+   "name": "Gelcos",
+   "baseHp": 5859000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 38,
+   "spawnFrames": 4
+  },
+  "2330707": {
+   "name": "Siliator of Deceit",
+   "baseHp": 5859000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 42,
+   "spawnFrames": 5
+  },
+  "2330708": {
+   "name": "Ruthilis of Pain",
+   "baseHp": 5859000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 39,
+   "spawnFrames": 6
+  },
+  "2330709": {
+   "name": "Talisra of the Void",
+   "baseHp": 11067000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 36,
+   "spawnFrames": 5
+  },
+  "2340601": {
+   "name": "Atiel",
+   "baseHp": 13685000,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 137,
+   "spawnFrames": 0
+  },
+  "2340615": {
+   "name": "Nazmun",
+   "baseHp": 7245000,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 40,
+   "spawnFrames": 0
+  },
+  "2340616": {
+   "name": "Gelcos",
+   "baseHp": 7244480,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 41,
+   "spawnFrames": 0
+  },
+  "2343601": {
+   "name": "Atiel",
+   "baseHp": 18298800,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 24,
+   "spawnFrames": 0
+  },
+  "2343615": {
+   "name": "Nazmun",
+   "baseHp": 9687600,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 26,
+   "spawnFrames": 0
+  },
+  "2343616": {
+   "name": "Gelcos",
+   "baseHp": 9686762,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 27,
+   "spawnFrames": 0
+  },
+  "2346601": {
+   "name": "Atiel",
+   "baseHp": 20175600,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2346615": {
+   "name": "Nazmun",
+   "baseHp": 10679461,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 4,
+   "spawnFrames": 0
+  },
+  "2346616": {
+   "name": "Gelcos",
+   "baseHp": 10679953,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 4,
+   "spawnFrames": 0
+  },
+  "2350707": {
+   "name": "Siliator of Deceit",
+   "baseHp": 7245000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 61,
+   "spawnFrames": 4
+  },
+  "2350708": {
+   "name": "Ruthilis of Pain",
+   "baseHp": 7245000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 66,
+   "spawnFrames": 4
+  },
+  "2350709": {
+   "name": "Talisra of the Void",
+   "baseHp": 13685000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 57,
+   "spawnFrames": 4
+  },
+  "2353707": {
+   "name": "Siliator of Deceit",
+   "baseHp": 9685945,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 18,
+   "spawnFrames": 0
+  },
+  "2353708": {
+   "name": "Ruthilis of Pain",
+   "baseHp": 9687600,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 19,
+   "spawnFrames": 0
+  },
+  "2353709": {
+   "name": "Talisra of the Void",
+   "baseHp": 18298800,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 15,
+   "spawnFrames": 0
+  },
+  "2356707": {
+   "name": "Siliator of Deceit",
+   "baseHp": 10681200,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2356708": {
+   "name": "Ruthilis of Pain",
+   "baseHp": 10679948,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2356709": {
+   "name": "Talisra of the Void",
+   "baseHp": 20175600,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2400017": {
+   "name": "Melted Danar",
+   "baseHp": 80000000,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 4,
+   "spawnFrames": 0
+  },
+  "2400074": {
+   "name": "Black Warrior Aed",
+   "baseHp": 79998107,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 3,
+   "spawnFrames": 0
+  },
+  "2400140": {
+   "name": "Faithful Rajit",
+   "baseHp": 80000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 3,
+   "spawnFrames": 1
+  },
+  "2400504": {
+   "name": "Executioner Barthien",
+   "baseHp": 159972103,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 4,
+   "spawnFrames": 0
+  },
+  "2400593": {
+   "name": "Drakan Battalion Weapon Guruta",
+   "baseHp": 159998426,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 3,
+   "spawnFrames": 0
+  },
+  "2400800": {
+   "name": "Immortal Gartua",
+   "baseHp": 311999037,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2400853": {
+   "name": "High Commander Lagta",
+   "baseHp": 275999487,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2400854": {
+   "name": "Soul Ruler Kashapa",
+   "baseHp": 275998886,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2400855": {
+   "name": "Silent Dartan",
+   "baseHp": 275998243,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 3,
+   "spawnFrames": 0
+  },
+  "2600089": {
+   "name": "Watcher Kaira",
+   "baseHp": 810000000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 7,
+   "spawnFrames": 1
+  },
+  "2701753": {
+   "name": "Divided Aponos",
+   "baseHp": 598039,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2701774": {
+   "name": "Featherstorm Duduri",
+   "baseHp": 1747675,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2701788": {
+   "name": "Watchful Raptor Dodori",
+   "baseHp": 1748237,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2701789": {
+   "name": "Divided Aponos",
+   "baseHp": 750000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 25,
+   "spawnFrames": 2
+  },
+  "2701807": {
+   "name": "Divided Aponos",
+   "baseHp": 1200000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 24,
+   "spawnFrames": 5
+  },
+  "2701829": {
+   "name": "Featherstorm Duduri",
+   "baseHp": 1198508,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 25,
+   "spawnFrames": 0
+  },
+  "2701830": {
+   "name": "Watchful Raptor Dodori",
+   "baseHp": 1197694,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 27,
+   "spawnFrames": 0
+  },
+  "2701841": {
+   "name": "Featherstorm Duduri",
+   "baseHp": 749263,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 11,
+   "spawnFrames": 0
+  },
+  "2701842": {
+   "name": "Watchful Raptor Dodori",
+   "baseHp": 748708,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 11,
+   "spawnFrames": 0
+  },
+  "2701853": {
+   "name": "Featherstorm Duduri",
+   "baseHp": 600000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 23,
+   "spawnFrames": 3
+  },
+  "2701854": {
+   "name": "Watchful Raptor Dodori",
+   "baseHp": 600000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 23,
+   "spawnFrames": 3
+  },
+  "2701866": {
+   "name": "Divided Aponos",
+   "baseHp": 1750000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 6,
+   "spawnFrames": 4
+  },
+  "2980040": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 1200000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 13,
+   "spawnFrames": 1
+  },
+  "2980041": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 1439287,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 12,
+   "spawnFrames": 0
+  },
+  "2980042": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 1559197,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 10,
+   "spawnFrames": 0
+  },
+  "2980043": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 1679208,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2980044": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 1799245,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980045": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 1918384,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980046": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 2039162,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2980047": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 2159067,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 11,
+   "spawnFrames": 0
+  },
+  "2980048": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 2279055,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 10,
+   "spawnFrames": 0
+  },
+  "2980049": {
+   "name": "Gatekeeper Pinopi",
+   "baseHp": 2399234,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 12,
+   "spawnFrames": 0
+  },
+  "2980150": {
+   "name": "Furious Feruk",
+   "baseHp": 1199098,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2980151": {
+   "name": "Furious Feruk",
+   "baseHp": 1438993,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2980152": {
+   "name": "Furious Feruk",
+   "baseHp": 1558832,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980153": {
+   "name": "Furious Feruk",
+   "baseHp": 1679102,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2980154": {
+   "name": "Furious Feruk",
+   "baseHp": 1800000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 9,
+   "spawnFrames": 1
+  },
+  "2980155": {
+   "name": "Furious Feruk",
+   "baseHp": 1920000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 9,
+   "spawnFrames": 1
+  },
+  "2980156": {
+   "name": "Furious Feruk",
+   "baseHp": 2040000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 11,
+   "spawnFrames": 1
+  },
+  "2980157": {
+   "name": "Furious Feruk",
+   "baseHp": 2160000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 11,
+   "spawnFrames": 1
+  },
+  "2980158": {
+   "name": "Furious Feruk",
+   "baseHp": 2280000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 7,
+   "spawnFrames": 1
+  },
+  "2980159": {
+   "name": "Furious Feruk",
+   "baseHp": 2397792,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2980170": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 1798725,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 10,
+   "spawnFrames": 0
+  },
+  "2980171": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 2157849,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2980172": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 2336733,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2980173": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 2518349,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2980174": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 2698129,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980175": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 2876819,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980176": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 3058101,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2980177": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 3238067,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2980178": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 3373034,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 5,
+   "spawnFrames": 0
+  },
+  "2980179": {
+   "name": "Fortress Guardian Notun",
+   "baseHp": 3597085,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 13,
+   "spawnFrames": 0
+  },
+  "2980210": {
+   "name": "Mutated Gerod",
+   "baseHp": 1795434,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980211": {
+   "name": "Mutated Gerod",
+   "baseHp": 2155885,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2980212": {
+   "name": "Mutated Gerod",
+   "baseHp": 2338497,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980213": {
+   "name": "Mutated Gerod",
+   "baseHp": 2517184,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2980214": {
+   "name": "Mutated Gerod",
+   "baseHp": 2696767,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 10,
+   "spawnFrames": 0
+  },
+  "2980215": {
+   "name": "Mutated Gerod",
+   "baseHp": 2877985,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2980216": {
+   "name": "Mutated Gerod",
+   "baseHp": 3056760,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 8,
+   "spawnFrames": 0
+  },
+  "2980217": {
+   "name": "Mutated Gerod",
+   "baseHp": 3236087,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2980218": {
+   "name": "Mutated Gerod",
+   "baseHp": 3415793,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 7,
+   "spawnFrames": 0
+  },
+  "2980219": {
+   "name": "Mutated Gerod",
+   "baseHp": 3597769,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 6,
+   "spawnFrames": 0
+  },
+  "2980220": {
+   "name": "Zikel's Apparition",
+   "baseHp": 2397486,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 4,
+   "spawnFrames": 0
+  },
+  "2980240": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 1199183,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 10,
+   "spawnFrames": 0
+  },
+  "2980241": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 1440000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 9,
+   "spawnFrames": 2
+  },
+  "2980242": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 1560000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 2
+  },
+  "2980243": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 1680000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 2
+  },
+  "2980244": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 1800000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 2
+  },
+  "2980245": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 1920000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 2
+  },
+  "2980246": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 2040000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 13,
+   "spawnFrames": 2
+  },
+  "2980247": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 2160000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 12,
+   "spawnFrames": 2
+  },
+  "2980248": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 2280000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 10,
+   "spawnFrames": 1
+  },
+  "2980249": {
+   "name": "Fafnir's Poison Blood",
+   "baseHp": 2400000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 11,
+   "spawnFrames": 1
+  },
+  "2980250": {
+   "name": "Wraith Giselle",
+   "baseHp": 1199193,
+   "partyScaled": false,
+   "source": "uploads",
+   "uploads": 9,
+   "spawnFrames": 0
+  },
+  "2980251": {
+   "name": "Wraith Giselle",
+   "baseHp": 1440000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 8,
+   "spawnFrames": 2
+  },
+  "2980252": {
+   "name": "Wraith Giselle",
+   "baseHp": 1560000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 8,
+   "spawnFrames": 2
+  },
+  "2980253": {
+   "name": "Wraith Giselle",
+   "baseHp": 1680000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 8,
+   "spawnFrames": 2
+  },
+  "2980254": {
+   "name": "Wraith Giselle",
+   "baseHp": 1800000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 7,
+   "spawnFrames": 2
+  },
+  "2980255": {
+   "name": "Wraith Giselle",
+   "baseHp": 1920000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 7,
+   "spawnFrames": 2
+  },
+  "2980256": {
+   "name": "Wraith Giselle",
+   "baseHp": 2040000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 8,
+   "spawnFrames": 2
+  },
+  "2980257": {
+   "name": "Wraith Giselle",
+   "baseHp": 2160000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 8,
+   "spawnFrames": 2
+  },
+  "2980258": {
+   "name": "Wraith Giselle",
+   "baseHp": 2280000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 6,
+   "spawnFrames": 2
+  },
+  "2980259": {
+   "name": "Wraith Giselle",
+   "baseHp": 2400000,
+   "partyScaled": false,
+   "source": "spawn",
+   "uploads": 7,
+   "spawnFrames": 2
+  }
+ }
+}

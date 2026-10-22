@@ -2,7 +2,7 @@ import { and, asc, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
 import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { EXACT_ENCOUNTER, EXACT_PARTICIPANT } from "../estimated.js";
+import { EXACT_ENCOUNTER, EXACT_PARTICIPANT, WHOLE_FIGHT } from "../estimated.js";
 import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounterSkillUsage, encounters, instances, playerNcCharacter, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
 import { profileBadge } from "../profileBadge.js";
 import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
@@ -55,15 +55,16 @@ export function serversWithEncounters(bossId: number) {
     .from(encounters)
     .innerJoin(servers, eq(encounters.serverId, servers.id))
     .leftJoin(serverCatalog, eq(serverCatalog.name, servers.displayName))
-    .where(eq(encounters.bossId, bossId))
+    .where(and(eq(encounters.bossId, bossId), WHOLE_FIGHT))
     .groupBy(servers.id)
     .orderBy(desc(count(encounters.id)))
     .all();
 }
 
-/** One boss, optionally narrowed to a server and to one difficulty step (null = every step). */
+/** One boss, optionally narrowed to a server and to one difficulty step (null = every step). Whole fights only: a partial fight is never ranked or counted. */
 function encounterScope(bossId: number, serverId: number | null, mode: string | null, gear: GearRange | null = null) {
   return and(
+    WHOLE_FIGHT,
     gearCondition(gear),
     eq(encounters.bossId, bossId),
     serverId === null ? undefined : eq(encounters.serverId, serverId),
@@ -81,7 +82,7 @@ export function modesFor(bossId: number, category: string | null) {
     db
       .select({ mode: encounters.mode, runs: count(encounters.id) })
       .from(encounters)
-      .where(eq(encounters.bossId, bossId))
+      .where(and(eq(encounters.bossId, bossId), WHOLE_FIGHT))
       .groupBy(encounters.mode)
       .all()
       .map((r) => [r.mode, r.runs] as const),
@@ -104,6 +105,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
       durationSeconds: encounters.durationSeconds,
       groupIDps: encounters.groupIDps,
       mergedUploadCount: encounters.mergedUploadCount,
+      isPartial: encounters.isPartial,
     })
     .from(encounters)
     .where(and(encounterScope(bossId, serverId, mode, gear), EXACT_ENCOUNTER))
@@ -299,6 +301,7 @@ export function statsForBossIds(bossIds: number[], serverId: number | null, mode
     return { runCount: 0, bestIdps: null, avgDurationSeconds: null };
   }
   const scope = and(
+    WHOLE_FIGHT,
     inArray(encounters.bossId, bossIds),
     serverId === null ? undefined : eq(encounters.serverId, serverId),
     mode === null ? undefined : eq(encounters.mode, mode),
@@ -336,7 +339,7 @@ export function serversWithEncountersForBossIds(bossIds: number[]) {
     .from(encounters)
     .innerJoin(servers, eq(encounters.serverId, servers.id))
     .leftJoin(serverCatalog, eq(serverCatalog.name, servers.displayName))
-    .where(inArray(encounters.bossId, bossIds))
+    .where(and(inArray(encounters.bossId, bossIds), WHOLE_FIGHT))
     .groupBy(servers.id)
     .orderBy(desc(count(encounters.id)))
     .all();

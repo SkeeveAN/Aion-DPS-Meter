@@ -400,6 +400,15 @@ export const encounters = sqliteTable(
     bossMaxHp: integer("boss_max_hp"),
     // The boss's health over the fight: pairs of (tenths of a second from the start, thousandths of its health), flattened. Null = not reported.
     bossHpJson: text("boss_hp_json"),
+    // Partial fight ("Teilkampf"): the uploader joined late, the highest hit-point reading is clearly below the boss's real maximum (see bossHp.ts).
+    // Stored and shown, but left out of every ranking, best list and average.
+    isPartial: integer("is_partial", { mode: "boolean" }).notNull().default(false),
+    // The max HP from the boss's spawn frame as the client sent it (raw: for a party-scaled boss the value for one player). Null = client never saw the spawn.
+    bossSpawnMaxHp: integer("boss_spawn_max_hp"),
+    // The maximum the fight was judged against (spawn / reference value, times the party size on a scaled boss). Null = unknown.
+    bossRealMaxHp: integer("boss_real_max_hp"),
+    // Highest reading / real maximum, 0..1. Null = unknown (old behaviour, nothing judged).
+    hpSeenShare: real("hp_seen_share"),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),
@@ -409,8 +418,20 @@ export const encounters = sqliteTable(
     startedAtIdx: index("encounters_started_at_idx").on(table.startedAt),
     // The leaderboard query and the matching-candidate lookup both filter by exactly this pair.
     serverIdBossIdIdx: index("encounters_server_id_boss_id_idx").on(table.serverId, table.bossId),
+    isPartialIdx: index("encounters_is_partial_idx").on(table.isPartial),
   }),
 );
+
+/** The real health per boss NPC id (baseHp = the full health, or on a party-scaled boss the value for ONE player). Seeded from content/bossHpSeed.json, learned from uploads (see bossHp.ts). */
+export const bossHpReference = sqliteTable("boss_hp_reference", {
+  npcId: integer("npc_id").primaryKey(),
+  baseHp: integer("base_hp").notNull(),
+  partyScaled: integer("party_scaled", { mode: "boolean" }).notNull().default(false),
+  // "spawn" / "uploads" from the seed, "learned" from an upload's spawn value.
+  source: text("source").notNull(),
+  samples: integer("samples").notNull().default(0),
+  updatedAt: text("updated_at").notNull(),
+});
 
 export const encounterParticipants = sqliteTable(
   "encounter_participants",

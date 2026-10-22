@@ -12,5 +12,10 @@ export const EXACT_PARTICIPANT = eq(encounterParticipants.estimated, false);
 /** Encounters without any estimated row: their group damage is a real figure, so they may enter group rankings. */
 export const EXACT_ENCOUNTER = sql`not exists (select 1 from encounter_participants ep_est where ep_est.encounter_id = ${encounters.id} and ep_est.estimated = 1)`;
 
+/**
+ * A partial fight ("Teilkampf", see bossHp.ts: the uploader joined late and saw only part of the boss's health) is stored and shown, but it never
+ * counts where fights are ranked, averaged, counted as kills or picked as "best". Put this in every such query.
+ */
+export const WHOLE_FIGHT = eq(encounters.isPartial, false);
 
 export const ESTIMATED_NOTE = "Damage of players marked ~ is estimated from their hit counts: the game does not send the damage of other players on a crowded world boss.";

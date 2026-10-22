@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { CROWD_PENDING, crowdLookupEnabled, crowdMode, crowdToLookUp, fillHomeCrowd } from "../crowdResolve.js";
 import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncompletePlayers } from "../uploadSchema.js";
-import { processProfilesUpload, processUpload } from "../matching/merge.js";
+import { findBossId, processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
 import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
 import { eq } from "drizzle-orm";
@@ -12,6 +12,7 @@ import { clientPolicy, requireCurrentClient } from "../clientPolicy.js";
 import { hashIp } from "../ipHash.js";
 import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE, MIN_WORLD_BOSS_DAMAGE_SHARE } from "../constants.js";
 import { env } from "../env.js";
+import { classifyFight, referenceOf } from "../bossHp.js";
 import { assessKill, referenceFor, structuralProblems, type ReviewFinding } from "../uploadReview.js";
 import type { UploadPayload } from "../uploadSchema.js";
 
@@ -122,7 +123,14 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
     }
 
     // A kill that is formally fine but looks wrong beside other kills of the boss: in "log" mode it is only written to the log, in "on" mode it waits for review and stays off the leaderboards.
-    if (env.UPLOAD_REVIEW !== "off") {
+    // A fight the uploader joined late (the highest hit-point reading is far below the boss's real maximum, see bossHp.ts) is stored as a partial
+    // fight and kept out of every ranking; comparing it with the whole kills would only flag it, so it skips the review.
+    // A boss nobody has catalogued still waits for review (unknown_boss), partial or not.
+    const partialFight = findBossId(payload) !== null && classifyFight(payload, people, referenceOf(payload.bossNpcId), worldBoss, groupDamage).isPartial;
+    if (partialFight) {
+      log.info({ bossNpcName: payload.bossNpcName, bossMaxHp: payload.bossMaxHp, bossSpawnMaxHp: payload.bossSpawnMaxHp, clientVersion: payload.clientVersion }, "upload is a partial fight (joined late), stored outside the rankings");
+    }
+    if (env.UPLOAD_REVIEW !== "off" && !partialFight) {
       const findings = assessKill(payload, referenceFor(payload));
       if (findings.length > 0) {
         log.warn({ findings, bossNpcName: payload.bossNpcName, mode: env.UPLOAD_REVIEW, clientVersion: payload.clientVersion }, "upload looks implausible");

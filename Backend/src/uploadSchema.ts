@@ -109,6 +109,9 @@ export const uploadSchema = z
   // The boss's highest hit-point reading the client saw (the game's HP frame); a lower bound when the
   // meter joined mid-fight. Optional for older clients.
   bossMaxHp: z.number().int().positive().max(100_000_000_000).optional(),
+  // The boss's max hit points from its spawn frame, raw: on a party-scaled boss the value for ONE player. Absent when the client never saw the spawn.
+  // With it (or the server's reference for the boss, see bossHp.ts) the server tells a whole fight from one the uploader joined late.
+  bossSpawnMaxHp: z.number().int().positive().max(100_000_000_000).optional(),
   // The boss's level from its spawn frame. An Ascension Rite names its difficulty by it (45 / 50 / 55 / 60). Optional for older clients.
   bossLevel: z.number().int().min(1).max(200).optional(),
   startedAt: z.string().min(1),

@@ -903,6 +903,7 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
       idps: encounterParticipants.idps,
       estimated: encounterParticipants.estimated,
       startedAt: encounters.startedAt,
+      isPartial: encounters.isPartial,
     })
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
@@ -914,8 +915,8 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   const profile = buildProfileView(player.id);
   const className = profile?.className ?? runs[0]?.className ?? null;
   const faction = profile?.faction ?? runs[0]?.faction ?? null;
-  // Estimated damage never makes a personal best.
-  const best = runs.filter((r) => !r.estimated).reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
+  // Estimated damage and a partial fight never make a personal best.
+  const best = runs.filter((r) => !r.estimated && !r.isPartial).reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
   const path = `/players/${player.slug ?? player.id}`;
   const serverShort = (player.serverName ?? "").split(" - ").pop() ?? "";
   const classLine = [profile?.level ? `Lv. ${profile.level}` : "", className ?? "", faction ? `(${faction})` : ""].filter(Boolean).join(" ");

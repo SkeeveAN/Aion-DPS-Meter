@@ -14,6 +14,7 @@ import {
   players,
   servers,
 } from "../db/schema.js";
+import { classifyFight, learnSpawnHp, referenceOf, type FightClass } from "../bossHp.js";
 import { normalizeName, jaccardSimilarity, withinRelativeTolerance } from "./roster.js";
 import type { ParticipantUpload, ProfilesUploadPayload, UploadPayload } from "../uploadSchema.js";
 import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
@@ -645,12 +646,55 @@ function knownPlayerId(name: string, serverId: number): number | undefined {
   return (onServer.find((p) => p.nameNormalized === normalized) ?? onServer.find((p) => p.aliasNamesNormalized.includes(normalized)))?.id;
 }
 
+/** Whole or partial fight for an upload (see bossHp.ts); a world boss is never partial. */
+function fightClassOf(payload: UploadPayload, bossId: number): FightClass {
+  const people = new Set(payload.participants.map((p) => p.name)).size;
+  const damage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
+  return classifyFight(payload, people, referenceOf(payload.bossNpcId), isWorldBossId(bossId), damage);
+}
+
+/**
+ * What a merged-in upload changes in the fight's classification, or null for nothing. An encounter stays partial only while every upload of it
+ * is partial: a whole upload makes it whole and its real values replace the partial one's. Among partials the higher reading stays; a fight
+ * of unknown classification takes the first known one.
+ */
+function mergeFightClass(existing: typeof encounters.$inferSelect, fight: FightClass): Partial<typeof encounters.$inferInsert> | null {
+  const take = {
+    isPartial: fight.isPartial,
+    bossSpawnMaxHp: fight.bossSpawnMaxHp ?? existing.bossSpawnMaxHp,
+    bossRealMaxHp: fight.bossRealMaxHp,
+    hpSeenShare: fight.hpSeenShare,
+  };
+  if (existing.hpSeenShare === null) {
+    // The existing fight counts as whole (nothing was judged); a partial upload does not change that.
+    if (fight.isPartial || fight.hpSeenShare === null) {
+      return fight.bossSpawnMaxHp !== null && existing.bossSpawnMaxHp === null ? { bossSpawnMaxHp: fight.bossSpawnMaxHp } : null;
+    }
+    return take;
+  }
+  if (fight.hpSeenShare === null) {
+    return null;
+  }
+  if (existing.isPartial && !fight.isPartial) {
+    return take;
+  }
+  if (existing.isPartial && fight.isPartial && fight.hpSeenShare > existing.hpSeenShare) {
+    return take;
+  }
+  return fight.bossSpawnMaxHp !== null && existing.bossSpawnMaxHp === null ? { bossSpawnMaxHp: fight.bossSpawnMaxHp } : null;
+}
+
 /** Merges a new upload's participants into an already-matched encounter, correcting a wrong self-name where possible. */
-function mergeIntoEncounter(encounterId: number, serverId: number, payload: UploadPayload) {
+function mergeIntoEncounter(encounterId: number, serverId: number, bossId: number, payload: UploadPayload) {
   const existing = db.select().from(encounters).where(eq(encounters.id, encounterId)).get()!;
   if (payload.bossMaxHp !== undefined && payload.bossMaxHp > (existing.bossMaxHp ?? 0)) {
     // Every client saw the same boss; the highest reading is the closest to its real maximum.
     db.update(encounters).set({ bossMaxHp: payload.bossMaxHp }).where(eq(encounters.id, encounterId)).run();
+  }
+  const fight = fightClassOf(payload, bossId);
+  const merged = mergeFightClass(existing, fight);
+  if (merged) {
+    db.update(encounters).set(merged).where(eq(encounters.id, encounterId)).run();
   }
   const existingParticipants = db
     .select()
@@ -766,7 +810,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
   recomputeEncounterTotals(encounterId, newStartedAt, newEndedAt);
 }
 
-function createEncounter(bossId: number, serverId: number, payload: UploadPayload): number {
+function createEncounter(bossId: number, serverId: number, payload: UploadPayload, fight: FightClass): number {
   const inserted = db
     .insert(encounters)
     .values({
@@ -780,6 +824,10 @@ function createEncounter(bossId: number, serverId: number, payload: UploadPayloa
       mergedUploadCount: 1,
       mode: payload.mode,
       bossMaxHp: payload.bossMaxHp ?? null,
+      isPartial: fight.isPartial,
+      bossSpawnMaxHp: fight.bossSpawnMaxHp,
+      bossRealMaxHp: fight.bossRealMaxHp,
+      hpSeenShare: fight.hpSeenShare,
     })
     .run();
   const encounterId = Number(inserted.lastInsertRowid);
@@ -939,16 +987,20 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
   if (payload.mode === "" && payload.bossNpcId !== undefined) {
     payload = { ...payload, mode: modeFromNpcId(bossId, payload.bossNpcId, payload.bossLevel) };
   }
+  // The spawn value teaches the boss-health reference; a world boss has none worth keeping.
+  if (!isWorldBossId(bossId)) {
+    learnSpawnHp(payload.bossNpcId, payload.bossSpawnMaxHp);
+  }
   const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
 
   if (candidateEncounterId) {
-    mergeIntoEncounter(candidateEncounterId, serverId, payload);
+    mergeIntoEncounter(candidateEncounterId, serverId, bossId, payload);
     storeBossHp(candidateEncounterId, payload.bossHp ?? []);
     checkUploadedPlayers(payload.participants, serverId);
     return { status: "merged", encounterId: candidateEncounterId, serverId };
   }
 
-  const encounterId = createEncounter(bossId, serverId, payload);
+  const encounterId = createEncounter(bossId, serverId, payload, fightClassOf(payload, bossId));
   storeBossHp(encounterId, payload.bossHp ?? []);
   checkUploadedPlayers(payload.participants, serverId);
   return { status: "created", encounterId, serverId };

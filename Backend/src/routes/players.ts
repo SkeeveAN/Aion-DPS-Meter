@@ -4,7 +4,7 @@ import { and, desc, eq, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
-import { EXACT_PARTICIPANT } from "../estimated.js";
+import { EXACT_PARTICIPANT, WHOLE_FIGHT } from "../estimated.js";
 import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
@@ -29,7 +29,7 @@ import { cached } from "../seo/cache.js";
  * it - the same "small N, one extra query per row" shape topGroups already uses for its roster.
  */
 export function topPlayersOverall(game: Game, serverId: number | null, limit: number) {
-  const scope = serverId === null ? and(eq(instances.game, game), EXACT_PARTICIPANT) : and(eq(instances.game, game), eq(encounters.serverId, serverId), EXACT_PARTICIPANT);
+  const scope = serverId === null ? and(eq(instances.game, game), EXACT_PARTICIPANT, WHOLE_FIGHT) : and(eq(instances.game, game), eq(encounters.serverId, serverId), EXACT_PARTICIPANT, WHOLE_FIGHT);
 
   const bestPerPlayer = db
     .select({ playerId: encounterParticipants.playerId, bestIdps: max(encounterParticipants.idps) })
@@ -70,7 +70,7 @@ export function topPlayersOverall(game: Game, serverId: number | null, limit: nu
         .innerJoin(bosses, eq(encounters.bossId, bosses.id))
         .innerJoin(instances, eq(bosses.instanceId, instances.id))
         .leftJoin(servers, eq(encounters.serverId, servers.id))
-        .where(and(eq(encounterParticipants.playerId, playerId), eq(encounterParticipants.idps, bestIdps), EXACT_PARTICIPANT))
+        .where(and(eq(encounterParticipants.playerId, playerId), eq(encounterParticipants.idps, bestIdps), EXACT_PARTICIPANT, WHOLE_FIGHT))
         .orderBy(desc(encounters.startedAt))
         .get();
       return row;
@@ -173,6 +173,7 @@ export async function playerRoutes(app: FastifyInstance) {
         instanceCategory: instances.category,
         mode: encounters.mode,
         startedAt: encounters.startedAt,
+        isPartial: encounters.isPartial,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,

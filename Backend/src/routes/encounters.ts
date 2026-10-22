@@ -11,6 +11,18 @@ import { encounterBuffDetails } from "../encounterBuffs.js";
 import { hasTimeline, loadEncounterTimeline } from "../encounterTimeline.js";
 import { gameFromQuery } from "./instances.js";
 
+/*
+ * Partial fights ("Teilkampf"): an uploader who joined late saw only part of the boss's health; such a fight is stored and shown but never ranked.
+ * Shapes the website relies on:
+ *   GET /api/encounters/:id          -> encounter: { ..., bossMaxHp: number|null (highest reading),
+ *                                       isPartial: boolean, hpSeenShare: number|null (0..1, null = not judged),
+ *                                       bossRealMaxHp: number|null, bossSpawnMaxHp: number|null (raw, one player on a scaled boss) }
+ *   GET /api/participants/:id        -> encounter.isPartial: boolean
+ *   every list of single fights (/api/activity/recent, boss page recent runs / top groups / history, instance page runs and clears,
+ *   player history, compare picker)  -> per row isPartial: boolean
+ * Rankings, best lists, averages, kill counts and statistics leave partial fights out (is_partial = 0 in the query).
+ */
+
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
 // leaderboard's "top groups" list so a run can be linked to directly, not just expanded inline.
 export async function encounterRoutes(app: FastifyInstance) {
@@ -32,6 +44,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         groupIDps: encounters.groupIDps,
         durationSeconds: encounters.durationSeconds,
         mode: encounters.mode,
+        isPartial: encounters.isPartial,
         bossName: bosses.name,
         bossNameEn: bosses.nameEn,
         bossSlug: bosses.slug,
@@ -91,6 +104,10 @@ export async function encounterRoutes(app: FastifyInstance) {
         groupIDps: encounters.groupIDps,
         mergedUploadCount: encounters.mergedUploadCount,
         bossMaxHp: encounters.bossMaxHp,
+        isPartial: encounters.isPartial,
+        hpSeenShare: encounters.hpSeenShare,
+        bossRealMaxHp: encounters.bossRealMaxHp,
+        bossSpawnMaxHp: encounters.bossSpawnMaxHp,
         mode: encounters.mode,
         // Which server this run actually happened on - so a page reached from a cross-server list
         // (homepage "recent activity"/"top players") can bring the visitor's server context back in
@@ -221,6 +238,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         startedAt: encounters.startedAt,
         durationSeconds: encounters.durationSeconds,
         mode: encounters.mode,
+        isPartial: encounters.isPartial,
         game: instances.game,
         instanceName: instances.name,
         instanceNameEn: instances.nameEn,

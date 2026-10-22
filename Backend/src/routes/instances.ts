@@ -6,6 +6,7 @@ import { bosses, encounters, instances, serverCatalogInstances } from "../db/sch
 import { CATEGORY_MODES, DEFAULT_GAME, isGame, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { parseGearRange } from "../gearFilter.js";
+import { WHOLE_FIGHT } from "../estimated.js";
 import { selectServer, serversWithEncountersForBossIds, statsForBossIds } from "./bosses.js";
 
 /** `?game=` is optional everywhere - absent means aion2, the only game served. */
@@ -173,7 +174,7 @@ export async function instanceRoutes(app: FastifyInstance) {
           : db
               .select({ mode: encounters.mode, runs: count(encounters.id) })
               .from(encounters)
-              .where(inArray(encounters.bossId, bossIds))
+              .where(and(inArray(encounters.bossId, bossIds), WHOLE_FIGHT))
               .groupBy(encounters.mode)
               .all()
               .map((r) => [r.mode, r.runs] as const),
@@ -201,7 +202,7 @@ export async function instanceRoutes(app: FastifyInstance) {
       .from(instances)
       .innerJoin(bosses, eq(bosses.instanceId, instances.id))
       .innerJoin(encounters, eq(encounters.bossId, bosses.id))
-      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false)))
+      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false), WHOLE_FIGHT))
       .groupBy(instances.id)
       .orderBy(desc(count(encounters.id)))
       .limit(limit)

@@ -139,7 +139,8 @@ export function referenceFor(payload: UploadPayload): ReviewReference {
   const rows = db
     .select({ id: encounters.id, hp: encounters.bossMaxHp, seconds: encounters.durationSeconds })
     .from(encounters)
-    .where(eq(encounters.bossId, bossId))
+    // A partial fight (a late joiner's) is no reference for what a kill looks like.
+    .where(and(eq(encounters.bossId, bossId), eq(encounters.isPartial, false)))
     .all();
   const knownHps = [...new Set(rows.map((r) => r.hp).filter((v): v is number => v !== null))].sort((a, b) => a - b);
   const hp = payload.bossMaxHp;
@@ -150,7 +151,7 @@ export function referenceFor(payload: UploadPayload): ReviewReference {
       .select({ className: encounterParticipants.className, damage: encounterParticipants.totalDamage, seconds: encounters.durationSeconds })
       .from(encounterParticipants)
       .innerJoin(encounters, eq(encounters.id, encounterParticipants.encounterId))
-      .where(and(eq(encounters.bossId, bossId), eq(encounterParticipants.estimated, false), isNotNull(encounters.bossMaxHp), between(encounters.bossMaxHp, Math.floor(hp * (1 - HP_REFERENCE_TOLERANCE)), Math.ceil(hp * (1 + HP_REFERENCE_TOLERANCE)))))
+      .where(and(eq(encounters.bossId, bossId), eq(encounters.isPartial, false), eq(encounterParticipants.estimated, false), isNotNull(encounters.bossMaxHp), between(encounters.bossMaxHp, Math.floor(hp * (1 - HP_REFERENCE_TOLERANCE)), Math.ceil(hp * (1 + HP_REFERENCE_TOLERANCE)))))
       .all();
     for (const person of people) {
       if (person.seconds > 0 && person.damage > 0) {

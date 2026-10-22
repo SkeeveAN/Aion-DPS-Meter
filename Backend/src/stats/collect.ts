@@ -95,11 +95,11 @@ export function publicStats() {
   const own = num(one("select count(*) n from player_profiles where source = 'self'").n);
   const seen = num(one("select count(*) n from player_profiles where source = 'seen'").n);
   const ncProfiles = num(one("select count(*) n from player_profiles where source = 'nc'").n);
-  const encounters = num(one("select count(*) n from encounters").n);
+  const encounters = num(one("select count(*) n from encounters where is_partial = 0").n);
   const uploads = num(one("select count(*) n from uploads").n);
   const dl = one("select count(*) total, sum(downloaded_at >= datetime('now','-30 days')) last30 from downloads where is_bot = 0");
   const perDay = all(
-    "select date(created_at) day, count(*) n from encounters where created_at >= datetime('now','-30 days') group by day order by day",
+    "select date(created_at) day, count(*) n from encounters where is_partial = 0 and created_at >= datetime('now','-30 days') group by day order by day",
   ).map((r) => ({ day: String(r.day), count: num(r.n) }));
   const classes = all("select class_name name, count(distinct player_id) n from encounter_participants group by class_name order by n desc limit 12").map((r) => ({ name: String(r.name), count: num(r.n) }));
   // A player's faction is the one the client reported for him (in a fight; the profile's faction field is no faction - Elyos characters carry 1 and 2 there); old uploads filed everybody under the uploader's server, so a player whose
@@ -127,7 +127,7 @@ export function publicStats() {
   }
   const servers = [...serverCounts.values()].sort((x, y) => y.count - x.count);
   const topBosses = all(
-    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, i.category cat, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
+    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, i.category cat, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 and e.is_partial = 0 group by e.boss_id, e.mode order by n desc limit 10`,
   ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), label: labelOf(String(r.cat ?? ""), String(r.mode ?? ""), String(r.instance)), count: num(r.n) }));
   return {
     players,
@@ -189,7 +189,7 @@ export function privateStats() {
   }
   // Every boss with at least one fight; conquest bosses carry their star rating ("Vakron ★★") like on the site.
   const bossFights = all(
-    `select coalesce(b.name_en, b.name) name, coalesce(i.name_en, i.name) instance, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id order by n desc`,
+    `select coalesce(b.name_en, b.name) name, coalesce(i.name_en, i.name) instance, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 and e.is_partial = 0 group by e.boss_id order by n desc`,
   ).map((r) => {
     const conquest = splitConquest(String(r.instance));
     return { boss: conquest ? `${r.name} ${conquest.stars}${conquest.hard ? " (Hard)" : ""}` : String(r.name), instance: conquest ? conquest.base : String(r.instance), count: num(r.n) };

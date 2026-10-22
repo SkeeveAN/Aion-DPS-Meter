@@ -1269,6 +1269,78 @@ a.star-link:hover {
   color: var(--color-text-muted);
 }
 
+/* A partial fight (the recorder joined late): orange card in the stats row, orange pill in run lists. */
+.stat-card.partial {
+  background: rgba(255, 150, 40, 0.13);
+  border-color: #ff9a28;
+  box-shadow: 0 0 0 1px rgba(255, 154, 40, 0.25) inset;
+}
+.stat-card.partial .stat-card-value { color: #ff9a28; }
+.stat-card.partial .stat-card-label { color: #ffb866; }
+:root[data-theme="light"] .stat-card.partial { background: rgba(255, 150, 40, 0.16); }
+:root[data-theme="light"] .stat-card.partial .stat-card-value { color: #c25e00; }
+:root[data-theme="light"] .stat-card.partial .stat-card-label { color: #9a4a00; }
+.partial-pill {
+  display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 99px; white-space: nowrap; vertical-align: middle;
+  font-size: 0.72rem; font-weight: 600; line-height: 1.5; border: 1px solid rgba(255, 154, 40, 0.55);
+  color: #ffb866; background: rgba(255, 150, 40, 0.14);
+}
+:root[data-theme="light"] .partial-pill { color: #9a4a00; background: rgba(255, 150, 40, 0.18); border-color: rgba(194, 94, 0, 0.5); }
+
+/* Icon tile at the right end of the stats row: compare with another run, tooltip bubble below. */
+.stat-card.cmp-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  min-width: 66px;
+  padding: 12px 0;
+  margin-left: auto;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.cmp-tile:hover, .cmp-tile:focus-visible { border-color: var(--color-primary); background: var(--glow-primary); }
+.cmp-tile::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 20;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #0b141b;
+  color: #e8eef2;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.cmp-tile::before {
+  content: "";
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 26px;
+  z-index: 21;
+  width: 8px;
+  height: 8px;
+  background: #0b141b;
+  border-left: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
+  transform: rotate(45deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.cmp-tile:hover::after, .cmp-tile:hover::before, .cmp-tile:focus-visible::after, .cmp-tile:focus-visible::before { opacity: 1; }
+@media (max-width: 600px) {
+  .stat-card { min-width: 0; flex: 1 1 calc(50% - 6px); }
+  .stat-card.cmp-tile { flex: 0 0 66px; }
+}
+
 .empty {
   color: var(--color-text-muted);
   font-style: italic;
