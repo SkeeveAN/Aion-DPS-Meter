@@ -113,7 +113,8 @@ public partial class PlayerDetailsView : UserControl
     /// pieces in three columns. In the arena the combat power is not shown at all (the game evens it out, and so the skill levels).</summary>
     private void BuildSeenPanel(PlayerSeenInfo? seen)
     {
-        if (seen is null || (seen.ItemLevel is null && seen.CombatPower is null && seen.Worn.Count == 0))
+        SeenHost.Children.Clear();
+        if (seen is null || (seen.ItemLevel is null && seen.CombatPower is null && seen.Worn.Count == 0 && seen.RemoteGear is not { Count: > 0 }))
         {
             return;
         }
@@ -157,18 +158,36 @@ public partial class PlayerDetailsView : UserControl
         }
 
         SeenHost.Children.Add(tiles);
-        if (seen.Worn.Count > 0)
+        // The rest of the equipment (and the exact numbers) as aiondps.com holds it, when it has been asked and knows the player; else the pieces of the frame.
+        var lines = new List<(string Slot, string Name, int Enchant)>();
+        if (seen.RemoteGear is { Count: > 0 } remoteGear)
         {
-            var grid = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 6, 0, 0) };
+            string[] order = { "MainHand", "SubHand", "Helmet", "Shoulder", "Torso", "Pants", "Gloves", "Boots", "Cape", "Belt", "Necklace", "Earring", "Ring", "Bracelet", "Amulet", "Rune", "Arcana", "Brooch", "Pendant" };
+            foreach (var piece in remoteGear.Select(g => (Info: Aion2.Protocol.Aion2ItemCatalog.Find(g.ItemId), Gear: g)).OrderBy(g => Array.IndexOf(order, g.Info?.Slot ?? "")).ThenBy(g => g.Gear.SlotIndex))
+            {
+                string category = piece.Info?.Slot ?? "";
+                lines.Add((category.Length > 0 ? loc["Details.Seen.Cat." + category] : "?", piece.Info?.Name ?? piece.Gear.ItemId.ToString(CultureInfo.InvariantCulture), piece.Gear.Enchant));
+            }
+        }
+        else
+        {
             foreach (Aion2.Aion2WornItem piece in seen.Worn)
             {
-                string itemName = Aion2.Protocol.Aion2ItemCatalog.Find(piece.ItemId)?.Name ?? piece.ItemId.ToString(CultureInfo.InvariantCulture);
+                lines.Add((loc[$"Details.Seen.Slot{piece.SlotIndex}"], Aion2.Protocol.Aion2ItemCatalog.Find(piece.ItemId)?.Name ?? piece.ItemId.ToString(CultureInfo.InvariantCulture), piece.EnchantTotal));
+            }
+        }
+
+        if (lines.Count > 0)
+        {
+            var grid = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 6, 0, 0) };
+            foreach ((string slot, string itemName, int enchant) in lines)
+            {
                 var line = new TextBlock { FontSize = 11, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 1, 12, 1), ToolTip = itemName };
-                line.Inlines.Add(new System.Windows.Documents.Run(loc[$"Details.Seen.Slot{piece.SlotIndex}"] + "  ") { Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted") });
+                line.Inlines.Add(new System.Windows.Documents.Run(slot + "  ") { Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted") });
                 line.Inlines.Add(new System.Windows.Documents.Run(itemName));
-                if (piece.EnchantTotal > 0)
+                if (enchant > 0)
                 {
-                    line.Inlines.Add(new System.Windows.Documents.Run($"  +{piece.EnchantTotal} {loc["Details.Seen.Total"]}") { Foreground = (System.Windows.Media.Brush)FindResource("Brush.Accent") });
+                    line.Inlines.Add(new System.Windows.Documents.Run($"  +{enchant} {loc["Details.Seen.Total"]}") { Foreground = (System.Windows.Media.Brush)FindResource("Brush.Accent") });
                     line.ToolTip = itemName + " - " + loc["Details.Seen.TotalTip"];
                 }
 
@@ -182,6 +201,25 @@ public partial class PlayerDetailsView : UserControl
         {
             SeenHost.Children.Add(new TextBlock { Text = loc["Details.Seen.EvenedNote"], FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0), Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted") });
         }
+    }
+
+    /// <summary>Asks aiondps.com what it holds of the player (his full equipment with the exact enchant, filled by NC's page) and redraws the block with it. Only for players the
+    /// game told of and whose server is known; a failure or an unknown player leaves the block as it was. Never in the headless modes (no dispatcher there).</summary>
+    private async void StartRemoteLoad(PlayerSeenInfo? seen, string name)
+    {
+        if (seen is null || seen.ServerId <= 0 || Aion2.Protocol.Aion2Servers.NameOf(seen.ServerId) is not { Length: > 0 } serverName)
+        {
+            return;
+        }
+
+        string fingerprint = "aion2:" + System.Text.RegularExpressions.Regex.Replace(serverName.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+        Upload.RemoteLookup result = await Upload.RemoteCharacterClient.GetAsync(name, fingerprint);
+        if (result.Status != Upload.RemoteLookupStatus.Found || result.Character is not { Gear.Count: > 0 } found)
+        {
+            return;
+        }
+
+        BuildSeenPanel(seen with { RemoteGear = found.Gear });
     }
 
     public PlayerDetailsView(string name, string className, string faction,
@@ -203,6 +241,7 @@ public partial class PlayerDetailsView : UserControl
 
         HeaderText.Text = name;
         BuildSeenPanel(seen);
+        StartRemoteLoad(seen, name);
 
         // The half the main window is showing: damage, or heals in heal mode.
         var damage = events.Where(e => e.IsHeal == heals).ToList();

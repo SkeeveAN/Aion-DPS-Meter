@@ -4847,7 +4847,7 @@ public partial class MainWindow : Window
         }
 
         bool equalized = directory.MetInEqualizedArena(row.Name) || seen.CombatPower == 397228;
-        return new PlayerSeenInfo(seen.Level, seen.ItemLevel, equalized ? null : seen.CombatPower, seen.Worn ?? Array.Empty<Aion2.Aion2WornItem>(), equalized);
+        return new PlayerSeenInfo(seen.Level, seen.ItemLevel, equalized ? null : seen.CombatPower, seen.Worn ?? Array.Empty<Aion2.Aion2WornItem>(), equalized, directory.ServerIdOf(row.ObjectId) ?? 0);
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e)

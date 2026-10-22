@@ -11840,5 +11840,85 @@
   "Details.Seen.Slot12": {
     "en": "Off hand",
     "de": "Nebenhand"
+  },
+  "Details.Seen.Cat.MainHand": {
+    "en": "Main hand",
+    "de": "Haupthand"
+  },
+  "Details.Seen.Cat.SubHand": {
+    "en": "Off hand",
+    "de": "Nebenhand"
+  },
+  "Details.Seen.Cat.Helmet": {
+    "en": "Helmet",
+    "de": "Helm"
+  },
+  "Details.Seen.Cat.Shoulder": {
+    "en": "Shoulder",
+    "de": "Schulter"
+  },
+  "Details.Seen.Cat.Torso": {
+    "en": "Chest",
+    "de": "Brust"
+  },
+  "Details.Seen.Cat.Pants": {
+    "en": "Legs",
+    "de": "Hose"
+  },
+  "Details.Seen.Cat.Gloves": {
+    "en": "Gloves",
+    "de": "Handschuhe"
+  },
+  "Details.Seen.Cat.Boots": {
+    "en": "Boots",
+    "de": "Stiefel"
+  },
+  "Details.Seen.Cat.Cape": {
+    "en": "Cape",
+    "de": "Umhang"
+  },
+  "Details.Seen.Cat.Belt": {
+    "en": "Belt",
+    "de": "Gürtel"
+  },
+  "Details.Seen.Cat.Necklace": {
+    "en": "Necklace",
+    "de": "Halskette"
+  },
+  "Details.Seen.Cat.Earring": {
+    "en": "Earring",
+    "de": "Ohrring"
+  },
+  "Details.Seen.Cat.Ring": {
+    "en": "Ring",
+    "de": "Ring"
+  },
+  "Details.Seen.Cat.Bracelet": {
+    "en": "Bracelet",
+    "de": "Armband"
+  },
+  "Details.Seen.Cat.Amulet": {
+    "en": "Amulet",
+    "de": "Amulett"
+  },
+  "Details.Seen.Cat.Rune": {
+    "en": "Rune",
+    "de": "Rune"
+  },
+  "Details.Seen.Cat.Arcana": {
+    "en": "Arcana",
+    "de": "Arkana"
+  },
+  "Details.Seen.Cat.Brooch": {
+    "en": "Brooch",
+    "de": "Brosche"
+  },
+  "Details.Seen.Cat.Pendant": {
+    "en": "Pendant",
+    "de": "Anhänger"
+  },
+  "Details.Seen.FromServer": {
+    "en": "rest from aiondps.com / NC",
+    "de": "Rest von aiondps.com / NC"
   }
 }

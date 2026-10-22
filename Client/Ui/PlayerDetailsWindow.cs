@@ -26,4 +26,4 @@ public sealed class PlayerDetailsWindow : Window
 
 /// <summary>What the game's "player appeared" frame said of a player, for the details window: nothing of it ever goes online from here
 /// (see the profile upload for the rule about the 10 against 10 arena). <see cref="Equalized"/>: first met in that arena, so the combat power is not shown.</summary>
-public sealed record PlayerSeenInfo(int? Level, int? ItemLevel, int? CombatPower, IReadOnlyList<Aion2.Aion2WornItem> Worn, bool Equalized);
+public sealed record PlayerSeenInfo(int? Level, int? ItemLevel, int? CombatPower, IReadOnlyList<Aion2.Aion2WornItem> Worn, bool Equalized, int ServerId = 0, IReadOnlyList<Aion2.Aion2EquippedItem>? RemoteGear = null);
