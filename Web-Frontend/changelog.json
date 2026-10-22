@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.14.2",
+  "date": "2026-10-22",
+  "items": [
+   {
+    "text": "Client: the texts of the other player's details (item level, combat power, the slot names, the 10 against 10 chip and note) are translated into all languages, the slot names and terms as the game client writes them",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   },
+   {
+    "text": "the details of another player are translated into every language",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
+   }
+  ]
+ },
+ {
   "version": "1.14.1",
   "date": "2026-10-22",
   "items": [
