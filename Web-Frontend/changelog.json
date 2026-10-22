@@ -9,6 +9,13 @@
      "Client"
     ],
     "date": "2026-10-22"
+   },
+   {
+    "text": "Client: the arena's refills at the start of a round and between rounds (full HP and MP, three nameless system skills) are no longer counted as damage a player did to himself, which had inflated the damage shown for the arena by up to half",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-22"
    }
   ]
  },
