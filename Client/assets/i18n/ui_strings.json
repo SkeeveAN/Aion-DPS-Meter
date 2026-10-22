@@ -11762,163 +11762,471 @@
     "zh-TW": "搜尋配方 …"
   },
   "Details.Seen.ItemLevel": {
-    "en": "Item level",
-    "de": "Gegenstandsstufe"
+    "en": "Item Level",
+    "de": "Gegenstandsstufe",
+    "es": "Nivel de objeto",
+    "fr": "Niv. d'objet",
+    "ja": "アイテム レベル",
+    "ko": "아이템 레벨",
+    "pt": "Nível do item",
+    "ru": "Уровень предмета",
+    "zh": "道具等级",
+    "zh-TW": "道具等級"
   },
   "Details.Seen.CombatPower": {
-    "en": "Combat power",
-    "de": "Kampfkraft"
+    "en": "Combat Power",
+    "de": "Kampfkraft",
+    "es": "Poder de combate",
+    "fr": "Puissance de combat",
+    "ja": "戦闘力",
+    "ko": "전투력",
+    "pt": "Poder de Combate",
+    "ru": "Боевая мощь",
+    "zh": "战斗力",
+    "zh-TW": "戰鬥力"
   },
   "Details.Seen.Evened": {
     "en": "evened out",
-    "de": "angeglichen"
+    "de": "angeglichen",
+    "fr": "égalisé",
+    "es": "igualado",
+    "ru": "выровнено",
+    "zh": "已平衡",
+    "zh-TW": "已平衡",
+    "pt": "equalizado",
+    "ja": "均一化",
+    "ko": "균등화됨"
   },
   "Details.Seen.Chip10v10": {
     "en": "10 vs 10 · evened out",
-    "de": "10 gegen 10 · angeglichen"
+    "de": "10 gegen 10 · angeglichen",
+    "fr": "10 contre 10 · égalisé",
+    "es": "10 contra 10 · igualado",
+    "ru": "10 на 10 · выровнено",
+    "zh": "10对10 · 已平衡",
+    "zh-TW": "10對10 · 已平衡",
+    "pt": "10 contra 10 · equalizado",
+    "ja": "10対10 · 均一化",
+    "ko": "10 대 10 · 균등화됨"
   },
   "Details.Seen.Worn": {
     "en": "Worn pieces",
-    "de": "Getragene Teile"
+    "de": "Getragene Teile",
+    "fr": "Pièces portées",
+    "es": "Piezas equipadas",
+    "ru": "Надетые предметы",
+    "zh": "已装备部件",
+    "zh-TW": "已裝備部件",
+    "pt": "Peças equipadas",
+    "ja": "装備中の部位",
+    "ko": "착용 장비"
   },
   "Details.Seen.Total": {
     "en": "total",
-    "de": "gesamt"
+    "de": "gesamt",
+    "fr": "total",
+    "es": "total",
+    "ru": "всего",
+    "zh": "合计",
+    "zh-TW": "合計",
+    "pt": "total",
+    "ja": "合計",
+    "ko": "합계"
   },
   "Details.Seen.TotalTip": {
     "en": "Enchant level plus excess level; the game does not tell them apart in this frame.",
-    "de": "Verzauberung plus Überstufe; das Spiel trennt sie in diesem Frame nicht."
+    "de": "Verzauberung plus Überstufe; das Spiel trennt sie in diesem Frame nicht.",
+    "fr": "Niveau d'enchantement plus niveau de dépassement ; le jeu ne les distingue pas dans cette trame.",
+    "es": "Nivel de encantamiento más nivel de exceso; el juego no los distingue en este paquete.",
+    "ru": "Уровень улучшения плюс уровень превышения; игра не разделяет их в этом пакете.",
+    "zh": "强化等级加超越等级；游戏在此数据包中不区分二者。",
+    "zh-TW": "強化等級加超越等級；遊戲在此封包中不區分二者。",
+    "pt": "Nível de aprimoramento mais nível de excesso; o jogo não os distingue neste pacote.",
+    "ja": "強化レベルと超過レベルの合計。このパケットでは区別されません。",
+    "ko": "강화 레벨과 초과 레벨의 합. 이 패킷에서는 구분되지 않습니다."
   },
   "Details.Seen.EvenedNote": {
     "en": "In the 10 vs 10 arena the game evens everybody out: combat power and skill levels are not real, so neither is shown, uploaded or kept. Item level and worn pieces are real.",
-    "de": "Im 10 gegen 10 gleicht das Spiel alle an: Kampfkraft und Skillstufen sind nicht echt, deshalb werden sie weder gezeigt noch hochgeladen oder gespeichert. Gegenstandsstufe und getragene Teile sind echt."
+    "de": "Im 10 gegen 10 gleicht das Spiel alle an: Kampfkraft und Skillstufen sind nicht echt, deshalb werden sie weder gezeigt noch hochgeladen oder gespeichert. Gegenstandsstufe und getragene Teile sind echt.",
+    "fr": "Dans l'arène 10 contre 10, le jeu égalise tout le monde : la puissance de combat et les niveaux de compétence ne sont pas réels, ils ne sont donc ni affichés, ni envoyés, ni conservés. Le niveau d'objet et les pièces portées sont réels.",
+    "es": "En la arena 10 contra 10 el juego iguala a todos: el poder de combate y los niveles de habilidad no son reales, por eso no se muestran, ni se suben, ni se guardan. El nivel de objeto y las piezas equipadas sí son reales.",
+    "ru": "На арене 10 на 10 игра выравнивает всех: боевая мощь и уровни умений не настоящие, поэтому они не показываются, не отправляются и не сохраняются. Уровень предметов и надетые предметы настоящие.",
+    "zh": "在10对10竞技场中，游戏会平衡所有人：战斗力和技能等级并不真实，因此不会显示、上传或保存。装备等级和已装备部件是真实的。",
+    "zh-TW": "在10對10競技場中，遊戲會平衡所有人：戰鬥力和技能等級並不真實，因此不會顯示、上傳或保存。裝備等級和已裝備部件是真實的。",
+    "pt": "Na arena 10 contra 10 o jogo equaliza todos: o poder de combate e os níveis de habilidade não são reais, por isso não são exibidos, enviados nem guardados. O nível do item e as peças equipadas são reais.",
+    "ja": "10対10アリーナではゲームが全員を均一化します。戦闘力とスキルレベルは本物ではないため、表示も送信も保存もされません。アイテムレベルと装備中の部位は本物です。",
+    "ko": "10 대 10 투기장에서는 게임이 모두를 균등화합니다. 전투력과 스킬 레벨은 실제 값이 아니므로 표시, 업로드, 저장하지 않습니다. 아이템 레벨과 착용 장비는 실제입니다."
   },
   "Details.Seen.Slot1": {
-    "en": "Main hand",
-    "de": "Haupthand"
+    "en": "Right Hand",
+    "de": "Rechte Hand",
+    "es": "Mano derecha",
+    "fr": "Main droite",
+    "ja": "右手",
+    "ko": "오른손",
+    "pt": "Mão Direita",
+    "ru": "Правая рука",
+    "zh": "主手",
+    "zh-TW": "主手"
   },
   "Details.Seen.Slot2": {
-    "en": "Helmet",
-    "de": "Helm"
+    "en": "Helm",
+    "de": "Helm",
+    "es": "Yelmo",
+    "fr": "Casques",
+    "ja": "ヘルム",
+    "ko": "투구",
+    "pt": "Elmo",
+    "ru": "Шлем",
+    "zh": "头盔",
+    "zh-TW": "頭盔"
   },
   "Details.Seen.Slot3": {
-    "en": "Shoulder",
-    "de": "Schulter"
+    "en": "Pauldrons",
+    "de": "Schulterplatten",
+    "es": "Hombreras",
+    "fr": "Épaulettes",
+    "ja": "ショルダー",
+    "ko": "견갑",
+    "pt": "Espaldeiras",
+    "ru": "Наплечники",
+    "zh": "护肩",
+    "zh-TW": "護肩"
   },
   "Details.Seen.Slot4": {
-    "en": "Chest",
-    "de": "Brust"
+    "en": "Top",
+    "de": "Oberteil",
+    "es": "Pieza superior",
+    "fr": "Torses",
+    "ja": "トップス",
+    "ko": "상의",
+    "pt": "Torso",
+    "ru": "Верх",
+    "zh": "上衣",
+    "zh-TW": "上衣"
   },
   "Details.Seen.Slot5": {
     "en": "Legs",
-    "de": "Hose"
+    "de": "Hose",
+    "es": "Pieza inferior",
+    "fr": "Bas",
+    "ja": "ボトムス",
+    "ko": "하의",
+    "pt": "Pernas",
+    "ru": "Низ",
+    "zh": "护腿",
+    "zh-TW": "護腿"
   },
   "Details.Seen.Slot6": {
     "en": "Gloves",
-    "de": "Handschuhe"
+    "de": "Handschuhe",
+    "es": "Guantes",
+    "fr": "Gants",
+    "ja": "グローブ",
+    "ko": "장갑",
+    "pt": "Luvas",
+    "ru": "Перчатки",
+    "zh": "手套",
+    "zh-TW": "手套"
   },
   "Details.Seen.Slot7": {
-    "en": "Boots",
-    "de": "Stiefel"
+    "en": "Shoes",
+    "de": "Stiefel",
+    "es": "Calzado",
+    "fr": "Chaussures",
+    "ja": "シューズ",
+    "ko": "신발",
+    "pt": "Botas",
+    "ru": "Обувь",
+    "zh": "鞋子",
+    "zh-TW": "鞋子"
   },
   "Details.Seen.Slot8": {
-    "en": "Cape",
-    "de": "Umhang"
+    "en": "Cloak",
+    "de": "Umhang",
+    "es": "Capa",
+    "fr": "Capes",
+    "ja": "マント",
+    "ko": "망토",
+    "pt": "Capa",
+    "ru": "Мантия",
+    "zh": "披风",
+    "zh-TW": "披風"
   },
   "Details.Seen.Slot9": {
     "en": "Necklace",
-    "de": "Halskette"
+    "de": "Halskette",
+    "es": "Collar",
+    "fr": "Colliers",
+    "ja": "ネックレス",
+    "ko": "목걸이",
+    "pt": "Colar",
+    "ru": "Ожерелье",
+    "zh": "项链",
+    "zh-TW": "項鍊"
   },
   "Details.Seen.Slot10": {
-    "en": "Earring",
-    "de": "Ohrring"
+    "en": "Earrings",
+    "de": "Ohrring",
+    "es": "Pendientes",
+    "fr": "Boucles d'oreilles",
+    "ja": "イヤリング",
+    "ko": "귀걸이",
+    "pt": "Brinco",
+    "ru": "Серьги",
+    "zh": "耳环",
+    "zh-TW": "耳環"
   },
   "Details.Seen.Slot11": {
-    "en": "Earring",
-    "de": "Ohrring"
+    "en": "Earrings",
+    "de": "Ohrring",
+    "es": "Pendientes",
+    "fr": "Boucles d'oreilles",
+    "ja": "イヤリング",
+    "ko": "귀걸이",
+    "pt": "Brinco",
+    "ru": "Серьги",
+    "zh": "耳环",
+    "zh-TW": "耳環"
   },
   "Details.Seen.Slot12": {
-    "en": "Off hand",
-    "de": "Nebenhand"
+    "en": "Left Hand",
+    "de": "Linke Hand",
+    "es": "Mano izquierda",
+    "fr": "Main gauche",
+    "ja": "左手",
+    "ko": "왼손",
+    "pt": "Mão Esquerda",
+    "ru": "Левая рука",
+    "zh": "副手",
+    "zh-TW": "副手"
   },
   "Details.Seen.Cat.MainHand": {
-    "en": "Main hand",
-    "de": "Haupthand"
+    "en": "Right Hand",
+    "de": "Rechte Hand",
+    "es": "Mano derecha",
+    "fr": "Main droite",
+    "ja": "右手",
+    "ko": "오른손",
+    "pt": "Mão Direita",
+    "ru": "Правая рука",
+    "zh": "主手",
+    "zh-TW": "主手"
   },
   "Details.Seen.Cat.SubHand": {
-    "en": "Off hand",
-    "de": "Nebenhand"
+    "en": "Left Hand",
+    "de": "Linke Hand",
+    "es": "Mano izquierda",
+    "fr": "Main gauche",
+    "ja": "左手",
+    "ko": "왼손",
+    "pt": "Mão Esquerda",
+    "ru": "Левая рука",
+    "zh": "副手",
+    "zh-TW": "副手"
   },
   "Details.Seen.Cat.Helmet": {
-    "en": "Helmet",
-    "de": "Helm"
+    "en": "Helm",
+    "de": "Helm",
+    "es": "Yelmo",
+    "fr": "Casques",
+    "ja": "ヘルム",
+    "ko": "투구",
+    "pt": "Elmo",
+    "ru": "Шлем",
+    "zh": "头盔",
+    "zh-TW": "頭盔"
   },
   "Details.Seen.Cat.Shoulder": {
-    "en": "Shoulder",
-    "de": "Schulter"
+    "en": "Pauldrons",
+    "de": "Schulterplatten",
+    "es": "Hombreras",
+    "fr": "Épaulettes",
+    "ja": "ショルダー",
+    "ko": "견갑",
+    "pt": "Espaldeiras",
+    "ru": "Наплечники",
+    "zh": "护肩",
+    "zh-TW": "護肩"
   },
   "Details.Seen.Cat.Torso": {
-    "en": "Chest",
-    "de": "Brust"
+    "en": "Top",
+    "de": "Oberteil",
+    "es": "Pieza superior",
+    "fr": "Torses",
+    "ja": "トップス",
+    "ko": "상의",
+    "pt": "Torso",
+    "ru": "Верх",
+    "zh": "上衣",
+    "zh-TW": "上衣"
   },
   "Details.Seen.Cat.Pants": {
     "en": "Legs",
-    "de": "Hose"
+    "de": "Hose",
+    "es": "Pieza inferior",
+    "fr": "Bas",
+    "ja": "ボトムス",
+    "ko": "하의",
+    "pt": "Pernas",
+    "ru": "Низ",
+    "zh": "护腿",
+    "zh-TW": "護腿"
   },
   "Details.Seen.Cat.Gloves": {
     "en": "Gloves",
-    "de": "Handschuhe"
+    "de": "Handschuhe",
+    "es": "Guantes",
+    "fr": "Gants",
+    "ja": "グローブ",
+    "ko": "장갑",
+    "pt": "Luvas",
+    "ru": "Перчатки",
+    "zh": "手套",
+    "zh-TW": "手套"
   },
   "Details.Seen.Cat.Boots": {
-    "en": "Boots",
-    "de": "Stiefel"
+    "en": "Shoes",
+    "de": "Stiefel",
+    "es": "Calzado",
+    "fr": "Chaussures",
+    "ja": "シューズ",
+    "ko": "신발",
+    "pt": "Botas",
+    "ru": "Обувь",
+    "zh": "鞋子",
+    "zh-TW": "鞋子"
   },
   "Details.Seen.Cat.Cape": {
-    "en": "Cape",
-    "de": "Umhang"
+    "en": "Cloak",
+    "de": "Umhang",
+    "es": "Capa",
+    "fr": "Capes",
+    "ja": "マント",
+    "ko": "망토",
+    "pt": "Capa",
+    "ru": "Мантия",
+    "zh": "披风",
+    "zh-TW": "披風"
   },
   "Details.Seen.Cat.Belt": {
     "en": "Belt",
-    "de": "Gürtel"
+    "de": "Gürtel",
+    "es": "Cinturón",
+    "fr": "Ceintures",
+    "ja": "ベルト",
+    "ko": "허리띠",
+    "pt": "Cinto",
+    "ru": "Пояс",
+    "zh": "腰带",
+    "zh-TW": "腰帶"
   },
   "Details.Seen.Cat.Necklace": {
     "en": "Necklace",
-    "de": "Halskette"
+    "de": "Halskette",
+    "es": "Collar",
+    "fr": "Colliers",
+    "ja": "ネックレス",
+    "ko": "목걸이",
+    "pt": "Colar",
+    "ru": "Ожерелье",
+    "zh": "项链",
+    "zh-TW": "項鍊"
   },
   "Details.Seen.Cat.Earring": {
-    "en": "Earring",
-    "de": "Ohrring"
+    "en": "Earrings",
+    "de": "Ohrring",
+    "es": "Pendientes",
+    "fr": "Boucles d'oreilles",
+    "ja": "イヤリング",
+    "ko": "귀걸이",
+    "pt": "Brinco",
+    "ru": "Серьги",
+    "zh": "耳环",
+    "zh-TW": "耳環"
   },
   "Details.Seen.Cat.Ring": {
     "en": "Ring",
-    "de": "Ring"
+    "de": "Ring",
+    "es": "Anillo",
+    "fr": "Anneaux",
+    "ja": "リング",
+    "ko": "반지",
+    "pt": "Anel",
+    "ru": "Кольцо",
+    "zh": "戒指",
+    "zh-TW": "戒指"
   },
   "Details.Seen.Cat.Bracelet": {
     "en": "Bracelet",
-    "de": "Armband"
+    "de": "Armband",
+    "es": "Pulsera",
+    "fr": "Bracelets",
+    "ja": "ブレスレット",
+    "ko": "팔찌",
+    "pt": "Bracelete",
+    "ru": "Браслет",
+    "zh": "手镯",
+    "zh-TW": "手鐲"
   },
   "Details.Seen.Cat.Amulet": {
     "en": "Amulet",
-    "de": "Amulett"
+    "de": "Amulett",
+    "es": "Amuleto",
+    "fr": "Amulettes",
+    "ja": "アミュレット",
+    "ko": "아뮬렛",
+    "pt": "Amuleto",
+    "ru": "Амулет",
+    "zh": "护符",
+    "zh-TW": "護符"
   },
   "Details.Seen.Cat.Rune": {
     "en": "Rune",
-    "de": "Rune"
+    "de": "Rune",
+    "es": "Runa",
+    "fr": "Runes",
+    "ja": "ルーン",
+    "ko": "룬",
+    "pt": "Runa",
+    "ru": "Руна",
+    "zh": "符文",
+    "zh-TW": "符文"
   },
   "Details.Seen.Cat.Arcana": {
     "en": "Arcana",
-    "de": "Arkana"
+    "de": "Arkana",
+    "es": "Arcanas",
+    "fr": "Arcanes",
+    "ja": "アルカナ",
+    "ko": "아르카나",
+    "pt": "Arcana",
+    "ru": "Арканы",
+    "zh": "Arcana",
+    "zh-TW": "Arcana"
   },
   "Details.Seen.Cat.Brooch": {
     "en": "Brooch",
-    "de": "Brosche"
+    "de": "Brosche",
+    "es": "Broche",
+    "fr": "Broches",
+    "ja": "ブローチ",
+    "ko": "브로치",
+    "pt": "Broche",
+    "ru": "Брошь",
+    "zh": "胸针",
+    "zh-TW": "胸針"
   },
   "Details.Seen.Cat.Pendant": {
     "en": "Pendant",
-    "de": "Anhänger"
-  },
-  "Details.Seen.FromServer": {
-    "en": "rest from aiondps.com / NC",
-    "de": "Rest von aiondps.com / NC"
+    "de": "Anhänger",
+    "es": "Colgante",
+    "fr": "Pendentifs",
+    "ja": "ペンダント",
+    "ko": "펜던트",
+    "pt": "Pingente",
+    "ru": "Кулон",
+    "zh": "吊坠",
+    "zh-TW": "吊墜"
   }
 }

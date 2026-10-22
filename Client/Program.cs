@@ -2676,6 +2676,15 @@ internal static class Program
             }
         }
 
+        if (source.Entities is Aion2.Aion2EntityDirectory rowsDir && events.Count > 0)
+        {
+            DateTime rowsFrom = events[^1].Timestamp.AddMinutes(-10);
+            foreach (var g in events.Where(e => !e.IsHeal && e.Timestamp >= rowsFrom && rowsDir.ClassOf(e.SourceObjectId) is not null).GroupBy(e => e.SourceObjectId).OrderByDescending(g => g.Sum(e => (long)e.Amount)))
+            {
+                Console.WriteLine($"aion2-replay: rows id {g.Key} name {rowsDir.NameFor(g.Key)} class {rowsDir.ClassOf(g.Key)} hits {g.Count()} dmg {g.Sum(e => (long)e.Amount):N0} first {g.Min(e => e.Timestamp):HH:mm:ss} last {g.Max(e => e.Timestamp):HH:mm:ss} skills {string.Join(",", g.GroupBy(e => e.SkillId).OrderByDescending(x => x.Count()).Take(4).Select(x => x.Key))}");
+            }
+        }
+
         foreach (Aion2.LootSession loot in Aion2.Aion2Loot.Sessions.AsEnumerable().Reverse())
         {
             Console.WriteLine($"aion2-replay: loot session {loot.Start:HH:mm:ss} - {loot.End:HH:mm:ss}");
