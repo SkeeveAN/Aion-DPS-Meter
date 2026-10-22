@@ -1147,7 +1147,7 @@ public sealed class Aion2FrameDecoder
         }
 
         var justBefore = _lastCasts
-            .Where(kv => kv.Key.Variant == variant && eligible(kv.Key.Caster))
+            .Where(kv => kv.Key.Variant == variant && kv.Key.Caster != summon && eligible(kv.Key.Caster))
             .Select(kv => (Id: kv.Key.Caster, Gap: spawned - kv.Value))
             .Where(c => c.Gap >= TimeSpan.Zero && c.Gap <= window)
             .OrderBy(c => c.Gap)
@@ -1204,8 +1204,16 @@ public sealed class Aion2FrameDecoder
     /// </summary>
     private int? LeftoverSummonOwner(int actor, int skillId)
     {
-        if (_entities.IsSpawned(actor) || _entities.HasName(actor)
-            || Aion2SkillNames.SummonAttackClass(skillId) is not string className)
+        if (_entities.IsSpawned(actor) || _entities.HasName(actor))
+        {
+            return null;
+        }
+
+        // A Sorcerer's Fire Wall / Cold Storm can hit from an object whose spawn the meter never saw (Deus Research Base, 2026-10-22: three of
+        // them stayed Player #id). In an instance only the own party is around, so there the party's only Sorcerer is the owner.
+        string? className = Aion2SkillNames.SummonAttackClass(skillId)
+            ?? (Aion2Zones.IsInstance(CurrentZoneId) && Aion2SkillNames.NameOf(skillId) is "Fire Wall" or "Cold Storm" ? Aion2SkillNames.ClassOf(skillId) : null);
+        if (className is null)
         {
             return null;
         }
