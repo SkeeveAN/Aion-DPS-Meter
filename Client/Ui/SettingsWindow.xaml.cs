@@ -146,6 +146,9 @@ public partial class SettingsWindow : Window
         StreamNetworkBox.IsChecked = settings.StreamOverlayNetwork;
         StreamPortBox.Text = settings.StreamOverlayPort.ToString();
         ShowMenuControlStatus(settings.MenuControlMode);
+        var unlocked = MenuWatcher.UnlockedOverlays(settings);
+        MenuPausedStatus.Visibility = settings.HideDuringMenus && unlocked.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        MenuPausedStatus.Text = string.Format(LocalizationManager.Instance["Settings.Menu.Paused"], string.Join(", ", unlocked.Select(k => LocalizationManager.Instance[k])));
         PopulateCaptureAdapters(settings.CaptureAdapterId);
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML. Each item's

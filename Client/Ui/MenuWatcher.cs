@@ -39,8 +39,35 @@ public sealed class MenuWatcher : IDisposable
         Hidden = false;
     }
 
-    private static bool AllOverlaysLocked(MeterSettings s) =>
-        s.PetFarmLocked && s.PetInfoLocked && s.TimetableLocked && s.BossOverlayLocked && s.NetworkOverlayLocked && s.CombatOverlayLocked && (s.CombatCastOverlayLocked ?? true) && (s.CombatHpOverlayLocked ?? true) && (s.PetListLocked ?? true) && (s.HotkeyOverlayLocked ?? true) && s.AssistOverlayLocked && s.LootOverlayLocked && s.CraftOverlayLocked;
+    public static bool AllOverlaysLocked(MeterSettings s) => UnlockedOverlays(s).Count == 0;
+
+    /// <summary>Localization keys of the names of the overlays that are unlocked (being positioned), which keeps the menus from hiding anything.</summary>
+    public static List<string> UnlockedOverlays(MeterSettings s)
+    {
+        var open = new List<string>();
+        void Check(bool locked, string key)
+        {
+            if (!locked)
+            {
+                open.Add(key);
+            }
+        }
+
+        Check(s.PetFarmLocked, "Settings.PetMap.CardMap");
+        Check(s.PetListLocked ?? true, "Settings.PetMap.CardList");
+        Check(s.PetInfoLocked, "Settings.PetInfo.Title");
+        Check(s.TimetableLocked, "Settings.Hotkey.Timetable");
+        Check(s.BossOverlayLocked, "Settings.Menu.Name.Boss");
+        Check(s.NetworkOverlayLocked, "Settings.Menu.Name.Network");
+        Check(s.CombatOverlayLocked, "Combat.Element.TargetOfTarget");
+        Check(s.CombatCastOverlayLocked ?? true, "Settings.Combat.CardBossCast");
+        Check(s.CombatHpOverlayLocked ?? true, "Settings.Combat.CardBossHp");
+        Check(s.HotkeyOverlayLocked ?? true, "Settings.HotkeyOverlay.Title");
+        Check(s.AssistOverlayLocked, "Settings.Menu.Name.Assist");
+        Check(s.LootOverlayLocked, "Settings.Menu.Name.Loot");
+        Check(s.CraftOverlayLocked, "Settings.Menu.Name.Craft");
+        return open;
+    }
 
     private void Tick()
     {

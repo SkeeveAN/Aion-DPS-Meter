@@ -482,6 +482,7 @@
                                 <CheckBox x:Name="HideDuringMenusBox" Content="{local:Loc Settings.Menu.Hide}"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Menu.Hint}" Margin="0,8,0,0"/>
                                 <TextBlock x:Name="MenuControlStatus" Style="{StaticResource CardHint}" Margin="0,6,0,0" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="MenuPausedStatus" Style="{StaticResource CardHint}" Margin="0,6,0,0" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Warning}" Visibility="Collapsed"/>
                             </StackPanel>
                         </Border>
 <Border x:Name="LoginShareCard" Style="{StaticResource SettingsCard}" Visibility="Collapsed">
