@@ -4386,16 +4386,17 @@ function renderRunsTab(history) {
     r.record = r.ok && r.h.idps === best.get(r.key);
   }
 
-  const intl = getLocale() === "pt" ? "pt-BR" : getLocale();
+  // 24-hour clock and day-first dates in every language, English included (the default "en" would give the US formats).
+  const intl = getLocale() === "pt" ? "pt-BR" : getLocale() === "en" ? "en-GB" : getLocale();
   const dayFormat = new Intl.DateTimeFormat(intl, { weekday: "short", day: "numeric", month: "numeric", year: "numeric" });
-  const clockFormat = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit" });
+  const clockFormat = new Intl.DateTimeFormat(intl, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   const compact = new Intl.NumberFormat(intl, { notation: "compact", maximumFractionDigits: 2 });
   const stat = (value, label, accent = false) => el("div", {}, [el("strong", { className: accent ? "accent" : "", textContent: value }), el("span", { textContent: label })]);
 
   const tile = (r) => {
     const h = r.h;
     const pct = r.ok ? Math.min(100, (h.idps / best.get(r.key)) * 100) : 0;
-    return el("a", { className: `run-tile${r.record ? " record" : ""}${r.ok ? "" : " empty-run"}`, href: gp(`/participants/${h.participantId}`), title: formatDate(new Date(h.startedAt)) }, [
+    return el("a", { className: `run-tile${r.record ? " record" : ""}${r.ok ? "" : " empty-run"}`, href: gp(`/participants/${h.participantId}`), title: `${dayFormat.format(r.t)} ${clockFormat.format(r.t)}` }, [
       r.record ? el("span", { className: "run-star", textContent: "★", title: t("runs.record") }) : null,
       el("div", { className: "run-boss", textContent: translateGameName(h.bossName) }),
       el("div", { className: "run-idps" }, [r.ok ? formatNumber(h.idps) : "–", el("small", { textContent: " iDPS" })]),
