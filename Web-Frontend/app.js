@@ -4686,6 +4686,119 @@ function runCaption(encounter) {
   return `${formatDate(new Date(encounter.startedAt))}${encounter.serverName ? ` · ${serverLabel(encounter.serverName)}` : ""}`;
 }
 
+/** A solid dot in the class colour: pale emblem icons were too faint in a row of names. */
+function classDot(className) {
+  return el("span", { className: "cmp-dot", style: `background: ${classMeta(className).color};`, title: classLabel(className) });
+}
+
+/**
+ * The run picker: the boss's runs as expandable rows, each with everyone who played in it. Filters: only runs with
+ * exactly my group (the players of run A), one player of my group, and the sort order. Both filters run in the API
+ * before its limit, so a rarely played group is found even when 100 newer runs of other groups exist.
+ */
+function renderRunPicker(a, first, bossName) {
+  const mine = first.roster.filter((p) => p.className !== "?");
+  const mineIds = new Set(mine.map((p) => p.playerId));
+  const baseIdps = first.encounter.groupIDps;
+  const state = { group: false, player: null, sort: "newest", search: "" };
+  let ticket = 0;
+
+  const countLine = el("p", { className: "cmp-count" });
+  const list = el("div", { className: "cmp-run-list" });
+  const chips = el("div", { className: "cmp-mine" });
+  const groupBtn = el("button", { type: "button", className: "cmp-chip", textContent: t("compare.myGroup") });
+  const sortBtns = [
+    ["newest", "compare.sortNewest"],
+    ["fastest", "compare.sortFastest"],
+    ["idps", "compare.sortIdps"],
+  ].map(([key, label]) => el("button", { type: "button", className: "cmp-chip", textContent: t(label), onclick: () => { state.sort = key; reload(); } }));
+  const sortKeys = ["newest", "fastest", "idps"];
+  const search = el("input", { type: "search", className: "cmp-search", placeholder: t("compare.searchPlayer"), autocomplete: "off" });
+
+  function drawChips() {
+    const needle = state.search.trim().toLowerCase();
+    chips.replaceChildren(
+      ...mine
+        .filter((p) => needle === "" || p.playerName.toLowerCase().includes(needle))
+        .map((p) => el("button", { type: "button", className: "cmp-mem" + (state.player === p.playerId ? " on" : ""), onclick: () => { state.player = state.player === p.playerId ? null : p.playerId; drawChips(); reload(); } }, [classDot(p.className), p.playerName])),
+    );
+  }
+
+  function memberChip(m) {
+    return el("span", { className: "cmp-mem" + (mineIds.has(m.playerId) ? "" : " other") }, [classDot(m.className), m.playerName]);
+  }
+
+  function runRow(r) {
+    const shared = r.members.filter((m) => mineIds.has(m.playerId)).length;
+    const sameGroup = shared === mineIds.size && r.members.length === mineIds.size;
+    const diff = r.groupIDps - baseIdps;
+    const detail = el("div", { className: "cmp-run-detail", hidden: true }, [
+      el("div", { className: "cmp-detail-title", textContent: t("compare.groupOfRun") }),
+      el(
+        "div",
+        { className: "cmp-detail-grid" },
+        r.members.map((m) =>
+          el("div", { className: "cmp-detail-card" + (mineIds.has(m.playerId) ? "" : " other") }, [
+            el("div", { className: "cmp-detail-name" }, [classDot(m.className), m.playerName]),
+            el("small", { textContent: classLabel(m.className) }),
+            el("strong", { textContent: `${formatNumber(m.idps)} ${t("leaderboard.idpsShort")}` }),
+          ]),
+        ),
+      ),
+    ]);
+    const toggle = el("button", { type: "button", className: "cmp-toggle", title: t("compare.showGroup"), "aria-label": t("compare.showGroup"), textContent: "▾", onclick: () => { detail.hidden = !detail.hidden; toggle.textContent = detail.hidden ? "▾" : "▴"; } });
+    return el("div", { className: "cmp-run" }, [
+      el("div", { className: "cmp-run-head" }, [
+        el("span", { className: "cmp-run-date" }, [formatDate(new Date(r.startedAt)), ...[r.mode ? el("span", { className: "diff-pill cmp-mode", textContent: modeLabel(r.mode) }) : null].filter((x) => x != null).flatMap((p) => [" ", p])]),
+        el("span", { className: "cmp-run-idps", textContent: formatNumber(r.groupIDps) }),
+        el("span", { className: diff === 0 ? "cmp-delta" : diff > 0 ? "cmp-up" : "cmp-down", textContent: baseIdps > 0 ? `${diff > 0 ? "▲" : diff < 0 ? "▼" : ""} ${formatDelta(r.groupIDps, baseIdps)}`.trim() : "–" }),
+        el("span", { className: "cmp-run-dur", textContent: formatDuration(r.durationSeconds) }),
+        el("span", { className: "cmp-run-members" }, [
+          ...r.members.map(memberChip),
+          el("span", { className: "cmp-overlap" + (sameGroup ? " same" : ""), textContent: sameGroup ? t("compare.yourGroup") : t("compare.groupOverlap", { n: shared, total: mineIds.size }) }),
+        ]),
+        el("span", { className: "cmp-run-actions" }, [toggle, el("a", { className: "cmp-btn", href: compareLink("/compare/runs", { a, b: r.encounterId }), textContent: t("compare.compareBtn") })]),
+      ]),
+      detail,
+    ]);
+  }
+
+  async function reload() {
+    const mineTicket = ++ticket;
+    groupBtn.classList.toggle("on", state.group);
+    sortBtns.forEach((btn, i) => btn.classList.toggle("on", sortKeys[i] === state.sort));
+    const query = new URLSearchParams({ limit: "100", sort: state.sort, exclude: a });
+    if (state.group) {
+      query.set("group", a);
+    }
+    if (state.player !== null) {
+      query.set("player", String(state.player));
+    }
+    const data = await fetchJson(`/api/bosses/${first.encounter.bossId}/runs?${query}`);
+    if (mineTicket !== ticket) {
+      return; // a newer filter click already asked for its own list
+    }
+    const others = data.runs;
+    countLine.textContent = t("compare.runsShown", { shown: others.length, total: data.total });
+    list.replaceChildren(...(others.length > 0 ? others.map(runRow) : [el("p", { className: "empty", textContent: t(state.group || state.player !== null ? "compare.runsNoneFiltered" : "compare.runsNone") })]));
+  }
+
+  groupBtn.onclick = () => { state.group = !state.group; reload(); };
+  search.oninput = () => { state.search = search.value; drawChips(); };
+  drawChips();
+  reload().catch(() => list.replaceChildren(el("p", { className: "empty", textContent: t("compare.runsNone") })));
+
+  return [
+    el("h2", { textContent: t("compare.runsPickHeading", { boss: bossName }) }),
+    el("p", { className: "pf-sub", textContent: `${t("compare.yourRun")}: ${runCaption(first.encounter)} · ${formatDuration(first.encounter.durationSeconds)} · ${formatNumber(baseIdps)} ${t("leaderboard.idpsShort")}` }),
+    chips,
+    el("div", { className: "cmp-filters" }, [groupBtn, search, el("span", { className: "cmp-sort-label", textContent: t("compare.sortLabel") }), ...sortBtns]),
+    el("div", { className: "cmp-run-cols" }, ["compare.colDate", "compare.colIdps", "compare.colDelta", "compare.colDuration", "compare.colGroup"].map((k) => el("span", { textContent: t(k) })).concat([el("span")])),
+    list,
+    countLine,
+  ];
+}
+
 async function renderCompareRuns(params) {
   const a = params.get("a");
   const b = params.get("b");
@@ -4700,20 +4813,7 @@ async function renderCompareRuns(params) {
   const bossName = translateGameName(first.encounter.bossName);
 
   if (!b) {
-    const list = await fetchJson(`/api/bosses/${first.encounter.bossId}/runs?limit=60`);
-    const others = list.runs.filter((r) => String(r.encounterId) !== String(a));
-    const rows = others.map((r) =>
-      el("a", { className: "cmp-pick", href: compareLink("/compare/runs", { a, b: r.encounterId }) }, [
-        el("span", { className: "cmp-pick-main", textContent: formatDate(new Date(r.startedAt)) }),
-        el("span", { className: "cmp-pick-sub", textContent: [serverLabel(r.serverName), t("compare.playersCount", { count: r.playerCount }), r.topPlayerName].filter((x) => x).join(" · ") }),
-        el("span", { className: "cmp-pick-value", textContent: `${formatNumber(r.groupIDps)} ${t("leaderboard.idpsShort")} · ${formatDuration(r.durationSeconds)}` }),
-      ]),
-    );
-    app.replaceChildren(
-      el("h2", { textContent: t("compare.runsPickHeading", { boss: bossName }) }),
-      el("p", { className: "pf-sub", textContent: `${t("compare.runA")}: ${runCaption(first.encounter)} · ${formatNumber(first.encounter.groupIDps)} ${t("leaderboard.idpsShort")}` }),
-      rows.length > 0 ? el("div", { className: "cmp-pick-list" }, rows) : el("p", { className: "empty", textContent: t("compare.runsNone") }),
-    );
+    app.replaceChildren(...renderRunPicker(a, first, bossName));
     return;
   }
 

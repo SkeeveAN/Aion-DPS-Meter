@@ -109,8 +109,13 @@ function playerOnBoss(playerId: number, bossId: number) {
 }
 
 export async function compareRoutes(app: FastifyInstance) {
-  // Picker for "compare with another run": the boss's most recent fights, newest first.
-  app.get<{ Params: { id: string }; Querystring: { game?: string; limit?: string } }>("/api/bosses/:id/runs", async (request, reply) => {
+  // Picker for "compare with another run": the boss's fights with everyone who played in them.
+  //   sort   newest (default) | fastest | idps
+  //   group  encounter id: only fights with exactly the same real players as that fight ("my group")
+  //   player player id: only fights this player took part in
+  //   exclude encounter id left out of the list (the fight the page is comparing from)
+  // The group and player filters run before the limit, so a rarely played group is not cut off by 60 newer fights.
+  app.get<{ Params: { id: string }; Querystring: { game?: string; limit?: string; sort?: string; group?: string; player?: string; exclude?: string } }>("/api/bosses/:id/runs", async (request, reply) => {
     const game = gameFromQuery(request.query.game, reply);
     if (game === null) {
       return;
@@ -127,31 +132,63 @@ export async function compareRoutes(app: FastifyInstance) {
         startedAt: encounters.startedAt,
         durationSeconds: encounters.durationSeconds,
         groupIDps: encounters.groupIDps,
-        serverName: servers.displayName,
+        mode: encounters.mode,
       })
       .from(encounters)
-      .leftJoin(servers, eq(encounters.serverId, servers.id))
       .where(eq(encounters.bossId, found.boss.id))
-      .orderBy(desc(encounters.startedAt))
-      .limit(limit)
       .all();
 
-    const withTop = rows.map((row) => {
-      const top = db
-        .select({ playerName: players.name, className: encounterParticipants.className })
-        .from(encounterParticipants)
-        .innerJoin(players, eq(encounterParticipants.playerId, players.id))
-        .where(and(eq(encounterParticipants.encounterId, row.encounterId), REAL_EXACT))
-        .orderBy(desc(encounterParticipants.totalDamage))
-        .get();
-      const size = db
-        .select({ n: count() })
-        .from(encounterParticipants)
-        .where(and(eq(encounterParticipants.encounterId, row.encounterId), REAL_PLAYER))
-        .get();
-      return { ...row, topPlayerName: top?.playerName ?? null, topPlayerClassName: top?.className ?? null, playerCount: size?.n ?? 0 };
-    });
-    return reply.send({ boss: { id: found.boss.id, name: found.boss.name, nameEn: found.boss.nameEn, slug: found.boss.slug }, runs: withTop });
+    // Everyone who stood in these fights, strongest first; pets and summons (class "?") are no group members.
+    const memberRows = db
+      .select({
+        encounterId: encounterParticipants.encounterId,
+        playerId: encounterParticipants.playerId,
+        playerName: players.name,
+        className: encounterParticipants.className,
+        idps: encounterParticipants.idps,
+      })
+      .from(encounterParticipants)
+      .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+      .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+      .where(and(eq(encounters.bossId, found.boss.id), REAL_PLAYER))
+      .orderBy(desc(encounterParticipants.totalDamage))
+      .all();
+    const membersByRun = new Map<number, { playerId: number; playerName: string; className: string; idps: number }[]>();
+    for (const m of memberRows) {
+      const list = membersByRun.get(m.encounterId) ?? [];
+      list.push({ playerId: m.playerId, playerName: m.playerName, className: m.className, idps: m.idps });
+      membersByRun.set(m.encounterId, list);
+    }
+
+    const excluded = parseId(request.query.exclude);
+    let wanted = excluded === null ? rows : rows.filter((r) => r.encounterId !== excluded);
+    const groupOf = parseId(request.query.group);
+    if (groupOf !== null) {
+      const reference = new Set((membersByRun.get(groupOf) ?? []).map((m) => m.playerId));
+      if (reference.size > 0) {
+        wanted = wanted.filter((r) => {
+          const members = membersByRun.get(r.encounterId) ?? [];
+          return members.length === reference.size && members.every((m) => reference.has(m.playerId));
+        });
+      }
+    }
+    const playerId = parseId(request.query.player);
+    if (playerId !== null) {
+      wanted = wanted.filter((r) => (membersByRun.get(r.encounterId) ?? []).some((m) => m.playerId === playerId));
+    }
+
+    const byStart = (a: { startedAt: string | Date | number }, b: { startedAt: string | Date | number }) => String(b.startedAt).localeCompare(String(a.startedAt));
+    if (request.query.sort === "fastest") {
+      // A fight without a duration cannot be the fastest.
+      wanted = wanted.filter((r) => r.durationSeconds > 0).sort((a, b) => a.durationSeconds - b.durationSeconds || byStart(a, b));
+    } else if (request.query.sort === "idps") {
+      wanted = wanted.sort((a, b) => b.groupIDps - a.groupIDps || byStart(a, b));
+    } else {
+      wanted = wanted.sort(byStart);
+    }
+
+    const runs = wanted.slice(0, limit).map((r) => ({ ...r, members: membersByRun.get(r.encounterId) ?? [] }));
+    return reply.send({ boss: { id: found.boss.id, name: found.boss.name, nameEn: found.boss.nameEn, slug: found.boss.slug }, total: wanted.length, runs });
   });
 
   // Step 1 of the player comparison: every boss this player has data for.
