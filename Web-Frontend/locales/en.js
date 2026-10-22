@@ -491,6 +491,8 @@ export default {
   "participant.critRate": "Crit rate",
   "participant.damageSkillsHeading": "Damage by skill",
   "participant.healSkillsHeading": "Healing by skill",
+  "participant.playerHeading": "Player",
+  "skillTable.share": "Share",
   "skillTable.skill": "Skill",
   "skillTable.hits": "Hits",
   "skillTable.crits": "Crits",

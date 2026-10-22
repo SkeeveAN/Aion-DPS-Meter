@@ -3488,34 +3488,33 @@ function skillTable(skills) {
   ]);
 }
 
-// One skill as a ranked row: game icon (initials when the client has none), share bar relative to
-// the strongest skill, and the hit statistics underneath.
+// One skill as a table row: game icon (initials when the client has none), hit statistics, share
+// bar relative to the strongest skill and the total.
 function skillRow(s, total, top, heal) {
   const hits = s.hits > 0 ? s.hits : 1;
+  const name = s.names?.[getLocale()] ?? s.skillName;
   const tile = el("span", { className: "pt-ico" });
   if (s.icon) {
     const img = el("img", { src: `/images/aion2/icons/skill/${s.icon}.webp`, alt: "", loading: "lazy", width: 128, height: 128 });
     img.addEventListener("error", () => {
       img.remove();
-      tile.textContent = (s.names?.[getLocale()] ?? s.skillName).slice(0, 2);
+      tile.textContent = name.slice(0, 2);
     });
     tile.append(img);
   } else {
-    tile.textContent = s.skillName.slice(0, 2);
+    tile.textContent = name.slice(0, 2);
   }
-  return el("div", { className: "pt-row" }, [
+  const num = (text) => el("span", { className: "num", textContent: text });
+  return el("div", { className: "pt-tr" }, [
     tile,
-    el("div", { className: "pt-main" }, [
-      el("div", { className: "pt-name" }, [el("span", { textContent: s.names?.[getLocale()] ?? s.skillName }), el("span", { className: "pt-share", textContent: `${total > 0 ? ((s.totalDamage / total) * 100).toFixed(1) : "0.0"}%` })]),
-      el("div", { className: `pt-bar${heal ? " heal" : ""}` }, [el("i", { style: `width:${top > 0 ? (s.totalDamage / top) * 100 : 0}%` })]),
-      el("div", { className: "pt-meta" }, [
-        el("span", { textContent: `${t("skillTable.hits")} ${formatNumber(s.hits)}` }),
-        el("span", { textContent: `${t("skillTable.critPercent")} ${s.hits > 0 ? ((s.critHits / s.hits) * 100).toFixed(0) : 0}%` }),
-        el("span", { textContent: `${t("skillTable.avg")} ${formatNumber(s.totalDamage / hits)}` }),
-        el("span", { textContent: `${t("skillTable.max")} ${formatNumber(s.maxHit)}` }),
-      ]),
-    ]),
-    el("div", { className: "pt-total", textContent: formatNumber(s.totalDamage) }),
+    el("b", { textContent: name }),
+    num(formatNumber(s.hits)),
+    num(`${s.hits > 0 ? ((s.critHits / s.hits) * 100).toFixed(0) : 0}%`),
+    num(formatNumber(s.totalDamage / hits)),
+    num(formatNumber(s.maxHit)),
+    num(`${total > 0 ? ((s.totalDamage / total) * 100).toFixed(1) : "0.0"}%`),
+    el("div", { className: `pt-bar${heal ? " heal" : ""}` }, [el("i", { style: `width:${top > 0 ? (s.totalDamage / top) * 100 : 0}%` })]),
+    el("b", { className: "num", textContent: formatNumber(s.totalDamage) }),
   ]);
 }
 
@@ -3530,7 +3529,6 @@ async function renderParticipant(participantId) {
   const e = data.encounter;
   const minutes = Math.floor(e.durationSeconds / 60);
   const seconds = String(Math.round(e.durationSeconds % 60)).padStart(2, "0");
-  const kpi = (label, value, cls) => el("div", { className: "pt-kpi" }, [el("small", { textContent: label }), el("b", { className: cls ?? "", textContent: value })]);
   const tags = [el("span", { className: "pt-tag", textContent: p.className })];
   if (p.faction) {
     tags.push(el("span", { className: "pt-tag" }, [factionIcon(p.faction), p.faction]));
@@ -3538,34 +3536,31 @@ async function renderParticipant(participantId) {
   if (p.serverName) {
     tags.push(el("span", { className: "pt-tag", textContent: serverLabel(p.serverName) }));
   }
-
-  const sections = [
-    el("div", { className: "pt-hero" }, [
-      el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
-      el("div", {}, [
-        el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
-        el("div", { className: "pt-sub" }, [translateGameName(e.bossName), " ", diffPill(e.instanceCategory, e.mode, e.instanceName), ` · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}`].filter((x) => x != null)),
-        el("div", { className: "pt-tags" }, tags),
-      ]),
-    ]),
-    el("div", { className: "pt-kpis" }, [
-      kpi(t("participant.dps"), formatNumber(p.dps), "accent"),
-      kpi(t("table.damage"), formatNumber(p.totalDamage)),
-      kpi(t("participant.critRate"), `${p.critRatePercent.toFixed(1)}%`),
-      kpi(t("participant.hps"), formatNumber(p.hps), "heal"),
-      kpi(t("participant.totalHealing"), formatNumber(p.totalHealing)),
-    ]),
-  ];
-  sections.push(
-    el("div", { className: "cmp-cta pt-actions" }, [
-      el("a", { className: "cmp-btn", href: compareLink("/compare/players", { a: p.playerId, boss: e.bossId }), textContent: t("compare.ctaPlayers") }),
-      el("a", { className: "cmp-btn", href: compareLink("/compare/runs", { a: e.id }), textContent: t("compare.ctaRuns") }),
-    ]),
-  );
+  const stat = (label, value, cls) => el("div", { className: "pt-sk" }, [el("span", { textContent: label }), el("b", { className: cls ?? "", textContent: value })]);
+  const side = el("aside", { className: "pt-side" }, [
+    el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
+    el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
+    el("div", { className: "pt-tags" }, tags),
+    el("div", { className: "pt-sub" }, [translateGameName(e.bossName), " ", diffPill(e.instanceCategory, e.mode, e.instanceName), ` · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}`].filter((x) => x != null)),
+    stat(t("participant.dps"), formatNumber(p.dps), "accent"),
+    stat(t("table.damage"), formatNumber(p.totalDamage)),
+    stat(t("participant.critRate"), `${p.critRatePercent.toFixed(1)}%`),
+    stat(t("participant.hps"), formatNumber(p.hps), "heal"),
+    stat(t("participant.totalHealing"), formatNumber(p.totalHealing)),
+    el("a", { className: "cmp-btn pt-cmp", href: compareLink("/compare/players", { a: p.playerId, boss: e.bossId }), textContent: `⇄ ${t("compare.ctaPlayers")}` }),
+  ]);
+  const main = el("div", { className: "pt-maincol" });
   const group = (heading, list, heal) => {
     const total = list.reduce((sum, s) => sum + s.totalDamage, 0);
     const top = list.reduce((m, s) => Math.max(m, s.totalDamage), 0);
-    sections.push(el("h3", { className: `pt-h${heal ? " heal" : ""}`, textContent: heading }), ...list.map((s) => skillRow(s, total, top, heal)));
+    const th = (label, num) => el("span", { className: num ? "num" : "", textContent: label });
+    main.append(
+      el("h3", { className: `pt-mh${heal ? " heal" : ""}`, textContent: heading }),
+      el("div", { className: "pt-tbl" }, [
+        el("div", { className: "pt-tr pt-th" }, [el("span"), th(t("skillTable.skill")), th(t("skillTable.hits"), true), th(t("skillTable.critPercent"), true), th(t("skillTable.avg"), true), th(t("skillTable.max"), true), th(t("skillTable.share"), true), el("span"), th(t("skillTable.total"), true)]),
+        ...list.map((s) => skillRow(s, total, top, heal)),
+      ]),
+    );
   };
   if (data.damageSkills.length > 0) {
     group(t("participant.damageSkillsHeading"), data.damageSkills, false);
@@ -3574,7 +3569,7 @@ async function renderParticipant(participantId) {
     group(t("participant.healSkillsHeading"), data.healSkills, true);
   }
 
-  app.replaceChildren(...sections);
+  app.replaceChildren(el("div", { className: "pt-lay" }, [el("div", { className: "pt-sidecol" }, [el("div", { className: "pt-lh", textContent: t("participant.playerHeading") }), side]), main]));
 }
 
 // Daevanion stat tokens come from the game data as CamelCase ("CriticalResist"); shown spaced out.
