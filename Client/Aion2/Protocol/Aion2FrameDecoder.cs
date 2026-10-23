@@ -1133,6 +1133,8 @@ public sealed class Aion2FrameDecoder
             if (float.IsFinite(mx) && float.IsFinite(my) && Math.Abs(mx) < 1_000_000 && Math.Abs(my) < 1_000_000)
             {
                 _entities.NoteMobPosition(unchecked((int)entityId), npcId, mx, my);
+                // where it appeared is the first point of its track: a monster that never moves still has a place on the replay map
+                _entities.Combat.NotePosition(timestamp, unchecked((int)entityId), mx, my);
             }
         }
 

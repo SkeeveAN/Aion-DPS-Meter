@@ -82,6 +82,16 @@ public static class SelfCheckReplay
         Console.WriteLine($"  -> another monster of the fight is an add (no area of its own, the boss stays the boss): {adds}");
         ok &= adds;
 
+        // an add that never moved has one point (where it appeared): it stands there until it dies
+        const int still = 301;
+        var stillTrack = new PositionTrack(still, at.AddSeconds(-20), new[] { 0 }, new[] { 700 }, new[] { 300 });
+        var withStill = extras with { Tracks = new[] { track, bossTrack, stillTrack }, Deaths = new[] { new DeathRecord(at.AddSeconds(6), still) } };
+        ReplayData stillData = ReplayBuilder.Build("Test", withStill, hits, at, at.AddSeconds(10), id => id == boss ? ("Boss", "", false) : id == still ? ("Imp", "", false) : ("Me", "Cleric", true), _ => 650, _ => "Slam", id => id == still);
+        ReplayEntity imp = stillData.Entities.Single(e => e.Id == still);
+        bool stays = imp.Static && imp.At(at, 1) is { X: 700 } && imp.At(at, 5.9) is { Y: 300 } && imp.At(at, 6.1) is null && stillData.Entities.Count == 3;
+        Console.WriteLine($"  -> a monster that never moved stands where it appeared until it dies: {stays}");
+        ok &= stays;
+
         // the own character: between two readings (0 s and 5 s) the spot is an estimate, within 1.5 s of one it is not, and nobody else's ever is
         ReplayData selfData = ReplayBuilder.Build("Test", extras, hits, at, at.AddSeconds(10), id => id == boss ? ("Boss", "", false) : ("Me", "Cleric", true), _ => 650, _ => "Slam", null, id => id == 1);
         ReplayEntity me = selfData.Entities.Single(e => e.Id == 1);

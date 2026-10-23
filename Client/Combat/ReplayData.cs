@@ -10,8 +10,11 @@ public enum ReplayRole
 }
 
 /// <summary>Someone shown on the replay map, with where they were.</summary>
-public sealed record ReplayEntity(int Id, string Name, string ClassName, ReplayRole Role, PositionTrack Track, bool IsSelf = false)
+public sealed record ReplayEntity(int Id, string Name, string ClassName, ReplayRole Role, PositionTrack Track, bool IsSelf = false, double? DiedAt = null)
 {
+    /// <summary>A monster with a single point (where it appeared) that never moved: it stands there until it dies.</summary>
+    public bool Static => Track.T.Length == 1;
+
     /// <summary>
     /// The own character's place is only reported now and then (with skills and corrections; the server sends no running position of one's own character), so between two
     /// readings the replay draws a straight walk: an estimate. True when no reading lies within <see cref="ExactSeconds"/> of this moment; false for everybody else, whose
@@ -46,7 +49,17 @@ public sealed record ReplayEntity(int Id, string Name, string ClassName, ReplayR
     {
         double ms = (Track.Start - fightStart).TotalMilliseconds + 0; // the track's origin relative to the fight start
         double t = seconds * 1000 - ms;
+        if (DiedAt is double died && seconds >= died)
+        {
+            return null;
+        }
+
         var times = Track.T;
+        if (Static)
+        {
+            return (Track.X[0], Track.Y[0]);
+        }
+
         if (times.Length == 0 || t < -HoldSeconds * 1000)
         {
             return null;
@@ -136,10 +149,19 @@ public static class ReplayBuilder
         }
 
         var entities = new List<ReplayEntity>();
-        foreach (PositionTrack track in tracks.Where(t => t.T.Length >= 2))
+        foreach (PositionTrack track in tracks.Where(t => t.T.Length >= 1))
         {
             var (name, cls, isPlayer) = describe(track.Entity);
-            entities.Add(new ReplayEntity(track.Entity, name, cls, isPlayer ? ReplayRole.Player : isAdd?.Invoke(track.Entity) == true ? ReplayRole.Add : ReplayRole.Boss, track, isPlayer && isSelf?.Invoke(track.Entity) == true));
+            bool add = !isPlayer && isAdd?.Invoke(track.Entity) == true;
+            // a walk is asked of everybody but an add (it may stand where it appeared)
+            if (track.T.Length < 2 && !add)
+            {
+                continue;
+            }
+
+            // a monster the group killed is gone from the map from that moment
+            double? died = add && (extras.Deaths ?? Array.Empty<DeathRecord>()).FirstOrDefault(d => d.Entity == track.Entity && d.At >= start) is { Entity: > 0 } death ? Secs(death.At) : null;
+            entities.Add(new ReplayEntity(track.Entity, name, cls, isPlayer ? ReplayRole.Player : add ? ReplayRole.Add : ReplayRole.Boss, track, isPlayer && isSelf?.Invoke(track.Entity) == true, died));
         }
 
         var bossIds = entities.Where(e => e.Role == ReplayRole.Boss).Select(e => e.Id).ToHashSet();

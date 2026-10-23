@@ -686,7 +686,8 @@ public sealed class Aion2CombatState
 
                     int first = Math.Max(0, buffer.Points.FindLastIndex(p => p.At <= from));
                     var points = buffer.Points.Skip(first).TakeWhile(p => p.At <= to).ToList();
-                    if (points.Count < 2)
+                    // one point is enough for a monster that stood where it appeared (the replay holds it there); the replay builder asks a walk of a player
+                    if (points.Count < 1)
                     {
                         continue;
                     }
