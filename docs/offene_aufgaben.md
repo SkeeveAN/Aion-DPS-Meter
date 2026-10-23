@@ -153,19 +153,4 @@ Reihenfolge-Empfehlung: zuerst alles der Stufe A (keine Protokolländerung, weni
 - **Charakterfenster:** Flügel (`0x7256`), Skins (`0x5b8d`, Garderobe-Sammelwerte), Götterstein-Kombinationen (`0x3356`), Teleporter und Titel als "x von y", Erfolge-Gesamtfortschritt.
 - **Upload-Plausibilität:** Rekorde und Ränge aus den Frames als Gegenprobe zu hochgeladenen Läufen.
 
-## 3. Offene Entschlüsselungs-Fragen
-
-- Wert E der Legionsliste (`0x058a`): 11 verschiedene Werte bei 23 Mitgliedern, 2 bis 3 teilen sich einen, nicht kontogebunden; im Fenster keine passende Spalte. Beobachtung: Die Zahl taucht im Login-Token (`0x1536`) auf.
-- `0xaf8a` (24 Paare ID + Byte), `0x0be3` (3 Paare), `0x0195` (Server-Schalter, Bedeutung der einzelnen IDs), Rang-Byte von `0x338a`, Nenner der garantierten Belohnung, Rangstufen-Regel außerhalb des Abyss, 10 Erfolgs-IDs außerhalb beider Tabellen.
-- Bewegungsframes: S-Byte (Bewegungsmodus?), Marker-Bits, Unterschied `1b37`/`1c37`, Sonderblöcke bei Instanzen mit negativen Koordinaten, `0x748d`, `0x4437`.
-- Skill-Frames: Fehlercodes der Quittung `0x0138`, Art-Byte in `0x1338`/`0x0f38`, Regel der Varianten-ID, `0x058d`, `0x6d8d`, `0x3b38`, `0x3d38`.
-- Asmodier: die Fenster wurden nur mit einem Elyos-Charakter aufgenommen; eine zweite Aufnahme (anderer Account/Asmodier) würde die Fraktionsunterschiede klären (Versorgungsgesuche haben schon eigene IDs).
-- Eine Aufnahme mit **Abgabe** von Versorgungsgesuchen, Questabgabe und Rezept-Erlernen, um die Änderungsframes zu finden.
-
-## 4. Regeln, die für alle Vorhaben gelten
-
-- Alle Uploads Opt-in und standardmäßig aus; fremde Spieler (Namen, Positionen) nur lokal, außer mit ausdrücklicher Einwilligung des jeweiligen Schalters.
-- Neue Fenster im AionDPS-Stil (ThemedChrome, ThemedMessageBox), Konfigurationsfenster mit Nachfrage "Speichern/Verwerfen/Abbrechen".
-- Neue Daten selbst überall einspielen (Backend-JSON, game-data.js, Client-Assets), Namen immer aus dem Client.
-- Nichts starten, was Fenster öffnet oder Eingaben sendet, solange der Projektleiter spielt. Release, Deploy und Discord-Ankündigung nur auf Kommando.
-- Änderungen mit Changelog (Englisch und Deutsch), Versionsregel: Patch = Fehlerbehebung/Ausbau, Minor = neue sichtbare Funktion.
+Offene Entschlüsselungsfragen: [offene_entschluesselungsfragen.md](offene_entschluesselungsfragen.md). Die projektweiten Regeln stehen in der Projekt-Memory (`project_global_rules.md`).
