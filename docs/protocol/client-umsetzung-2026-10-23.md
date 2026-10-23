@@ -51,7 +51,7 @@ Ergänzt [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fram
 - **`0x7e8d` gelernte Rezepte:** `n (varint) | n x (Rezept-ID u32 | 0 u32)`; 210 Rezepte je Fraktion in der Aufnahme (beide Fraktionen gezählt: 420 von 512 sichtbaren). Die ID ist die aus `CraftRecipe`.
 - **Regel „Auto-Rezepte nach Stufe“ (belegt an der Login-Liste):** bei allen fünf Berufen endet die Liste der gelernten `Auto`-Rezepte unter der kleinsten noch nicht erreichten Stufe (Schmieden bekannt bis 35, unbekannt ab 51; Schneiderei bis 25, ab 30 unbekannt; Kochen bis 75, ab 90 unbekannt; Alchemie alle). Rezepte werden nur beim Stufenaufstieg gelernt.
 - **`0x7d8d` Stufenaufstieg:** `Beruf u8 | Stufe u16 (absolut) | ...`. Beruf 1 Schmieden (Waffen), 2 Rüstung/Schneiderei, 3 Schmuck, 5 Kochen sind belegt, **4 Alchemie nur aus der Reihenfolge angenommen**. Die „Fortgeschritten“-Rezepte (Stufe 50 und 100) sind nicht Teil der Auto-Rezepte.
-- Client: Filter „Nur meine Rezepte“ im Crafting-Tool (Login-Liste plus Aufstieg).
+- Client: Filter „Nur meine Rezepte“ im Crafting-Tool (Login-Liste plus Aufstieg). Der Schalter wurde später durch die Grundregel „immer nur gelernte (und markierte) Rezepte, solange eine Login-Liste bekannt ist“ ersetzt (siehe `docs/offene_aufgaben.md` 2.0b).
 
 ## Erfolge und Wochenpunkte `0x8356`
 
