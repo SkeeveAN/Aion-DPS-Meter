@@ -3739,6 +3739,42 @@
     "ja": "Lord values",
     "ko": "Lord values"
   },
+  "Character.OwnedTitles": {
+    "en": "Titles",
+    "de": "Titel",
+    "fr": "Titres",
+    "es": "Títulos",
+    "ru": "Титулы",
+    "zh": "称号",
+    "zh-TW": "稱號",
+    "pt": "Títulos",
+    "ja": "称号",
+    "ko": "칭호"
+  },
+  "Character.OwnedWings": {
+    "en": "Wings",
+    "de": "Flügel",
+    "fr": "Ailes",
+    "es": "Alas",
+    "ru": "Крылья",
+    "zh": "翅膀",
+    "zh-TW": "翅膀",
+    "pt": "Asas",
+    "ja": "翼",
+    "ko": "날개"
+  },
+  "Character.OwnedTeleporters": {
+    "en": "Teleporters",
+    "de": "Teleporter",
+    "fr": "Téléporteurs",
+    "es": "Teletransportadores",
+    "ru": "Телепорты",
+    "zh": "传送点",
+    "zh-TW": "傳送點",
+    "pt": "Teletransportes",
+    "ja": "テレポーター",
+    "ko": "순간이동 장치"
+  },
   "Character.Skin": {
     "en": "Skin",
     "de": "Skin",

@@ -491,6 +491,22 @@ public sealed class CharacterWindow : Window
             content.Children.Add(chips);
         }
 
+        // what the character owns, from the login lists: counts only (the game's totals differ with every patch and zone)
+        IReadOnlyDictionary<string, int> owned = _directory.OwnedCounts();
+        var ownedParts = new List<string>();
+        foreach ((string key, string label) in new[] { ("titles", "Character.OwnedTitles"), ("wings", "Character.OwnedWings"), ("teleporters", "Character.OwnedTeleporters") })
+        {
+            if (owned.TryGetValue(key, out int count))
+            {
+                ownedParts.Add($"{Loc(label)} {count.ToString(CultureInfo.CurrentCulture)}");
+            }
+        }
+
+        if (ownedParts.Count > 0)
+        {
+            content.Children.Add(Text(string.Join("  ·  ", ownedParts), 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 8, 0, 0)));
+        }
+
         return Card(content, new Thickness(16, 14, 22, 14));
     }
 

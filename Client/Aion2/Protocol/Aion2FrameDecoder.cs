@@ -452,6 +452,34 @@ public sealed class Aion2FrameDecoder
     /// <summary>The test modes (aion2-frame-dump) look at every frame with its opcode; null in the live meter.</summary>
     public static Action<int, ReadOnlySpan<byte>, DateTime>? FrameTap { get; set; }
 
+    /// <summary>
+    /// The login lists of what the character owns: <c>0x7956</c> titles (<c>n (varint) | n x u32 | ...</c>), <c>0x7256</c> wings (<c>n (u8) | n x (u32 | 0)</c>), <c>0x3292</c> teleporters
+    /// (<c>n (u8) | n x u32</c>). Only the counts are kept; the frames are read for other things as well (the worn titles, the wings), which they still are.
+    /// </summary>
+    private void NoteOwnedCounts(int opcode, ReadOnlySpan<byte> frame)
+    {
+        switch (opcode)
+        {
+            case 0x7956:
+            {
+                int p = 2;
+                if (TryReadVarint(frame, ref p, out long n) && n is > 0 and < 5000 && p + n * 4 <= frame.Length)
+                {
+                    _entities.NoteOwned("titles", (int)n);
+                }
+
+                break;
+            }
+
+            case 0x7256 when frame.Length == 3 + 5 * frame[2] && frame[2] > 0:
+                _entities.NoteOwned("wings", frame[2]);
+                break;
+            case 0x3292 when frame.Length == 3 + 4 * frame[2] && frame[2] > 0:
+                _entities.NoteOwned("teleporters", frame[2]);
+                break;
+        }
+    }
+
     private IEnumerable<DamageEvent> DecodeFrame(ReadOnlySpan<byte> frame, DateTime timestamp, bool nested)
     {
         FrameLayout layout = _protocol.FrameLayout;
@@ -463,6 +491,7 @@ public sealed class Aion2FrameDecoder
 
         int opcode = (int)ReadUnsigned(frame, new FieldSpec(layout.OpcodeOffset, layout.OpcodeSize), layout.LittleEndian && !layout.OpcodeBigEndian);
         FrameTap?.Invoke(opcode, frame, timestamp);
+        NoteOwnedCounts(opcode, frame);
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);

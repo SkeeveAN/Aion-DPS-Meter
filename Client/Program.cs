@@ -2601,6 +2601,11 @@ internal static class Program
         }
 
         Console.WriteLine($"aion2-stock-check: login frame {Aion2.Aion2Stock.SnapshotAt:HH:mm:ss}, last full listing {Aion2.Aion2Stock.ListedAt:HH:mm:ss}, learned recipes: {(Aion2.Aion2Recipes.HasData ? Aion2.Aion2CraftData.All.Count(r => Aion2.Aion2Recipes.IsKnown(r) && !r.Hidden) + " of " + Aion2.Aion2CraftData.All.Count(r => !r.Hidden) : "no list")}");
+        if (source.Entities is Aion2.Aion2EntityDirectory ownedDirectory)
+        {
+            Console.WriteLine("aion2-stock-check: owned " + string.Join(", ", ownedDirectory.OwnedCounts().Select(o => $"{o.Key} {o.Value}")));
+        }
+
         foreach ((string label, Aion2.StockSources sources) in new[] { ("Inventory", Aion2.StockSources.Inventory), ("Character storage", Aion2.StockSources.CharacterStorage), ("Account storage", Aion2.StockSources.AccountStorage) })
         {
             Dictionary<int, long> totals = Aion2.Aion2Stock.Totals(sources);

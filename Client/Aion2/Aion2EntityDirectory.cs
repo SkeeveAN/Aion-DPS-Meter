@@ -1121,6 +1121,25 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     /// <summary>The wing and wing skin of the local player; null when the login record did not carry them.</summary>
+    private readonly Dictionary<string, int> _owned = new();
+
+    /// <summary>How many titles, wings and teleporters the character owns, as the login lists say (keys "titles", "wings", "teleporters"); empty before them.</summary>
+    public IReadOnlyDictionary<string, int> OwnedCounts()
+    {
+        lock (_gate)
+        {
+            return new Dictionary<string, int>(_owned);
+        }
+    }
+
+    public void NoteOwned(string kind, int count)
+    {
+        lock (_gate)
+        {
+            _owned[kind] = count;
+        }
+    }
+
     public Aion2Wing? LocalWing
     {
         get
