@@ -2,6 +2,7 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import { sql } from "drizzle-orm";
 import { db, sqlite } from "./db/client.js";
 import { uploads } from "./db/schema.js";
+import { backfillChainUsage } from "./chainUsage.js";
 
 /**
  * The raw payload of an upload is only an audit copy once the upload is settled (merged): the facts are in the encounter, player and profile tables.
@@ -100,6 +101,10 @@ export function startUploadArchive(log: { info: (o: object, m: string) => void; 
   const run = () => {
     try {
       const packed = compressSettledUploads() + compressTimelines();
+      const chained = backfillChainUsage();
+      if (chained > 0) {
+        log.info({ chained }, "upload archive: chain usage filled in");
+      }
       const dropped = dropOldProfilePayloads(Number(process.env.UPLOAD_PROFILE_PAYLOAD_KEEP_DAYS ?? 90));
       if (packed > 0 || dropped > 0) {
         log.info({ packed, dropped }, "upload archive: payloads packed or dropped");

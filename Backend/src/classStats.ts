@@ -69,6 +69,10 @@ export interface SkillStat {
   /** Crit hits of all hits, 0..1. */
   critRate: number;
   averageHit: number;
+  /** Of the uses of this skill that had a chain follow-up, the share that were followed in time, 0..1; null when there are too few. */
+  chainRate: number | null;
+  /** The average level of the skill across the class's rows whose character is known (the game's own list), one decimal; null when too few. */
+  avgLevel: number | null;
 }
 
 export interface ClassSkills {
@@ -89,6 +93,8 @@ const MIN_RUN_SHARE = 0.1;
 export function skillStatsByClass(
   skillRows: { className: string; skill: string; runs: number; hits: number; critHits: number; damage: number }[],
   samples: Map<string, number>,
+  /** Per class and skill name: chain uses offered and taken, and the sum and count of the characters' skill levels. */
+  extras: Map<string, { chainOffered: number; chainTaken: number; levelSum: number; levelCount: number }> = new Map(),
 ): ClassSkills[] {
   const byClass = new Map<string, typeof skillRows>();
   for (const row of skillRows) {
@@ -114,8 +120,20 @@ export function skillStatsByClass(
         hitsPerRun: r.hits / r.runs,
         critRate: r.critHits / r.hits,
         averageHit: r.damage / r.hits,
+        ...extraOf(extras.get(`${className}\u0000${r.skill}`)),
       }));
     result.push({ className, samples: rowCount, skills });
   }
   return result.sort((a, b) => b.samples - a.samples);
+}
+
+/** At least this many chain uses (or rows with a known level) before a rate or an average is shown. */
+const MIN_EXTRA_SAMPLES = 10;
+const MIN_LEVEL_SAMPLES = 5;
+
+function extraOf(e: { chainOffered: number; chainTaken: number; levelSum: number; levelCount: number } | undefined): { chainRate: number | null; avgLevel: number | null } {
+  return {
+    chainRate: e && e.chainOffered >= MIN_EXTRA_SAMPLES ? e.chainTaken / e.chainOffered : null,
+    avgLevel: e && e.levelCount >= MIN_LEVEL_SAMPLES ? Math.round((e.levelSum / e.levelCount) * 10) / 10 : null,
+  };
 }

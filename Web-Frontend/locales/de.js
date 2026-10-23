@@ -407,6 +407,8 @@ export default {
   "stats.skillHits": "Treffer je Lauf",
   "stats.skillCrit": "Krit-Rate",
   "stats.skillAverage": "Ø Treffer",
+  "stats.skillChain": "Kette genutzt",
+  "stats.skillLevel": "Ø Stufe",
   "stats.skillNote": "Aus den hochgeladenen Läufen dieses Bosses: {n} Einträge dieser Klasse. Skills, die in weniger als 10 % der Einträge vorkommen, fehlen.",
   "player.emptyNoFights": "Noch keine erfassten Kämpfe für diesen Spieler.",
   "runs.view": "Lauf ansehen",

@@ -1,16 +1,16 @@
-import { and, asc, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max, or, sql, type SQL } from "drizzle-orm";
 import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { EXACT_ENCOUNTER, EXACT_PARTICIPANT, WHOLE_FIGHT } from "../estimated.js";
-import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounterSkillUsage, encounters, instances, playerNcCharacter, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
+import { bossMechanics, bossNpcIds, bosses, encounterChainUsage, encounterParticipants, encounterSkillUsage, encounters, instances, playerNcCharacter, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
 import { profileBadge } from "../profileBadge.js";
 import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { gameFromQuery } from "./instances.js";
 import { CATEGORY_MODES, type Game } from "../constants.js";
 import { boxesByClass, skillStatsByClass } from "../classStats.js";
-import { skillIconByName, skillNamesByName } from "../profile.js";
+import { skillIconByName, skillNameById, skillNamesByName } from "../profile.js";
 import { gearCondition, knownGearCondition, parseGearRange, type GearRange } from "../gearFilter.js";
 
 const TOP_N = 10;
@@ -223,6 +223,59 @@ export function classBoxes(bossId: number, serverId: number | null, mode: string
   return boxesByClass(rows);
 }
 
+/**
+ * Per class and skill name: the chain uses offered and taken (filled when the time axis was stored) and the sum and count of the skill levels of the characters
+ * (the game's own list from their profile). Both are read from tables that already hold the numbers, so the page does not open a single time axis.
+ */
+function skillExtras(scope: SQL | undefined) {
+  const extras = new Map<string, { chainOffered: number; chainTaken: number; levelSum: number; levelCount: number }>();
+  const at = (className: string, skillId: number) => {
+    const name = skillNameById(skillId);
+    if (!name) {
+      return null;
+    }
+    const key = `${className}\u0000${name}`;
+    return extras.get(key) ?? extras.set(key, { chainOffered: 0, chainTaken: 0, levelSum: 0, levelCount: 0 }).get(key)!;
+  };
+  const chains = db
+    .select({
+      className: encounterParticipants.className,
+      skillId: encounterChainUsage.skillId,
+      offered: sql<number>`sum(${encounterChainUsage.offered})`,
+      taken: sql<number>`sum(${encounterChainUsage.taken})`,
+    })
+    .from(encounterChainUsage)
+    .innerJoin(encounterParticipants, eq(encounterChainUsage.participantId, encounterParticipants.id))
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .where(and(scope, EXACT_PARTICIPANT))
+    .groupBy(encounterParticipants.className, encounterChainUsage.skillId)
+    .all();
+  for (const c of chains) {
+    const e = at(c.className, c.skillId);
+    if (e) {
+      e.chainOffered += c.offered;
+      e.chainTaken += c.taken;
+    }
+  }
+  // the level of a skill in the character's own list: one json_each over the profiles of the rows in scope
+  const levels = db.all<{ className: string; skillId: number; levelSum: number; n: number }>(sql`
+    select ${encounterParticipants.className} as className, json_extract(j.value, '$.id') as skillId, sum(json_extract(j.value, '$.level')) as levelSum, count(*) as n
+    from ${encounterParticipants}
+    inner join ${encounters} on ${encounterParticipants.encounterId} = ${encounters.id}
+    inner join ${playerProfiles} on ${playerProfiles.playerId} = ${encounterParticipants.playerId},
+    json_each(${playerProfiles.skillsJson}) j
+    where ${and(scope, EXACT_PARTICIPANT)} and ${playerProfiles.skillsJson} <> '[]' and json_extract(j.value, '$.level') > 0
+    group by ${encounterParticipants.className}, json_extract(j.value, '$.id')`);
+  for (const l of levels) {
+    const e = at(l.className, l.skillId);
+    if (e) {
+      e.levelSum += l.levelSum;
+      e.levelCount += l.n;
+    }
+  }
+  return extras;
+}
+
 /** Per class and skill: in how many rows the skill was used, its hits, crit hits and damage - plus how many rows each class has. */
 export function classSkills(bossId: number, serverId: number | null, mode: string | null = null, gear: GearRange | null = null) {
   const scope = and(encounterScope(bossId, serverId, mode, gear), EXACT_PARTICIPANT);
@@ -248,7 +301,7 @@ export function classSkills(bossId: number, serverId: number | null, mode: strin
     .where(and(scope, sql`${encounterParticipants.totalDamage} > 0`))
     .groupBy(encounterParticipants.className)
     .all();
-  return skillStatsByClass(skillRows, new Map(rowCounts.map((r) => [r.className, r.rows])));
+  return skillStatsByClass(skillRows, new Map(rowCounts.map((r) => [r.className, r.rows])), skillExtras(scope));
 }
 
 /** The game's icon and the names in every language of each skill (Aion 2: the stored name is the English one of the client). */

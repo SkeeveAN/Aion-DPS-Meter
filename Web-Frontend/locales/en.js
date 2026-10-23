@@ -407,6 +407,8 @@ export default {
   "stats.skillHits": "Hits per run",
   "stats.skillCrit": "Crit rate",
   "stats.skillAverage": "Average hit",
+  "stats.skillChain": "Chain taken",
+  "stats.skillLevel": "Ø level",
   "stats.skillNote": "From the uploaded runs of this boss: {n} rows of this class. Skills used in fewer than 10 % of the rows are left out.",
   "player.emptyNoFights": "No recorded fights for this player yet.",
   "runs.view": "View run",

@@ -312,6 +312,12 @@ export function skillNamesByName(name: string, className?: string): Record<strin
   return undefined;
 }
 
+/** The English name of a skill id of the client's table (a skill has one id per variant and level step), or null. */
+export function skillNameById(id: number): string | null {
+  skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
+  return skillNames[String(id)] ?? null;
+}
+
 /** Chain skills of the client: skill id -> [follow-up skill id, window in ms] (Tools/aion2-dat/build_skill_chains.py). */
 export function skillChains(): Record<string, [number, number][]> {
   skillChainTable ??= loadJson<Record<string, [number, number][]>>("skill_chains.json", {});

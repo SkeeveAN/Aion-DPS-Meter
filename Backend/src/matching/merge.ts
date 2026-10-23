@@ -23,6 +23,7 @@ import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
 import { packTimeline, timelineJsonOf } from "../uploadArchive.js";
+import { storeChainUsage } from "../chainUsage.js";
 import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
 import { askAboutRenamed, noteClassHint, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
@@ -513,8 +514,9 @@ function storeTimeline(participantId: number, timeline: ParticipantUpload["timel
   const dataJson = JSON.stringify({ ...timeline, origin: uploadOrigin });
   db.insert(encounterTimelines)
     .values({ participantId, dataJson: "", dataGz: packTimeline(dataJson) })
-    .onConflictDoUpdate({ target: encounterTimelines.participantId, set: { dataJson: "", dataGz: packTimeline(dataJson) } })
+    .onConflictDoUpdate({ target: encounterTimelines.participantId, set: { dataJson: "", dataGz: packTimeline(dataJson), chainsDone: 0 } })
     .run();
+  storeChainUsage(participantId, timeline);
 }
 
 /** The boss's health curve: kept when the fight has none yet or the new one has more points. */

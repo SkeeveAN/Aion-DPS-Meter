@@ -50,3 +50,18 @@ test("skillStatsByClass: shares of the class damage, rare skills and thin classe
   assert.equal(glad!.skills[0]!.averageHit, 30);
   assert.ok(Math.abs(glad!.skills[0]!.damageShare - 3000 / 4900) < 1e-9);
 });
+
+test("skillStatsByClass: chain rate and average level appear with enough samples only", async () => {
+  const { skillStatsByClass } = await import("./classStats.js");
+  const rows = [
+    { className: "Gladiator", skill: "Rending Blow", runs: 20, hits: 100, critHits: 50, damage: 3000 },
+    { className: "Gladiator", skill: "Overhead Slam", runs: 20, hits: 100, critHits: 50, damage: 2000 },
+  ];
+  const extras = new Map([
+    ["Gladiator\u0000Rending Blow", { chainOffered: 40, chainTaken: 30, levelSum: 150, levelCount: 10 }],
+    ["Gladiator\u0000Overhead Slam", { chainOffered: 4, chainTaken: 4, levelSum: 30, levelCount: 3 }],
+  ]);
+  const [glad] = skillStatsByClass(rows, new Map([["Gladiator", 20]]), extras);
+  assert.deepEqual([glad!.skills[0]!.chainRate, glad!.skills[0]!.avgLevel], [0.75, 15]);
+  assert.deepEqual([glad!.skills[1]!.chainRate, glad!.skills[1]!.avgLevel], [null, null]);
+});

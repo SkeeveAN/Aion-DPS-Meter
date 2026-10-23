@@ -381,9 +381,11 @@ function buildSkillStats(classes, deps) {
         el("td", { textContent: formatNumber(Math.round(s.hitsPerRun)) }),
         el("td", { textContent: percent(s.critRate) }),
         el("td", { textContent: formatNumber(Math.round(s.averageHit)) }),
+        el("td", { textContent: s.chainRate === null || s.chainRate === undefined ? "–" : percent(s.chainRate) }),
+        el("td", { textContent: s.avgLevel === null || s.avgLevel === undefined ? "–" : formatNumber(s.avgLevel) }),
       ]);
     };
-    const head = ["stats.skillColumn", "stats.skillShare", "stats.skillUsed", "stats.skillHits", "stats.skillCrit", "stats.skillAverage"];
+    const head = ["stats.skillColumn", "stats.skillShare", "stats.skillUsed", "stats.skillHits", "stats.skillCrit", "stats.skillAverage", "stats.skillChain", "stats.skillLevel"];
     block.replaceChildren(
       el("h3", {}, [t("stats.skillsHeading")]),
       tabs,

@@ -6,6 +6,7 @@ import {
   uniqueIndex,
   index,
   blob,
+  primaryKey,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
@@ -544,7 +545,24 @@ export const encounterTimelines = sqliteTable("encounter_timelines", {
   /** Empty once the row is packed: the text is then in `dataGz` (see uploadArchive.ts, timelineJsonOf). */
   dataJson: text("data_json").notNull(),
   dataGz: blob("data_gz", { mode: "buffer" }),
+  /** 1 once `encounter_chain_usage` is filled in for this time axis (see chainUsage.ts). */
+  chainsDone: integer("chains_done").notNull().default(0),
 });
+
+/** Chain skills of a participant: of the uses of `skillId`, how many were followed by `nextId` within its window. Filled from the time axis (chainUsage.ts). */
+export const encounterChainUsage = sqliteTable(
+  "encounter_chain_usage",
+  {
+    participantId: integer("participant_id")
+      .notNull()
+      .references(() => encounterParticipants.id),
+    skillId: integer("skill_id").notNull(),
+    nextId: integer("next_id").notNull(),
+    offered: integer("offered").notNull(),
+    taken: integer("taken").notNull(),
+  },
+  (t) => ({ pk: primaryKey({ columns: [t.participantId, t.skillId, t.nextId] }) }),
+);
 
 export const uploads = sqliteTable(
   "uploads",
