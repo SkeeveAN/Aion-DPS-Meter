@@ -256,6 +256,13 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the Npcap download button in the first-start wizard is slimmer, so its list row is no taller than the others",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
