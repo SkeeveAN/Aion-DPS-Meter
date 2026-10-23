@@ -54,8 +54,20 @@ public static class PrivacyRender
         var wizard = kind.StartsWith("wizard", StringComparison.Ordinal) ? new WizardWindow(new MeterSettings()) : null;
         if (wizard is not null)
         {
-            int page = kind.Contains(':') ? int.Parse(kind[(kind.IndexOf(':') + 1)..]) - 1 : 0;
-            wizard.ShowPageForPicture(page, accepted: page >= 2);
+            // "wizard:4w" is the last page while no character is recognised yet, "wizard:4n" the same with Npcap missing
+            string tail = kind.Contains(':') ? kind[(kind.IndexOf(':') + 1)..] : "1";
+            int page = int.Parse(tail.TrimEnd('w', 'n')) - 1;
+            bool waiting = tail.EndsWith('w') || tail.EndsWith('n');
+            bool npcapMissing = tail.EndsWith('n');
+            // the last page is drawn with a recognised character and the others of the account (a sample, there is no capture in a picture)
+            var sample = page == 3 ? ((bool, IReadOnlyList<WizardWindow.SeenCharacter>, DateTime)?)(!npcapMissing, waiting ? Array.Empty<WizardWindow.SeenCharacter>() : new[]
+            {
+                new WizardWindow.SeenCharacter("Aahz", 6, 1, 45, 1304, true),
+                new WizardWindow.SeenCharacter("Skeeve", 26, 1, 22, 1304, false),
+                new WizardWindow.SeenCharacter("Chumley", 34, 1, 31, 1304, false),
+                new WizardWindow.SeenCharacter("Nunzio", 14, 1, 45, 1304, false),
+            }, new DateTime(2026, 10, 24, 19, 42, 7)) : null;
+            wizard.ShowPageForPicture(page, accepted: page >= 2, sample);
         }
 
         Window window = wizard ?? (Window)new PrivacyWindow(null);

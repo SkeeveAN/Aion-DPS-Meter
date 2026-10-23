@@ -122,20 +122,49 @@
 
             <StackPanel x:Name="PageReady" Visibility="Hidden">
                 <TextBlock Style="{StaticResource Heading}" Text="{local:Loc Wizard.SetupHeading}"/>
-                <Border Style="{StaticResource SettingsCard}">
+
+                <!-- the checklist: a green tick behind what is done, a "?" with the explanation -->
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="NpcapMark" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="NpcapText" Grid.Column="1" VerticalAlignment="Center"/>
+                    <Button x:Name="NpcapButton" Grid.Column="2" Content="{local:Loc Wizard.NpcapDownload}" Click="OnNpcapDownloadClicked" Margin="12,0,8,0" Padding="10,3" Visibility="Collapsed"/>
+                    <Border x:Name="NpcapTip" Grid.Column="3" Width="20" Height="20" CornerRadius="10" BorderThickness="1" Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}"
+                            VerticalAlignment="Center" Cursor="Help" ToolTipService.InitialShowDelay="150" ToolTipService.ShowDuration="30000">
+                        <TextBlock Text="?" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                    </Border>
+                </Grid>
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="CharMark" FontSize="16" FontWeight="Bold" VerticalAlignment="Top"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock x:Name="CharacterText" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="SwitchHint" Style="{StaticResource Hint}" Margin="0,4,0,0" Text="{local:Loc Wizard.SwitchHint}"/>
+                    </StackPanel>
+                    <Border x:Name="CharTip" Grid.Column="2" Width="20" Height="20" CornerRadius="10" BorderThickness="1" Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}"
+                            VerticalAlignment="Top" Cursor="Help" ToolTipService.InitialShowDelay="150" ToolTipService.ShowDuration="30000">
+                        <TextBlock Text="?" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                    </Border>
+                </Grid>
+
+                <!-- the characters of the account the game told about at the login (only the one logged in is seen live) -->
+                <Border x:Name="CharsCard" Style="{StaticResource SettingsCard}" Margin="0,16,0,0" Visibility="Collapsed">
                     <StackPanel>
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="NpcapText" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                            <Button x:Name="NpcapButton" Grid.Column="1" Content="{local:Loc Wizard.NpcapDownload}" Click="OnNpcapDownloadClicked"
-                                    Margin="12,0,0,0" Padding="10,3" Visibility="Collapsed"/>
+                            <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Wizard.CharsHeading}" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="CharsTime" Style="{StaticResource CardTitle}" HorizontalAlignment="Right" Margin="0,0,0,8"/>
                         </Grid>
-                        <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0" Text="{local:Loc Wizard.TeleportStep}"/>
-                        <TextBlock x:Name="CharacterText" FontWeight="SemiBold" Margin="0,6,0,0"/>
-                        <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0" Text="{local:Loc Wizard.FightStep}"/>
+                        <StackPanel x:Name="CharRows"/>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0" Text="{local:Loc Wizard.CharsHint}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

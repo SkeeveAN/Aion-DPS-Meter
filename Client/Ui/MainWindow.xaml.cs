@@ -399,7 +399,7 @@ public partial class MainWindow : Window
             {
                 if (wizard)
                 {
-                    new WizardWindow(settings, RecognisedCharacterName) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+                    new WizardWindow(settings, RecognisedCharacterName, () => _liveSource?.Entities as Aion2.Aion2EntityDirectory) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
                 }
                 else if (PrivacyConsent.NeedsAsking(MeterSettings.Load()))
                 {

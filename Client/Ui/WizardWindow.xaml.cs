@@ -2,7 +2,11 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Globalization;
+using AionDPS.Aion2;
 using AionDPS.Aion2.Capture;
+using AionDPS.Aion2.Protocol;
+using AionDPS.Data;
 
 namespace AionDPS.Ui;
 
@@ -19,10 +23,19 @@ public partial class WizardWindow : Window
     private readonly MeterSettings _settings;
 
     private readonly Func<string?>? _characterProbe;
+    private readonly Func<Aion2EntityDirectory?>? _directory;
+    private DateTime? _recognisedAt;
+    private bool _hasCurrent;
+
+    /// <summary>A character of the last page: the one logged in is seen live (<see cref="Current"/>), the others of the account were only told by the game at the login.</summary>
+    internal sealed record SeenCharacter(string Name, int ClassCode, int Faction, int Level, int ServerId, bool Current);
+
+    /// <summary>The picture mode shows the last page with these characters instead of the live capture.</summary>
+    internal (bool Npcap, IReadOnlyList<SeenCharacter> Characters, DateTime At)? PictureSample { get; set; }
     private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
     /// <param name="characterProbe">The name of the character the meter has recognised so far, or null; polled once a second.</param>
-    public WizardWindow(MeterSettings settings, Func<string?>? characterProbe = null)
+    public WizardWindow(MeterSettings settings, Func<string?>? characterProbe = null, Func<Aion2EntityDirectory?>? directory = null)
     {
         InitializeComponent();
         ThemedChrome.Apply(this);
@@ -44,6 +57,7 @@ public partial class WizardWindow : Window
         // as tall as the whole wizard needs on this screen: it scrolls only where the screen is too small
         MaxHeight = SystemParameters.WorkArea.Height - 20;
         _characterProbe = characterProbe;
+        _directory = directory;
         ShowPolicyText();
         _pages = new UIElement[] { PageLanguage, PagePolicy, PageUploads, PageReady };
         ShowPage(0);
@@ -58,25 +72,161 @@ public partial class WizardWindow : Window
         };
     }
 
-    /// <summary>Npcap present? Character recognised? Re-read every second, in the language chosen above.</summary>
+    /// <summary>The characters the meter knows: the one logged in (live, from the character record) and the others of the account (from the list of the login).</summary>
+    private List<SeenCharacter> Characters()
+    {
+        var list = new List<SeenCharacter>();
+        Aion2EntityDirectory? directory = _directory?.Invoke();
+        if (directory is not null)
+        {
+            if (directory.LocalCharacter is { Restored: false } live)
+            {
+                list.Add(new SeenCharacter(live.Name, live.ClassCode, live.ServerId / 1000 == 2 ? 2 : 1, live.Level, live.ServerId, true));
+            }
+
+            foreach (AccountCharacter other in directory.AccountCharacters())
+            {
+                if (!list.Any(c => c.Name == other.Name))
+                {
+                    list.Add(new SeenCharacter(other.Name, other.ClassCode, other.Faction, other.Level, other.ServerId, false));
+                }
+            }
+        }
+        else if (_characterProbe?.Invoke() is { Length: > 0 } name)
+        {
+            list.Add(new SeenCharacter(name, 0, 1, 0, 0, true));
+        }
+
+        return list;
+    }
+
+    private string _rowsKey = "";
+
+    /// <summary>Npcap present? Character recognised? Re-read every second, in the language chosen above; the last page is a checklist with a green tick behind what is done.</summary>
     private void RefreshStatus()
     {
         var loc = LocalizationManager.Instance;
-        bool npcap = NpcapAvailability.Detect().IsInstalled;
-        NpcapText.Text = loc[npcap ? "Wizard.NpcapOk" : "Wizard.NpcapMissing"];
-        NpcapButton.Visibility = npcap ? Visibility.Collapsed : Visibility.Visible;
-
-        string? character = null;
+        bool npcap = PictureSample?.Npcap ?? NpcapAvailability.Detect().IsInstalled;
+        List<SeenCharacter> characters;
         try
         {
-            character = _characterProbe?.Invoke();
+            characters = PictureSample?.Characters.ToList() ?? Characters();
         }
         catch (Exception ex) when (ex is InvalidOperationException or NullReferenceException)
         {
-            // the capture is still starting: nothing recognised yet
+            characters = new List<SeenCharacter>(); // the capture is still starting: nothing recognised yet
         }
 
-        CharacterText.Text = string.IsNullOrEmpty(character) ? loc["Wizard.CharWaiting"] : string.Format(loc["Wizard.CharFound"], character);
+        SeenCharacter? current = characters.FirstOrDefault(c => c.Current);
+        _hasCurrent = current is not null;
+        if (current is not null && _recognisedAt is null)
+        {
+            _recognisedAt = PictureSample?.At ?? DateTime.Now;
+        }
+
+        Mark(NpcapMark, npcap);
+        NpcapText.Text = loc[npcap ? "Wizard.ItemNpcapOk" : "Wizard.ItemNpcapMissing"];
+        NpcapButton.Visibility = npcap ? Visibility.Collapsed : Visibility.Visible;
+        NpcapTip.ToolTip = Tip(loc["Wizard.TipNpcap"]);
+        Mark(CharMark, current is not null);
+        CharacterText.Text = current is null ? loc["Wizard.CharWaiting"] : loc["Wizard.CharFound"].TrimStart('✓', ' ');
+        SwitchHint.Visibility = current is null ? Visibility.Visible : Visibility.Collapsed;
+        CharTip.ToolTip = Tip(loc["Wizard.TipCharacter"]);
+
+        CharsCard.Visibility = characters.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        string key = LocalizationManager.Instance.Language + "|" + string.Join(";", characters.Select(c => $"{c.Name}/{c.ClassCode}/{c.Level}/{c.ServerId}/{c.Current}"));
+        if (key != _rowsKey)
+        {
+            _rowsKey = key;
+            CharRows.Children.Clear();
+            foreach (SeenCharacter c in characters)
+            {
+                CharRows.Children.Add(CharacterRow(c));
+            }
+        }
+
+        CharsTime.Text = _recognisedAt is { } at ? string.Format(loc["Wizard.CharsTime"], at.ToString("HH:mm:ss", CultureInfo.CurrentCulture)) : "";
+        UpdateNextState();
+    }
+
+    /// <summary>A green tick behind what is done, an empty circle before.</summary>
+    private void Mark(TextBlock mark, bool done)
+    {
+        mark.Text = done ? "✓" : "○";
+        mark.SetResourceReference(TextBlock.ForegroundProperty, done ? "Brush.Heal" : "Brush.TextMuted");
+    }
+
+    private ToolTip Tip(string text)
+    {
+        var block = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, MaxWidth = 340 };
+        return new ToolTip { Content = block };
+    }
+
+    /// <summary>One line of the list: faction emblem, server, name in the class colour, class, level and, right-aligned, a green tick for the one logged in now (the others are only known by what the game listed).</summary>
+    private UIElement CharacterRow(SeenCharacter c)
+    {
+        var loc = LocalizationManager.Instance;
+        string? className = c.ClassCode > 0 ? Aion2SkillNames.ClassFromCode(c.ClassCode) : null;
+        var row = new Grid { Margin = new Thickness(0, 3, 0, 3) };
+        foreach (GridLength width in new[] { new GridLength(26), new GridLength(110), new GridLength(1, GridUnitType.Star), new GridLength(120), new GridLength(80), new GridLength(28) })
+        {
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = width });
+        }
+
+        if (new RaceIconConverter().Convert(c.Faction == 2 ? "Asmodian" : "Elyos", typeof(System.Windows.Media.ImageSource), null, CultureInfo.CurrentCulture) is System.Windows.Media.ImageSource flag)
+        {
+            row.Children.Add(new Image { Source = flag, Width = 16, Height = 16, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center });
+        }
+
+        void Cell(int column, string text, System.Windows.Media.Brush? brush, string brushKey, bool bold = false)
+        {
+            var block = new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, Margin = new Thickness(0, 0, 8, 0) };
+            if (brush is not null)
+            {
+                block.Foreground = brush;
+            }
+            else
+            {
+                block.SetResourceReference(TextBlock.ForegroundProperty, brushKey);
+            }
+
+            Grid.SetColumn(block, column);
+            row.Children.Add(block);
+        }
+
+        Cell(1, c.ServerId > 0 ? Aion2Servers.NameOf(c.ServerId).Replace("Europe - ", "", StringComparison.Ordinal) : "", null, "Brush.TextMuted");
+        Cell(2, c.Name, className is not null ? ClassBrushes.Solid(className) : null, "Brush.Text", bold: true);
+        Cell(3, className is not null ? ClassCatalog.DisplayName(className, loc.Language) : "", null, "Brush.TextSubtle");
+        Cell(4, c.Level > 0 ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.Level"], c.Level) : "", null, "Brush.TextSubtle");
+        if (c.Current)
+        {
+            var tick = new TextBlock { Text = "✓", FontSize = 15, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+            tick.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Heal");
+            Grid.SetColumn(tick, 5);
+            row.Children.Add(tick);
+        }
+
+        return row;
+    }
+
+    /// <summary>Next waits for an answer on the policy page, and Finish waits until the character logged in was recognised.</summary>
+    private void UpdateNextState()
+    {
+        if (_pages.Length == 0)
+        {
+            return;
+        }
+
+        List<int> sequence = Sequence();
+        bool last = sequence.IndexOf(_page) == sequence.Count - 1;
+        bool enabled = _page switch
+        {
+            1 => PolicyAccept.IsChecked == true || PolicyDecline.IsChecked == true,
+            3 => _hasCurrent,
+            _ => true,
+        };
+        NextButton.IsEnabled = enabled;
+        NextButton.ToolTip = last && !enabled ? LocalizationManager.Instance["Wizard.FinishLocked"] : null;
     }
 
     private void OnNpcapDownloadClicked(object sender, RoutedEventArgs e)
@@ -135,12 +285,18 @@ public partial class WizardWindow : Window
         StepText.Text = string.Format(loc["Wizard.Step"], position + 1, sequence.Count);
         BackButton.Visibility = position > 0 ? Visibility.Visible : Visibility.Hidden;
         NextButton.Content = position == sequence.Count - 1 ? loc["Wizard.Finish"] : loc["Wizard.Next"];
-        NextButton.IsEnabled = page != 1 || PolicyAccept.IsChecked == true || PolicyDecline.IsChecked == true;
+        UpdateNextState();
     }
 
     /// <summary>The picture mode draws each page (0 language, 1 policy, 2 uploads, 3 ready) as it looks.</summary>
-    public void ShowPageForPicture(int page, bool accepted)
+    internal void ShowPageForPicture(int page, bool accepted, (bool Npcap, IReadOnlyList<SeenCharacter> Characters, DateTime At)? sample = null)
     {
+        PictureSample = sample;
+        if (sample is not null)
+        {
+            RefreshStatus();
+        }
+
         if (accepted)
         {
             PolicyAccept.IsChecked = true;
