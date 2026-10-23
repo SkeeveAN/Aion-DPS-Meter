@@ -220,10 +220,11 @@
     "date": "2026-10-23"
    },
    {
-    "text": "Docs and changelog: privacy consent, replay upload, monsters on the replay map",
+    "text": "Client and website: turned-down skill inputs are no longer read, uploaded or shown (red marks on the fight page, the dummy test line and the sentence in the privacy text are gone); the German privacy text says 'als du das Ranglisten-Fenster geöffnet hattest'",
     "areas": [
      "Client",
-     "Website"
+     "Website",
+     "Backend"
     ],
     "date": "2026-10-23"
    }
