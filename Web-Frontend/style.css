@@ -4300,6 +4300,7 @@ button.cmp-mem { cursor: pointer; }
 .tl-hp { fill: none; stroke: #ff7b7b; stroke-width: 2; }
 .tl-group { fill: #58d38c; opacity: 0.75; }
 .tl-death { fill: #ff7b7b; font-size: 15px; font-weight: 700; }
+.tl-reject { fill: #ff7b7b; opacity: 0.85; }
 .tl-grid { stroke: var(--color-border); stroke-dasharray: 2 4; }
 .tl-tick { fill: var(--color-text-muted); font-size: 12px; }
 .tl-brush { fill: var(--color-primary); opacity: 0.16; stroke: var(--color-primary); stroke-dasharray: 4 3; pointer-events: none; }

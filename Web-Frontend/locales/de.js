@@ -375,6 +375,8 @@ export default {
   "timeline.hint": "Zieh über die Zeitleiste, um einen Abschnitt des Kampfes zu wählen.",
   "timeline.selection": "{from} – {to}: {uses} Skill-Einsätze",
   "timeline.deaths": "{n} Tod/Tode",
+  "timeline.rejected": "{n} abgelehnte Eingabe(n)",
+  "timeline.rejectedMark": "Eingabe abgelehnt (Skill gedrückt, während ein anderer noch lief)",
   "timeline.bossFell": "Boss-Leben {from} % → {to} %",
   "timeline.legendUse": "Skill-Einsatz",
   "timeline.legendGroup": "ein Gruppen-Effekt lief auf dem Spieler",

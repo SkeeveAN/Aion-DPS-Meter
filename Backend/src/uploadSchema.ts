@@ -37,6 +37,8 @@ const timelineSchema = z
     times: z.array(z.number().int().min(0).max(100_000)).max(4000),
     index: z.array(z.number().int().min(0).max(119)).max(4000),
     deaths: z.array(z.number().int().min(0).max(100_000)).max(40).default([]),
+    // Moments the server turned down a skill use (a key pressed during an animation); only the uploader's own character, tenths of a second like times.
+    rejected: z.array(z.number().int().min(0).max(100_000)).max(400).optional(),
   })
   .refine((t) => t.times.length === t.index.length && t.index.every((i) => i < t.skills.length), { message: "timeline: times and index must pair up with skills" });
 

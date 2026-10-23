@@ -115,6 +115,7 @@ public sealed class Aion2CombatState
     private readonly Dictionary<int, TrackBuffer> _tracks = new();
     private readonly List<WindupRecord> _windupLog = new();
     private readonly List<DeathRecord> _deathLog = new();
+    private readonly List<RejectRecord> _rejectLog = new();
     private readonly List<(int Entity, DateTime At)> _reviveLog = new();
     private readonly List<BuffEvent> _buffLog = new();
     private readonly List<StaggerEvent> _staggerLog = new();
@@ -246,6 +247,15 @@ public sealed class Aion2CombatState
             }
 
             track.Add(at, x, y);
+        }
+    }
+
+    /// <summary>The server turned down a skill of the own character (frame 0x0138 with an error code).</summary>
+    public void NoteRejected(int entity, int skillId, int code, DateTime at)
+    {
+        lock (_gate)
+        {
+            Append(_rejectLog, new RejectRecord(at, entity, skillId, code));
         }
     }
 
@@ -643,7 +653,8 @@ public sealed class Aion2CombatState
                 }
             }
 
-            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp);
+            List<RejectRecord>? rejected = _rejectLog.Where(r => r.At >= from && r.At <= to).ToList();
+            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp, rejected.Count > 0 ? rejected : null);
         }
     }
 

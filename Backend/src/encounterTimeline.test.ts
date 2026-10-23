@@ -70,3 +70,17 @@ test("chain skills: a use of the first skill counts as taken when the follow-up 
   const keen = out.find((c) => c.to.id === 400)!;
   assert.deepEqual([keen.uses, keen.taken, keen.to.name], [2, 0, "Rupture"]);
 });
+
+test("turned-down inputs of a player are lined up on the encounter's clock like the other moments", () => {
+  const out = shapeTimeline({
+    startedAt: START,
+    durationSeconds: 60,
+    bossHp: null,
+    players: [
+      { id: 1, name: "Anna", className: "Gladiator", timeline: { origin: "2026-01-01T20:00:02.000Z", skills: [{ id: 11, name: "Slam" }], times: [10], index: [0], deaths: [], rejected: [50, 20] }, buffs: [] },
+      { id: 2, name: "Bob", className: "Cleric", timeline: { origin: START, skills: [{ id: 21, name: "Heal" }], times: [0], index: [0], deaths: [] }, buffs: [] },
+    ],
+  });
+  assert.deepEqual(out.players[0]!.rejected, [4, 7]);
+  assert.deepEqual(out.players[1]!.rejected, []);
+});

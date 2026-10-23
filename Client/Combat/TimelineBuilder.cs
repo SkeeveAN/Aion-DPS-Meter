@@ -14,6 +14,9 @@ public static class TimelineBuilder
     /// <summary>The most different skills of one player (the backend takes 120).</summary>
     public const int MaxSkills = 120;
 
+    /// <summary>The most turned-down skill uses of one player (the backend takes 400).</summary>
+    public const int MaxRejected = 400;
+
     /// <summary>The most boss health points (the backend takes 400 pairs).</summary>
     public const int MaxHpPoints = 400;
 
@@ -61,7 +64,13 @@ public static class TimelineBuilder
             .Select(d => Tenths((d.At - start).TotalSeconds))
             .Take(40)
             .ToList();
-        return new TimelineUpload(skills, times, index, deaths);
+        // the server only answers the own character's skill uses: nothing for the others
+        var rejected = (extras.Rejected ?? Array.Empty<RejectRecord>())
+            .Where(r => r.Entity == playerId && r.At >= start && r.At <= end)
+            .Select(r => Tenths((r.At - start).TotalSeconds))
+            .Take(MaxRejected)
+            .ToList();
+        return new TimelineUpload(skills, times, index, deaths, rejected.Count > 0 ? rejected : null);
     }
 
     /// <summary>The boss's health curve in the window as flattened (tenths of a second, thousandths) pairs, at most one point per half second and <see cref="MaxHpPoints"/> points; null when there is none.</summary>

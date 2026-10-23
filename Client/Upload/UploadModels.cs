@@ -29,7 +29,9 @@ public sealed record TimelineSkillUpload(int Id, string Name);
 
 /// <summary>The time axis of one player: which skill was used when, and when they died. Times are tenths of a second from the start of the uploaded fight;
 /// <see cref="Times"/>[i] is a use of <see cref="Skills"/>[<see cref="Index"/>[i]].</summary>
-public sealed record TimelineUpload(IReadOnlyList<TimelineSkillUpload> Skills, IReadOnlyList<int> Times, IReadOnlyList<int> Index, IReadOnlyList<int> Deaths);
+public sealed record TimelineUpload(IReadOnlyList<TimelineSkillUpload> Skills, IReadOnlyList<int> Times, IReadOnlyList<int> Index, IReadOnlyList<int> Deaths,
+    // The moments (tenths of a second) the server turned down a skill of this player; only ever filled for the uploader's own character, empty for the others.
+    IReadOnlyList<int>? Rejected = null);
 
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own
 /// "You" check (see MainWindow.ResolveDisplayName) - the backend trusts THIS row's crit rate for

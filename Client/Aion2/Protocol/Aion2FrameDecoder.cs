@@ -146,6 +146,9 @@ public sealed class Aion2FrameDecoder
     /// <summary>A skill that has been cast: the same aim block, no duration. Players' skills too.</summary>
     private const int CastOpcode = 0x0238;
 
+    /// <summary>The server's receipt of the own skill use: taken, or turned down with an error code (docs/protocol/skill-frames.md).</summary>
+    private const int SkillReceiptOpcode = 0x0138;
+
     /// <summary>A hit that lands: <c>opcode | attacker (varint) | 00 | target (varint) | skill id u32 | position ...</c>, about 0.3 s before the
     /// damage frame (0x0438) of the same hit, which holds the amount. In a fight of a few players both arrive for every hit (one notice per
     /// damaging frame: 4,331 against 4,306 in a recording of a Urugugu run). On a crowded world boss the server sends the notices of everybody around and
@@ -567,6 +570,17 @@ public sealed class Aion2FrameDecoder
                 {
                     Aion2Tickets.ReceiveUpdate(reading, timestamp);
                 }
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == SkillReceiptOpcode)
+        {
+            // 0x0138 | 00 cc dd | skill u32: only for the own character; 00 00 00 = taken, an error code (dd = 0x18) = turned down
+            if (frame.Length == 9 && (frame[3] != 0 || frame[4] != 0) && _entities.LocalPlayerId is >= 0 and int self)
+            {
+                _entities.Combat.NoteRejected(self, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[5..])), frame[3], timestamp);
             }
 
             return Array.Empty<DamageEvent>();

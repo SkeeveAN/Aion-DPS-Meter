@@ -57,8 +57,13 @@ public static class SelfCheckBuffUpload
         IReadOnlyList<int>? curve = TimelineBuilder.BossHp(withTime, boss, start, end);
         bool health = curve is not null && curve.Count % 2 == 0 && curve[0] == 0 && curve[1] == 1000 && curve[^1] == 300 && curve[^2] == 100;
         Console.WriteLine($"  -> the boss's health curve, at most one point per half second: {health}");
+        // turned-down inputs: only the player's own, inside the window, in tenths of a second
+        var turned = new List<RejectRecord> { new(start.AddSeconds(2.5), you, 11000100, 0x13), new(start.AddSeconds(2.6), wendy, 17000010, 0x13), new(start.AddSeconds(500), you, 11000100, 0x13) };
+        TimelineUpload? withRejects = TimelineBuilder.For(withTime with { Rejected = turned }, you, start, end, id => names.GetValueOrDefault(id));
+        bool rejected = withRejects?.Rejected is { Count: 1 } r && r[0] == 25 && line?.Rejected is null;
+        Console.WriteLine($"  -> the server's turned-down inputs of the player go along, nobody else's: {rejected}");
         bool noUses = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null) is null;
         Console.WriteLine($"  -> a player without skill uses has no time axis: {noUses}");
-        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && noUses;
+        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && rejected && noUses;
     }
 }

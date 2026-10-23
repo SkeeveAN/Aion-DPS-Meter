@@ -375,6 +375,8 @@ export default {
   "timeline.hint": "Drag over the timeline to pick a part of the fight.",
   "timeline.selection": "{from} – {to}: {uses} skill uses",
   "timeline.deaths": "{n} death(s)",
+  "timeline.rejected": "{n} turned-down input(s)",
+  "timeline.rejectedMark": "Input turned down (a skill pressed while another was still running)",
   "timeline.bossFell": "boss health {from} % → {to} %",
   "timeline.legendUse": "skill use",
   "timeline.legendGroup": "a group effect was on the player",
