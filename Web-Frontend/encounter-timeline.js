@@ -306,3 +306,36 @@ export function buildFocus(timeline, deps) {
     ]),
   ]);
 }
+
+/** The effects the players put on the boss: how long each one was on, who gave it, and when (a bar over the fight). */
+export function buildBossDebuffs(timeline, deps) {
+  const { el, t, formatNumber, getLocale } = deps;
+  const list = timeline.bossDebuffs ?? [];
+  if (list.length === 0) {
+    return null;
+  }
+  const duration = Math.max(1, timeline.durationSeconds);
+  const rows = list.map((b) => {
+    const label = b.names?.[getLocale()] ?? b.names?.en ?? b.name;
+    const holder = el("span", { className: "sb-ico" });
+    if (b.icon && b.iconKind) {
+      const img = el("img", { src: `/images/aion2/icons/${b.iconKind}/${b.icon}.webp`, alt: "", loading: "lazy", width: 28, height: 28 });
+      img.addEventListener("error", () => img.remove());
+      holder.append(img);
+    }
+    const bar = el("div", { className: "bd-bar" }, b.spans.map(([s, e]) => el("i", { style: `left:${(Math.min(s, duration) / duration) * 100}%;width:${Math.max(0.4, ((Math.min(e, duration) - Math.min(s, duration)) / duration) * 100)}%` })));
+    return el("tr", {}, [
+      el("td", {}, [el("div", { className: "skill-name" }, [holder, el("span", { textContent: label })])]),
+      el("td", { textContent: `${Math.round(b.uptimePermille / 10)} %` }),
+      el("td", { textContent: b.givers.length > 0 ? b.givers.join(", ") : "–" }),
+      el("td", { className: "bd-cell" }, [bar]),
+    ]);
+  });
+  return el("div", { className: "meter-panel sb-panel" }, [
+    el("div", { className: "meter-panel-header" }, [el("div", { className: "meter-panel-heading" }, [el("span", { className: "meter-panel-title", textContent: t("bossDebuffs.heading") }), el("span", { className: "meter-panel-subtitle", textContent: t("bossDebuffs.subtitle", { n: formatNumber(list.length) }) })])]),
+    el("table", { className: "ranked-table compact skill-table" }, [
+      el("thead", {}, [el("tr", {}, ["bossDebuffs.effect", "bossDebuffs.uptime", "bossDebuffs.givers", "bossDebuffs.when"].map((k) => el("th", { textContent: t(k) })))]),
+      el("tbody", {}, rows),
+    ]),
+  ]);
+}

@@ -2741,6 +2741,8 @@ public partial class MainWindow : Window
             : null;
         // the boss's health over the fight, for the website's group timeline
         IReadOnlyList<int>? bossHp = buffExtras is not null ? TimelineBuilder.BossHp(buffExtras, targetId, windowStart, windowEnd) : null;
+        // what the players put on the boss, for the website's "effects on the boss"
+        IReadOnlyList<BuffUsageUpload>? bossDebuffs = buffExtras is not null && aion2Directory is not null ? BuffUpload.OnBoss(buffExtras, targetId, windowStart, windowEnd, id => aion2Directory.NameFor(id) ?? aion2Directory.MonsterNameFor(id)) : null;
 
         // One pass over the events instead of one per player: a world boss has a thousand of them, and each rescan of the
         // whole history per row made building the upload take minutes.
@@ -2915,7 +2917,8 @@ public partial class MainWindow : Window
             ServerId: Aion2OwnServerId(),
             GameServer: Aion2GameServerAddress(),
             BossLevel: (_source?.Entities as Aion2EntityDirectory)?.NpcLevelOf(targetId),
-            BossHp: bossHp);
+            BossHp: bossHp,
+            BossDebuffs: bossDebuffs);
     }
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is

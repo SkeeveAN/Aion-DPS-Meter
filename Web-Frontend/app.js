@@ -3,7 +3,7 @@ import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, I
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildGearFilters, buildInstanceStats } from "./boss-stats.js";
-import { buildBuffsPerSkill, buildFocus, buildGroupTimeline } from "./encounter-timeline.js";
+import { buildBossDebuffs, buildBuffsPerSkill, buildFocus, buildGroupTimeline } from "./encounter-timeline.js";
 import { ARTICLE, ARTICLE_DE, articleSegments } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
@@ -3488,7 +3488,7 @@ async function renderEncounter(encounterId) {
       if (data.encounter.isPartial === true && typeof data.encounter.hpSeenShare === "number" && Array.isArray(timeline.bossHp)) {
         timeline.bossHp = timeline.bossHp.map(([s, permille]) => [s, Math.round(permille * data.encounter.hpSeenShare)]);
       }
-      const panels = [buildGroupTimeline(timeline, deps), buildFocus(timeline, deps), buildBuffsPerSkill(timeline, deps)].filter((p) => p !== null);
+      const panels = [buildGroupTimeline(timeline, deps), buildFocus(timeline, deps), buildBossDebuffs(timeline, deps), buildBuffsPerSkill(timeline, deps)].filter((p) => p !== null);
       grid.after(...panels);
     } catch {
       // the lists above stay as they are

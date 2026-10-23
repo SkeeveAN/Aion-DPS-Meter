@@ -70,10 +70,25 @@ export interface ChainOut {
   taken: number;
 }
 
+/** One effect on the boss: how long it was on, who gave it, and when (seconds from the start of the fight). */
+export interface BossDebuffOut {
+  skillId: number;
+  name: string;
+  names?: Record<string, string>;
+  icon: string | null;
+  iconKind: "skill" | "item" | null;
+  casts: number;
+  uptimePermille: number;
+  givers: string[];
+  spans: [number, number][];
+}
+
 export interface EncounterTimelineOut {
   durationSeconds: number;
   /** [seconds, thousandths of the boss's health] */
   bossHp: [number, number][];
+  /** The effects the players put on the boss, longest first. */
+  bossDebuffs: BossDebuffOut[];
   players: TimelinePlayerOut[];
 }
 
@@ -93,7 +108,7 @@ function insideAny(t: number, spans: [number, number][]): boolean {
  * Players without a time axis are left out; nothing is invented for them.
  */
 export function shapeTimeline(
-  input: { startedAt: string; durationSeconds: number; bossHp: { o: string; p: number[] } | null; players: TimelinePlayerIn[] },
+  input: { startedAt: string; durationSeconds: number; bossHp: { o: string; p: number[] } | null; bossDebuffs?: { o: string; list: TimelineBuffIn[] } | null; players: TimelinePlayerIn[] },
   art: {
     skillIcon: (name: string, className: string) => string | null;
     skillNames: (name: string, className: string) => Record<string, string> | undefined;
@@ -168,7 +183,20 @@ export function shapeTimeline(
     const chains = chainsOf(p.timeline.skills, uses, art.chains ?? {}, art.skillInfo ?? (() => null));
     out.push({ participantId: p.id, name: p.name, className: p.className, skills, uses, deaths: p.timeline.deaths.map((d) => round1(shift + d / 10)), rejected: (p.timeline.rejected ?? []).map((d) => round1(shift + d / 10)).sort((a, b) => a - b), focus: p.timeline.focus ? { onBoss: round1(p.timeline.focus.onBoss / 10), onOthers: round1(p.timeline.focus.onOthers / 10), switches: p.timeline.focus.switches } : null, buffs, skillBuffs, chains });
   }
-  return { durationSeconds: input.durationSeconds, bossHp, players: out };
+  const bossDebuffs: BossDebuffOut[] = [];
+  if (input.bossDebuffs) {
+    const shift = shiftSeconds(input.bossDebuffs.o, start);
+    for (const b of input.bossDebuffs.list) {
+      const spans: [number, number][] = [];
+      for (let i = 0; i + 1 < (b.spans?.length ?? 0); i += 2) {
+        spans.push([round1(shift + b.spans[i]! / 10), round1(shift + b.spans[i + 1]! / 10)]);
+      }
+      const art2 = buffIcon(b.skillId);
+      bossDebuffs.push({ skillId: b.skillId, name: b.skill, names: buffNames(b.skillId, b.skill), icon: art2?.icon ?? null, iconKind: art2?.iconKind ?? null, casts: b.casts, uptimePermille: b.uptimePermille, givers: b.givers, spans });
+    }
+    bossDebuffs.sort((a, b) => b.uptimePermille - a.uptimePermille);
+  }
+  return { durationSeconds: input.durationSeconds, bossHp, bossDebuffs, players: out };
 }
 
 /** Window tolerance: the use times have a resolution of 0.1 s and the client counts its 3 s from its own tick. */
@@ -276,7 +304,16 @@ export function loadEncounterTimeline(encounterId: number): EncounterTimelineOut
       }),
   }));
   return shapeTimeline(
-    { startedAt: encounter.startedAt, durationSeconds: encounter.durationSeconds, bossHp: parse<{ o: string; p: number[] } | null>(encounter.bossHpJson, null), players: inputs },
+    {
+      startedAt: encounter.startedAt,
+      durationSeconds: encounter.durationSeconds,
+      bossHp: parse<{ o: string; p: number[] } | null>(encounter.bossHpJson, null),
+      bossDebuffs: ((): { o: string; list: TimelineBuffIn[] } | null => {
+        const stored = parse<{ o?: string; list?: { skillId: number; skill: string; casts: number; uptimePermille: number; givers: string[]; spans?: number[] }[] } | null>(encounter.bossDebuffsJson, null);
+        return stored?.list ? { o: stored.o ?? encounter.startedAt, list: stored.list.map((b) => ({ ...b, spans: b.spans ?? [], origin: stored.o ?? encounter.startedAt })) } : null;
+      })(),
+      players: inputs,
+    },
     { skillIcon: skillIconByName, skillNames: skillNamesByName, chains: skillChains(), skillInfo: skillInfoById },
   );
 }

@@ -401,6 +401,8 @@ export const encounters = sqliteTable(
     bossMaxHp: integer("boss_max_hp"),
     // The boss's health over the fight: pairs of (tenths of a second from the start, thousandths of its health), flattened. Null = not reported.
     bossHpJson: text("boss_hp_json"),
+    /** The effects on the boss over the fight (debuffs of the players): {o, list}, see merge.ts storeBossDebuffs and migration 0067. */
+    bossDebuffsJson: text("boss_debuffs_json"),
     // Partial fight ("Teilkampf"): the uploader joined late, the highest hit-point reading is clearly below the boss's real maximum (see bossHp.ts).
     // Stored and shown, but left out of every ranking, best list and average.
     isPartial: integer("is_partial", { mode: "boolean" }).notNull().default(false),

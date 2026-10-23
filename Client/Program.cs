@@ -1989,6 +1989,11 @@ internal static class Program
         {
             uploads++;
             Console.WriteLine($"  {request.BossNpcName} (entity {targetId}) NPC id {request.BossNpcId}, level {request.BossLevel}, max HP {request.BossMaxHp}, game {request.Game}, server {request.ServerName} [{request.ServerFingerprint}], {request.StartedAt:HH:mm:ss}-{request.EndedAt:HH:mm:ss} UTC, {request.Participants.Count} participant(s), {request.Participants.Count(p => p.IsSelf)} self");
+            foreach (var d in request.BossDebuffs ?? Array.Empty<Upload.BuffUsageUpload>())
+            {
+                Console.WriteLine($"      boss effect {d.Skill,-26} id {d.SkillId,9} uptime {d.UptimePermille / 10.0,5:0.0}% x{d.Casts,-4} givers {(d.Givers is { Count: > 0 } dg ? string.Join("/", dg) : "-")}");
+            }
+
             foreach (var p in request.Participants.OrderByDescending(x => x.TotalDamage))
             {
                 Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
@@ -2003,7 +2008,7 @@ internal static class Program
         }
 
         var buildProfiles = type.GetMethod("BuildProfilesUpload", flags);
-        if (buildProfiles?.Invoke(window, new object?[] { fingerprint, serverName, false }) is Upload.ProfilesUploadRequest profilesRequest)
+        if (buildProfiles?.Invoke(window, new object?[] { fingerprint, serverName, false, null }) is Upload.ProfilesUploadRequest profilesRequest)
         {
             if (Environment.GetEnvironmentVariable("AION_DRYRUN_JSON") is { Length: > 0 } jsonPath)
             {

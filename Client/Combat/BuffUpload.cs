@@ -43,6 +43,35 @@ public static class BuffUpload
         return list;
     }
 
+    /// <summary>
+    /// The effects that were on the boss: what the players put on it (the stream names the giver), over the fight. Effects the boss gave itself, passives and potions are left out;
+    /// an effect under <see cref="MinUptimePercent"/> of the fight is noise. Null when there is none.
+    /// </summary>
+    public static IReadOnlyList<BuffUsageUpload>? OnBoss(FightExtras extras, int bossId, DateTime start, DateTime end, Func<int, string?> nameOf)
+    {
+        RotationReport report = RotationAnalysis.Build(extras, bossId, start, end, Array.Empty<DamageEvent>(), nameOf);
+        var list = new List<BuffUsageUpload>();
+        // for the boss the analysis files what the group put on it as "debuffs" (the boss counts as one of the party it looks at), what it gave itself as "buffs"
+        foreach (BuffRow row in (report.Debuffs ?? Array.Empty<BuffRow>()).Concat(report.Buffs).GroupBy(r => r.SkillId).Select(g => g.First()).OrderByDescending(r => r.UptimePercent))
+        {
+            // "★" would be the boss itself as the giver: its own effects (rage, shields) are not what the players did to it
+            var givers = row.Givers.Split(", ", StringSplitOptions.RemoveEmptyEntries).Where(g => g != "★").ToList();
+            if (row.UptimePercent < MinUptimePercent || row.SkillId < 1000 || IsPotion(row.SkillId) || Aion2Artwork.IsPassiveEffect(row.SkillId) || givers.Count == 0)
+            {
+                continue;
+            }
+
+            list.Add(new BuffUsageUpload(Aion2SkillNames.NameOf(row.SkillId), Math.Max(1, row.Applications), row.SkillId,
+                (int)Math.Round(Math.Clamp(row.UptimePercent, 0, 100) * 10), givers, SpansOf(row.Spans)));
+            if (list.Count >= MaxPerPlayer)
+            {
+                break;
+            }
+        }
+
+        return list.Count > 0 ? list : null;
+    }
+
     /// <summary>The most spans one effect carries in the upload (the backend takes 200 pairs).</summary>
     public const int MaxSpans = 200;
 

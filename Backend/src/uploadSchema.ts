@@ -136,6 +136,8 @@ export const uploadSchema = z
   gameServer: z.string().trim().max(64).optional(),
   // The boss's health over the fight: (tenths of a second from the start, thousandths of its health) pairs, flattened. Optional (clients from 1.9.0 on).
   bossHp: z.array(z.number().int().min(0).max(100_000)).max(800).optional(),
+  // The effects that were on the boss during the fight (what the players put on it), like the effects of a participant: uptime, who gave it, the spans.
+  bossDebuffs: z.array(buffUsageSchema).max(40).optional(),
   })
   .superRefine((payload, ctx) => {
     // Aion 2 has a fixed, small class roster; a class outside it is a client bug worth rejecting

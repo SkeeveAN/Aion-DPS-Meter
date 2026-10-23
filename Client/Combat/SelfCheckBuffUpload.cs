@@ -45,6 +45,12 @@ public static class SelfCheckBuffUpload
         bool capped = BuffUpload.SpansOf(many) is { } m && m.Count <= BuffUpload.MaxSpans * 2 && m[0] == 0;
         Console.WriteLine($"  -> a flicker under half a second is one span, too many spans are joined to fit: {joined && capped}");
 
+        // the effects on the boss: what Wendy put on it counts (with her as giver), what the boss gave itself does not
+        var onBoss = new List<BuffEvent> { new(start, BuffKind.On, boss, 11, light, wendy, -1), new(start, BuffKind.On, boss, 12, monsterEffect, boss, -1) };
+        IReadOnlyList<BuffUsageUpload>? debuffs = BuffUpload.OnBoss(extras with { Buffs = onBoss }, boss, start, end, id => names.GetValueOrDefault(id));
+        bool bossEffects = debuffs is { Count: 1 } bd && bd[0].SkillId == light && bd[0].Givers is { Count: 1 } bg && bg[0] == "Wendy" && bd[0].UptimePermille >= 995;
+        Console.WriteLine($"  -> the effects on the boss: what a player put on it, not what it gave itself: {bossEffects}");
+
         // the time axis: skills used (the passive and the duplicates by name aside), the death of the player, the boss's health
         var uses = new List<SkillUse> { new(start.AddSeconds(1), you, 11000100), new(start.AddSeconds(3.5), you, 11000100), new(start.AddSeconds(6), you, 11000200), new(start.AddSeconds(2), wendy, 17000010) };
         var deaths = new List<DeathRecord> { new(start.AddSeconds(8), you), new(start.AddSeconds(9), wendy) };
@@ -77,6 +83,6 @@ public static class SelfCheckBuffUpload
         Console.WriteLine($"  -> an entity's selected target holds until he drops it: {holds && dropped}");
         bool noUses = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null) is null;
         Console.WriteLine($"  -> a player without skill uses has no time axis: {noUses}");
-        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && rejected && focused && holds && dropped && noUses;
+        return uptime && givers && noPotion && monster && spans && joined && capped && bossEffects && axis && health && rejected && focused && holds && dropped && noUses;
     }
 }

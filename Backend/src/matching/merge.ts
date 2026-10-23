@@ -519,6 +519,18 @@ function storeTimeline(participantId: number, timeline: ParticipantUpload["timel
   storeChainUsage(participantId, timeline);
 }
 
+/** The effects on the boss: kept when the fight has none yet or the new list is longer (a client that joined late saw fewer). */
+function storeBossDebuffs(encounterId: number, list: unknown[]) {
+  if (list.length === 0) {
+    return;
+  }
+  const row = db.select({ json: encounters.bossDebuffsJson }).from(encounters).where(eq(encounters.id, encounterId)).get();
+  const known = row?.json ? ((JSON.parse(row.json) as { list?: unknown[] }).list?.length ?? 0) : 0;
+  if (known < list.length) {
+    db.update(encounters).set({ bossDebuffsJson: JSON.stringify({ o: uploadOrigin, list }) }).where(eq(encounters.id, encounterId)).run();
+  }
+}
+
 /** The boss's health curve: kept when the fight has none yet or the new one has more points. */
 function storeBossHp(encounterId: number, bossHp: number[]) {
   if (bossHp.length < 4) {
@@ -999,12 +1011,14 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
   if (candidateEncounterId) {
     mergeIntoEncounter(candidateEncounterId, serverId, bossId, payload);
     storeBossHp(candidateEncounterId, payload.bossHp ?? []);
+    storeBossDebuffs(candidateEncounterId, payload.bossDebuffs ?? []);
     checkUploadedPlayers(payload.participants, serverId);
     return { status: "merged", encounterId: candidateEncounterId, serverId };
   }
 
   const encounterId = createEncounter(bossId, serverId, payload, fightClassOf(payload, bossId));
   storeBossHp(encounterId, payload.bossHp ?? []);
+  storeBossDebuffs(encounterId, payload.bossDebuffs ?? []);
   checkUploadedPlayers(payload.participants, serverId);
   return { status: "created", encounterId, serverId };
 }

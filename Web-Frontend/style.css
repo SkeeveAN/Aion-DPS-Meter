@@ -4424,3 +4424,8 @@ button.cmp-mem { cursor: pointer; }
   .run-head { flex-wrap: wrap; }
   .run-stats { margin-left: 0; width: 100%; justify-content: space-between; }
 }
+
+/* the effects on the boss: a thin bar over the fight with a stretch for every time the effect was on */
+.bd-cell { width: 40%; min-width: 180px; }
+.bd-bar { position: relative; height: 10px; border-radius: 5px; background: var(--surface-2, rgba(128,128,128,.18)); overflow: hidden; }
+.bd-bar i { position: absolute; top: 0; bottom: 0; background: #ff7b7b; opacity: .85; }
