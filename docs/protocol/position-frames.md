@@ -38,8 +38,8 @@ Die Fertigkeit trägt **Richtungsvektoren**, keine Weltkoordinaten (z. B. 46,5 /
 ## Rauschen
 
 - `0x0036`: etwa 20 pro Sekunde, der Takt, immer da.
-- `0x0336`: alle 9 s, 20 Byte, die Serveruhr (`... 41 a1 01 00 00`, dieselbe wie in den Effekt-Frames).
-- `0x1d37`: etwa 5 bis 7 pro Sekunde, 12 Byte, andere Entitäten, Zweck offen.
+- `0x0336`: alle **10 s** (551 von 554 Abständen genau 10,0 s), 20 Byte: `00 00 | u32 Millisekunden seit Serverstart | u32 K (3 oder 4) | u64 Serveruhr (UTC ms)`; `Uhr - Zähler` ist je Serverlauf konstant (siehe [welt-frames.md](welt-frames.md)).
+- `0x1d37`: etwa 5 bis 7 pro Sekunde, andere Entitäten: **Delta-Frame** (dx, dy, dz als int8 in cm gegen die letzte Position, siehe [bewegungs-frames.md](bewegungs-frames.md)).
 
 ## Flugenergie und Höhe
 
@@ -48,7 +48,7 @@ Die Fertigkeit trägt **Richtungsvektoren**, keine Weltkoordinaten (z. B. 46,5 /
 
 ## Offen
 
-- `0x2a37` und `0x4b36` von einer fremden Entität (im Flug etwa 1,5 pro Sekunde) nicht entschlüsselt.
+- `0x2a37` von einer fremden Entität ist ein Delta-Frame ([bewegungs-frames.md](bewegungs-frames.md)); `0x4b36` von einer fremden Entität bleibt offen.
 - Ob die Pakete vom Client zum Server (verschlüsselt, etwa 20 pro Sekunde) Bewegung tragen: nicht lesbar.
 - Die Konkurrenten: aion2t schreibt in den Release Notes 1.1.42 selbst, dass die Position im leeren Gelände hinterherhinkt oder geschätzt wird; THGL (The Hidden Gaming Lair) liest die Position aus dem Spielspeicher über einen Treiber (kein Weg für uns).
 

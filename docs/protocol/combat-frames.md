@@ -13,7 +13,7 @@ Die Kandidaten kamen aus der Analyse eines anderen Meters (nur Protokollfakten, 
 | `0x2a38` / `0x2b38` | 9.281 / 150.228 | Effekt auf einer Entität: neu / erneuert |
 | `0x2c38` | 6.863 | Effekt(e) beendet |
 | `0x008d` | 21.610 | HP; Art 0 = aktuell, **Art 7 = Maximum** |
-| `0x0e38`, `0x0638`, `0x0338`, `0x4738` | 731 / 4.917 / 2.773 / 96 | bewegte Fläche, Skill-Ende, Treffer-Position, Abklingzeiten (noch nicht entschlüsselt) |
+| `0x0e38`, `0x0638`, `0x0338`, `0x4738` | 731 / 4.917 / 2.773 / 96 | bewegte Fläche (Start-/Endposition eines Monsterskills, siehe [skill-frames.md](skill-frames.md)), **Skill-Ende** (`Akteur | Skill u32 | Seq u8 | Endcode u8`, siehe [welt-frames.md](welt-frames.md)), Treffer-Vorankündigung, Abklingzeiten ([cooldown-frames.md](cooldown-frames.md)) |
 | `0x05e0`, `0x4838`, `0x1b38`, `0x1e38` | 0 | in dieser Aufnahme nicht vorhanden (Stagger, Fläche, Aufladen) |
 
 ## Windup `0938` (belegt)

@@ -7,7 +7,7 @@ Stand 23.10.2026 (abgeglichen am Abend, siehe 0b). Gesammelt aus der Login-Dump-
 - Login-Dump im Client abgeschaltet (Erfassung und Upload); der Schalter in den Einstellungen bleibt unverändert sichtbar. Alte Clients senden bis zum Update weiter.
 - Doppel-Upload-Sperre: der Client sendet byte-gleiche Boss-Kämpfe einer Sitzung nicht erneut, der Server legt identische Payloads desselben Uploaders nicht noch einmal ab (Antwort `duplicate`).
 - Timeline-Kompression (`encounter_timelines.data_gz`, Migration 0065), Packfenster der Uploads 6 statt 24 Stunden, `VACUUM` bei jedem Deploy (Dienst gestoppt, Platzprüfung).
-- Server: Hanya (Live-DB) war unter Yustiel statt Kaisinel; erledigt am 23.10.
+- Server: ein Spieler der Live-DB war unter Yustiel statt Kaisinel; erledigt am 23.10.
 
 ### 0b. Umgesetzt am 23.10.2026 (gepusht, noch nicht released; Migrationen 0066 bis 0068 laufen beim nächsten Deploy)
 
@@ -124,7 +124,7 @@ Beschlossen am 23.10.2026. Quelle: Frame `0x7e8d` (gelernte Herstellungsrezepte)
 
 ### 2.5 Datenqualität und Spielerseiten (Online-Statistiken)
 
-- **Datenqualität:** Die Frames `0x2ce3`, `0x558d`, `0x74e2`, `0x058a`, `0x338a` tragen die **Server-ID, Klasse und Legion direkt vom Spielserver**. Damit lassen sich falsche Server-Zuordnungen korrigieren (der Hanya-Fall: ein Client meldete Server 1305, die Gruppen-Frame-ID war falsch) und der NC-Abgleich entlasten. Das ist wahrscheinlich die wertvollste Datenverbesserung.
+- **Datenqualität:** Die Frames `0x2ce3`, `0x558d`, `0x74e2`, `0x058a`, `0x338a` tragen die **Server-ID, Klasse und Legion direkt vom Spielserver**. Damit lassen sich falsche Server-Zuordnungen korrigieren (ein Fall aus der Live-DB: ein Client meldete Server 1305, die Gruppen-Frame-ID war falsch) und der NC-Abgleich entlasten. Das ist wahrscheinlich die wertvollste Datenverbesserung.
 - **Spielerseiten:** Gegenstandsstufe und Kampfkraft aus der Legionsliste (offen; NC liefert beides schon für rund 9.900 Spieler), Rang je Inhalt (`0x578d`) **umgesetzt 23.10.** (Reiter "Ranglisten", nur eigener Charakter, nur wenn das Ranglistenfenster geöffnet wurde).
 - **Stand Datenqualität 23.10.:** Die Legionsliste setzt den Heimatserver der Mitglieder im Client (wie die Gruppenliste) und geht mit dem Profil-Upload online. Eine automatische Korrektur falscher Altdaten auf dem Server ist nicht gebaut (Namensgleichheit mit anderen Servern); `0x338a` ist nicht zuordenbar (anderer ID-Raum).
 
@@ -179,3 +179,6 @@ Offene Entschlüsselungsfragen: [offene_entschluesselungsfragen.md](offene_entsc
 
 ### Asmodier-Frames für Legion, Rang und Arena (Stand 23.10.2026)
 Offen, vom User nicht lieferbar: sein Asmodier-Twink ist für Legion, Rangliste und Arena zu klein (Mindeststufe). Vorhanden ist nur die Aufnahme eines anderen Asmodier-Spielers (Login, Charakterliste, Rezepte, Versorgungsgesuche; siehe `docs/protocol/login-und-fenster-frames.md`). Annahme bis zum Beleg: `0x058a`, `0x558d`, `0x2ce3` und `0x578d` haben bei Asmodiern denselben Aufbau, nur andere Server- und Klassen-IDs (2xxx). Beleg möglich, wenn ein Asmodier-Spieler der Stufe 45 mit geöffnetem Legion-, Rang- und Arena-Fenster aufnimmt.
+
+### Charakterliste nach dem Spielstart (erledigt 23.10.2026, lokal, nicht committet)
+`0x2636` kommt nur beim Zurückgehen zur Charakterauswahl. Beim ersten Login einer Sitzung kommt dieselbe Liste als `0x1536` (ein Asmodier-Twink: 1.368 statt 1.361 Byte, 16 Byte mehr Kopf; Aahz' Konto mit vier Charakteren 9.961 Byte). Die Lobby-Verbindung (Port 13700) trägt nur die Serverliste (`0x0939`, `LIVE_Light_...`), nicht die Charakterliste, ein zusätzlicher Port ist also nicht nötig. Der Client liest jetzt auch `0x1536` mit mehr als 500 Byte als Charakterliste (kurze `0x1536` bedeuten etwas anderes). Selbsttest um den Schlüssel aus dem ersten Login erweitert, alle Selbsttests laufen durch (mit Wegwerf-Datenordner `AIONDPS_DATA_DIR`).
