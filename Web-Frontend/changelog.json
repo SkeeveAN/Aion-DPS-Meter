@@ -9,6 +9,14 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Website: a code signing policy page (/code-signing-policy) linked from the footer of every page, in preparation for free signing of the installer",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
