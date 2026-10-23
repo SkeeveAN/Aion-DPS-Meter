@@ -149,6 +149,7 @@ public static class SelfCheckTickets
         bool accountKeys = AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("2636000005832200000c24716378566b3155464270662a000000010201"), out string elyosKey) && elyosKey == "$qcxVk1UFBpf"
             && AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("2636000005832200000c244d57663551596166727a352c000000020201"), out string asmoKey) && asmoKey == "$MWf5QYafrz5"
             && !AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("2636000005832200000c244d57663551596166727a352c000000030201"), out _)
+            && AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("153600003dfa6c69a10100003dd7da69a101000002410600000c244d57663551596166727a352c000000020201000000"), out string firstLoginKey) && firstLoginKey == "$MWf5QYafrz5"
             && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(14) == "Elyos" && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(13) == "Elyos" && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(15) == "Asmodian"
             && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(16) == "Asmodian" && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(0) is null;
         passFrame = passFrame && accountKeys;

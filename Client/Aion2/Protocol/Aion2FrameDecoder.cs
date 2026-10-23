@@ -62,6 +62,8 @@ public sealed class Aion2FrameDecoder
     /// <summary>The account-status frames: the tickets (entry counts, reward counts, Odyle energy) as a list at login and as single changes; see <see cref="Aion2Tickets"/>.</summary>
     /// <summary>The character list at login (all characters of the account, each with name, server, legion), sent for the own account only.</summary>
     private const int CharacterListOpcode = 0x2636;
+    // The first login of a game session sends the same list as 0x1536 (16 bytes more head); 0x2636 only comes when the player goes back to the character selection. Short 0x1536 frames are something else.
+    private const int FirstLoginListOpcode = 0x1536;
     private const int TicketListOpcode = 0x0b61;
     private const int TicketChangeOpcode = 0x0c61;
     private const int ShopCountersOpcode = 0x8e56;
@@ -569,7 +571,7 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
-        if (opcode == CharacterListOpcode)
+        if (opcode == CharacterListOpcode || (opcode == FirstLoginListOpcode && frame.Length > 500))
         {
             DecodeCharacterList(frame);
             return Array.Empty<DamageEvent>();
