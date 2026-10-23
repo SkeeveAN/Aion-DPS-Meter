@@ -115,7 +115,23 @@ internal static class Program
                 return;
             }
 
-            RunAion2RecordMode(args[1], args.Length > 2 ? args[2] : null);
+            // "--points": the recorder with debug points (see RunAion2RecordMode)
+            string[] positional = args.Skip(1).Where(a => a != "--points").ToArray();
+            RunAion2RecordMode(positional[0], positional.Length > 1 ? positional[1] : null, args.Contains("--points"));
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "aion2-opcode-census")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-opcode-census <recording.jsonl>... [--port=13328]");
+                Console.WriteLine("  Replays recordings and lists the opcodes of the frames that the project neither documents nor decodes (what the recorder's debug points would beep for). No window.");
+                return;
+            }
+
+            RunAion2OpcodeCensus(args.Skip(1).Where(a => !a.StartsWith("--port=", StringComparison.Ordinal)).ToArray(),
+                args.Where(a => a.StartsWith("--port=", StringComparison.Ordinal)).Select(a => int.Parse(a[7..])).DefaultIfEmpty(13328).First());
             return;
         }
 
@@ -518,7 +534,7 @@ internal static class Program
     /// and then becomes a replayable SelfCheck fixture. Ports come from the argument, else from
     /// the shipped protocol file, else everything TCP is recorded.
     /// </summary>
-    private static void RunAion2RecordMode(string outPath, string? portList)
+    private static void RunAion2RecordMode(string outPath, string? portList, bool points = false)
     {
         var npcap = Aion2.Capture.NpcapAvailability.Detect();
         if (!npcap.IsInstalled)
@@ -559,14 +575,57 @@ internal static class Program
         }
 
         using var writer = writerOrNull;
+        // With debug points the frames are decoded while they are recorded: one of an opcode nobody has described gives a tone and a line in <recording>.points.jsonl
+        Aion2.Capture.DebugPointLog? pointLog = points ? new Aion2.Capture.DebugPointLog(outPath) : null;
+        Aion2.Aion2PacketCombatSource? watchSource = points ? new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load()) : null;
+        int gamePort = ports.Count > 0 ? ports[0] : 13328;
+        DateTime lastBeep = DateTime.MinValue;
+        DateTime lastPoint = DateTime.MinValue;
+        DateTime recordingStart = DateTime.UtcNow;
+        // the login sends a burst of frames nobody described: they are logged but give no tone for the first minute
+        TimeSpan loginBurst = TimeSpan.FromSeconds(60);
+        if (points)
+        {
+            var watch = new Aion2.Capture.UnknownFrameWatch(Aion2.Capture.UnknownFrameWatch.LoadKnown());
+            Aion2.Protocol.Aion2FrameDecoder.FrameTap = (opcode, frame, at) =>
+            {
+                if (watch.Note(opcode, frame, at) is { } point)
+                {
+                    pointLog!.Point(point);
+                    lastPoint = point.At;
+                    bool loginPhase = DateTime.UtcNow - recordingStart < loginBurst;
+                    Console.WriteLine($"aion2-record: DEBUG POINT {point.At:HH:mm:ss}  unknown frame 0x{point.Opcode:x4} ({point.Length} bytes, seen {point.Seen}x){(loginPhase ? " (first minute: no tone)" : " - tell me what you just did")}");
+                    if (!loginPhase && DateTime.UtcNow - lastBeep > TimeSpan.FromSeconds(2))
+                    {
+                        lastBeep = DateTime.UtcNow;
+                        ThreadPool.QueueUserWorkItem(_ => { try { Console.Beep(1100, 160); Console.Beep(1500, 220); } catch (Exception) { /* no sound device: the line above still says it */ } });
+                    }
+                }
+            };
+        }
+
         using var capture = new Aion2.Capture.NpcapCaptureService(
             ports,
-            writer.Write,
+            segment =>
+            {
+                writer.Write(segment);
+                if (watchSource is not null)
+                {
+                    bool fromServer = segment.Source.EndsWith(":" + gamePort, StringComparison.Ordinal);
+                    watchSource.Ingest(segment with { FromServer = fromServer });
+                }
+            },
             (state, message) => Console.WriteLine($"aion2-record: [{state}] {message}"),
             adapterId) { Network = network };
 
         capture.Start();
         Console.WriteLine($"aion2-record: writing to {outPath} (filter \"{capture.Filter}\").");
+        if (points)
+        {
+            Console.WriteLine($"aion2-record: DEBUG POINTS on - a frame nobody has described gives two tones and a line in {pointLog!.Path}. Then tell me (in chat) what you did; the time is on the line.");
+            Console.WriteLine("aion2-record: you may also type a short note here and press Enter, it is saved with its time next to the point (alt-tab away from the game for it).");
+        }
+
         Console.WriteLine("aion2-record: to END the recording type  stop  and press Enter (closing this window also ends it).");
         Console.WriteLine("aion2-record: a plain Enter - for example one meant for the game's chat - does NOT stop it.");
 
@@ -584,14 +643,31 @@ internal static class Program
                     return;
                 }
 
+                if (pointLog is not null && line.Trim().Length > 0)
+                {
+                    pointLog.Note(DateTime.Now, line.Trim());
+                    Console.WriteLine($"aion2-record: note saved ({(DateTime.Now - lastPoint).TotalSeconds:0} s after the last debug point).");
+                    continue;
+                }
+
                 Console.WriteLine("aion2-record: still recording - type  stop  to end it.");
             }
         }) { IsBackground = true };
         reader.Start();
-        while (!stopRequested.Wait(TimeSpan.FromSeconds(60)))
+        while (!stopRequested.Wait(watchSource is null ? TimeSpan.FromSeconds(60) : TimeSpan.FromMilliseconds(250)))
         {
-            Console.WriteLine($"aion2-record: recording ... {writer.Count} segment(s) so far ({DateTime.Now:HH:mm:ss}).");
+            // the frames are decoded as they come: the poll drives the decoder (the damage events are not used here)
+            watchSource?.Poll(false);
+            if (DateTime.UtcNow.Second < 1 && (DateTime.UtcNow - lastBeep).TotalSeconds > 5)
+            {
+                Console.WriteLine($"aion2-record: recording ... {writer.Count} segment(s), {pointLog?.Count ?? 0} debug point(s) so far ({DateTime.Now:HH:mm:ss}).");
+                lastBeep = DateTime.UtcNow;
+            }
         }
+
+        Aion2.Protocol.Aion2FrameDecoder.FrameTap = null;
+        pointLog?.Dispose();
+        watchSource?.Dispose();
 
         Console.WriteLine($"aion2-record: {writer.Count} segment(s) from {capture.Packets} packet(s) written; server endpoint {capture.ServerEndpoint ?? "not seen"}.");
     }
@@ -2619,6 +2695,44 @@ internal static class Program
             {
                 Console.WriteLine($"   {Aion2.Protocol.Aion2ItemNames.NameOf(item, "de") ?? "#" + item} x{count:N0}");
             }
+        }
+    }
+
+    private static void RunAion2OpcodeCensus(string[] paths, int serverPort)
+    {
+        var watch = new Aion2.Capture.UnknownFrameWatch(Aion2.Capture.UnknownFrameWatch.LoadKnown());
+        int points = 0, frames = 0;
+        var examples = new Dictionary<int, string>();
+        foreach (string path in paths)
+        {
+            using var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+            Aion2.Protocol.Aion2FrameDecoder.FrameTap = (opcode, frame, at) =>
+            {
+                frames++;
+                if (watch.Note(opcode, frame, at) is { } point)
+                {
+                    points++;
+                    examples.TryAdd(opcode, Convert.ToHexString(frame[..Math.Min(frame.Length, 24)]));
+                }
+            };
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+            {
+                bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                source.Ingest(segment with { FromServer = fromServer });
+                source.Poll(false);
+            }
+        }
+
+        Aion2.Protocol.Aion2FrameDecoder.FrameTap = null;
+        Console.WriteLine($"aion2-opcode-census: {frames:N0} frames, {watch.UnknownOpcodes} unknown opcodes, {points} debug points (each would give a tone)");
+        foreach (var u in watch.Unknown.OrderByDescending(u => u.Value.Count).Take(40))
+        {
+            Console.WriteLine($"  0x{u.Key:x4}  {u.Value.Count,7}x  {examples.GetValueOrDefault(u.Key)}");
         }
     }
 

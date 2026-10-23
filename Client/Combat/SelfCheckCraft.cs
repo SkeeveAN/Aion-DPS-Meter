@@ -221,7 +221,17 @@ public static class SelfCheckCraft
             && own.Entry.StatsJson.Contains("kill_count") && !Aion2Rankings.TryParseOwnRank(rankFrame.Take(60).ToArray(), t, out _);
         Console.WriteLine($"  -> the own rank of the ranking window is read: {ranked}");
 
+        // the debug points of the recorder: an unknown opcode is a point the first time and once more after two quiet minutes, never a third time, a known opcode never
+        var watchSet = new Aion2.Capture.UnknownFrameWatch(new[] { 1, 2 });
+        byte[] probe = { 5, 0, 1, 2 };
+        DateTime w0 = new(2026, 10, 23, 12, 0, 0);
+        bool pointFirst = watchSet.Note(5, probe, w0) is { Opcode: 5, Length: 4, Seen: 1 };
+        bool pointQuiet = watchSet.Note(5, probe, w0.AddSeconds(30)) is null && watchSet.Note(1, probe, w0) is null;
+        bool pointAgain = watchSet.Note(5, probe, w0.AddSeconds(200)) is { Seen: 3 };
+        bool pointCapped = watchSet.Note(5, probe, w0.AddSeconds(500)) is null && watchSet.UnknownOpcodes == 1;
+        Console.WriteLine($"  -> an unknown frame is a debug point once, again after two quiet minutes, never more than twice, a known one never: {pointFirst && pointQuiet && pointAgain && pointCapped}");
+
         Aion2Stock.Reset();
-        return ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return pointFirst && pointQuiet && pointAgain && pointCapped && ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }
