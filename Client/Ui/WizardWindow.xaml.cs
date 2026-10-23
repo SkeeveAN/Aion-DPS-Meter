@@ -45,6 +45,8 @@ public partial class WizardWindow : Window
         MaxHeight = SystemParameters.WorkArea.Height - 20;
         _characterProbe = characterProbe;
         ShowPolicyText();
+        _pages = new UIElement[] { PageLanguage, PagePolicy, PageUploads, PageReady };
+        ShowPage(0);
         _statusTimer.Tick += (_, _) => RefreshStatus();
         _statusTimer.Start();
         RefreshStatus();
@@ -101,31 +103,86 @@ public partial class WizardWindow : Window
         {
             LocalizationManager.Instance.Language = code;
             ShowPolicyText();
+            if (_pages.Length > 0)
+            {
+                ShowPage(_page); // the button and step texts come from code
+            }
         }
     }
 
-    private void OnFinishClicked(object sender, RoutedEventArgs e)
+    // ---- one question per page: language, privacy policy, the uploads (only after the policy was accepted), ready to start ----
+
+    private UIElement[] _pages = Array.Empty<UIElement>();
+    private int _page;
+
+    /// <summary>The upload page is dropped for somebody who declined the policy (before an answer the wizard counts four steps).</summary>
+    private bool Skipped(int page) => page == 2 && PolicyDecline.IsChecked == true;
+
+    private List<int> Sequence() => Enumerable.Range(0, 4).Where(i => !Skipped(i)).ToList();
+
+    /// <summary>Shows a page, with "Step x of y" and the buttons that fit: no Back on the first page, Finish on the last, Next waits for an answer on the policy page.</summary>
+    private void ShowPage(int page)
     {
-        if (PolicyAccept.IsChecked != true && PolicyDecline.IsChecked != true)
+        _page = page;
+        for (int i = 0; i < _pages.Length; i++)
         {
-            ThemedMessageBox.Show(this, LocalizationManager.Instance["Wizard.PolicyChoose"], Title, MessageBoxButton.OK, MessageBoxImage.Information);
+            _pages[i].Visibility = i == page ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        var loc = LocalizationManager.Instance;
+        List<int> sequence = Sequence();
+        int position = Math.Max(0, sequence.IndexOf(page));
+        StepText.Text = string.Format(loc["Wizard.Step"], position + 1, sequence.Count);
+        BackButton.Visibility = position > 0 ? Visibility.Visible : Visibility.Hidden;
+        NextButton.Content = position == sequence.Count - 1 ? loc["Wizard.Finish"] : loc["Wizard.Next"];
+        NextButton.IsEnabled = page != 1 || PolicyAccept.IsChecked == true || PolicyDecline.IsChecked == true;
+    }
+
+    /// <summary>The picture mode draws each page (0 language, 1 policy, 2 uploads, 3 ready) as it looks.</summary>
+    public void ShowPageForPicture(int page, bool accepted)
+    {
+        if (accepted)
+        {
+            PolicyAccept.IsChecked = true;
+        }
+
+        ShowPage(page);
+    }
+
+    private void OnNextClicked(object sender, RoutedEventArgs e)
+    {
+        List<int> sequence = Sequence();
+        int position = sequence.IndexOf(_page);
+        if (position >= sequence.Count - 1)
+        {
+            Close();
             return;
         }
 
-        Close();
+        ShowPage(sequence[position + 1]);
     }
 
-    /// <summary>The upload switches can only be used after the policy was accepted; declining puts them off.</summary>
+    private void OnBackClicked(object sender, RoutedEventArgs e)
+    {
+        List<int> sequence = Sequence();
+        int position = sequence.IndexOf(_page);
+        if (position > 0)
+        {
+            ShowPage(sequence[position - 1]);
+        }
+    }
+
+    /// <summary>Declining takes the uploads off and drops the upload page; accepting brings it back.</summary>
     private void OnPolicyChanged(object sender, RoutedEventArgs e)
     {
-        bool accepted = PolicyAccept.IsChecked == true;
-        UploadCard.IsEnabled = accepted;
-        if (!accepted)
+        if (PolicyAccept.IsChecked != true)
         {
             BossBox.IsChecked = false;
             ProfileBox.IsChecked = false;
             OthersBox.IsChecked = false;
         }
+
+        ShowPage(_page);
     }
 
     private void OnPolicyLinkNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)

@@ -50,7 +50,15 @@ public static class PrivacyRender
         }
 
         var styled = new SettingsWindow(settings);
-        Window window = kind == "wizard" ? new WizardWindow(new MeterSettings()) : new PrivacyWindow(null);
+        // "wizard" draws page 1, "wizard:2" page 2 ... (1 language, 2 policy, 3 uploads, 4 ready); "wizard:3" is drawn with the policy accepted
+        var wizard = kind.StartsWith("wizard", StringComparison.Ordinal) ? new WizardWindow(new MeterSettings()) : null;
+        if (wizard is not null)
+        {
+            int page = kind.Contains(':') ? int.Parse(kind[(kind.IndexOf(':') + 1)..]) - 1 : 0;
+            wizard.ShowPageForPicture(page, accepted: page >= 2);
+        }
+
+        Window window = wizard ?? (Window)new PrivacyWindow(null);
         foreach (Type type in new[] { typeof(System.Windows.Controls.Button), typeof(System.Windows.Controls.ComboBox), typeof(System.Windows.Controls.ComboBoxItem) })
         {
             if (styled.Resources[type] is Style style)
@@ -60,7 +68,7 @@ public static class PrivacyRender
         }
 
         var content = (UIElement)window.Content;
-        double width = kind == "wizard" ? 900 : 660;
+        double width = wizard is not null ? 680 : 660;
         content.Measure(new Size(width, double.PositiveInfinity));
         int w = (int)Math.Ceiling(width), h = (int)Math.Ceiling(content.DesiredSize.Height);
         content.Measure(new Size(w, h));

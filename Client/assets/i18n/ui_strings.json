@@ -3060,6 +3060,42 @@
     "ja": "そのあとモンスターか訓練用の的を攻撃すると、ダメージがメーターに表示されます。",
     "ko": "그다음 몬스터나 훈련용 허수아비를 공격하면 피해량이 미터에 표시됩니다."
   },
+  "Wizard.Next": {
+    "en": "Next",
+    "de": "Weiter",
+    "fr": "Suivant",
+    "es": "Siguiente",
+    "ru": "Далее",
+    "zh": "下一步",
+    "zh-TW": "下一步",
+    "pt": "Seguinte",
+    "ja": "次へ",
+    "ko": "다음"
+  },
+  "Wizard.Back": {
+    "en": "Back",
+    "de": "Zurück",
+    "fr": "Retour",
+    "es": "Atrás",
+    "ru": "Назад",
+    "zh": "上一步",
+    "zh-TW": "上一步",
+    "pt": "Anterior",
+    "ja": "戻る",
+    "ko": "이전"
+  },
+  "Wizard.Step": {
+    "en": "Step {0} of {1}",
+    "de": "Schritt {0} von {1}",
+    "fr": "Étape {0} sur {1}",
+    "es": "Paso {0} de {1}",
+    "ru": "Шаг {0} из {1}",
+    "zh": "第 {0} 步，共 {1} 步",
+    "zh-TW": "第 {0} 步，共 {1} 步",
+    "pt": "Passo {0} de {1}",
+    "ja": "ステップ {0}/{1}",
+    "ko": "{0}/{1} 단계"
+  },
   "Wizard.Finish": {
     "en": "Finish",
     "de": "Fertig",
