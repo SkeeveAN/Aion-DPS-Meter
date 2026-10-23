@@ -32,6 +32,13 @@
      "Backend"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the text of the removed learned-recipes switch is gone from the texts",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
