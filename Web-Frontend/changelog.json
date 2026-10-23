@@ -87,6 +87,41 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the checklist shows the week's season mission points (of 8,000) from the achievements frame; monsters on the pet map move with the movement frames",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the character window lists how many titles, wings and teleporters the character owns",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the dummy test's comparison shows how many chain skills each run took and how many inputs the server turned down",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the target-of-target block follows the target an entity has selected (target frames) until it changes or drops it",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: hovering a skill in the rotation timeline tells whether its chain follow-up was taken in time",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
