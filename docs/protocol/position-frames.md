@@ -51,3 +51,7 @@ Die Fertigkeit trägt **Richtungsvektoren**, keine Weltkoordinaten (z. B. 46,5 /
 - `0x2a37` und `0x4b36` von einer fremden Entität (im Flug etwa 1,5 pro Sekunde) nicht entschlüsselt.
 - Ob die Pakete vom Client zum Server (verschlüsselt, etwa 20 pro Sekunde) Bewegung tragen: nicht lesbar.
 - Die Konkurrenten: aion2t schreibt in den Release Notes 1.1.42 selbst, dass die Position im leeren Gelände hinterherhinkt oder geschätzt wird; THGL (The Hidden Gaming Lair) liest die Position aus dem Spielspeicher über einen Treiber (kein Weg für uns).
+
+## Siehe auch
+
+Bewegungs- und Zustandsframes **anderer** Entitäten (Positionen, Deltas, Skill-Casts mit Position): [bewegungs-frames.md](bewegungs-frames.md). Für die eigene Entität bleibt die Tabelle oben unverändert (Auswertung vom 23.10.2026 bestätigt: keine laufenden Positionsframes).

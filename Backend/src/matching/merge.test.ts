@@ -583,11 +583,26 @@ test("the time axis of a fight is stored once per player: the upload with the mo
   assert.equal(second.encounterId, first.encounterId);
   assert.equal(third.encounterId, first.encounterId);
   const rows = db.select().from(encounterTimelines).all();
-  const anna = rows.filter((r) => JSON.parse(r.dataJson).times.length === 4);
+  const { timelineJsonOf } = await import("../uploadArchive.js");
+  const anna = rows.filter((r) => JSON.parse(timelineJsonOf(r)!).times.length === 4);
   assert.equal(anna.length, 1, "the longest axis is kept, the shorter ones are not stored over it");
   const shaped = loadEncounterTimeline(first.encounterId)!;
   assert.deepEqual(shaped.players.map((p) => p.name), ["Anna"]);
   assert.equal(shaped.players[0]!.uses.length, 4);
   assert.equal(shaped.players[0]!.uses[0]![0], 2, "the second upload began one second later: its 1.0 s is 2.0 s on the encounter's clock");
   assert.equal(shaped.bossHp.length, 5);
+});
+
+test("a plain time axis is packed by the archive job and reads back unchanged", async () => {
+  const { encounterTimelines } = await import("../db/schema.js");
+  const { eq } = await import("drizzle-orm");
+  const { compressTimelines, timelineJsonOf } = await import("../uploadArchive.js");
+  const { sqlite } = await import("../db/client.js");
+  const row = db.select().from(encounterTimelines).all()[0]!;
+  const before = timelineJsonOf(row)!;
+  sqlite.prepare("update encounter_timelines set data_json = ?, data_gz = null where participant_id = ?").run(before, row.participantId);
+  assert.equal(compressTimelines(), 1);
+  const after = db.select().from(encounterTimelines).where(eq(encounterTimelines.participantId, row.participantId)).get()!;
+  assert.equal(after.dataJson, "");
+  assert.equal(timelineJsonOf(after), before, "gzip loses nothing");
 });

@@ -4,7 +4,8 @@ import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncomplete
 import { findBossId, processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
 import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { createHash } from "node:crypto";
 import { gateUpload, isWorldBossNpc, NC_PENDING, PLAYER_CHECK_FAILED } from "../ncGate.js";
 import { clearPageCache } from "../seo/cache.js";
 import { clientPolicy, requireCurrentClient } from "../clientPolicy.js";
@@ -41,6 +42,21 @@ type Log = FastifyInstance["log"];
  * world boss crowd have been looked up already (see crowdResolve.ts) - else such an upload waits for that first.
  */
 export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: string, crowdChecked = false): Promise<UploadOutcome> {
+    // The very same payload from the same uploader (a client that sends one fight again and again) adds nothing: it is answered as taken and not filed.
+    // Only against merged uploads; a payload that waited or was turned away is judged anew.
+    const payloadHash = createHash("sha256").update(JSON.stringify(payload)).digest("hex");
+    if (!crowdChecked) {
+      const same = db
+        .select({ id: uploads.id, matchedEncounterId: uploads.matchedEncounterId })
+        .from(uploads)
+        .where(and(eq(uploads.payloadHash, payloadHash), eq(uploads.ipHash, ipHash), eq(uploads.status, "merged")))
+        .limit(1)
+        .get();
+      if (same) {
+        log.info({ uploadId: same.id, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: identical to one already filed, not stored again");
+        return { status: 200, body: { status: "duplicate", encounterId: same.matchedEncounterId } };
+      }
+    }
     const selfCount = payload.participants.filter((p) => p.isSelf).length;
     if (selfCount !== 1) {
       log.warn({ selfCount, bossNpcName: payload.bossNpcName }, "upload rejected: not exactly one self participant");
@@ -203,6 +219,7 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
         matchedEncounterId: result.encounterId,
         status: "merged",
         rawPayloadJson: JSON.stringify(payload),
+        payloadHash,
       })
       .run();
 

@@ -25,11 +25,15 @@ public static class LoginCapture
     private static bool _sent;
     private static readonly List<(string Name, byte[] Gzip)> _ready = new();
 
+    /// <summary>No login is captured or sent for now (the dumps are not needed at present). The switch in the settings is left as it is; set to true to bring the analysis back.</summary>
+    public const bool Available = false;
+
     public static bool Enabled
     {
         get => _enabled;
         set
         {
+            value &= Available;
             _enabled = value;
             if (!value)
             {

@@ -541,7 +541,9 @@ export const encounterTimelines = sqliteTable("encounter_timelines", {
   participantId: integer("participant_id")
     .primaryKey()
     .references(() => encounterParticipants.id),
+  /** Empty once the row is packed: the text is then in `dataGz` (see uploadArchive.ts, timelineJsonOf). */
   dataJson: text("data_json").notNull(),
+  dataGz: blob("data_gz", { mode: "buffer" }),
 });
 
 export const uploads = sqliteTable(
@@ -572,6 +574,8 @@ export const uploads = sqliteTable(
     rawPayloadJson: text("raw_payload_json").notNull(),
     // The same text as gzip once the upload is settled (see uploadArchive.ts); raw_payload_json is then empty. Null while the plain text is in use.
     rawPayloadGz: blob("raw_payload_gz", { mode: "buffer" }),
+    /** SHA-256 of the payload of a merged upload: the same payload from the same uploader is not filed twice. */
+    payloadHash: text("payload_hash"),
     // Why an upload waits in the review queue ("pending") or was turned away ("rejected"): a JSON list of {code, detail}
     // (see uploadReview.ts). Null for the ordinary ones. reviewedAt is set when someone approved or rejected it.
     reviewReason: text("review_reason"),
@@ -579,6 +583,7 @@ export const uploads = sqliteTable(
   },
   (table) => ({
     matchedEncounterIdIdx: index("uploads_matched_encounter_id_idx").on(table.matchedEncounterId),
+    payloadHashIdx: index("uploads_payload_hash_idx").on(table.payloadHash),
   }),
 );
 

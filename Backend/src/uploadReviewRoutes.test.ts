@@ -127,3 +127,17 @@ test("top rule: a player without name, server or faction is left out; the upload
   assert.equal(refused.statusCode, 400);
   assert.equal(refused.json().error, "player_incomplete");
 });
+
+test("the very same payload from the same uploader is taken once and not filed again; a changed one is merged as before", async () => {
+  const same = body(20, 150);
+  const first = await post(same);
+  assert.equal(first.statusCode, 200, first.body);
+  const filed = db.select().from(uploads).all().length;
+  const again = await post(same);
+  assert.equal(again.statusCode, 200, again.body);
+  assert.equal(again.json().status, "duplicate");
+  assert.equal(db.select().from(uploads).all().length, filed, "the second one leaves no row");
+  const changed = await post(body(20, 151));
+  assert.equal(changed.statusCode, 200, changed.body);
+  assert.notEqual(changed.json().status, "duplicate");
+});

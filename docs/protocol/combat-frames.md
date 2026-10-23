@@ -67,3 +67,7 @@ Die 9-Byte-Einträge (Art + i64) enthalten neben Art 0 (aktuell) gelegentlich Ar
 ## Skill-Benutzung `0238` für die Rotation
 
 Jedes `0238` eines Akteurs, der kein bekanntes Monster ist, wird als Skill-Benutzung des Spielers mit Zeit und Skill-ID festgehalten (Obergrenze 200.000 Einträge im Speicher, je Kampf werden die Einträge seines Zeitfensters mit dem Kampf gespeichert). Skill-IDs tragen Stufe und Spezialisierung in den letzten Ziffern; die Ansicht fasst alle IDs mit demselben Namen zu einem Skill zusammen.
+
+## Siehe auch
+
+Kettenskills (`0x1838`/`0x1938`), Skill-Quittung (`0x0138`), Ziel fremder Spieler (`0x3238`/`0x3138`), Skill-Liste einzeln, Ladungen und Verstärkung: [skill-frames.md](skill-frames.md). Alle bekannten Opcodes: [opcode-katalog.md](opcode-katalog.md).

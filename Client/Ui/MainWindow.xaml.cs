@@ -3228,7 +3228,7 @@ public partial class MainWindow : Window
     /// <summary>Its own timer: the profile upload waits for a quiet moment, which an active player never gives it (stat frames keep coming).</summary>
     private void StartLoginDumpTimer()
     {
-        if (_loginDumpTimer is not null)
+        if (_loginDumpTimer is not null || !Aion2.Capture.LoginCapture.Available)
         {
             return;
         }
@@ -3287,6 +3287,8 @@ public partial class MainWindow : Window
     // arrived. Same payload as the Upload button; the server merges what the group's members send.
 
     private readonly HashSet<int> _bossesToUpload = new();
+    /// <summary>Hashes of the boss fights this session has sent, so an unchanged fight is not sent again.</summary>
+    private readonly HashSet<string> _sentBossPayloads = new();
     private System.Windows.Threading.DispatcherTimer? _bossUploadTimer;
 
     private void NoteBossKills(IReadOnlyList<KillEvent> kills)
@@ -3521,10 +3523,19 @@ public partial class MainWindow : Window
                 continue;
             }
 
+            // The very same fight (byte for byte) is never sent a second time: it adds nothing, and the server would turn it away anyway.
+            string payloadHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(payload))));
+            if (_sentBossPayloads.Contains(payloadHash))
+            {
+                AutoUploadLog.Write($"boss {targetId} '{payload.BossNpcName}': identical to the one sent before, not sent again");
+                continue;
+            }
+
             UploadResult result = await UploadClient.SendAsync(payload);
             AutoUploadLog.Write($"boss {targetId} '{payload.BossNpcName}': {(result.Success ? "uploaded" : "failed: " + result.Error)}");
             if (result.Success)
             {
+                _sentBossPayloads.Add(payloadHash);
                 uploaded++;
             }
             else

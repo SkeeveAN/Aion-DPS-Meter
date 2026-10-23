@@ -35,3 +35,7 @@ Anzahl = die tägliche Energie (Obergrenze 560, mit Abo 840), **Bonus** = der Te
 ## Offen
 - Die Refill-Uhrzeit ist Serverzeit; hier gilt die Uhr des PCs (für die EU-Server dieselbe Zeit).
 - Der Grund-Wert 2 kommt für die Zeit-Tickets 10 und 12 (nicht in der Tabelle) alle zehn Minuten; nicht gedeutet.
+
+## Siehe auch
+
+Weitere Zähler- und Fensterframes (Versorgungsgesuche, Saisonmissionen, Garantierte Belohnung, Ranglisten, Arena): [login-und-fenster-frames.md](login-und-fenster-frames.md). Odenergie/Schlüssel/Versuche stehen in `0x0b61` (Beispielwerte dort belegt).

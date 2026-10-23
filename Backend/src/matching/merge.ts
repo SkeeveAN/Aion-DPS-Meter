@@ -22,6 +22,7 @@ import { slugify, uniqueSlug } from "../seo/slug.js";
 import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
+import { packTimeline, timelineJsonOf } from "../uploadArchive.js";
 import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
 import { askAboutRenamed, noteClassHint, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
@@ -504,15 +505,15 @@ function storeTimeline(participantId: number, timeline: ParticipantUpload["timel
   }
   const existing = db.select().from(encounterTimelines).where(eq(encounterTimelines.participantId, participantId)).get();
   if (existing) {
-    const known = (JSON.parse(existing.dataJson) as { times?: unknown[] }).times?.length ?? 0;
+    const known = (JSON.parse(timelineJsonOf(existing) ?? "{}") as { times?: unknown[] }).times?.length ?? 0;
     if (known >= timeline.times.length) {
       return;
     }
   }
   const dataJson = JSON.stringify({ ...timeline, origin: uploadOrigin });
   db.insert(encounterTimelines)
-    .values({ participantId, dataJson })
-    .onConflictDoUpdate({ target: encounterTimelines.participantId, set: { dataJson } })
+    .values({ participantId, dataJson: "", dataGz: packTimeline(dataJson) })
+    .onConflictDoUpdate({ target: encounterTimelines.participantId, set: { dataJson: "", dataGz: packTimeline(dataJson) } })
     .run();
 }
 

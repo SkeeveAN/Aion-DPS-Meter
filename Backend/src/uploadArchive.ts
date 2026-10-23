@@ -6,7 +6,8 @@ import { uploads } from "./db/schema.js";
 /**
  * The raw payload of an upload is only an audit copy once the upload is settled (merged): the facts are in the encounter, player and profile tables.
  * Uploads that wait for a review or were turned away keep the plain text (the review parses it). Every few hours:
- *  - a merged upload older than a day gets its payload gzipped (checked by unpacking it again) and the plain column emptied;
+ *  - a merged upload older than six hours gets its payload gzipped (checked by unpacking it again) and the plain column emptied;
+ *  - the time axes of the participants (encounter_timelines) are gzipped the same way; nothing is lost, the text comes back unchanged;
  *  - the payload of a merged upload without a fight (a profile-only upload) is dropped for good after UPLOAD_PROFILE_PAYLOAD_KEEP_DAYS (default 90).
  * The upload row itself stays, so the counts of the statistics do not change.
  */
@@ -19,10 +20,45 @@ export function rawPayloadOf(row: { rawPayloadJson: string; rawPayloadGz: Buffer
   return row.rawPayloadGz ? gunzipSync(row.rawPayloadGz).toString("utf8") : null;
 }
 
+/** The text of a stored time axis, whether it sits plain or as gzip; null when there is none. */
+export function timelineJsonOf(row: { dataJson: string; dataGz: Buffer | null }): string | null {
+  if (row.dataJson !== "") {
+    return row.dataJson;
+  }
+  return row.dataGz ? gunzipSync(row.dataGz).toString("utf8") : null;
+}
+
+/** The gzip of a time axis text, checked by unpacking it again. */
+export function packTimeline(json: string): Buffer {
+  const gz = gzipSync(Buffer.from(json, "utf8"), { level: 9 });
+  if (gunzipSync(gz).toString("utf8") !== json) {
+    throw new Error("timeline gzip round trip differs");
+  }
+  return gz;
+}
+
 const BATCH = 200;
 
+/** Gzips the plain time axes that are still in the table (rows from before the packing and any left over); returns how many rows were packed. */
+export function compressTimelines(): number {
+  const pick = sqlite.prepare(`select participant_id id, data_json raw from encounter_timelines where data_json <> '' and data_gz is null order by participant_id limit ${BATCH}`);
+  const pack = sqlite.prepare("update encounter_timelines set data_gz = ?, data_json = '' where participant_id = ? and data_json = ?");
+  let packed = 0;
+  for (;;) {
+    const rows = pick.all() as { id: number; raw: string }[];
+    if (rows.length === 0) {
+      return packed;
+    }
+    sqlite.transaction(() => {
+      for (const row of rows) {
+        packed += pack.run(packTimeline(row.raw), row.id, row.raw).changes;
+      }
+    })();
+  }
+}
+
 /** Gzips the payloads of settled uploads older than `olderThanHours`; returns how many rows were packed. */
-export function compressSettledUploads(olderThanHours = 24): number {
+export function compressSettledUploads(olderThanHours = 6): number {
   const pick = sqlite.prepare(
     `select id, raw_payload_json raw from uploads
      where status = 'merged' and raw_payload_json <> '' and raw_payload_gz is null and received_at < datetime('now', ?)
@@ -63,7 +99,7 @@ export function startUploadArchive(log: { info: (o: object, m: string) => void; 
   }
   const run = () => {
     try {
-      const packed = compressSettledUploads();
+      const packed = compressSettledUploads() + compressTimelines();
       const dropped = dropOldProfilePayloads(Number(process.env.UPLOAD_PROFILE_PAYLOAD_KEEP_DAYS ?? 90));
       if (packed > 0 || dropped > 0) {
         log.info({ packed, dropped }, "upload archive: payloads packed or dropped");

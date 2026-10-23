@@ -2,6 +2,7 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { encounterBuffUsage, encounterParticipants, encounterTimelines, encounters, players } from "./db/schema.js";
 import { buffIcon, buffNames, classifyEncounterBuffs, isFood, type BuffKind } from "./encounterBuffs.js";
+import { timelineJsonOf } from "./uploadArchive.js";
 import { skillIconByName, skillNamesByName } from "./profile.js";
 
 /** A stored time axis of one participant (see uploadSchema.ts timelineSchema), with the start of the upload it came from. */
@@ -174,13 +175,13 @@ export function loadEncounterTimeline(encounterId: number): EncounterTimelineOut
     return null;
   }
   const rows = db
-    .select({ id: encounterParticipants.id, name: players.name, className: encounterParticipants.className, data: encounterTimelines.dataJson })
+    .select({ id: encounterParticipants.id, name: players.name, className: encounterParticipants.className, data: encounterTimelines.dataJson, gz: encounterTimelines.dataGz })
     .from(encounterParticipants)
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .leftJoin(encounterTimelines, eq(encounterTimelines.participantId, encounterParticipants.id))
     .where(eq(encounterParticipants.encounterId, encounterId))
     .all();
-  if (!rows.some((r) => r.data)) {
+  if (!rows.some((r) => r.data || r.gz)) {
     return null;
   }
   const buffRows = db.select().from(encounterBuffUsage).where(inArray(encounterBuffUsage.participantId, rows.map((r) => r.id))).all();
@@ -188,7 +189,7 @@ export function loadEncounterTimeline(encounterId: number): EncounterTimelineOut
     id: r.id,
     name: r.name,
     className: r.className,
-    timeline: parse<StoredTimeline | null>(r.data, null),
+    timeline: parse<StoredTimeline | null>(timelineJsonOf({ dataJson: r.data ?? "", dataGz: r.gz ?? null }), null),
     buffs: buffRows
       .filter((b) => b.participantId === r.id && b.skillId > 0)
       .map((b) => {
