@@ -2857,16 +2857,16 @@
     "ko": "이름과 메시지(10자 이상)를 입력해 주세요. 이메일 주소는 올바른 형식이어야 합니다."
   },
   "Settings.UploadOtherProfiles": {
-    "en": "Also upload profiles of other players I see (name, class, level, gear, legion)",
-    "de": "Auch Profile anderer Spieler hochladen, die ich sehe (Name, Klasse, Level, Ausrüstung, Legion)",
-    "fr": "Envoyer aussi les profils des autres joueurs que je vois (nom, classe, niveau, équipement, légion)",
-    "es": "Subir también los perfiles de otros jugadores que veo (nombre, clase, nivel, equipo, legión)",
-    "ru": "Также загружать профили других игроков, которых я вижу (имя, класс, уровень, снаряжение, легион)",
-    "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）",
-    "zh-TW": "同時上傳我看到的其他玩家的檔案（名稱、職業、等級、裝備、軍團）",
-    "pt": "Enviar também os perfis de outros jogadores que eu vejo (nome, classe, nível, equipamento, legião)",
-    "ja": "見かけた他のプレイヤーのプロフィール（名前、クラス、レベル、装備、レギオン）もアップロードする",
-    "ko": "내가 보는 다른 플레이어의 프로필도 업로드 (이름, 직업, 레벨, 장비, 레기온)"
+    "en": "Also upload profiles of other players I see (name, class, level, gear, legion) and the members of my own legion",
+    "de": "Auch Profile anderer Spieler hochladen, die ich sehe (Name, Klasse, Level, Ausrüstung, Legion) und die Mitglieder meiner eigenen Legion",
+    "fr": "Envoyer aussi les profils des autres joueurs que je vois (nom, classe, niveau, équipement, légion) et les membres de ma propre légion",
+    "es": "Subir también los perfiles de otros jugadores que veo (nombre, clase, nivel, equipo, legión) y los miembros de mi propia legión",
+    "ru": "Также загружать профили других игроков, которых я вижу (имя, класс, уровень, снаряжение, легион) и членов моего легиона",
+    "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）以及我自己军团的成员",
+    "zh-TW": "同時上傳我看到的其他玩家的檔案（名稱、職業、等級、裝備、軍團）以及我自己軍團的成員",
+    "pt": "Enviar também os perfis de outros jogadores que eu vejo (nome, classe, nível, equipamento, legião) e os membros da minha própria legião",
+    "ja": "見かけた他のプレイヤーのプロフィール（名前、クラス、レベル、装備、レギオン）と自分のレギオンのメンバーもアップロードする",
+    "ko": "내가 보는 다른 플레이어의 프로필(이름, 직업, 레벨, 장비, 레기온)과 내 레기온 구성원도 업로드"
   },
   "Wizard.Title": {
     "en": "Welcome to Aion DPS",
@@ -2953,16 +2953,16 @@
     "ko": "로그인 후 내 캐릭터 프로필을 자동으로 업로드 (이름, 직업, 레벨, 장비, 스킬, 레기온, 서버) - aiondps.com에서 나를 찾을 수 있도록"
   },
   "Wizard.OptOthers": {
-    "en": "Also upload profiles of other players I see (name, class, level, gear, legion)",
-    "de": "Auch Profile anderer Spieler hochladen, die ich sehe (Name, Klasse, Level, Ausrüstung, Legion)",
-    "fr": "Envoyer aussi les profils des autres joueurs que je vois (nom, classe, niveau, équipement, légion)",
-    "es": "Subir también los perfiles de otros jugadores que veo (nombre, clase, nivel, equipo, legión)",
-    "ru": "Также загружать профили других игроков, которых я вижу (имя, класс, уровень, снаряжение, легион)",
-    "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）",
-    "zh-TW": "同時上傳我看到的其他玩家的檔案（名稱、職業、等級、裝備、軍團）",
-    "pt": "Enviar também os perfis de outros jogadores que eu vejo (nome, classe, nível, equipamento, legião)",
-    "ja": "見かけた他のプレイヤーのプロフィール（名前、クラス、レベル、装備、レギオン）もアップロードする",
-    "ko": "내가 보는 다른 플레이어의 프로필도 업로드 (이름, 직업, 레벨, 장비, 레기온)"
+    "en": "Also upload profiles of other players I see (name, class, level, gear, legion) and the members of my own legion",
+    "de": "Auch Profile anderer Spieler hochladen, die ich sehe (Name, Klasse, Level, Ausrüstung, Legion) und die Mitglieder meiner eigenen Legion",
+    "fr": "Envoyer aussi les profils des autres joueurs que je vois (nom, classe, niveau, équipement, légion) et les membres de ma propre légion",
+    "es": "Subir también los perfiles de otros jugadores que veo (nombre, clase, nivel, equipo, legión) y los miembros de mi propia legión",
+    "ru": "Также загружать профили других игроков, которых я вижу (имя, класс, уровень, снаряжение, легион) и членов моего легиона",
+    "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）以及我自己军团的成员",
+    "zh-TW": "同時上傳我看到的其他玩家的檔案（名稱、職業、等級、裝備、軍團）以及我自己軍團的成員",
+    "pt": "Enviar também os perfis de outros jogadores que eu vejo (nome, classe, nível, equipamento, legião) e os membros da minha própria legião",
+    "ja": "見かけた他のプレイヤーのプロフィール（名前、クラス、レベル、装備、レギオン）と自分のレギオンのメンバーもアップロードする",
+    "ko": "내가 보는 다른 플레이어의 프로필(이름, 직업, 레벨, 장비, 레기온)과 내 레기온 구성원도 업로드"
   },
   "Wizard.SetupHeading": {
     "en": "Getting ready",
