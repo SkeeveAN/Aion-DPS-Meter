@@ -312,6 +312,25 @@ export function skillNamesByName(name: string, className?: string): Record<strin
   return undefined;
 }
 
+/** Chain skills of the client: skill id -> [follow-up skill id, window in ms] (Tools/aion2-dat/build_skill_chains.py). */
+export function skillChains(): Record<string, [number, number][]> {
+  skillChainTable ??= loadJson<Record<string, [number, number][]>>("skill_chains.json", {});
+  return skillChainTable;
+}
+let skillChainTable: Record<string, [number, number][]> | null = null;
+
+/** Name, names in every client language and icon of one skill by id, for skills the player did not use at all (a missed chain). */
+export function skillInfoById(id: number): { name: string; names?: Record<string, string>; icon: string | null } | null {
+  skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
+  skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
+  skillIcons ??= loadJson<Record<string, string>>("skill_icons.json", {});
+  const name = skillNames[String(id)];
+  if (!name) {
+    return null;
+  }
+  return { name, names: skillNamesI18n[String(id)], icon: skillIcons[String(id)] ?? skillIcons[String(Math.floor(id / 10000) * 10000)] ?? null };
+}
+
 function skillIdsOf(name: string): number[] {
   if (!skillIdsByName) {
     skillIdsByName = new Map();

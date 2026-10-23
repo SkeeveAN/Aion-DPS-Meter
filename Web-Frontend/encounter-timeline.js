@@ -226,6 +226,35 @@ export function buildBuffsPerSkill(timeline, deps) {
         el("td", { className: "sb-chips" }, chips.length > 0 ? chips : [el("span", { className: "gear-note", textContent: t("skillBuffs.none") })]),
       ]);
     });
+    const chainRows = (current.chains ?? []).map((c) => {
+      const from = current.skills[c.from];
+      const icon = (skill) => {
+        const art = el("span", { className: "skill-ico" });
+        if (skill.icon) {
+          const img = el("img", { src: `/images/aion2/icons/${skill.iconKind ?? "skill"}/${skill.icon}.webp`, alt: "", loading: "lazy", width: 28, height: 28 });
+          img.addEventListener("error", () => img.remove());
+          art.append(img);
+        }
+        return art;
+      };
+      const pct = Math.round((c.taken / c.uses) * 100);
+      return el("tr", {}, [
+        el("td", {}, [el("div", { className: "skill-name" }, [icon(from), el("span", { textContent: skillLabel(from, getLocale) })])]),
+        el("td", {}, [el("div", { className: "skill-name" }, [icon(c.to), el("span", { textContent: skillLabel(c.to, getLocale) })])]),
+        el("td", { textContent: formatNumber(c.uses) }),
+        el("td", { textContent: `${formatNumber(c.taken)} (${pct} %)`, title: `${c.windowSeconds} s` }),
+      ]);
+    });
+    const chainPanel =
+      chainRows.length === 0
+        ? []
+        : [
+            el("div", { className: "meter-panel-header" }, [el("div", { className: "meter-panel-heading" }, [el("span", { className: "meter-panel-title", textContent: t("skillBuffs.chainHeading") }), el("span", { className: "meter-panel-subtitle", textContent: t("skillBuffs.chainSubtitle") })])]),
+            el("table", { className: "ranked-table compact skill-table" }, [
+              el("thead", {}, [el("tr", {}, ["skillBuffs.skill", "skillBuffs.chain", "skillBuffs.uses", "skillBuffs.chainTaken"].map((k) => el("th", { textContent: t(k) })))]),
+              el("tbody", {}, chainRows),
+            ]),
+          ];
     panel.replaceChildren(
       el("div", { className: "meter-panel-header" }, [el("div", { className: "meter-panel-heading" }, [el("span", { className: "meter-panel-title", textContent: t("skillBuffs.heading") }), el("span", { className: "meter-panel-subtitle", textContent: t("skillBuffs.subtitle") })])]),
       tabs,
@@ -233,6 +262,7 @@ export function buildBuffsPerSkill(timeline, deps) {
         el("thead", {}, [el("tr", {}, ["skillBuffs.skill", "skillBuffs.uses", "skillBuffs.running"].map((k) => el("th", { textContent: t(k) })))]),
         el("tbody", {}, rows),
       ]),
+      ...chainPanel,
     );
   };
   draw(players[0]);

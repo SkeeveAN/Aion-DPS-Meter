@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { shapeTimeline } from "./encounterTimeline.js";
+import { chainsOf, shapeTimeline } from "./encounterTimeline.js";
 
 const START = "2026-01-01T20:00:00.000Z";
 
@@ -57,4 +57,16 @@ test("a group effect lies over the uses it covers", () => {
   assert.deepEqual(anna.buffs[0]!.spans, [[0, 6]]);
   // uses at 1 s, 3 s and 5 s are inside 0..6 s, the one at 10 s is not
   assert.deepEqual(anna.skillBuffs, [{ skill: 0, uses: 4, buffs: [{ skillId: 5000, share: 0.75 }] }]);
+});
+
+test("chain skills: a use of the first skill counts as taken when the follow-up comes within its window, a follow-up never used shows 0", () => {
+  const skills = [{ id: 100, name: "Rending" }, { id: 200, name: "Smashing" }, { id: 300, name: "Keen" }];
+  // Rending at 1 s (Smashing at 2 s = taken), at 10 s (Smashing at 14 s = too late), at 20 s (none); Keen used twice, its follow-up 400 is never used
+  const uses: [number, number][] = [[1, 0], [2, 1], [10, 0], [14, 1], [20, 0], [30, 2], [40, 2]];
+  const table = { "100": [[200, 3000]] as [number, number][], "300": [[400, 3000]] as [number, number][] };
+  const out = chainsOf(skills, uses, table, (id) => (id === 400 ? { name: "Rupture", icon: null } : null));
+  const rending = out.find((c) => c.to.id === 200)!;
+  assert.deepEqual([rending.uses, rending.taken, rending.windowSeconds], [3, 1, 3]);
+  const keen = out.find((c) => c.to.id === 400)!;
+  assert.deepEqual([keen.uses, keen.taken, keen.to.name], [2, 0, "Rupture"]);
 });
