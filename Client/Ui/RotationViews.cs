@@ -195,6 +195,16 @@ public sealed class RotationTimelineView : FrameworkElement
             lines.Add(string.Format(loc["Rotation.SincePrevious"], use.GapSeconds.ToString("0.0")));
         }
 
+        // a chain skill: the follow-up the game opened for 3 s after this use - taken (and how soon) or missed
+        foreach ((int next, int windowMs) in Aion2SkillChains.After(use.SkillId))
+        {
+            RotationUse? taken = _report?.Uses.Where(u => u.SkillId == next && u.At > use.At && u.At <= use.At + windowMs / 1000.0 + 0.3).OrderBy(u => u.At).FirstOrDefault();
+            string followUp = Aion2SkillNames.DisplayOf(next);
+            lines.Add(taken is null
+                ? string.Format(loc["Rotation.ChainMissed"], followUp)
+                : string.Format(loc["Rotation.ChainTaken"], followUp, (taken.At - use.At).ToString("0.0")));
+        }
+
         int second = (int)Math.Clamp(use.At, 0, Math.Max(0, _dps.Length - 1));
         if (_dps.Length > 0)
         {

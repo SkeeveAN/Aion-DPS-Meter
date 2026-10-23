@@ -6097,6 +6097,30 @@
     "ko": "{0}번째 사용 (총 {1}회)",
     "zh-TW": "第 {0} 次，共 {1} 次"
   },
+  "Rotation.ChainTaken": {
+    "en": "Chain: {0} used after {1} s",
+    "de": "Kette: {0} nach {1} s genutzt",
+    "fr": "Chaîne : {0} utilisée après {1} s",
+    "es": "Cadena: {0} usada tras {1} s",
+    "ru": "Цепочка: {0} применено через {1} с",
+    "zh": "连锁：{1} 秒后使用了 {0}",
+    "zh-TW": "連鎖：{1} 秒後使用了 {0}",
+    "pt": "Cadeia: {0} usada após {1} s",
+    "ja": "チェーン：{1} 秒後に {0} を使用",
+    "ko": "연계: {1}초 후 {0} 사용"
+  },
+  "Rotation.ChainMissed": {
+    "en": "Chain missed: {0} was not used in time",
+    "de": "Kette verpasst: {0} nicht rechtzeitig genutzt",
+    "fr": "Chaîne manquée : {0} non utilisée à temps",
+    "es": "Cadena perdida: {0} no se usó a tiempo",
+    "ru": "Цепочка упущена: {0} не применено вовремя",
+    "zh": "连锁错过：未及时使用 {0}",
+    "zh-TW": "連鎖錯過：未及時使用 {0}",
+    "pt": "Cadeia perdida: {0} não foi usada a tempo",
+    "ja": "チェーン失敗：{0} が間に合いませんでした",
+    "ko": "연계 실패: {0}을(를) 제때 쓰지 않음"
+  },
   "Rotation.SincePrevious": {
     "en": "{0} s since the one before",
     "de": "{0} s nach dem vorigen",
