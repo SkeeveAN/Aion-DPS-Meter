@@ -186,6 +186,38 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: a monster that never moves is on the replay map too - the place it appeared at is the first point of its track, and it stays there until it dies",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the privacy policy is asked in the first-start wizard and once for installs that never answered; declined means no upload at all and a restricted meter (damage list only, no Twitch or announcements, only the checklist, stat calculator, attributes, loot, crafting, schedule, design and network tools); an upload switch asks again; 'profiles of other players' is now 'data of other players'",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Website and client: the privacy text about what the client reads and uploads is set in paragraphs and bullet lines (the page keeps the line breaks) with a plainer heading",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client and website server: a new button next to Upload sends the paths of a boss fight for the replay (the own character's, the boss's and the monsters', other players' only with 'data of other players'); the replay window can fetch what the other clients of the fight sent and fills the map with it",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
