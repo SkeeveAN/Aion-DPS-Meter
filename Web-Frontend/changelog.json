@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-23",
+  "items": [
+   {
+    "text": "Client: the pet overlay says the level is unknown, not 'not collected yet', while the pet list is only the saved one of an earlier session; a level-up message adds a pet the saved list did not know",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   }
+  ]
+ },
+ {
   "version": "1.15.0",
   "date": "2026-10-23",
   "items": [
