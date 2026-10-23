@@ -33,6 +33,7 @@ public sealed class CraftConfigWindow : Window
     private bool _searchOpen = true;
     private readonly TextBox _search = new() { Width = 260, Height = 28, VerticalContentAlignment = VerticalAlignment.Center };
     private readonly CheckBox _onlyMarked = new();
+    private readonly CheckBox _onlyKnown = new() { IsChecked = true };
     private readonly StackPanel _tree = new();
     private readonly StackPanel _results = new();
     private readonly StackPanel _mine = new();
@@ -143,6 +144,15 @@ public sealed class CraftConfigWindow : Window
         _onlyMarked.Click += (_, _) => ShowResults();
         DockPanel.SetDock(onlyMarked, Dock.Right);
         bar.Children.Insert(0, onlyMarked);
+        if (Aion2Recipes.HasData)
+        {
+            var onlyKnown = Switch(_onlyKnown, loc["Craft.OnlyKnown"]);
+            onlyKnown.HorizontalAlignment = HorizontalAlignment.Right;
+            onlyKnown.Margin = new Thickness(0, 0, 14, 0);
+            _onlyKnown.Click += (_, _) => ShowResults();
+            DockPanel.SetDock(onlyKnown, Dock.Right);
+            bar.Children.Insert(1, onlyKnown);
+        }
         body.Children.Add(bar);
 
         var grid = new Grid();
@@ -264,6 +274,11 @@ public sealed class CraftConfigWindow : Window
         if (_onlyMarked.IsChecked == true)
         {
             found = found.Where(IsMarked);
+        }
+
+        if (_onlyKnown.IsChecked == true && Aion2Recipes.HasData)
+        {
+            found = found.Where(r => Aion2Recipes.IsKnown(r) || IsMarked(r));
         }
 
         List<CraftRecipe> list = found.OrderBy(r => r.Type == "Succession").ThenBy(r => r.Level).ThenBy(r => r.Order).ThenBy(r => r.Id).ToList();

@@ -572,6 +572,12 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        if (opcode == Aion2Recipes.Opcode)
+        {
+            Aion2Recipes.Note(frame);
+            return Array.Empty<DamageEvent>();
+        }
+
         if (opcode == ShopCountersOpcode)
         {
             if (Aion2Tickets.TryParseShopCounters(frame, out TicketReading shop))

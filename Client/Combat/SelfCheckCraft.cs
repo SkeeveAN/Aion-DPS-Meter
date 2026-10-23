@@ -116,7 +116,23 @@ public static class SelfCheckCraft
         bool faction = twin is { Elyos: false } && twin.Category == hammer.Category && twin.Level == hammer.Level && Aion2CraftData.ForFaction(twin.Id, true)?.Id == hammer.Id;
         Console.WriteLine($"  -> a recipe of one faction finds its twin of the other and back: {faction}");
 
+        // the learned recipes: the list frame 0x7e8d (n, then id + 0 each); the twin of the other faction counts as learned too
+        Aion2Recipes.Reset();
+        bool noList = Aion2Recipes.IsKnown(hammer);
+        var list = new List<byte> { 0x8d, 0x7e, 2 };
+        foreach (int id in new[] { hammer.Id, 100000001 })
+        {
+            var entry = new byte[8];
+            BinaryPrimitives.WriteUInt32LittleEndian(entry, (uint)id);
+            list.AddRange(entry);
+        }
+
+        bool read = Aion2Recipes.Note(list.ToArray()) && Aion2Recipes.IsKnown(hammer) && Aion2Recipes.IsKnown(twin!) && !Aion2Recipes.IsKnown(smelt) && !Aion2Recipes.Note(list.Take(10).ToArray());
+        Aion2Recipes.Reset();
+        bool known = noList && read;
+        Console.WriteLine($"  -> without a list every recipe counts as learned, the list frame sets the learned ones (twin included): {known}");
+
         Aion2Stock.Reset();
-        return login && one && gone && loot && sort && oreAsked && plain && used && first && faction;
+        return login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }
