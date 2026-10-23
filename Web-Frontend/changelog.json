@@ -25,6 +25,45 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Website: the encounter page lists the chain skills of each player: how often the follow-up skill came within its window (taken of used), also when it was never used",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the pet map's own position is a fresh exact report for 4 s and then the middle of the monsters and players that moved around him (12 m off instead of 24 m after 5 to 15 s, measured on four recordings); new test mode aion2-position-check",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the assist overlay and window show the chain skills the game has just opened (3 s window, from the chain frames) above the cooldowns",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client and website: the uploader's own turned-down skill inputs (a key pressed during an animation) go along with the time axis and show as red marks and a count in the group timeline",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Website: a second filter on the boss and dungeon statistics by combat power (known for nearly every run, where the gear score is known for about half of them)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
