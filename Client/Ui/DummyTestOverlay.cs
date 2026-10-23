@@ -168,6 +168,7 @@ public sealed class DummyTestController : IDisposable
         FightExtras extras = dir.Combat.Slice(run.Start, run.End, id => dir.NameFor(id) ?? dir.MonsterNameFor(id));
         run.Uses.AddRange(extras.Uses.Where(u => u.Actor == player));
         run.Buffs.AddRange(extras.Buffs.Where(b => b.Target == player));
+        run.Rejected.AddRange((extras.Rejected ?? Array.Empty<RejectRecord>()).Where(r => r.Entity == player));
         foreach (var (id, name) in extras.Names)
         {
             if (id == player)

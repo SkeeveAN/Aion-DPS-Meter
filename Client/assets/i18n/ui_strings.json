@@ -7446,6 +7446,18 @@
     "de": "Noch keine Läufe. Jeder Start legt einen neuen Lauf an.",
     "fr": "Aucune série pour l'instant. Chaque Démarrer crée une nouvelle série."
   },
+  "Dummy.ChainLine": {
+    "en": "Run {0}: chain skills taken {1} of {2} · inputs turned down by the server: {3}",
+    "de": "Lauf {0}: Kettenskills genutzt {1} von {2} · vom Server abgelehnte Eingaben: {3}",
+    "fr": "Essai {0} : compétences en chaîne utilisées {1} sur {2} · saisies refusées par le serveur : {3}",
+    "es": "Prueba {0}: habilidades en cadena aprovechadas {1} de {2} · entradas rechazadas por el servidor: {3}",
+    "ru": "Заход {0}: цепочки использованы {1} из {2} · отклонённых сервером нажатий: {3}",
+    "zh": "第 {0} 次：连锁技能接上 {1}/{2} · 服务器拒绝的输入：{3}",
+    "zh-TW": "第 {0} 次：連鎖技能接上 {1}/{2} · 伺服器拒絕的輸入：{3}",
+    "pt": "Teste {0}: habilidades em cadeia aproveitadas {1} de {2} · entradas recusadas pelo servidor: {3}",
+    "ja": "{0}回目：チェーンスキル {1}/{2} 使用・サーバーに拒否された入力：{3}",
+    "ko": "{0}회차: 연계 스킬 {1}/{2} 사용 · 서버가 거부한 입력: {3}"
+  },
   "Dummy.ColRun": {
     "en": "Run",
     "de": "Lauf",

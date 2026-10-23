@@ -686,6 +686,21 @@ public sealed class DummyTestWindow : Window
             _result.Children.Add(row);
         }
 
+        // the chain skills and turned-down inputs of each run: why the damage stays below what the skills could do
+        foreach (DummyRun run in runs)
+        {
+            (int offered, int taken, int rejected) = DummyAnalysis.Chains(run);
+            if (offered == 0 && rejected == 0)
+            {
+                continue;
+            }
+
+            TextBlock line = Label(string.Format(loc["Dummy.ChainLine"], run.Number, taken, offered, rejected), "Brush.TextSubtle", 12);
+            line.Margin = new Thickness(26, 6, 0, 0);
+            line.TextWrapping = TextWrapping.Wrap;
+            _result.Children.Add(line);
+        }
+
         TextBlock timelineTitle = Label(loc["Dummy.Timeline"], "Brush.Text", 15, true);
         timelineTitle.Margin = new Thickness(2, 18, 0, 6);
         _result.Children.Add(timelineTitle);
