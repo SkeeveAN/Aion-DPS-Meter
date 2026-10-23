@@ -208,6 +208,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _daevanion = null;
                 _species = null;
                 _petStates = null;
+                _petStatesLive = false;
                 _titles = null;
                 _attributes = null;
                 _stats = null;
@@ -436,6 +437,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     private IReadOnlyList<Aion2PetState>? _petStates;
+    private bool _petStatesLive;
+
+    /// <summary>True when the pet list was sent by the game in this session; the list restored from the saved file may lack pets collected since.</summary>
+    public bool LocalPetStatesLive
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _petStatesLive && _petStates is not null;
+            }
+        }
+    }
 
     /// <summary>Every pet the local player owns with its level and progress: the pet list the game sends at login and map change, kept
     /// up to date by the game's own messages (progress gained, level reached, pet added). Empty until the list arrived.</summary>
@@ -459,6 +473,14 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// <summary>A pet reached a new level (its progress starts again at 0).</summary>
     public void NotePetLevel(int petId, int level)
     {
+        lock (_gate)
+        {
+            if (_petStates is not null && _petStates.All(p => p.PetId != petId))
+            {
+                _petStates = _petStates.Append(new Aion2PetState(petId, level, 0)).ToList(); // a pet the saved list did not know yet
+            }
+        }
+
         ChangePet(petId, p => p with { Level = level, Progress = 0 });
     }
 
@@ -546,6 +568,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             }
 
             _petStates = pets;
+            _petStatesLive = true;
             _listsAt = DateTime.UtcNow;
         }
 

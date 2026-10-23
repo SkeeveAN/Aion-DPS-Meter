@@ -334,6 +334,10 @@ public sealed class PetFarmController : IDisposable
                     ? string.Format(loc["PetFarm.Max"], state.Level)
                     : string.Format(loc["PetFarm.Level"], state.Level) + $" ({state.Progress}/{Aion2Pets.ProgressNeeded(state.Level)})";
             }
+            else if (directory is { LocalPetStatesLive: false })
+            {
+                level = loc["PetFarm.Unknown"]; // the list is the saved one of an earlier session, the pet may be newer than it
+            }
             else
             {
                 level = loc["PetFarm.NotOwned"];
