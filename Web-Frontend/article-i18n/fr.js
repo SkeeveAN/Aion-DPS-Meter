@@ -1,0 +1,52 @@
+export default {
+  title: "Suivi de combat passif avec Npcap et .NET 10",
+  description: "Comment un compteur de dégâts peut lire un jeu sans y toucher : capture de paquets avec Npcap et SharpPcap, réassemblage TCP, sessions enregistrées et limites de l'approche.",
+  blocks: [
+    ["lead", "La plupart des compteurs de dégâts tirent leurs chiffres de la mémoire du jeu ou d'un hook injecté dans le processus du jeu. Cela fonctionne, mais c'est fragile (chaque patch déplace les adresses), cela peut mener à un bannissement, et les logiciels anti-triche ont de bonnes raisons de ne pas apprécier cela. L'[Aion DPS Meter](/features) prend l'autre voie pour AION 2 : il ne touche jamais au processus du jeu. Il écoute sur votre machine le trafic réseau du jeu lui-même, comme le ferait un analyseur de paquets, et reconstruit à partir de là le journal de combat. Cet article décrit l'architecture, les pièges et ce que nous referions."],
+    ["h2", "Le principe"],
+    ["p", "Le serveur dit déjà tout à votre client : qui a frappé qui, pour combien, qui a soigné, qui est mort. Si l'on sait lire ces octets, on n'a pas besoin du processus du jeu. Le compteur ne reçoit qu'une copie de paquets déjà arrivés ; il n'en envoie jamais."],
+    ["ul", [
+      "**Rien à injecter, rien à contourner.** Une mise à jour du jeu change les données, pas la manière dont nous les lisons.",
+      "**Sûr par construction.** Pas de lecture de la mémoire, pas de hooks, pas d'injection de paquets.",
+      "**Il voit ce que le serveur vous envoie.** Cela inclut les événements de combat de tous les membres de votre groupe ou de votre raid, pas seulement ceux de votre propre personnage.",
+    ]],
+    ["h2", "La couche de capture : SharpPcap sur Npcap"],
+    ["p", "Sous Windows, [Npcap](https://npcap.com) est le pilote de capture de paquets et [SharpPcap](https://github.com/dotpcap/sharppcap) son wrapper .NET, avec PacketDotNet pour analyser les en-têtes. Le compteur cible .NET 10, et la boucle de capture est petite :"],
+    ["ol", [
+      "Écouter sur les adaptateurs réseau. Par défaut, ce sont tous, car un joueur peut avoir Wi-Fi, Ethernet et un VPN en même temps.",
+      "Définir un **filtre BPF dans le pilote**, afin que seul le trafic TCP du serveur de jeu atteigne le mode utilisateur. Tout le reste est écarté dans le noyau et ne nous coûte rien.",
+      "Dans le callback, analyser les en-têtes, construire un petit enregistrement de segment (clé de flux, numéro de séquence TCP, données utiles) et le transmettre.",
+    ]],
+    ["p", "Deux leçons tirées de la production :"],
+    ["p", "**Garder le callback minuscule.** Notre première version décodait les frames directement dans le callback de capture. Pendant un combat de boss mondial, la rafale de trafic a fait déborder le tampon du pilote et des paquets ont été perdus. Désormais, les threads de capture se contentent d'analyser les en-têtes et de placer les segments dans une file bornée, un seul worker décode, et le tampon du noyau a été porté à 32 Mo. Un paquet perdu à la capture est la seule défaillance que l'on ne peut plus réparer ensuite."],
+    ["p", "**Ne jamais laisser un mauvais paquet mettre fin au thread de capture.** Une exception non gérée dans un callback de capture peut arrêter la capture en silence. Nous comptons et ignorons les erreurs, et affichons la dernière dans l'interface."],
+    ["h2", "Des segments aux frames : le réassemblage TCP"],
+    ["p", "Une frame de jeu ne coïncide pas avec un segment TCP. Un segment peut contenir plusieurs frames, et une frame peut s'étendre sur plusieurs segments. La couche suivante est donc un petit réassembleur TCP :"],
+    ["ul", [
+      "Les segments sont ordonnés par direction selon leur numéro de séquence ; un segment hors séquence attend la pièce manquante.",
+      "Les retransmissions sont écartées.",
+      "Un trou qui ne se comble jamais n'est pas une erreur sur le câble, mais un paquet que nous avons manqué à la capture. Le réassembleur abandonne après une limite, se réaligne sur le segment suivant et comptabilise l'événement. Les frames sont précédées de leur longueur, une frontière se retrouve donc, et au plus les frames qui chevauchaient le trou sont perdues.",
+    ]],
+    ["p", "Ce dernier point est important : **prévoir la perte côté capture.** Un compteur qui cesse de fonctionner dès le premier paquet manqué est un compteur auquel personne ne fait confiance."],
+    ["h2", "Décodage : comprendre le protocole"],
+    ["p", "Une fois les frames obtenues, le travail consiste à retrouver par rétro-ingénierie leur signification : quel message est lequel, comment les champs sont organisés, quelles frames sont compressées, quels nombres sont des dégâts et lesquels des soins. C'est de l'observation patiente plutôt que de l'ingénierie astucieuse : enregistrer une session, combattre un ennemi connu et comparer ce que l'on a fait avec ce que dit le flux de données. Deux habitudes ont rendu cela maîtrisable :"],
+    ["ul", [
+      "**Enregistrer des sessions brutes et les rejouer hors ligne.** Chaque modification du protocole peut être vérifiée sur d'anciens enregistrements, et un bogue devient un test reproductible au lieu de « c'est arrivé une fois en raid ».",
+      "**Recouper avec des chiffres que le jeu fournit lui-même.** Un exemple : les points de vie du boss. Le compteur compare les dégâts comptés avec les points de vie que le boss a réellement perdus. Un écart indique des paquets manqués ou une structure modifiée. Dans les enregistrements de débogage, un moniteur de santé signale en outre lorsqu'un type de message qui circule normalement se tait après une mise à jour du jeu.",
+    ]],
+    ["p", "Nous ne publions volontairement pas ici de tables de messages ni de structures de champs. Elles changent à chaque patch, et ce qui est intéressant, c'est la méthode."],
+    ["h2", "Ce que cette approche ne sait pas faire"],
+    ["ul", [
+      "Elle ne voit que ce que le serveur envoie. Si le serveur ne communique pas quelque chose au client, aucun compteur ne peut l'afficher.",
+      "Un trafic chiffré mettrait fin à l'approche. Le flux de combat de ce jeu est lisible, ce qui est la prémisse de toute la conception.",
+      "Elle nécessite un pilote de capture. Npcap est une installation séparée, ce qui est un vrai obstacle pour certains joueurs.",
+    ]],
+    ["h2", "Pourquoi nous la choisirions à nouveau"],
+    ["ul", [
+      "**Maintenance :** les patchs cassent des structures, pas des hooks, et les sessions enregistrées font de chaque correction un test de régression.",
+      "**Confiance :** les joueurs peuvent lire le code source, constater que rien n'est injecté, et faire tourner le compteur à côté du jeu sans craindre pour leur compte.",
+      "**Performance :** le jeu ne remarque jamais le compteur.",
+    ]],
+    ["p", "Le code source est sous licence MIT : [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Le compteur, les classements et la présentation des fonctionnalités se trouvent sur [aiondps.com](/features), et [la comparaison avec d'autres compteurs AION 2](/aion-2-dps-meter) est également rédigée."],
+  ],
+};

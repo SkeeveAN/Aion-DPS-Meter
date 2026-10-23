@@ -4,7 +4,7 @@ import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildGearFilter, buildInstanceStats } from "./boss-stats.js";
 import { buildBuffsPerSkill, buildGroupTimeline } from "./encounter-timeline.js";
-import { ARTICLE, articleSegments } from "./article-data.js";
+import { ARTICLE, ARTICLE_DE, articleSegments } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
@@ -661,18 +661,25 @@ async function renderTerms() {
   renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
 }
 
-// /how-it-works: the technical article (article-data.js), English only like the changelog.
-function renderArticle() {
+// /how-it-works: the technical article (article-data.js), English, German and the other site languages (article-i18n/).
+async function renderArticle() {
+  const locale = getLocale();
+  let ARTICLE_TEXT = locale === "de" ? ARTICLE_DE : ARTICLE;
+  if (locale !== "de" && locale !== "en") {
+    // the other languages sit in a file each (article-i18n/), loaded only when that language is open; a missing one stays English
+    const translated = await import(`./article-i18n/${locale}.js`).then((m) => m.default, () => null);
+    if (translated) ARTICLE_TEXT = { ...ARTICLE, ...translated };
+  }
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("footer.howItWorks")]);
-  document.title = `${ARTICLE.title} – ${SITE_TITLE}`;
+  document.title = `${ARTICLE_TEXT.title} – ${SITE_TITLE}`;
   const inline = (text) => articleSegments(text).map((s) => (s.href ? link(s.text, s.href) : s.bold ? el("strong", { textContent: s.text }) : document.createTextNode(s.text)));
   const block = ([type, value]) => {
     if (type === "h2") return el("h2", { textContent: value });
     if (type === "ul" || type === "ol") return el(type, { className: "guide-list" }, value.map((item) => el("li", {}, inline(item))));
     return el("p", { className: type === "lead" ? "guide-intro" : "" }, inline(value));
   };
-  const [lead, ...rest] = ARTICLE.blocks;
-  app.replaceChildren(el("div", { className: "guide-page article-page" }, [el("h1", { textContent: ARTICLE.title }), block(lead), el("div", { className: "article-columns" }, rest.map(block))]));
+  const [lead, ...rest] = ARTICLE_TEXT.blocks;
+  app.replaceChildren(el("div", { className: "guide-page article-page" }, [el("h1", { textContent: ARTICLE_TEXT.title }), block(lead), el("div", { className: "article-columns" }, rest.map(block))]));
 }
 
 // /aion-2-dps-meter: what the meter does, how to install it and a comparison with other AION 2 meters. The tables come from
@@ -5147,7 +5154,7 @@ async function route() {
     } else if (section === "aion-2-dps-meter") {
       renderGuide();
     } else if (section === "how-it-works") {
-      renderArticle();
+      await renderArticle();
     } else if (section === "changelog") {
       await renderChangelog();
     } else if (section === "twitch-drops") {

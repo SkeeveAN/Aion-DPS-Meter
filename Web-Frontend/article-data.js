@@ -1,5 +1,5 @@
 // The technical article at /how-it-works. One source for the page in the app (app.js renderArticle) and for the text the
-// server sends to crawlers (Backend/src/seo/pages.ts articlePage). English only, like the changelog.
+// server sends to crawlers (Backend/src/seo/pages.ts articlePage). English for crawlers, German in the app when the site language is German.
 // Inline markup in the texts: **bold** and [label](url).
 
 export const ARTICLE = {
@@ -54,6 +54,62 @@ export const ARTICLE = {
       "**Performance:** the game never notices the meter.",
     ]],
     ["p", "The source code is MIT licensed: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). The meter, the leaderboards and the feature tour are on [aiondps.com](/features), and [how it compares with other AION 2 meters](/aion-2-dps-meter) is written down as well."],
+  ],
+};
+
+/** The German version of the article, shown when the site language is German (the server text for crawlers stays English). */
+export const ARTICLE_DE = {
+  path: "/how-it-works",
+  title: "Passives Kampf-Tracking mit Npcap und .NET 10",
+  description: "Wie ein Schadensmeter ein Spiel lesen kann, ohne es anzufassen: Paketmitschnitt mit Npcap und SharpPcap, TCP-Zusammensetzung, aufgezeichnete Sitzungen und die Grenzen des Ansatzes.",
+  date: "2026-10-19",
+  blocks: [
+    ["lead", "Die meisten Schadensmeter holen ihre Zahlen aus dem Arbeitsspeicher des Spiels oder über einen Hook, der in den Spielprozess eingeschleust wird. Das funktioniert, ist aber fragil (jeder Patch verschiebt Adressen), kann zum Bann führen, und Anti-Cheat-Software hat gute Gründe, so etwas nicht zu mögen. Der [Aion DPS Meter](/features) geht für AION 2 den anderen Weg: Er fasst den Spielprozess nie an. Er hört auf deinem Rechner den eigenen Netzwerkverkehr des Spiels mit, so wie ein Paketanalysator, und baut daraus das Kampfprotokoll nach. Dieser Artikel beschreibt die Architektur, die Stolpersteine und was wir wieder so machen würden."],
+    ["h2", "Das Prinzip"],
+    ["p", "Der Server sagt deinem Client ohnehin alles: wer wen für wie viel getroffen hat, wer geheilt hat, wer gestorben ist. Wenn man diese Bytes lesen kann, braucht man den Spielprozess gar nicht. Der Meter bekommt nur eine Kopie von Paketen, die schon angekommen sind; er sendet nie eines."],
+    ["ul", [
+      "**Nichts einzuschleusen, nichts zu umgehen.** Ein Spielupdate ändert die Daten, nicht die Art, wie wir sie lesen.",
+      "**Sicher von Grund auf.** Kein Speicherlesen, keine Hooks, keine Paketeinspeisung.",
+      "**Er sieht, was der Server dir schickt.** Dazu gehören die Kampfereignisse aller aus deiner Gruppe oder deinem Schlachtzug, nicht nur die deines eigenen Charakters.",
+    ]],
+    ["h2", "Die Mitschnitt-Schicht: SharpPcap auf Npcap"],
+    ["p", "Unter Windows ist [Npcap](https://npcap.com) der Treiber für den Paketmitschnitt und [SharpPcap](https://github.com/dotpcap/sharppcap) sein .NET-Wrapper, dazu PacketDotNet, um die Kopfdaten zu lesen. Der Meter zielt auf .NET 10, und die Mitschnitt-Schleife ist klein:"],
+    ["ol", [
+      "Auf den Netzwerkadaptern lauschen. Standardmäßig sind das alle, weil ein Spieler WLAN, Ethernet und ein VPN gleichzeitig haben kann.",
+      "Einen **BPF-Filter im Treiber** setzen, sodass nur der TCP-Verkehr des Spielservers den Benutzermodus erreicht. Alles andere wird im Kernel verworfen und kostet uns nichts.",
+      "Im Callback die Kopfdaten lesen, einen kleinen Segment-Datensatz bauen (Stream-Schlüssel, TCP-Sequenznummer, Nutzdaten) und weiterreichen.",
+    ]],
+    ["p", "Zwei Lehren aus dem Echtbetrieb:"],
+    ["p", "**Den Callback winzig halten.** Unsere erste Version hat Frames direkt im Mitschnitt-Callback entschlüsselt. Bei einem Weltboss-Kampf lief der Treiberpuffer unter dem Datenschwall über, und Pakete gingen verloren. Jetzt lesen die Mitschnitt-Threads nur noch die Kopfdaten und stellen die Segmente in eine begrenzte Warteschlange, ein einzelner Worker dekodiert, und der Kernelpuffer wurde auf 32 MB erhöht. Ein Paket, das beim Mitschnitt verloren geht, ist der eine Fehler, den man später nicht mehr reparieren kann."],
+    ["p", "**Nie zulassen, dass ein schlechtes Paket den Mitschnitt-Thread beendet.** Eine unbehandelte Ausnahme im Callback kann den Mitschnitt still anhalten. Wir zählen und überspringen die Fehler und zeigen stattdessen den letzten in der Oberfläche an."],
+    ["h2", "Von Segmenten zu Frames: TCP-Zusammensetzung"],
+    ["p", "Ein Spiel-Frame deckt sich nicht mit einem TCP-Segment. Ein Segment kann mehrere Frames tragen, und ein Frame kann über mehrere Segmente laufen. Die nächste Schicht ist deshalb ein kleiner TCP-Zusammensetzer:"],
+    ["ul", [
+      "Segmente werden pro Richtung nach Sequenznummer geordnet; ein Segment außer der Reihe wartet auf das fehlende Stück.",
+      "Wiederholte Übertragungen werden verworfen.",
+      "Eine Lücke, die sich nie füllt, ist kein Fehler auf der Leitung, sondern ein Paket, das wir beim Mitschnitt verpasst haben. Der Zusammensetzer gibt nach einer Grenze auf, richtet sich am nächsten Segment neu aus und zählt das Ereignis. Frames tragen ihre Länge voran, deshalb findet sich eine Grenze wieder, und höchstens die Frames, die über die Lücke liefen, gehen verloren.",
+    ]],
+    ["p", "Der letzte Punkt ist wichtig: **Auf der Mitschnitt-Seite mit Verlust rechnen.** Ein Meter, der nach dem ersten verpassten Paket aufhört zu funktionieren, ist ein Meter, dem niemand traut."],
+    ["h2", "Dekodieren: das Protokoll verstehen"],
+    ["p", "Hat man die Frames, besteht die Arbeit im Rückwärtsentwickeln ihrer Bedeutung: welche Nachricht welche ist, wie die Felder aufgebaut sind, welche Frames komprimiert sind, welche Zahlen Schaden und welche Heilung sind. Das ist geduldiges Beobachten statt kluger Technik: eine Sitzung aufzeichnen, einen bekannten Gegner bekämpfen und vergleichen, was man getan hat, mit dem, was der Datenstrom sagt. Zwei Gewohnheiten haben das beherrschbar gemacht:"],
+    ["ul", [
+      "**Rohe Sitzungen aufzeichnen und offline abspielen.** Jede Protokolländerung lässt sich an alten Aufnahmen prüfen, und aus einem Fehler wird ein reproduzierbarer Test statt „es ist einmal in einem Raid passiert“.",
+      "**Gegen Zahlen prüfen, die das Spiel selbst meldet.** Ein Beispiel sind die Trefferpunkte des Bosses: Der Meter vergleicht den gezählten Schaden mit den Trefferpunkten, die der Boss tatsächlich verloren hat. Eine Abweichung weist auf verpasste Pakete oder einen geänderten Aufbau hin. In Debug-Aufnahmen meldet außerdem ein Gesundheitsmonitor, wenn eine Nachrichtenart, die sonst fließt, nach einem Spielupdate verstummt.",
+    ]],
+    ["p", "Nachrichtentabellen und Feldaufbauten veröffentlichen wir hier bewusst nicht. Sie ändern sich mit jedem Patch, und das Interessante ist die Methode."],
+    ["h2", "Was dieser Ansatz nicht kann"],
+    ["ul", [
+      "Er sieht nur, was der Server schickt. Wenn der Server dem Client etwas nicht mitteilt, kann kein Meter es anzeigen.",
+      "Verschlüsselter Verkehr würde den Ansatz beenden. Der Kampfstrom dieses Spiels ist lesbar, das ist die Voraussetzung des ganzen Entwurfs.",
+      "Er braucht einen Mitschnitt-Treiber. Npcap ist eine eigene Installation, was für manche Spieler eine echte Hürde ist.",
+    ]],
+    ["h2", "Warum wir es wieder wählen würden"],
+    ["ul", [
+      "**Wartung:** Patches zerbrechen Aufbauten, keine Hooks, und aufgezeichnete Sitzungen machen jede Korrektur zum Regressionstest.",
+      "**Vertrauen:** Spieler können den Quelltext lesen, sehen, dass nichts eingeschleust wird, und den Meter neben dem Spiel laufen lassen, ohne um ihren Account zu fürchten.",
+      "**Leistung:** Das Spiel bemerkt den Meter nie.",
+    ]],
+    ["p", "Der Quelltext steht unter MIT-Lizenz: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Den Meter, die Bestenlisten und die Funktionsübersicht findest du auf [aiondps.com](/features), und [der Vergleich mit anderen AION-2-Metern](/aion-2-dps-meter) ist ebenfalls aufgeschrieben."],
   ],
 };
 

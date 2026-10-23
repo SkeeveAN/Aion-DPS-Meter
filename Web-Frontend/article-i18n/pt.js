@@ -1,0 +1,52 @@
+export default {
+  title: "Rastreamento passivo de combate com Npcap e .NET 10",
+  description: "Como um medidor de dano pode ler um jogo sem tocar nele: captura de pacotes com Npcap e SharpPcap, remontagem TCP, sessões gravadas e os limites da abordagem.",
+  blocks: [
+    ["lead", "A maioria dos medidores de dano obtém seus números lendo a memória do jogo ou injetando um hook no processo do jogo. Isso funciona, mas é frágil (cada patch muda os endereços), pode levar a um banimento, e os softwares anti-cheat têm bons motivos para não gostar disso. O [Aion DPS Meter](/features) segue o outro caminho para o AION 2: ele nunca toca no processo do jogo. Ele escuta o tráfego de rede do próprio jogo na sua máquina, como um analisador de pacotes, e reconstrói o registro de combate a partir dele. Este artigo descreve a arquitetura, as armadilhas e o que faríamos de novo."],
+    ["h2", "O princípio"],
+    ["p", "O servidor já conta tudo ao seu cliente: quem acertou quem, com quanto dano, quem curou, quem morreu. Se você consegue ler esses bytes, não precisa do processo do jogo. O medidor só recebe uma cópia de pacotes que já chegaram; ele nunca envia nenhum."],
+    ["ul", [
+      "**Nada para injetar, nada para contornar.** Uma atualização do jogo muda os dados, não a forma como os lemos.",
+      "**Seguro por construção.** Sem leitura de memória, sem hooks, sem injeção de pacotes.",
+      "**Ele vê o que o servidor envia a você.** Isso inclui os eventos de combate de todos do seu grupo ou raide, não apenas do seu próprio personagem.",
+    ]],
+    ["h2", "A camada de captura: SharpPcap sobre Npcap"],
+    ["p", "No Windows, o [Npcap](https://npcap.com) é o driver de captura de pacotes e o [SharpPcap](https://github.com/dotpcap/sharppcap) é o seu wrapper para .NET, com o PacketDotNet para interpretar os cabeçalhos. O medidor usa o .NET 10, e o laço de captura é pequeno:"],
+    ["ol", [
+      "Escutar nos adaptadores de rede. Por padrão são todos, porque um jogador pode ter Wi-Fi, Ethernet e uma VPN ao mesmo tempo.",
+      "Definir um **filtro BPF no driver**, para que apenas o tráfego TCP do servidor do jogo chegue ao modo usuário. Todo o resto é descartado no kernel e não nos custa nada.",
+      "No callback, interpretar os cabeçalhos, montar um pequeno registro de segmento (chave do fluxo, número de sequência TCP, payload) e repassá-lo.",
+    ]],
+    ["p", "Duas lições da produção:"],
+    ["p", "**Mantenha o callback minúsculo.** Nossa primeira versão decodificava os frames dentro do callback de captura. Durante uma luta de chefe mundial, a rajada de tráfego estourou o buffer do driver e pacotes foram perdidos. Agora as threads de captura apenas interpretam e enfileiram em uma fila limitada, um único worker faz a decodificação, e o buffer do kernel foi aumentado para 32 MB. Um pacote perdido na captura é a única falha que não se pode reparar depois."],
+    ["p", "**Nunca deixe um pacote ruim encerrar a thread de captura.** Uma exceção não tratada dentro de um callback de captura pode interromper a captura silenciosamente. Nós contamos e ignoramos as falhas e mostramos o último erro na interface."],
+    ["h2", "De segmentos a frames: remontagem TCP"],
+    ["p", "Um frame do jogo não coincide com um segmento TCP. Um segmento pode carregar vários frames, e um frame pode se estender por vários segmentos. Por isso, a próxima camada é um pequeno remontador TCP:"],
+    ["ul", [
+      "Os segmentos são ordenados por direção pelo número de sequência; um segmento fora de ordem espera pela peça que falta.",
+      "Retransmissões são descartadas.",
+      "Uma lacuna que nunca é preenchida não é um erro na rede, mas um pacote que perdemos durante a captura. O remontador desiste após um limite, realinha no próximo segmento e conta o evento. Os frames carregam o comprimento à frente, então uma fronteira é encontrada de novo e, no máximo, se perdem os frames que atravessavam a lacuna.",
+    ]],
+    ["p", "Esse último ponto é importante: **projete para a perda no lado da captura.** Um medidor que para de funcionar após o primeiro pacote perdido é um medidor em que ninguém confia."],
+    ["h2", "Decodificação: entendendo o protocolo"],
+    ["p", "Depois de ter os frames, o trabalho é fazer engenharia reversa do que eles significam: qual mensagem é qual, como os campos estão organizados, quais frames são comprimidos, quais números são dano e quais são cura. Isso é observação paciente, mais do que engenharia engenhosa: grave uma sessão, lute contra um inimigo conhecido e compare o que você fez com o que o fluxo diz. Dois hábitos tornaram isso viável:"],
+    ["ul", [
+      "**Grave sessões brutas e reproduza-as offline.** Toda mudança no protocolo pode ser verificada com gravações antigas, e um bug vira um teste reproduzível em vez de \"aconteceu uma vez numa raide\".",
+      "**Confira com números que o próprio jogo informa.** Um exemplo são os pontos de vida do chefe: o medidor compara o dano que contou com os pontos de vida que o chefe realmente perdeu. Uma divergência aponta para pacotes perdidos ou um layout alterado. Em gravações de depuração, um monitor de saúde também avisa quando um tipo de mensagem que normalmente flui fica em silêncio após uma atualização do jogo.",
+    ]],
+    ["p", "Deliberadamente não publicamos aqui tabelas de mensagens nem layouts de campos. Eles mudam a cada patch, e a parte interessante é o método."],
+    ["h2", "O que esta abordagem não consegue fazer"],
+    ["ul", [
+      "Ela só vê o que o servidor envia. Se o servidor não informa algo ao cliente, nenhum medidor pode mostrar.",
+      "Tráfego criptografado acabaria com a abordagem. O fluxo de combate deste jogo é legível, e essa é a premissa de todo o projeto.",
+      "Ela precisa de um driver de captura. O Npcap é uma instalação separada, o que é um obstáculo real para alguns jogadores.",
+    ]],
+    ["h2", "Por que escolheríamos de novo"],
+    ["ul", [
+      "**Manutenção:** os patches quebram layouts, não hooks, e as sessões gravadas transformam cada correção em um teste de regressão.",
+      "**Confiança:** os jogadores podem ler o código-fonte, ver que nada é injetado e rodar o medidor ao lado do jogo sem se preocupar com a conta.",
+      "**Desempenho:** o jogo nunca percebe o medidor.",
+    ]],
+    ["p", "O código-fonte é licenciado sob MIT: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). O medidor, os rankings e o tour de funcionalidades estão em [aiondps.com](/features), e [como ele se compara a outros medidores de AION 2](/aion-2-dps-meter) também está documentado."],
+  ],
+};
