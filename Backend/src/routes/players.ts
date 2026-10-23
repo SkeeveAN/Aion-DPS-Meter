@@ -188,7 +188,7 @@ export async function playerRoutes(app: FastifyInstance) {
       .where(eq(encounterParticipants.playerId, playerId))
       .orderBy(desc(encounters.startedAt))
       .all()
-      .map((run) => withServerFaction({ ...run, serverName: player.serverName }));
+      .map((run) => withServerFaction({ ...run, playerSlug: player.slug, serverName: player.serverName }));
 
     const guildSlug = player.guild && player.serverId !== null
       ? (listGuilds().find((g) => g.serverId === player.serverId && g.name.toLowerCase() === player.guild?.trim().toLowerCase())?.slug ?? null)

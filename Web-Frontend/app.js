@@ -3148,7 +3148,7 @@ function meterRow(rank, p, metric, max, opts = {}) {
 
   return el(
     "a",
-    { className: "meter-row" + (isPet ? " meter-row-pet" : ""), href: gp(`/participants/${p.participantId}`) },
+    { className: "meter-row" + (isPet ? " meter-row-pet" : ""), href: participantHref(p.playerSlug, p.participantId) },
     [
       ...fills,
       el("div", { className: "meter-row-content" }, [
@@ -3391,7 +3391,7 @@ function aggroPanel(roster, protectionOnly = false) {
   const rows = sorted.map((p) => {
     const absorbed = p.damageAbsorbed ?? 0;
     const label = absorbed > 0 ? t("encounter.absorbedLabel", { amount: formatNumber(absorbed), pct: Math.round((absorbed / totalOf(p)) * 100) }) : "";
-    return el("a", { className: "meter-row meter-row-compact", href: gp(`/participants/${p.participantId}`), title: label ? `${formatNumber(p.damageTaken)} · ${label}` : "" }, [
+    return el("a", { className: "meter-row meter-row-compact", href: participantHref(p.playerSlug, p.participantId), title: label ? `${formatNumber(p.damageTaken)} · ${label}` : "" }, [
       el("div", { className: "meter-row-fill meter-row-fill-danger", style: `width: ${((p.damageTaken / max) * 100).toFixed(1)}%;` }),
       absorbed > 0 ? el("div", { className: "meter-row-fill meter-row-fill-shield", style: `left: ${((p.damageTaken / max) * 100).toFixed(1)}%; width: ${((absorbed / max) * 100).toFixed(1)}%;` }) : null,
       el("div", { className: "meter-row-content" }, [
@@ -3597,12 +3597,24 @@ function skillRow(s, total, top, heal) {
   ]);
 }
 
-async function renderParticipant(participantId) {
+/** A fight-detail address: "<player slug>-<participant id>" (name and server make it readable, the id picks the fight). */
+function participantHref(slug, participantId) {
+  return gp(`/participants/${slug ? `${slug}-` : ""}${participantId}`);
+}
+
+async function renderParticipant(param) {
   setBreadcrumb([...gameCrumbs(), t("loading.participant")]);
   showLoading(t("loading.participant"));
 
+  // The address is "<player slug>-<participant id>" (name and server make it readable, the id picks the fight); a bare id still works.
+  const participantId = /(\d+)$/.exec(param)?.[1] ?? param;
   const data = await fetchJson(`/api/participants/${encodeURIComponent(participantId)}`);
   setBreadcrumb([...bossCrumbs(data.encounter), data.participant.playerName]);
+  // Reached through a bare-id link: show the name address instead (no reload, no history entry).
+  const wanted = data.participant.playerSlug ? `${data.participant.playerSlug}-${data.participant.id}` : String(data.participant.id);
+  if (decodeURIComponent(location.pathname.split("/").pop()) !== wanted) {
+    history.replaceState(history.state, "", `${participantHref(data.participant.playerSlug, data.participant.id)}${location.search}${location.hash}`);
+  }
 
   const p = data.participant;
   const e = data.encounter;
@@ -4439,7 +4451,7 @@ function renderBoardTab(profile) {
   return el("div", {}, [el("div", { className: "pf-pills" }, buttons), el("div", { className: "pf-card" }, [holder])]);
 }
 
-// The runs tab: the fights grouped into sessions (same instance and step, at most 40 minutes between two fights), newest
+// The runs tab: the fights grouped into runs (same instance and step, at most 40 minutes between two fights, no boss twice), newest
 // first, only the newest one open. Each fight is a tile with its iDPS measured against the player's best for that boss.
 const RUN_SESSION_GAP_MS = 40 * 60 * 1000;
 const RUN_SESSIONS_PER_PAGE = 14;
@@ -4456,20 +4468,25 @@ function runKindLabel(kind) {
   return kind === "conquest" ? t("mode.conquest") : kind === "other" ? t("runs.other") : t(`category.${kind}`);
 }
 
-// Runs in the order given (newest first) cut into sessions; a fight joins the open session when it is the same instance
-// and step and starts less than the gap before the session's oldest fight.
+// Runs in the order given (newest first) cut into sessions, each one real run (3-4 bosses); the data has no run id, so a
+// fight joins the open session when it is the same instance and step, starts less than the gap after the session's last
+// fight and is a boss the session has not had yet. A boss that comes round again starts the next run, also in the same instance.
 function runSessions(runs) {
   const sessions = [];
-  for (const r of runs) {
+  for (const r of [...runs].reverse()) {
     const cur = sessions.at(-1);
-    if (cur && cur.instance === r.h.instanceName && cur.mode === r.h.mode && cur.start - r.t <= RUN_SESSION_GAP_MS) {
+    if (cur && cur.instance === r.h.instanceName && cur.mode === r.h.mode && r.t - cur.end <= RUN_SESSION_GAP_MS && !cur.bosses.has(r.h.bossName)) {
       cur.runs.push(r);
-      cur.start = r.t;
+      cur.bosses.add(r.h.bossName);
+      cur.end = r.t;
     } else {
-      sessions.push({ instance: r.h.instanceName, mode: r.h.mode, runs: [r], start: r.t, end: r.t });
+      sessions.push({ instance: r.h.instanceName, mode: r.h.mode, runs: [r], bosses: new Set([r.h.bossName]), start: r.t, end: r.t });
     }
   }
-  return sessions;
+  for (const s of sessions) {
+    s.runs.reverse();
+  }
+  return sessions.reverse();
 }
 
 function renderRunsTab(history) {
@@ -4498,7 +4515,7 @@ function renderRunsTab(history) {
   const tile = (r) => {
     const h = r.h;
     const pct = r.ok ? Math.min(100, (h.idps / best.get(r.key)) * 100) : 0;
-    return el("a", { className: `run-tile${r.record ? " record" : ""}${r.ok ? "" : " empty-run"}`, href: gp(`/participants/${h.participantId}`), title: `${dayFormat.format(r.t)} ${clockFormat.format(r.t)}` }, [
+    return el("a", { className: `run-tile${r.record ? " record" : ""}${r.ok ? "" : " empty-run"}`, href: participantHref(h.playerSlug, h.participantId), title: `${dayFormat.format(r.t)} ${clockFormat.format(r.t)}` }, [
       r.record ? el("span", { className: "run-star", textContent: "★", title: t("runs.record") }) : null,
       el("div", { className: "run-boss" }, [translateGameName(h.bossName), ...[partialBadge(h)].filter((x) => x != null).flatMap((p) => [" ", p])]),
       el("div", { className: "run-idps" }, [r.ok ? formatNumber(h.idps) : "–", el("small", { textContent: " iDPS" })]),
@@ -5132,8 +5149,8 @@ async function renderComparePlayers(params) {
     el("p", { className: "pf-sub", textContent: t("compare.bestRunNote") }),
     ...(skills ? [skills] : []),
     el("p", { className: "cmp-actions" }, [
-      link(`${A.player.name}: ${t("compare.bestRun")}`, gp(`/participants/${A.best.participantId}`)),
-      link(`${B.player.name}: ${t("compare.bestRun")}`, gp(`/participants/${B.best.participantId}`)),
+      link(`${A.player.name}: ${t("compare.bestRun")}`, participantHref(A.player.slug, A.best.participantId)),
+      link(`${B.player.name}: ${t("compare.bestRun")}`, participantHref(B.player.slug, B.best.participantId)),
     ]),
   );
 }

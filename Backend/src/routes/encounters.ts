@@ -150,6 +150,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         profileSource: playerProfiles.source,
         ncCharacterId: playerNcCharacter.characterId,
         ncAttributes: playerNcCharacter.attributesJson,
+        playerSlug: players.slug,
         playerName: players.name,
         serverName: servers.displayName,
         className: encounterParticipants.className,

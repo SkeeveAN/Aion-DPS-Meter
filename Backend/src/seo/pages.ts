@@ -1082,7 +1082,8 @@ export function encounterPage(game: Game, id: string): Page | null {
 
 /** One player's skill breakdown in one fight: who, against what, how much, with which skills. */
 export function participantPage(game: Game, id: string): Page | null {
-  const participantId = Number(id);
+  // "<player slug>-<participant id>" or a bare id: the trailing number picks the fight.
+  const participantId = Number(/(\d+)$/.exec(id)?.[1]);
   if (!Number.isInteger(participantId)) {
     return null;
   }
@@ -1143,7 +1144,7 @@ export function participantPage(game: Game, id: string): Page | null {
     meta: {
       title: `${row.playerName} vs ${boss}${modeText} – Skill Breakdown – ${SITE}`,
       description,
-      canonicalPath: `/participants/${participantId}`,
+      canonicalPath: `/participants/${row.playerSlug ? `${row.playerSlug}-` : ""}${participantId}`,
       noindex: true,
       ogImage: photo,
       ogImageAlt: photo ? boss : undefined,
