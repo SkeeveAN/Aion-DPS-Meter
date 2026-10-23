@@ -3121,16 +3121,16 @@
     "ko": "Npcap 미설치"
   },
   "Wizard.SwitchHint": {
-    "en": "Switch your character or go to the character selection screen.",
-    "de": "Wechsle den Charakter oder gehe zum Charakterauswahl-Bildschirm.",
-    "fr": "Changez de personnage ou allez à l'écran de sélection des personnages.",
-    "es": "Cambia de personaje o ve a la pantalla de selección de personaje.",
-    "ru": "Смените персонажа или перейдите на экран выбора персонажа.",
-    "zh": "切换角色，或前往角色选择界面。",
-    "zh-TW": "切換角色，或前往角色選擇畫面。",
-    "pt": "Mude de personagem ou vá ao ecrã de seleção de personagem.",
-    "ja": "キャラクターを切り替えるか、キャラクター選択画面へ移動してください。",
-    "ko": "캐릭터를 바꾸거나 캐릭터 선택 화면으로 이동하세요."
+    "en": "Switch your character, or go to the character selection screen and log in again.",
+    "de": "Wechsle den Charakter oder gehe zum Charakterauswahl-Bildschirm und logge dich neu ein.",
+    "fr": "Changez de personnage, ou allez à l'écran de sélection des personnages et reconnectez-vous.",
+    "es": "Cambia de personaje, o ve a la pantalla de selección de personaje y vuelve a iniciar sesión.",
+    "ru": "Смените персонажа или перейдите на экран выбора персонажа и войдите заново.",
+    "zh": "切换角色，或前往角色选择界面并重新登录。",
+    "zh-TW": "切換角色，或前往角色選擇畫面並重新登入。",
+    "pt": "Mude de personagem, ou vá ao ecrã de seleção de personagem e inicie sessão de novo.",
+    "ja": "キャラクターを切り替えるか、キャラクター選択画面へ移動して再ログインしてください。",
+    "ko": "캐릭터를 바꾸거나 캐릭터 선택 화면으로 이동해 다시 로그인하세요."
   },
   "Wizard.TipNpcap": {
     "en": "Npcap is a small program that lets the meter see the network traffic of the game. Without it the meter shows nothing.",
