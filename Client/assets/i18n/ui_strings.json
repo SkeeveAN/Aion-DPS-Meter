@@ -11353,18 +11353,6 @@
     "zh": "仅已标记",
     "zh-TW": "僅已標記"
   },
-  "Craft.OnlyKnown": {
-    "en": "Only my recipes",
-    "de": "Nur meine Rezepte",
-    "fr": "Seulement mes recettes",
-    "es": "Solo mis recetas",
-    "ru": "Только мои рецепты",
-    "pt": "Só as minhas receitas",
-    "ja": "習得済みのレシピのみ",
-    "ko": "배운 제작법만",
-    "zh": "仅已学配方",
-    "zh-TW": "僅已學配方"
-  },
   "Craft.All": {
     "en": "All",
     "de": "Alle",
