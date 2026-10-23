@@ -67,8 +67,16 @@ public static class SelfCheckBuffUpload
         FocusUpload? focus = TimelineBuilder.FocusOf(withTime with { Targets = targets }, you, boss, start, start.AddSeconds(10));
         bool focused = focus is { OnBoss: 60, OnOthers: 30, Switches: 2 } && TimelineBuilder.FocusOf(withTime, you, boss, start, end) is null;
         Console.WriteLine($"  -> the focus counts the time on the boss and on anything else and the switches between targets: {focused}");
+        // the target the game says an entity has selected holds until he changes it (no age limit); without it the last skill's aim counts for a while
+        var chosen = new Aion2.Aion2CombatState();
+        chosen.NoteAim(boss, you, start);
+        chosen.NoteTarget(boss, wendy, start.AddSeconds(1));
+        bool holds = chosen.TargetOf(boss, start.AddMinutes(5), TimeSpan.FromSeconds(5)) == wendy && chosen.TargetOf(you, start, TimeSpan.FromSeconds(5)) is null;
+        chosen.NoteTarget(boss, 0, start.AddMinutes(6));
+        bool dropped = chosen.TargetOf(boss, start.AddMinutes(7), TimeSpan.FromSeconds(5)) is null;
+        Console.WriteLine($"  -> an entity's selected target holds until he drops it: {holds && dropped}");
         bool noUses = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null) is null;
         Console.WriteLine($"  -> a player without skill uses has no time axis: {noUses}");
-        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && rejected && focused && noUses;
+        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && rejected && focused && holds && dropped && noUses;
     }
 }

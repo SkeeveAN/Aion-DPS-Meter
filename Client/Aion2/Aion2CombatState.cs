@@ -143,6 +143,7 @@ public sealed class Aion2CombatState
         {
             _active.Clear();
             _lastAim.Clear();
+            _targetNow.Clear();
             _buffs.Clear();
         }
     }
@@ -395,11 +396,19 @@ public sealed class Aion2CombatState
         }
     }
 
-    /// <summary>The one an entity last aimed a skill at, when that was no longer ago than <paramref name="maxAge"/>.</summary>
+    /// <summary>
+    /// The one an entity has selected right now when the game said so (frames 0x3238 / 0x3138: no age limit, it holds until the entity changes or drops it), else the one it last aimed a skill at,
+    /// when that was no longer ago than <paramref name="maxAge"/>.
+    /// </summary>
     public int? TargetOf(int entity, DateTime now, TimeSpan maxAge)
     {
         lock (_gate)
         {
+            if (_targetNow.TryGetValue(entity, out int selected) && selected != 0)
+            {
+                return selected;
+            }
+
             return _lastAim.TryGetValue(entity, out var aim) && now - aim.At <= maxAge && aim.At <= now + TimeSpan.FromSeconds(2) ? aim.Target : null;
         }
     }
@@ -766,6 +775,7 @@ public sealed class Aion2CombatState
         {
             _buffs.Remove(entity);
             _lastAim.Remove(entity);
+            _targetNow.Remove(entity);
         }
     }
 
