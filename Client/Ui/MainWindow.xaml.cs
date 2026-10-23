@@ -617,6 +617,8 @@ public partial class MainWindow : Window
         // The upload entries appear once the own character is known (see RefreshUploadAvailability).
         if (source.Entities is Aion2EntityDirectory entities)
         {
+            // The characters of the login's list stay known on this PC, also those of other servers (only the wizard reads them).
+            entities.AccountCharactersNoted += characters => Aion2RememberedCharacters.Note(characters);
             // A map change announces the own character again under another combat id: one player, one row.
             entities.LocalIdChanged += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
             {

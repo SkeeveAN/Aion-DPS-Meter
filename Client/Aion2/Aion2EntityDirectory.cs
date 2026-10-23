@@ -2353,7 +2353,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _accountCharacters[character.Name] = character;
             }
         }
+
+        AccountCharactersNoted?.Invoke(characters);
     }
+
+    /// <summary>Raised (on the capturing thread) with every character list of a login; the live meter keeps it between two starts, the replay tools do not.</summary>
+    public event Action<IReadOnlyList<AccountCharacter>>? AccountCharactersNoted;
 
     /// <summary>The characters of the own account as the last character list showed them, in the order of the list.</summary>
     public IReadOnlyList<AccountCharacter> AccountCharacters()

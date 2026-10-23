@@ -91,6 +91,13 @@ public partial class WizardWindow : Window
                     list.Add(new SeenCharacter(other.Name, other.ClassCode, other.Faction, other.Level, other.ServerId, false));
                 }
             }
+
+            // Characters of other servers that earlier logins showed (a login lists only its own server's account), kept on this PC.
+            var listedServers = list.Select(c => c.ServerId).ToHashSet();
+            foreach (var remembered in Aion2RememberedCharacters.Load().Where(r => !listedServers.Contains(r.ServerId) && !list.Any(c => c.Name == r.Name)))
+            {
+                list.Add(new SeenCharacter(remembered.Name, remembered.ClassCode, remembered.Faction, remembered.Level, remembered.ServerId, false));
+            }
         }
         else if (_characterProbe?.Invoke() is { Length: > 0 } name)
         {
