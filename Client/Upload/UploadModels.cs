@@ -120,7 +120,13 @@ public sealed record ProfileUpload(
     // active one marked. Skills above is the active preset. Null/empty = a character without presets.
     IReadOnlyList<ProfilePresetUpload>? Presets = null,
     // Own character only: a hash of the account key of the login's character list (16 hex digits); the same on every character of one account.
-    string? AccountKey = null);
+    string? AccountKey = null,
+    // Own character only: the ranks the game showed in its ranking window (see ProfileRankUpload). Null when the window was not opened in this session.
+    IReadOnlyList<ProfileRankUpload>? Ranks = null);
+
+/// <summary>The own rank in one content (type 1 Abyss, 3 Nightmare, 4 Transcendence, 5 Arena 1v1, 6 Arena 5v5, 21 Ascension rite; scope 0 overall, 2 within the class): the rank, the points, the change
+/// since the last ranking (negative = fell), the season grade, the stats the game lists next to it (kills and deaths, wins and losses) as the game's own JSON text and when it was read.</summary>
+public sealed record ProfileRankUpload(int Type, int Scope, int Rank, long Points, int Change, int Grade, string? Stats, DateTime At);
 
 /// <summary>One skill preset: its number (1..), whether it is the active one, when it was last seen (UTC) and its skills.</summary>
 public sealed record ProfilePresetUpload(int Index, bool Active, DateTime SeenAt, IReadOnlyList<ProfileSkillUpload> Skills);

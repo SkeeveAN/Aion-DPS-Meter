@@ -631,6 +631,16 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        if (opcode == Aion2Rankings.OwnRankOpcode)
+        {
+            if (Aion2Rankings.TryParseOwnRank(frame, timestamp, out OwnRank ownRank))
+            {
+                _entities.NoteOwnRank(ownRank);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
         if (opcode == Aion2LegionList.Opcode)
         {
             if (Aion2LegionList.TryParse(frame, out List<LegionMember> legion))

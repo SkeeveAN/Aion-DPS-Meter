@@ -117,6 +117,23 @@ export const profileSchema = z.object({
     )
     .max(10)
     .default([]),
+  // Own character only: the ranks the game's ranking window showed (type 1 Abyss, 3 Nightmare, 4 Transcendence, 5 Arena 1v1, 6 Arena 5v5, 21 Ascension rite; scope 0 overall, 2 within the class).
+  ranks: z
+    .array(
+      z.object({
+        type: z.number().int().min(1).max(99),
+        scope: z.number().int().min(0).max(9),
+        rank: z.number().int().min(1).max(10_000_000),
+        points: z.number().int().min(0).max(1_000_000_000_000),
+        change: z.number().int().min(-1_000_000).max(1_000_000).default(0),
+        grade: z.number().int().min(0).max(1000).default(0),
+        // The stats the game lists beside the rank, as its own JSON text (kills, deaths, wins ...); parsed when shown.
+        stats: z.string().max(300).optional(),
+        at: z.string().max(40),
+      }),
+    )
+    .max(24)
+    .default([]),
   // Another player's activated node count per Daevanion board (their node lists are not sent).
   boardCounts: z
     .array(z.object({ board: z.number().int().min(1).max(10_000), count: z.number().int().min(0).max(1000) }))
@@ -135,6 +152,22 @@ export const profileSchema = z.object({
 
 export type ProfileUpload = z.infer<typeof profileSchema>;
 
+type RankReading = { type: number; scope: number; at: string; [key: string]: unknown };
+
+export function mergeRanks(storedJson: string | undefined, fresh: RankReading[]): RankReading[] {
+  const byKey = new Map<string, RankReading>();
+  for (const r of JSON.parse(storedJson ?? "[]") as RankReading[]) {
+    byKey.set(`${r.type}:${r.scope}`, r);
+  }
+  for (const r of fresh) {
+    const known = byKey.get(`${r.type}:${r.scope}`);
+    if (!known || known.at <= r.at) {
+      byKey.set(`${r.type}:${r.scope}`, r);
+    }
+  }
+  return [...byKey.values()].sort((a, b) => a.type - b.type || a.scope - b.scope);
+}
+
 /**
  * Stores a profile for a player. The newest data wins - except that a "seen" profile never replaces
  * a "self" one (the uploader's own record is the richer, authoritative one; a stranger's clients
@@ -143,7 +176,7 @@ export type ProfileUpload = z.infer<typeof profileSchema>;
 export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & Pick<ProfileUpload, "source">): void {
   // The upload route has already run profileSchema (which fills these defaults); callers that go
   // straight to the merge code may omit the lists.
-  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], presets: input.presets ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [] };
+  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], presets: input.presets ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [], ranks: input.ranks ?? [] };
   // A client that carries a leftover of another character (a twink played before) sends boards of the wrong class: a board's
   // id starts with its class (41 = Assassin's first board). Boards of any other class than the profile's are dropped.
   const boardClass = profile.classId ?? (db.select({ classId: playerProfiles.classId }).from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get()?.classId ?? undefined);
@@ -185,6 +218,8 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     titlesJson: profile.titles.length > 0 ? JSON.stringify(profile.titles) : (existing?.titlesJson ?? "[]"),
     petsJson: profile.pets.length > 0 ? JSON.stringify(profile.pets) : (existing?.petsJson ?? "[]"),
     boardCountsJson: profile.boardCounts.length > 0 ? JSON.stringify(profile.boardCounts) : (existing?.boardCountsJson ?? "[]"),
+    // The ranks of the ranking window: a new reading replaces the one of its type and scope, the others stay.
+    ranksJson: profile.source === "self" && profile.ranks.length > 0 ? JSON.stringify(mergeRanks(existing?.ranksJson, profile.ranks)) : (existing?.ranksJson ?? "[]"),
     // Character window (own character): an upload without attributes, wing or pet (older client, window not read) keeps what is stored.
     attributesJson: profile.attributes && Object.keys(profile.attributes).length > 0 ? JSON.stringify(profile.attributes) : (existing?.attributesJson ?? "{}"),
     wingId: profile.wingId ? profile.wingId : (existing?.wingId ?? null),
@@ -458,6 +493,8 @@ export type ProfileView = {
   species: SpeciesView[];
   /** The worn titles (slot 1..3); grade is the game's ETitleGrade (Common, Rare, Epic, Legend, Unique, Special). */
   titles: { slot: number; titleId: number; name: string; names: Record<string, string>; grade: string | null }[];
+  /** The own ranks the game's ranking window showed (own character only): type 1 Abyss, 3 Nightmare, 4 Transcendence, 5 Arena 1v1, 6 Arena 5v5, 21 Ascension rite; scope 0 overall, 2 within the class. */
+  ranks: { type: number; scope: number; rank: number; points: number; change: number; grade: number; stats: Record<string, number> | null; at: string }[];
   /** One circle per species: the quality of each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange). */
   pets: { species: number; key: string; names: Record<string, string>; level: number; kinds: number[] }[];
   /** Daevanion board progress: points (node grades) for the own character from the node lists; other players only have a node count. */
@@ -699,10 +736,39 @@ export function buildProfileView(playerId: number): ProfileView | null {
         return { species: k.species, key: info?.key ?? `species${k.species}`, names: info?.names ?? {}, level: k.level, kinds: k.kinds };
       })
       .sort((a, b) => a.species - b.species),
+    ranks: (JSON.parse(row.ranksJson) as { type: number; scope: number; rank: number; points: number; change: number; grade: number; stats?: string; at: string }[]).map((r) => ({
+      type: r.type,
+      scope: r.scope,
+      rank: r.rank,
+      points: r.points,
+      change: r.change,
+      grade: r.grade,
+      stats: statsOf(r.stats),
+      at: r.at,
+    })),
     boards: boardSummary(row.boardCountsJson, boards),
     ...buildCharacterView(playerId),
     portraitUrl: null,
   };
+}
+
+/** The game's own stats text of a ranking row ({"kill_count":11, ...}) as numbers; null when it is not that. */
+function statsOf(text: string | undefined): Record<string, number> | null {
+  try {
+    const parsed = text ? (JSON.parse(text) as Record<string, unknown>) : null;
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+    const out: Record<string, number> = {};
+    for (const [k, v] of Object.entries(parsed)) {
+      if (typeof v === "number" && Number.isFinite(v) && /^[a-z_]{1,32}$/.test(k)) {
+        out[k] = v;
+      }
+    }
+    return Object.keys(out).length > 0 ? out : null;
+  } catch {
+    return null;
+  }
 }
 
 function attributesOf(json: string): ProfileView["attributes"] {

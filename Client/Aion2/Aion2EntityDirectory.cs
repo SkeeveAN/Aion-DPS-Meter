@@ -2256,6 +2256,27 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private readonly Dictionary<(int Type, int Scope), OwnRank> _ranks = new();
+
+    /// <summary>The own rank in a content, as the game sent it when the ranking window was opened (the last one of each type and scope).</summary>
+    public void NoteOwnRank(OwnRank rank)
+    {
+        lock (_gate)
+        {
+            _ranks[(rank.Type, rank.Scope)] = rank;
+        }
+    }
+
+    /// <summary>The own ranks read in this session whose entry names the local character (a frame of another character, sent after a character change, is left out).</summary>
+    public IReadOnlyList<OwnRank> OwnRanks()
+    {
+        lock (_gate)
+        {
+            string? me = _character?.Name;
+            return _ranks.Values.Where(r => me is not null && string.Equals(r.Entry.Name, me, StringComparison.OrdinalIgnoreCase)).OrderBy(r => r.Type).ThenBy(r => r.Scope).ToList();
+        }
+    }
+
     private List<LegionMember> _legion = new();
 
     /// <summary>The own legion's list from the login (frame 0x058a). Its server is the game's own record of each character, so it counts as the home server (see

@@ -361,6 +361,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   titlesJson: text("titles_json").notNull().default("[]"),
   petsJson: text("pets_json").notNull().default("[]"),
   boardCountsJson: text("board_counts_json").notNull().default("[]"),
+  // The own ranks the ranking window showed ([{type, scope, rank, points, change, grade, stats, at}]); own character only, newest per type and scope.
+  ranksJson: text("ranks_json").notNull().default("[]"),
   // Character window of the uploader's own character: attribute id -> value (main attributes 1..6, lords 7..17), the worn
   // wing and wing skin (item ids) and the active pet (species id). Null/empty when the client did not send them.
   attributesJson: text("attributes_json").notNull().default("{}"),

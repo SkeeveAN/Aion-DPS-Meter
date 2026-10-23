@@ -215,7 +215,13 @@ public static class SelfCheckCraft
             && week.Value.TimeMs == 1_791_499_543_290 && !Aion2Tickets.TryParseAchievements(ach.Take(10).ToArray(), out _);
         Console.WriteLine($"  -> the week's season points are read from the achievements frame: {points}");
 
+        // the own rank of the ranking window (a real frame: Abyss, overall, rank 1,764, 92,435 points, fell 16 places)
+        byte[] rankFrame = Convert.FromHexString("578D00000100E4060000353B030000001805044161687A08416B617473756B6901002D00000000000000021369010000000000347B226B696C6C5F636F756E74223A31312C2264656174685F636F756E74223A34322C226173736973745F636F756E74223A36317DF0FFFFFF00000000120000000F0000003422000016C5282CA1010000");
+        bool ranked = Aion2Rankings.TryParseOwnRank(rankFrame, t, out OwnRank own) && own is { Type: 1, Scope: 0, Entry: { Rank: 1764, ServerId: 1304, Name: "Aahz", Legion: "Akatsuki", ClassId: 2, Points: 92435, Change: -16, Grade: 18 } }
+            && own.Entry.StatsJson.Contains("kill_count") && !Aion2Rankings.TryParseOwnRank(rankFrame.Take(60).ToArray(), t, out _);
+        Console.WriteLine($"  -> the own rank of the ranking window is read: {ranked}");
+
         Aion2Stock.Reset();
-        return points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }

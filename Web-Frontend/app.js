@@ -3913,6 +3913,35 @@ function renderEquipmentTab(profile) {
 
 // The five arcana slots are ordinary items in the inspect gear list (slots 25-29); the number on the
 // tile is the arcana's level (+N).
+// The own ranks the game's ranking window showed (Abyss, Nightmare ...): rank, how it changed, the points and the stats beside them. As of the moment the uploader opened that window.
+const RANK_TYPES = { 1: "abyss", 3: "nightmare", 4: "transcendence", 5: "arena1", 6: "arena5", 21: "ascension" };
+const RANK_STATS = ["kill_count", "death_count", "assist_count", "play_count", "win_count", "lose_count"];
+
+function renderRanksTab(profile) {
+  const rows = profile.ranks.map((r) => {
+    const name = t(`ranks.type.${RANK_TYPES[r.type] ?? "other"}`, { n: r.type });
+    const scope = t(r.scope === 2 ? "ranks.scopeClass" : "ranks.scopeAll");
+    const change = r.change === 0 ? "–" : r.change > 0 ? `▲ ${formatNumber(r.change)}` : `▼ ${formatNumber(-r.change)}`;
+    const stats = r.stats ? RANK_STATS.filter((k) => k in r.stats).map((k) => `${t(`ranks.stat.${k}`)} ${formatNumber(r.stats[k])}`).join(" · ") : "";
+    return el("tr", {}, [
+      el("td", { textContent: name }),
+      el("td", { textContent: scope }),
+      el("td", { textContent: `#${formatNumber(r.rank)}` }),
+      el("td", { className: r.change > 0 ? "rank-up" : r.change < 0 ? "rank-down" : "", textContent: change }),
+      el("td", { textContent: formatNumber(r.points) }),
+      el("td", { textContent: stats }),
+      el("td", { textContent: formatDate(new Date(r.at)) }),
+    ]);
+  });
+  return el("div", {}, [
+    el("table", { className: "ranked-table compact" }, [
+      el("thead", {}, [el("tr", {}, ["ranks.content", "ranks.scope", "ranks.rank", "ranks.change", "ranks.points", "ranks.stats", "ranks.asOf"].map((k) => el("th", { textContent: t(k) })))]),
+      el("tbody", {}, rows),
+    ]),
+    el("p", { className: "profile-source", textContent: t("ranks.note") }),
+  ]);
+}
+
 function renderArcanaTab(profile) {
   const list = profile.gear.filter((g) => g.slotName === "Arcana").sort((a, b) => a.slot - b.slot);
   return el("div", { className: "pf-arcana" }, list.map(gearSlot));
@@ -4592,6 +4621,9 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   }
   if (character?.attributes) {
     tabs.unshift(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
+  }
+  if (profile?.ranks?.length > 0) {
+    tabs.push(["ranks", t("profile.tabRanks"), profile.ranks.length, () => renderRanksTab(profile)]);
   }
   if (profile?.gear.some((g) => g.slotName === "Arcana")) {
     tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);

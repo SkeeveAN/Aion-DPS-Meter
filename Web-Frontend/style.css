@@ -4429,3 +4429,6 @@ button.cmp-mem { cursor: pointer; }
 .bd-cell { width: 40%; min-width: 180px; }
 .bd-bar { position: relative; height: 10px; border-radius: 5px; background: var(--surface-2, rgba(128,128,128,.18)); overflow: hidden; }
 .bd-bar i { position: absolute; top: 0; bottom: 0; background: #ff7b7b; opacity: .85; }
+
+.rank-up { color: #4cc38a; }
+.rank-down { color: #ff7b7b; }

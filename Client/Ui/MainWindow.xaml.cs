@@ -5934,7 +5934,8 @@ public partial class MainWindow : Window
                     : null,
                 Presets: directory.LocalPresets.Select(x => new ProfilePresetUpload(x.Index, x.Active, x.SeenAt.ToUniversalTime(),
                     x.Skills.Select(k => new ProfileSkillUpload(k.SkillId, k.Level, k.BaseLevel, k.Stigma, k.Equipped, k.Stones)).ToList())).ToList(),
-                AccountKey: directory.AccountKeyHash());
+                AccountKey: directory.AccountKeyHash(),
+                Ranks: directory.OwnRanks().Select(r => new ProfileRankUpload(r.Type, r.Scope, r.Entry.Rank, r.Entry.Points, r.Entry.Change, r.Entry.Grade, r.Entry.StatsJson.Length is > 0 and <= 300 ? r.Entry.StatsJson : null, r.At.ToUniversalTime())).ToList() is { Count: > 0 } ranks ? ranks : null);
         }
 
         // A character window the local player opened for this player: level and the full equipment with

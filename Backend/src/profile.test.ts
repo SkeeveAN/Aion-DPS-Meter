@@ -527,3 +527,18 @@ test("migration 0059 adds the presets column with an empty default", () => {
   const cols = sqlite.prepare("pragma table_info(player_profiles)").all() as { name: string; dflt_value: string | null }[];
   assert.equal(cols.find((c) => c.name === "presets_json")?.dflt_value, "'[]'");
 });
+
+test("own ranks: a new reading replaces the one of its type and scope, the others stay, an older one never wins", async () => {
+  const { mergeRanks, profileSchema } = await import("./profile.js");
+  const stored = JSON.stringify([
+    { type: 1, scope: 0, rank: 100, at: "2026-10-23T10:00:00Z" },
+    { type: 5, scope: 2, rank: 7, at: "2026-10-23T10:00:00Z" },
+  ]);
+  const merged = mergeRanks(stored, [
+    { type: 1, scope: 0, rank: 90, at: "2026-10-23T12:00:00Z" },
+    { type: 5, scope: 2, rank: 99, at: "2026-10-22T12:00:00Z" },
+    { type: 3, scope: 0, rank: 5, at: "2026-10-23T12:00:00Z" },
+  ]);
+  assert.deepEqual(merged.map((r) => [r.type, r.scope, r.rank]), [[1, 0, 90], [3, 0, 5], [5, 2, 7]]);
+  assert.ok(profileSchema.safeParse({ source: "self", ranks: [{ type: 1, scope: 0, rank: 1764, points: 92435, change: -16, grade: 18, stats: "{\"kill_count\":11}", at: "2026-10-23T12:00:00Z" }] }).success);
+});
