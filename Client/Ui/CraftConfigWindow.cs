@@ -149,7 +149,11 @@ public sealed class CraftConfigWindow : Window
             var onlyKnown = Switch(_onlyKnown, loc["Craft.OnlyKnown"]);
             onlyKnown.HorizontalAlignment = HorizontalAlignment.Right;
             onlyKnown.Margin = new Thickness(0, 0, 14, 0);
-            _onlyKnown.Click += (_, _) => ShowResults();
+            _onlyKnown.Click += (_, _) =>
+            {
+                ShowTree();
+                ShowResults();
+            };
             DockPanel.SetDock(onlyKnown, Dock.Right);
             bar.Children.Insert(1, onlyKnown);
         }
@@ -182,7 +186,9 @@ public sealed class CraftConfigWindow : Window
         return text == key ? tab : text;
     }
 
-    private IEnumerable<CraftRecipe> InCategory() => Aion2CraftData.Visible(_elyos).Where(r => r.Category == _category);
+    private bool Listed(CraftRecipe r) => !(_onlyKnown.IsChecked == true && Aion2Recipes.HasData) || Aion2Recipes.IsKnown(r) || IsMarked(r);
+
+    private IEnumerable<CraftRecipe> InCategory() => Aion2CraftData.Visible(_elyos).Where(r => r.Category == _category && Listed(r));
 
     private void ShowTree()
     {
@@ -190,7 +196,7 @@ public sealed class CraftConfigWindow : Window
         _tree.Children.Clear();
         foreach (string category in Categories)
         {
-            int count = Aion2CraftData.Visible(_elyos).Count(r => r.Category == category);
+            int count = Aion2CraftData.Visible(_elyos).Count(r => r.Category == category && Listed(r));
             bool open = category == _category;
             _tree.Children.Add(TreeRow((open ? "▾ " : "▸ ") + loc["Craft.Cat." + category], count, open && _tab.Length == 0 && false, open, 0, () =>
             {
@@ -276,10 +282,7 @@ public sealed class CraftConfigWindow : Window
             found = found.Where(IsMarked);
         }
 
-        if (_onlyKnown.IsChecked == true && Aion2Recipes.HasData)
-        {
-            found = found.Where(r => Aion2Recipes.IsKnown(r) || IsMarked(r));
-        }
+        found = found.Where(Listed);
 
         List<CraftRecipe> list = found.OrderBy(r => r.Type == "Succession").ThenBy(r => r.Level).ThenBy(r => r.Order).ThenBy(r => r.Id).ToList();
         foreach (CraftRecipe recipe in list.Take(MaxResults))

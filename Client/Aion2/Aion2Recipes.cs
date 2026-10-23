@@ -10,6 +10,12 @@ public static class Aion2Recipes
 {
     public const int Opcode = 0x7e8d;
 
+    /// <summary>The crafting level-up frame <c>0x7d8d | profession u8 | level u16 (absolute) | ...</c> (docs/protocol/inventar-quest-frames.md).</summary>
+    public const int LevelUpOpcode = 0x7d8d;
+
+    /// <summary>The recipe category of a profession id of the level-up frame: 1 weapon smithing, 2 armor (tailoring), 3 jewelcrafting, 5 cooking are proven by screenshots; 4 alchemy follows that order and is not proven.</summary>
+    private static readonly Dictionary<int, string> CategoryOf = new() { [1] = "Blacksmithing", [2] = "Tailoring", [3] = "Jewelcrafting", [4] = "Alchemy", [5] = "Cooking" };
+
     private static readonly object Gate = new();
     private static HashSet<int>? _known;
 
@@ -42,6 +48,39 @@ public static class Aion2Recipes
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// A crafting level-up: the character learns every recipe of the profession that is learnt by level ("Auto") up to the new level - no other frame tells it (a recipe is only
+    /// learnt when the level rises). On the recordings' login lists every profession's learned "Auto" recipes ended below the lowest level not yet reached (all five professions), so
+    /// the level is the whole rule. Without a login list nothing is known and nothing is added. Returns how many recipes were new.
+    /// </summary>
+    public static int NoteLevelUp(ReadOnlySpan<byte> frame)
+    {
+        if (frame.Length < 5 || !CategoryOf.TryGetValue(frame[2], out string? category))
+        {
+            return 0;
+        }
+
+        int level = BinaryPrimitives.ReadUInt16LittleEndian(frame[3..]);
+        lock (Gate)
+        {
+            if (_known is null)
+            {
+                return 0;
+            }
+
+            int added = 0;
+            foreach (CraftRecipe recipe in Aion2CraftData.All)
+            {
+                if (recipe.Category == category && recipe.Learn == "Auto" && recipe.Level <= level && _known.Add(recipe.Id))
+                {
+                    added++;
+                }
+            }
+
+            return added;
+        }
     }
 
     public static bool TryParse(ReadOnlySpan<byte> frame, out HashSet<int> ids)

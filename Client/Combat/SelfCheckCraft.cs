@@ -129,7 +129,19 @@ public static class SelfCheckCraft
 
         bool read = Aion2Recipes.Note(list.ToArray()) && Aion2Recipes.IsKnown(hammer) && Aion2Recipes.IsKnown(twin!) && !Aion2Recipes.IsKnown(smelt) && !Aion2Recipes.Note(list.Take(10).ToArray());
         Aion2Recipes.Reset();
-        bool known = noList && read;
+        // a crafting level-up (profession 1 = weapon smithing, level 50 absolute) teaches the recipes learnt by level up to it, in the category of the profession only
+        Aion2Recipes.Note(list.ToArray());
+        int before = Aion2CraftData.All.Count(r => Aion2Recipes.IsKnown(r));
+        byte[] levelUp = { 0x8d, 0x7d, 1, 50, 0, 0, 0, 0, 0 };
+        int taught = Aion2Recipes.NoteLevelUp(levelUp);
+        CraftRecipe? forged = Aion2CraftData.All.FirstOrDefault(r => r.Category == "Blacksmithing" && r.Learn == "Auto" && r.Level is > 1 and <= 50 && r.Id != hammer.Id);
+        CraftRecipe? tailored = Aion2CraftData.All.FirstOrDefault(r => r.Category == "Tailoring" && r.Learn == "Auto" && r.Level is > 1 and <= 50);
+        CraftRecipe? later = Aion2CraftData.All.FirstOrDefault(r => r.Category == "Blacksmithing" && r.Learn == "Auto" && r.Level > 50);
+        bool levelled = taught > 0 && forged is not null && Aion2Recipes.IsKnown(forged) && tailored is not null && !Aion2Recipes.IsKnown(tailored) && later is not null && !Aion2Recipes.IsKnown(later) && Aion2Recipes.NoteLevelUp(levelUp) == 0;
+        Aion2Recipes.Reset();
+        bool noBase = Aion2Recipes.NoteLevelUp(levelUp) == 0 && !Aion2Recipes.HasData;
+        Console.WriteLine($"  -> a crafting level-up teaches the level's recipes of its profession (nothing before a login list): {levelled && noBase} ({before} known before)");
+        bool known = noList && read && levelled && noBase;
         Console.WriteLine($"  -> without a list every recipe counts as learned, the list frame sets the learned ones (twin included): {known}");
 
         // chain skills: 1838 opens the follow-up, 1938 closes a window, an unclosed one ends by itself

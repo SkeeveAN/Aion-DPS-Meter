@@ -623,6 +623,12 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        if (opcode == Aion2Recipes.LevelUpOpcode)
+        {
+            Aion2Recipes.NoteLevelUp(frame);
+            return Array.Empty<DamageEvent>();
+        }
+
         if (opcode == Aion2Recipes.Opcode)
         {
             Aion2Recipes.Note(frame);
