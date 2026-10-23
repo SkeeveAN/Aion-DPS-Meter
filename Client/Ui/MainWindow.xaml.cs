@@ -1457,6 +1457,19 @@ public partial class MainWindow : Window
 
         sourceIds = sourceIds.Where(IsInScope).ToList();
 
+        // A passer-by the meter knows by no name, with one single hit seen, is no row: in the open world every stranger
+        // fighting within sight would add a "Player #id" line. The own character and the group stay whatever they did.
+        if (_source?.Entities is Aion2.Aion2EntityDirectory strangerDir && !_historyMode)
+        {
+            Dictionary<int, int> hitsBySource = damageIndexed
+                ? (_pvpOnly ? _index.PvpBySource : _index.BySource).ToDictionary(kv => kv.Key, kv => kv.Value.Hits)
+                : filtered.GroupBy(ev => ev.SourceObjectId).ToDictionary(g => g.Key, g => g.Count());
+            sourceIds = sourceIds.Where(id => id == strangerDir.LocalPlayerId
+                || hitsBySource.GetValueOrDefault(id) > 1
+                || strangerDir.NameFor(id) is not string stranger
+                || !stranger.StartsWith("Player #", StringComparison.Ordinal)).ToList();
+        }
+
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
             _rows.Remove(_rowsByObjectId[staleId]);

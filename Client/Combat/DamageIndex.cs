@@ -16,6 +16,8 @@ public sealed class DamageIndex
     public sealed class Stats
     {
         public long Sum;
+        /// <summary>How many hits were counted.</summary>
+        public int Hits;
         /// <summary>The part of <see cref="Sum"/> that is estimated (see <see cref="DamageEvent.Estimated"/>).</summary>
         public long EstimatedSum;
         public DateTime First = DateTime.MaxValue;
@@ -24,6 +26,7 @@ public sealed class DamageIndex
         internal void Add(DamageEvent ev)
         {
             Sum += ev.Amount;
+            Hits++;
             if (ev.Estimated)
             {
                 EstimatedSum += ev.Amount;
@@ -223,6 +226,7 @@ public sealed class DamageIndex
             }
 
             stats.Sum += part.Sum;
+            stats.Hits += part.Hits;
             stats.EstimatedSum += part.EstimatedSum;
             stats.First = part.First < stats.First ? part.First : stats.First;
             stats.Last = part.Last > stats.Last ? part.Last : stats.Last;
