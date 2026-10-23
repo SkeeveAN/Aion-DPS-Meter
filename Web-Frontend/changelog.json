@@ -242,6 +242,13 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the last page of the first-start wizard is a checklist with a green tick and a ? tooltip per step - Npcap installed (with a download button if not) and waiting for the character - lists the characters of the account with faction, server, name, class, level and the time of recognition, and Finish stays locked until the character is recognised",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
