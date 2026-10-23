@@ -84,3 +84,17 @@ test("turned-down inputs of a player are lined up on the encounter's clock like 
   assert.deepEqual(out.players[0]!.rejected, [4, 7]);
   assert.deepEqual(out.players[1]!.rejected, []);
 });
+
+test("the focus of a player is given in seconds, nothing for a player without it", () => {
+  const out = shapeTimeline({
+    startedAt: START,
+    durationSeconds: 60,
+    bossHp: null,
+    players: [
+      { id: 1, name: "Anna", className: "Gladiator", timeline: { origin: START, skills: [{ id: 11, name: "Slam" }], times: [10], index: [0], deaths: [], focus: { onBoss: 453, onOthers: 120, switches: 7 } }, buffs: [] },
+      { id: 2, name: "Bob", className: "Cleric", timeline: { origin: START, skills: [{ id: 21, name: "Heal" }], times: [0], index: [0], deaths: [] }, buffs: [] },
+    ],
+  });
+  assert.deepEqual(out.players[0]!.focus, { onBoss: 45.3, onOthers: 12, switches: 7 });
+  assert.equal(out.players[1]!.focus, null);
+});

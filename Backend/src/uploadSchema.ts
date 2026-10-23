@@ -39,6 +39,8 @@ const timelineSchema = z
     deaths: z.array(z.number().int().min(0).max(100_000)).max(40).default([]),
     // Moments the server turned down a skill use (a key pressed during an animation); only the uploader's own character, tenths of a second like times.
     rejected: z.array(z.number().int().min(0).max(100_000)).max(400).optional(),
+    // How the player split his time between the boss and anything else he had selected (tenths of a second), and how often he changed targets. Only his target, never a place.
+    focus: z.object({ onBoss: z.number().int().min(0).max(100_000), onOthers: z.number().int().min(0).max(100_000), switches: z.number().int().min(0).max(10_000) }).optional(),
   })
   .refine((t) => t.times.length === t.index.length && t.index.every((i) => i < t.skills.length), { message: "timeline: times and index must pair up with skills" });
 

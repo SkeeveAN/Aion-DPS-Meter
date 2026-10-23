@@ -2870,7 +2870,7 @@ public partial class MainWindow : Window
                 Estimated: estimated,
                 CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row))),
                 Timeline: buffExtras is not null && aion2Directory is not null
-                    ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id))
+                    ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id), targetId)
                     : null));
         }
 

@@ -116,6 +116,8 @@ public sealed class Aion2CombatState
     private readonly List<WindupRecord> _windupLog = new();
     private readonly List<DeathRecord> _deathLog = new();
     private readonly List<RejectRecord> _rejectLog = new();
+    private readonly List<TargetChange> _targetLog = new();
+    private readonly Dictionary<int, int> _targetNow = new();
     private readonly List<(int Entity, DateTime At)> _reviveLog = new();
     private readonly List<BuffEvent> _buffLog = new();
     private readonly List<StaggerEvent> _staggerLog = new();
@@ -248,6 +250,47 @@ public sealed class Aion2CombatState
 
             track.Add(at, x, y);
         }
+    }
+
+    /// <summary>An actor changed his target (0 = none). The game repeats nothing, but a repeat is dropped anyway.</summary>
+    public void NoteTarget(int actor, int target, DateTime at)
+    {
+        lock (_gate)
+        {
+            if (_targetNow.TryGetValue(actor, out int before) && before == target)
+            {
+                return;
+            }
+
+            _targetNow[actor] = target;
+            if (_targetNow.Count > 5000)
+            {
+                _targetNow.Clear();
+            }
+
+            Append(_targetLog, new TargetChange(at, actor, target));
+        }
+    }
+
+    /// <summary>The target changes of a window, with for every actor the last change before it (so the target at the start is known).</summary>
+    private List<TargetChange> TargetsIn(DateTime from, DateTime to)
+    {
+        var result = new List<TargetChange>();
+        var before = new Dictionary<int, TargetChange>();
+        foreach (TargetChange t in _targetLog)
+        {
+            if (t.At < from)
+            {
+                before[t.Actor] = t;
+            }
+            else if (t.At <= to)
+            {
+                result.Add(t);
+            }
+        }
+
+        result.InsertRange(0, before.Values.Where(b => b.Target != 0).Select(b => b with { At = from }));
+        return result;
     }
 
     /// <summary>The server turned down a skill of the own character (frame 0x0138 with an error code).</summary>
@@ -654,7 +697,8 @@ public sealed class Aion2CombatState
             }
 
             List<RejectRecord>? rejected = _rejectLog.Where(r => r.At >= from && r.At <= to).ToList();
-            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp, rejected.Count > 0 ? rejected : null);
+            List<TargetChange> targets = TargetsIn(from, to);
+            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp, rejected.Count > 0 ? rejected : null, targets.Count > 0 ? targets : null);
         }
     }
 

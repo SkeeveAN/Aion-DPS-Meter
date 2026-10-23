@@ -277,3 +277,32 @@ export function buildBuffsPerSkill(timeline, deps) {
   draw(players[0]);
   return panel;
 }
+
+/** Who had the boss selected how long and how often each player changed targets (clients that read the target frames; every player the uploader's game announced a target for). */
+export function buildFocus(timeline, deps) {
+  const { el, t, formatNumber, classIcon, iconLabel } = deps;
+  const players = timeline.players.filter((p) => p.focus && p.focus.onBoss + p.focus.onOthers > 0);
+  if (players.length === 0) {
+    return null;
+  }
+  const rows = players
+    .slice()
+    .sort((a, b) => b.focus.onBoss / (b.focus.onBoss + b.focus.onOthers) - a.focus.onBoss / (a.focus.onBoss + a.focus.onOthers))
+    .map((p) => {
+      const total = p.focus.onBoss + p.focus.onOthers;
+      const share = Math.round((p.focus.onBoss / total) * 100);
+      return el("tr", {}, [
+        el("td", {}, [iconLabel(classIcon(p.className), p.name)]),
+        el("td", { textContent: `${formatNumber(Math.round(p.focus.onBoss))} s (${share} %)` }),
+        el("td", { textContent: `${formatNumber(Math.round(p.focus.onOthers))} s (${100 - share} %)` }),
+        el("td", { textContent: formatNumber(p.focus.switches) }),
+      ]);
+    });
+  return el("div", { className: "meter-panel sb-panel" }, [
+    el("div", { className: "meter-panel-header" }, [el("div", { className: "meter-panel-heading" }, [el("span", { className: "meter-panel-title", textContent: t("focus.heading") }), el("span", { className: "meter-panel-subtitle", textContent: t("focus.subtitle") })])]),
+    el("table", { className: "ranked-table compact skill-table" }, [
+      el("thead", {}, [el("tr", {}, ["focus.player", "focus.onBoss", "focus.onOthers", "focus.switches"].map((k) => el("th", { textContent: t(k) })))]),
+      el("tbody", {}, rows),
+    ]),
+  ]);
+}

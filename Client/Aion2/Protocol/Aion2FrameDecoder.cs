@@ -149,6 +149,9 @@ public sealed class Aion2FrameDecoder
     /// <summary>The server's receipt of the own skill use: taken, or turned down with an error code (docs/protocol/skill-frames.md).</summary>
     private const int SkillReceiptOpcode = 0x0138;
 
+    /// <summary>An actor's (player's or monster's) new target: <c>opcode | actor (varint) | 00 | target (varint, 0 = none)</c>; 0x3138 is the own character's: <c>opcode | 00 00 | target (varint) | 00 00</c>.</summary>
+    private const int ActorTargetOpcode = 0x3238, OwnTargetOpcode = 0x3138;
+
     /// <summary>A hit that lands: <c>opcode | attacker (varint) | 00 | target (varint) | skill id u32 | position ...</c>, about 0.3 s before the
     /// damage frame (0x0438) of the same hit, which holds the amount. In a fight of a few players both arrive for every hit (one notice per
     /// damaging frame: 4,331 against 4,306 in a recording of a Urugugu run). On a crowded world boss the server sends the notices of everybody around and
@@ -576,6 +579,12 @@ public sealed class Aion2FrameDecoder
                 }
             }
 
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == ActorTargetOpcode || opcode == OwnTargetOpcode)
+        {
+            DecodeTargetChange(frame, timestamp, opcode == OwnTargetOpcode);
             return Array.Empty<DamageEvent>();
         }
 
@@ -2092,6 +2101,47 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>The position of the local player (see <see cref="OpcodeFamily.LocalPosition"/>): the pet map follows it.</summary>
+    private void DecodeTargetChange(ReadOnlySpan<byte> frame, DateTime timestamp, bool own)
+    {
+        int p = 2;
+        long actor, target;
+        if (own)
+        {
+            if (frame.Length < 6 || frame[2] != 0 || frame[3] != 0)
+            {
+                return;
+            }
+
+            p = 4;
+            if (_entities.LocalPlayerId < 0 || !TryReadVarint(frame, ref p, out target))
+            {
+                return;
+            }
+
+            actor = _entities.LocalPlayerId;
+        }
+        else
+        {
+            if (!TryReadVarint(frame, ref p, out actor) || p >= frame.Length || frame[p] != 0)
+            {
+                return;
+            }
+
+            p++;
+            if (!TryReadVarint(frame, ref p, out target))
+            {
+                return;
+            }
+        }
+
+        if (actor is < 1 or > 10_000_000 || target is < 0 or > 10_000_000)
+        {
+            return;
+        }
+
+        _entities.Combat.NoteTarget((int)actor, (int)target, timestamp);
+    }
+
     private void DecodeLocalPosition(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;

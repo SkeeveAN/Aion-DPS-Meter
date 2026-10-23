@@ -31,7 +31,13 @@ public sealed record TimelineSkillUpload(int Id, string Name);
 /// <see cref="Times"/>[i] is a use of <see cref="Skills"/>[<see cref="Index"/>[i]].</summary>
 public sealed record TimelineUpload(IReadOnlyList<TimelineSkillUpload> Skills, IReadOnlyList<int> Times, IReadOnlyList<int> Index, IReadOnlyList<int> Deaths,
     // The moments (tenths of a second) the server turned down a skill of this player; only ever filled for the uploader's own character, empty for the others.
-    IReadOnlyList<int>? Rejected = null);
+    IReadOnlyList<int>? Rejected = null,
+    // Whom this player had selected: see FocusUpload. Null when the stream named no target of his.
+    FocusUpload? Focus = null);
+
+/// <summary>How a player split his time between the boss and everything else (adds, other players to heal), in tenths of a second of the uploaded window, and how often he
+/// changed from one target to another. Only his target, never where he stood.</summary>
+public sealed record FocusUpload(int OnBoss, int OnOthers, int Switches);
 
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own
 /// "You" check (see MainWindow.ResolveDisplayName) - the backend trusts THIS row's crit rate for

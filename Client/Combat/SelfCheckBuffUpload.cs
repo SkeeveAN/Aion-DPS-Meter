@@ -62,8 +62,13 @@ public static class SelfCheckBuffUpload
         TimelineUpload? withRejects = TimelineBuilder.For(withTime with { Rejected = turned }, you, start, end, id => names.GetValueOrDefault(id));
         bool rejected = withRejects?.Rejected is { Count: 1 } r && r[0] == 25 && line?.Rejected is null;
         Console.WriteLine($"  -> the server's turned-down inputs of the player go along, nobody else's: {rejected}");
+        // the focus: boss selected 0-4 s, an add 4-7 s, nothing 7-8, the boss again 8-10 (the target at the start comes from a change before the window)
+        var targets = new List<TargetChange> { new(start.AddSeconds(-5), you, boss), new(start.AddSeconds(4), you, 777), new(start.AddSeconds(7), you, 0), new(start.AddSeconds(8), you, boss), new(start.AddSeconds(5), wendy, 777) };
+        FocusUpload? focus = TimelineBuilder.FocusOf(withTime with { Targets = targets }, you, boss, start, start.AddSeconds(10));
+        bool focused = focus is { OnBoss: 60, OnOthers: 30, Switches: 2 } && TimelineBuilder.FocusOf(withTime, you, boss, start, end) is null;
+        Console.WriteLine($"  -> the focus counts the time on the boss and on anything else and the switches between targets: {focused}");
         bool noUses = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null) is null;
         Console.WriteLine($"  -> a player without skill uses has no time axis: {noUses}");
-        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && rejected && noUses;
+        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && rejected && focused && noUses;
     }
 }
