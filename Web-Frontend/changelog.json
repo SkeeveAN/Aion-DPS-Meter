@@ -80,6 +80,13 @@
      "Backend"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: a crafting level-up teaches the recipes of that level to the learned-recipes filter, and the recipe tree counts only the listed recipes",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
