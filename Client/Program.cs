@@ -237,6 +237,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-privacy")
+        {
+            Ui.PrivacyRender.Run(args.Length > 1 ? args[1] : "privacy.png", args.Length > 2 ? args[2] : "dialog");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-messagebox")
         {
             RunRenderMessageBoxMode(args.Length > 1 ? args[1] : "messagebox.png");

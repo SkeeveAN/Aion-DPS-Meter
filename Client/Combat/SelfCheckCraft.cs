@@ -231,7 +231,17 @@ public static class SelfCheckCraft
         bool pointCapped = watchSet.Note(5, probe, w0.AddSeconds(500)) is null && watchSet.UnknownOpcodes == 1;
         Console.WriteLine($"  -> an unknown frame is a debug point once, again after two quiet minutes, never more than twice, a known one never: {pointFirst && pointQuiet && pointAgain && pointCapped}");
 
+        // the privacy answer: only an accepted current version allows uploads, never asked or an older version is asked, declined is the restricted mode and is not asked again
+        var fresh = new Ui.MeterSettings();
+        var accepted = new Ui.MeterSettings { PrivacyDecision = Ui.PrivacyConsent.Accepted, PrivacyVersion = Ui.PrivacyConsent.Version };
+        var older = new Ui.MeterSettings { PrivacyDecision = Ui.PrivacyConsent.Accepted, PrivacyVersion = Ui.PrivacyConsent.Version - 1 };
+        var declined = new Ui.MeterSettings { PrivacyDecision = Ui.PrivacyConsent.Declined };
+        bool consent = !Ui.PrivacyConsent.IsAccepted(fresh) && Ui.PrivacyConsent.NeedsAsking(fresh) && Ui.PrivacyConsent.IsAccepted(accepted) && !Ui.PrivacyConsent.NeedsAsking(accepted)
+            && !Ui.PrivacyConsent.IsAccepted(older) && Ui.PrivacyConsent.NeedsAsking(older) && !Ui.PrivacyConsent.IsAccepted(declined) && !Ui.PrivacyConsent.NeedsAsking(declined)
+            && Ui.PrivacyConsent.RestrictedTools.SetEquals(new[] { "checklist", "attributes", "statcalc", "loot", "craft", "timetable", "theme", "network" });
+        Console.WriteLine($"  -> the privacy answer: uploads only with the current version accepted, older or never asked is asked, declined is not asked again, eight tools stay: {consent}");
+
         Aion2Stock.Reset();
-        return pointFirst && pointQuiet && pointAgain && pointCapped && ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return consent && pointFirst && pointQuiet && pointAgain && pointCapped && ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }

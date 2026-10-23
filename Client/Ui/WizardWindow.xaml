@@ -84,9 +84,25 @@
 
         <Separator Margin="0,16,0,14"/>
 
+        <TextBlock Style="{StaticResource Heading}" Text="{local:Loc Wizard.PolicyHeading}"/>
+        <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+            <TextBlock TextWrapping="Wrap" Padding="0,0,8,0" Text="{local:Loc Privacy.Text}"/>
+        </ScrollViewer>
+        <TextBlock Margin="0,8,0,0">
+            <Hyperlink NavigateUri="https://aiondps.com/privacy" RequestNavigate="OnPolicyLinkNavigate"><Run Text="{local:Loc Privacy.Link}"/></Hyperlink>
+        </TextBlock>
+        <RadioButton x:Name="PolicyAccept" GroupName="Policy" Margin="0,10,0,0" Foreground="{DynamicResource Brush.Text}" Checked="OnPolicyChanged">
+            <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.PolicyAccept}"/>
+        </RadioButton>
+        <RadioButton x:Name="PolicyDecline" GroupName="Policy" Margin="0,6,0,0" Foreground="{DynamicResource Brush.Text}" Checked="OnPolicyChanged">
+            <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.PolicyDecline}"/>
+        </RadioButton>
+
+        <Separator Margin="0,14,0,14"/>
+
         <TextBlock Style="{StaticResource Heading}" Text="{local:Loc Wizard.PrivacyHeading}"/>
         <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.PrivacyText}"/>
-        <Border Style="{StaticResource SettingsCard}" Margin="0,14,0,0">
+        <Border x:Name="UploadCard" Style="{StaticResource SettingsCard}" Margin="0,14,0,0" IsEnabled="False">
             <StackPanel>
                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.Upload}"/>
                 <CheckBox x:Name="ProfileBox" Content="{local:Loc Wizard.OptProfile}"/>

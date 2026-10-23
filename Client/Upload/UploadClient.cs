@@ -138,6 +138,11 @@ public static class UploadClient
     /// payload - per the user, not knowing whether/why an upload failed was itself the problem.</summary>
     public static async Task<UploadResult> SendAsync(EncounterUploadRequest payload)
     {
+        if (!Ui.PrivacyConsent.CanUpload)
+        {
+            return UploadResult.Failed("The privacy policy is not accepted: nothing is uploaded.");
+        }
+
         if (IsBlocked)
         {
             await RecheckIfDueAsync();
@@ -169,6 +174,11 @@ public static class UploadClient
     /// never-throws contract as <see cref="SendAsync"/>.</summary>
     public static async Task<UploadResult> SendProfilesAsync(ProfilesUploadRequest payload)
     {
+        if (!Ui.PrivacyConsent.CanUpload)
+        {
+            return UploadResult.Failed("The privacy policy is not accepted: nothing is uploaded.");
+        }
+
         if (IsBlocked)
         {
             return BlockedResult();
@@ -194,6 +204,11 @@ public static class UploadClient
     /// <summary>Posts the login traffic of a legion member (see <see cref="LoginDumpUploadRequest"/>). Same never-throws contract as <see cref="SendAsync"/>.</summary>
     public static async Task<UploadResult> SendLoginDumpAsync(LoginDumpUploadRequest payload)
     {
+        if (!Ui.PrivacyConsent.CanUpload)
+        {
+            return UploadResult.Failed("The privacy policy is not accepted: nothing is uploaded.");
+        }
+
         if (IsBlocked)
         {
             return BlockedResult();
@@ -219,6 +234,11 @@ public static class UploadClient
 
     private static async Task<UploadResult> PostJsonAsync(string path, string json)
     {
+        if (!Ui.PrivacyConsent.CanUpload)
+        {
+            return UploadResult.Failed("The privacy policy is not accepted: nothing is uploaded.");
+        }
+
         if (IsBlocked)
         {
             await RecheckIfDueAsync();

@@ -52,6 +52,11 @@ public partial class SettingsWindow : Window
         AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
         DebugRecordingBox.IsChecked = settings.DebugRecording;
         UploadOtherProfilesBox.IsChecked = settings.UploadOtherPlayersProfiles;
+        // switching an upload on needs the privacy policy to be accepted: it is asked again when it was declined (set after the values above, so loading does not ask)
+        foreach (CheckBox uploadSwitch in new[] { AutoUploadProfileBox, AutoUploadBossBox, UploadOtherProfilesBox })
+        {
+            uploadSwitch.Checked += OnUploadSwitchChecked;
+        }
         // Only members of Akatsuki on Kaisinel see this switch (a member who switched it on and then left the legion keeps seeing it, to be able to switch it off).
         LoginShareCard.Visibility = settings.LoginShareEligible || settings.ShareLoginWithLegion ? Visibility.Visible : Visibility.Collapsed;
         ShareLoginBox.IsChecked = settings.ShareLoginWithLegion;
@@ -302,6 +307,19 @@ public partial class SettingsWindow : Window
         }
 
         _capturingBox = null;
+    }
+
+    private void OnUploadSwitchChecked(object sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox box && !PrivacyConsent.EnsureForUploadSwitch(this))
+        {
+            box.IsChecked = false;
+        }
+
+        // the answer was written to the file by the question: this window's own copy of the settings must not write the old one back when it is saved
+        MeterSettings now = MeterSettings.Load();
+        _settings.PrivacyDecision = now.PrivacyDecision;
+        _settings.PrivacyVersion = now.PrivacyVersion;
     }
 
     private void OnHotkeyBoxGotFocus(object sender, KeyboardFocusChangedEventArgs e)

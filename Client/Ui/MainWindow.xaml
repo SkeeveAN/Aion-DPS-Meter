@@ -649,7 +649,7 @@
                          entry buried among a dozen others. -->
                     <!-- Tools: the combat analyzer (session manager), loading/saving/exporting sessions and the dummy test. The session part comes first,
                          a line sets the dummy test apart. -->
-                                        <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
+                                        <MenuItem x:Name="ToolsMenu" Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Tag="checklist" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.Attributes}" Tag="attributes" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.StatCalc}" Tag="statcalc" Click="OnOpenModuleClicked"/>

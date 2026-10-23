@@ -97,7 +97,43 @@ public partial class WizardWindow : Window
         }
     }
 
-    private void OnFinishClicked(object sender, RoutedEventArgs e) => Close();
+    private void OnFinishClicked(object sender, RoutedEventArgs e)
+    {
+        if (PolicyAccept.IsChecked != true && PolicyDecline.IsChecked != true)
+        {
+            ThemedMessageBox.Show(this, LocalizationManager.Instance["Wizard.PolicyChoose"], Title, MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        Close();
+    }
+
+    /// <summary>The upload switches can only be used after the policy was accepted; declining puts them off.</summary>
+    private void OnPolicyChanged(object sender, RoutedEventArgs e)
+    {
+        bool accepted = PolicyAccept.IsChecked == true;
+        UploadCard.IsEnabled = accepted;
+        if (!accepted)
+        {
+            BossBox.IsChecked = false;
+            ProfileBox.IsChecked = false;
+            OthersBox.IsChecked = false;
+        }
+    }
+
+    private void OnPolicyLinkNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // no browser: the address is in the text
+        }
+
+        e.Handled = true;
+    }
 
     /// <summary>Writes the choices. Runs once, however the window was closed.</summary>
     private void Finish()
@@ -109,10 +145,15 @@ public partial class WizardWindow : Window
 
         _finished = true;
         _settings.Language = LocalizationManager.Instance.Language;
-        _settings.AutoUploadBoss = BossBox.IsChecked == true;
-        _settings.AutoUploadProfile = ProfileBox.IsChecked == true;
-        _settings.UploadOtherPlayersProfiles = OthersBox.IsChecked == true;
+        // closing the window without an answer counts as declined: nothing is uploaded and the meter stays in its restricted mode
+        bool accepted = PolicyAccept.IsChecked == true;
+        _settings.PrivacyDecision = accepted ? PrivacyConsent.Accepted : PrivacyConsent.Declined;
+        _settings.PrivacyVersion = accepted ? PrivacyConsent.Version : 0;
+        _settings.AutoUploadBoss = accepted && BossBox.IsChecked == true;
+        _settings.AutoUploadProfile = accepted && ProfileBox.IsChecked == true;
+        _settings.UploadOtherPlayersProfiles = accepted && OthersBox.IsChecked == true;
         _settings.SetupCompleted = true;
         _settings.Save();
+        PrivacyConsent.NotifyChanged();
     }
 }

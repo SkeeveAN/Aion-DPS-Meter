@@ -128,6 +128,12 @@ public sealed class MeterSettings
     /// (0.11.0) - on purpose, so everybody makes the privacy choices (all off by default) once.</summary>
     public bool SetupCompleted { get; set; }
 
+    /// <summary>The answer to the privacy policy: 0 not asked yet, 1 accepted, 2 declined (see <see cref="PrivacyConsent"/>). Nothing is uploaded unless it is 1 and <see cref="PrivacyVersion"/> is current.</summary>
+    public int PrivacyDecision { get; set; }
+
+    /// <summary>The version of the policy that was accepted (0 = none).</summary>
+    public int PrivacyVersion { get; set; }
+
     /// <summary>The look of Hide UI: "Chips" (a click-through chip per player) or "Compact" (one
     /// transparent panel with a header, the fought boss and a dense line per player; it takes
     /// clicks, so it can be dragged, scaled and a player opened).</summary>
@@ -790,6 +796,8 @@ public sealed class MeterSettings
     private static void KeepAcrossReset(MeterSettings from, MeterSettings to)
     {
         to.SetupCompleted = from.SetupCompleted;
+        to.PrivacyDecision = from.PrivacyDecision;
+        to.PrivacyVersion = from.PrivacyVersion;
         to.AnonymousId = from.AnonymousId;
         to.AutoUploadProfile = from.AutoUploadProfile;
         to.AutoUploadBoss = from.AutoUploadBoss;

@@ -342,6 +342,12 @@ public partial class MainWindow : Window
             }
         }
 
+        if (!Headless)
+        {
+            // the answer to the privacy policy changes what is shown (restricted mode) - also from the settings window
+            PrivacyConsent.Changed += () => Dispatcher.BeginInvoke(ApplyPrivacyRestrictions);
+        }
+
         var settings = MeterSettings.Load();
 
         // Until the wizard has been through (see below) nothing is uploaded: an install that updated from a
@@ -395,10 +401,98 @@ public partial class MainWindow : Window
                 {
                     new WizardWindow(settings, RecognisedCharacterName) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
                 }
+                else if (PrivacyConsent.NeedsAsking(MeterSettings.Load()))
+                {
+                    // an install from before the question existed, or a policy that changed since the player accepted it
+                    PrivacyConsent.Ask(this);
+                }
 
+                ApplyPrivacyRestrictions();
                 AskForNpcapIfMissing();
             };
         }
+    }
+
+    // ---- the privacy answer: declined = restricted mode ------------------------------------------------
+    // Per the user: when the privacy policy is declined nothing is uploaded and the meter keeps only the DPS list (damage mode only, no other mode buttons), the checklist, stat calculator,
+    // attributes, loot, crafting calculator, schedule, design and network tools; Twitch drops, the announcements, the combat/assist/dummy/pet/world boss features are gone.
+
+    /// <summary>The features the restricted mode takes away are only started while it is not on; the others are always there.</summary>
+    private void EnsureRestrictableControllers()
+    {
+        if (PrivacyConsent.Restricted)
+        {
+            return;
+        }
+
+        _worldBoss ??= new WorldBossController();
+        _assist ??= new AssistController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
+        _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
+        _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory, BossHpCheck);
+    }
+
+    /// <summary>Shows or hides what the restricted mode removes, and starts or stops the features that go with it. Called at the start, after the first-start wizard and whenever the answer changes.</summary>
+    private void ApplyPrivacyRestrictions()
+    {
+        bool restricted = PrivacyConsent.Restricted;
+        foreach (Button button in new[] { ModeHealButton, ModeTakenButton, ModeAllButton, ModeAllPlusButton })
+        {
+            button.Visibility = restricted ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        if (restricted)
+        {
+            AnnouncementsButton.Visibility = Visibility.Collapsed;
+            TwitchDropsButton.Visibility = Visibility.Collapsed;
+            if (_mode != MeterMode.Damage)
+            {
+                SetMode(MeterMode.Damage, save: false);
+            }
+        }
+        else
+        {
+            AnnouncementsButton.Visibility = Visibility.Visible;
+            _ = RefreshTwitchDropsBadge();
+        }
+
+        // the Tools menu: only the tools that need no server and no other player's data stay
+        foreach (object item in ToolsMenu.Items)
+        {
+            switch (item)
+            {
+                case MenuItem { Tag: string id } menu:
+                    menu.Visibility = restricted && !PrivacyConsent.RestrictedTools.Contains(id) ? Visibility.Collapsed : Visibility.Visible;
+                    break;
+                case Separator line:
+                    line.Visibility = restricted ? Visibility.Collapsed : Visibility.Visible;
+                    break;
+            }
+        }
+
+        if (restricted)
+        {
+            _toolsWindow?.Close();
+            _worldBoss?.Dispose();
+            _worldBoss = null;
+            _assist?.Dispose();
+            _assist = null;
+            _dummy?.Dispose();
+            _dummy = null;
+            _combat?.Dispose();
+            _combat = null;
+            _petMapController?.Dispose();
+            _petMapController = null;
+            _petFarmController?.Dispose();
+            _petFarmController = null;
+            _petFarm?.Hide();
+        }
+        else if (!Headless)
+        {
+            EnsureRestrictableControllers();
+            ApplyPetFarm(MeterSettings.Load());
+        }
+
+        RefreshUploadAvailability();
     }
 
     /// <summary>The name of the local character once the capture has recognised it (the first-start wizard shows it live), else null.</summary>
@@ -717,7 +811,7 @@ public partial class MainWindow : Window
 
         int before = _cubeMapArrivals;
         _cubeMapArrivals = directory.CubeArrivals;
-        if (before < 0 || _cubeMapArrivals <= before || _petMapController is not null)
+        if (before < 0 || _cubeMapArrivals <= before || _petMapController is not null || PrivacyConsent.Restricted)
         {
             return;
         }
@@ -1137,14 +1231,11 @@ public partial class MainWindow : Window
             Aion2FieldBosses.EnablePersistence();
             Aion2Tickets.EnablePersistence();
             Aion2Tickets.Changed += () => Aion2Tickets.Flush();
-            _worldBoss ??= new WorldBossController();
-            _assist ??= new AssistController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
+            EnsureRestrictableControllers();
             _network ??= new NetworkOverlayController();
             Aion2Loot.EnablePersistence();
             _loot ??= new LootOverlayController();
             _craft ??= new CraftOverlayController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
-            _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
-            _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory, BossHpCheck);
             _menuWatcher ??= new MenuWatcher();
             _streamTimer.Tick += (_, _) => StreamTick();
             _streamTimer.Start();
@@ -1910,9 +2001,10 @@ public partial class MainWindow : Window
         // Aion 2 can also upload players without any boss fight (their character profiles), so the
         // single-upload entries stay available as soon as the own character is known.
         bool hasProfiles = _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: not null };
-        _uploadFlags.ShowBoss = hasBossData || hasProfiles;
-        _uploadFlags.ShowRun = hasBossData;
-        UploadBossButton.Visibility = (hasBossData || hasProfiles) && PlayersGrid.Visibility == Visibility.Visible
+        bool uploadsAllowed = !PrivacyConsent.Restricted; // declined: no upload button at all
+        _uploadFlags.ShowBoss = uploadsAllowed && (hasBossData || hasProfiles);
+        _uploadFlags.ShowRun = uploadsAllowed && hasBossData;
+        UploadBossButton.Visibility = uploadsAllowed && (hasBossData || hasProfiles) && PlayersGrid.Visibility == Visibility.Visible
             ? Visibility.Visible
             : Visibility.Collapsed;
     }
@@ -3079,6 +3171,11 @@ public partial class MainWindow : Window
     /// </summary>
     private async void OnUploadCurrentBossClicked(object sender, RoutedEventArgs e)
     {
+        if (!PrivacyConsent.EnsureForUploadSwitch(this))
+        {
+            return;
+        }
+
         AppMenu.IsSubmenuOpen = false;
         List<int> targetIds = PendingBossTargets();
         if (targetIds.Count == 0)
@@ -3992,6 +4089,11 @@ public partial class MainWindow : Window
     /// </summary>
     private async void OnUploadLastRunClicked(object sender, RoutedEventArgs e)
     {
+        if (!PrivacyConsent.EnsureForUploadSwitch(this))
+        {
+            return;
+        }
+
         AppMenu.IsSubmenuOpen = false;
         int? previousTarget = _selectedTargetId;
         DateTime? previousRunWindowStart = _selectedRunWindowStart;
@@ -4636,6 +4738,11 @@ public partial class MainWindow : Window
 
     private async Task RefreshAnnouncementsBadge()
     {
+        if (PrivacyConsent.Restricted)
+        {
+            return;
+        }
+
         long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
         if (latest is null)
         {
@@ -4665,6 +4772,12 @@ public partial class MainWindow : Window
     /// <summary>Shows the Twitch icon while a Twitch Drops campaign runs, with "New" while its start is newer than the one seen at the last click.</summary>
     private async Task RefreshTwitchDropsBadge()
     {
+        if (PrivacyConsent.Restricted)
+        {
+            await Dispatcher.InvokeAsync(() => TwitchDropsButton.Visibility = Visibility.Collapsed);
+            return;
+        }
+
         var status = await Announcements.TwitchDropsClient.GetStatusAsync();
         if (status is null)
         {
@@ -5338,6 +5451,12 @@ public partial class MainWindow : Window
 
     private void OnFeedbackClicked(object sender, RoutedEventArgs e)
     {
+        // the form sends what is typed to the community server: only with the privacy policy accepted
+        if (!PrivacyConsent.EnsureForUploadSwitch(this))
+        {
+            return;
+        }
+
         if (_feedbackWindow is not null)
         {
             _feedbackWindow.Activate();
@@ -5380,10 +5499,20 @@ public partial class MainWindow : Window
 
     private void OpenTool(string id)
     {
+        if (PrivacyConsent.Restricted && !PrivacyConsent.RestrictedTools.Contains(id))
+        {
+            return;
+        }
+
         if (_toolsWindow is null)
         {
             var loc = LocalizationManager.Instance;
             var groups = ToolsWindow.Groups();
+            if (PrivacyConsent.Restricted)
+            {
+                groups = groups.Select(g => g.Where(t => PrivacyConsent.RestrictedTools.Contains(t.Id)).ToArray()).Where(g => g.Length > 0).ToArray();
+            }
+
             _toolsWindow = new ToolsWindow(groups, BuildToolPage, tool =>
             {
                 if (tool == "analyzer")
@@ -5851,6 +5980,11 @@ public partial class MainWindow : Window
 
     private void SetMode(MeterMode mode, bool save = true)
     {
+        if (PrivacyConsent.Restricted && mode != MeterMode.Damage)
+        {
+            return; // the restricted mode shows the damage list only
+        }
+
         _mode = mode;
         ApplyModeButtons();
         UpdateDpsColumnHeader();
@@ -6220,6 +6354,11 @@ public partial class MainWindow : Window
         if (Headless)
         {
             return;
+        }
+
+        if (PrivacyConsent.Restricted)
+        {
+            return; // no pet map and no pet farm in the restricted mode (ApplyPrivacyRestrictions has stopped them)
         }
 
         _petMapController?.ClearCubeOverride(); // the settings were applied: a map shown for a cube goes back to what they say
