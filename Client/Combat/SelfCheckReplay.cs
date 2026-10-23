@@ -98,6 +98,29 @@ public static class SelfCheckReplay
         bool estimates = me.IsSelf && me.EstimatedAt(at, 2.5) && !me.EstimatedAt(at, 0.5) && !me.EstimatedAt(at, 4.0) && !me.EstimatedAt(at, 5) && !selfData.Entities.Single(e => e.Id == boss).EstimatedAt(at, 2.5);
         Console.WriteLine($"  -> the own character's spot between two readings is marked as an estimate: {estimates}");
         ok &= estimates;
+
+        // the upload for the replay: the own path and the monsters' always, another player's only with the switch; the paths other clients sent fill the map
+        var palTrack = new PositionTrack(2, at, new[] { 0, 5000 }, new[] { 10, 20 }, new[] { 30, 40 });
+        var shared = extras with { Tracks = new[] { track, palTrack, bossTrack } };
+        Func<int, (string, string, bool)> who = id => id == boss ? ("Boss", "", false) : id == 2 ? ("Pal", "Chanter", true) : ("Me", "Cleric", true);
+        ReplayData sharedData = ReplayBuilder.Build("Test", shared, hits, at, at.AddSeconds(10), who, _ => 650, _ => "Slam", null, id => id == 1);
+        var without = AionDPS.Upload.ReplayUploadBuilder.Tracks(sharedData, includeOthers: false);
+        var with = AionDPS.Upload.ReplayUploadBuilder.Tracks(sharedData, includeOthers: true);
+        bool upload = without.Select(t => t.Name).OrderBy(n => n).SequenceEqual(new[] { "Boss", "Me" }) && with.Select(t => t.Name).OrderBy(n => n).SequenceEqual(new[] { "Boss", "Me", "Pal" })
+            && with.Single(t => t.Name == "Pal") is { Kind: "player", ClassName: "Chanter", IsSelf: false } && with.Single(t => t.Name == "Boss") is { Kind: "boss", ClassName: null }
+            && with.Single(t => t.Name == "Me").IsSelf && with.All(t => t.StartedAt.Kind == DateTimeKind.Utc);
+        long startMs = new DateTimeOffset(at.ToUniversalTime()).ToUnixTimeMilliseconds();
+        var fromOthers = new[]
+        {
+            new AionDPS.Upload.ServerReplayTrack("player", "Me", "Cleric", startMs, new[] { 2500, 7500 }, new[] { 250, 750 }, new[] { 0, 500 }, 2),
+            new AionDPS.Upload.ServerReplayTrack("add", "Imp", null, startMs, new[] { 0 }, new[] { 700 }, new[] { 300 }, 1),
+        };
+        ReplayData filled = ReplayMerge.Apply(sharedData, fromOthers);
+        ReplayEntity meFilled = filled.Entities.Single(e => e.Id == 1);
+        bool merged = meFilled.Track.T.Length == 5 && meFilled.At(at, 2.5) is { X: 250 } && !meFilled.EstimatedAt(at, 2.5) && filled.Entities.Count == sharedData.Entities.Count + 1
+            && filled.Entities.Single(e => e.Name == "Imp").Role == ReplayRole.Add && ReferenceEquals(ReplayMerge.Apply(sharedData, Array.Empty<AionDPS.Upload.ServerReplayTrack>()), sharedData);
+        Console.WriteLine($"  -> the upload for the replay leaves other players' paths out without the switch ({upload}); the paths other clients sent fill the map ({merged})");
+        ok &= upload && merged;
         return ok;
     }
 }

@@ -2007,6 +2007,8 @@ public partial class MainWindow : Window
         UploadBossButton.Visibility = uploadsAllowed && (hasBossData || hasProfiles) && PlayersGrid.Visibility == Visibility.Visible
             ? Visibility.Visible
             : Visibility.Collapsed;
+        // the paths of a boss fight for the replay: only where there is a boss fight to send them with
+        UploadReplayButton.Visibility = uploadsAllowed && hasBossData && PlayersGrid.Visibility == Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>
@@ -2632,9 +2634,16 @@ public partial class MainWindow : Window
             }).ToList();
         }
 
-        return ReplayBuilder.Build(title.Trim(), extras, events, from, to,
+        ReplayData built = ReplayBuilder.Build(title.Trim(), extras, events, from, to,
             id => (ResolveDisplayName(GridId(id)), ResolveClassName(GridId(id)), IsPlayerName(GridId(id))), SkillRadius, id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)),
             IsReplayAdd, id => ReplayDirectory is { } own && own.LocalPlayerId == id);
+        // what the replay window needs to fetch the paths the other clients of this fight sent
+        if (_selectedTargetId is int bossEntity && ReplayDirectory?.BossNpcIdOf(bossEntity) is int bossNpc && ResolveServerIdentity() is (string fingerprint, _))
+        {
+            built = built with { Lookup = new ReplayLookup(fingerprint, bossNpc, from.ToUniversalTime()) };
+        }
+
+        return built;
     }
 
     /// <summary>
@@ -4087,6 +4096,54 @@ public partial class MainWindow : Window
     /// had selected - visibly flipping the grid through each boss while it runs, which is expected
     /// for a menu action the user triggered on purpose (not a background operation).
     /// </summary>
+    /// <summary>
+    /// "Upload for the replay": sends the boss fight on screen (so the server has it and names it) and then the paths of the replay map - the own character's, the boss's and the other monsters', and the other
+    /// players' only with the switch "data of other players". The other clients of the fight can fetch what was sent in the replay window.
+    /// </summary>
+    private async void OnUploadReplayClicked(object sender, RoutedEventArgs e)
+    {
+        if (!PrivacyConsent.EnsureForUploadSwitch(this))
+        {
+            return;
+        }
+
+        if (_selectedTargetId is not int targetId || ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            ShowUploadStatus(_selectedTargetId is null ? "Pick a boss fight first." : ServerNotIdentified);
+            return;
+        }
+
+        EncounterUploadRequest? fight = BuildEncounterUpload(targetId, fingerprint, displayName);
+        DateTime? from = _aggregator.Events.Count > 0 ? _aggregator.Events.Min(ev => ev.Timestamp) : null;
+        DateTime? to = _aggregator.Events.Count > 0 ? _aggregator.Events.Max(ev => ev.Timestamp) : null;
+        FightExtras? extras = from is DateTime f && to is DateTime t ? ReplayDirectory?.Combat.Slice(f, t, ResolveDisplayName, ReplayKeeps, ReplayHp) : null;
+        ReplayData data = BuildReplayData(extras, from, to, _aggregator.Events);
+        if (fight is null || !data.HasData)
+        {
+            ShowUploadStatus(LocalizationManager.Instance["Main.UploadReplay.None"]);
+            return;
+        }
+
+        ShowUploadStatus("Uploading...");
+        UploadResult sent = await UploadClient.SendAsync(fight);
+        if (!sent.Success)
+        {
+            ShowUploadStatus($"Upload failed: {sent.Error}");
+            return;
+        }
+
+        if (sent.EncounterId is null)
+        {
+            ShowUploadStatus(LocalizationManager.Instance["Main.UploadReplay.Held"]);
+            return;
+        }
+
+        var request = new ReplayUploadRequest(AppVersion.Text, fingerprint, sent.EncounterId, fight.BossNpcId, fight.StartedAt.ToUniversalTime(), fight.EndedAt.ToUniversalTime(),
+            ReplayUploadBuilder.Tracks(data, MeterSettings.Load().UploadOtherPlayersProfiles));
+        UploadResult replay = await UploadClient.SendReplayAsync(request);
+        ShowUploadStatus(replay.Success ? string.Format(LocalizationManager.Instance["Main.UploadReplay.Done"], request.Tracks.Count) : $"Upload failed: {replay.Error}");
+    }
+
     private async void OnUploadLastRunClicked(object sender, RoutedEventArgs e)
     {
         if (!PrivacyConsent.EnsureForUploadSwitch(this))

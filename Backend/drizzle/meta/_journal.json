@@ -484,6 +484,13 @@
       "when": 1793200000000,
       "tag": "0068_profile_ranks",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "6",
+      "when": 1793300000000,
+      "tag": "0069_replay_tracks",
+      "breakpoints": true
     }
   ]
 }

@@ -159,7 +159,7 @@ public static class UploadClient
                 await Http.PostAsJsonAsync($"{ApiBaseUrl}/api/uploads", payload, JsonOptions);
             if (response.IsSuccessStatusCode)
             {
-                return UploadResult.Ok;
+                return UploadResult.OkWith(await EncounterIdOfAsync(response));
             }
 
             return await FailureOf(response);
@@ -167,6 +167,77 @@ public static class UploadClient
         catch (Exception ex)
         {
             return UploadResult.Failed(ex.Message);
+        }
+    }
+
+    /// <summary>The fight's id on the server from the answer of a boss upload (null when the answer names none, e.g. a fight held back for review).</summary>
+    private static async Task<int?> EncounterIdOfAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            return doc.RootElement.TryGetProperty("encounterId", out JsonElement id) && id.ValueKind == JsonValueKind.Number ? id.GetInt32() : null;
+        }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or FormatException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Posts the paths of a boss fight for the replay (see <see cref="ReplayUploadRequest"/>). Same never-throws contract as <see cref="SendAsync"/>.</summary>
+    public static async Task<UploadResult> SendReplayAsync(ReplayUploadRequest payload)
+    {
+        if (!Ui.PrivacyConsent.CanUpload)
+        {
+            return UploadResult.Failed("The privacy policy is not accepted: nothing is uploaded.");
+        }
+
+        if (IsBlocked)
+        {
+            return BlockedResult();
+        }
+
+        try
+        {
+            using HttpResponseMessage response = await Http.PostAsJsonAsync($"{ApiBaseUrl}/api/uploads/replay", payload, JsonOptions);
+            return response.IsSuccessStatusCode ? UploadResult.Ok : await FailureOf(response);
+        }
+        catch (Exception ex)
+        {
+            return UploadResult.Failed(ex.Message);
+        }
+    }
+
+    /// <summary>The paths the clients of a boss fight sent for the replay, merged by the server; empty when there are none or the server cannot be reached.</summary>
+    public static async Task<IReadOnlyList<ServerReplayTrack>> GetReplayAsync(string serverFingerprint, int bossNpcId, DateTime startedAtUtc)
+    {
+        if (!Ui.PrivacyConsent.CanUpload)
+        {
+            return Array.Empty<ServerReplayTrack>();
+        }
+
+        try
+        {
+            string url = $"{ApiBaseUrl}/api/replay?server={Uri.EscapeDataString(serverFingerprint)}&bossNpcId={bossNpcId}&start={Uri.EscapeDataString(startedAtUtc.ToString("o"))}";
+            using JsonDocument doc = JsonDocument.Parse(await Http.GetStringAsync(url));
+            var list = new List<ServerReplayTrack>();
+            if (doc.RootElement.TryGetProperty("tracks", out JsonElement tracks))
+            {
+                foreach (JsonElement t in tracks.EnumerateArray())
+                {
+                    list.Add(new ServerReplayTrack(
+                        t.GetProperty("kind").GetString() ?? "", t.GetProperty("name").GetString() ?? "",
+                        t.TryGetProperty("className", out JsonElement c) && c.ValueKind == JsonValueKind.String ? c.GetString() : null, t.GetProperty("startMs").GetInt64(),
+                        t.GetProperty("t").EnumerateArray().Select(v => v.GetInt32()).ToArray(), t.GetProperty("x").EnumerateArray().Select(v => v.GetInt32()).ToArray(),
+                        t.GetProperty("y").EnumerateArray().Select(v => v.GetInt32()).ToArray(), t.TryGetProperty("sources", out JsonElement s) ? s.GetInt32() : 1));
+                }
+            }
+
+            return list;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException)
+        {
+            return Array.Empty<ServerReplayTrack>();
         }
     }
 

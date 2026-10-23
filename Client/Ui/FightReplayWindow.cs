@@ -9,7 +9,7 @@ namespace AionDPS.Ui;
 /// <summary>The replay of one boss fight: the map, the timeline under it, play / pause, speed and the names.</summary>
 public sealed class FightReplayWindow : Window
 {
-    private readonly ReplayData _data;
+    private ReplayData _data;
     private readonly ReplayView _view = new();
     private readonly ReplayTimeline _timeline = new();
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(33) };
@@ -55,12 +55,40 @@ public sealed class FightReplayWindow : Window
         fit.Click += (_, _) => _view.Fit();
         var early = new TextBlock { Text = loc["Replay.Early"], Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted"), Margin = new Thickness(0, 6, 0, 0), TextWrapping = TextWrapping.Wrap, FontSize = 11, FontStyle = FontStyles.Italic };
 
+        // the paths the other clients of this fight sent (the "Upload for the replay" of theirs): fetched on request, merged into the map
+        var others = new Button { Content = loc["Replay.LoadOthers"], Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(16, 0, 0, 0), ToolTip = loc["Replay.LoadOthers.Tip"] };
+        var othersNote = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(10, 0, 0, 0), Foreground = (System.Windows.Media.Brush)FindResource("Brush.TextMuted") };
+        others.Visibility = data.Lookup is not null && PrivacyConsent.CanUpload ? Visibility.Visible : Visibility.Collapsed;
+        others.Click += async (_, _) =>
+        {
+            if (_data.Lookup is not { } lookup)
+            {
+                return;
+            }
+
+            others.IsEnabled = false;
+            othersNote.Text = loc["Replay.Loading"];
+            IReadOnlyList<AionDPS.Upload.ServerReplayTrack> fetched = await AionDPS.Upload.UploadClient.GetReplayAsync(lookup.ServerFingerprint, lookup.BossNpcId, lookup.StartedAtUtc);
+            ReplayData merged = ReplayMerge.Apply(_data, fetched);
+            othersNote.Text = fetched.Count == 0 ? loc["Replay.NoOthers"] : string.Format(loc["Replay.LoadedOthers"], fetched.Count);
+            if (!ReferenceEquals(merged, _data))
+            {
+                _data = merged;
+                _view.Show(merged);
+                _timeline.Show(merged);
+            }
+
+            others.IsEnabled = true;
+        };
+
         var controls = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
         controls.Children.Add(_play);
         controls.Children.Add(_speed);
         controls.Children.Add(_clock);
         controls.Children.Add(names);
         controls.Children.Add(fit);
+        controls.Children.Add(others);
+        controls.Children.Add(othersNote);
 
         var panel = new DockPanel { Margin = new Thickness(10) };
         DockPanel.SetDock(early, Dock.Bottom);

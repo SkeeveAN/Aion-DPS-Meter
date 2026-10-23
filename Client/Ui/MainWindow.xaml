@@ -894,6 +894,16 @@
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                   Width="18" Height="15" Stretch="Uniform"/>
                         </Button>
+                        <!-- The paths of this boss fight for the replay (the fight itself goes up with it): a play triangle in an almost closed circle with an arrowhead. -->
+                        <Button x:Name="UploadReplayButton" Style="{StaticResource ToolbarIconButton}" Click="OnUploadReplayClicked" Padding="5"
+                                Margin="4" Visibility="Collapsed"
+                                ToolTip="{local:Loc Main.UploadReplay.Tooltip}">
+                            <Canvas Width="20" Height="20">
+                                <Path Data="M10,3 A7,7 0 1 0 15.6,5.6 M10,0.6 L10,5.4 L14.2,3 Z"
+                                      Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <Path Data="M8,7 L13.2,10 L8,13 Z" Fill="{DynamicResource Brush.Text}"/>
+                            </Canvas>
+                        </Button>
                     </StackPanel>
                 </Grid>
 

@@ -3,9 +3,12 @@ namespace AionDPS.Upload;
 /// <summary>Outcome of one UploadClient.SendAsync call. <see cref="Error"/> is null exactly when
 /// <see cref="Success"/> is true - carries the real reason for a failure (HTTP status + response
 /// body, or the exception message) rather than collapsing every failure into one generic message.</summary>
-public readonly record struct UploadResult(bool Success, string? Error)
+public readonly record struct UploadResult(bool Success, string? Error, int? EncounterId = null)
 {
     public static UploadResult Ok { get; } = new(true, null);
+
+    /// <summary>A boss fight the server took: the id of the fight there (which the replay upload names).</summary>
+    public static UploadResult OkWith(int? encounterId) => new(true, null, encounterId);
 
     public static UploadResult Failed(string error) => new(false, error);
 }

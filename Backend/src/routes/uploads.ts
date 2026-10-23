@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { CROWD_PENDING, crowdLookupEnabled, crowdMode, crowdToLookUp, fillHomeCrowd } from "../crowdResolve.js";
 import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncompletePlayers } from "../uploadSchema.js";
+import { findEncounterForReplay, mergedReplayTracks, replayUploadSchema, storeReplayTracks } from "../replayTracks.js";
 import { findBossId, processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
 import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
@@ -276,6 +277,36 @@ export async function uploadRoutes(app: FastifyInstance) {
       .run();
     clearPageCache();
     return reply.send({ status: "profiles", ...result });
+  });
+
+  // The "Upload for the replay" button of the client: the paths of the players, the boss and the other monsters of a boss fight (see replayTracks.ts). Under /api/uploads for the rate limiter.
+  app.post("/api/uploads/replay", { preHandler: requireCurrentClient, bodyLimit: 8 * 1024 * 1024 }, async (request, reply) => {
+    const parsed = replayUploadSchema.safeParse(request.body);
+    if (!parsed.success) {
+      app.log.warn({ issues: parsed.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`) }, "replay upload rejected: invalid payload");
+      return reply.status(400).send({ error: "invalid_payload", details: parsed.error.flatten() });
+    }
+    const encounterId = findEncounterForReplay(parsed.data);
+    if (encounterId === null) {
+      return reply.status(404).send({ error: "encounter_not_found", message: "The fight is not on the server (yet): upload it first." });
+    }
+    const tracks = storeReplayTracks(encounterId, hashIp(request.ip), parsed.data.tracks);
+    return reply.send({ status: "stored", encounterId, tracks });
+  });
+
+  // What the clients of a fight sent for the replay, merged: looked up by the fight's id or by server, boss and start time.
+  app.get<{ Querystring: { server?: string; bossNpcId?: string; start?: string; encounterId?: string } }>("/api/replay", async (request, reply) => {
+    const q = request.query;
+    if (!q.server || (!q.encounterId && (!q.bossNpcId || !q.start))) {
+      return reply.status(400).send({ error: "missing_parameters" });
+    }
+    const id = findEncounterForReplay({
+      serverFingerprint: q.server,
+      encounterId: q.encounterId ? Number(q.encounterId) : undefined,
+      bossNpcId: q.bossNpcId ? Number(q.bossNpcId) : undefined,
+      startedAt: q.start ?? "",
+    });
+    return reply.send({ encounterId: id, tracks: id === null ? [] : mergedReplayTracks(id) });
   });
 
   // A world boss upload carries a thousand players (a few MB); nginx allows 40 MB.

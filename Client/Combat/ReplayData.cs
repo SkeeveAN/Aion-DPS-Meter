@@ -118,6 +118,9 @@ public sealed record ReplayDeath(double At, int Entity, double? Until = null);
 /// <summary>A boss's health over the fight: <see cref="Seconds"/> and the matching share (0-1).</summary>
 public sealed record ReplayHp(int Entity, double[] Seconds, double[] Fraction);
 
+/// <summary>What the server needs to find the paths the other clients of this fight sent: the server, the boss's NPC id and the start (UTC).</summary>
+public sealed record ReplayLookup(string ServerFingerprint, int BossNpcId, DateTime StartedAtUtc);
+
 /// <summary>Everything the replay map shows of one fight.</summary>
 public sealed record ReplayData(
     string Title,
@@ -128,7 +131,8 @@ public sealed record ReplayData(
     IReadOnlyList<ReplayHit> Hits,
     IReadOnlyList<ReplayDeath> Deaths,
     IReadOnlyList<StaggerPhase> Staggers,
-    IReadOnlyList<ReplayHp> Hp)
+    IReadOnlyList<ReplayHp> Hp,
+    ReplayLookup? Lookup = null)
 {
     public bool HasData => Entities.Count(e => e.Role == ReplayRole.Player) > 0 && Entities.Any(e => e.Track.T.Length >= 2) && DurationSeconds > 1;
 }
@@ -178,5 +182,73 @@ public static class ReplayBuilder
         var hp = (extras.Hp ?? Array.Empty<HpSeries>()).Where(h => bossIds.Contains(h.Entity) && h.T.Length >= 2)
             .Select(h => new ReplayHp(h.Entity, h.T.Select(t => Secs(h.Start) + t / 1000.0).ToArray(), h.Permille.Select(p => p / 1000.0).ToArray())).ToList();
         return new ReplayData(title, start, duration, entities, areas, hits, deaths, staggers, hp);
+    }
+}
+
+/// <summary>Puts the paths the other clients of the fight sent (merged by the server) into the replay: a path seen by both gets the readings of both, one only they saw is added.</summary>
+public static class ReplayMerge
+{
+    /// <summary>Two readings closer than this are the same one.</summary>
+    private const int SameReadingMs = 250;
+
+    public static ReplayData Apply(ReplayData data, IReadOnlyList<AionDPS.Upload.ServerReplayTrack> others)
+    {
+        if (others.Count == 0)
+        {
+            return data;
+        }
+
+        var entities = data.Entities.ToList();
+        foreach (var other in others)
+        {
+            ReplayRole role = other.Kind switch { "player" => ReplayRole.Player, "add" => ReplayRole.Add, _ => ReplayRole.Boss };
+            int at = entities.FindIndex(e => e.Role == role && string.Equals(e.Name, other.Name, StringComparison.Ordinal));
+            var points = new List<(long Ms, int X, int Y)>();
+            if (at >= 0)
+            {
+                PositionTrack own = entities[at].Track;
+                long ownStart = new DateTimeOffset(own.Start.ToUniversalTime()).ToUnixTimeMilliseconds();
+                for (int i = 0; i < own.T.Length; i++)
+                {
+                    points.Add((ownStart + own.T[i], own.X[i], own.Y[i]));
+                }
+            }
+
+            int ownCount = points.Count;
+            for (int i = 0; i < other.T.Length && i < other.X.Length && i < other.Y.Length; i++)
+            {
+                points.Add((other.StartMs + other.T[i], other.X[i], other.Y[i]));
+            }
+
+            // in time order; of two readings within a quarter second the own one stays (it comes first in the list)
+            var ordered = points.Select((p, index) => (p, index)).OrderBy(v => v.p.Ms).ThenBy(v => v.index).Select(v => v.p).ToList();
+            var kept = new List<(long Ms, int X, int Y)>();
+            foreach (var p in ordered)
+            {
+                if (kept.Count == 0 || p.Ms - kept[^1].Ms >= SameReadingMs)
+                {
+                    kept.Add(p);
+                }
+            }
+
+            if (kept.Count == 0 || (at < 0 && role == ReplayRole.Player && kept.Count < 2) || (at >= 0 && kept.Count == ownCount))
+            {
+                continue;
+            }
+
+            long first = kept[0].Ms;
+            DateTime origin = DateTimeOffset.FromUnixTimeMilliseconds(first).LocalDateTime;
+            var track = new PositionTrack(at >= 0 ? entities[at].Id : -1_000_000 - entities.Count, origin, kept.Select(p => (int)(p.Ms - first)).ToArray(), kept.Select(p => p.X).ToArray(), kept.Select(p => p.Y).ToArray());
+            if (at >= 0)
+            {
+                entities[at] = entities[at] with { Track = track };
+            }
+            else
+            {
+                entities.Add(new ReplayEntity(track.Entity, other.Name, other.ClassName ?? "", role, track));
+            }
+        }
+
+        return data with { Entities = entities };
     }
 }

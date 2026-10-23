@@ -766,3 +766,27 @@ export const networkReports = sqliteTable("network_reports", {
   bytes: integer("bytes").notNull(),
   payload: blob("payload", { mode: "buffer" }).notNull(),
 });
+
+/** The paths of the players, bosses and other monsters of a boss fight as sent by the clients that were there (see replayTracks.ts and migration 0069). */
+export const encounterReplayTracks = sqliteTable(
+  "encounter_replay_tracks",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    encounterId: integer("encounter_id")
+      .notNull()
+      .references(() => encounters.id),
+    uploaderHash: text("uploader_hash").notNull(),
+    kind: text("kind").notNull(),
+    name: text("name").notNull(),
+    className: text("class_name"),
+    isSelf: integer("is_self", { mode: "boolean" }).notNull().default(false),
+    startMs: integer("start_ms").notNull(),
+    points: integer("points").notNull(),
+    dataGz: blob("data_gz", { mode: "buffer" }).notNull(),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    unique: uniqueIndex("replay_tracks_unique").on(t.encounterId, t.uploaderHash, t.kind, t.name),
+    byEncounter: index("replay_tracks_encounter_idx").on(t.encounterId),
+  }),
+);
