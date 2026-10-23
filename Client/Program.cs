@@ -366,6 +366,20 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-position-check")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-position-check <recording.jsonl>... [--port=13328]");
+                Console.WriteLine("  Replays recordings and, at every exact own position, compares the previous exact place and the middle of the entities around with it. No window.");
+                return;
+            }
+
+            RunAion2PositionCheckMode(args.Skip(1).Where(a => !a.StartsWith("--port=", StringComparison.Ordinal)).ToArray(),
+                args.Where(a => a.StartsWith("--port=", StringComparison.Ordinal)).Select(a => int.Parse(a[7..])).DefaultIfEmpty(13328).First());
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-stock-check")
         {
             if (args.Length < 2)
@@ -2579,6 +2593,78 @@ internal static class Program
             {
                 Console.WriteLine($"   {Aion2.Protocol.Aion2ItemNames.NameOf(item, "de") ?? "#" + item} x{count:N0}");
             }
+        }
+    }
+
+    /// <summary>Replays recordings and measures the own-position estimate against the exact reports (every effect frame of the player carries his place): by the age of the previous report, and for several trust times.</summary>
+    private static void RunAion2PositionCheckMode(string[] paths, int serverPort)
+    {
+        var variants = new List<(string Name, double MaxAge, Aion2.Aion2EntityDirectory.AroundMode How, int Min)>();
+        foreach (double age in new[] { 5.0, 10.0, 20.0, 60.0, 120.0 })
+        {
+            foreach (var how in new[] { Aion2.Aion2EntityDirectory.AroundMode.Mean, Aion2.Aion2EntityDirectory.AroundMode.Median, Aion2.Aion2EntityDirectory.AroundMode.Trimmed })
+            {
+                variants.Add(($"{how} <= {age:0}s", age, how, 3));
+            }
+        }
+
+        var probes = new List<(double Age, double Prev, double[] Env, int Entities)>();
+        foreach (string path in paths)
+        {
+            var protocol = Aion2.Protocol.Aion2Protocol.Load();
+            using var source = new Aion2.Aion2PacketCombatSource(protocol);
+            var directory = (Aion2.Aion2EntityDirectory)source.Entities;
+            DateTime clock = DateTime.MinValue;
+            directory.Clock = () => clock;
+            directory.PositionProbe += p =>
+            {
+                double[] env = variants.Select(v => directory.AroundAt(p.Now, v.MaxAge, v.How, v.Min) is { } e ? Math.Sqrt(((double)e.X - p.X) * (e.X - p.X) + ((double)e.Y - p.Y) * (e.Y - p.Y)) / 100.0 : double.NaN).ToArray();
+                probes.Add((p.PreviousAgeSeconds, p.PreviousError, env, p.Entities));
+            };
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+            {
+                bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                clock = segment.Timestamp;
+                source.Ingest(segment with { FromServer = fromServer });
+                source.Poll(false);
+            }
+        }
+
+        static double Median(IEnumerable<double> v) { var l = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList(); return l.Count == 0 ? double.NaN : l[l.Count / 2]; }
+        static double P90(IEnumerable<double> v) { var l = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList(); return l.Count == 0 ? double.NaN : l[(int)(l.Count * 0.9)]; }
+        Console.WriteLine($"aion2-position-check: {probes.Count} exact reports with a previous one");
+        var buckets = new[] { (0.0, 1.0), (1.0, 2.5), (2.5, 5.0), (5.0, 15.0), (15.0, 1e9) };
+        Console.WriteLine("error in metres, median / p90, by the age of the previous exact report (count in brackets); '-' = no environment of 3+ entities");
+        Console.Write($"{"",-22}");
+        foreach ((double lo, double hi) in buckets)
+        {
+            Console.Write($"{lo:0.#}-{(hi > 1e8 ? "inf" : hi.ToString("0.#"))} ({probes.Count(p => p.Age >= lo && p.Age < hi)})".PadRight(20));
+        }
+
+        Console.WriteLine();
+        Console.Write($"{"previous report",-22}");
+        foreach ((double lo, double hi) in buckets)
+        {
+            var sel = probes.Where(p => p.Age >= lo && p.Age < hi).ToList();
+            Console.Write($"{Median(sel.Select(p => p.Prev)):0.0} / {P90(sel.Select(p => p.Prev)):0.0}".PadRight(20));
+        }
+
+        Console.WriteLine();
+        for (int k = 0; k < variants.Count; k++)
+        {
+            Console.Write($"{variants[k].Name,-22}");
+            foreach ((double lo, double hi) in buckets)
+            {
+                var sel = probes.Where(p => p.Age >= lo && p.Age < hi).Select(p => p.Env[k]).ToList();
+                Console.Write($"{Median(sel):0.0} / {P90(sel):0.0} [{sel.Count(v => !double.IsNaN(v))}]".PadRight(20));
+            }
+
+            Console.WriteLine();
         }
     }
 

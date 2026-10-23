@@ -555,6 +555,104 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private (float X, float Y, DateTime At)? _position;
     private readonly Queue<(int NpcId, float X, float Y)> _mobPositions = new();
 
+    /// <summary>The time the position logic works with: the wall clock, a recording's own time when a replay measures the estimate (aion2-position-check).</summary>
+    public Func<DateTime> Clock { get; set; } = () => DateTime.UtcNow;
+
+    private DateTime Now => Clock();
+
+    /// <summary>An exact report of the player's own position is trusted for this long; after that the place of the entities around him is the better guess
+    /// (measured on recordings, see aion2-position-check).</summary>
+    public static TimeSpan FixTrust { get; set; } = TimeSpan.FromSeconds(4);
+
+    /// <summary>Entities around the player (monsters, other players): their latest place, announced at spawn and moved by the movement frames; gone when removed.</summary>
+    private readonly Dictionary<int, (float X, float Y, DateTime At)> _around = new();
+
+    /// <summary>An entity around the player is at this place (spawn or movement frame); the local player himself is never noted here.</summary>
+    public void NoteAround(int entityId, float x, float y)
+    {
+        lock (_gate)
+        {
+            _around[entityId] = (x, y, Now);
+            if (_around.Count > 1500)
+            {
+                _around.Clear(); // nothing is ever that close: the table lost its removals
+            }
+        }
+    }
+
+    /// <summary>The middle of the entities around the player that moved or appeared in the last seconds, and how many they are; null with fewer than three.</summary>
+    public (float X, float Y, int Count)? EnvironmentEstimate()
+    {
+        lock (_gate)
+        {
+            return EnvironmentEstimateLocked(Now);
+        }
+    }
+
+    /// <summary>How the middle of the entities around is taken.</summary>
+    public enum AroundMode { Mean, Median, Trimmed }
+
+    /// <summary>Seconds an entity's latest place counts as "around" and how the middle is taken; the defaults are what the recordings measured best.</summary>
+    public static double AroundMaxAge { get; set; } = 5;
+    public static AroundMode AroundHow { get; set; } = AroundMode.Mean;
+    public static int AroundMinEntities { get; set; } = 3;
+
+    // 46,446 exact reports of four recordings: the mean of the entities that moved or appeared in the last 5 s is 12 m off where the last exact report is 24 m off
+    // after 5 to 15 s (older entities and the median or a trimmed middle were all worse); with none that fresh, the last 20 s still beat an old report (14 m)
+    private (float X, float Y, int Count)? EnvironmentEstimateLocked(DateTime now) => Around(now, AroundMaxAge, AroundHow, AroundMinEntities) ?? Around(now, 4 * AroundMaxAge, AroundHow, AroundMinEntities);
+
+    /// <summary>The middle of the entities around the player that moved or appeared within <paramref name="maxAgeSeconds"/>; null with fewer than <paramref name="min"/>.</summary>
+    public (float X, float Y, int Count)? Around(DateTime now, double maxAgeSeconds, AroundMode how, int min)
+    {
+        var pts = _around.Values.Where(e => (now - e.At).TotalSeconds <= maxAgeSeconds).Select(e => (e.X, e.Y)).ToList();
+        if (pts.Count < min || pts.Count == 0)
+        {
+            return null;
+        }
+
+        static (float, float) Middle(List<(float X, float Y)> l, AroundMode m)
+        {
+            if (m == AroundMode.Mean)
+            {
+                return ((float)l.Average(p => p.X), (float)l.Average(p => p.Y));
+            }
+
+            var xs = l.Select(p => p.X).OrderBy(v => v).ToList();
+            var ys = l.Select(p => p.Y).OrderBy(v => v).ToList();
+            return (xs[xs.Count / 2], ys[ys.Count / 2]);
+        }
+
+        (float cx, float cy) = Middle(pts, how == AroundMode.Mean ? AroundMode.Mean : AroundMode.Median);
+        if (how == AroundMode.Trimmed)
+        {
+            // the ones far from the median are monsters at the edge of the range (or announced far away): the middle of those within 45 m of the median
+            for (int round = 0; round < 3; round++)
+            {
+                var near = pts.Where(p => (p.X - cx) * (p.X - cx) + (p.Y - cy) * (p.Y - cy) <= 4500f * 4500f).ToList();
+                if (near.Count < Math.Max(min, 1))
+                {
+                    break;
+                }
+
+                (cx, cy) = Middle(near, AroundMode.Mean);
+            }
+        }
+
+        return (cx, cy, pts.Count);
+    }
+
+    /// <summary>Raised for every exact own position with what the estimate would have said just before: the age of the previous exact place, its error and the environment's error (aion2-position-check).</summary>
+    public event Action<(double PreviousAgeSeconds, double PreviousError, double EnvironmentError, int Entities, DateTime Now, double X, double Y)>? PositionProbe;
+
+    /// <summary>For the measuring mode: the middle of the entities around at a time, with other settings than the live ones.</summary>
+    public (float X, float Y, int Count)? AroundAt(DateTime now, double maxAgeSeconds, AroundMode how, int min)
+    {
+        lock (_gate)
+        {
+            return Around(now, maxAgeSeconds, how, min);
+        }
+    }
+
     /// <summary>The last known position of the local player (world units, 100 per metre) and when it was reported; null before any.</summary>
     public (float X, float Y, DateTime At)? LocalPosition
     {
@@ -570,10 +668,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private readonly Queue<(DateTime At, float X, float Y)> _recentSpawns = new();
 
     /// <summary>
-    /// The best guess of where the player is: the server only reports the player's own position at skills, hits and corrections, but it
-    /// announces every monster that comes into range (a radius of roughly 65 m) with its place. The middle of the monsters announced in the
-    /// last 8 seconds follows the player while he walks (checked against 12 position reports of a long run: 8 m off in the median, 27 m at
-    /// worst). The newer of the two wins: a skill's exact position, or the middle of the latest announcements (at least two).
+    /// The best guess of where the player is: the server reports the player's own position only at skills, hits and corrections, but it announces every
+    /// monster and player that comes into range (a radius of roughly 65 m) with its place and moves them with the movement frames. A fresh exact report
+    /// (up to <see cref="FixTrust"/>) is taken as it is; after that the middle of the entities around him, which is 10 m off in the median where an old
+    /// report is 68 m off after 5 to 15 s.
     /// </summary>
     public (float X, float Y, DateTime At)? BestPosition
     {
@@ -581,31 +679,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             lock (_gate)
             {
-                DateTime now = DateTime.UtcNow;
-                var recent = _recentSpawns.Where(s => now - s.At <= TimeSpan.FromSeconds(8)).ToList();
-                // an exact report stays the position for 6 s: the monsters' middle is only a guess and flips the view back and forth when it competes with it
-                if (recent.Count >= 2 && (_position is null || now - _position.Value.At > TimeSpan.FromSeconds(6)) && (_position is null || recent.Max(s => s.At) > _position.Value.At))
+                DateTime now = Now;
+                // an exact report is good to half a metre while it is fresh; after a few seconds the player has walked on (68 m off on average after 5 to 15 s)
+                if (_position is { } fix && now - fix.At <= FixTrust)
                 {
-                    var xs = recent.Select(s => s.X).OrderBy(v => v).ToList();
-                    var ys = recent.Select(s => s.Y).OrderBy(v => v).ToList();
-                    float gx = xs[xs.Count / 2], gy = ys[ys.Count / 2];
-                    if (GuessIsPlausible(gx, gy, now))
-                    {
-                        return (gx, gy, recent.Max(s => s.At));
-                    }
+                    return fix;
                 }
 
-                // The game reports the player's own position only for some movements (not when a monster is targeted), so it can stay unknown
-                // for a long time (after a relog, or standing still). The monsters around him, announced and not yet gone again, still
-                // surround him (within the ~65 m range): their middle beats "unknown" and beats a report that is more than 15 s old.
-                if ((_position is null || now - _position.Value.At > TimeSpan.FromSeconds(15)) && _liveMobs.Count >= 3)
+                // The game reports the player's own position only for some movements (not when a monster is targeted), so it can stay unknown for a long
+                // time (after a relog, or standing still). The monsters and players around him, announced or moved and not gone again, surround him
+                // (within the ~65 m range): their middle is 10 m off in the median (measured on recordings), far better than an old report.
+                if (EnvironmentEstimateLocked(now) is { } around && GuessIsPlausible(around.X, around.Y, now))
                 {
-                    var xs = _liveMobs.Values.Select(m => m.X).OrderBy(v => v).ToList();
-                    var ys = _liveMobs.Values.Select(m => m.Y).OrderBy(v => v).ToList();
-                    if (GuessIsPlausible(xs[xs.Count / 2], ys[ys.Count / 2], now))
-                    {
-                        return (xs[xs.Count / 2], ys[ys.Count / 2], now);
-                    }
+                    return (around.X, around.Y, now);
                 }
 
                 return _position;
@@ -635,10 +721,17 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            _position = (x, y, DateTime.UtcNow);
+            if (PositionProbe is { } probe && _position is { } before && EnvironmentEstimateLocked(Now) is { } env)
+            {
+                probe(((Now - before.At).TotalSeconds, Distance(before.X, before.Y, x, y), Distance(env.X, env.Y, x, y), env.Count, Now, x, y));
+            }
+
+            _position = (x, y, Now);
             _positionIsSpawn = false;
         }
     }
+
+    private static double Distance(double ax, double ay, double bx, double by) => Math.Sqrt((ax - bx) * (ax - bx) + (ay - by) * (ay - by)) / 100.0;
 
     private bool _positionIsSpawn;
 
@@ -647,8 +740,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            _position = (x, y, DateTime.UtcNow);
+            _position = (x, y, Now);
             _positionIsSpawn = true;
+            _around.Clear();
             // the monsters and cubes announced so far belong to the place he left (the game does not always announce their end): the ones of the new place
             // follow this frame
             _env.Clear();
@@ -686,8 +780,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _liveMobs[entityId] = (npcId, x, y);
-            _recentSpawns.Enqueue((DateTime.UtcNow, x, y));
-            while (_recentSpawns.Count > 0 && DateTime.UtcNow - _recentSpawns.Peek().At > TimeSpan.FromSeconds(30))
+            _around[entityId] = (x, y, Now);
+            _recentSpawns.Enqueue((Now, x, y));
+            while (_recentSpawns.Count > 0 && Now - _recentSpawns.Peek().At > TimeSpan.FromSeconds(30))
             {
                 _recentSpawns.Dequeue();
             }
@@ -713,6 +808,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _liveMobs.Remove(entityId);
+            _around.Remove(entityId);
         }
     }
 
@@ -791,10 +887,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            if (!(_positionIsSpawn && _position is { } spawn && DateTime.UtcNow - spawn.At < TimeSpan.FromSeconds(60)))
+            if (!(_positionIsSpawn && _position is { } spawn && Now - spawn.At < TimeSpan.FromSeconds(60)))
             {
                 _position = null;
             }
+
+            _around.Clear();
 
             _env.Clear();
             _mobPositions.Clear();
@@ -1562,6 +1660,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             _removed[entityId] = new Removal(at, reason);
             _liveMobs.Remove(entityId);
+            _around.Remove(entityId);
         }
     }
 

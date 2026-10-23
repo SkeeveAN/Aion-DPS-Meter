@@ -1733,6 +1733,10 @@ public sealed class Aion2FrameDecoder
         if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) is > 1 and < 200_000 && Math.Abs(y) is > 1 and < 200_000)
         {
             _entities.Combat.NotePosition(timestamp, (int)entity, x, y);
+            if (!_entities.IsLocalPlayer((int)entity))
+            {
+                _entities.NoteAround((int)entity, x, y);
+            }
         }
     }
 
@@ -2061,6 +2065,7 @@ public sealed class Aion2FrameDecoder
             if (float.IsFinite(ox) && float.IsFinite(oy) && Math.Abs(ox) is > 1 and < 200_000 && Math.Abs(oy) is > 1 and < 200_000)
             {
                 _entities.Combat.NotePosition(timestamp, unchecked((int)entityId), ox, oy);
+                _entities.NoteAround(unchecked((int)entityId), ox, oy);
             }
 
             return;
