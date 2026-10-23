@@ -142,6 +142,7 @@ export function downloadPage(): Page {
       <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
       <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
+      <p>Code signing: free code signing provided by SignPath.io, certificate by the SignPath Foundation (being set up, releases are unsigned until then). See the <a href="/code-signing-policy">code signing policy</a>.</p>
       <h3>Requirements</h3>
       <ul class="plain">
         <li>Windows 10 or 11</li>

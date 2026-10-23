@@ -1040,6 +1040,7 @@ async function renderDownload() {
     downloadSection = el("p", { className: "error", textContent: t("download.versionLoadError", { msg: err.message }) });
   }
 
+  const signingNote = el("p", { className: "download-meta" }, [t("download.codeSigningNote") + " ", link(t("download.codeSigningLink"), "/code-signing-policy")]);
   const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
   const requirements = el("div", {}, [
     el("h2", { textContent: t("download.requirementsHeading") }),
@@ -1059,7 +1060,7 @@ async function renderDownload() {
     el("p", {}, [t("download.vtNote") + " ", el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.vtLink") })]),
   ]);
   const starNote = el("p", { className: "download-meta star-note" }, [t("star.hint") + " ", buildStarLink()]);
-  app.replaceChildren(hero, downloadSection, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
+  app.replaceChildren(hero, downloadSection, signingNote, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
 }
 
 // Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with
