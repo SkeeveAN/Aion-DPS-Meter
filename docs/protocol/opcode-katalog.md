@@ -1,8 +1,8 @@
 # Opcode-Katalog
 
-Einstieg in alle bisher untersuchten Frames. Zählung der 818 Opcodes aus den 185 Login-Dumps: **121 belegt/als Familie im Client**, 44 nur erwähnt (nicht geprüft), 653 unbekannt. Opcode = Hex der ersten zwei Frame-Bytes. **Stand 23.10.2026**; ausführliche Aufbauten in den verlinkten Dateien. Familien, die der Client schon dekodiert, stehen in `Client/assets/aion2/protocol/opcodes.json` (unten aufgelistet).
+Einstieg in alle bisher untersuchten Frames. Zählung der 818 Opcodes aus den 185 Login-Dumps: **158 belegt/als Familie im Client**, 7 nur erwähnt (nicht geprüft), 653 unbekannt. Opcode = Hex der ersten zwei Frame-Bytes. **Stand 23.10.2026**; ausführliche Aufbauten in den verlinkten Dateien. Familien, die der Client schon dekodiert, stehen in `Client/assets/aion2/protocol/opcodes.json` (unten aufgelistet).
 
-Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-frames.md](skill-frames.md), [bewegungs-frames.md](bewegungs-frames.md), [combat-frames.md](combat-frames.md), [cooldown-frames.md](cooldown-frames.md), [hit-kinds.md](hit-kinds.md), [position-frames.md](position-frames.md), [ticket-frames.md](ticket-frames.md).
+Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-frames.md](skill-frames.md), [welt-frames.md](welt-frames.md), [sitzungs-frames.md](sitzungs-frames.md), [inventar-quest-frames.md](inventar-quest-frames.md), [bewegungs-frames.md](bewegungs-frames.md), [combat-frames.md](combat-frames.md), [cooldown-frames.md](cooldown-frames.md), [hit-kinds.md](hit-kinds.md), [position-frames.md](position-frames.md), [ticket-frames.md](ticket-frames.md), [client-umsetzung-2026-10-23.md](client-umsetzung-2026-10-23.md) (im Client umgesetzte Frames und Berichtigungen: Legionsliste, eigener Rang, Ziel-Frames, Quittung, Ketten, Rezepte, Wochenpunkte, Positionsmessung).
 
 ## Dekodierte Frames
 
@@ -108,6 +108,48 @@ Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fr
 | `0x3a36` | Umgebungsobjekt wird benutzt | neu, Art Hypothese | bewegungs-frames |
 | `0x3b36` | Umgebungsobjekt wird benutzt | neu, Art Hypothese | bewegungs-frames |
 | `0x4e36` | Ausrichtung (zwei Winkel) | neu 23.10. | bewegungs-frames |
+| `0x0638` | Skill-Ende | neu 23.10. | welt-frames |
+| `0x3b38` | Begleiter der Skill-Quittung 0138 (nicht Zielverlust) | neu 23.10. | welt-frames |
+| `0x3d38` | Begleiter der Skill-Quittung 0138 (nicht Zielverlust) | neu 23.10. | welt-frames |
+| `0x3438` | Zielwahl bestätigt | neu 23.10. | welt-frames |
+| `0x3538` | Ziel des gewählten Ziels | neu 23.10. | welt-frames |
+| `0x05e0` | Stagger-Balken | bekannt | welt-frames |
+| `0x4637` | Entität-Höhe (z) | neu 23.10. | welt-frames |
+| `0x0336` | Heartbeat alle 10 s mit Serveruhr | neu 23.10. | welt-frames |
+| `0x4838` | NPC-Bodenfläche | neu 23.10. | welt-frames |
+| `0x1b38` | Aufladen beginnt | neu 23.10. | welt-frames |
+| `0x1e38` | Aufladen losgelassen | neu 23.10. | welt-frames |
+| `0x2036` | Client-Einstellungen (zlib-JSON) | neu 23.10. | sitzungs-frames |
+| `0x5ae2` | Session-Token | neu 23.10., Bedeutung Hypothese | sitzungs-frames |
+| `0x1136` | Verbindungsaufbau | neu 23.10., Bedeutung Hypothese | sitzungs-frames |
+| `0x43e3` | Anmeldedatensatz / Eigen-ID | neu 23.10. | sitzungs-frames |
+| `0x2336` | Eigene Position nach dem Laden | neu 23.10. | sitzungs-frames |
+| `0x0140` | Zonenzustand | neu 23.10. | sitzungs-frames |
+| `0x0240` | Zonen-Zusatzzustand | neu 23.10. | sitzungs-frames |
+| `0x0143` | Luftraumschlacht | neu 23.10. | sitzungs-frames |
+| `0x0243` | Luftraumschlacht | neu 23.10. | sitzungs-frames |
+| `0x0343` | Luftraumschlacht | neu 23.10. | sitzungs-frames |
+| `0x62e2` | siehe Doku | neu 23.10., Bedeutung Hypothese | sitzungs-frames |
+| `0x61e2` | siehe Doku | neu 23.10., Bedeutung Hypothese | sitzungs-frames |
+| `0xa856` | siehe Doku | neu 23.10. | sitzungs-frames |
+| `0x538d` | Saison-Tabelle | neu 23.10., Bedeutung Hypothese | sitzungs-frames |
+| `0x2292` | Spieler-Datensatz mit GUID | neu 23.10., Rest Hypothese | sitzungs-frames |
+| `0x1e56` | Beute erscheint | neu 23.10. | inventar-quest-frames |
+| `0x1f56` | Beute verschwindet (Schlussbyte 1 = aufgenommen) | neu 23.10. | inventar-quest-frames |
+| `0x1356` | Gegenstand benutzt | neu 23.10. | inventar-quest-frames |
+| `0x1556` | Gegenstand benutzt (Stapel, Anzahl) | neu 23.10. | inventar-quest-frames |
+| `0x8f56` | Kaufzähler-Update | bekannt | inventar-quest-frames |
+| `0x8c56` | Kaufmenge dieses Kaufs | neu 23.10. | inventar-quest-frames |
+| `0x6f8d` | Herstellungsergebnis (Rezept-ID) | neu 23.10., Eintragsliste unbekannt | inventar-quest-frames |
+| `0x728d` | Spieler stellt her (Berufs-ID) | neu 23.10. | inventar-quest-frames |
+| `0x7c8d` | Berufs-XP | bekannt | inventar-quest-frames |
+| `0x7d8d` | Berufsstufe | bekannt | inventar-quest-frames |
+| `0x0f8d` | Quest abgegeben | neu 23.10., Anhang unbekannt | inventar-quest-frames |
+| `0x118d` | Quest angenommen | bekannt | inventar-quest-frames |
+| `0x208d` | Quest-Angebotsnummer | bekannt, Deutung Hypothese | inventar-quest-frames |
+| `0x108d` | Quest-Fortschritt (Instanznummer, Zielzähler) | neu 23.10. | inventar-quest-frames |
+| `0x928d` | Spieler-eid + Zustand | neu 23.10., Hypothese | inventar-quest-frames |
+| `0x8456` | Erfolge-Zähler live (auch Saisonmissionen) | neu 23.10. | inventar-quest-frames |
 
 ## Im Client als Familie (opcodes.json), hier nicht noch einmal beschrieben
 
@@ -129,62 +171,24 @@ Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fr
 | `0x1b56` | inventoryChange |
 | `0x26e2` | daevanion |
 | `0x3336` | character |
-| `0x3538` | targetSelect |
 | `0x4936` | attributes |
 | `0x5036` | inspect |
 | `0x7956` | titles |
 | `0x8156` | titleChange |
 | `0x92e2` | presetswitch |
 
-## Erwähnt, aber in dieser Auswertung nicht geprüft (44 Opcodes)
+## Erwähnt, aber in dieser Auswertung nicht geprüft (7 Opcodes)
 
 Diese Opcodes stehen im Client-Code, in älteren Dokumenten oder in Notizen. Eine Erwähnung heißt nicht, dass der Aufbau hier belegt ist; einige (z. B. `0x0001`, `0x0010`) sind nur Zahlen im Text.
 
 | Opcode | Frames | Beleg |
 |---|---|---|
-| `0x0638` | 16842 | in der Doku erwähnt |
-| `0x8456` | 2925 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x728d` | 2720 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x3d38` | 2193 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x3b38` | 2189 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x1e56` | 2122 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x1f56` | 2058 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x0336` | 1949 | in der Doku erwähnt |
-| `0x3438` | 604 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x05e0` | 531 | im Client-Code verwendet |
-| `0x4637` | 351 | in der Doku erwähnt |
-| `0x62e2` | 308 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x0240` | 307 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x2336` | 305 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x0140` | 305 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x0143` | 304 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x2036` | 262 | im Client-Code verwendet |
-| `0x5ae2` | 262 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x538d` | 261 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x4838` | 255 | in der Doku erwähnt |
-| `0xa856` | 242 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x43e3` | 239 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x418d` | 131 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x108d` | 102 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x1136` | 57 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x61e2` | 44 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x928d` | 42 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x1356` | 25 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x0f8d` | 20 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x1556` | 14 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x0001` | 13 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x118d` | 11 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x918d` | 11 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x1b38` | 9 | in der Doku erwähnt |
-| `0x1e38` | 9 | in der Doku erwähnt |
-| `0x8f56` | 8 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x8c56` | 8 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x0010` | 6 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x6f8d` | 4 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x0004` | 4 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x2292` | 3 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x0002` | 2 | nur in Notizen erwähnt, nicht neu geprüft |
-| `0x7d8d` | 1 | nur in Notizen erwähnt, nicht neu geprüft |
 | `0x3600` | 1 | nur in Notizen erwähnt, nicht neu geprüft |
 
 ## Noch unbekannt (653 Opcodes in den 185 Login-Dumps)
