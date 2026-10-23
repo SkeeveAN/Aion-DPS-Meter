@@ -573,6 +573,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _around[entityId] = (x, y, Now);
+            // a monster that walks: the list and the map show where it is now, not where it appeared
+            if (_liveMobs.TryGetValue(entityId, out var mob))
+            {
+                _liveMobs[entityId] = (mob.NpcId, x, y);
+            }
+
             if (_around.Count > 1500)
             {
                 _around.Clear(); // nothing is ever that close: the table lost its removals

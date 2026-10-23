@@ -78,6 +78,58 @@ public static class Aion2Tickets
     public const int ShopOdyleMax = 20;
     public const int MaxCharacters = 40;
 
+    /// <summary>The week's points of the season missions (the weekly reward steps 1,500 / 3,000 / 4,500 / 6,000 / 8,000) as a ticket of our own: count = points, time = when the game
+    /// last changed it (ms since 1970). The id is no game id; the game's own achievement id is <see cref="WeeklyPointsAchievement"/>.</summary>
+    public const int WeeklyPointsId = 99000004;
+    public const int WeeklyPointsAchievement = 210000100;
+    public const int WeeklyPointsMax = 8000;
+
+    /// <summary>
+    /// The achievements frame <c>0x8356</c> (login): <c>n (varint) | n x ( id u32 | counter u32 | time u64 ms | level u8 )</c>; only the weekly points are read.
+    /// </summary>
+    public static bool TryParseAchievements(ReadOnlySpan<byte> frame, out TicketReading reading)
+    {
+        reading = default;
+        int p = 2, shift = 0;
+        long n = 0;
+        while (true)
+        {
+            if (p >= frame.Length || shift > 28)
+            {
+                return false;
+            }
+
+            byte b = frame[p++];
+            n |= (long)(b & 0x7f) << shift;
+            if ((b & 0x80) == 0)
+            {
+                break;
+            }
+
+            shift += 7;
+        }
+
+        for (long i = 0; i < n && p + 17 <= frame.Length; i++, p += 17)
+        {
+            if (BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]) != WeeklyPointsAchievement)
+            {
+                continue;
+            }
+
+            uint points = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 4)..]);
+            ulong time = BinaryPrimitives.ReadUInt64LittleEndian(frame[(p + 8)..]);
+            if (points > 100_000 || time is < 1_500_000_000_000 or > 4_000_000_000_000)
+            {
+                return false;
+            }
+
+            reading = new TicketReading(WeeklyPointsId, new TicketValue((int)points, 0, (long)time));
+            return true;
+        }
+
+        return false;
+    }
+
     private sealed class Saved
     {
         public List<SavedCharacter> Characters { get; set; } = new();

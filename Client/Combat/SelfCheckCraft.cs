@@ -201,7 +201,21 @@ public static class SelfCheckCraft
             && listed[1] is { Name: "Pencilgon", Level: 22, Rank: 0 } && listed[2] is { Name: "Ärgernis", ServerId: 2304 };
         Console.WriteLine($"  -> the legion list is read with and without a comment, names counted in characters: {legion}");
 
+        // the weekly points of the achievements frame: only that entry is read
+        var ach = new List<byte> { 0x56, 0x83, 2 };
+        foreach ((uint id, uint count) in new[] { (100030000u, 1u), (210000100u, 3440u) })
+        {
+            ach.AddRange(BitConverter.GetBytes(id));
+            ach.AddRange(BitConverter.GetBytes(count));
+            ach.AddRange(BitConverter.GetBytes(1_791_499_543_290UL));
+            ach.Add(0);
+        }
+
+        bool points = Aion2Tickets.TryParseAchievements(ach.ToArray(), out TicketReading week) && week.Id == Aion2Tickets.WeeklyPointsId && week.Value.Count == 3440
+            && week.Value.TimeMs == 1_791_499_543_290 && !Aion2Tickets.TryParseAchievements(ach.Take(10).ToArray(), out _);
+        Console.WriteLine($"  -> the week's season points are read from the achievements frame: {points}");
+
         Aion2Stock.Reset();
-        return legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }

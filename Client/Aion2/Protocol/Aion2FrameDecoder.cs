@@ -65,6 +65,9 @@ public sealed class Aion2FrameDecoder
     private const int TicketListOpcode = 0x0b61;
     private const int TicketChangeOpcode = 0x0c61;
     private const int ShopCountersOpcode = 0x8e56;
+
+    /// <summary>The achievements and season missions of the login (the week's points are read from it).</summary>
+    private const int AchievementsOpcode = 0x8356;
     private const int MissionListOpcode = 0x1c8d;
     private const int MembershipOpcode = 0x3be3;
     /// <summary>The Daeva pass state (<see cref="Aion2Tickets.TryParsePass"/>): at login with both passes, later one entry per change.</summary>
@@ -632,6 +635,16 @@ public sealed class Aion2FrameDecoder
         if (opcode == Aion2Recipes.Opcode)
         {
             Aion2Recipes.Note(frame);
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == AchievementsOpcode)
+        {
+            if (Aion2Tickets.TryParseAchievements(frame, out TicketReading points))
+            {
+                Aion2Tickets.ReceiveUpdate(points, timestamp);
+            }
+
             return Array.Empty<DamageEvent>();
         }
 

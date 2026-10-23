@@ -436,6 +436,13 @@ public sealed class ChecklistWindow : Window
         int bought = shop.TimeMs > nowMs ? Math.Min(shop.Count, Aion2Tickets.ShopOdyleMax) : 0;
         AddTableRow(grid, row++, loc["Checklist.ShopOdyle"], bought, Aion2Tickets.ShopOdyleMax, false, countsUp: true);
 
+        // the week's points of the season missions (frame 0x8356 at login): points of 8,000; one that the game last changed more than a week ago is of a week long past
+        if (character.Tickets.TryGetValue(Aion2Tickets.WeeklyPointsId, out TicketValue weekly))
+        {
+            int points = nowMs - weekly.TimeMs < 7L * 24 * 3600 * 1000 ? Math.Min(weekly.Count, Aion2Tickets.WeeklyPointsMax) : 0;
+            AddTableRow(grid, row++, loc["Checklist.WeeklyPoints"], points, Aion2Tickets.WeeklyPointsMax, false, countsUp: true);
+        }
+
         // the two conversions are a note ticked by hand (click = +1, right click = -1): the meter has not found their frame
         ChecklistManual.State own = ChecklistManual.Get(character.Name, now);
         AddTableRow(grid, row++, loc["Checklist.ConvertBig"], own.ConvertBig, ChecklistManual.ConvertBigMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertBig, d));

@@ -8585,6 +8585,18 @@
     "ja": "ブリゼンウィンド交易ギルドで購入したオード エネルギー",
     "ko": "브리젠윈드 상업 길드에서 구매한 오드 에너지"
   },
+  "Checklist.WeeklyPoints": {
+    "en": "Season mission points of the week",
+    "de": "Saisonmissions-Punkte der Woche",
+    "fr": "Points de missions de saison de la semaine",
+    "es": "Puntos de misiones de temporada de la semana",
+    "ru": "Очки сезонных заданий недели",
+    "zh": "本周赛季任务点数",
+    "zh-TW": "本週賽季任務點數",
+    "pt": "Pontos das missões de temporada da semana",
+    "ja": "今週のシーズンミッションポイント",
+    "ko": "이번 주 시즌 미션 점수"
+  },
   "Checklist.ConvertBig": {
     "en": "Convert Odyle Energy (x16)",
     "de": "Konvertieren: Odenergie (x16)",
