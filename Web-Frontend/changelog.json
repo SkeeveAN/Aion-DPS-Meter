@@ -64,6 +64,22 @@
      "Backend"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the legion list of the login (the game's own record of each member's name, class, level and server) sets the members' home servers and goes online with the profile upload, with the legion's name; new test mode aion2-frame-dump",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client and website: the focus of each player (time with the boss selected and with anything else, and the target changes, from the game's target frames) goes along with the time axis and shows as a table on the encounter page",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
