@@ -33,7 +33,6 @@ public sealed class CraftConfigWindow : Window
     private bool _searchOpen = true;
     private readonly TextBox _search = new() { Width = 260, Height = 28, VerticalContentAlignment = VerticalAlignment.Center };
     private readonly CheckBox _onlyMarked = new();
-    private readonly CheckBox _onlyKnown = new() { IsChecked = true };
     private readonly StackPanel _tree = new();
     private readonly StackPanel _results = new();
     private readonly StackPanel _mine = new();
@@ -144,19 +143,6 @@ public sealed class CraftConfigWindow : Window
         _onlyMarked.Click += (_, _) => ShowResults();
         DockPanel.SetDock(onlyMarked, Dock.Right);
         bar.Children.Insert(0, onlyMarked);
-        if (Aion2Recipes.HasData)
-        {
-            var onlyKnown = Switch(_onlyKnown, loc["Craft.OnlyKnown"]);
-            onlyKnown.HorizontalAlignment = HorizontalAlignment.Right;
-            onlyKnown.Margin = new Thickness(0, 0, 14, 0);
-            _onlyKnown.Click += (_, _) =>
-            {
-                ShowTree();
-                ShowResults();
-            };
-            DockPanel.SetDock(onlyKnown, Dock.Right);
-            bar.Children.Insert(1, onlyKnown);
-        }
         body.Children.Add(bar);
 
         var grid = new Grid();
@@ -186,7 +172,8 @@ public sealed class CraftConfigWindow : Window
         return text == key ? tab : text;
     }
 
-    private bool Listed(CraftRecipe r) => !(_onlyKnown.IsChecked == true && Aion2Recipes.HasData) || Aion2Recipes.IsKnown(r) || IsMarked(r);
+    /// <summary>The rule, not a choice: only the recipes the character has learned are listed (and those already marked); while no login list is known, all of them.</summary>
+    private bool Listed(CraftRecipe r) => !Aion2Recipes.HasData || Aion2Recipes.IsKnown(r) || IsMarked(r);
 
     private IEnumerable<CraftRecipe> InCategory() => Aion2CraftData.Visible(_elyos).Where(r => r.Category == _category && Listed(r));
 
