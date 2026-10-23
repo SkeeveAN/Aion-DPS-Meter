@@ -71,6 +71,63 @@ public static class PrivacyConsent
     public static bool EnsureForUploadSwitch(Window? owner) => CanUpload || Ask(owner);
 }
 
+/// <summary>
+/// The policy text as paragraphs and bullet items: a line that starts with "• " is an item whose further lines are indented under its first word (a hanging indent), a blank line
+/// separates paragraphs. Built from the plain text of the language file, so the client and the website show the same structure.
+/// </summary>
+public static class PolicyTextView
+{
+    public static StackPanel Build(string text)
+    {
+        var panel = new StackPanel();
+        var paragraph = new List<string>();
+
+        void Paragraph()
+        {
+            if (paragraph.Count == 0)
+            {
+                return;
+            }
+
+            var block = new TextBlock { Text = string.Join(" ", paragraph), TextWrapping = TextWrapping.Wrap, LineHeight = 19, Margin = new Thickness(0, 0, 0, 10) };
+            block.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+            panel.Children.Add(block);
+            paragraph.Clear();
+        }
+
+        foreach (string raw in text.Split('\n'))
+        {
+            string line = raw.TrimEnd();
+            if (line.Length == 0)
+            {
+                Paragraph();
+            }
+            else if (line.StartsWith("• ", StringComparison.Ordinal))
+            {
+                Paragraph();
+                var item = new Grid { Margin = new Thickness(6, 0, 0, 8) };
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) });
+                item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                var bullet = new TextBlock { Text = "•", LineHeight = 19 };
+                var body = new TextBlock { Text = line[2..], TextWrapping = TextWrapping.Wrap, LineHeight = 19 };
+                bullet.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+                body.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+                Grid.SetColumn(body, 1);
+                item.Children.Add(bullet);
+                item.Children.Add(body);
+                panel.Children.Add(item);
+            }
+            else
+            {
+                paragraph.Add(line);
+            }
+        }
+
+        Paragraph();
+        return panel;
+    }
+}
+
 /// <summary>The policy in a window of the meter's own look: the text (the same as the website's privacy page, section "What the client reads ..."), the address of the full page, and the two answers.</summary>
 public sealed class PrivacyWindow : Window
 {
@@ -96,9 +153,8 @@ public sealed class PrivacyWindow : Window
         heading.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         stack.Children.Add(heading);
 
-        var text = new TextBlock { Text = loc["Privacy.Text"], TextWrapping = TextWrapping.Wrap, LineHeight = 19 };
-        text.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
-        stack.Children.Add(new ScrollViewer { MaxHeight = 400, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = text, Padding = new Thickness(0, 0, 10, 0) });
+        // no scrolling where the screen is tall enough (the text needs about 380 pixels); a small screen scrolls
+        stack.Children.Add(new ScrollViewer { MaxHeight = Math.Max(200, SystemParameters.WorkArea.Height - 260), VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = PolicyTextView.Build(loc["Privacy.Text"]), Padding = new Thickness(0, 0, 10, 0) });
 
         var link = new Hyperlink(new Run(loc["Privacy.Link"])) { NavigateUri = new Uri(PrivacyConsent.PolicyUrl) };
         link.RequestNavigate += (_, e) =>

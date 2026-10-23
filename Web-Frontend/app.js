@@ -508,6 +508,43 @@ function buildRecentActivitySection(rows) {
 /** Shared by renderPrivacy/renderTerms below - both are just a title, an intro paragraph, and a
  * flat run of numbered i18n sections ("legal.<prefix>Section<N>Heading/Body"), stopping at the
  * first missing key. */
+/**
+ * A section's text as paragraphs and bullet lists: a blank line separates paragraphs, lines that start with "• " are the items of a list (their further lines sit indented
+ * under the first word, the way a list is set). A text without line breaks is one paragraph.
+ */
+function legalBody(text) {
+  const blocks = [];
+  let paragraph = [];
+  let list = null;
+  const flush = () => {
+    if (paragraph.length > 0) {
+      blocks.push(el("p", { textContent: paragraph.join(" ") }));
+      paragraph = [];
+    }
+    list = null;
+  };
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (line === "") {
+      flush();
+    } else if (line.startsWith("• ")) {
+      if (paragraph.length > 0) {
+        flush();
+      }
+      if (list === null) {
+        list = el("ul", { className: "legal-list" });
+        blocks.push(list);
+      }
+      list.append(el("li", { textContent: line.slice(2) }));
+    } else {
+      list = null;
+      paragraph.push(line);
+    }
+  }
+  flush();
+  return blocks;
+}
+
 function renderLegalPage(prefix, titleKey, introKey) {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t(titleKey)]);
   document.title = `${t(titleKey)} – ${SITE_TITLE}`;
@@ -519,7 +556,7 @@ function renderLegalPage(prefix, titleKey, introKey) {
     if (heading === headingKey) {
       break;
     }
-    sections.push(el("section", { className: "legal-section" }, [el("h2", { textContent: heading }), el("p", { textContent: t(bodyKey) })]));
+    sections.push(el("section", { className: "legal-section" }, [el("h2", { textContent: heading }), ...legalBody(t(bodyKey))]));
   }
   app.replaceChildren(
     el("div", { className: "legal-page" }, [el("h1", { textContent: t(titleKey) }), el("p", { className: "legal-intro", textContent: t(introKey) }), ...sections]),

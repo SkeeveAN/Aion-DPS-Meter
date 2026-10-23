@@ -41,7 +41,10 @@ public partial class WizardWindow : Window
             }
         }
 
+        // as tall as the whole wizard needs on this screen: it scrolls only where the screen is too small
+        MaxHeight = SystemParameters.WorkArea.Height - 20;
         _characterProbe = characterProbe;
+        ShowPolicyText();
         _statusTimer.Tick += (_, _) => RefreshStatus();
         _statusTimer.Start();
         RefreshStatus();
@@ -88,12 +91,16 @@ public partial class WizardWindow : Window
 
     private bool _finished;
 
+    /// <summary>The policy in the chosen language, as paragraphs and bullet items (the rest of the wizard changes language by itself).</summary>
+    private void ShowPolicyText() => PolicyHost.Content = PolicyTextView.Build(LocalizationManager.Instance["Privacy.Text"]);
+
     /// <summary>Takes effect at once, like in Settings: the wizard's own texts change language with it.</summary>
     private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
     {
         if (LanguageBox.SelectedItem is ComboBoxItem { Tag: string code })
         {
             LocalizationManager.Instance.Language = code;
+            ShowPolicyText();
         }
     }
 

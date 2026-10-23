@@ -60,7 +60,7 @@ public static class PrivacyRender
         }
 
         var content = (UIElement)window.Content;
-        double width = kind == "wizard" ? 500 : 660;
+        double width = kind == "wizard" ? 900 : 660;
         content.Measure(new Size(width, double.PositiveInfinity));
         int w = (int)Math.Ceiling(width), h = (int)Math.Ceiling(content.DesiredSize.Height);
         content.Measure(new Size(w, h));
