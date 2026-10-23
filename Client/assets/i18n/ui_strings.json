@@ -6625,6 +6625,18 @@
     "ko": "맞춤",
     "zh-TW": "符合視窗"
   },
+  "Replay.OwnEstimated": {
+    "en": "your own position is estimated (dashed ring)",
+    "de": "deine eigene Position ist geschätzt (gestrichelter Ring)",
+    "fr": "votre position est estimée (cercle en pointillés)",
+    "es": "tu posición es una estimación (anillo discontinuo)",
+    "ru": "ваша позиция оценочная (пунктирное кольцо)",
+    "zh": "你的位置为估算（虚线圈）",
+    "zh-TW": "你的位置為估算（虛線圈）",
+    "pt": "a sua posição é estimada (anel tracejado)",
+    "ja": "自分の位置は推定です（破線の輪）",
+    "ko": "내 위치는 추정입니다(점선 원)"
+  },
   "Replay.Staggered": {
     "en": "staggered",
     "de": "aus dem Gleichgewicht",

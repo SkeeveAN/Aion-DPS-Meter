@@ -2542,7 +2542,7 @@ public partial class MainWindow : Window
 
         return ReplayBuilder.Build(title.Trim(), extras, events, from, to,
             id => (ResolveDisplayName(GridId(id)), ResolveClassName(GridId(id)), IsPlayerName(GridId(id))), SkillRadius, id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)),
-            IsReplayAdd);
+            IsReplayAdd, id => ReplayDirectory is { } own && own.LocalPlayerId == id);
     }
 
     /// <summary>

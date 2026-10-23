@@ -10,8 +10,36 @@ public enum ReplayRole
 }
 
 /// <summary>Someone shown on the replay map, with where they were.</summary>
-public sealed record ReplayEntity(int Id, string Name, string ClassName, ReplayRole Role, PositionTrack Track)
+public sealed record ReplayEntity(int Id, string Name, string ClassName, ReplayRole Role, PositionTrack Track, bool IsSelf = false)
 {
+    /// <summary>
+    /// The own character's place is only reported now and then (with skills and corrections; the server sends no running position of one's own character), so between two
+    /// readings the replay draws a straight walk: an estimate. True when no reading lies within <see cref="ExactSeconds"/> of this moment; false for everybody else, whose
+    /// movement frames are readings.
+    /// </summary>
+    public bool EstimatedAt(DateTime fightStart, double seconds)
+    {
+        if (!IsSelf || Track.T.Length == 0)
+        {
+            return false;
+        }
+
+        double t = seconds * 1000 - (Track.Start - fightStart).TotalMilliseconds;
+        int hi = Array.BinarySearch(Track.T, (int)t);
+        if (hi >= 0)
+        {
+            return false;
+        }
+
+        hi = ~hi;
+        double before = hi > 0 ? t - Track.T[hi - 1] : double.PositiveInfinity;
+        double after = hi < Track.T.Length ? Track.T[hi] - t : double.PositiveInfinity;
+        return Math.Min(before, after) > ExactSeconds * 1000;
+    }
+
+    /// <summary>A reading this close in time still counts as where the character was.</summary>
+    public const double ExactSeconds = 1.5;
+
     /// <summary>Where the entity was at <paramref name="seconds"/> from the start of the fight, between its two readings around it; null before its first reading, and after its last
     /// one for longer than <see cref="HoldSeconds"/>.</summary>
     public (double X, double Y)? At(DateTime fightStart, double seconds)
@@ -96,7 +124,7 @@ public sealed record ReplayData(
 public static class ReplayBuilder
 {
     public static ReplayData Build(string title, FightExtras? extras, IReadOnlyList<DamageEvent> fightEvents, DateTime start, DateTime end,
-        Func<int, (string Name, string ClassName, bool IsPlayer)> describe, Func<int, double?> radiusOf, Func<int, string> skillName, Func<int, bool>? isAdd = null)
+        Func<int, (string Name, string ClassName, bool IsPlayer)> describe, Func<int, double?> radiusOf, Func<int, string> skillName, Func<int, bool>? isAdd = null, Func<int, bool>? isSelf = null)
     {
         double duration = Math.Max(1, (end - start).TotalSeconds);
         double Secs(DateTime at) => (at - start).TotalSeconds;
@@ -111,7 +139,7 @@ public static class ReplayBuilder
         foreach (PositionTrack track in tracks.Where(t => t.T.Length >= 2))
         {
             var (name, cls, isPlayer) = describe(track.Entity);
-            entities.Add(new ReplayEntity(track.Entity, name, cls, isPlayer ? ReplayRole.Player : isAdd?.Invoke(track.Entity) == true ? ReplayRole.Add : ReplayRole.Boss, track));
+            entities.Add(new ReplayEntity(track.Entity, name, cls, isPlayer ? ReplayRole.Player : isAdd?.Invoke(track.Entity) == true ? ReplayRole.Add : ReplayRole.Boss, track, isPlayer && isSelf?.Invoke(track.Entity) == true));
         }
 
         var bossIds = entities.Where(e => e.Role == ReplayRole.Boss).Select(e => e.Id).ToHashSet();

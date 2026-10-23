@@ -81,6 +81,13 @@ public static class SelfCheckReplay
         bool adds = addData.Entities.Single(e => e.Id == add).Role == ReplayRole.Add && addData.Entities.Single(e => e.Id == boss).Role == ReplayRole.Boss && addData.Areas.Count == 1;
         Console.WriteLine($"  -> another monster of the fight is an add (no area of its own, the boss stays the boss): {adds}");
         ok &= adds;
+
+        // the own character: between two readings (0 s and 5 s) the spot is an estimate, within 1.5 s of one it is not, and nobody else's ever is
+        ReplayData selfData = ReplayBuilder.Build("Test", extras, hits, at, at.AddSeconds(10), id => id == boss ? ("Boss", "", false) : ("Me", "Cleric", true), _ => 650, _ => "Slam", null, id => id == 1);
+        ReplayEntity me = selfData.Entities.Single(e => e.Id == 1);
+        bool estimates = me.IsSelf && me.EstimatedAt(at, 2.5) && !me.EstimatedAt(at, 0.5) && !me.EstimatedAt(at, 4.0) && !me.EstimatedAt(at, 5) && !selfData.Entities.Single(e => e.Id == boss).EstimatedAt(at, 2.5);
+        Console.WriteLine($"  -> the own character's spot between two readings is marked as an estimate: {estimates}");
+        ok &= estimates;
         return ok;
     }
 }

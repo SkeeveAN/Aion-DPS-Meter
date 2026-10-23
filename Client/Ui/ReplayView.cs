@@ -228,7 +228,13 @@ public sealed class ReplayView : FrameworkElement
             else
             {
                 Brush colour = dead ? Brushes.DimGray : ClassBrushes.Solid(e.ClassName);
+                // the own character between two readings of his place: a dashed ring says the spot is an estimate
+                bool estimated = e.EstimatedAt(_data.Start, _time);
                 dc.DrawEllipse(colour, new Pen(Brushes.Black, 1), at, 6, 6);
+                if (estimated)
+                {
+                    dc.DrawEllipse(null, new Pen(Brushes.White, 1.5) { DashStyle = DashStyles.Dash }, at, 10, 10);
+                }
                 if (dead)
                 {
                     var cross = new Pen(Brushes.OrangeRed, 2);
@@ -276,6 +282,11 @@ public sealed class ReplayView : FrameworkElement
         if (_data.Staggers.Any(s => s.Start <= _time && s.End >= _time))
         {
             status.Add(LocalizationManager.Instance["Replay.Staggered"]);
+        }
+
+        if (_data.Entities.Any(e => e.EstimatedAt(_data.Start, _time)))
+        {
+            status.Add(LocalizationManager.Instance["Replay.OwnEstimated"]);
         }
 
         var header = new FormattedText(string.Join("  ·  ", status), System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 13, text, dpi);
