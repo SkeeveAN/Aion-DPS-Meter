@@ -158,6 +158,13 @@
      "Database"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: on the replay map the own character's spot between two readings is marked as an estimate (dashed ring and a note), as the server sends no running position of one's own character",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
