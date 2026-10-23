@@ -327,6 +327,7 @@ export default {
   "stats.tooFew": "記錄還太少，無法繪製箱型圖。",
   "player.emptyNoFights": "此玩家尚無已記錄的戰鬥。",
   "runs.view": "查看本次通關",
+  "runs.group": "隊伍",
   "profile.heading": "角色",
   "profile.classLevel": "{className} · 等級 {level}",
   "profile.faction": "陣營",

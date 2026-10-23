@@ -327,6 +327,7 @@ export default {
   "stats.tooFew": "箱ひげ図にはまだ記録が足りません。",
   "player.emptyNoFights": "このプレイヤーの記録された戦闘はまだありません。",
   "runs.view": "挑戦を見る",
+  "runs.group": "パーティ",
   "profile.heading": "キャラクター",
   "profile.classLevel": "{className} · レベル {level}",
   "profile.faction": "種族",

@@ -327,6 +327,7 @@ export default {
   "stats.tooFew": "상자 그림을 그리기에는 아직 기록이 부족합니다.",
   "player.emptyNoFights": "이 플레이어의 기록된 전투가 아직 없습니다.",
   "runs.view": "도전 보기",
+  "runs.group": "파티",
   "profile.heading": "캐릭터",
   "profile.classLevel": "{className} · 레벨 {level}",
   "profile.faction": "종족",

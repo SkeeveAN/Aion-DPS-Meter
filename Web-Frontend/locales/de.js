@@ -420,6 +420,7 @@ export default {
   "stats.skillNote": "Aus den hochgeladenen Läufen dieses Bosses: {n} Einträge dieser Klasse. Skills, die in weniger als 10 % der Einträge vorkommen, fehlen.",
   "player.emptyNoFights": "Noch keine erfassten Kämpfe für diesen Spieler.",
   "runs.view": "Lauf ansehen",
+  "runs.group": "Gruppe",
   "profile.heading": "Charakter",
   "profile.classLevel": "{className} · Level {level}",
   "profile.faction": "Fraktion",

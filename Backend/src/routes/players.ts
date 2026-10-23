@@ -1,6 +1,6 @@
 import { listGuilds } from "../guilds.js";
 import { factionOfServerName, withServerFaction } from "../factions.js";
-import { and, desc, eq, like, max } from "drizzle-orm";
+import { and, desc, eq, inArray, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
@@ -190,6 +190,22 @@ export async function playerRoutes(app: FastifyInstance) {
       .all()
       .map((run) => withServerFaction({ ...run, playerSlug: player.slug, serverName: player.serverName }));
 
+    // The group of every fight on the list (the other players in it, strongest first), keyed by encounter: the runs tab shows it per run.
+    const party: Record<number, { id: number; name: string; slug: string | null; className: string | null }[]> = {};
+    const encounterIds = history.map((h) => h.encounterId);
+    for (let i = 0; i < encounterIds.length; i += 500) {
+      const rows = db
+        .select({ encounterId: encounterParticipants.encounterId, id: players.id, name: players.name, slug: players.slug, className: encounterParticipants.className })
+        .from(encounterParticipants)
+        .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+        .where(inArray(encounterParticipants.encounterId, encounterIds.slice(i, i + 500)))
+        .orderBy(desc(encounterParticipants.idps))
+        .all();
+      for (const { encounterId, ...member } of rows) {
+        (party[encounterId] ??= []).push(member);
+      }
+    }
+
     const guildSlug = player.guild && player.serverId !== null
       ? (listGuilds().find((g) => g.serverId === player.serverId && g.name.toLowerCase() === player.guild?.trim().toLowerCase())?.slug ?? null)
       : null;
@@ -209,6 +225,7 @@ export async function playerRoutes(app: FastifyInstance) {
       player: { ...player, guildSlug, portraitUrl },
       character,
       history,
+      party,
       profile: profile ? { ...profile, faction: (profile.faction || factionOfServerName(player.serverName)) as typeof profile.faction, portraitUrl } : profile,
     });
   });

@@ -4489,7 +4489,7 @@ function runSessions(runs) {
   return sessions.reverse();
 }
 
-function renderRunsTab(history) {
+function renderRunsTab(history, party = {}, selfId = null) {
   if (history.length === 0) {
     return el("p", { className: "empty", textContent: t("player.emptyNoFights") });
   }
@@ -4527,6 +4527,28 @@ function renderRunsTab(history) {
     ].filter((x) => x != null));
   };
 
+  // The group of a run: everyone who fought in it, the player first and then the ones present in most of its fights. The same name
+  // and class counts once (one fight can have the player under another server's entry).
+  const groupRow = (s) => {
+    const seen = new Map();
+    for (const r of s.runs) {
+      for (const m of party[r.h.encounterId] ?? []) {
+        const key = `${m.name.toLowerCase()}|${m.className}`;
+        const entry = seen.get(key) ?? { m, n: 0 };
+        entry.n++;
+        seen.set(key, entry);
+      }
+    }
+    if (seen.size === 0) {
+      return null;
+    }
+    const entries = [...seen.values()].sort((a, b) => (b.m.id === selfId) - (a.m.id === selfId) || b.n - a.n);
+    const members = entries.map(({ m }) =>
+      el("a", { className: `run-member${m.id === selfId ? " self" : ""}`, href: gp(`/players/${m.slug ?? m.id}`) }, [classIcon(m.className), m.name]),
+    );
+    return el("div", { className: "run-group" }, [el("span", { className: "run-group-label", textContent: t("runs.group") }), ...members]);
+  };
+
   const sessionCard = (s, open) => {
     const ok = s.runs.filter((r) => r.ok);
     const avg = ok.length > 0 ? ok.reduce((sum, r) => sum + r.h.idps, 0) / ok.length : 0;
@@ -4542,6 +4564,7 @@ function renderRunsTab(history) {
         el("a", { className: "run-open", href: gp(`/encounters/${s.runs.at(-1).h.encounterId}`), textContent: t("runs.view") }),
         el("div", { className: "run-stats" }, [stat(formatNumber(s.runs.length), t("runs.fights")), stat(formatNumber(avg), t("runs.avgIdps")), stat(formatNumber(top), t("runs.bestIdps"), true)]),
       ].filter((x) => x != null)),
+      groupRow(s),
       el("div", { className: "run-tiles" }, [...s.runs].reverse().map(tile)),
     ]);
   };
@@ -4663,7 +4686,7 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   // Attributes, wing and pet from the player's client and/or NC; also there when the player has no profile at all.
   const character = data.character ?? profile;
   const strip = renderPlayerStrip(profile, data.player, character);
-  const tabs = [["runs", t("profile.tabRuns"), data.history.length, () => renderRunsTab(data.history)]];
+  const tabs = [["runs", t("profile.tabRuns"), data.history.length, () => renderRunsTab(data.history, data.party, data.player.id)]];
   if (profile?.gear.length > 0) {
     tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
   }

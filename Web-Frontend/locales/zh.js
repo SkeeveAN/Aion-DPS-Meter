@@ -355,6 +355,7 @@ export default {
   "stats.tooFew": "记录还太少，无法绘制箱线图。",
   "player.emptyNoFights": "该玩家尚无已记录的战斗。",
   "runs.view": "查看本次通关",
+  "runs.group": "队伍",
   "search.multipleResultsHeading": "多个结果",
   "search.noResults": '未找到名为"{query}"的玩家。',
   "general.error": "错误：{msg}",

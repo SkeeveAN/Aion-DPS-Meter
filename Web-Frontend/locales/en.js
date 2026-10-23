@@ -434,6 +434,7 @@ export default {
   "stats.skillNote": "From the uploaded runs of this boss: {n} rows of this class. Skills used in fewer than 10 % of the rows are left out.",
   "player.emptyNoFights": "No recorded fights for this player yet.",
   "runs.view": "View run",
+  "runs.group": "Group",
   "profile.heading": "Character",
   "profile.classLevel": "{className} · Level {level}",
   "profile.faction": "Faction",

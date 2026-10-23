@@ -360,6 +360,7 @@ export default {
   "stats.tooFew": "Пока слишком мало записей для диаграммы размаха.",
   "player.emptyNoFights": "Для этого игрока пока нет зафиксированных боёв.",
   "runs.view": "Открыть прохождение",
+  "runs.group": "Группа",
   "search.multipleResultsHeading": "Несколько результатов",
   "search.noResults": 'Игрок с именем "{query}" не найден.',
   "general.error": "Ошибка: {msg}",

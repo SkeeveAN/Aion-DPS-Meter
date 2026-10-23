@@ -360,6 +360,7 @@ export default {
   "stats.tooFew": "Aún hay pocas entradas para un diagrama de caja.",
   "player.emptyNoFights": "Aún no hay combates registrados para este jugador.",
   "runs.view": "Ver recorrido",
+  "runs.group": "Grupo",
   "search.multipleResultsHeading": "Varios resultados",
   "search.noResults": 'No se encontró ningún jugador llamado "{query}".',
   "general.error": "Error: {msg}",
