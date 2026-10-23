@@ -24,6 +24,14 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Website: the download page names the code signing provider (SignPath Foundation) and links the policy",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
