@@ -72,6 +72,15 @@ public static class SelfCheckReplay
             && data.Hits.Count == 1 && data.Deaths.Count == 1 && data.Staggers.Count == 1 && halfway;
         Console.WriteLine($"  -> a walk is drawn straight between two readings ({halfway}); the replay has the group, the boss, its area, the hit, the death and the stagger: {put}");
         ok &= put;
+
+        // another monster the group fought is an "add": a marker of its own, no area, no health
+        const int add = 300;
+        var addTrack = new PositionTrack(add, at, new[] { 0, 4000 }, new[] { 100, 300 }, new[] { 100, 100 });
+        var withAdd = extras with { Tracks = new[] { track, bossTrack, addTrack } };
+        ReplayData addData = ReplayBuilder.Build("Test", withAdd, hits, at, at.AddSeconds(10), id => id == boss ? ("Boss", "", false) : id == add ? ("Imp", "", false) : ("Me", "Cleric", true), _ => 650, _ => "Slam", id => id == add);
+        bool adds = addData.Entities.Single(e => e.Id == add).Role == ReplayRole.Add && addData.Entities.Single(e => e.Id == boss).Role == ReplayRole.Boss && addData.Areas.Count == 1;
+        Console.WriteLine($"  -> another monster of the fight is an add (no area of its own, the boss stays the boss): {adds}");
+        ok &= adds;
         return ok;
     }
 }

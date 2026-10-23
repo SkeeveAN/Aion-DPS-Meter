@@ -4,6 +4,9 @@ public enum ReplayRole
 {
     Player,
     Boss,
+
+    /// <summary>Another monster the group fought (an add): a small marker that moves, without areas or health.</summary>
+    Add,
 }
 
 /// <summary>Someone shown on the replay map, with where they were.</summary>
@@ -93,7 +96,7 @@ public sealed record ReplayData(
 public static class ReplayBuilder
 {
     public static ReplayData Build(string title, FightExtras? extras, IReadOnlyList<DamageEvent> fightEvents, DateTime start, DateTime end,
-        Func<int, (string Name, string ClassName, bool IsPlayer)> describe, Func<int, double?> radiusOf, Func<int, string> skillName)
+        Func<int, (string Name, string ClassName, bool IsPlayer)> describe, Func<int, double?> radiusOf, Func<int, string> skillName, Func<int, bool>? isAdd = null)
     {
         double duration = Math.Max(1, (end - start).TotalSeconds);
         double Secs(DateTime at) => (at - start).TotalSeconds;
@@ -108,7 +111,7 @@ public static class ReplayBuilder
         foreach (PositionTrack track in tracks.Where(t => t.T.Length >= 2))
         {
             var (name, cls, isPlayer) = describe(track.Entity);
-            entities.Add(new ReplayEntity(track.Entity, name, cls, isPlayer ? ReplayRole.Player : ReplayRole.Boss, track));
+            entities.Add(new ReplayEntity(track.Entity, name, cls, isPlayer ? ReplayRole.Player : isAdd?.Invoke(track.Entity) == true ? ReplayRole.Add : ReplayRole.Boss, track));
         }
 
         var bossIds = entities.Where(e => e.Role == ReplayRole.Boss).Select(e => e.Id).ToHashSet();

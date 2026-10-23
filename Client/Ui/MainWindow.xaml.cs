@@ -2439,7 +2439,36 @@ public partial class MainWindow : Window
         int gridId = GridId(id);
         return _rowsByObjectId.ContainsKey(gridId) && IsPlayerName(gridId)
             || ReplayDirectory?.BossNpcIdOf(id) is not null
-            || _selectedTargetId == gridId;
+            || _selectedTargetId == gridId
+            || IsReplayAdd(id);
+    }
+
+    private HashSet<int> _replayAdds = new();
+    private int _replayAddsFor = -1;
+
+    /// <summary>The most monsters besides the boss the replay follows.</summary>
+    private const int MaxReplayAdds = 12;
+
+    /// <summary>
+    /// A monster (not a player, not a boss) the group hit in this fight - an add. The ones hit most are kept, at most <see cref="MaxReplayAdds"/>. Only for the fight on screen:
+    /// a stored session shows its own ids, which the damage events here no longer name.
+    /// </summary>
+    private bool IsReplayAdd(int id)
+    {
+        if (_historyMode || ReplayDirectory is null)
+        {
+            return false;
+        }
+
+        if (_replayAddsFor != _aggregator.Events.Count)
+        {
+            _replayAddsFor = _aggregator.Events.Count;
+            _replayAdds = _aggregator.Events
+                .Where(e => !e.IsHeal && e.TargetObjectId != _selectedTargetId && !IsPlayerName(e.TargetObjectId) && ReplayDirectory.BossNpcIdOf(e.TargetObjectId) is null)
+                .GroupBy(e => e.TargetObjectId).OrderByDescending(g => g.Count()).Take(MaxReplayAdds).Select(g => g.Key).ToHashSet();
+        }
+
+        return _replayAdds.Contains(id);
     }
 
     /// <summary>A boss's health over the fight as thousandths of its highest reading, one reading a second at most.</summary>
@@ -2512,7 +2541,8 @@ public partial class MainWindow : Window
         }
 
         return ReplayBuilder.Build(title.Trim(), extras, events, from, to,
-            id => (ResolveDisplayName(GridId(id)), ResolveClassName(GridId(id)), IsPlayerName(GridId(id))), SkillRadius, id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
+            id => (ResolveDisplayName(GridId(id)), ResolveClassName(GridId(id)), IsPlayerName(GridId(id))), SkillRadius, id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)),
+            IsReplayAdd);
     }
 
     /// <summary>

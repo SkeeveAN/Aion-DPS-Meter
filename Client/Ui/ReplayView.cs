@@ -168,8 +168,25 @@ public sealed class ReplayView : FrameworkElement
         }
 
         // trails, then the entities
-        foreach (ReplayEntity e in _data.Entities.OrderBy(e => e.Role == ReplayRole.Boss ? 1 : 0))
+        foreach (ReplayEntity e in _data.Entities.OrderBy(e => e.Role == ReplayRole.Add ? 0 : e.Role == ReplayRole.Boss ? 2 : 1))
         {
+            if (e.Role == ReplayRole.Add)
+            {
+                // another monster of the fight: a small marker where it is, no trail, areas or health
+                if (e.At(_data.Start, _time) is { } addAt)
+                {
+                    Point a = ToScreen(addAt.X, addAt.Y);
+                    dc.DrawEllipse(new SolidColorBrush(Color.FromRgb(0x8C, 0x5A, 0x4A)), new Pen(new SolidColorBrush(Color.FromArgb(0xB0, 0xFF, 0xFF, 0xFF)), 1), a, 4, 4);
+                    if (_showNames)
+                    {
+                        var addLabel = new FormattedText(e.Name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 9, muted, dpi);
+                        dc.DrawText(addLabel, new Point(a.X - addLabel.Width / 2, a.Y + 6));
+                    }
+                }
+
+                continue;
+            }
+
             var pen = new Pen(new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)), 1);
             Point? previous = null;
             for (double t = Math.Max(0, _time - TrailSeconds); t <= _time; t += 0.5)
