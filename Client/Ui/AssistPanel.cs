@@ -134,6 +134,21 @@ public sealed class AssistPanel : StackPanel
             }
         }
 
+        // follow-up skills the game has just opened (chain skills, 3 s): the best moment to press them
+        var chains = new StackPanel();
+        chains.Children.Add(Heading(loc["Assist.Chain"]));
+        int chained = 0;
+        foreach ((int skill, double left) in Aion2Chains.Available(now))
+        {
+            if (_overlay && Hidden.Contains(skill))
+            {
+                continue;
+            }
+
+            chains.Children.Add(Row(skill, Aion2SkillNames.DisplayOf(skill), Seconds(left), Math.Clamp(left / Aion2Chains.Window.TotalSeconds, 0, 1), false));
+            chained++;
+        }
+
         // effects on the local player
         var buffs = new StackPanel();
         buffs.Children.Add(Heading(loc["Assist.Buffs"]));
@@ -216,9 +231,15 @@ public sealed class AssistPanel : StackPanel
             buffs.Children.Add(Label(loc["Assist.NoBuffs"], "Brush.TextMuted", 12));
         }
 
-        HasContent = running.Count > 0 || shown > 0;
+        HasContent = running.Count > 0 || shown > 0 || chained > 0;
         if (_overlay)
         {
+            if (chained > 0)
+            {
+                chains.Margin = new Thickness(0, 0, 0, running.Count > 0 || shown > 0 ? 6 : 0);
+                Children.Add(chains);
+            }
+
             if (running.Count > 0)
             {
                 Children.Add(cooldowns);
@@ -231,6 +252,11 @@ public sealed class AssistPanel : StackPanel
             }
 
             return;
+        }
+
+        if (chained > 0)
+        {
+            Children.Add(Card(chains));
         }
 
         Children.Add(Card(cooldowns));

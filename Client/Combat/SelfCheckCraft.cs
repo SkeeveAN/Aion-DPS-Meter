@@ -132,7 +132,24 @@ public static class SelfCheckCraft
         bool known = noList && read;
         Console.WriteLine($"  -> without a list every recipe counts as learned, the list frame sets the learned ones (twin included): {known}");
 
+        // chain skills: 1838 opens the follow-up, 1938 closes a window, an unclosed one ends by itself
+        Aion2Chains.Reset();
+        byte[] open = new byte[11];
+        open[0] = 0x38; open[1] = 0x18; open[6] = 1;
+        BinaryPrimitives.WriteUInt32LittleEndian(open.AsSpan(2), 11010340);
+        BinaryPrimitives.WriteUInt32LittleEndian(open.AsSpan(7), 11420340);
+        byte[] close = new byte[7];
+        close[0] = 0x38; close[1] = 0x19; close[2] = 1;
+        BinaryPrimitives.WriteUInt32LittleEndian(close.AsSpan(3), 11420340);
+        bool opened = Aion2Chains.NoteOpen(open, t) && Aion2Chains.Available(t.AddSeconds(1)) is [{ Skill: 11420340, SecondsLeft: > 1.9 and < 2.1 }];
+        bool closed = Aion2Chains.NoteClose(close) && Aion2Chains.Available(t.AddSeconds(1)).Count == 0;
+        Aion2Chains.NoteOpen(open, t);
+        bool expired = Aion2Chains.Available(t.AddSeconds(4)).Count == 0;
+        Aion2Chains.Reset();
+        bool chain = opened && closed && expired;
+        Console.WriteLine($"  -> a chain skill is open for 3 s after frame 1838, closed by 1938 or by the time: {chain}");
+
         Aion2Stock.Reset();
-        return login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }

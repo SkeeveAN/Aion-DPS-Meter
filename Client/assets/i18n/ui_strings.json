@@ -8025,6 +8025,18 @@
     "ja": "クールダウン",
     "ko": "재사용 대기시간"
   },
+  "Assist.Chain": {
+    "en": "Chain skill ready",
+    "de": "Kettenskill bereit",
+    "fr": "Compétence en chaîne prête",
+    "es": "Habilidad en cadena lista",
+    "ru": "Цепочка умений готова",
+    "pt": "Habilidade em cadeia pronta",
+    "ja": "チェーンスキル使用可",
+    "ko": "연계 스킬 사용 가능",
+    "zh": "连锁技能可用",
+    "zh-TW": "連鎖技能可用"
+  },
   "Assist.Buffs": {
     "en": "Effects on you",
     "de": "Effekte auf dir",

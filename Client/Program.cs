@@ -2572,6 +2572,7 @@ internal static class Program
         var protocol = Aion2.Protocol.Aion2Protocol.Load();
         using var source = new Aion2.Aion2PacketCombatSource(protocol);
         Aion2.Aion2Stock.Reset();
+        Aion2.Aion2Recipes.Reset();
         foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
         {
             bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
@@ -2584,7 +2585,7 @@ internal static class Program
             source.Poll(false);
         }
 
-        Console.WriteLine($"aion2-stock-check: login frame {Aion2.Aion2Stock.SnapshotAt:HH:mm:ss}, last full listing {Aion2.Aion2Stock.ListedAt:HH:mm:ss}");
+        Console.WriteLine($"aion2-stock-check: login frame {Aion2.Aion2Stock.SnapshotAt:HH:mm:ss}, last full listing {Aion2.Aion2Stock.ListedAt:HH:mm:ss}, learned recipes: {(Aion2.Aion2Recipes.HasData ? Aion2.Aion2CraftData.All.Count(r => Aion2.Aion2Recipes.IsKnown(r) && !r.Hidden) + " of " + Aion2.Aion2CraftData.All.Count(r => !r.Hidden) : "no list")}");
         foreach ((string label, Aion2.StockSources sources) in new[] { ("Inventory", Aion2.StockSources.Inventory), ("Character storage", Aion2.StockSources.CharacterStorage), ("Account storage", Aion2.StockSources.AccountStorage) })
         {
             Dictionary<int, long> totals = Aion2.Aion2Stock.Totals(sources);

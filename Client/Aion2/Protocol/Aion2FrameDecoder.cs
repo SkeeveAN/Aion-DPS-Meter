@@ -572,6 +572,20 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        if (opcode == Aion2Chains.OpenOpcode || opcode == Aion2Chains.CloseOpcode)
+        {
+            if (opcode == Aion2Chains.OpenOpcode)
+            {
+                Aion2Chains.NoteOpen(frame, timestamp);
+            }
+            else
+            {
+                Aion2Chains.NoteClose(frame);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
         if (opcode == Aion2Recipes.Opcode)
         {
             Aion2Recipes.Note(frame);
