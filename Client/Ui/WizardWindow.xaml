@@ -133,7 +133,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="NpcapMark" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock x:Name="NpcapText" Grid.Column="1" VerticalAlignment="Center"/>
-                    <Button x:Name="NpcapButton" Grid.Column="2" Content="{local:Loc Wizard.NpcapDownload}" Click="OnNpcapDownloadClicked" Margin="12,0,8,0" Padding="10,3" Visibility="Collapsed"/>
+                    <Button x:Name="NpcapButton" Grid.Column="2" Content="{local:Loc Wizard.NpcapDownload}" Click="OnNpcapDownloadClicked" Margin="12,0,8,0" Padding="10,0" Height="22" MinHeight="0" VerticalAlignment="Center" Visibility="Collapsed"/>
                     <Border x:Name="NpcapTip" Grid.Column="3" Width="20" Height="20" CornerRadius="10" BorderThickness="1" Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}"
                             VerticalAlignment="Center" Cursor="Help" ToolTipService.InitialShowDelay="150" ToolTipService.ShowDuration="30000">
                         <TextBlock Text="?" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextSubtle}"/>
