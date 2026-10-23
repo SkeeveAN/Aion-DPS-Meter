@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.15.0",
   "date": "2026-10-23",
   "items": [
    {
@@ -266,6 +266,34 @@
    },
    {
     "text": "Client: characters that a login showed on another server stay known on this PC (a login lists only its own server's account), so the first-start wizard also lists them - nothing of it is uploaded",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the loot tool counted no pickups - in the game's frame for a drop leaving the ground the last byte 1 means picked up (all 1,546 drops of the two own characters), the tool read 0; all drops of one frame are read, not only the first",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the crafting tool lists only the recipes the character has learned, as a rule - the switch for it is gone (all recipes show only while no login list is known yet)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the character list of a game session's first login (0x1536, the same list as the 0x2636 of a return to the character selection) is read too, so the characters and the account key are known at once, not only after the first return to the selection",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "privacy consent and a first-start wizard with pages, replay upload, own ranks tab, chain, focus and effect tables, the characters at the first login; loot pickups are counted again, the crafting tool lists only learned recipes; login dump off, a smaller database",
     "areas": [
      "Client"
     ],
