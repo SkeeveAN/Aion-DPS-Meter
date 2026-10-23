@@ -9,6 +9,22 @@
      "Website"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the login dump is switched off; server: an identical upload is taken once, timelines are stored compressed and uploads are packed after 6 hours",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the crafting tool's recipe search can show only the recipes the character has learned (read from the login list), on by default",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
