@@ -263,6 +263,13 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Client: characters that a login showed on another server stay known on this PC (a login lists only its own server's account), so the first-start wizard also lists them - nothing of it is uploaded",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
