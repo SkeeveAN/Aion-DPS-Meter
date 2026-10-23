@@ -167,5 +167,8 @@
  "6d27d43": null,
  "d34f94c": "Website: each session on the Runs tab of a player page has a \"View run\" button that opens the last fight of the session",
  "5679d221": "Client: the login dump is switched off; server: an identical upload is taken once, timelines are stored compressed and uploads are packed after 6 hours",
- "0c36096d": null
+ "0c36096d": null,
+ "60d631da": null,
+ "2f75b4f8": null,
+ "01ff559a": null
 }

@@ -172,6 +172,20 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Website: the privacy page says what the client reads (only what the game server sends to your computer), what the profile switches send, and names the legion list and the own ranks; positions of other players are never uploaded",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Client: the switch for other players' profiles names the members of your own legion",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-23"
    }
   ]
  },
