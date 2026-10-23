@@ -18,7 +18,7 @@ Belege und Aufbauten: [protocol/client-umsetzung-2026-10-23.md](protocol/client-
 - **Webseite/Server:** Kettenspalten und Ø Skillstufe in der Skill-Tabelle der Boss-Statistik (Tabelle `encounter_chain_usage`, Nachfüllen beim ersten Start); Kettenzeilen, Fokus-Tabelle, Boss-Effekte und rote Marken auf der Kampfseite; Reiter "Ranglisten" der Spielerseite; zweiter Filter nach Kampfkraft; Datenschutzseite um Profile, Legion und Ränge ergänzt.
 - **Später am 23.10. dazu:** Einwilligung zur Datenschutzerklärung (Erststart-Assistent, einmalig beim Start für Installationen ohne Antwort, erneut beim Einschalten eines Uploads nach Ablehnung; abgelehnt = kein Upload und eingeschränkter Modus: nur DPS-Liste im Schadensmodus, kein Twitch/Ankündigung, nur Checkliste, Stat-Rechner, Attribute, Beute, Crafting-Rechner, Zeitplan, Design und Netzwerk); `PrivacyConsent.Version` erhöhen, wenn sich die Texte ändern. Schalter "Profile anderer Spieler" heißt jetzt "Daten anderer Spieler". Neuer Knopf "Upload für die Replay-Funktion" neben dem Upload-Knopf (Wege der eigenen Figur, des Bosses und der Monster; Wege anderer Spieler nur mit dem Schalter) mit Server-Ablage (`encounter_replay_tracks`, Migration 0069) und Abruf im Replay-Fenster ("Wege anderer Clients laden"). Monster ohne Bewegung stehen mit ihrem Spawn-Punkt auf der Replay-Karte. Alchemie ist Beruf 4: Annahme gilt.
 - **Entschieden/verworfen:** Erkennung der eigenen Entität über die Quittung `0x0138` verworfen (widersprüchliche Aufnahme); `0x338a` nicht zuordenbar; Ladungen `0x2238` nicht gebaut (nur Login-Wert belegt); "Objekt wird benutzt" (`0x3836` ...) nur Hypothese, keine Anzeige; Rekorde (`0x37e2` ...) werden nicht festgehalten; Boss-HP ist seit 1.13.6 erledigt (Spawn-Frame, Referenz lernt der Server selbst).
-- **Wartet auf Entscheidung:** Warnton oder rotes Aufblitzen bei abgelehnter Eingabe.
+- **Entschieden 23.10.:** Kein Warnton und kein Aufblitzen bei abgelehnten Eingaben; der Projektleiter will sie nicht beachten. Nicht erneut vorschlagen. (Die rote Markierung in der Web-Zeitleiste und die Zeile im Dummy-Test sind schon gebaut und bleiben, solange der Projektleiter sie nicht entfernen lässt.)
 
 ## 1. Neuentwicklung
 
@@ -115,7 +115,7 @@ Beschlossen am 23.10.2026. Quelle: Frame `0x7e8d` (gelernte Herstellungsrezepte)
 
 - Kettenskill-Hinweis ("Smashing Blow jetzt möglich", Restzeit 3 s) aus `1838`/`1938`. **Umgesetzt 23.10.**
 - Aufladungen (`2238`), Schnellleisten-Inhalt (`0056`/`0556`/`8ce2`): nur Skills anzeigen, die auf der Leiste liegen; Preset-Wechsel erkennen (vorhanden).
-- Hinweis "Eingabe abgelehnt" (`0138`) als Warnton/Signal. **Wartet auf Entscheidung** (Ton, rotes Aufblitzen oder beides; höchstens einmal pro Sekunde, standardmäßig aus).
+- Hinweis "Eingabe abgelehnt" (`0138`) als Warnton/Signal. **Entfällt** (Entscheidung des Projektleiters 23.10.: abgelehnte Eingaben werden nicht beachtet).
 
 ### 2.4 Dummy-Tester
 
