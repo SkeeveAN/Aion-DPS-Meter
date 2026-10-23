@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-10-23",
+  "date": "2026-10-24",
   "items": [
    {
     "text": "Client: the pet overlay says the level is unknown, not 'not collected yet', while the pet list is only the saved one of an earlier session; a level-up message adds a pet the saved list did not know",
@@ -39,6 +39,14 @@
      "Client"
     ],
     "date": "2026-10-23"
+   },
+   {
+    "text": "Website: fight detail pages are addressed by player name and server (/participants/sidy-kaisinel-51379) instead of a bare id",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-24"
    }
   ]
  },
