@@ -14,11 +14,11 @@ Stand 23.10.2026 (abgeglichen am Abend, siehe 0b). Gesammelt aus der Login-Dump-
 Belege und Aufbauten: [protocol/client-umsetzung-2026-10-23.md](protocol/client-umsetzung-2026-10-23.md). Alles an Aufnahmen, Selbsttests und der lokalen DB geprüft, **nicht im laufenden Spiel und nicht im Browser angesehen**.
 
 - **Client:** Rezept-Filter (Login-Liste, `0x7e8d`, plus Stufenaufstieg `0x7d8d`); Wochenpunkte der Saisonmissionen in der Checkliste (`0x8356`); Zeile Titel/Flügel/Teleporter im Charakterfenster (nur Anzahlen); Assist-Hinweis "Kettenskill bereit" (`0x1838`/`0x1938`); Kettenquote und abgelehnte Eingaben im Dummy-Test; Tooltip der Rotations-Zeitleiste (Kette genutzt oder verpasst); Ziel-des-Ziels folgt dem gewählten Ziel (`0x3238`/`0x3138`); Positionsschätzung der Karte (Mittel der zuletzt bewegten Entitäten nach 4 s, gemessen); Monster der Karte bewegen sich live; Replay-Karte zeigt Adds und kennzeichnet die geschätzte eigene Position; Legionsliste (`0x058a`) setzt Heimatserver; neuer Recorder mit Debug-Punkten (`aion2-record <datei> --points`), Testmodi `aion2-frame-dump`, `aion2-position-check`, `aion2-opcode-census`.
-- **Upload (neue Felder, alle in bestehenden Schaltern):** abgelehnte Eingaben und Fokus je Spieler (in der Zeitachse), Effekte auf dem Boss, eigene Ränge (`0x578d`, im eigenen Profil), Legionsliste mit Legionsname (mit "Profile anderer Spieler").
+- **Upload (neue Felder, alle in bestehenden Schaltern):** Fokus je Spieler (in der Zeitachse), Effekte auf dem Boss, eigene Ränge (`0x578d`, im eigenen Profil), Legionsliste mit Legionsname (mit "Profile anderer Spieler").
 - **Webseite/Server:** Kettenspalten und Ø Skillstufe in der Skill-Tabelle der Boss-Statistik (Tabelle `encounter_chain_usage`, Nachfüllen beim ersten Start); Kettenzeilen, Fokus-Tabelle, Boss-Effekte und rote Marken auf der Kampfseite; Reiter "Ranglisten" der Spielerseite; zweiter Filter nach Kampfkraft; Datenschutzseite um Profile, Legion und Ränge ergänzt.
 - **Später am 23.10. dazu:** Einwilligung zur Datenschutzerklärung (Erststart-Assistent, einmalig beim Start für Installationen ohne Antwort, erneut beim Einschalten eines Uploads nach Ablehnung; abgelehnt = kein Upload und eingeschränkter Modus: nur DPS-Liste im Schadensmodus, kein Twitch/Ankündigung, nur Checkliste, Stat-Rechner, Attribute, Beute, Crafting-Rechner, Zeitplan, Design und Netzwerk); `PrivacyConsent.Version` erhöhen, wenn sich die Texte ändern. Schalter "Profile anderer Spieler" heißt jetzt "Daten anderer Spieler". Neuer Knopf "Upload für die Replay-Funktion" neben dem Upload-Knopf (Wege der eigenen Figur, des Bosses und der Monster; Wege anderer Spieler nur mit dem Schalter) mit Server-Ablage (`encounter_replay_tracks`, Migration 0069) und Abruf im Replay-Fenster ("Wege anderer Clients laden"). Monster ohne Bewegung stehen mit ihrem Spawn-Punkt auf der Replay-Karte. Alchemie ist Beruf 4: Annahme gilt.
 - **Entschieden/verworfen:** Erkennung der eigenen Entität über die Quittung `0x0138` verworfen (widersprüchliche Aufnahme); `0x338a` nicht zuordenbar; Ladungen `0x2238` nicht gebaut (nur Login-Wert belegt); "Objekt wird benutzt" (`0x3836` ...) nur Hypothese, keine Anzeige; Rekorde (`0x37e2` ...) werden nicht festgehalten; Boss-HP ist seit 1.13.6 erledigt (Spawn-Frame, Referenz lernt der Server selbst).
-- **Entschieden 23.10.:** Kein Warnton und kein Aufblitzen bei abgelehnten Eingaben; der Projektleiter will sie nicht beachten. Nicht erneut vorschlagen. (Die rote Markierung in der Web-Zeitleiste und die Zeile im Dummy-Test sind schon gebaut und bleiben, solange der Projektleiter sie nicht entfernen lässt.)
+- **Entschieden 23.10.:** Abgelehnte Eingaben (Quittung `0x0138`) sind irrelevant und werden nicht beachtet: kein Warnton, kein Aufblitzen, keine Erfassung, kein Upload, keine Anzeige (Web-Zeitleiste und Dummy-Test sind bereinigt, auch der Datenschutztext). Nicht erneut vorschlagen.
 
 ## 1. Neuentwicklung
 
@@ -103,7 +103,7 @@ Beschlossen am 23.10.2026. Quelle: Frame `0x7e8d` (gelernte Herstellungsrezepte)
 | Idee | Frames | Aufwand |
 |---|---|---|
 | Kettenskills: Zeitfenster (3 s) in der Rotation zeigen und verpasste Ketten zählen | `1838`/`1938` | klein |  **[umgesetzt 23.10.: Tooltip in der Rotation, Kettenzeilen auf der Kampfseite, Dummy-Test]**
-| Abgelehnte Eingaben (Skill wurde nicht ausgeführt, meist während einer Animation) als Zähler und Markierung in der Zeitachse | `0138` | klein | **[umgesetzt 23.10.: rote Marken und Zähler in der Zeitleiste, Dummy-Test]**
+| Abgelehnte Eingaben (Skill wurde nicht ausgeführt, meist während einer Animation) als Zähler und Markierung in der Zeitachse | `0138` | klein | **[entfällt 23.10.: abgelehnte Eingaben sind irrelevant, Erfassung und Anzeige entfernt]**
 | Ladungen von Skills mit Aufladung als Kurve neben dem Cooldown | `2238` | klein | **[offen: nur der Login-Wert ist belegt, die Änderung im Kampf nicht]**
 | Exakte Skillstufe und Variante je Spieler zum Kampfzeitpunkt (Skill-Anzeige) | `1338`/`0f38`/`1038`, `0051` | klein | **[offen; Ø Skillstufe aus dem Profil ist umgesetzt]**
 | Ziel fremder Spieler: wer greift wen an, Heiler-Ziele, "Ziel des Ziels" auch für andere | `3238`, `3138` | mittel | **[teilweise umgesetzt 23.10.: Ziel des Ziels und Fokus-Tabelle; Heiler-Ziele offen]**
@@ -119,7 +119,7 @@ Beschlossen am 23.10.2026. Quelle: Frame `0x7e8d` (gelernte Herstellungsrezepte)
 
 ### 2.4 Dummy-Tester
 
-- **Umgesetzt 23.10. für Kettenskill-Nutzung und abgelehnte Eingaben** (Zeile je Lauf im Vergleich; abgelehnte Eingaben werden mit den gespeicherten Läufen noch nicht gesichert); Aufladungsverlust offen. Bericht um Kettenskill-Nutzung, abgelehnte Eingaben und Aufladungsverlust ergänzen (es sind die Gründe, warum der Dummy-DPS unter dem theoretischen liegt).
+- **Umgesetzt 23.10. für Kettenskill-Nutzung** (Zeile je Lauf im Vergleich); abgelehnte Eingaben entfallen (irrelevant); Aufladungsverlust offen. Bericht um Kettenskill-Nutzung ergänzen
 - Vergleich mit Klassen-Durchschnitt aus den Online-Statistiken (2.5), sobald dort belastbare Werte stehen.
 
 ### 2.5 Datenqualität und Spielerseiten (Online-Statistiken)
@@ -137,7 +137,7 @@ Gemeint sind die vorhandenen Seiten `aiondps.com/encounters/<id>` (Gruppen-Zeitl
 | Idee | Stufe | Quelle |
 |---|---|---|
 | Kettenskills in der Zeitleiste: Kette genutzt oder verpasst (Skill X, Folgeskill innerhalb 3 s), Quote je Spieler und Skill | A | vorhandene Skill-Zeitleiste + Tabelle `Skill` (`ChainSkillPrevSkillId`, `ChainSkillAvailableTime` 3000 ms) **[umgesetzt 23.10.]** |
-| "Verworfene Eingaben" (Skill abgelehnt, meist während einer Animation) als Zähler und Markierung | B | `0x0138` **[umgesetzt 23.10.]** |
+| "Verworfene Eingaben" (Skill abgelehnt, meist während einer Animation) als Zähler und Markierung | B | `0x0138` **[entfällt 23.10.: irrelevant, entfernt]** |
 | Fokus je Spieler: Zeit auf Boss, Adds, Zielwechsel | B | `0x3238` / `0x3138` **[umgesetzt 23.10., Zeit auf dem Boss / auf anderem, Zielwechsel]** |
 | Ausweichrollen je Spieler | B | `0x2e37` (Skill `kl000101`) |
 | Nahkampf-Uptime (Abstand zum Boss) und Bewegungsspur | B/C | `0x..37`-Positionsframes, nur eigene Gruppe, nie fremde Spieler |
@@ -150,7 +150,7 @@ Gemeint sind die vorhandenen Seiten `aiondps.com/encounters/<id>` (Gruppen-Zeitl
 |---|---|---|
 | **[Kampfkraft-Filter umgesetzt 23.10. aus den NC-Daten (bei fast jedem Lauf bekannt); Gegenstandsstufe offen]** **Zusätzliche Filter "Gegenstandsstufe" und "Kampfkraft":** Der bestehende Gear-Score-Filter nutzt den Inspect-Wert des Profils ("bei 6 von 20 Läufen bekannt"). Das ist **eine andere Messgröße** als die Gegenstandsstufe (Beispiel Hauptcharakter: Inspect 1.801, Gegenstandsstufe 2.712; bei den Legionsmitgliedern nicht proportional). Die Legionsliste liefert Gegenstandsstufe und Kampfkraft aller Mitglieder auf Stufe 45 **bei jedem Login**, ohne Fenster; sie füllt den Gear Score **nicht**, eignet sich aber als zusätzliche, besser abgedeckte Filter | B | `0x058a` (nur Legion, nicht Freunde) |
 | iDPS je Klasse getrennt nach Skill-Varianten/Steinen ("was spielen die Besten?") | A | `presets_json` der Profile **[offen]** |
-| Skills je Klasse: Spalten "Kettenquote", "Ø Skillstufe", "abgelehnt" ergänzen | A/B | wie oben **[Kettenquote und Ø Skillstufe umgesetzt 23.10.; "abgelehnt" offen]** |
+| Skills je Klasse: Spalten "Kettenquote", "Ø Skillstufe", "abgelehnt" ergänzen | A/B | wie oben **[Kettenquote und Ø Skillstufe umgesetzt 23.10.; "abgelehnt" entfällt]** |
 | Anteil der Klassen im Vergleich zur Klassenverteilung der Top-500-Listen ("Spielerbasis gegenüber Läufen") | B | `0x558d` |
 | Offizielle Rekorde je Boss/Dungeon als Gegenprobe ("bester Lauf laut Spiel") für Albtraum, Transzendenz, Aszensusritus | B | `0x37e2`, `0x3193`, `0x3ee3`, Ranglisten **[entfällt: der Projektleiter will keine Rekorde festhalten]** |
 | Statistik je Server und Fraktion sauber: Server-ID, Klasse und Legion direkt vom Spielserver statt Annahmen | B | `0x2ce3`, `0x558d`, `0x058a`, `0x338a` |

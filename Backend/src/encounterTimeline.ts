@@ -12,7 +12,6 @@ export interface StoredTimeline {
   times: number[];
   index: number[];
   deaths: number[];
-  rejected?: number[];
   focus?: { onBoss: number; onOthers: number; switches: number };
 }
 
@@ -49,8 +48,6 @@ export interface TimelinePlayerOut {
   /** [seconds from the start of the fight, index into skills] */
   uses: [number, number][];
   deaths: number[];
-  /** Seconds from the start of the fight at which the server turned down a skill use of this player (own character of the uploader only). */
-  rejected: number[];
   /** Seconds with the boss selected and with anything else, and the changes from one target to another. */
   focus: { onBoss: number; onOthers: number; switches: number } | null;
   buffs: { skillId: number; name: string; names?: Record<string, string>; icon: string | null; iconKind: "skill" | "item" | null; kind: BuffKind; food: boolean; uptimePermille: number; spans: [number, number][] }[];
@@ -181,7 +178,7 @@ export function shapeTimeline(
     }
 
     const chains = chainsOf(p.timeline.skills, uses, art.chains ?? {}, art.skillInfo ?? (() => null));
-    out.push({ participantId: p.id, name: p.name, className: p.className, skills, uses, deaths: p.timeline.deaths.map((d) => round1(shift + d / 10)), rejected: (p.timeline.rejected ?? []).map((d) => round1(shift + d / 10)).sort((a, b) => a - b), focus: p.timeline.focus ? { onBoss: round1(p.timeline.focus.onBoss / 10), onOthers: round1(p.timeline.focus.onOthers / 10), switches: p.timeline.focus.switches } : null, buffs, skillBuffs, chains });
+    out.push({ participantId: p.id, name: p.name, className: p.className, skills, uses, deaths: p.timeline.deaths.map((d) => round1(shift + d / 10)), focus: p.timeline.focus ? { onBoss: round1(p.timeline.focus.onBoss / 10), onOthers: round1(p.timeline.focus.onOthers / 10), switches: p.timeline.focus.switches } : null, buffs, skillBuffs, chains });
   }
   const bossDebuffs: BossDebuffOut[] = [];
   if (input.bossDebuffs) {

@@ -7,7 +7,7 @@ Ergänzt [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fram
 - **Legionsliste `0x058a` enthält alle Stufen**, nicht nur Stufe 45 (Beispiele: Stufe 21, 22, 29 im selben Frame). Pro Mitglied steht die Stufe als Byte hinter dem Namen.
 - **Gear Score und Gegenstandsstufe sind verschiedene Zahlen** (Gegenstandsstufe aus der Legionsliste, Gear Score nur aus dem Inspect-Frame). Die Legionsliste verbessert den Gear-Score-Filter also nicht; stattdessen gibt es den Filter nach Kampfkraft (NC-Daten).
 - **`0x338a` (Legion eines sichtbaren Spielers):** `Charakter-ID u32 | 00 00 00 00 | Server u16 | Legionsname (Längenbyte + UTF-8) | 02 00 02 00 ...`. Gemessen an 17.514 Frames zweier Aufnahmen: 909 verschiedene IDs für 329 (Server, Legion)-Paare, jede ID hat genau einen Legionsnamen, eine Legion mehrere IDs, also **eine ID je Spieler**. Die ID (z. B. 24,9 Mio.) liegt in einem anderen Zahlenraum als die der Spielerlisten und der Legionsliste (um 200.000) und steht in der Aufnahme **in keinem anderen Frame** (27 von 28 geprüften IDs nur in `0x338a` selbst; nicht in `0x4536`, `0x058a`, `0x0297`). Einem Namen daher nicht zuordenbar; die Legion eines sichtbaren Spielers kommt ohnehin schon mit dessen Auftauch-Frame (`GuildOf`). Im Client nicht gelesen.
-- **Skill-Quittung `0x0138` als Erkennung der eigenen Entität verworfen:** in der Aufnahme vom 11.10. (20:03) nannten 53 Quittungen die unbenannte Entität 15981, der Charakter-Datensatz aber Aahz (6343). Ungeklärt, ob dort ein Charakterwechsel war; bis dahin keine Erkennung darüber.
+- **Skill-Quittung `0x0138` als Erkennung der eigenen Entität verworfen** (und die Quittung selbst nicht mehr gelesen): in der Aufnahme vom 11.10. (20:03) nannten 53 Quittungen die unbenannte Entität 15981, der Charakter-Datensatz aber Aahz (6343). Ungeklärt, ob dort ein Charakterwechsel war; bis dahin keine Erkennung darüber.
 - **Boss-HP:** Client-Tabellen enthalten keine NPC-HP (nur `PcStatLevel` und vier Test-Teile in `MonsterPartsData`). Die echte HP kommt aus dem Spawn-Frame `0x4136` (seit 1.13.6, `bossSpawnMaxHp`), der Server lernt die Referenz je NPC-ID selbst.
 
 ## Legionsliste `0x058a` (belegt)
@@ -38,9 +38,9 @@ Ergänzt [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fram
 - `3138 | 00 00 | Ziel (varint) | 00 00`: eigenes Ziel (Akteur = eigene Entität). `3138 0000 BE7C 0000`.
 - 332 und 13 Frames in der Aufnahme 11.10. 20:03. Client: Fokus je Spieler (Zeit auf dem Boss / auf anderem, Zielwechsel) mit der Zeitachse im Upload; der Ziel-des-Ziels-Block nutzt das gewählte Ziel ohne Altersgrenze.
 
-## Skill-Quittung `0x0138` (belegt)
+## Skill-Quittung `0x0138` (belegt, im Client nicht mehr gelesen)
 
-`0138 | 00 cc dd | Skill u32` (9 Byte): `00 00 00` angenommen, sonst abgelehnt (`dd` = 0x18, `cc` der Code). Nur für die **eigene** Figur. Client: abgelehnte Eingaben als rote Markierungen in der Gruppen-Zeitleiste (nur Eigene, nur Zeitpunkte) und im Dummy-Test.
+`0138 | 00 cc dd | Skill u32` (9 Byte): `00 00 00` angenommen, sonst abgelehnt (`dd` = 0x18, `cc` der Code), nur für die eigene Figur. Der Projektleiter hält abgelehnte Eingaben für irrelevant (23.10.2026): Der Client erfasst und lädt sie nicht mehr hoch, der Server kennt das Feld nicht mehr, Webseite und Dummy-Test zeigen sie nicht.
 
 ## Kettenskills `0x1838` / `0x1938` (belegt)
 

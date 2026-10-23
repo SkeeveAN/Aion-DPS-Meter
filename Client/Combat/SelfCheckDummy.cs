@@ -89,17 +89,15 @@ public static class SelfCheckDummy
                 && !DummyTestWindow.TryParseDuration("abc", out _) && !DummyTestWindow.TryParseDuration("0:02", out _) && !DummyTestWindow.TryParseDuration("2:61:00:1", out _);
             bool clock = DummyTestController.Clock(TimeSpan.FromMinutes(2)) == "2:00:00" && DummyTestController.Clock(TimeSpan.FromMilliseconds(61_340)) == "1:01:34";
             Console.WriteLine($"  -> the time field reads 2:00 and 90, the overlay writes 2:00:00: {parse && clock}");
-            // the chain skills: Rending Blow (11010340) -> Smashing Blow (11420340) within 3 s once, once too late, once never; two inputs turned down
+            // the chain skills: Rending Blow (11010340) -> Smashing Blow (11420340) within 3 s once, once too late, once never
             var chained = new DummyRun { Start = t0, Length = TimeSpan.FromSeconds(60) };
             chained.Uses.Add(new SkillUse(t0.AddSeconds(1), you, 11010340));
             chained.Uses.Add(new SkillUse(t0.AddSeconds(2), you, 11420340));
             chained.Uses.Add(new SkillUse(t0.AddSeconds(10), you, 11010340));
             chained.Uses.Add(new SkillUse(t0.AddSeconds(14), you, 11420340));
             chained.Uses.Add(new SkillUse(t0.AddSeconds(20), you, 11010340));
-            chained.Rejected.Add(new RejectRecord(t0.AddSeconds(3), you, 11010340, 0x13));
-            chained.Rejected.Add(new RejectRecord(t0.AddSeconds(4), you, 11010340, 0x13));
-            bool chains = DummyAnalysis.Chains(chained) == (3, 1, 2);
-            Console.WriteLine($"  -> the chain skills taken (1 of 3) and the turned-down inputs (2) of a run: {chains}");
+            bool chains = DummyAnalysis.Chains(chained) == (3, 1);
+            Console.WriteLine($"  -> the chain skills taken (1 of 3) of a run: {chains}");
             return ok && parse && clock && chains;
         }
         finally

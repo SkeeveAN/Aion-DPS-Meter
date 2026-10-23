@@ -84,11 +84,6 @@ export function buildGroupTimeline(timeline, deps) {
       tick.append(svg("title", {}, `${skillLabel(s, getLocale)} · ${clock(at)}`));
       root.append(tick);
     }
-    for (const at of p.rejected ?? []) {
-      const mark = svg("rect", { x: x(at).toFixed(1), y: y + 5, width: 2, height: 5, class: "tl-reject" });
-      mark.append(svg("title", {}, `${t("timeline.rejectedMark")} · ${clock(at)}`));
-      root.append(mark);
-    }
     for (const d of p.deaths) {
       root.append(svg("text", { x: x(d) - 5, y: y + ROW / 2 + 5, class: "tl-death" }, "✝"));
     }
@@ -127,10 +122,6 @@ export function buildGroupTimeline(timeline, deps) {
     const parts = [t("timeline.selection", { from: clock(from), to: clock(to), uses: formatNumber(uses) })];
     if (deaths > 0) {
       parts.push(t("timeline.deaths", { n: deaths }));
-    }
-    const rejected = players.reduce((sum, p) => sum + (p.rejected ?? []).filter((d) => d >= from && d <= to).length, 0);
-    if (rejected > 0) {
-      parts.push(t("timeline.rejected", { n: rejected }));
     }
     if (hpFrom !== null && hpTo !== null) {
       parts.push(t("timeline.bossFell", { from: (hpFrom / 10).toFixed(1), to: (hpTo / 10).toFixed(1) }));

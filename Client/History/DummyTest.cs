@@ -46,9 +46,6 @@ public sealed class DummyRun
 
     public List<BuffEvent> Buffs { get; } = new();
 
-    /// <summary>The skill uses the server turned down during the run (a key pressed during an animation).</summary>
-    public List<RejectRecord> Rejected { get; } = new();
-
     public Dictionary<int, string> Names { get; } = new();
 
     /// <summary>Uses and effects have been read from the capture: nothing more is added to the run.</summary>
@@ -279,9 +276,9 @@ public static class DummyAnalysis
 {
     /// <summary>
     /// The chain skills of a run: how many uses of a skill with a follow-up were followed by it within its window (3 s, a third of a second more for the 0.1 s the use times are
-    /// counted in), and how many the server turned down. A rotation that misses its chains is why the dummy's damage stays below what the skills could do.
+    /// counted in), A rotation that misses its chains is why the dummy's damage stays below what the skills could do.
     /// </summary>
-    public static (int Offered, int Taken, int Rejected) Chains(DummyRun run)
+    public static (int Offered, int Taken) Chains(DummyRun run)
     {
         var uses = run.Uses.Where(u => !Aion2Artwork.IsPassive(u.SkillId)).OrderBy(u => u.At).ToList();
         int offered = 0, taken = 0;
@@ -298,7 +295,7 @@ public static class DummyAnalysis
             }
         }
 
-        return (offered, taken, run.Rejected.Count);
+        return (offered, taken);
     }
 
     public static DummyStats Summarize(DummyRun run)

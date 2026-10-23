@@ -149,9 +149,6 @@ public sealed class Aion2FrameDecoder
     /// <summary>A skill that has been cast: the same aim block, no duration. Players' skills too.</summary>
     private const int CastOpcode = 0x0238;
 
-    /// <summary>The server's receipt of the own skill use: taken, or turned down with an error code (docs/protocol/skill-frames.md).</summary>
-    private const int SkillReceiptOpcode = 0x0138;
-
     /// <summary>An actor's (player's or monster's) new target: <c>opcode | actor (varint) | 00 | target (varint, 0 = none)</c>; 0x3138 is the own character's: <c>opcode | 00 00 | target (varint) | 00 00</c>.</summary>
     private const int ActorTargetOpcode = 0x3238, OwnTargetOpcode = 0x3138;
 
@@ -617,17 +614,6 @@ public sealed class Aion2FrameDecoder
         if (opcode == ActorTargetOpcode || opcode == OwnTargetOpcode)
         {
             DecodeTargetChange(frame, timestamp, opcode == OwnTargetOpcode);
-            return Array.Empty<DamageEvent>();
-        }
-
-        if (opcode == SkillReceiptOpcode)
-        {
-            // 0x0138 | 00 cc dd | skill u32: only for the own character; 00 00 00 = taken, an error code (dd = 0x18) = turned down
-            if (frame.Length == 9 && (frame[3] != 0 || frame[4] != 0) && _entities.LocalPlayerId is >= 0 and int self)
-            {
-                _entities.Combat.NoteRejected(self, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[5..])), frame[3], timestamp);
-            }
-
             return Array.Empty<DamageEvent>();
         }
 

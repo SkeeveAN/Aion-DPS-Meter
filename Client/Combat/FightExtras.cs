@@ -24,8 +24,6 @@ public readonly record struct WindupRecord(DateTime At, int Actor, int SkillId, 
 
 public readonly record struct DeathRecord(DateTime At, int Entity, DateTime? RevivedAt = null);
 
-/// <summary>A skill the server turned down (frame 0x0138 with an error code, only for the own character): usually a key pressed during an animation.</summary>
-public readonly record struct RejectRecord(DateTime At, int Entity, int SkillId, int Code);
 
 /// <summary>An actor (player or monster) changed his target (frames 0x3238 for others, 0x3138 for the own character); Target 0 = no target any more.</summary>
 public readonly record struct TargetChange(DateTime At, int Actor, int Target);
@@ -47,7 +45,6 @@ public sealed record FightExtras(
     IReadOnlyList<WindupRecord>? Windups = null,
     IReadOnlyList<DeathRecord>? Deaths = null,
     IReadOnlyList<HpSeries>? Hp = null,
-    IReadOnlyList<RejectRecord>? Rejected = null,
     IReadOnlyList<TargetChange>? Targets = null)
 {
     public static FightExtras Empty { get; } = new(Array.Empty<SkillUse>(), Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string>());
@@ -64,6 +61,5 @@ public sealed record FightExtras(
         Windups?.Select(w => w with { Actor = map(w.Actor), Target = map(w.Target) }).ToList(),
         Deaths?.Select(d => d with { Entity = map(d.Entity) }).ToList(),
         Hp?.Select(h => h with { Entity = map(h.Entity) }).ToList(),
-        Rejected?.Select(r => r with { Entity = map(r.Entity) }).ToList(),
         Targets?.Select(t => t with { Actor = map(t.Actor), Target = t.Target == 0 ? 0 : map(t.Target) }).ToList());
 }
