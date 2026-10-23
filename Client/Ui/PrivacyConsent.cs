@@ -98,7 +98,7 @@ public sealed class PrivacyWindow : Window
 
         var text = new TextBlock { Text = loc["Privacy.Text"], TextWrapping = TextWrapping.Wrap, LineHeight = 19 };
         text.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
-        stack.Children.Add(new ScrollViewer { MaxHeight = 330, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = text, Padding = new Thickness(0, 0, 10, 0) });
+        stack.Children.Add(new ScrollViewer { MaxHeight = 400, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = text, Padding = new Thickness(0, 0, 10, 0) });
 
         var link = new Hyperlink(new Run(loc["Privacy.Link"])) { NavigateUri = new Uri(PrivacyConsent.PolicyUrl) };
         link.RequestNavigate += (_, e) =>

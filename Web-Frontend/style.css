@@ -1579,6 +1579,7 @@ h3 .icon-label {
 
 .legal-section p {
   margin: 0;
+  white-space: pre-line; /* the sections with paragraphs and bullet lines (privacy: what the client reads) */
 }
 
 /* ---- Homepage redesign (user's "Variante 2c", 2026-09-27): logo lockup, sun/moon theme switch,
