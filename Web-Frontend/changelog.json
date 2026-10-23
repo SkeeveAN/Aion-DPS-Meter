@@ -174,7 +174,7 @@
     "date": "2026-10-23"
    },
    {
-    "text": "Website: the privacy page says what the client reads (only what the game server sends to your computer), what the profile switches send, and names the legion list and the own ranks; positions of other players are never uploaded",
+    "text": "Website: the privacy page says what the client reads (only what the game server sends to your computer), what the profile switches send, and names the legion list and the own ranks",
     "areas": [
      "Website"
     ],
@@ -203,7 +203,7 @@
     "date": "2026-10-23"
    },
    {
-    "text": "Website and client: the privacy text about what the client reads and uploads is set in paragraphs and bullet lines (the page keeps the line breaks) with a plainer heading",
+    "text": "Website and client: the privacy text about what the client reads and uploads is set in paragraphs and bullet lines (the page keeps the line breaks) with a plainer heading; the privacy page now says that the server is in Germany and the processing falls under the GDPR, that no data is sold, passed on or used for advertising, that this is a non-commercial fan project paid for privately, and that positions of other players go online only with the replay upload and only when \"data of other players\" is switched on (this replaces the earlier statement that they are never uploaded); a duplicated section key had hidden the \"what the client reads\" section",
     "areas": [
      "Client",
      "Website"
@@ -216,6 +216,14 @@
      "Client",
      "Backend",
      "Database"
+    ],
+    "date": "2026-10-23"
+   },
+   {
+    "text": "Docs and changelog: privacy consent, replay upload, monsters on the replay map",
+    "areas": [
+     "Client",
+     "Website"
     ],
     "date": "2026-10-23"
    }
