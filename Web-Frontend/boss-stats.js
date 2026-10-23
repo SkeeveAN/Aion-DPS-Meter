@@ -242,7 +242,7 @@ export function buildBossStats(stats, deps) {
   const boxes = stats.boxes ?? [];
   if (boxes.length === 0 && classNames.length === 0) {
     // With a gear score range chosen the filter stays, so another range can be picked.
-    return [...[buildGearFilter(stats.gear, deps.gearHref, deps)].filter((x) => x !== null), el("p", { className: "empty", textContent: t(stats.gear?.selected ? "gear.empty" : "leaderboard.emptyNoFights") })];
+    return [...buildGearFilters(stats, deps.gearHref, deps), el("p", { className: "empty", textContent: t(stats.gear?.selected || stats.power?.selected ? "gear.empty" : "leaderboard.emptyNoFights") })];
   }
 
   const empty = (key) => el("p", { className: "empty", textContent: t(key) });
@@ -283,45 +283,67 @@ export function buildBossStats(stats, deps) {
   });
 
   const skillBlock = buildSkillStats(stats.skills, deps);
-  const gearBar = buildGearFilter(stats.gear, deps.gearHref, deps);
-  return [el("section", {}, [el("h2", { textContent: t("stats.heading") }), ...(gearBar ? [gearBar] : []), el("div", { className: "class-grid class-grid-3" }, [boxBlock, timeBlock, shareBlock, ...(skillBlock ? [skillBlock] : []), ...classBlocks])])];
+  return [el("section", {}, [el("h2", { textContent: t("stats.heading") }), ...buildGearFilters(stats, deps.gearHref, deps), el("div", { className: "class-grid class-grid-3" }, [boxBlock, timeBlock, shareBlock, ...(skillBlock ? [skillBlock] : []), ...classBlocks])])];
 }
 
 // The gear score filter above the rankings and statistics: runs whose known gear scores all lie in one range. A link per range, so the
-// choice is part of the address (shareable, back button works).
-const GEAR_RANGES = [
-  { key: "all", range: null },
-  { key: "low", range: "-1500" },
-  { key: "mid", range: "1500-2000" },
-  { key: "high", range: "2000-" },
-];
+// choice is part of the address (shareable, back button works). A second row does the same for the combat power NC lists for the characters
+// (known for far more players than the gear score; a range of it starts with "p" in the address).
+const GEAR_KINDS = {
+  score: {
+    label: "gear.label",
+    note: "gear.note",
+    ranges: [
+      { key: "all", range: null },
+      { key: "low", range: "-1500", text: (t, f) => t("gear.upTo", { max: f(1500) }) },
+      { key: "mid", range: "1500-2000", text: (t, f) => t("gear.between", { min: f(1500), max: f(2000) }) },
+      { key: "high", range: "2000-", text: (t, f) => t("gear.from", { min: f(2000) }) },
+    ],
+  },
+  power: {
+    label: "power.label",
+    note: "power.note",
+    ranges: [
+      { key: "all", range: null },
+      { key: "low", range: "p-75000", text: (t, f) => t("gear.upTo", { max: f(75000) }) },
+      { key: "mid", range: "p75000-120000", text: (t, f) => t("gear.between", { min: f(75000), max: f(120000) }) },
+      { key: "high", range: "p120000-", text: (t, f) => t("gear.from", { min: f(120000) }) },
+    ],
+  },
+};
 
 /**
- * @param gear   { runs, known, selected } from the API: how many runs have a known gear score and the range in use
+ * @param gear   { runs, known, selected } from the API: how many runs have a known value and the range in use
  * @param hrefFor function(range or null) -> the address that shows this range
- * @returns the filter row, or null when no run has a gear score at all
+ * @param kind   "score" (gear score) or "power" (combat power)
+ * @returns the filter row, or null when no run has a value at all
  */
-export function buildGearFilter(gear, hrefFor, deps) {
+export function buildGearFilter(gear, hrefFor, deps, kind = "score") {
   const { el, t, formatNumber } = deps;
   if (!gear || gear.known === 0) {
     return null;
   }
-  const selectedKey = gear.selected ? `${gear.selected.min > 0 ? gear.selected.min : ""}-${gear.selected.max < Number.MAX_SAFE_INTEGER ? gear.selected.max : ""}` : null;
-  const label = (key) =>
-    key === "all" ? t("gear.all") : key === "low" ? t("gear.upTo", { max: formatNumber(1500) }) : key === "mid" ? t("gear.between", { min: formatNumber(1500), max: formatNumber(2000) }) : t("gear.from", { min: formatNumber(2000) });
+  const spec = GEAR_KINDS[kind];
+  const prefix = kind === "power" ? "p" : "";
+  const selectedKey = gear.selected ? `${prefix}${gear.selected.min > 0 ? gear.selected.min : ""}-${gear.selected.max < Number.MAX_SAFE_INTEGER ? gear.selected.max : ""}` : null;
   const seg = el(
     "div",
     { className: "lb-seg", role: "group" },
-    GEAR_RANGES.map(({ key, range }) => {
-      const a = el("a", { href: hrefFor(range), textContent: label(key) });
+    spec.ranges.map(({ key, range, text }) => {
+      const a = el("a", { href: hrefFor(range), textContent: key === "all" ? t("gear.all") : text(t, formatNumber) });
       a.setAttribute("aria-selected", String(range === selectedKey));
       return a;
     }),
   );
   return el("div", { className: "gear-filter" }, [
-    el("div", { className: "lb-bar" }, [el("span", { className: "lb-bar-label", textContent: t("gear.label") }), seg]),
-    el("span", { className: "gear-note", textContent: t("gear.note", { known: formatNumber(gear.known), runs: formatNumber(gear.runs) }) }),
+    el("div", { className: "lb-bar" }, [el("span", { className: "lb-bar-label", textContent: t(spec.label) }), seg]),
+    el("span", { className: "gear-note", textContent: t(spec.note, { known: formatNumber(gear.known), runs: formatNumber(gear.runs) }) }),
   ]);
+}
+
+/** Both filter rows (gear score, combat power) of an API answer that carries `gear` and `power`; rows without any known value are left out. */
+export function buildGearFilters(data, hrefFor, deps) {
+  return [buildGearFilter(data.gear, hrefFor, deps, "score"), buildGearFilter(data.power, hrefFor, deps, "power")].filter((x) => x !== null);
 }
 
 /** The skill table of one class at this boss, with one tab per class. */
@@ -383,7 +405,7 @@ export function buildInstanceStats(data, deps) {
   const { el, t, formatNumber, classLabel, classIcon, displayName, formatDuration, gp } = deps;
   const fought = data.bosses.filter((b) => b.runCount > 0);
   if (fought.length === 0) {
-    return [...[buildGearFilter(data.gear, deps.gearHref, deps)].filter((x) => x !== null), el("p", { className: "empty", textContent: t(data.gear?.selected ? "gear.empty" : "leaderboard.emptyNoFights") })];
+    return [...buildGearFilters(data, deps.gearHref, deps), el("p", { className: "empty", textContent: t(data.gear?.selected || data.power?.selected ? "gear.empty" : "leaderboard.emptyNoFights") })];
   }
   const header = ["stats.bossColumn", "stats.runs", "stats.bestDps", "stats.avgTime", "stats.medianPerClass"];
   const table = el("table", { className: "ranked-table compact" }, [
@@ -414,7 +436,7 @@ export function buildInstanceStats(data, deps) {
   return [
     el("section", {}, [
       el("h2", { textContent: t("stats.heading") }),
-      ...[buildGearFilter(data.gear, deps.gearHref, deps)].filter((x) => x !== null),
+      ...buildGearFilters(data, deps.gearHref, deps),
       el("div", { className: "class-grid class-grid-2" }, [block(t("stats.bossTable"), el("div", { className: "table-scroll" }, [table])), block(t("stats.shareHeading"), el("div", { className: "boxplot-card" }, [share ?? el("p", { className: "empty", textContent: t("stats.tooFew") })]))]),
     ]),
   ];

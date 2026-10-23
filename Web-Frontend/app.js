@@ -2,7 +2,7 @@ import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGa
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
-import { buildBossStats, buildGearFilter, buildInstanceStats } from "./boss-stats.js";
+import { buildBossStats, buildGearFilters, buildInstanceStats } from "./boss-stats.js";
 import { buildBuffsPerSkill, buildGroupTimeline } from "./encounter-timeline.js";
 import { ARTICLE, ARTICLE_DE, articleSegments } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
@@ -2999,13 +2999,13 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
     return;
   }
 
-  const gearBar = buildGearFilter(data.gear, gearHref, { el, t, formatNumber });
+  const gearBars = buildGearFilters(data, gearHref, { el, t, formatNumber });
   if (data.topGroups.length === 0) {
-    app.replaceChildren(...sections, ...(gearBar ? [gearBar] : []), el("p", { className: "empty", textContent: t(data.gear?.selected ? "gear.empty" : "leaderboard.emptyNoFights") }));
+    app.replaceChildren(...sections, ...gearBars, el("p", { className: "empty", textContent: t(data.gear?.selected || data.power?.selected ? "gear.empty" : "leaderboard.emptyNoFights") }));
     return;
   }
 
-  app.replaceChildren(...sections, el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]), ...(gearBar ? [gearBar] : []), renderGroupBoard(data.topGroups));
+  app.replaceChildren(...sections, el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]), ...gearBars, renderGroupBoard(data.topGroups));
 }
 
 // m:ss - short enough to sit next to "Zeitpunkt"/"App Version" in a two-column meta table, unlike

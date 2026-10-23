@@ -260,10 +260,10 @@ function withSkillArt(classes: ReturnType<typeof classSkills>) {
 }
 
 /** How many fights of this boss in this scope have a known gear score (all of them: what the filter can work with). */
-export function gearCoverage(bossId: number, serverId: number | null, mode: string | null = null) {
+export function gearCoverage(bossId: number, serverId: number | null, mode: string | null = null, metric: "score" | "power" = "score") {
   const scope = encounterScope(bossId, serverId, mode);
   const row = db
-    .select({ runs: count(encounters.id), known: sql<number>`sum(case when ${knownGearCondition()} then 1 else 0 end)` })
+    .select({ runs: count(encounters.id), known: sql<number>`sum(case when ${knownGearCondition(metric)} then 1 else 0 end)` })
     .from(encounters)
     .where(scope)
     .get();
@@ -448,15 +448,16 @@ export async function bossRoutes(app: FastifyInstance) {
       const scope = combined ? null : selected!.id;
       const gear = parseGearRange(request.query.gear);
       const stats = statsForBossIds([boss.id], scope, mode, gear);
-      const gearInfo = { ...gearCoverage(boss.id, scope, mode), selected: gear };
+      const gearInfo = { ...gearCoverage(boss.id, scope, mode), selected: gear?.metric === undefined ? gear : null };
+      const powerInfo = { ...gearCoverage(boss.id, scope, mode, "power"), selected: gear?.metric === "power" ? gear : null };
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode, gear), stats, gear: gearInfo });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode, gear), stats, gear: gearInfo, power: powerInfo });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode, gear), topByClass: {}, stats, gear: gearInfo });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode, gear), topByClass: {}, stats, gear: gearInfo, power: powerInfo });
     },
   );
 
@@ -492,7 +493,8 @@ export async function bossRoutes(app: FastifyInstance) {
         durations: fightDurations(boss.id, scope, mode, gear),
         topByClass: topByClass(boss.id, scope, found.game, mode, gear),
         skills: found.game === "aion2" ? withSkillArt(classSkills(boss.id, scope, mode, gear)) : classSkills(boss.id, scope, mode, gear),
-        gear: { ...gearCoverage(boss.id, scope, mode), selected: gear },
+        gear: { ...gearCoverage(boss.id, scope, mode), selected: gear?.metric === undefined ? gear : null },
+        power: { ...gearCoverage(boss.id, scope, mode, "power"), selected: gear?.metric === "power" ? gear : null },
       });
     },
   );

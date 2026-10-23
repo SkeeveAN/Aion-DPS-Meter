@@ -10,3 +10,12 @@ test("a gear score range is read from the query, anything odd is no filter", () 
     assert.equal(parseGearRange(bad), null, String(bad));
   }
 });
+
+test("a combat power range has a leading p and may be longer than a gear score", () => {
+  assert.deepEqual(parseGearRange("p100000-"), { min: 100000, max: Number.MAX_SAFE_INTEGER, metric: "power" });
+  assert.deepEqual(parseGearRange("p-75000"), { min: 0, max: 75000, metric: "power" });
+  assert.deepEqual(parseGearRange("p75000-120000"), { min: 75000, max: 120000, metric: "power" });
+  for (const bad of ["p", "p-", "p200-100", "pp1-2", "p12345678-"]) {
+    assert.equal(parseGearRange(bad), null, bad);
+  }
+});

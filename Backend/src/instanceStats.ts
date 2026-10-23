@@ -21,6 +21,8 @@ export interface InstanceStatistics {
   classShare: { className: string; samples: number }[];
   /** How many fights have a known gear score (what a gear score filter can work with) and the range in use. */
   gear: { runs: number; known: number; selected: GearRange | null };
+  /** The same for the combat power NC lists (the second filter). */
+  power: { runs: number; known: number; selected: GearRange | null };
 }
 
 /** The statistics page of a dungeon: per boss the runs, best group iDPS, average kill time and the class medians, and the class share of the whole dungeon. */
@@ -33,10 +35,13 @@ export function instanceStatistics(instanceId: number, serverId: number | null, 
     .all();
   const share = new Map<string, number>();
   let coverage = { runs: 0, known: 0 };
+  let powerCoverage = { runs: 0, known: 0 };
   const result: InstanceBossStats[] = [];
   for (const boss of rows) {
     const bossCoverage = gearCoverage(boss.id, serverId, mode);
     coverage = { runs: coverage.runs + bossCoverage.runs, known: coverage.known + bossCoverage.known };
+    const bossPower = gearCoverage(boss.id, serverId, mode, "power");
+    powerCoverage = { runs: powerCoverage.runs + bossPower.runs, known: powerCoverage.known + bossPower.known };
     const stats = statsForBossIds([boss.id], serverId, mode, gear);
     const boxes = classBoxes(boss.id, serverId, mode, gear);
     for (const box of boxes) {
@@ -52,5 +57,5 @@ export function instanceStatistics(instanceId: number, serverId: number | null, 
       classes: boxes.map((b) => ({ className: b.className, samples: b.samples, median: b.median })),
     });
   }
-  return { bosses: result, classShare: [...share.entries()].map(([className, samples]) => ({ className, samples })).sort((a, b) => b.samples - a.samples), gear: { ...coverage, selected: gear } };
+  return { bosses: result, classShare: [...share.entries()].map(([className, samples]) => ({ className, samples })).sort((a, b) => b.samples - a.samples), gear: { ...coverage, selected: gear?.metric === undefined ? gear : null }, power: { ...powerCoverage, selected: gear?.metric === "power" ? gear : null } };
 }
