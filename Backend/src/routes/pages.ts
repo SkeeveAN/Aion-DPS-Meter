@@ -36,6 +36,7 @@ import {
   playerPage,
   privacyPage,
   termsPage,
+  codeSigningPage,
   type Page,
 } from "../seo/pages.js";
 import { eq } from "drizzle-orm";
@@ -108,6 +109,7 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/feedback", async (request, reply) => send(reply, render(feedbackPage(), requestPath(request))));
   app.get("/privacy", async (request, reply) => send(reply, render(privacyPage(), requestPath(request))));
   app.get("/terms", async (request, reply) => send(reply, render(termsPage(), requestPath(request))));
+  app.get("/code-signing-policy", async (request, reply) => send(reply, render(codeSigningPage(), requestPath(request))));
 
   // Every game-scoped page validates the game segment first; an unknown one is a 404, not aion.
   // Only Aion 2 is served, so the game is a constant now rather than part of the address.

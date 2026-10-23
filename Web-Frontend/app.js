@@ -25,7 +25,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "features", "aion-2-dps-meter", "how-it-works", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "features", "aion-2-dps-meter", "how-it-works", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "code-signing-policy", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -420,6 +420,7 @@ function buildSiteFooter() {
       el("div", { className: "home-footer-legal home-footer-legal-logo" }, [
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
+        link(t("legal.codeSigningTitle"), "/code-signing-policy"),
       ]),
     ]),
     el("div", { className: "home-footer-center" }, [
@@ -696,6 +697,10 @@ async function renderPrivacy() {
 
 async function renderTerms() {
   renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
+}
+
+async function renderCodeSigning() {
+  renderLegalPage("codeSigning", "legal.codeSigningTitle", "legal.codeSigningIntro");
 }
 
 // /how-it-works: the technical article (article-data.js), English, German and the other site languages (article-i18n/).
@@ -5197,6 +5202,8 @@ async function route() {
     section = "privacy";
   } else if (segments[0] === "terms") {
     section = "terms";
+  } else if (segments[0] === "code-signing-policy") {
+    section = "code-signing-policy";
   } else if (segments[0] === "aion2") {
     // Old address with the game segment: same page without it.
     location.replace(`/${segments.slice(1).join("/") || "instances"}${location.search}${location.hash}`);
@@ -5246,6 +5253,8 @@ async function route() {
       await renderPrivacy();
     } else if (section === "terms") {
       await renderTerms();
+    } else if (section === "code-signing-policy") {
+      await renderCodeSigning();
     } else if (section === "worldbosses" && !param) {
       await renderWorldBosses();
     } else if ((section === "worldbosses" || section === "instances") && param && segments[2] === "statistics") {

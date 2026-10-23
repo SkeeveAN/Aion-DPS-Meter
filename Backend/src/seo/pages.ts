@@ -505,6 +505,21 @@ export function termsPage(): Page {
   };
 }
 
+export function codeSigningPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Code Signing Policy – Aion DPS Meter",
+      description: "How the Aion DPS Meter installer is built from the public source code and signed: provider, team roles and privacy statement.",
+      canonicalPath: "/code-signing-policy",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Code Signing Policy", path: "/code-signing-policy" }])],
+    },
+    body: html`
+      <h1>Code Signing Policy</h1>
+      <p>Releases of the Aion DPS Meter client are built automatically by GitHub Actions from the public source code (MIT License). Free code signing is provided by SignPath.io, with a certificate issued by the SignPath Foundation. Every signing request is approved manually by the maintainer. This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it; see the Privacy Policy.</p>`,
+  };
+}
+
 export function instancesPage(game: Game): Page {
   const rows = db
     .select(instanceColumns)
