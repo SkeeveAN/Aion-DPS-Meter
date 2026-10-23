@@ -30,7 +30,7 @@ public sealed class LootSession
 /// <summary>
 /// What the player picked up, by session and map; only on this computer, nothing is sent anywhere. Three frames tell it:
 /// 0x1E56 is a drop appearing on the ground (<c>opcode | 01 | monster u32 | x y z f32 | x y z f32 | u32 | loot id u32 at 35 | item id u32 at 39 | count u32 at 43</c>),
-/// 0x1F56 is a drop leaving the ground (<c>opcode | 01 | monster u32 | u32 | loot id u32 at 11 | owner u32 | ... | last byte 0 = picked up, 1 = vanished</c>) and 0x1B56 an item landing in
+/// 0x1F56 is a drop leaving the ground (<c>opcode | 01 | monster u32 | u32 | loot id u32 at 11 | owner u32 | ... | last byte 1 = picked up by its owner, 0 = went otherwise; checked on 1,546 drops of the two own characters, 2026-10-23</c>) and 0x1B56 an item landing in
 /// the inventory (<c>opcode | 01 | kind (0 new slot, 1 more of it, 2 gone) | ... | item id u32 at 13</c>). A drop that left the ground counts when the same item landed in the inventory
 /// within 1.5 s of it, either way round: another player's pickup, and a drop that vanished, never put anything into the inventory. 0x2136 names the map. The layouts
 /// were first seen in StacysView's fork of this meter (2026-10-17, MIT) and checked here on the recordings.
@@ -193,35 +193,39 @@ public static class Aion2Loot
         }
     }
 
-    /// <summary>A drop left the ground (0x1F56): picked up (last byte 0) or vanished (1).</summary>
+    /// <summary>A drop left the ground (0x1F56): picked up (last byte 1) or went otherwise (0). One frame can carry several drops (20 bytes each, behind a 3 byte head).</summary>
     public static void NoteGroundGone(ReadOnlySpan<byte> frame, DateTime at)
     {
-        if (frame.Length < 15 || frame[^1] != 0)
+        if (frame.Length < 24 || frame[^1] != 1)
         {
             return;
         }
 
-        uint lootId = BinaryPrimitives.ReadUInt32LittleEndian(frame[11..]);
+        int sets = Math.Min(frame[2], (frame.Length - 4) / 20);
         bool counted = false;
-        lock (Gate)
+        for (int i = 0; i < sets; i++)
         {
-            if (!Drops.Remove(lootId, out var drop))
+            uint lootId = BinaryPrimitives.ReadUInt32LittleEndian(frame[(3 + 20 * i + 8)..]);
+            lock (Gate)
             {
-                return;
-            }
+                if (!Drops.Remove(lootId, out var drop))
+                {
+                    continue;
+                }
 
-            int seen = Inventory.FindLastIndex(i => i.Item == drop.Item && Math.Abs((at - i.At).TotalSeconds) <= Window.TotalSeconds);
-            if (seen >= 0)
-            {
-                Inventory.RemoveAt(seen);
-                Add(drop.Item, drop.Count, at);
-                counted = true;
-            }
-            else
-            {
-                // The inventory frame may come a moment after the drop's.
-                Waiting.RemoveAll(w => at - w.At > Window);
-                Waiting.Add((drop.Item, drop.Count, at));
+                int seen = Inventory.FindLastIndex(x => x.Item == drop.Item && Math.Abs((at - x.At).TotalSeconds) <= Window.TotalSeconds);
+                if (seen >= 0)
+                {
+                    Inventory.RemoveAt(seen);
+                    Add(drop.Item, drop.Count, at);
+                    counted = true;
+                }
+                else
+                {
+                    // The inventory frame may come a moment after the drop's.
+                    Waiting.RemoveAll(w => at - w.At > Window);
+                    Waiting.Add((drop.Item, drop.Count, at));
+                }
             }
         }
 

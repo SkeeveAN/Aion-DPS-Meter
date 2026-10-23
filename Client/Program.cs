@@ -1414,7 +1414,7 @@ internal static class Program
         {
             Aion2.Aion2Loot.NoteGroundItem(Combat.SelfCheckLoot.Ground(id, item, count));
             Aion2.Aion2Loot.NoteInventory(Combat.SelfCheckLoot.Inventory(0, item), t.AddSeconds(seconds));
-            Aion2.Aion2Loot.NoteGroundGone(Combat.SelfCheckLoot.Gone(id, 0), t.AddSeconds(seconds).AddMilliseconds(60));
+            Aion2.Aion2Loot.NoteGroundGone(Combat.SelfCheckLoot.Gone(id, 1), t.AddSeconds(seconds).AddMilliseconds(60));
         }
 
         Aion2.Aion2Loot.NoteZone(1010);

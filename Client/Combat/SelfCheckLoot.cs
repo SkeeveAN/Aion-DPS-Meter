@@ -52,23 +52,23 @@ public static class SelfCheckLoot
         // inventory first, then the drop leaves the ground
         Aion2Loot.NoteGroundItem(Ground(1, soul, 1));
         Aion2Loot.NoteInventory(Inventory(0, soul), t);
-        Aion2Loot.NoteGroundGone(Gone(1, 0), t.AddMilliseconds(100));
+        Aion2Loot.NoteGroundGone(Gone(1, 1), t.AddMilliseconds(100));
         // the drop leaves the ground first, then the inventory frame
         Aion2Loot.NoteGroundItem(Ground(2, soul, 2));
-        Aion2Loot.NoteGroundGone(Gone(2, 0), t.AddSeconds(2));
+        Aion2Loot.NoteGroundGone(Gone(2, 1), t.AddSeconds(2));
         Aion2Loot.NoteInventory(Inventory(1, soul), t.AddSeconds(2).AddMilliseconds(80));
         // a drop that vanished, and another player's pickup (no inventory frame): not counted
         Aion2Loot.NoteGroundItem(Ground(3, stone, 1));
-        Aion2Loot.NoteGroundGone(Gone(3, 1), t.AddSeconds(4));
+        Aion2Loot.NoteGroundGone(Gone(3, 0), t.AddSeconds(4));
         Aion2Loot.NoteGroundItem(Ground(4, stone, 1));
-        Aion2Loot.NoteGroundGone(Gone(4, 0), t.AddSeconds(6));
+        Aion2Loot.NoteGroundGone(Gone(4, 1), t.AddSeconds(6));
         // the same item in the inventory long after the other's pickup: still not the pickup
         Aion2Loot.NoteInventory(Inventory(0, stone), t.AddSeconds(30));
         // a second map
         Aion2Loot.NoteZone(20);
         Aion2Loot.NoteGroundItem(Ground(5, stone, 3));
         Aion2Loot.NoteInventory(Inventory(0, stone), t.AddSeconds(40));
-        Aion2Loot.NoteGroundGone(Gone(5, 0), t.AddSeconds(40).AddMilliseconds(50));
+        Aion2Loot.NoteGroundGone(Gone(5, 1), t.AddSeconds(40).AddMilliseconds(50));
 
         var sessions = Aion2Loot.Sessions;
         LootSession? session = sessions.FirstOrDefault();
@@ -82,7 +82,7 @@ public static class SelfCheckLoot
         // half an hour without a pickup starts the next session
         Aion2Loot.NoteGroundItem(Ground(6, soul, 1));
         Aion2Loot.NoteInventory(Inventory(0, soul), t.AddHours(2));
-        Aion2Loot.NoteGroundGone(Gone(6, 0), t.AddHours(2).AddMilliseconds(30));
+        Aion2Loot.NoteGroundGone(Gone(6, 1), t.AddHours(2).AddMilliseconds(30));
         bool second = Aion2Loot.Sessions.Count == 2 && Aion2Loot.Sessions[0].Start > Aion2Loot.Sessions[1].Start;
         Console.WriteLine($"  -> the next pickup after two hours is a new session: {second}");
 
