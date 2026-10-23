@@ -47,6 +47,14 @@
      "Backend"
     ],
     "date": "2026-10-24"
+   },
+   {
+    "text": "Website: the runs tab shows one card per run (3-4 bosses) with its own View run button and the group of the run",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-24"
    }
   ]
  },
