@@ -2231,6 +2231,33 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private List<LegionMember> _legion = new();
+
+    /// <summary>The own legion's list from the login (frame 0x058a). Its server is the game's own record of each character, so it counts as the home server (see
+    /// <see cref="NoteHomeServerOfName"/>), and its character ids are the permanent ones.</summary>
+    public void NoteLegionRoster(IReadOnlyList<LegionMember> members)
+    {
+        foreach (LegionMember m in members)
+        {
+            NoteHomeServerOfName(m.Name, m.ServerId);
+            NoteCharacterId(m.Name, m.ServerId, m.CharacterId);
+        }
+
+        lock (_gate)
+        {
+            _legion = members.ToList();
+        }
+    }
+
+    /// <summary>The members of the own legion as the last login's list named them (empty before it).</summary>
+    public IReadOnlyList<LegionMember> LegionRoster()
+    {
+        lock (_gate)
+        {
+            return _legion.ToList();
+        }
+    }
+
     private readonly Dictionary<string, string> _accountLegions = new(StringComparer.Ordinal);
     private string? _accountKey;
 

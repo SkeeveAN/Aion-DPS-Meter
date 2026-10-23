@@ -149,7 +149,47 @@ public static class SelfCheckCraft
         bool chain = opened && closed && expired;
         Console.WriteLine($"  -> a chain skill is open for 3 s after frame 1838, closed by 1938 or by the time: {chain}");
 
+        // the legion list: a member with a comment (length in bytes, one more byte) and one without, the name's length counting characters
+        static byte[] Member(int id, int server, int classCode, string name, int level, int rank, string? comment)
+        {
+            var m = new List<byte>();
+            m.AddRange(BitConverter.GetBytes(id));
+            m.AddRange(new byte[] { 0, 0 });
+            m.AddRange(BitConverter.GetBytes((ushort)server));
+            m.AddRange(BitConverter.GetBytes(classCode));
+            m.Add((byte)name.Length);
+            m.AddRange(System.Text.Encoding.UTF8.GetBytes(name));
+            m.AddRange(new byte[] { (byte)level, 0, 0, 0, (byte)rank });
+            if (comment is not null)
+            {
+                byte[] c = System.Text.Encoding.UTF8.GetBytes(comment);
+                m.Add((byte)c.Length);
+                m.AddRange(c);
+                m.Add(0x1b);
+            }
+
+            m.AddRange(BitConverter.GetBytes(1_791_000_000_000L));
+            m.AddRange(BitConverter.GetBytes(2047));
+            m.AddRange(BitConverter.GetBytes(2100));
+            m.AddRange(BitConverter.GetBytes(95000));
+            m.AddRange(new byte[4]);
+            m.Add(2);
+            m.AddRange(BitConverter.GetBytes(470418));
+            m.AddRange(new byte[4]);
+            return m.ToArray();
+        }
+
+        var legionFrame = new List<byte> { 0x05, 0x8a, 0, 0, 0x14, 2 };
+        legionFrame.AddRange(new byte[8]);
+        legionFrame.AddRange(Member(207710, 1304, 30, "Sidy", 45, 2, "Hier könnte Werbung stehen"));
+        legionFrame.AddRange(Member(208558, 1304, 18, "Pencilgon", 22, 0, null));
+        legionFrame.AddRange(Member(208939, 2304, 34, "Ärgernis", 45, 1, null));
+        bool legion = Aion2LegionList.TryParse(legionFrame.ToArray(), out List<LegionMember> listed) && listed.Count == 3
+            && listed[0] is { Name: "Sidy", ServerId: 1304, ClassCode: 30, Level: 45, Rank: 2, ItemLevel: 2100, CombatPower: 95000, CharacterId: 207710 }
+            && listed[1] is { Name: "Pencilgon", Level: 22, Rank: 0 } && listed[2] is { Name: "Ärgernis", ServerId: 2304 };
+        Console.WriteLine($"  -> the legion list is read with and without a comment, names counted in characters: {legion}");
+
         Aion2Stock.Reset();
-        return chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }

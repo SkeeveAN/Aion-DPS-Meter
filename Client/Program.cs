@@ -366,6 +366,21 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-frame-dump")
+        {
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-frame-dump <recording.jsonl> <opcode hex, e.g. 058a> [max frames] [--port=13328]");
+                Console.WriteLine("  Prints the frames of one opcode of a recording as hex (opcode as the decoder reads it). No window.");
+                return;
+            }
+
+            int max = args.Skip(3).Where(a => !a.StartsWith("--", StringComparison.Ordinal)).Select(int.Parse).DefaultIfEmpty(5).First();
+            int port = args.Where(a => a.StartsWith("--port=", StringComparison.Ordinal)).Select(a => int.Parse(a[7..])).DefaultIfEmpty(13328).First();
+            RunAion2FrameDump(args[1], Convert.ToInt32(args[2], 16), max, port);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-position-check")
         {
             if (args.Length < 2)
@@ -2598,6 +2613,45 @@ internal static class Program
     }
 
     /// <summary>Replays recordings and measures the own-position estimate against the exact reports (every effect frame of the player carries his place): by the age of the previous report, and for several trust times.</summary>
+    private static void RunAion2FrameDump(string path, int opcode, int max, int serverPort)
+    {
+        var protocol = Aion2.Protocol.Aion2Protocol.Load();
+        using var source = new Aion2.Aion2PacketCombatSource(protocol);
+        int shown = 0, total = 0;
+        Aion2.Protocol.Aion2FrameDecoder.FrameTap = (op, frame, at) =>
+        {
+            if (op != opcode)
+            {
+                return;
+            }
+
+            total++;
+            if (op == Aion2.Aion2LegionList.Opcode && shown < max && Aion2.Aion2LegionList.TryParse(frame, out List<Aion2.LegionMember> legion))
+            {
+                Console.WriteLine($"  legion list: {legion.Count} members ({legion.Count(m => m.ServerId == legion[0].ServerId)} on server {legion[0].ServerId}): " + string.Join(", ", legion.Select(m => $"{m.Name} L{m.Level} {Aion2.Protocol.Aion2SkillNames.ClassFromCode(m.ClassCode)} {m.ItemLevel}/{m.CombatPower}")));
+            }
+
+            if (shown++ < max)
+            {
+                Console.WriteLine($"{at:HH:mm:ss.fff} len {frame.Length}: {Convert.ToHexString(frame)}");
+            }
+        };
+        foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+        {
+            bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
+            if (!fromServer && !segment.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            source.Ingest(segment with { FromServer = fromServer });
+            source.Poll(false);
+        }
+
+        Aion2.Protocol.Aion2FrameDecoder.FrameTap = null;
+        Console.WriteLine($"aion2-frame-dump: {total} frames of opcode 0x{opcode:x4}");
+    }
+
     private static void RunAion2PositionCheckMode(string[] paths, int serverPort)
     {
         var variants = new List<(string Name, double MaxAge, Aion2.Aion2EntityDirectory.AroundMode How, int Min)>();

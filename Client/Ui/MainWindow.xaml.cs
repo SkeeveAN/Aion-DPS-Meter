@@ -3911,6 +3911,38 @@ public partial class MainWindow : Window
                 alt.CharacterId > 0 ? alt.CharacterId : null));
         }
 
+        // The own legion's list of the login (frame 0x058a): the game's own record of each member's name, class, level and server - with the legion's name, so the legion's
+        // page fills without anybody having to meet the members. Only with the setting for other players' profiles (ownOnly is on without it).
+        if (!ownOnly && onlyNames is null)
+        {
+            string? ownLegion = directory.GuildOf(local.CombatId, local.Name) ?? directory.AccountLegionOf(local.Name);
+            foreach (Aion2.LegionMember member in directory.LegionRoster().Take(40))
+            {
+                string? memberClass = Aion2.Protocol.Aion2SkillNames.ClassFromCode(member.ClassCode);
+                if (memberClass is null || member.Name == local.Name || participants.Any(p => p.Name == member.Name && p.ServerId == member.ServerId))
+                {
+                    continue;
+                }
+
+                participants.Add(new ProfileParticipantUpload(
+                    member.Name,
+                    memberClass,
+                    member.ServerId / 1000 == 2 ? "Asmodian" : "Elyos",
+                    false,
+                    ownLegion,
+                    new ProfileUpload(
+                        "seen",
+                        member.Level > 0 ? member.Level : null,
+                        Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(member.ClassCode),
+                        Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(member.ClassCode),
+                        Array.Empty<ProfileGearUpload>(),
+                        Array.Empty<ProfileSkillUpload>(),
+                        Array.Empty<ProfileBoardUpload>()),
+                    member.ServerId,
+                    member.CharacterId > 0 ? member.CharacterId : null));
+            }
+        }
+
         return participants.Count == 0
             ? null
             : new ProfilesUploadRequest(AppVersion.Text, fingerprint, displayName, participants.Take(60).ToList(), ServerId: Aion2OwnServerId(), GameServer: Aion2GameServerAddress());

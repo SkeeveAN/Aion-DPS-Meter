@@ -443,6 +443,9 @@ public sealed class Aion2FrameDecoder
         }
     }
 
+    /// <summary>The test modes (aion2-frame-dump) look at every frame with its opcode; null in the live meter.</summary>
+    public static Action<int, ReadOnlySpan<byte>, DateTime>? FrameTap { get; set; }
+
     private IEnumerable<DamageEvent> DecodeFrame(ReadOnlySpan<byte> frame, DateTime timestamp, bool nested)
     {
         FrameLayout layout = _protocol.FrameLayout;
@@ -453,6 +456,7 @@ public sealed class Aion2FrameDecoder
         }
 
         int opcode = (int)ReadUnsigned(frame, new FieldSpec(layout.OpcodeOffset, layout.OpcodeSize), layout.LittleEndian && !layout.OpcodeBigEndian);
+        FrameTap?.Invoke(opcode, frame, timestamp);
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);
@@ -581,6 +585,16 @@ public sealed class Aion2FrameDecoder
             if (frame.Length == 9 && (frame[3] != 0 || frame[4] != 0) && _entities.LocalPlayerId is >= 0 and int self)
             {
                 _entities.Combat.NoteRejected(self, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[5..])), frame[3], timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == Aion2LegionList.Opcode)
+        {
+            if (Aion2LegionList.TryParse(frame, out List<LegionMember> legion))
+            {
+                _entities.NoteLegionRoster(legion);
             }
 
             return Array.Empty<DamageEvent>();
