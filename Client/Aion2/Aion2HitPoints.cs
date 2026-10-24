@@ -3,6 +3,9 @@ namespace AionDPS.Aion2;
 /// <summary>One hit-point reading of an entity, as the server sent it.</summary>
 public readonly record struct HpSample(DateTime At, long Hp);
 
+/// <summary>The skill that killed an entity, as its death frame (0x048d) names it; <paramref name="At"/> is when the frame came, about 50 ms after the hit points hit 0.</summary>
+public readonly record struct KillCredit(DateTime At, int SkillId);
+
 /// <summary>
 /// Every entity's hit points over time, from the server's HP frame (see
 /// Aion2FrameDecoder.DecodeHp), and the moments a monster came back to full health after having
@@ -25,7 +28,42 @@ public sealed class Aion2HitPoints
 
     private readonly Dictionary<int, Track> _tracks = new();
     private readonly Dictionary<int, (long Current, long Max)> _spawns = new();
+    private readonly Dictionary<int, List<KillCredit>> _credits = new();
     private readonly object _gate = new();
+
+    /// <summary>Kill credits kept per entity (a player dies a few times in a fight, never hundreds).</summary>
+    private const int MaxCreditsPerEntity = 200;
+
+    /// <summary>The death frame named <paramref name="skillId"/> as what killed <paramref name="entityId"/>.</summary>
+    public void NoteKillCredit(int entityId, int skillId, DateTime at)
+    {
+        lock (_gate)
+        {
+            if (!_credits.TryGetValue(entityId, out List<KillCredit>? list))
+            {
+                list = new List<KillCredit>();
+                _credits[entityId] = list;
+            }
+
+            if (list.Count >= MaxCreditsPerEntity)
+            {
+                list.RemoveRange(0, MaxCreditsPerEntity / 2);
+            }
+
+            list.Add(new KillCredit(at, skillId));
+        }
+    }
+
+    /// <summary>The kill credits of an entity between two moments (inclusive), oldest first.</summary>
+    public IReadOnlyList<KillCredit> KillCreditsBetween(int entityId, DateTime from, DateTime to)
+    {
+        lock (_gate)
+        {
+            return _credits.TryGetValue(entityId, out List<KillCredit>? list)
+                ? list.Where(c => c.At >= from && c.At <= to).ToList()
+                : Array.Empty<KillCredit>();
+        }
+    }
 
     /// <summary>The entities a hit-point reading exists for, and how many readings each has.</summary>
     public IReadOnlyDictionary<int, int> ReadingCounts()
@@ -204,6 +242,7 @@ public sealed class Aion2HitPoints
         {
             _tracks.Clear();
             _spawns.Clear();
+            _credits.Clear();
         }
     }
 

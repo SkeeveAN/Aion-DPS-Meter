@@ -10,7 +10,8 @@ Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fr
 |---|---|---|---|
 | `0x0036` | Serveruhr (UTC ms, alle 50 ms) | bekannt | ticket-frames / position-frames |
 | `0x2136` | Zonenframe (Zone, Position, Art) | bekannt | position-frames |
-| `0x218d` | Kampf betreten/verlassen | bekannt | combat-frames |
+| `0x218d` | Kampf betreten/verlassen; Eintritt eines Bosses: `01 01` + u64 = Serveruhr + 300 s (25 von 25 Frames exakt, Aufnahmen Aahz 21.-23.10.; ob es bei Bossen mit anderer Wutzeit abweicht, ungeprüft) | bekannt | combat-frames |
+| `0x0061` | Instanz-Timer: Karte u32, Phase u8 (1 = 30 s Warten, 2 = Zeitlimit 3600/1800 s, 3 = 600 s nach dem letzten Boss, 4 = 10 s Schluss), Start u64, Ende u64 (Serveruhr, ms). Gelesen, noch nicht angezeigt (Aion2InstanceTimer) | bekannt | sitzungs-frames |
 | `0x4b36` | Entitäts-Stat (z. B. Boss-Wut 0xCD) | bekannt | combat-frames |
 | `0x0238` | Skill-Cast | bekannt | combat-frames |
 | `0x0338` | Treffer-Vorankündigung | bekannt | combat-frames |
@@ -161,7 +162,8 @@ Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fr
 | `0x0090` | species |
 | `0x0297` | roster |
 | `0x0360` | playerList |
-| `0x048d` | appearance |
+| `0x048d` | appearance; mit Skill-Feld auch **Todes-Frame**: Gestorbener (varint), Skill u32, Killer varint, ...; bei 3.364 von 3.366 Frames war die erste ID 47-53 ms vorher auf HP 0 gefallen (Aahz 21.-23.10.). Frames mit Skill 0 haben keinen Killer. Skill/Killer-Deutung ungeprüft, Client liest nur den Namen |
+| `0x0e92` | `Ziel varint | Anzahl u8 | Anzahl x u32` (5 oder 9 Byte); die u32 sind Buff-IDs, die auf demselben Ziel schon vorher in 2a38/2b38 standen (4.756 von 4.767) und bei 86 % danach wieder vorkommen: **kein sauberes "Buff entfernt"** (andere Repos deuten es so), eher eine Buff-Liste/Zusammenfassung des Ziels; Zweck offen, nicht im Client gelesen | [B] Aufbau, [?] Zweck |
 | `0x0538` | dot |
 | `0x0739` | specslots |
 | `0x0990` | petAdded |

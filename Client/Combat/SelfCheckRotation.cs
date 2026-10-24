@@ -72,6 +72,21 @@ public static class SelfCheckRotation
             && withDeaths.Deaths is { Count: 2 } restored && restored[0].RevivedAt == t0.AddSeconds(30) && restored[1].RevivedAt is null;
         Console.WriteLine($"  -> a death is counted once with its revive and the time dead (25 s), the file keeps it: {deathsOk && logOk}");
         ok &= deathsOk && logOk;
+
+        // the killing blow: the death frame names the skill, so the latest hit with it counts, not the last hit of the seconds before
+        var onePlayer = new List<(DateTime, long)> { (t0, 100), (t0.AddSeconds(5), 0) };
+        var twoHits = new List<DamageEvent> { new(t0.AddSeconds(3), 100, 7, 500, false, "Smash", SkillId: 222), new(t0.AddSeconds(4.5), 100, 7, 40, false, "Poke", SkillId: 111) };
+        var named = new List<Aion2.KillCredit> { new(t0.AddSeconds(5.05), 222) };
+        var unknown = new List<Aion2.KillCredit> { new(t0.AddSeconds(5.05), 999) };
+        bool plain = Deaths.Find(7, onePlayer, twoHits)[0].KillingBlow is { SkillId: 111 };
+        bool byName = Deaths.Find(7, onePlayer, twoHits, named)[0].KillingBlow is { SkillId: 222 };
+        bool fallback = Deaths.Find(7, onePlayer, twoHits, unknown)[0].KillingBlow is { SkillId: 111 };
+        bool tooLate = Deaths.Find(7, onePlayer, twoHits, new List<Aion2.KillCredit> { new(t0.AddSeconds(9), 222) })[0].KillingBlow is { SkillId: 111 };
+        var hp = new Aion2.Aion2HitPoints();
+        hp.NoteKillCredit(7, 222, t0.AddSeconds(5.05));
+        bool stored = hp.KillCreditsBetween(7, t0, t0.AddSeconds(6)).Count == 1 && hp.KillCreditsBetween(7, t0.AddSeconds(6), t0.AddSeconds(9)).Count == 0 && hp.KillCreditsBetween(8, t0, t0.AddSeconds(9)).Count == 0;
+        Console.WriteLine($"  -> the killing blow is the hit with the skill the death frame names (else the last hit): {plain && byName && fallback && tooLate && stored}");
+        ok &= plain && byName && fallback && tooLate && stored;
         return ok;
     }
 }

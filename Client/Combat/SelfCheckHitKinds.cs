@@ -35,6 +35,13 @@ public static class SelfCheckHitKinds
         Console.WriteLine($"  -> a heal without kinds, a front hit, a back crit with two strikes and a multi hit with three read as they are: {basics && multi.HitCount == 3}");
         Console.WriteLine($"  -> perfect, double and parry are told apart from the direction: {flags}");
 
+        // life-steal hits (bit 0x20): a varint of the amount restored sits before the direction (real frames of the recording of 2026-10-23, Aahz)
+        var stealFront = Hit("0438c14d460098880326951200030220ef0102e342420701000000904eb50f0113b7a36f0100");
+        var stealBack = Hit("04389b4146008fa003a57b1b00010220a10d01ef4abc0a01000000904e88470113b7a36f0100");
+        bool lifeSteal = stealFront.Amount == 1973 && stealFront.Kinds == HitKinds.Front && stealBack.Amount == 9096 && stealBack.Kinds == HitKinds.Back;
+        Console.WriteLine($"  -> the direction of a life-steal hit is read after the amount restored: {lifeSteal}");
+        flags &= lifeSteal;
+
         // they go with the fight into the session file; a hit stored before has none
         string file = Path.Combine(Path.GetTempPath(), "aiondps-hitkinds-" + Guid.NewGuid().ToString("N") + ".json.gz");
         List<DamageEvent> stored;

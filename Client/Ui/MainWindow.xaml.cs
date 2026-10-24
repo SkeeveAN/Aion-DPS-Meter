@@ -1921,7 +1921,10 @@ public partial class MainWindow : Window
             var readings = directory is null || span is not (DateTime from, DateTime to)
                 ? new List<(DateTime, long)>()
                 : directory.HitPoints.SamplesAround(targetId, from, to + Deaths.BlowWindow).Select(s => (s.At, s.Hp)).ToList();
-            var deaths = Deaths.Find(targetId, readings, mine);
+            var credits = directory is null || span is not (DateTime creditFrom, DateTime creditTo)
+                ? null
+                : directory.HitPoints.KillCreditsBetween(targetId, creditFrom, creditTo + Deaths.BlowWindow);
+            var deaths = Deaths.Find(targetId, readings, mine, credits);
             _deathsById[targetId] = deaths;
             row.Deaths = deaths.Count;
             row.DamageTaken = 0;

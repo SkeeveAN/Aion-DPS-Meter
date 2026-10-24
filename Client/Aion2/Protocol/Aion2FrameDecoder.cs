@@ -51,6 +51,9 @@ public sealed class Aion2FrameDecoder
     /// <summary>The server's clock about every 50 ms: opcode and the UTC time in milliseconds (see <see cref="ServerClock"/>).</summary>
     private const int ServerClockOpcode = 0x0036;
 
+    /// <summary>The instance timer: map, phase and the server's start and end of it (see <see cref="Aion2InstanceTimer"/>).</summary>
+    private const int InstanceTimerOpcode = 0x0061;
+
     /// <summary>The zone frame: <c>opcode | counter u32 | zone id u32 | position ...</c>. Sent at login and on every map or instance change
     /// (recordings 2026-10-11: 1010 Verteron, 600001 Krao Cave as an instance).</summary>
     private const int ZoneOpcode = 0x2136;
@@ -527,6 +530,16 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        if (opcode == InstanceTimerOpcode)
+        {
+            if (Aion2InstanceTimer.TryParse(frame, timestamp, out InstanceTimer timer))
+            {
+                Aion2InstanceTimer.Receive(timer);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
         if (opcode == FieldBossListOpcode)
         {
             // the field boss list of a map (see Aion2FieldBosses); other frames of this opcode do not read as such a list and are skipped
@@ -842,7 +855,7 @@ public sealed class Aion2FrameDecoder
                 DecodeCharacter(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Appearance:
-                DecodeAppearance(frame);
+                DecodeAppearance(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.PlayerList:
                 DecodePlayerList(frame);
@@ -1276,8 +1289,8 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>
     /// How a hit landed, from the bytes after its damage type (<paramref name="p"/> is the byte after the skill id): the first flag byte's low nibble 4 is a plain hit with
-    /// nothing more; 5-7 add three bytes - a bit set (2 parry, 4 perfect, 8 double) and, two bytes on, the direction (1 back, 2 front). Null when the frame is too short or of
-    /// another kind.
+    /// nothing more; 5-7 add three bytes - a bit set (2 parry, 4 perfect, 8 double) and, two bytes on (after the amount restored when bit 0x20 is set), the direction (1 back,
+    /// 2 front). Null when the frame is too short or of another kind.
     /// </summary>
     private static HitKinds? ReadHitKinds(ReadOnlySpan<byte> frame, int p, int flags)
     {
@@ -1292,7 +1305,28 @@ public sealed class Aion2FrameDecoder
             return null;
         }
 
-        byte bits = frame[p + 2], direction = frame[p + 4];
+        byte bits = frame[p + 2];
+        // Bit 0x20 (a life-steal hit) turns the byte after the bits into a varint of 1-3 bytes (the amount restored), which pushes the direction on:
+        // on 1,049 such hits of four recordings (2026-10-21 to 23) the old fixed read gave directions of 3-7, the read after the varint only 0-2.
+        int at = p + 3;
+        if ((bits & 0x20) != 0)
+        {
+            if (!TryReadVarint(frame, ref at, out _))
+            {
+                return null;
+            }
+        }
+        else
+        {
+            at++;
+        }
+
+        if (at >= frame.Length)
+        {
+            return null;
+        }
+
+        byte direction = frame[at];
         HitKinds kinds = HitKinds.None;
         if ((bits & 2) != 0) { kinds |= HitKinds.Parry; }
         if ((bits & 4) != 0) { kinds |= HitKinds.Perfect; }
@@ -2478,12 +2512,21 @@ public sealed class Aion2FrameDecoder
         return false;
     }
 
-    private void DecodeAppearance(ReadOnlySpan<byte> frame)
+    private void DecodeAppearance(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;
-        if (!TryReadVarint(frame, ref p, out _) || frame.Length < p + 4)
+        if (!TryReadVarint(frame, ref p, out long victim) || frame.Length < p + 4)
         {
             return;
+        }
+
+        // The same frame is the death notice: the first id is who died (its hit points fell to 0 about 50 ms before: 3,364 of 3,366 frames with a skill
+        // in four recordings, 2026-10-21 to 23) and the u32 the skill that did it (a hit with that skill landed on the victim in the 1.5 s before, in all
+        // 1,166 checked frames); 0 means nobody took the kill.
+        int killingSkill = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+        if (killingSkill != 0 && victim > 0)
+        {
+            _entities.HitPoints.NoteKillCredit(unchecked((int)victim), killingSkill, timestamp);
         }
 
         p += 4;

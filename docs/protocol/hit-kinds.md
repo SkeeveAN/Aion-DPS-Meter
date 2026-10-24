@@ -14,6 +14,8 @@ opcode | Ziel (varint) | Flags (varint; unteres Halbbyte = Art 4..7) | 1 Byte | 
 
 - **Bits** (`Art 5..7`): `2` Parade, `4` perfekt, `8` doppelt. Weitere Bits (`32`, `64`, `128`) sind unbekannt und werden ignoriert.
 - **Richtung**: `1` Rücken, `2` Front, `0` keine Angabe.
+- **Bit `0x20` (Lebensraub-Treffer, 1.049 von 115.426 Treffern in vier Aufnahmen vom 21.-23.10.):** Das Byte nach den Bits ist dann ein **varint (1-3 Byte) mit der zurückgeholten Lebenspunkte-Menge**, die Richtung steht erst dahinter (immer unmittelbar vor den 8 Byte mit der Trefferzahl). Ohne dieses Bit ist es 114.377 von 114.377 Mal das feste Byte. Der alte feste Zugriff las bei diesen Treffern Richtungen 3-7 (Unsinn), der neue nur 0-2. Im Client behoben (`ReadHitKinds`, noch nicht veröffentlicht).
+- **Bits `0x10`, `0x40`, `0x80`:** Waffle nennt `0x10` Standhalten, `0x80` Rücken. Bit `0x80` steht bei 27 % der Treffer, das Richtungs-Byte `1` bei 40 %; die beiden hängen nur lose zusammen (52 % gegen 35 %), und weder Bit `0x80` (×1,06 über 69 Skills) noch Richtung `1` (×0,97) ändert den Schaden. Welches von beiden "von hinten" heißt, bleibt offen und braucht den Testmitschnitt unten.
 - **Trefferzahl**: 2..5 bei Multi-Treffern (mehrere Schläge in einem Frame).
 - Frames **ohne** Schadensblock (Flag-Byte ohne `0x04`) sind Begleit-Meldungen und tragen keine Trefferart; Heilungen und DoT-Ticks haben keine (`Kinds = null`).
 
