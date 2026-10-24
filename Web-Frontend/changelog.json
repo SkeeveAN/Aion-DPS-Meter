@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.15.1",
   "date": "2026-10-24",
   "items": [
    {
@@ -53,6 +53,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-24"
+   },
+   {
+    "text": "the direction of a life-steal hit is read after the amount restored (it was misread on about 1 hit in 100), the killing blow of a death is the hit with the skill the game names instead of the last hit before it, the instance timer is read for later",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-24"
    }
