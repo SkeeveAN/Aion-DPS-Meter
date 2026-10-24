@@ -6380,11 +6380,6 @@ public partial class MainWindow : Window
             ShowOverlayPanels();
         }
 
-        if (_hotkeyOverlay is null)
-        {
-            return;
-        }
-
         if ((DateTime.UtcNow - _gateSettingsAt).TotalSeconds >= 1)
         {
             _gateSettingsAt = DateTime.UtcNow;
@@ -6392,6 +6387,13 @@ public partial class MainWindow : Window
         }
 
         var s = _gateSettings;
+        // locked, the timetable steps aside like the other overlays: not while the game is behind another program or a game menu is open
+        _timetable?.ApplyGate(!s.TimetableLocked || GameWindow.ForegroundClientArea() is not null);
+        if (_hotkeyOverlay is null)
+        {
+            return;
+        }
+
         _hotkeyOverlay.ApplyLockedIfChanged(s.HotkeyOverlayLocked ?? s.PetFarmLocked);
         _hotkeyOverlay.ShowOverlay(s.ShowHotkeyOverlay && (!(s.HotkeyOverlayLocked ?? s.PetFarmLocked) || GameWindow.ForegroundClientArea() is not null));
     }

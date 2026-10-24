@@ -253,6 +253,15 @@ public sealed class TimetableWindow : Window
         }
     }
 
+    /// <summary>Hides the content (the window stays, so the hotkey and the settings still see it as on) while the game is not in front or a game menu is open.</summary>
+    public void ApplyGate(bool show)
+    {
+        if (Content is UIElement content)
+        {
+            content.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+        }
+    }
+
     /// <summary>Puts the overlay back at the front of the topmost band. The main window calls this right after
     /// raising itself, once a second, so the two never take turns being in front (that made the timetable
     /// flicker through the meter). Not done from <see cref="Refresh"/>: its timer is offset from the main one.</summary>
