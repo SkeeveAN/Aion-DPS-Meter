@@ -262,5 +262,17 @@
    "ru": "Сундук обликов (10 раз)"
   },
   "icon": "images/twitch-drops/skin-chest-10-skins-x1.png"
+ },
+ "black conical hat": {
+  "names": {
+   "en": "Black Conical Hat (Helm)",
+   "de": "Schwarzer Bambus-Gat (Helm)",
+   "es": "Gorro cónico negro (yelmo)",
+   "fr": "Satgat noir (Casque)",
+   "ja": "黒の編笠(ヘルム)",
+   "ko": "검은 살 삿갓 (투구)",
+   "pt": "Chapéu Cônico Preto (Elmo)",
+   "ru": "Черная остроконечная шляпа (шлем)"
+  }
  }
 }
