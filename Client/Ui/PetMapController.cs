@@ -21,6 +21,7 @@ public sealed class PetMapController : IDisposable
     private bool _haveView;
     private (float X, float Y)? _lastTarget;
     private List<(int PetId, float X, float Y)> _points = new();
+    private List<(int PetId, float X, float Y)> _pointsShown = new();
     private string _pointsKey = "";
     private List<(string Kind, float X, float Y)> _gather = new();
     private DateTime _lastDetect = DateTime.MinValue;
@@ -476,6 +477,8 @@ public sealed class PetMapController : IDisposable
         var live = known
             ? directory!.LiveMobs().SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList()
             : new List<(int PetId, float X, float Y)>();
+        // within the range the game announces monsters in, a spawn point without a monster is empty (killed, not respawned, or never there): only the announced monsters count there
+        _pointsShown = known ? _points.Where(p => (p.X - tx) * (double)(p.X - tx) + (p.Y - ty) * (double)(p.Y - ty) >= MobRange * MobRange).ToList() : _points;
         // the Hidden Cubes in range (the game announces them only when the player is near): large gold dots like the live monsters, when the map shows cubes
         if (gatherKinds.Contains("Hidden Cube") && known)
         {
@@ -488,11 +491,11 @@ public sealed class PetMapController : IDisposable
         {
             // the militia guards, on the open maps of the other side only (they are friendly at home)
             var guards = settings.ShowGuards && known && Aion2Guards.IsHostileMap(_current.Table, _faction) ? directory!.LiveGuards() : null;
-            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
+            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _pointsShown, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             foreach (var view in _mapViews)
             {
                 view.MeHeading = _heading;
-                view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
+                view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _pointsShown, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             }
             ShowMap(true);
         }
@@ -569,6 +572,9 @@ public sealed class PetMapController : IDisposable
 
     /// <summary>How close to the player a fixed place must be for the game's announcements to be complete: nothing announced there means nothing there (gathered, not grown yet).</summary>
     private const double AnnounceRange = 4000;
+
+    /// <summary>How far around the player the game announces every monster (about 65 m, a margin kept for the position guess): a spawn point inside it without an announced monster is empty.</summary>
+    private const double MobRange = 5500;
 
     /// <summary>
     /// What the map shows of the collectibles: the fixed places of the map files, except those in the player's range where the game announces nothing
@@ -667,7 +673,7 @@ public sealed class PetMapController : IDisposable
         var nearestLiveOf = new Dictionary<int, double>();
         if (known)
         {
-            foreach (var (id, px, py) in _points)
+            foreach (var (id, px, py) in _pointsShown)
             {
                 double d = Dist(px, py);
                 if (!nearestPoint.TryGetValue(id, out double best) || d < best)
