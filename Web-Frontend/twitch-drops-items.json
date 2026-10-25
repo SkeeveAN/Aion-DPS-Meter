@@ -197,5 +197,70 @@
  "kina bundle 500,000": {
   "names": {},
   "icon": "images/twitch-drops/kina-bundle-500-000.png"
+ },
+ "battle enhance scroll": {
+  "names": {
+   "en": "Battle Enhance Scroll",
+   "de": "Rolle der Kampf-Verstärkung",
+   "es": "Pergamino de mejora de combate",
+   "fr": "Parchemin d'amélioration de combat",
+   "ja": "戦闘強化スクロール",
+   "ko": "전투 강화 주문서",
+   "pt": "Pergaminho de Aprimoramento de Combate",
+   "ru": "Свиток боевого усиления"
+  },
+  "icon": "images/twitch-drops/battle-enhance-scroll.png"
+ },
+ "artisan's roasted fogus": {
+  "names": {
+   "en": "Artisan's Roasted Fogus",
+   "de": "Gegrillter Fogus des Meisters",
+   "es": "Pogus asado de artesano",
+   "fr": "Pogus grillé de maître",
+   "ja": "達人のポーグス焼き",
+   "ko": "달인의 포구스 구이",
+   "pt": "Pogus Grelhado do Perito",
+   "ru": "Экспертный жареный фогус"
+  },
+  "icon": "images/twitch-drops/artisans-roasted-fogus.png"
+ },
+ "content usage ticket selection chest": {
+  "names": {
+   "en": "Content Usage Ticket Selection Chest",
+   "de": "Auswahltruhe: Aufladeticket für Inhaltsnutzung",
+   "es": "Cofre de selección de tique de recarga de contenido",
+   "fr": "Coffre de sélection de ticket d'accès aux contenus",
+   "ja": "コンテンツ利用チャージ券選択箱",
+   "ko": "콘텐츠 이용 충전권 선택 상자",
+   "pt": "Baú de Seleção de Bilhete de Recarga de Uso de Conteúdo",
+   "ru": "Сундук выбора контента"
+  },
+  "icon": "images/twitch-drops/content-usage-ticket-selection-chest.png"
+ },
+ "rare theostone chest": {
+  "names": {
+   "en": "Rare Theostone Chest",
+   "de": "Seltene Göttersteintruhe",
+   "es": "Cofre de Piedra sagrada raro",
+   "fr": "Coffre rare de Pierres sacrées",
+   "ja": "希少な神石箱",
+   "ko": "희귀한 신석 상자",
+   "pt": "Baú de Pedra Divina Raro",
+   "ru": "Редкий сундук священных камней"
+  },
+  "icon": "images/twitch-drops/rare-theostone-chest.png"
+ },
+ "skin chest": {
+  "names": {
+   "en": "Skin Chest (10 times)",
+   "de": "Skin-Truhe (10x)",
+   "es": "Cofre de apariencia (10 usos)",
+   "fr": "Coffre d'apparence (x10)",
+   "ja": "外形箱(10回)",
+   "ko": "외형 상자 (10회)",
+   "pt": "Baú de Visual (10x)",
+   "ru": "Сундук обликов (10 раз)"
+  },
+  "icon": "images/twitch-drops/skin-chest-10-skins-x1.png"
  }
 }
