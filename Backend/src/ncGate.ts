@@ -1,4 +1,4 @@
-import { and, eq, inArray, like } from "drizzle-orm";
+import { and, eq, gt, inArray, like } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { bossNpcIds, bosses, instances, players, playerNcMatch, servers, uploads } from "./db/schema.js";
 import { registerUploadPlayers } from "./matching/merge.js";
@@ -82,15 +82,21 @@ export function gateUpload(payload: UploadPayload): Gate {
   return self < 0 ? gateOfPlayers(ids) : gateOfPlayers([ids[self]]);
 }
 
+/** Where the last round stopped: a round looks at the next 200 waiting uploads after it, so the oldest ones that keep waiting cannot hold up all the others. */
+let settleCursor = 0;
+const SETTLE_BATCH = 200;
+
 /** Looks at every upload that waits for NC: merges the ones whose players are all verified, turns away the ones with a failed player. Returns what it settled. */
 export function settleNcPending(): { merged: number; failed: number } {
   const rows = db
     .select()
     .from(uploads)
-    .where(and(eq(uploads.status, "pending"), like(uploads.reviewReason, `%${NC_PENDING}%`)))
+    .where(and(eq(uploads.status, "pending"), like(uploads.reviewReason, `%${NC_PENDING}%`), gt(uploads.id, settleCursor)))
     .orderBy(uploads.id)
-    .limit(200)
+    .limit(SETTLE_BATCH)
     .all();
+  // the end of the list: the next round starts again with the oldest
+  settleCursor = rows.length < SETTLE_BATCH ? 0 : rows[rows.length - 1].id;
   let merged = 0;
   let failed = 0;
   for (const row of rows) {

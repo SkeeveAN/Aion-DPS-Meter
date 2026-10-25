@@ -32,6 +32,8 @@ export const YOUNG_FOR = 2 * DAY;
 /** When to ask again, by outcome ('client': after NC could not confirm him either, a character NC does know but could not match - his class or profile may have arrived since; a fresh client player is due at once, but last in line). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
 export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 3 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
 export type MatchStatus = keyof typeof MATCH_RETRY_AFTER;
+/** A player his client named and NC found one character for that did not settle (a class or level that did not fit at that moment): his runs wait for the next look, so it comes soon. */
+const CLIENT_WITH_HIT_RETRY = 6 * HOUR;
 
 const BLOCK_SHARD: Record<number, string> = { 1: "nae", 2: "naw", 3: "eu", 4: "la", 5: "as" };
 const SHARDS: Record<string, string> = { Europe: "eu", Asia: "as", "NA East": "nae", "NA West": "naw", LATAM: "la" };
@@ -519,7 +521,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     // A renamed character is new to us and often to NC's search too: for the first two days he is asked again every three hours (his runs wait for that, see ncGate).
     const age = now - Date.parse(`${player.firstSeenAt.replace(" ", "T")}Z`);
     const young = age < 7 * DAY;
-    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (age < YOUNG_FOR ? 3 * HOUR : young ? DAY : 7 * DAY) : MATCH_RETRY_AFTER.client) }, now);
+    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (age < YOUNG_FOR ? 3 * HOUR : young ? DAY : 7 * DAY) : CLIENT_WITH_HIT_RETRY) }, now);
     return "client";
   }
   record(playerId, decision.status, { candidates: decision.candidates }, now);
