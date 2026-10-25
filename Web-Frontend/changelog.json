@@ -51,6 +51,13 @@
      "Backend"
     ],
     "date": "2026-10-25"
+   },
+   {
+    "text": "NC fetches: four players at the same time, one learned pace for all requests (starts at 2 s, shorter in small steps, longer again when 502s pile up, pause on 429/403), hourly budget 6000",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-25"
    }
   ]
  },
