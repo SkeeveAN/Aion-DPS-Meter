@@ -10,6 +10,20 @@
      "Backend"
     ],
     "date": "2026-10-25"
+   },
+   {
+    "text": "Sessions: a Save all button writes every finished session into a folder, one file each, with the rotation and replay data if ticked (requested by a player in a GitHub issue)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-25"
+   },
+   {
+    "text": "Runs waiting for the NC check no longer starve behind the oldest ones: every round looks at the next batch of waiting uploads, and a player NC found a character for but could not settle is asked again after 6 hours instead of 3 days",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-25"
    }
   ]
  },
