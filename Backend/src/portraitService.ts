@@ -322,8 +322,9 @@ export function pacedFetch(
 type Job = { key: PlayerKey; priority: Priority; force: boolean };
 
 /**
- * Work queue: one job at a time, a pause between jobs, bounded, no duplicates. Jobs are taken by priority (a profile somebody looks at, then a
- * player an upload named, then the background sweep), in order of arrival within one priority. `allow` tells whether the hourly budget towards NC
+ * Work queue: one job at a time, a pause between jobs, bounded, no duplicates. Two buckets: the normal one (a profile somebody looks at, then a
+ * player an upload named, in order of arrival within one priority) and the background one (the sweep, with its backlog of thousands). Normal jobs go first,
+ * but after every NORMAL_PER_BACKGROUND of them one background job is taken, so the backlog always moves. `allow` tells whether the hourly budget towards NC
  * leaves room for a job of that priority; when it does not, the queue waits a minute. Time is injectable for tests.
  */
 export class PortraitQueue {
@@ -363,14 +364,25 @@ export class PortraitQueue {
     return true;
   }
 
-  private next(): [number, Job] {
-    let best: [number, Job] | null = null;
+  /** Normal jobs (a profile somebody looks at, a player an upload named) served in a row while background jobs wait, before one background job gets its turn. */
+  static readonly NORMAL_PER_BACKGROUND = 3;
+  private normalStreak = 0;
+
+  /** The jobs to take next, in the order to try them: the best normal job (by priority, then arrival) and the oldest background job - the background one first after NORMAL_PER_BACKGROUND normal ones. */
+  private candidates(): [number, Job][] {
+    let normal: [number, Job] | null = null;
+    let background: [number, Job] | null = null;
     for (const entry of this.waiting) {
-      if (best === null || entry[1].priority > best[1].priority) {
-        best = entry;
+      if (entry[1].priority > PRIORITY.background) {
+        if (normal === null || entry[1].priority > normal[1].priority) {
+          normal = entry;
+        }
+      } else if (background === null) {
+        background = entry;
       }
     }
-    return best!;
+    const order = background !== null && this.normalStreak >= PortraitQueue.NORMAL_PER_BACKGROUND ? [background, normal] : [normal, background];
+    return order.filter((e): e is [number, Job] => e !== null);
   }
 
   private async drain(): Promise<void> {
@@ -384,21 +396,25 @@ export class PortraitQueue {
         if (wait > 0) {
           await this.opts.sleep(wait);
         }
-        const [id, job] = this.next();
-        if (this.opts.allow && !this.opts.allow(job.priority)) {
-          // The hourly budget is used up for this priority (and so for every lower one): look again in a minute.
+        // The first job of the order the budget lets through; none: the hourly budget is used up for them, look again in a minute.
+        const chosen = this.candidates().find(([, j]) => !this.opts.allow || this.opts.allow(j.priority));
+        if (!chosen) {
           await this.opts.sleep(60_000);
           continue;
         }
+        const [id, job] = chosen;
+        this.normalStreak = job.priority === PRIORITY.background ? 0 : this.normalStreak + 1;
         this.waiting.delete(id);
         this.current = id;
         this.lastStart = this.opts.now();
         try {
+          activeBucketIsBackground = job.priority === PRIORITY.background;
           await this.work(job.key, { force: job.force });
         } catch {
           // the worker records its own failures; one bad job must not stop the queue
         }
         this.current = null;
+        activeBucketIsBackground = false;
       }
     } finally {
       this.running = false;
@@ -409,21 +425,48 @@ export class PortraitQueue {
 /** The one rate limit towards NC, shared by everything that asks it (portraits, character data, the player match). */
 const paced = pacedFetch(fetch, 2000);
 const requestTimes: number[] = [];
+/** The same for the requests of background jobs alone: they have a share of their own (see withinBudget). */
+const backgroundRequestTimes: number[] = [];
+/** Set by the queue while a background job runs, so its requests are counted for the background share. */
+let activeBucketIsBackground = false;
+function lastHour(times: number[], now: number): number {
+  while (times.length > 0 && times[0] <= now - HOUR) {
+    times.shift();
+  }
+  return times.length;
+}
 /** Requests towards NC in the last hour (all of them: portraits, character data, the player match). */
 export function requestsLastHour(now = Date.now()): number {
-  while (requestTimes.length > 0 && requestTimes[0] <= now - HOUR) {
-    requestTimes.shift();
-  }
-  return requestTimes.length;
+  return lastHour(requestTimes, now);
 }
-/** Hourly budget by priority: the background sweep gives way first, so profiles somebody looks at are still served when the budget is nearly used (NC_BUDGET_PER_HOUR, default 1000 for the sweep). */
+/** The part of those that background jobs made. */
+export function backgroundRequestsLastHour(now = Date.now()): number {
+  return lastHour(backgroundRequestTimes, now);
+}
+/** The share of the hourly budget that is the background's own: the normal jobs cannot use it up (a quarter of NC_BUDGET_PER_HOUR). */
+export const BACKGROUND_SHARE = 0.25;
+/**
+ * Hourly budget by priority (NC_BUDGET_PER_HOUR, default 1000): profiles somebody looks at may use up to 1.5 times it, a player an upload named 1.3 times,
+ * the background sweep the budget itself - and, whatever the others have used, its own share (BACKGROUND_SHARE) up to the ceiling of 1.5 times, so it
+ * keeps moving while there is traffic from views and uploads.
+ */
 export function withinBudget(priority: Priority, now = Date.now()): boolean {
   const base = Math.max(1, Number(process.env.NC_BUDGET_PER_HOUR ?? 1000) || 1000);
-  const limit = priority >= PRIORITY.view ? Math.round(base * 1.5) : priority >= PRIORITY.upload ? Math.round(base * 1.3) : base;
-  return requestsLastHour(now) < limit;
+  const total = requestsLastHour(now);
+  if (priority >= PRIORITY.view) {
+    return total < Math.round(base * 1.5);
+  }
+  if (priority >= PRIORITY.upload) {
+    return total < Math.round(base * 1.3);
+  }
+  return total < base || (backgroundRequestsLastHour(now) < base * BACKGROUND_SHARE && total < Math.round(base * 1.5));
 }
 export const ncFetch = ((input: Parameters<FetchFn>[0], init?: Parameters<FetchFn>[1]) => {
-  requestTimes.push(Date.now());
+  const at = Date.now();
+  requestTimes.push(at);
+  if (activeBucketIsBackground) {
+    backgroundRequestTimes.push(at);
+  }
   return paced(input, init);
 }) as FetchFn;
 

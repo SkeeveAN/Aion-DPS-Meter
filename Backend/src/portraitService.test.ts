@@ -340,6 +340,36 @@ test("queue: a profile somebody looks at goes first, then an upload's player, th
   assert.deepEqual(forced, [false, false, true, false]);
 });
 
+test("queue: two buckets - after every three normal jobs one background job is taken, so the sweep's backlog moves while traffic goes on", async () => {
+  const order: number[] = [];
+  const q = new PortraitQueue(async (k) => { order.push(k.playerId); }, { minGapMs: 0, maxLength: 20, now: () => 0, sleep: async () => {} });
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  q.enqueue(k(100), { priority: 1 }); // starts at once
+  for (const id of [1, 2, 3, 4, 5, 6, 7]) {
+    q.enqueue(k(id), { priority: id % 2 === 0 ? 2 : 1 });
+  }
+  q.enqueue(k(201), { priority: 0 });
+  q.enqueue(k(202), { priority: 0 });
+  await new Promise((r) => setTimeout(r, 30));
+  // three normal jobs (100, then the view ones 2 and 4), one background job, three normal (6, 1, 3), one background job, the rest
+  assert.deepEqual(order, [100, 2, 4, 201, 6, 1, 3, 202, 5, 7]);
+});
+
+test("queue: when the budget blocks the chosen bucket, the other one is tried", async () => {
+  const done: number[] = [];
+  let open = false;
+  const q = new PortraitQueue(async (k) => { done.push(k.playerId); }, {
+    minGapMs: 0, maxLength: 10, now: () => 0, sleep: async (ms) => { if (ms === 60_000) open = true; },
+    allow: (priority) => open || priority === 0, // only the background has budget left, until a minute has passed
+  });
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  q.enqueue(k(1), { priority: 0 });
+  q.enqueue(k(2), { priority: 1 });
+  q.enqueue(k(3), { priority: 0 });
+  await new Promise((r) => setTimeout(r, 30));
+  assert.deepEqual(done, [1, 3, 2], "the normal job waits, the background ones go on");
+});
+
 test("queue: the hourly budget holds the sweep back and lets the profile somebody looks at through", async () => {
   const done: number[] = [];
   const sleeps: number[] = [];
