@@ -59,9 +59,13 @@ export class NcPacing {
   /** The answer of one request: its HTTP status, or "network" when there was none. */
   note(status: number | "network", now = Date.now()): void {
     if (status === 429 || status === 403) {
+      this.okRun = 0;
+      // Several requests were under way when the limit came and all get the same answer: they count as one, the gap is not doubled for each.
+      if (now < this.pausedUntilMs) {
+        return;
+      }
       this.gap = Math.min(this.opts.ceilingGapMs, Math.round(this.gap * this.opts.limitFactor));
       this.pausedUntilMs = now + this.opts.limitPauseMs;
-      this.okRun = 0;
       this.log(`HTTP ${status}: pause ${this.opts.limitPauseMs / 1000} s, gap raised to ${this.gap} ms`);
       return;
     }

@@ -391,6 +391,19 @@ test("queue: with four workers four players are fetched at the same time, none t
   assert.deepEqual([...done].sort((a, b) => a - b), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 });
 
+test("queue: while NC's pause after a 429 runs, no job starts; afterwards the work goes on", async () => {
+  let clock = 0;
+  const started: number[] = [];
+  const q = new PortraitQueue(async (k) => { started.push(clock); void k; }, {
+    minGapMs: 0, maxLength: 10, now: () => clock, sleep: async (ms) => { clock += ms; }, pausedUntil: () => 60_000,
+  });
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  q.enqueue(k(1), { priority: 1 });
+  q.enqueue(k(2), { priority: 1 });
+  await new Promise((r) => setTimeout(r, 30));
+  assert.deepEqual(started, [60_000, 60_000], "both jobs started only after the pause");
+});
+
 test("queue: the hourly budget holds the sweep back and lets the profile somebody looks at through", async () => {
   const done: number[] = [];
   const sleeps: number[] = [];

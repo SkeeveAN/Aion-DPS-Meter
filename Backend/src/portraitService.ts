@@ -337,7 +337,7 @@ export class PortraitQueue {
   private lastStart = 0;
   constructor(
     private readonly work: (key: PlayerKey, job: { force: boolean }) => Promise<void>,
-    private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void>; allow?: (priority: Priority) => boolean; concurrency?: number } = {
+    private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void>; allow?: (priority: Priority) => boolean; concurrency?: number; pausedUntil?: () => number } = {
       minGapMs: 2000,
       maxLength: 200,
       now: Date.now,
@@ -409,6 +409,12 @@ export class PortraitQueue {
         }
         if (this.waiting.size === 0) {
           break;
+        }
+        // NC said "too many" (429/403): no job starts until the pause is over, so no player is marked as failed for it.
+        const paused = (this.opts.pausedUntil?.() ?? 0) - this.opts.now();
+        if (paused > 0) {
+          await this.opts.sleep(paused);
+          continue;
         }
         // The first job of the order the budget lets through; none: the hourly budget is used up for them, look again in a minute.
         const chosen = this.candidates().find(([, j]) => !this.opts.allow || this.opts.allow(j.priority));
@@ -631,6 +637,7 @@ export const portraitQueue = new PortraitQueue((key, job) => processPlayer(key, 
   sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
   allow: (priority) => withinBudget(priority),
   concurrency: WORKERS,
+  pausedUntil: () => ncPacing.pausedUntil(),
 });
 
 /**

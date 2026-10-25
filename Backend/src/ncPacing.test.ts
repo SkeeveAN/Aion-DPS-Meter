@@ -35,11 +35,13 @@ test("pacing: a single server error changes nothing, a cluster of them raises th
   assert.ok(p.gapMs() > Math.round(raised * 0.9) - 1, "a later cluster raises it again");
 });
 
-test("pacing: a 429 or 403 stops all requests for a minute and doubles the gap; the gap never passes the ceiling", () => {
+test("pacing: a 429 or 403 stops all requests for a minute and doubles the gap once, however many requests got it; a later one doubles it again up to the ceiling", () => {
   const p = pacing();
   p.note(429, 5000);
   assert.equal(p.gapMs(), 4000);
   assert.equal(p.pausedUntil(), 5000 + DEFAULT_PACING.limitPauseMs);
   for (let i = 0; i < 20; i++) p.note(403, 5000 + i);
+  assert.equal(p.gapMs(), 4000, "requests that were already under way count as one");
+  for (let i = 1; i <= 10; i++) p.note(429, 5000 + i * 70_000);
   assert.equal(p.gapMs(), DEFAULT_PACING.ceilingGapMs);
 });
