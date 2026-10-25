@@ -30,6 +30,20 @@
      "Backend"
     ],
     "date": "2026-10-25"
+   },
+   {
+    "text": "Crafting recipes: alchemy is profession 4 (proven by a recording, comment only)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-25"
+   },
+   {
+    "text": "Profile: NC's page extends every profile (skills, boards, title), replaces a game profile after 2 days and the player's own after 7 days (its own lists stay)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-25"
    }
   ]
  },
