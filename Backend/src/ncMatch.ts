@@ -339,10 +339,13 @@ export function mergePlayerRows(keepId: number, dropId: number): void {
     } else {
       tx.delete(playerProfiles).where(eq(playerProfiles.playerId, dropId)).run();
     }
-    const dropRow = tx.select({ name: players.nameNormalized, aliases: players.aliasNamesNormalized, gameId: players.gameCharacterId }).from(players).where(eq(players.id, dropId)).get();
-    const keepRow = tx.select({ aliases: players.aliasNamesNormalized, gameId: players.gameCharacterId }).from(players).where(eq(players.id, keepId)).get();
+    const dropRow = tx.select({ name: players.nameNormalized, serverId: players.serverId, aliases: players.aliasNamesNormalized, gameId: players.gameCharacterId }).from(players).where(eq(players.id, dropId)).get();
+    const keepRow = tx.select({ serverId: players.serverId, aliases: players.aliasNamesNormalized, gameId: players.gameCharacterId }).from(players).where(eq(players.id, keepId)).get();
     if (dropRow && keepRow) {
-      const aliases = [...new Set([...(keepRow.aliases ?? []), ...(dropRow.aliases ?? []), dropRow.name])];
+      // The row sat on another server than the character really is on (an old client named the wrong one): an upload that names him there again must find him here
+      // instead of making the wrong row anew (see merge.ts upsertPlayerRow), so the wrong place is kept as "name@serverId".
+      const wrongPlace = dropRow.serverId !== keepRow.serverId ? [`${dropRow.name}@${dropRow.serverId}`] : [];
+      const aliases = [...new Set([...(keepRow.aliases ?? []), ...(dropRow.aliases ?? []), dropRow.name, ...wrongPlace])];
       tx.update(players).set({ aliasNamesNormalized: aliases, gameCharacterId: keepRow.gameId ?? dropRow.gameId }).where(eq(players.id, keepId)).run();
     }
     tx.delete(players).where(eq(players.id, dropId)).run();
@@ -380,7 +383,7 @@ function applyName(player: PlayerRow, ncName: string, serverId: number): string 
  * Applies the one matching character to the player: his real server, his faction. Returns "conflict" (nothing changed) when it contradicts what we hold, or the id of the
  * row that already is this very character on his real server (verified, same NC character id): the player is a second row of it, filed under the wrong server by a client.
  */
-function applyHit(player: PlayerRow, hit: Hit): "applied" | "conflict" | number {
+function applyHit(player: PlayerRow, hit: Hit, viaElsewhere = false): "applied" | "conflict" | number {
   const faction = hit.race === 1 ? "Elyos" : "Asmodian";
   if (player.faction && player.faction !== faction) {
     return "conflict";
@@ -390,15 +393,22 @@ function applyHit(player: PlayerRow, hit: Hit): "applied" | "conflict" | number 
     const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, target), eq(players.nameNormalized, player.nameNormalized), ne(players.id, player.id))).get();
     if (taken) {
       const found = decodeCharacterId(hit.characterId);
-      const theirs = found ? db.select({ status: playerNcMatch.status, ncCharacterId: playerNcMatch.ncCharacterId }).from(playerNcMatch).where(eq(playerNcMatch.playerId, taken.id)).get() : undefined;
-      return theirs?.status === "verified" && theirs.ncCharacterId === found ? taken.id : "conflict";
+      const theirs = db.select({ status: playerNcMatch.status, ncCharacterId: playerNcMatch.ncCharacterId }).from(playerNcMatch).where(eq(playerNcMatch.playerId, taken.id)).get();
+      if (theirs?.status === "verified" && theirs.ncCharacterId === found && found !== null) {
+        return taken.id;
+      }
+      // His own client named another server and NC knows nobody of that name there, but exactly one character of his faction and class elsewhere: a name is unique on a server,
+      // so the row that holds it there is him (not yet looked at, perhaps) unless NC has confirmed that row as another character.
+      return viaElsewhere && !(theirs?.status === "verified" && theirs.ncCharacterId !== found) ? taken.id : "conflict";
     }
     // The legion belongs to one server: when two or more verified members of it say another one, this match is suspect.
     const others = legionServersOf(player);
     if (others.length === 1 && others[0] !== hit.serverId) {
       return "conflict";
     }
-    db.update(players).set({ serverId: target, faction }).where(eq(players.id, player.id)).run();
+    // the place he was filed under stays as "name@serverId": an upload that names him there again finds him here instead of making the wrong row anew (see merge.ts upsertPlayerRow)
+    const aliases = db.select({ a: players.aliasNamesNormalized }).from(players).where(eq(players.id, player.id)).get()?.a ?? [];
+    db.update(players).set({ serverId: target, faction, aliasNamesNormalized: [...new Set([...aliases, `${player.nameNormalized}@${player.serverId}`])] }).where(eq(players.id, player.id)).run();
     linkPlayerGuild(player.id);
   } else if (!player.faction) {
     db.update(players).set({ faction }).where(eq(players.id, player.id)).run();
@@ -480,7 +490,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     return "error";
   }
   if (decision.status === "verified" && decision.hit) {
-    const outcome = applyHit(player, decision.hit);
+    const outcome = applyHit(player, decision.hit, decision.via === "name-elsewhere");
     if (typeof outcome === "number") {
       // A second row of a character we already hold on his real server: his fights, profile and name move to that row, this one goes.
       mergePlayerRows(outcome, playerId);
@@ -541,6 +551,10 @@ function twinOf(playerId: number, ncCharacterId: string): number | null {
 export function noteClientServer(playerId: number, ncServerId: number, now = Date.now()): void {
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
   if ((before?.status === "verified" || before?.status === "client") && before.ncServerId === ncServerId) {
+    return;
+  }
+  // What NC decided (a conflict, no character, several) is not overwritten by a client's word on every later upload: the decision stays until its retry is due
+  if (before && before.status !== "client" && before.status !== "error" && before.nextTryAt > now) {
     return;
   }
   record(playerId, "client", { ncServerId, nextTryAt: now }, now);

@@ -349,6 +349,17 @@ function upsertPlayerRow(name: string, serverId: number, guild?: string, faction
     return aliasMatch.id;
   }
 
+  // A row NC moved to the character's real server (merged away): an old upload that names him on the wrong server again finds him there (alias "name@serverId", see ncMatch.mergePlayerRows)
+  const movedTo = db
+    .select({ id: players.id })
+    .from(players)
+    .where(sql`${players.aliasNamesNormalized} like ${`%"${nameNormalized.replace(/[%_"\\]/g, "")}@${serverId}"%`}`)
+    .get();
+  if (movedTo) {
+    db.update(players).set({ lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) }).where(eq(players.id, movedTo.id)).run();
+    return movedTo.id;
+  }
+
   const inserted = db.insert(players).values({ name, nameNormalized, serverId, guild: guild ?? null, faction: faction ?? "" }).run();
   const playerId = Number(inserted.lastInsertRowid);
   ensurePlayerSlug(playerId);

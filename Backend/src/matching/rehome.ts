@@ -95,6 +95,10 @@ export function rehomeKnownPlayers(members: { name: string; guild?: string; targ
     if (rowOf(m.target, m.norm) || aliasOf(m.target, m.norm)) {
       return;
     }
+    // NC has confirmed this row on its server: a server id in an upload (an old client read it wrong) does not move him away from it
+    if (sqlite.prepare("select 1 from player_nc_match where player_id = ? and status = 'verified'").get(candidate.id)) {
+      return;
+    }
     sqlite.prepare("update players set server_id = ? where id = ?").run(m.target, candidate.id);
     linkPlayerGuild(candidate.id);
     settled.set(m.norm, candidate.id);
