@@ -254,6 +254,7 @@
             <Button x:Name="DeleteButton" Content="&#x1F5D1;" FontSize="16" Padding="8,0" Margin="0" ToolTip="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
             <Button Content="{local:Loc Sessions.Load}" Click="OnLoadFileClicked"/>
             <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
+            <Button x:Name="SaveAllButton" Content="{local:Loc Sessions.SaveAll}" ToolTip="{local:Loc Sessions.SaveAll.Tip}" Click="OnSaveAllClicked"/>
             <CheckBox x:Name="SaveExtrasBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.SaveExtras}" ToolTip="{local:Loc Sessions.SaveExtras.Tip}" VerticalAlignment="Center" Margin="16,0,0,0"
                       Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
         </StackPanel>

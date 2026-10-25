@@ -32,6 +32,16 @@ public static class ThemedMessageBox
         return answer.Value;
     }
 
+    /// <summary>A file of the same name is there: Yes (overwrite it), No (leave it) or Cancel (stop saving).</summary>
+    public static MessageBoxResult AskOverwrite(Window? owner, string caption, string text)
+    {
+        var loc = LocalizationManager.Instance;
+        var window = Build(owner, text, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, null, null, out var answer,
+            (loc["Sessions.SaveAll.Overwrite"], loc["Sessions.SaveAll.Skip"], loc["Config.Cancel"]));
+        window.ShowDialog();
+        return answer.Value;
+    }
+
     /// <summary>The answer of a box that is still open.</summary>
     public sealed class Answer
     {

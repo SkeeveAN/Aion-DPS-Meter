@@ -556,6 +556,83 @@ public partial class SessionManagerWindow : Window
         }
     }
 
+    /// <summary>
+    /// Saves every finished session of the list (not the ones loaded from a file, which are files already) into a folder, one file each. A file that is already there is
+    /// asked about: overwrite it, leave it, or stop. The choice for the rotation and replay data is the one of the checkbox.
+    /// </summary>
+    private void OnSaveAllClicked(object sender, RoutedEventArgs e)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var sessions = _recorder.Sessions.Where(s => !s.FromFile && !s.IsOpen && s.Data.Events.Count > 0).ToList();
+        if (sessions.Count == 0)
+        {
+            ThemedMessageBox.Show(this, loc["Sessions.SaveAll.None"], Title, MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        Directory.CreateDirectory(SessionFile.DefaultDirectory);
+        var dialog = new OpenFolderDialog { InitialDirectory = SessionFile.DefaultDirectory, Title = loc["Sessions.SaveAll.Folder"] };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        bool extras = SaveExtrasBox.IsChecked == true;
+        var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        int saved = 0, skipped = 0, failed = 0;
+        var previousCursor = Mouse.OverrideCursor;
+        Mouse.OverrideCursor = Cursors.Wait;
+        try
+        {
+            foreach (SessionInfo session in sessions)
+            {
+                string baseName = SafeFileName($"{SessionLabels.NameOf(session)} {session.Start:yyyy-MM-dd HH-mm}");
+                string name = baseName;
+                for (int copy = 2; !used.Add(name); copy++)
+                {
+                    name = $"{baseName} ({copy})"; // two sessions of the same name in the same minute: never ask about a file this run has just written
+                }
+
+                string path = Path.Combine(dialog.FolderName, name + SessionFile.Extension);
+                if (File.Exists(path))
+                {
+                    Mouse.OverrideCursor = previousCursor;
+                    MessageBoxResult answer = ThemedMessageBox.AskOverwrite(this, Title, string.Format(loc["Sessions.SaveAll.Exists"], Path.GetFileName(path)));
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    if (answer == MessageBoxResult.Cancel)
+                    {
+                        break;
+                    }
+
+                    if (answer == MessageBoxResult.No)
+                    {
+                        skipped++;
+                        continue;
+                    }
+                }
+
+                try
+                {
+                    SessionFile.SaveStay(path, session, extras ? (session.Extras ?? ExtrasFor?.Invoke(session)) : null);
+                    session.IsSaved = true;
+                    saved++;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    failed++;
+                }
+            }
+        }
+        finally
+        {
+            Mouse.OverrideCursor = previousCursor;
+        }
+
+        Refresh();
+        string result = string.Format(loc["Sessions.SaveAll.Done"], saved, skipped, failed, dialog.FolderName);
+        ThemedMessageBox.Show(this, result, Title, MessageBoxButton.OK, failed > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+    }
+
     /// <summary>The choice is kept: the next save, and the next start, begin with it.</summary>
     private void OnSaveExtrasChanged(object sender, RoutedEventArgs e)
     {
