@@ -561,9 +561,14 @@ export function dueOf(ids: number[], now = Date.now()): number[] {
   return rows.filter((r) => shardOf(r.serverName) !== null && (r.nextTryAt === null || r.nextTryAt <= now)).map((r) => r.id);
 }
 
-/** Serial work queue: one player at a time, bounded, no duplicates. The pause between requests is the shared paced fetch. */
+/**
+ * Serial work queue: one player at a time, bounded, no duplicates. The pause between requests is the shared paced fetch.
+ * Two lanes: the players of an ordinary upload come first, the bulk (the hundreds of a world boss crowd, the background sweep) only when no ordinary player
+ * waits - a four-player run must not stand behind a crowd. A player queued in the bulk lane and asked for again as an ordinary one moves up.
+ */
 export class MatchQueue {
   private readonly waiting = new Set<number>();
+  private readonly bulk = new Set<number>();
   private running = false;
   constructor(
     private readonly work: (playerId: number) => Promise<unknown>,
@@ -571,17 +576,27 @@ export class MatchQueue {
   ) {}
 
   get size(): number {
-    return this.waiting.size;
+    return this.waiting.size + this.bulk.size;
   }
 
-  enqueue(ids: number[]): number {
+  enqueue(ids: number[], lane: "normal" | "bulk" = "normal"): number {
     let added = 0;
     for (const id of ids) {
-      if (this.waiting.size >= this.limit) {
+      if (lane === "normal") {
+        if (this.bulk.delete(id) && !this.waiting.has(id)) {
+          this.waiting.add(id); // promoted, not new: the room it took is the same
+          added++;
+          continue;
+        }
+      } else if (this.waiting.has(id)) {
+        continue;
+      }
+      if (this.size >= this.limit) {
         break;
       }
-      if (!this.waiting.has(id)) {
-        this.waiting.add(id);
+      const target = lane === "normal" ? this.waiting : this.bulk;
+      if (!this.waiting.has(id) && !this.bulk.has(id)) {
+        target.add(id);
         added++;
       }
     }
@@ -593,7 +608,7 @@ export class MatchQueue {
 
   /** Resolves when the queue is empty (tests). */
   async idle(): Promise<void> {
-    while (this.running || this.waiting.size > 0) {
+    while (this.running || this.size > 0) {
       await new Promise((r) => setTimeout(r, 5));
     }
   }
@@ -604,9 +619,10 @@ export class MatchQueue {
     }
     this.running = true;
     try {
-      while (this.waiting.size > 0) {
-        const id = this.waiting.values().next().value as number;
-        this.waiting.delete(id);
+      while (this.size > 0) {
+        const lane = this.waiting.size > 0 ? this.waiting : this.bulk;
+        const id = lane.values().next().value as number;
+        lane.delete(id);
         try {
           await this.work(id);
         } catch {
@@ -632,13 +648,16 @@ export function askAboutRenamed(playerId: number, queue: MatchQueue = matchQueue
   }
 }
 
+/** A group is at most five players; an upload with many more is a crowd (world boss kill) and goes through the bulk lane. */
+const CROWD_SIZE = 12;
+
 /** After an upload: asks NC about the players of it that are due. Never blocks and never throws. */
-export function checkPlayers(ids: number[], queue: MatchQueue = matchQueue, now = Date.now()): number {
+export function checkPlayers(ids: number[], queue: MatchQueue = matchQueue, now = Date.now(), lane: "normal" | "bulk" = ids.length > CROWD_SIZE ? "bulk" : "normal"): number {
   if (!matchEnabled() && queue === matchQueue) {
     return 0;
   }
   try {
-    return queue.enqueue(dueOf(ids, now));
+    return queue.enqueue(dueOf(ids, now), lane);
   } catch {
     return 0;
   }
@@ -664,7 +683,7 @@ export function startMatchSweep(intervalMs = 15 * 60_000, batch = 60): void {
   }
   const sweep = () => {
     try {
-      matchQueue.enqueue(duePlayers(batch));
+      matchQueue.enqueue(duePlayers(batch), "bulk");
     } catch {
       // try again at the next round
     }

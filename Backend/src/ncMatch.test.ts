@@ -222,6 +222,19 @@ test("the queue works one player at a time and takes each only once", async () =
   assert.equal(overlap, false);
 });
 
+test("the players of an ordinary upload go before the bulk, and a bulk player asked for as an ordinary one moves up", async () => {
+  const order: number[] = [];
+  const q = new MatchQueue(async (id) => {
+    await new Promise((r) => setTimeout(r, 2));
+    order.push(id);
+  });
+  q.enqueue([10, 11, 12], "bulk"); // 10 starts at once, 11 and 12 wait
+  q.enqueue([20, 12]); // an ordinary upload: 20 is new, 12 is pulled up out of the bulk
+  q.enqueue([21, 11], "bulk"); // 11 is already waiting, 21 is new bulk
+  await q.idle();
+  assert.deepEqual(order, [10, 20, 12, 11, 21]);
+});
+
 test("a player without a legion or region we can search is not due", () => {
   const unknown = server("aion2:aion-2-server-9999", "Hogalum [9999]");
   const id = player("Fremd", unknown);

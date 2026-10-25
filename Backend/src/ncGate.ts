@@ -2,7 +2,7 @@ import { and, eq, gt, inArray, like } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { bossNpcIds, bosses, instances, players, playerNcMatch, servers, uploads } from "./db/schema.js";
 import { registerUploadPlayers } from "./matching/merge.js";
-import { shardOf, YOUNG_FOR } from "./ncMatch.js";
+import { checkPlayers, shardOf, YOUNG_FOR } from "./ncMatch.js";
 import { approveUpload } from "./uploadReview.js";
 import { uploadSchema, type UploadPayload } from "./uploadSchema.js";
 import { clearPageCache } from "./seo/cache.js";
@@ -19,12 +19,12 @@ export type Gate = "pass" | "fail" | "wait";
 export const NC_PENDING = "nc_pending";
 export const PLAYER_CHECK_FAILED = "player_check_failed";
 
-export function gateOfPlayers(ids: number[], now = Date.now()): Gate {
+export function gateOfPlayers(ids: number[], now = Date.now(), openIds?: number[]): Gate {
   if (ids.length === 0) {
     return "pass";
   }
   const rows = db
-    .select({ faction: players.faction, serverName: servers.displayName, status: playerNcMatch.status, nextTryAt: playerNcMatch.nextTryAt, candidates: playerNcMatch.candidates, firstSeenAt: players.firstSeenAt })
+    .select({ id: players.id, faction: players.faction, serverName: servers.displayName, status: playerNcMatch.status, nextTryAt: playerNcMatch.nextTryAt, candidates: playerNcMatch.candidates, firstSeenAt: players.firstSeenAt })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .leftJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
@@ -51,6 +51,7 @@ export function gateOfPlayers(ids: number[], now = Date.now()): Gate {
       return "fail";
     }
     open = true;
+    openIds?.push(r.id);
   }
   return open ? "wait" : "pass";
 }
@@ -75,11 +76,17 @@ export function isWorldBossNpc(npcId: number | undefined): boolean {
  */
 export function gateUpload(payload: UploadPayload): Gate {
   const ids = registerUploadPlayers(payload);
-  if (!isWorldBossNpc(payload.bossNpcId)) {
-    return gateOfPlayers(ids);
+  const judged = !isWorldBossNpc(payload.bossNpcId) ? ids : (() => {
+    const self = payload.participants.findIndex((p) => p.isSelf);
+    return self < 0 ? ids : [ids[self]];
+  })();
+  const open: number[] = [];
+  const gate = gateOfPlayers(judged, Date.now(), open);
+  if (gate === "wait") {
+    // the run waits for exactly these players: they go to NC now, ahead of the bulk (a player only his own client named would otherwise wait for the slow background round)
+    checkPlayers(open, undefined, undefined, "normal");
   }
-  const self = payload.participants.findIndex((p) => p.isSelf);
-  return self < 0 ? gateOfPlayers(ids) : gateOfPlayers([ids[self]]);
+  return gate;
 }
 
 /** Where the last round stopped: a round looks at the next 200 waiting uploads after it, so the oldest ones that keep waiting cannot hold up all the others. */
