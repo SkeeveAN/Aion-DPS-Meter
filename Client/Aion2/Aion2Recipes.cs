@@ -13,7 +13,7 @@ public static class Aion2Recipes
     /// <summary>The crafting level-up frame <c>0x7d8d | profession u8 | level u16 (absolute) | ...</c> (docs/protocol/inventar-quest-frames.md).</summary>
     public const int LevelUpOpcode = 0x7d8d;
 
-    /// <summary>The recipe category of a profession id of the level-up frame: 1 weapon smithing, 2 armor (tailoring), 3 jewelcrafting, 5 cooking are proven by screenshots; 4 alchemy follows that order and is not proven.</summary>
+    /// <summary>The recipe category of a profession id of the level-up frame: 1 weapon smithing, 2 armor (tailoring), 3 jewelcrafting, 5 cooking are proven by screenshots; 4 alchemy is proven by a recording of the alchemy orders (25.10.2026: profession 4, +20 experience per craft, levels 2 and 3 reached).</summary>
     private static readonly Dictionary<int, string> CategoryOf = new() { [1] = "Blacksmithing", [2] = "Tailoring", [3] = "Jewelcrafting", [4] = "Alchemy", [5] = "Cooking" };
 
     private static readonly object Gate = new();
