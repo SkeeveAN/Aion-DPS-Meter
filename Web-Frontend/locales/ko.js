@@ -418,6 +418,7 @@ export default {
   "skillTable.max": "최대 타격",
   "table.buffs": "버프",
   "encounter.duration": "소요 시간",
+  "encounter.runBosses": "이 런의 보스",
   "encounter.appVersion": "앱 버전",
   "encounter.appVersionUnknown": "알 수 없음",
   "encounter.rosterSubtitle": "참가자 {count}명{pets} · {sorted}",

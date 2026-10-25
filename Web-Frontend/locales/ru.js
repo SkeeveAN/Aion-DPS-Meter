@@ -387,6 +387,7 @@ export default {
   "skillTable.max": "Макс. удар",
   "table.buffs": "Баффы",
   "encounter.duration": "Длительность",
+  "encounter.runBosses": "Боссы этого забега",
   "encounter.appVersion": "Версия приложения",
   "encounter.appVersionUnknown": "неизвестна",
   "encounter.rosterSubtitle": "{count} участников{pets} · {sorted}",

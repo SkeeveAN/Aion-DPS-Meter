@@ -418,6 +418,7 @@ export default {
   "skillTable.max": "最大ヒット",
   "table.buffs": "バフ",
   "encounter.duration": "所要時間",
+  "encounter.runBosses": "このランのボス",
   "encounter.appVersion": "アプリのバージョン",
   "encounter.appVersionUnknown": "不明",
   "encounter.rosterSubtitle": "{count} 人の参加者{pets} · {sorted}",

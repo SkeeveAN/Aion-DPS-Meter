@@ -382,6 +382,7 @@ export default {
   "skillTable.max": "最高命中",
   "table.buffs": "增益效果",
   "encounter.duration": "持续时间",
+  "encounter.runBosses": "本次副本的首领",
   "encounter.appVersion": "应用版本",
   "encounter.appVersionUnknown": "未知",
   "encounter.rosterSubtitle": "{count} 名参与者{pets} · {sorted}",

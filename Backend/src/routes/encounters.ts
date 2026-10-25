@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { ESTIMATED_NOTE, EXACT_PARTICIPANT } from "../estimated.js";
 import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
@@ -22,6 +22,57 @@ import { gameFromQuery } from "./instances.js";
  *   player history, compare picker)  -> per row isPartial: boolean
  * Rankings, best lists, averages, kill counts and statistics leave partial fights out (is_partial = 0 in the query).
  */
+
+// The fights of one run (3-4 bosses of the same instance and step), the same rule as the website's runs tab: same instance, step and server,
+// at most 40 minutes between two fights, no boss twice, and at least one player in common with the opened fight. Start order; always holds the opened fight.
+const RUN_GAP_MS = 40 * 60 * 1000;
+function runOfEncounter(encounter: { id: number; bossId: number; startedAt: string; endedAt: string; mode: string; serverId: number | null; instanceName: string; game: "aion" | "aion2" }) {
+  const center = Date.parse(encounter.startedAt);
+  const own = db.select({ playerId: encounterParticipants.playerId }).from(encounterParticipants).where(eq(encounterParticipants.encounterId, encounter.id)).all().map((r) => r.playerId);
+  const around = db
+    .select({
+      id: encounters.id,
+      bossId: encounters.bossId,
+      bossName: bosses.name,
+      bossNameEn: bosses.nameEn,
+      bossSlug: bosses.slug,
+      startedAt: encounters.startedAt,
+      endedAt: encounters.endedAt,
+      durationSeconds: encounters.durationSeconds,
+      groupIDps: encounters.groupIDps,
+      isPartial: encounters.isPartial,
+      mode: encounters.mode,
+      serverId: encounters.serverId,
+    })
+    .from(encounters)
+    .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
+    .where(and(eq(instances.name, encounter.instanceName), eq(instances.game, encounter.game), gte(encounters.startedAt, new Date(center - 4 * 3600_000).toISOString()), lte(encounters.startedAt, new Date(center + 4 * 3600_000).toISOString())))
+    .orderBy(asc(encounters.startedAt))
+    .all()
+    .filter((e) => e.mode === encounter.mode && e.serverId === encounter.serverId);
+  const shared = new Set(
+    own.length === 0 || around.length === 0
+      ? []
+      : db
+          .select({ encounterId: encounterParticipants.encounterId })
+          .from(encounterParticipants)
+          .where(and(inArray(encounterParticipants.encounterId, around.map((e) => e.id)), inArray(encounterParticipants.playerId, own)))
+          .all()
+          .map((r) => r.encounterId),
+  );
+  const sessions: (typeof around)[] = [];
+  for (const e of around.filter((x) => x.id === encounter.id || shared.has(x.id))) {
+    const cur = sessions.at(-1);
+    if (cur && Date.parse(e.startedAt) - Date.parse(cur.at(-1)!.endedAt) <= RUN_GAP_MS && !cur.some((x) => x.bossId === e.bossId)) {
+      cur.push(e);
+    } else {
+      sessions.push([e]);
+    }
+  }
+  const mine = sessions.find((s) => s.some((x) => x.id === encounter.id)) ?? [];
+  return mine.map(({ id, bossName, bossNameEn, bossSlug, startedAt, durationSeconds, groupIDps, isPartial }) => ({ encounterId: id, bossName, bossNameEn, bossSlug, startedAt, durationSeconds, groupIDps, isPartial }));
+}
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
 // leaderboard's "top groups" list so a run can be linked to directly, not just expanded inline.
@@ -183,6 +234,8 @@ export async function encounterRoutes(app: FastifyInstance) {
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null, hasTimeline: hasTimeline(encounterId) },
+      // All fights of the same run (the opened one included) in start order, for the boss tabs above the lists.
+      run: runOfEncounter(encounter),
       roster: rosterWithBuffs,
       // Set when some damage figures are estimated from hit counts (rows with estimated = true); the page shows it as a footnote.
       estimatedNote: rosterWithBuffs.some((r) => r.estimated) ? ESTIMATED_NOTE : null,

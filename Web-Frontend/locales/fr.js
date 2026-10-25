@@ -387,6 +387,7 @@ export default {
   "skillTable.max": "Coup max",
   "table.buffs": "Buffs",
   "encounter.duration": "Durée",
+  "encounter.runBosses": "Boss de cette session",
   "encounter.appVersion": "Version de l'app",
   "encounter.appVersionUnknown": "inconnue",
   "encounter.rosterSubtitle": "{count} participants{pets} · {sorted}",

@@ -592,6 +592,7 @@ export default {
   "skillTable.max": "Max hit",
   "table.buffs": "Buffs",
   "encounter.duration": "Duration",
+  "encounter.runBosses": "Bosses of this run",
   "encounter.appVersion": "App version",
   "encounter.appVersionUnknown": "unknown",
   "encounter.rosterSubtitle": "{count} participants{pets} · {sorted}",

@@ -3519,7 +3519,18 @@ async function renderEncounter(encounterId) {
 
   // The compare link is an icon tile at the far end of the stats row.
   statsRow.append(compareTile(t("compare.ctaRuns"), compareLink("/compare/runs", { a: data.encounter.id })));
-  app.replaceChildren(hero, statsRow, grid);
+  // The other bosses of the same run as tabs above the lists; a tab is the page of that boss's fight.
+  const run = data.run ?? [];
+  const bossTabs = run.length > 1
+    ? el("nav", { className: "boss-tabs", "aria-label": t("encounter.runBosses") }, run.map((r) => {
+        const photo = bossCards[r.bossNameEn] ?? bossCards[r.bossName] ?? BOSS_IMAGES[r.bossNameEn] ?? BOSS_IMAGES[r.bossName];
+        return el("a", { className: "boss-tab", href: gp(`/encounters/${r.encounterId}`), "aria-current": r.encounterId === data.encounter.id ? "page" : null }, [
+          el("span", { className: "boss-tab-thumb", style: photo ? `background-image:url('${smallPhoto(photo)}')` : "" }),
+          el("span", {}, [el("b", { textContent: translateGameName(r.bossName) }), el("small", { textContent: `${formatDuration(r.durationSeconds)} · ${formatNumber(r.groupIDps)} iDPS` })]),
+        ]);
+      }))
+    : null;
+  app.replaceChildren(...[hero, statsRow, bossTabs, grid].filter((x) => x != null));
 
   // Fights whose uploads carry a time axis get the group timeline and the buffs per skill below the lists (a failed request just leaves them out).
   if (data.encounter.hasTimeline) {
