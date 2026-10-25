@@ -813,18 +813,75 @@ function boardSummary(boardCountsJson: string, own: { board: number; name: strin
     .sort((a, b) => a.board - b.board);
 }
 
+/** How long a profile read in the game (somebody inspected the player) stays untouched by NC's page: after this NC's view may replace it. */
+export const SEEN_OVERWRITE_AFTER = 2 * 24 * 3_600_000;
+/** The same for a profile from the player's own client: it holds on far longer than the 4 days a profile of another player's client does. */
+export const SELF_OVERWRITE_AFTER = 7 * 24 * 3_600_000;
+
+/** `updated_at` is stored as "YYYY-MM-DD HH:MM:SS" in UTC. */
+const ageOf = (updatedAt: string, now: number): number => now - Date.parse(`${updatedAt.replace(" ", "T")}Z`);
+
 /**
  * Stores what NC's official character page says (gear, skills, Daevanion board counts, level, class, title) as the player's profile, so the
- * profile page shows it like any other. The lowest rank: a "self" profile is never touched, and a "seen" one stays unless NC lists more
- * pieces. Never carries anything over from the old row, so the profile is exactly NC's view.
+ * profile page shows it like any other. Its rank is the lowest, with three rules:
+ * - NC's page always EXTENDS a profile: what the profile lacks (skills, Daevanion nodes, board counts, title) is filled in, nothing present is touched.
+ * - A profile from the game ("seen") older than <see SEEN_OVERWRITE_AFTER> is replaced by NC's view (source "nc"); a fresh one stays.
+ * - A profile from the player's own client ("self") holds on for SELF_OVERWRITE_AFTER; after that NC's gear, skills, boards and level replace
+ *   its own, but what only the client knows (species, ranks, attributes, wings, pets, account key) stays, and the source stays "self".
+ * An extension or an overwrite of a self profile never moves `updated_at`: the age is the age of the client's reading, and the next
+ * upload from the game replaces NC's view as before (see upsertProfile).
  */
-export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "gear" | "skills" | "boardCounts" | "daevanion" | "level" | "classId" | "titleId">): void {
+export function upsertNcProfile(
+  playerId: number,
+  data: Pick<NcCharacterData, "gear" | "skills" | "boardCounts" | "daevanion" | "level" | "classId" | "titleId">,
+  now = Date.now(),
+): void {
   if (data.gear.length === 0 && data.classId === null) {
     return;
   }
   const row = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
-  if (row && row.source !== "nc" && (row.source === "self" || (JSON.parse(row.gearJson) as unknown[]).length >= data.gear.length)) {
-    return;
+  const titles = data.titleId ? [{ slot: 1, titleId: data.titleId }] : [];
+  if (row && row.source !== "nc") {
+    const age = ageOf(row.updatedAt, now);
+    if (row.source === "self" && age > SELF_OVERWRITE_AFTER && data.gear.length > 0) {
+      db.update(playerProfiles)
+        .set({
+          level: data.level ?? row.level,
+          classId: data.classId ?? row.classId,
+          gearJson: JSON.stringify(data.gear),
+          skillsJson: data.skills.length > 0 ? JSON.stringify(data.skills) : row.skillsJson,
+          // the presets belong to the skills they were read with: new skills, no presets
+          presetsJson: data.skills.length > 0 ? "[]" : row.presetsJson,
+          daevanionJson: data.daevanion.length > 0 ? JSON.stringify(data.daevanion) : row.daevanionJson,
+          boardCountsJson: data.boardCounts.length > 0 ? JSON.stringify(data.boardCounts) : row.boardCountsJson,
+          titlesJson: titles.length > 0 ? JSON.stringify(titles) : row.titlesJson,
+        })
+        .where(eq(playerProfiles.playerId, playerId))
+        .run();
+      return;
+    }
+    if (row.source === "seen" && age > SEEN_OVERWRITE_AFTER && data.gear.length > 0) {
+      // falls through to the replacement below
+    } else {
+      // fresh: only what is missing
+      const fill: Partial<typeof playerProfiles.$inferInsert> = {};
+      if (row.skillsJson === "[]" && data.skills.length > 0) {
+        fill.skillsJson = JSON.stringify(data.skills);
+      }
+      if (row.daevanionJson === "[]" && data.daevanion.length > 0) {
+        fill.daevanionJson = JSON.stringify(data.daevanion);
+      }
+      if (row.boardCountsJson === "[]" && data.boardCounts.length > 0) {
+        fill.boardCountsJson = JSON.stringify(data.boardCounts);
+      }
+      if (row.titlesJson === "[]" && titles.length > 0) {
+        fill.titlesJson = JSON.stringify(titles);
+      }
+      if (Object.keys(fill).length > 0) {
+        db.update(playerProfiles).set(fill).where(eq(playerProfiles.playerId, playerId)).run();
+      }
+      return;
+    }
   }
   const values = {
     source: "nc" as const,
@@ -837,7 +894,7 @@ export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "g
     skillsJson: JSON.stringify(data.skills),
     daevanionJson: JSON.stringify(data.daevanion),
     speciesJson: "[]",
-    titlesJson: JSON.stringify(data.titleId ? [{ slot: 1, titleId: data.titleId }] : []),
+    titlesJson: JSON.stringify(titles),
     petsJson: "[]",
     boardCountsJson: JSON.stringify(data.boardCounts),
     attributesJson: "{}",
@@ -847,7 +904,7 @@ export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "g
     activePetLevel: null,
   };
   if (row) {
-    db.update(playerProfiles).set({ ...values, updatedAt: new Date().toISOString().slice(0, 19).replace("T", " ") }).where(eq(playerProfiles.playerId, playerId)).run();
+    db.update(playerProfiles).set({ ...values, updatedAt: new Date(now).toISOString().slice(0, 19).replace("T", " ") }).where(eq(playerProfiles.playerId, playerId)).run();
   } else {
     db.insert(playerProfiles).values({ playerId, ...values }).run();
   }

@@ -445,7 +445,7 @@ test("a player without any profile still gets NC's character data; profile view 
   assert.equal(buildCharacterView(noProfile).attributes?.main.find((a) => a.key === "dex")?.value, 7);
 });
 
-test("a profile from NC's page is the lowest rank: it never replaces a self profile, a seen one only with more pieces, and the game's lists replace it", () => {
+test("a profile from NC's page extends any profile, replaces a game profile after 2 days and the player's own after 7, and the game's lists replace it", () => {
   const ncData = (n: number) => ({
     level: 45,
     classId: 1,
@@ -455,16 +455,43 @@ test("a profile from NC's page is the lowest rank: it never replaces a self prof
     boardCounts: [{ board: 11, count: 63 }],
     daevanion: [{ board: 11, nodes: [110113, 110033] }],
   });
-  const self = playerId("Aahz");
-  upsertNcProfile(self, ncData(25));
-  assert.equal(buildProfileView(self)!.source, "self", "own profile is untouched");
+  const DAY = 24 * 3_600_000;
+  const setAge = (id: number, ms: number) => db.update(playerProfiles).set({ updatedAt: new Date(Date.now() - ms).toISOString().slice(0, 19).replace("T", " ") }).where(eq(playerProfiles.playerId, id)).run();
 
+  // the player's own profile: extended (skills, boards), nothing of it touched, source and gear stay
+  const self = playerId("Aahz");
+  const selfGear = JSON.parse(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, self)).get()!.gearJson) as unknown[];
+  upsertNcProfile(self, ncData(25));
+  const selfRow = () => db.select().from(playerProfiles).where(eq(playerProfiles.playerId, self)).get()!;
+  assert.equal(selfRow().source, "self", "own profile stays its own");
+  assert.equal((JSON.parse(selfRow().gearJson) as unknown[]).length, selfGear.length, "fresh: the gear is the client's");
+  assert.equal((JSON.parse(selfRow().skillsJson) as unknown[]).length > 0, true, "what the profile lacked is filled in");
+  const selfUpdated = selfRow().updatedAt;
+
+  // 4 days old: still the client's; 8 days old: NC's gear and skills replace them, the source and the client-only lists stay
+  setAge(self, 4 * DAY);
+  upsertNcProfile(self, ncData(25));
+  assert.equal((JSON.parse(selfRow().gearJson) as unknown[]).length, selfGear.length, "4 days: the own profile holds");
+  setAge(self, 8 * DAY);
+  const before = selfRow();
+  upsertNcProfile(self, ncData(25));
+  assert.equal(selfRow().source, "self");
+  assert.equal((JSON.parse(selfRow().gearJson) as unknown[]).length, 25, "8 days: NC's gear replaces it");
+  assert.equal(selfRow().updatedAt, before.updatedAt, "the age stays the age of the client's reading");
+  assert.equal(selfRow().speciesJson, before.speciesJson);
+  assert.equal(selfRow().presetsJson, "[]", "new skills, no presets of the old ones");
+  void selfUpdated;
+
+  // a game profile: fresh -> extended only; after 2 days -> replaced by NC's view
   processUpload(aion2Upload([participant("Aahz"), participant("NcSeen", { profile: { source: "seen", classId: 8, classBits: 2, gear: [{ slot: 3, itemId: 210340023, enchant: 0 }, { slot: 4, itemId: 210340024, enchant: 0 }] } })]));
   const seen = playerId("NcSeen");
-  upsertNcProfile(seen, ncData(1));
-  assert.equal(buildProfileView(seen)!.source, "seen", "NC lists fewer pieces than the game showed");
   upsertNcProfile(seen, ncData(10));
-  assert.equal(buildProfileView(seen)!.source, "nc");
+  assert.equal(buildProfileView(seen)!.source, "seen", "fresh game profile stays");
+  assert.equal(buildProfileView(seen)!.gear.length, 2);
+  assert.equal(buildProfileView(seen)!.skills.length, 1, "but it gets NC's skills");
+  setAge(seen, 3 * DAY);
+  upsertNcProfile(seen, ncData(10));
+  assert.equal(buildProfileView(seen)!.source, "nc", "after 2 days NC's view replaces it");
   assert.equal(buildProfileView(seen)!.gear.length, 10);
   assert.equal(buildProfileView(seen)!.level, 45);
 
