@@ -13,7 +13,7 @@ migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta
 after(() => sqlite.close());
 
 const ncMatchModule = await import("./ncMatch.js");
-const { decide, parseHits, processMatch, noteClientServer, dueOf, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
+const { decide, parseHits, processMatch, noteClientServer, noteLevelHint, forgetLevelHint, dueOf, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
 const { players, servers, playerProfiles, playerNcMatch } = await import("./db/schema.js");
 const { linkPlayerGuild } = await import("./guilds.js");
 const { eq } = await import("drizzle-orm");
@@ -125,6 +125,16 @@ test("a match that would put him on a server where his name is already taken cha
   const status = await processMatch(id, ncAnswer([raw({ name: "Doppelt", serverId: 2308 })]), 1_000_000);
   assert.equal(status, "conflict");
   assert.equal(serverOf(id).d, "Europe - Kaisinel");
+});
+
+test("the entry level of the content the player was in settles a name of two characters of the same class and faction", async () => {
+  const id = player("Zwilling", kaisinel);
+  const answer = ncAnswer([raw({ name: "Zwilling", serverId: 1304, level: 5 }), raw({ name: "Zwilling", serverId: 1306, level: 45 })]);
+  assert.equal(await processMatch(id, answer, 1_000_000), "ambiguous", "without the hint both fit");
+  noteLevelHint(id, 45);
+  assert.equal(await processMatch(id, answer, 2_000_000), "verified");
+  assert.equal(serverOf(id).d, "Europe - Ariel", "1306 is Ariel");
+  forgetLevelHint(id);
 });
 
 test("several fitting characters stay unclear and are asked again later, not now", async () => {

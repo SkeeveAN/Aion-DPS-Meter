@@ -25,7 +25,7 @@ import { rehomeKnownPlayers } from "./rehome.js";
 import { packTimeline, timelineJsonOf } from "../uploadArchive.js";
 import { storeChainUsage } from "../chainUsage.js";
 import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
-import { askAboutRenamed, noteClassHint, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
+import { askAboutRenamed, noteClassHint, noteLevelHint, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
 /** Time-window tolerance of the END for two encounters to even be considered the same fight (the kill is one moment for everybody). */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -175,6 +175,16 @@ export function findBossId(payload: UploadPayload): number | null {
 
   const npcName = payload.bossNpcName;
   return bossesOfGame(payload.game).find(({ boss }) => boss.name === npcName || boss.npcNameAliases.includes(npcName))?.boss.id ?? null;
+}
+
+/** The entry level of the content a run was in, 0 when not known (only what was confirmed: Draupnir, Conquest and Expedition, is level 45). */
+function entryLevelOf(payload: UploadPayload): number {
+  const bossId = findBossId(payload);
+  if (bossId === null) {
+    return 0;
+  }
+  const slug = db.select({ slug: instances.slug }).from(bosses).innerJoin(instances, eq(instances.id, bosses.instanceId)).where(eq(bosses.id, bossId)).get()?.slug ?? "";
+  return slug.startsWith("draupnir") ? 45 : 0;
 }
 
 function resolveBossId(payload: UploadPayload): number {
@@ -1043,6 +1053,10 @@ export function registerUploadPlayers(payload: UploadPayload): number[] {
   rehomePlayers(payload.participants, serverId);
   const ids = payload.participants.map((p) => upsertPlayer(p.name, serverOfParticipant(p, serverId), p.guild, factionOfParticipant(p), p.characterId));
   payload.participants.forEach((p, i) => noteClassHint(ids[i], p.className));
+  const entryLevel = entryLevelOf(payload);
+  if (entryLevel > 0) {
+    ids.forEach((id) => noteLevelHint(id, entryLevel));
+  }
   checkUploadedPlayers(payload.participants, serverId);
   return ids;
 }

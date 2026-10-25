@@ -271,6 +271,25 @@ export function noteClassHint(playerId: number, className: string): void {
   }
 }
 
+/**
+ * The lowest level a player of this run can have (the content's entry level: Draupnir is 45, Conquest or Expedition alike): a character of his name below it is not him, so
+ * an ambiguous name settles on the one that is old enough. Held in memory like the class hint, set again each time the upload is looked at.
+ */
+const levelHints = new Map<number, number>();
+export function noteLevelHint(playerId: number, level: number): void {
+  if (level > 0) {
+    if (levelHints.size > 5000) {
+      levelHints.clear();
+    }
+    levelHints.set(playerId, Math.max(level, levelHints.get(playerId) ?? 0));
+  }
+}
+
+/** Forgets the level hint of a player (a row id can be taken again by a new player after a merge deleted its last row; tests). */
+export function forgetLevelHint(playerId: number): void {
+  levelHints.delete(playerId);
+}
+
 /** A row that did damage or healed for real. A bystander of a crowd fight only got a buff or a small heal of somebody else's class, and the class read off that skill is not his. */
 const BYSTANDER_FREE = sql`(${encounterParticipants.totalDamage} > 0 or ${encounterParticipants.totalHealing} >= 10000)`;
 
@@ -289,7 +308,7 @@ function subjectOf(player: PlayerRow): Subject {
     className: fight?.className ?? profileClass ?? classHints.get(player.id) ?? "",
     classFromFight: !!fight,
     profileClassName: profile && profile.source !== "nc" ? profileClass : undefined,
-    level: profile?.level ?? null,
+    level: Math.max(profile?.level ?? 0, levelHints.get(player.id) ?? 0) || null,
     legionServers: legionServersOf(player),
     guild: player.guild ?? "",
     // A profile that came from NC holds NC's own number: no independent proof for picking among NC's characters.
