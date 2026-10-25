@@ -24,6 +24,13 @@
      "Backend"
     ],
     "date": "2026-10-25"
+   },
+   {
+    "text": "Website: on the Runs tab the \"View run\" button sits in the group row, in front of the word \"Group\", instead of the head of the run",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-25"
    }
   ]
  },
