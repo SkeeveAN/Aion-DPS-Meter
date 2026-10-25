@@ -175,9 +175,10 @@
  "dc195b0f": "Website and client: the privacy text about what the client reads and uploads is set in paragraphs and bullet lines (the page keeps the line breaks) with a plainer heading; the privacy page now says that the server is in Germany and the processing falls under the GDPR, that no data is sold, passed on or used for advertising, that this is a non-commercial fan project paid for privately, and that positions of other players go online only with the replay upload and only when \"data of other players\" is switched on (this replaces the earlier statement that they are never uploaded); a duplicated section key had hidden the \"what the client reads\" section",
  "650aad57": null,
  "14db96d8": null,
-  "38bfa3db": null,
-  "a86ad84e": null,
- "a89f2805": "Website: on the Runs tab each run has a row of its own between the title and the group, with the \"View run\" button and the average and best iDPS; the number of fights stays at the top right",
+ "38bfa3db": null,
+ "a86ad84e": null,
+ "a89f2805": "Website: on the Runs tab each run has a row of its own between the title and the group, with a framed \"View run\" button, the number of fights and the average and best iDPS",
  "e7fa3340": null,
- "c6fe7c75": null
+ "c6fe7c75": null,
+ "d9a150df": null
 }

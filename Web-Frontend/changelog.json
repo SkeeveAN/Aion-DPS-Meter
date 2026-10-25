@@ -26,14 +26,7 @@
     "date": "2026-10-25"
    },
    {
-    "text": "Website: on the Runs tab each run has a row of its own between the title and the group, with the \"View run\" button and the average and best iDPS; the number of fights stays at the top right",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-25"
-   },
-   {
-    "text": "Website: the fight count moves into the run row in front of the iDPS values",
+    "text": "Website: on the Runs tab each run has a row of its own between the title and the group, with a framed \"View run\" button, the number of fights and the average and best iDPS",
     "areas": [
      "Website"
     ],
