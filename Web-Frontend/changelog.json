@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.16.0",
   "date": "2026-10-25",
   "items": [
    {
@@ -29,6 +29,13 @@
     "text": "Website: on the Runs tab each run has a row of its own between the title and the group, with a framed \"View run\" button, the number of fights and the average and best iDPS",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-25"
+   },
+   {
+    "text": "a second start of the program no longer opens a second window (and a second pet overlay that cannot be closed) but brings the running one to the front",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-25"
    }
