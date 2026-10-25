@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-25",
+  "items": [
+   {
+    "text": "Runs wait less for NC's player check: the players of a normal upload are looked up before the hundreds of a world boss crowd and the background round, and the players a waiting run is held up by are sent to NC at once",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-25"
+   }
+  ]
+ },
+ {
   "version": "1.16.1",
   "date": "2026-10-25",
   "items": [
