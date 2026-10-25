@@ -68,7 +68,18 @@ test("regions", () => {
   assert.equal(shardOf("NA West - Siel"), "naw");
   assert.equal(shardOf("Hogalum [1317]"), "eu", "a server beyond the live ones: the id's region digit still names NC's region");
   assert.equal(shardOf("Ludra [2111]"), "nae");
-  assert.equal(shardOf("Nathara [1023]"), null, "block 0 is no region NC's search covers");
+  assert.equal(shardOf("Nathara [1023]"), null, "beyond the Taiwan list: no region NC's search covers");
+  assert.equal(shardOf("Taiwan - Azphel"), null, "Taiwan is no region NC's global search covers");
+});
+
+test("Taiwan is block 10/20: the 18 servers of NC's own list, nothing beyond", async () => {
+  const { nameOf, canonicalServer, serverOfName } = await import("./content/aion2Servers.js");
+  assert.equal(nameOf(2006), "Taiwan - Azphel");
+  assert.equal(nameOf(1018), "Taiwan - Kochi");
+  assert.equal(nameOf(2015), "Taiwan - Zemurru");
+  assert.equal(nameOf(1019), "Ishtar [1019]", "past the 18 of the Taiwan list: the name with its id");
+  assert.equal(canonicalServer("aion2:azphel-2006", "Azphel [2006]").displayName, "Taiwan - Azphel", "what the clients of 24.10. filed under the id");
+  assert.deepEqual(serverOfName("Taiwan - Azphel"), { id: 2006, faction: "Asmodian" });
 });
 
 // --- processMatch against a simulated NC search ---

@@ -12,8 +12,12 @@ const ASMO_20 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel"
 // (the client's six id blocks; the live servers per region are the pairs of NCSOFT's launch notice "Server Matchmaking":
 // Europe 18, NA East 8, NA West 5, LATAM 6, Asia 5; the matching of an Elyos with an Asmodian server into one world changes from time
 // to time and is not used anywhere - a player's faction is that of his own server). The first N servers
-// of a block are the live ones of that region; block 10 and the ids beyond are labelled "Name [id]".
+// of a block are the live ones of that region; the ids beyond are labelled "Name [id]".
 const REGIONS: Record<number, { name: string; perFaction: number }> = {
+  // Block 10/20 is the Taiwan version (NC's own list at tw.ncsoft.com: 1001-1018 / 2001-2018, same names in the same order as the first 18 of these lists; shown by
+  // the players who grouped with a client on Taiwan's game servers, 24.10.2026). Korea uses the same ids (1001-1021 / 2001-2021), so the number alone cannot tell the two
+  // apart: a Korean player would be filed under Taiwan too. No Korean upload has been seen yet.
+  0: { name: "Taiwan", perFaction: 18 },
   1: { name: "NA East", perFaction: 9 },
   2: { name: "NA West", perFaction: 5 },
   3: { name: "Europe", perFaction: 23 },

@@ -21,6 +21,7 @@ export default {
   "class.Brawler": "Raufbold",
   "region.Europe": "Europa",
   "region.Asia": "Asien",
+  "region.Taiwan": "Taiwan",
   "region.NA East": "Nordamerika Ost",
   "region.NA West": "Nordamerika West",
   "region.North America": "Nordamerika",

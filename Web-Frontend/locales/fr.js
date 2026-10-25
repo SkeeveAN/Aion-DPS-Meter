@@ -21,6 +21,7 @@ export default {
   "class.Brawler": "Bagarreur",
   "region.Europe": "Europe",
   "region.Asia": "Asie",
+  "region.Taiwan": "Taïwan",
   "region.NA East": "Amérique du Nord Est",
   "region.NA West": "Amérique du Nord Ouest",
   "region.North America": "Amérique du Nord",

@@ -2005,7 +2005,7 @@ function posterCard(href, photo, title, objectPosition, badge) {
 /** A server label as stored ("Europe - Tsenka", "NA East - Siel", "Hogalum [1317]") with the server's name in the
  * reader's language, as the game spells it (only a few names differ - see SERVER_NAMES). The region is translated too. */
 function regionLabel(region) {
-  return ["Europe", "Asia", "North America", "NA East", "NA West", "LATAM"].includes(region) ? t(`region.${region}`) : region;
+  return ["Europe", "Asia", "North America", "NA East", "NA West", "LATAM", "Taiwan"].includes(region) ? t(`region.${region}`) : region;
 }
 
 function serverLabel(label) {

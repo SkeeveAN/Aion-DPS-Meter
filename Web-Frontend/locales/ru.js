@@ -21,6 +21,7 @@ export default {
   "class.Brawler": "Боец",
   "region.Europe": "Европа",
   "region.Asia": "Азия",
+  "region.Taiwan": "Тайвань",
   "region.NA East": "Северная Америка (восток)",
   "region.NA West": "Северная Америка (запад)",
   "region.North America": "Северная Америка",

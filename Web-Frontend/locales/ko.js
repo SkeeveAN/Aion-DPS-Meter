@@ -21,6 +21,7 @@ export default {
   "class.Brawler": "권성",
   "region.Europe": "유럽",
   "region.Asia": "아시아",
+  "region.Taiwan": "대만",
   "region.NA East": "북미 동부",
   "region.NA West": "북미 서부",
   "region.North America": "북미",
