@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.16.1",
   "date": "2026-10-25",
   "items": [
    {
@@ -27,6 +27,13 @@
    },
    {
     "text": "Pet map: spawn points within the range the game announces monsters in (about 55 m) disappear when no monster stands there, instead of staying as dots in the background",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-25"
+   },
+   {
+    "text": "the pet map no longer shows spawn points without a monster within the range the game announces monsters in",
     "areas": [
      "Client"
     ],
