@@ -370,6 +370,27 @@ test("queue: when the budget blocks the chosen bucket, the other one is tried", 
   assert.deepEqual(done, [1, 3, 2], "the normal job waits, the background ones go on");
 });
 
+test("queue: with four workers four players are fetched at the same time, none twice, and every job runs", async () => {
+  let active = 0;
+  let maxActive = 0;
+  const done: number[] = [];
+  const q = new PortraitQueue(async (k) => {
+    active++;
+    maxActive = Math.max(maxActive, active);
+    await new Promise((r) => setTimeout(r, 15));
+    done.push(k.playerId);
+    active--;
+  }, { minGapMs: 0, maxLength: 50, now: () => 0, sleep: async () => {}, concurrency: 4 });
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  for (let id = 1; id <= 12; id++) {
+    q.enqueue(k(id), { priority: id % 3 === 0 ? 0 : 1 });
+  }
+  assert.equal(q.enqueue(k(1)), false, "a player that is waiting or running is not queued twice");
+  await new Promise((r) => setTimeout(r, 200));
+  assert.equal(maxActive, 4);
+  assert.deepEqual([...done].sort((a, b) => a - b), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+});
+
 test("queue: the hourly budget holds the sweep back and lets the profile somebody looks at through", async () => {
   const done: number[] = [];
   const sleeps: number[] = [];

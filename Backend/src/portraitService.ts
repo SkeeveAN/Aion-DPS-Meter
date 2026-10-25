@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { and, eq, isNull } from "drizzle-orm";
@@ -8,6 +9,7 @@ import { upsertNcProfile } from "./profile.js";
 import { reconcileGuildWithNc } from "./guilds.js";
 import { EVENT_STALE_AFTER, PRIORITY, characterInterval, parseSeen, portraitInterval, type Priority } from "./refreshPolicy.js";
 import { portraitFromJpeg } from "./portrait.js";
+import { NcPacing } from "./ncPacing.js";
 
 // Official character portrait and character data (attributes, wing, pet) of a player from NC's public character search, profile image
 // and character page, shown on the player page.
@@ -302,14 +304,14 @@ export async function fetchPlayer(fetchFn: FetchFn, key: PlayerKey, needs: Needs
  */
 export function pacedFetch(
   fetchFn: FetchFn,
-  minGapMs: number,
+  minGapMs: number | (() => number),
   now: () => number = Date.now,
   sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms)),
 ): FetchFn {
   let last = -Infinity;
   return (async (input: Parameters<FetchFn>[0], init?: Parameters<FetchFn>[1]) => {
     // The slot is taken before sleeping: callers arriving together queue up one gap apart instead of all computing the same wait and firing at once.
-    const startAt = Math.max(now(), last + minGapMs);
+    const startAt = Math.max(now(), last + (typeof minGapMs === "function" ? minGapMs() : minGapMs));
     last = startAt;
     const wait = startAt - now();
     if (wait > 0) {
@@ -329,17 +331,17 @@ type Job = { key: PlayerKey; priority: Priority; force: boolean };
  */
 export class PortraitQueue {
   private readonly waiting = new Map<number, Job>();
-  private running = false;
-  private current: number | null = null;
+  /** Workers that are running (each takes one player at a time). */
+  private workers = 0;
+  private readonly current = new Set<number>();
   private lastStart = 0;
   constructor(
     private readonly work: (key: PlayerKey, job: { force: boolean }) => Promise<void>,
-    private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void>; allow?: (priority: Priority) => boolean } = {
+    private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void>; allow?: (priority: Priority) => boolean; concurrency?: number } = {
       minGapMs: 2000,
       maxLength: 200,
       now: Date.now,
       sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
-      allow: (priority) => withinBudget(priority),
     },
   ) {}
 
@@ -356,11 +358,11 @@ export class PortraitQueue {
       queued.force ||= how.force === true;
       return false;
     }
-    if (this.current === key.playerId || this.waiting.size + (this.current === null ? 0 : 1) >= this.opts.maxLength) {
+    if (this.current.has(key.playerId) || this.waiting.size + this.current.size >= this.opts.maxLength) {
       return false;
     }
     this.waiting.set(key.playerId, { key, priority, force: how.force === true });
-    void this.drain();
+    this.kick();
     return true;
   }
 
@@ -385,16 +387,28 @@ export class PortraitQueue {
     return order.filter((e): e is [number, Job] => e !== null);
   }
 
-  private async drain(): Promise<void> {
-    if (this.running) {
-      return;
+  /** Starts workers up to the concurrency while there are jobs they could take. */
+  private kick(): void {
+    const limit = Math.max(1, this.opts.concurrency ?? 1);
+    // a worker that is still waiting for its start slot will take a waiting job itself: only more jobs than idle workers need a new one
+    while (this.workers < limit && this.waiting.size > this.workers - this.current.size) {
+      this.workers++;
+      void this.worker();
     }
-    this.running = true;
+  }
+
+  private async worker(): Promise<void> {
     try {
       while (this.waiting.size > 0) {
-        const wait = this.lastStart + this.opts.minGapMs - this.opts.now();
+        // The start slot is taken before waiting: workers that come together start one gap apart.
+        const startAt = Math.max(this.opts.now(), this.lastStart + this.opts.minGapMs);
+        this.lastStart = startAt;
+        const wait = startAt - this.opts.now();
         if (wait > 0) {
           await this.opts.sleep(wait);
+        }
+        if (this.waiting.size === 0) {
+          break;
         }
         // The first job of the order the budget lets through; none: the hourly budget is used up for them, look again in a minute.
         const chosen = this.candidates().find(([, j]) => !this.opts.allow || this.opts.allow(j.priority));
@@ -405,30 +419,29 @@ export class PortraitQueue {
         const [id, job] = chosen;
         this.normalStreak = job.priority === PRIORITY.background ? 0 : this.normalStreak + 1;
         this.waiting.delete(id);
-        this.current = id;
-        this.lastStart = this.opts.now();
+        this.current.add(id);
         try {
-          activeBucketIsBackground = job.priority === PRIORITY.background;
-          await this.work(job.key, { force: job.force });
+          await jobContext.run({ background: job.priority === PRIORITY.background }, () => this.work(job.key, { force: job.force }));
         } catch {
           // the worker records its own failures; one bad job must not stop the queue
         }
-        this.current = null;
-        activeBucketIsBackground = false;
+        this.current.delete(id);
       }
     } finally {
-      this.running = false;
+      this.workers--;
     }
   }
 }
 
+/** The job that is running in this async chain, so its requests are counted for the right budget even while several jobs run at once. */
+const jobContext = new AsyncLocalStorage<{ background: boolean }>();
+
 /** The one rate limit towards NC, shared by everything that asks it (portraits, character data, the player match). */
-const paced = pacedFetch(fetch, 2000);
+export const ncPacing = new NcPacing();
+const paced = pacedFetch(fetch, () => ncPacing.gapMs());
 const requestTimes: number[] = [];
 /** The same for the requests of background jobs alone: they have a share of their own (see withinBudget). */
 const backgroundRequestTimes: number[] = [];
-/** Set by the queue while a background job runs, so its requests are counted for the background share. */
-let activeBucketIsBackground = false;
 function lastHour(times: number[], now: number): number {
   while (times.length > 0 && times[0] <= now - HOUR) {
     times.shift();
@@ -446,12 +459,12 @@ export function backgroundRequestsLastHour(now = Date.now()): number {
 /** The share of the hourly budget that is the background's own: the normal jobs cannot use it up (a quarter of NC_BUDGET_PER_HOUR). */
 export const BACKGROUND_SHARE = 0.25;
 /**
- * Hourly budget by priority (NC_BUDGET_PER_HOUR, default 1000): profiles somebody looks at may use up to 1.5 times it, a player an upload named 1.3 times,
+ * Hourly budget by priority (NC_BUDGET_PER_HOUR, default 6000): profiles somebody looks at may use up to 1.5 times it, a player an upload named 1.3 times,
  * the background sweep the budget itself - and, whatever the others have used, its own share (BACKGROUND_SHARE) up to the ceiling of 1.5 times, so it
  * keeps moving while there is traffic from views and uploads.
  */
 export function withinBudget(priority: Priority, now = Date.now()): boolean {
-  const base = Math.max(1, Number(process.env.NC_BUDGET_PER_HOUR ?? 1000) || 1000);
+  const base = Math.max(1, Number(process.env.NC_BUDGET_PER_HOUR ?? 6000) || 6000);
   const total = requestsLastHour(now);
   if (priority >= PRIORITY.view) {
     return total < Math.round(base * 1.5);
@@ -461,13 +474,25 @@ export function withinBudget(priority: Priority, now = Date.now()): boolean {
   }
   return total < base || (backgroundRequestsLastHour(now) < base * BACKGROUND_SHARE && total < Math.round(base * 1.5));
 }
-export const ncFetch = ((input: Parameters<FetchFn>[0], init?: Parameters<FetchFn>[1]) => {
+export const ncFetch = (async (input: Parameters<FetchFn>[0], init?: Parameters<FetchFn>[1]) => {
+  // After a 429/403 nobody asks for a while.
+  const pause = ncPacing.pausedUntil() - Date.now();
+  if (pause > 0) {
+    await new Promise((r) => setTimeout(r, pause));
+  }
   const at = Date.now();
   requestTimes.push(at);
-  if (activeBucketIsBackground) {
+  if (jobContext.getStore()?.background) {
     backgroundRequestTimes.push(at);
   }
-  return paced(input, init);
+  try {
+    const res = await paced(input, init);
+    ncPacing.note(res.status);
+    return res;
+  } catch (e) {
+    ncPacing.note("network");
+    throw e;
+  }
 }) as FetchFn;
 
 /**
@@ -597,7 +622,16 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
   }
 }
 
-export const portraitQueue = new PortraitQueue((key, job) => processPlayer(key, ncFetch, Date.now(), job));
+/** Players fetched at the same time (NC_WORKERS, default 4); the pace of all requests together is ncPacing's. */
+const WORKERS = Math.min(8, Math.max(1, Number(process.env.NC_WORKERS ?? 4) || 4));
+export const portraitQueue = new PortraitQueue((key, job) => processPlayer(key, ncFetch, Date.now(), job), {
+  minGapMs: 250,
+  maxLength: 200,
+  now: Date.now,
+  sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+  allow: (priority) => withinBudget(priority),
+  concurrency: WORKERS,
+});
 
 /**
  * The portrait URL for a player page, or null while there is no picture. Queues a fetch when the portrait or the character data
