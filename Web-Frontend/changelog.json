@@ -16,6 +16,13 @@
      "Backend"
     ],
     "date": "2026-10-25"
+   },
+   {
+    "text": "Old uploads with a wrong server id no longer keep a run waiting for ever: a player NC has confirmed is not moved off his server by an upload, the place a character was wrongly filed under is remembered so a repeated upload finds him again, and an NC decision is not overwritten by a client's word on every upload",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-25"
    }
   ]
  },
