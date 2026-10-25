@@ -26,7 +26,7 @@
     "date": "2026-10-25"
    },
    {
-    "text": "Website: on the Runs tab the \"View run\" button sits in the group row, in front of the word \"Group\", instead of the head of the run",
+    "text": "Website: on the Runs tab each run has a row of its own between the title and the group, with the \"View run\" button and the average and best iDPS; the number of fights stays at the top right",
     "areas": [
      "Website"
     ],

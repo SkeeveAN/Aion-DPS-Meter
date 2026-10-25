@@ -4529,7 +4529,7 @@ function renderRunsTab(history, party = {}, selfId = null) {
 
   // The group of a run: everyone who fought in it, the player first and then the ones present in most of its fights. The same name
   // and class counts once (one fight can have the player under another server's entry).
-  const groupRow = (s, openLink) => {
+  const groupRow = (s) => {
     const seen = new Map();
     for (const r of s.runs) {
       for (const m of party[r.h.encounterId] ?? []) {
@@ -4546,7 +4546,7 @@ function renderRunsTab(history, party = {}, selfId = null) {
     const members = entries.map(({ m }) =>
       el("a", { className: `run-member${m.id === selfId ? " self" : ""}`, href: gp(`/players/${m.slug ?? m.id}`) }, [classIcon(m.className), m.name]),
     );
-    return el("div", { className: "run-group" }, [openLink, el("span", { className: "run-group-label", textContent: t("runs.group") }), ...members]);
+    return el("div", { className: "run-group" }, [el("span", { className: "run-group-label", textContent: t("runs.group") }), ...members]);
   };
 
   const sessionCard = (s, open) => {
@@ -4556,16 +4556,16 @@ function renderRunsTab(history, party = {}, selfId = null) {
     const records = s.runs.filter((r) => r.record).length;
     const first = s.runs[0].h;
     const openLink = el("a", { className: "run-open", href: gp(`/encounters/${s.runs.at(-1).h.encounterId}`), textContent: t("runs.view") });
-    const group = groupRow(s, openLink);
+    const group = groupRow(s);
     return el("details", { className: "run-session", open }, [
       el("summary", { className: "run-head" }, [
         el("span", { className: "run-time", textContent: `${clockFormat.format(s.start)} – ${clockFormat.format(s.end)}` }),
         el("h3", { textContent: displayName({ name: s.instance }) }),
         diffPill(first.instanceCategory, first.mode, first.instanceName),
         records > 0 ? el("span", { className: "diff-pill diff-cq", textContent: t("runs.records", { n: records }) }) : null,
-        group ? null : openLink, // without a group row the link stays in the head
-        el("div", { className: "run-stats" }, [stat(formatNumber(s.runs.length), t("runs.fights")), stat(formatNumber(avg), t("runs.avgIdps")), stat(formatNumber(top), t("runs.bestIdps"), true)]),
+        el("div", { className: "run-stats" }, [stat(formatNumber(s.runs.length), t("runs.fights"))]),
       ].filter((x) => x != null)),
+      el("div", { className: "run-bar" }, [openLink, el("div", { className: "run-stats" }, [stat(formatNumber(avg), t("runs.avgIdps")), stat(formatNumber(top), t("runs.bestIdps"), true)])]),
       group,
       el("div", { className: "run-tiles" }, [...s.runs].reverse().map(tile)),
     ]);
