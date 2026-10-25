@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-25",
+  "items": [
+   {
+    "text": "Servers: ids 1001-1018 and 2001-2018 are the Taiwan version (NC's own list), shown as \"Taiwan - Azphel\" instead of \"Azphel [2006]\"",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-25"
+   }
+  ]
+ },
+ {
   "version": "1.15.2",
   "date": "2026-10-24",
   "items": [
