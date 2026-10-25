@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-25",
+  "items": [
+   {
+    "text": "Website: a run's page shows all bosses of the run as tabs above the damage list, so every fight of a run can be opened from one page",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-25"
+   }
+  ]
+ },
+ {
   "version": "1.16.0",
   "date": "2026-10-25",
   "items": [
