@@ -482,6 +482,12 @@ internal static class Program
 
         if (args.Length == 0 || args[0] == "gui")
         {
+            // A second meter would capture the same traffic twice: bring the running one forward instead.
+            if (!SingleInstance.TryBecomeFirst())
+            {
+                return;
+            }
+
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
             // and collide with this one. Building System.Windows.Application by hand keeps the
             // console entry points and the GUI in the same exe without fighting over program entry.
@@ -511,7 +517,9 @@ internal static class Program
                 Ui.MeterSettings startupSettings = Ui.MeterSettings.Load();
                 Ui.AudioOutput.DeviceId = startupSettings.AudioDeviceId;
                 Ui.ThemeManager.Apply(app, startupSettings);
-                app.Run(new Ui.MainWindow());
+                var mainWindow = new Ui.MainWindow();
+                SingleInstance.ListenForShow(mainWindow);
+                app.Run(mainWindow);
             }
             catch (Exception ex)
             {
