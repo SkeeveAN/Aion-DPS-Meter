@@ -2120,6 +2120,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             lock (_gate)
             {
+                if (_announcedInView.Contains(name))
+                {
+                    NoteListServerOfViewedName(name, serverId);
+                    return;
+                }
+
                 if (_homeServerKnown.Contains(name))
                 {
                     if (_serverOfName.TryGetValue(name, out int home) && home != serverId)
@@ -2149,6 +2155,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
         lock (_gate)
         {
+            if (_announcedInView.Contains(name))
+            {
+                NoteListServerOfViewedName(name, serverId);
+                return;
+            }
+
             if (_serverOfName.TryGetValue(name, out int previous) && previous != serverId)
             {
                 NoteOtherServerId(name, previous);
@@ -2156,6 +2168,42 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
             _serverOfName[name] = serverId;
             _homeServerKnown.Add(name);
+        }
+    }
+
+    // Names whose server a "player appeared" frame announced for a player in view. The lists (a friend or legion entry, a character window, the party roster) name
+    // other players of the same name as well - hundreds of names of both sides and of every server in one frame - so a list entry never replaces the server of a player
+    // in view; it is only remembered as an id the game prints for that name. Without this a namesake of the other side or another server was filed as the
+    // server of a player of a world boss crowd (valid ids of other characters, 0.3-2 % of a crowd, the same ones for the whole session).
+    private readonly HashSet<string> _announcedInView = new(StringComparer.Ordinal);
+
+    /// <summary>The server id a "player appeared" frame names next to a player in view: his own frame, so it beats everything a list said about that name.</summary>
+    public void NoteServerOfNameInView(string name, int serverId)
+    {
+        if (serverId is < 1000 or > 9999)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            if (_serverOfName.TryGetValue(name, out int before) && before != serverId)
+            {
+                NoteOtherServerId(name, before);
+            }
+
+            _serverOfName[name] = serverId;
+            _announcedInView.Add(name);
+            _homeServerKnown.Remove(name);
+        }
+    }
+
+    // Called under _gate.
+    private void NoteListServerOfViewedName(string name, int serverId)
+    {
+        if (_serverOfName.TryGetValue(name, out int shown) && shown != serverId)
+        {
+            NoteOtherServerId(name, serverId);
         }
     }
 

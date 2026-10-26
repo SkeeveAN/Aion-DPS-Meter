@@ -282,7 +282,7 @@ public sealed class Aion2FrameDecoder
     /// names it came with - for working out which id is which server. Diagnostic.</summary>
     public Dictionary<int, SortedSet<string>> ServerIdsSeen { get; } = new();
 
-    private void NoteServerId(int serverId, string name)
+    private void NoteServerId(int serverId, string name, bool inView = false)
     {
         if (!ServerIdsSeen.TryGetValue(serverId, out var names))
         {
@@ -292,6 +292,12 @@ public sealed class Aion2FrameDecoder
         if (names.Count < 12)
         {
             names.Add(name);
+        }
+
+        if (inView)
+        {
+            _entities.NoteServerOfNameInView(name, serverId); // his own frame: no list entry of a namesake replaces it
+            return;
         }
 
         _entities.NoteServerOfName(name, serverId); // a player's faction follows from his server
@@ -2537,7 +2543,7 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.Register((int)id, name);
-        NoteServerId(frame[p] | frame[p + 1] << 8, name);
+        NoteServerId(frame[p] | frame[p + 1] << 8, name, inView: true);
         _entities.NoteIdentity((int)id, name, frame[p] | frame[p + 1] << 8);
         if (TryReadName(frame, p + 3 + frame[p + 2], out string guild, minLength: 2) && guild != name)
         {

@@ -41,6 +41,7 @@ public static class SelfCheckAion2
         ok &= RunAion2AccentAndLeftoverSummonScenario();
         ok &= RunAion2RosterHomeServerScenario();
         ok &= RunAion2RosterBogusServerScenario();
+        ok &= RunAion2ViewedServerScenario();
         ok &= RunAion2SpiritBasicAttackScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
@@ -875,6 +876,27 @@ public static class SelfCheckAion2
         bool others = dir.ServerIdOfName("RB") == 2311 && dir.ServerIdOfName("SentaiHenpai") == 2308 && dir.ServerIdOfName("Aahz") == 1304;
         Console.WriteLine($"  -> SaintlyOrder on 2303: {saintly}; RB 2311, SentaiHenpai 2308, Aahz 1304 (the shifted Kaisinel layout): {others}");
         return saintly && others;
+    }
+
+    /// <summary>A list entry never replaces the server of a player in view: the lists (friend, legion, character window, party roster) hold namesakes of other sides and servers too
+    /// (hundreds of names in one frame; valid ids of other characters ended up as the server of 0.3-2 % of a world boss crowd, 2026-10-26).</summary>
+    private static bool RunAion2ViewedServerScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 server of a name: the player in view wins over every list entry:");
+        var dir = new Aion2EntityDirectory();
+        dir.NoteServerOfName("Dan", 1306);
+        dir.NoteHomeServerOfName("Dan", 1303); // a list before he came into view
+        dir.NoteServerOfNameInView("Dan", 2304); // his own frame
+        dir.NoteServerOfName("Dan", 1306);
+        dir.NoteHomeServerOfName("Dan", 1303); // lists after it
+        bool viewed = dir.ServerIdOfName("Dan") == 2304;
+        dir.NoteServerOfNameInView("Dan", 2305); // another player of that name comes into view: his frame is the newer word
+        bool newer = dir.ServerIdOfName("Dan") == 2305;
+        dir.NoteServerOfName("Eve", 1306);
+        dir.NoteHomeServerOfName("Eve", 1303); // a name only the lists know keeps the old rule: the second id wins
+        bool listOnly = dir.ServerIdOfName("Eve") == 1303;
+        Console.WriteLine($"  -> in view 2304 against lists 1306 / 1303, before and after: {viewed}; another one in view 2305 replaces him: {newer}; a name only in the lists: the second id 1303: {listOnly}");
+        return viewed && newer && listOnly;
     }
 
     /// <summary>The second id of a roster member can have a marker byte in front: read from the marker it looked like another server (2823, 2305, 2307); a real second id still wins.</summary>
