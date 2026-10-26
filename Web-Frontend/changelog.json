@@ -79,6 +79,13 @@
      "Backend"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Privacy question: closing the window without an answer is no answer - nothing is uploaded, the meter stays complete and the question comes again at the next start (it used to put the player in the restricted mode)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
