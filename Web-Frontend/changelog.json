@@ -31,6 +31,13 @@
      "Website"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Download page: new layout with the download card, a screenshot viewer and the latest client changes side by side, the five install steps and the FAQ as cards, and a ? next to the SHA-256 that explains what it is and how to check it on Windows (all texts in ten languages)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
