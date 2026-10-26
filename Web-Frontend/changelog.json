@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-10-25",
+  "date": "2026-10-26",
   "items": [
    {
     "text": "Runs wait less for NC's player check: the players of a normal upload are looked up before the hundreds of a world boss crowd and the background round, and the players a waiting run is held up by are sent to NC at once",
@@ -65,6 +65,13 @@
      "Backend"
     ],
     "date": "2026-10-25"
+   },
+   {
+    "text": "NC sweep: players whose complete fetch was reset go first; hourly budget 9000",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
