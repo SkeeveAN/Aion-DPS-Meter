@@ -557,3 +557,22 @@ test("a hit on a server that his world boss fights rule out is a namesake: it mo
   assert.equal(await processMatch(other, ncAnswer([raw({ name: "Vetter2", serverId: 1306 })]), 1_000_000), "verified");
   assert.equal(serverOf(other).d, "Europe - Ariel");
 });
+
+test("a character whose fights leave one or two servers is searched on those servers only, so a common name's many hits cannot hide him", async () => {
+  const { bosses, encounterParticipants, encounters, instances, uploads } = await import("./db/schema.js");
+  const inst = db.insert(instances).values({ name: "Altgard", nameEn: "Altgard", game: "aion2", slug: "altgard-nc", category: "worldboss" }).returning().get();
+  const boss = db.insert(bosses).values({ instanceId: inst.id, name: "Gartua", nameEn: "Gartua", slug: "gartua-nc" }).returning().get();
+  const e = db.insert(encounters).values({ serverId: kaisinel, bossId: boss.id, startedAt: "2026-10-21T14:06:00.000Z", endedAt: "2026-10-21T14:06:30.000Z", durationSeconds: 30, groupIDps: 1, rosterFingerprint: "y" }).returning().get();
+  // an Asmodian home map outside a rift hour: only the uploader's own server, Lumiel (2304)
+  db.insert(uploads).values({ uploaderReportedName: "Up2", ipHash: "h", status: "merged", rawPayloadJson: "{}", clientServerId: 2304, matchedEncounterId: e.id }).run();
+  const id = player("Haeufig2", kaisinel, { faction: "Asmodian" });
+  db.insert(encounterParticipants).values({ encounterId: e.id, playerId: id, className: "Ranger", faction: "Asmodian", totalDamage: 1, dps: 1, idps: 1, critRatePercent: 0 }).run();
+  const crowdOfNamesakes = Array.from({ length: 120 }, (_, i) => raw({ name: "Haeufig2", race: 2, serverId: 2305 + (i % 3), characterId: `n${i}` }));
+  const answer = (async (input: unknown) => {
+    const q = new URL(String(input)).searchParams;
+    const list = q.get("serverId") === "2304" ? [raw({ name: "Haeufig2", race: 2, serverId: 2304, pcId: 13, characterId: "real" })] : crowdOfNamesakes;
+    return new Response(JSON.stringify({ list, pagination: { page: 1, size: 40, total: list.length, endPage: 1 } }), { status: 200, headers: { "content-type": "application/json" } });
+  }) as unknown as typeof fetch;
+  assert.equal(await processMatch(id, answer, 1_000_000), "verified");
+  assert.equal(serverOf(id).d, "Europe - Lumiel", "found on the one server his fight allows");
+});

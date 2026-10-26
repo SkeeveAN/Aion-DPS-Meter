@@ -157,7 +157,11 @@ export async function resolveName(fetchFn: FetchFn, name: string, className: str
     return null;
   }
   const lower = name.toLowerCase();
-  const hits = (await searchHits(fetchFn, name, shard)).filter((h) => h.name.toLowerCase() === lower && candidates.includes(h.serverId));
+  // One search per candidate server (NC filters on its side): a common name has far more hits than the pages read ("Pixie": 175), the two servers have one or none.
+  const hits = [];
+  for (const serverId of candidates) {
+    hits.push(...(await searchHits(fetchFn, name, shard, { serverId })).filter((h) => h.serverId === serverId && h.name.toLowerCase() === lower));
+  }
   const one = hits.length === 1 ? hits : hits.filter((h) => h.classId !== null && CLASS_OF_ID[h.classId] === className);
   return one.length === 1 ? { serverId: one[0].serverId, faction: one[0].race === 1 ? "Elyos" : "Asmodian" } : null;
 }

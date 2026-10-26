@@ -16,7 +16,7 @@ const { default: Fastify } = await import("fastify");
 const { uploadRoutes } = await import("./routes/uploads.js");
 const { bossNpcIds, bosses, encounters, instances, players, uploads } = await import("./db/schema.js");
 const { syncMatchmakingToDb } = await import("./serverMatchmakingDb.js");
-const { settleCrowdPending, candidateServers, riftOpen, dropServersOutsideRule } = await import("./crowdResolve.js");
+const { settleCrowdPending, candidateServers, riftOpen, dropServersOutsideRule, resolveName } = await import("./crowdResolve.js");
 const { eq } = await import("drizzle-orm");
 
 const app = Fastify({ logger: false });
@@ -124,4 +124,17 @@ test("a server the client names for a player of the crowd outside the rule is ta
   assert.deepEqual([names(rift).Bob, names(rift).Cara, names(rift).Dan], [undefined, 2304, 1304]);
   // the uploader himself is never touched
   assert.equal(names(rift).Anna, 1304);
+});
+
+test("a common name is looked up on each candidate server on its own, so the hits past the pages read cannot hide him", async () => {
+  // NC lists 175 characters for "Pixie" on five pages; the unfiltered search reads three of them. Asked for one server it answers that server's characters only.
+  const crowd = Array.from({ length: 120 }, (_, i) => ({ name: `Pixie${i}`, race: 1, serverId: 1310 + (i % 5), pcId: 13, level: 45, characterId: `x${i}` }));
+  const ncFiltered = (async (input: unknown) => {
+    const q = new URL(String(input)).searchParams;
+    const server = Number(q.get("serverId") ?? 0);
+    const list = server === 0 ? crowd : server === 2304 ? [{ name: "Pixie", race: 2, serverId: 2304, pcId: 13, level: 45, characterId: "real" }] : [];
+    return new Response(JSON.stringify({ list, pagination: { page: 1, size: 40, total: list.length, endPage: 1 } }), { status: 200, headers: { "content-type": "application/json" } });
+  }) as unknown as typeof fetch;
+  const verdict = await resolveName(ncFiltered, "Pixie", "Ranger", [1304, 2304], "Europe - Kaisinel");
+  assert.deepEqual(verdict, { serverId: 2304, faction: "Asmodian" });
 });

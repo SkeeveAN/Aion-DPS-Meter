@@ -7,7 +7,7 @@ import { linkPlayerGuild } from "./guilds.js";
 import { noteClientServer, serverRowOf } from "./ncMatch.js";
 import { dropNcData } from "./portraitService.js";
 
-// Takes the server from every character whose server breaks the world boss rule (crowdRule.ts) in a fight he took part in, and files him under the one server his fights
+// Takes the server from every character whose server breaks the world boss rule (crowdRule.ts) in a fight he took part in (or is a server of the other faction), and files him under the one server his fights
 // allow - when they allow exactly one. What NC had said about him goes (it is the data of a namesake), and NC is asked again with the rule in place (ncMatch.ts).
 
 export type CrowdViolator = { playerId: number; name: string; serverRowId: number | null; ncServerId: number | null; fights: number[] };
@@ -46,7 +46,7 @@ export function findCrowdViolators(): CrowdViolator[] {
     }
     const homeFaction = Math.floor([...allowed.servers][0] / 1000);
     const rows = db
-      .select({ playerId: players.id, name: players.name, serverRowId: players.serverId, serverName: servers.displayName })
+      .select({ playerId: players.id, name: players.name, faction: players.faction, serverRowId: players.serverId, serverName: servers.displayName })
       .from(encounterParticipants)
       .innerJoin(players, eq(players.id, encounterParticipants.playerId))
       .leftJoin(servers, eq(servers.id, players.serverId))
@@ -54,7 +54,9 @@ export function findCrowdViolators(): CrowdViolator[] {
       .all();
     for (const r of rows) {
       const nc = ncIdOf(r.serverName);
-      if (nc === null || allowed.servers.has(nc) || (!allowed.pairKnown && Math.floor(nc / 1000) !== homeFaction)) {
+      // A server of the other faction than the player's own is wrong whatever the fight allows: Asmodians do not live on Elyos servers.
+      const wrongFaction = nc !== null && r.faction !== "" && Math.floor(nc / 1000) !== (r.faction === "Elyos" ? 1 : 2);
+      if (nc === null || (!wrongFaction && (allowed.servers.has(nc) || (!allowed.pairKnown && Math.floor(nc / 1000) !== homeFaction)))) {
         continue;
       }
       const entry = found.get(r.playerId) ?? { playerId: r.playerId, name: r.name, serverRowId: r.serverRowId, ncServerId: nc, fights: [] };
