@@ -72,6 +72,13 @@
      "Backend"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Feedback forwarding: GitHub calls are tried again after a timeout, a server error or the 'malformed request' on big recordings, and a stuck connection no longer hangs",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
