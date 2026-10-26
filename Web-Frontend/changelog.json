@@ -59,6 +59,13 @@
      "Backend"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Download page: copy buttons with a copy icon for the SHA-256 and the two check commands (the icon turns into a check mark after copying)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
