@@ -1016,9 +1016,31 @@ function svgIcon(paths, size = 22) {
   return el("span", { className: "dl-ico", innerHTML: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>` });
 }
 
+const COPY_ICON = '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/>';
+const CHECK_ICON = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
+
+// Icon-only copy button: shows a check mark for two seconds after copying.
+function copyButton(getText, className = "dl-copy") {
+  const btn = el("button", { type: "button", className, title: t("download.copy"), "aria-label": t("download.copy") });
+  const draw = (paths) => { btn.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`; };
+  draw(COPY_ICON);
+  btn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(getText());
+      draw(CHECK_ICON);
+      btn.classList.add("done");
+      btn.title = t("download.copied");
+      setTimeout(() => { draw(COPY_ICON); btn.classList.remove("done"); btn.title = t("download.copy"); }, 2000);
+    } catch {
+      // no clipboard access: the text can still be selected by hand
+    }
+  });
+  return btn;
+}
+
 // The "?" next to the SHA-256: what it is and how to check it on Windows. Opens on hover, focus or click.
 function shaHelp(installerName) {
-  const code = (text) => el("code", { textContent: text });
+  const code = (text) => el("div", { className: "dl-cmd" }, [el("code", { textContent: text }), copyButton(() => text)]);
   const pop = el("span", { className: "dl-pop", role: "tooltip" }, [
     el("strong", { textContent: t("download.shaHelpTitle") }),
     el("span", { textContent: t("download.shaHelpText") }),
@@ -1100,16 +1122,7 @@ async function renderDownload() {
       el("ul", { className: "dl-checks" }, [1, 2, 3].map((n) => el("li", { textContent: t(`download.check${n}`) }))),
     );
     if (sha) {
-      const copy = el("button", { type: "button", className: "download-copy", textContent: t("download.copy") });
-      copy.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(sha);
-          copy.textContent = t("download.copied");
-          setTimeout(() => { copy.textContent = t("download.copy"); }, 2000);
-        } catch {
-          // no clipboard access: the hash can still be selected by hand
-        }
-      });
+      const copy = copyButton(() => sha);
       left.append(el("div", { className: "dl-sha" }, [
         el("span", { textContent: "SHA-256" }),
         shaHelp(setupAsset.name),
