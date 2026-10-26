@@ -73,6 +73,21 @@
      "Website"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "SEO: home page definition sentence, FAQ with FAQPage schema, GameApplication category, README tagline",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "Website: Aion DPS is now presented as the Daevas Power Suite, a companion app (new banner with the highlighted D, P, S, a FAQ row on the home page, the texts in ten languages and the READMEs no longer call it a meter)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
