@@ -195,23 +195,21 @@ jobs:
           [System.IO.File]::WriteAllText((Join-Path (Resolve-Path releases).Path 'SHA256SUMS.txt'), "$sums`n")
           $files = Get-ChildItem releases -File | Where-Object { $_.Name -notlike '*-Portable.zip' }
           gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
+          # The release notes always have the same shape (Tools/changelog/release-notes.mjs): what changed, the link to the
+          # full changelog and an installer block with the SHA-256 and the VirusTotal result. A re-run writes the same text again.
           $installer = $sumFiles | Where-Object { $_.Name -like '*-Setup.exe' } | Select-Object -First 1
+          $notesIn = Join-Path $env:RUNNER_TEMP 'release-notes-in.txt'
+          [System.IO.File]::WriteAllText($notesIn, (gh release view $tag --json body --jq .body))
+          $notesArgs = @('Tools/changelog/release-notes.mjs', '--version', '${{ steps.version.outputs.number }}', '--body-file', $notesIn)
           if ($installer) {
-            $body = gh release view $tag --json body --jq .body
-            if ($body -notmatch 'SHA-256') {
-              $sha = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower()
-              gh release edit $tag --notes "$body`n`nSHA-256 of the installer ($($installer.Name)): $sha"
-            }
+            $notesArgs += @('--installer', $installer.Name, '--sha', (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower())
           }
-          # Add the VirusTotal report to the release notes (once; a re-run does not duplicate it).
           $vtLink = "${{ steps.vt.outputs.link }}"
           if ($vtLink) {
-            $body = gh release view $tag --json body --jq .body
-            if ($body -notmatch 'VirusTotal') {
-              $line = "VirusTotal scan of the installer: ${{ steps.vt.outputs.result }} detections - $vtLink"
-              gh release edit $tag --notes "$body`n`n$line"
-            }
+            $notesArgs += @('--vt-result', '${{ steps.vt.outputs.result }}', '--vt-link', $vtLink)
           }
+          $notes = (node @notesArgs) -join "`n"
+          gh release edit $tag --notes $notes
           # The release stays a prerelease while the files are still being uploaded; only when
           # everything is attached does it become the normal "Latest" release (the fetch for
           # delta packages and the client's updater both still look at prereleases as well).
