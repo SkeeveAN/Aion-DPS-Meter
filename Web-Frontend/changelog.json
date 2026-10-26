@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.16.5",
   "date": "2026-10-26",
   "items": [
    {
@@ -14,6 +14,27 @@
     "text": "World boss rule: the other faction is still on the map for ten minutes after a rift hour, so its players on the paired server count as allowed in a kill that starts up to ten minutes after the hour (25.10., 16:03 UTC: 23 of 110 players were Asmodians of the paired server)",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "Player lookup at NC: a common name has far more hits than the pages read (\"Pixie\": 175), so a player whose crowd or fights leave one to three servers is now searched on those servers one by one (exact answer), the clean-up also takes a server of the other faction than the player's, and an unplaced player of a world boss crowd is no longer missed behind the hits of his namesakes",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "Server of a player in view: his own \"player appeared\" frame wins over every list entry (friends, legion, character window, party roster hold namesakes of the other side and other servers); until now such an entry could replace it, and a wrong but valid server went into the upload for 0.3 to 2 % of a world boss crowd",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "the server of a player in view now comes from his own frame and no list entry of a namesake can replace it any more (it put valid but wrong servers into the uploads of world boss crowds)",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-26"
    }
