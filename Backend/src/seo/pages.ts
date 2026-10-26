@@ -14,7 +14,7 @@ import { GUIDE_ASOF, GUIDE_FAQ, GUIDE_OSS, GUIDE_ROWS, GUIDE_STRONG, GUIDE_TABLE
 import enStrings from "../../../Web-Frontend/locales/en.js";
 import { parseIdOrSlug } from "./slug.js";
 import { formatInt, html, Raw } from "./html.js";
-import { breadcrumbJsonLd, itemListJsonLd, profileJsonLd, softwareApplicationJsonLd, websiteJsonLd, type PageMeta } from "./meta.js";
+import { HOME_FAQ, breadcrumbJsonLd, faqJsonLd, itemListJsonLd, profileJsonLd, softwareApplicationJsonLd, websiteJsonLd, type PageMeta } from "./meta.js";
 
 /**
  * Server-rendered page: <head> metadata plus a minimal content fragment (headline, one or two
@@ -95,11 +95,11 @@ export function homePage(): Page {
         "Free open-source Aion 2 DPS meter: click-through overlay, boss leaderboards, character profiles, pet map, event timetable and world boss timers. No memory reading.",
       canonicalPath: "/",
       ...pageCard("home"),
-      jsonLd: [websiteJsonLd(), softwareApplicationJsonLd()],
+      jsonLd: [websiteJsonLd(), softwareApplicationJsonLd(), faqJsonLd(HOME_FAQ)],
     },
     body: html`
       <h1>Aion 2 DPS Meter</h1>
-      <p>Free, open-source damage and healing meter for Aion 2, plus community boss leaderboards and character profiles.</p>
+      <p><strong>The Aion 2 DPS Meter from aiondps.com is a free, open-source tool and companion app for AION 2 that shows live damage (DPS) and healing (HPS) for every player in your group, using passive packet capture.</strong> It also brings community boss leaderboards and character profiles.</p>
       <h3>What it does</h3>
       <p>Aion DPS Meter shows live damage per second and healing per second for every player in your party or raid while you play. It runs beside the game as its own window or as a transparent click-through overlay, and keeps a full log of each fight so you can review skill breakdowns and group composition afterwards.</p>
       <p>The meter works by passive packet capture: it only reads the network traffic your own computer already receives. It never reads game memory, never injects code and never hooks the game client.</p>
@@ -109,6 +109,8 @@ export function homePage(): Page {
       <p>Players can optionally upload their encounters. The site turns them into community leaderboards for every instance, boss and difficulty step, from Expeditions and Nightmare levels to Ascension Rite and Transcendence stages. Each boss page also lists its mechanics, the fastest clears, the strongest groups, the best results per class and the skills each class uses, which you can narrow by gear score. A single run shows the buffs on every player and, from client 1.9.0 on, a group timeline of every skill use and which effects ran at each one, so you can compare your own run with what others achieve.</p>
       <h3>Character profiles</h3>
       <p>Every uploading character gets a public profile with gear, skills, stigmas and recent encounters. Legions have their own pages that list their members on each server. Uploads are off by default and you decide what is shared.</p>
+      <h3>Frequently asked questions</h3>
+      ${HOME_FAQ.map((f) => html`<h4>${f.q}</h4><p>${f.a}</p>`)}
       <h3>Get started</h3>
       <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. It works with the global release of AION 2; Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there. Updates are installed by the client itself, and every release is documented in the changelog.</p>
       <ul class="plain">

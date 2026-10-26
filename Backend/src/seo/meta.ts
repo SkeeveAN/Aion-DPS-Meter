@@ -91,7 +91,8 @@ export function softwareApplicationJsonLd(): object {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Aion DPS Meter",
-    applicationCategory: "UtilitiesApplication",
+    applicationCategory: ["GameApplication", "UtilitiesApplication"],
+    alternateName: ["Aion 2 DPS Meter", "AION 2 companion app", "aiondps.com"],
     operatingSystem: "Windows",
     offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
     url: env.BASE_URL + "/download",
@@ -117,6 +118,17 @@ export function softwareApplicationJsonLd(): object {
     description:
       "Free open-source DPS/HPS meter for Aion 2. Reads the game's network traffic passively, shows live damage and healing per player, and can upload boss fights to community leaderboards.",
   };
+}
+
+export const HOME_FAQ: { q: string; a: string }[] = [
+  { q: "What is the Aion 2 DPS Meter?", a: "The Aion 2 DPS Meter from aiondps.com is a free, open-source tool and companion app for AION 2 that shows live damage (DPS) and healing (HPS) for every player in your group, using passive packet capture." },
+  { q: "Is the Aion 2 DPS Meter legal and safe?", a: "It only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client. It is a third-party tool, so check NCSOFT's current terms of service before you use it." },
+  { q: "How do I install the Aion 2 DPS Meter?", a: "Install the Npcap driver, download the Windows installer from aiondps.com/download, and start AION 2. The meter picks up your fights automatically and updates itself." },
+  { q: "Is the Aion 2 DPS Meter free?", a: "Yes. It is free and open source under the MIT license, and uploads to the boss leaderboards are optional and off by default." },
+];
+
+export function faqJsonLd(items: { q: string; a: string }[]): object {
+  return { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
 }
 
 export function websiteJsonLd(): object {
