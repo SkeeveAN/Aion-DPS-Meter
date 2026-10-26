@@ -11,6 +11,7 @@ import { cached } from "../seo/cache.js";
 import { escapeHtml } from "../seo/html.js";
 import { encounterOgImage } from "../seo/ogEncounter.js";
 import { playerOgImage } from "../seo/ogPlayer.js";
+import { mechanicsFor } from "./bosses.js";
 
 const SITEMAP_TTL_MS = 600_000;
 const CHANGELOG_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "Web-Frontend", "changelog.json");
@@ -107,7 +108,7 @@ function buildSitemap(): string {
     // Latest fight per boss doubles as lastmod for the boss page, and the newest of those for its
     // instance page. Bosses without a slug (none after the backfill) or hidden trash mobs are skipped.
     const bossRows = db
-      .select({ slug: bosses.slug, instanceId: bosses.instanceId, lastFight: max(encounters.startedAt) })
+      .select({ id: bosses.id, slug: bosses.slug, instanceId: bosses.instanceId, lastFight: max(encounters.startedAt) })
       .from(bosses)
       .leftJoin(encounters, eq(encounters.bossId, bosses.id))
       .innerJoin(instances, eq(bosses.instanceId, instances.id))
@@ -134,7 +135,8 @@ function buildSitemap(): string {
       }
     }
     for (const b of bossRows) {
-      if (b.slug) {
+      // A boss without a fight and without a mechanics guide is noindex (see bossPage), so it is not listed either.
+      if (b.slug && (b.lastFight || mechanicsFor(b.id, b.instanceId).mechanics.length > 0)) {
         urls.push({ path: `/bosses/${b.slug}`, lastmod: b.lastFight ?? release });
         if (b.lastFight) {
           urls.push({ path: `/bosses/${b.slug}/statistics`, lastmod: b.lastFight });

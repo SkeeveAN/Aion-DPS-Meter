@@ -359,6 +359,8 @@ export function guildPage(slug: string): Page | null {
       title: `${guild.name} (${guild.serverName}) – Legion members | ${SITE}`,
       description: `${members.length} known member${members.length === 1 ? "" : "s"} of the legion ${guild.name} on ${guild.serverName}: class, level and boss runs.`,
       canonicalPath: path,
+      // A legion with one or two known members is a name and a short list: Google rates it a soft 404.
+      noindex: members.length < 3 || undefined,
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/legions" }, { name: guild.name, path }])],
     },
     body: html`
@@ -744,6 +746,8 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string;
       ? `How to beat ${name} in ${instanceName}${modeText ? ` (${modeText})` : ""} (${label}): ${mechanics.length} mechanics, ${wipes} of them wipe-critical. ${summary}`
       : summary;
   const photo = bossImage(boss.name, found.instanceName);
+  // No fight and no mechanics guide: Google rates the page a soft 404, so it stays out of the index until there is something to show.
+  const thin = serverList.length === 0 && mechanics.length === 0;
 
   return {
     status: 200,
@@ -751,6 +755,7 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string;
       title,
       description,
       canonicalPath,
+      noindex: thin || undefined,
       ogImage: photo,
       ogImageAlt: photo ? `${name} – ${instanceName}` : undefined,
       jsonLd: [
@@ -940,7 +945,8 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   const boards = (profile?.boards ?? []).filter((b) => b.count > 0);
   const titles = profile?.titles ?? [];
   // A character with neither a boss run nor any gear read is just a name and a level: keep it out of the index.
-  const thin = runs.length === 0 && gear.length === 0;
+  // The same goes for one whose runs are all partial or estimated (best DPS 0) and that has no gear: Google rates it a soft 404.
+  const thin = (runs.length === 0 || !best) && gear.length === 0;
   return {
     status: 200,
     meta: {
