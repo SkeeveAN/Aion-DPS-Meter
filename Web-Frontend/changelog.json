@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.16.3",
   "date": "2026-10-26",
   "items": [
    {
@@ -114,6 +114,13 @@
     "text": "Character page: the Arcana tab now sits before the Ranks tab",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "the Arcana tab of the character window shows each piece's reinforcement experience, god value and four skill bonuses, the set effect, the five god values and the sum of all skill bonuses, with tooltips naming the final skill level and where it comes from",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-26"
    }
