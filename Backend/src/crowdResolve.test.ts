@@ -89,11 +89,13 @@ test("a rift hour is the hour after each of 00:00, 03:00 ... 21:00 UTC (with two
   for (const h of [0, 3, 6, 9, 12, 15, 18, 21]) {
     assert.equal(riftOpen(utc(h, 30), utc(h, 30) + 12_000), true, `${h}:30 UTC`);
   }
-  for (const [h, m] of [[10, 36], [13, 30], [16, 30], [19, 30], [22, 30], [1, 30], [4, 30]]) {
+  for (const [h, m] of [[10, 36], [13, 30], [16, 30], [19, 30], [22, 30], [1, 30], [4, 30], [14, 5]]) {
     assert.equal(riftOpen(utc(h, m), utc(h, m) + 12_000), false, `${h}:${m} UTC`);
   }
   assert.equal(riftOpen(utc(11, 59), utc(11, 59) + 12_000), true, "slack before the hour");
-  assert.equal(riftOpen(utc(13, 5), utc(13, 5) + 12_000), false, "the hour is over");
+  assert.equal(riftOpen(utc(13, 3), utc(13, 3) + 12_000), true, "the other faction is still on the map in the first minutes after the hour (25.10.: 16:03)");
+  assert.equal(riftOpen(utc(13, 9), utc(13, 9) + 12_000), true, "up to ten minutes");
+  assert.equal(riftOpen(utc(13, 15), utc(13, 15) + 12_000), false, "the hour is over");
 });
 
 test("a server the client names for a player of the crowd outside the rule is taken from him, and he is placed like a player the client knows nothing of", () => {
