@@ -7,7 +7,7 @@ namespace AionDPS.Ui;
 
 /// <summary>
 /// The player's answer to the privacy policy (<see cref="MeterSettings.PrivacyDecision"/>): nothing is uploaded without a current "accepted"; a "declined" also puts the meter in its
-/// restricted mode (see <see cref="Restricted"/>). The policy has a version: when its text changes, <see cref="Version"/> is raised here (and on the website's privacy page, in all
+/// restricted mode (see <see cref="Restricted"/>); closing the question without answering is no answer (asked again at the next start). The policy has a version: when its text changes, <see cref="Version"/> is raised here (and on the website's privacy page, in all
 /// languages) and everybody who accepted is asked once more. Keep the three in step - see the project memory.
 /// </summary>
 public static class PrivacyConsent
@@ -58,11 +58,16 @@ public static class PrivacyConsent
         Changed?.Invoke();
     }
 
-    /// <summary>Shows the policy and records the answer; true when accepted. Closing the window counts as declined.</summary>
+    /// <summary>Shows the policy and records the answer; true when accepted. Closing the window without a click on one of the two buttons is no answer: nothing is uploaded and the player is asked again at the next start, but the meter stays complete (26.10.2026: a player who closed it found himself in the restricted mode without knowing why).</summary>
     public static bool Ask(Window? owner)
     {
         var window = new PrivacyWindow(owner);
         window.ShowDialog();
+        if (!window.Answered)
+        {
+            return false;
+        }
+
         Record(window.Accepted);
         return window.Accepted;
     }
@@ -133,6 +138,9 @@ public sealed class PrivacyWindow : Window
 {
     public bool Accepted { get; private set; }
 
+    /// <summary>One of the two buttons was clicked (closing the window by its corner is no answer).</summary>
+    public bool Answered { get; private set; }
+
     public PrivacyWindow(Window? owner)
     {
         var loc = LocalizationManager.Instance;
@@ -177,10 +185,15 @@ public sealed class PrivacyWindow : Window
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
         var decline = new Button { Content = loc["Privacy.Decline"], Padding = new Thickness(16, 5, 16, 5), MinWidth = 110, Margin = new Thickness(0, 0, 10, 0) };
         var accept = new Button { Content = loc["Privacy.Accept"], Padding = new Thickness(16, 5, 16, 5), MinWidth = 110, IsDefault = true };
-        decline.Click += (_, _) => Close();
+        decline.Click += (_, _) =>
+        {
+            Answered = true;
+            Close();
+        };
         accept.Click += (_, _) =>
         {
             Accepted = true;
+            Answered = true;
             Close();
         };
         buttons.Children.Add(decline);

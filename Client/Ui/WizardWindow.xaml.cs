@@ -372,9 +372,11 @@ public partial class WizardWindow : Window
 
         _finished = true;
         _settings.Language = LocalizationManager.Instance.Language;
-        // closing the window without an answer counts as declined: nothing is uploaded and the meter stays in its restricted mode
+        // closing the window without an answer is no answer: nothing is uploaded, the meter stays complete and the question comes again at the next start
+        // (26.10.2026: a player who closed it was in the restricted mode without knowing why)
         bool accepted = PolicyAccept.IsChecked == true;
-        _settings.PrivacyDecision = accepted ? PrivacyConsent.Accepted : PrivacyConsent.Declined;
+        bool answered = accepted || PolicyDecline.IsChecked == true;
+        _settings.PrivacyDecision = !answered ? PrivacyConsent.NotAsked : accepted ? PrivacyConsent.Accepted : PrivacyConsent.Declined;
         _settings.PrivacyVersion = accepted ? PrivacyConsent.Version : 0;
         _settings.AutoUploadBoss = accepted && BossBox.IsChecked == true;
         _settings.AutoUploadProfile = accepted && ProfileBox.IsChecked == true;
