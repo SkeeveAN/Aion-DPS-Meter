@@ -465,12 +465,12 @@ export function backgroundRequestsLastHour(now = Date.now()): number {
 /** The share of the hourly budget that is the background's own: the normal jobs cannot use it up (a quarter of NC_BUDGET_PER_HOUR). */
 export const BACKGROUND_SHARE = 0.25;
 /**
- * Hourly budget by priority (NC_BUDGET_PER_HOUR, default 6000): profiles somebody looks at may use up to 1.5 times it, a player an upload named 1.3 times,
+ * Hourly budget by priority (NC_BUDGET_PER_HOUR, default 9000): profiles somebody looks at may use up to 1.5 times it, a player an upload named 1.3 times,
  * the background sweep the budget itself - and, whatever the others have used, its own share (BACKGROUND_SHARE) up to the ceiling of 1.5 times, so it
  * keeps moving while there is traffic from views and uploads.
  */
 export function withinBudget(priority: Priority, now = Date.now()): boolean {
-  const base = Math.max(1, Number(process.env.NC_BUDGET_PER_HOUR ?? 6000) || 6000);
+  const base = Math.max(1, Number(process.env.NC_BUDGET_PER_HOUR ?? 9000) || 9000);
   const total = requestsLastHour(now);
   if (priority >= PRIORITY.view) {
     return total < Math.round(base * 1.5);

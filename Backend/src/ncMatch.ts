@@ -767,7 +767,8 @@ export function enrichDue(limit: number, now = Date.now()): number[] {
       sql`${playerNcMatch.status} = 'verified' and (${servers.displayName} like 'Europe - %' or ${servers.displayName} like 'NA East - %' or ${servers.displayName} like 'NA West - %' or ${servers.displayName} like 'Asia - %' or ${servers.displayName} like 'LATAM - %')
         and (${playerPortraits.nextTryAt} is null or ${playerPortraits.nextTryAt} <= ${now} or ${playerNcCharacter.nextTryAt} is null or ${playerNcCharacter.nextTryAt} <= ${now})`,
     )
-    .orderBy(sql`${players.lastSeenAt} desc`)
+    // Players whose complete fetch was reset by hand (full_at = 0, to fill in what an earlier fetch left out) go first, then the newest seen.
+    .orderBy(sql`${playerNcCharacter.fullAt} = 0 desc`, sql`${players.lastSeenAt} desc`)
     .limit(limit)
     .all()
     .map((r) => r.id);

@@ -266,6 +266,20 @@ test("a confirmed player gets a fetch key with his real server and race, an unco
   assert.ok(!enrichDue(1000).includes(id), "fresh data, nothing to do");
 });
 
+test("the sweep lists players whose complete fetch was reset by hand (full_at 0) before the others", () => {
+  const { enrichDue } = ncMatchModule;
+  const newer = player("Neuerer", kaisinel, { lastSeenAt: "2026-10-20 10:00:00" });
+  const older = player("Aelterer", kaisinel, { lastSeenAt: "2026-10-01 10:00:00" });
+  for (const id of [newer, older]) {
+    sqlite.prepare("insert into player_nc_match (player_id, status, nc_server_id, nc_race, checked_at, next_try_at) values (?, 'verified', 1304, 1, 1, 1)").run(id);
+    sqlite.prepare("insert into player_portraits (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
+    sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at, full_at) values (?, 'ok', 1, 0, ?)").run(id, id === older ? 0 : 5);
+  }
+  const due = enrichDue(1000);
+  assert.ok(due.indexOf(older) >= 0 && due.indexOf(newer) >= 0);
+  assert.ok(due.indexOf(older) < due.indexOf(newer), "the reset one first, although it was seen earlier");
+});
+
 test("a confirmed player of another region gets a key with that region and is listed by the sweep", () => {
   const { enrichKeyOf, enrichDue } = ncMatchModule;
   const id = player("Nordamerika", server("aion2:na-east-nezekan", "NA East - Nezekan"));
