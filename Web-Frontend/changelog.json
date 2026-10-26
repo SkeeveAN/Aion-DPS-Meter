@@ -102,6 +102,13 @@
      "Website"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Character window, Arcana tab: each piece shows its reinforcement experience with the limit from the game's table, its god value and its four skill bonuses (a tooltip names the final skill level and where it comes from), above them the set effect and the five god values, and a column with the sum of all skill bonuses",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
