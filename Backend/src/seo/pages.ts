@@ -142,7 +142,6 @@ export function downloadPage(): Page {
       <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
       <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
-      <p>Code signing: free code signing provided by SignPath.io, certificate by the SignPath Foundation (being set up, releases are unsigned until then). See the <a href="/code-signing-policy">code signing policy</a>.</p>
       <p>To check your download, compare its SHA-256 with the value in the <a href="https://github.com/SkeeveAN/Aion-DPS-Meter/releases/latest">release notes or in SHA256SUMS.txt on GitHub</a>. In PowerShell: <code>Get-FileHash .\\AionDpsMeter-win-Setup.exe -Algorithm SHA256</code></p>
       <h3>Requirements</h3>
       <ul class="plain">
@@ -504,21 +503,6 @@ export function termsPage(): Page {
     body: html`
       <h1>Terms of Service</h1>
       <p>Aion DPS Meter is a free, fan-made community project, not affiliated with or endorsed by NCSoft or any official Aion publisher. It is provided "as is", without warranty. See the full terms on the site for acceptable use and liability details.</p>`,
-  };
-}
-
-export function codeSigningPage(): Page {
-  return {
-    status: 200,
-    meta: {
-      title: "Code Signing Policy – Aion DPS Meter",
-      description: "How the Aion DPS Meter installer is built from the public source code and signed: provider, team roles and privacy statement.",
-      canonicalPath: "/code-signing-policy",
-      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Code Signing Policy", path: "/code-signing-policy" }])],
-    },
-    body: html`
-      <h1>Code Signing Policy</h1>
-      <p>Releases of the Aion DPS Meter client are built automatically by GitHub Actions from the public source code (MIT License). Free code signing is provided by SignPath.io, with a certificate issued by the SignPath Foundation. Every signing request is approved manually by the maintainer. This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it; see the Privacy Policy.</p>`,
   };
 }
 
