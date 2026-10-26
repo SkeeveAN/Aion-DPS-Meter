@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { env } from "../env.js";
+import { HttpFailure, isTransientGithubFailure, retrying } from "../retry.js";
 
 // Largest encrypted recording accepted, as base64 text (~24 MB of ciphertext). The client keeps its
 // capture buffer well below this; the cap only protects the server from a hand-made request.
@@ -41,17 +42,33 @@ async function github(path: string, init: { method: string; body: unknown }): Pr
       "content-type": "application/json",
     },
     body: JSON.stringify(init.body),
+    // a big recording is slow to send; without a limit a stuck connection would hold the request for good
+    signal: AbortSignal.timeout(120_000),
   });
 }
 
+/** Pauses between the tries of a GitHub call that failed for a reason a second try can fix (2026-10-26: one timeout towards github.com and one "malformed request" on a 12 MB recording). */
+const GITHUB_RETRY_DELAYS_MS = [2000, 6000] as const;
+
 async function putFile(repo: string, path: string, content: Buffer): Promise<void> {
-  const res = await github(`/repos/${repo}/contents/${path}`, {
-    method: "PUT",
-    body: { message: `feedback: ${path}`, content: content.toString("base64") },
-  });
-  if (!res.ok) {
-    throw new Error(`GitHub contents ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  }
+  await retrying(
+    async (attempt) => {
+      const res = await github(`/repos/${repo}/contents/${path}`, {
+        method: "PUT",
+        body: { message: `feedback: ${path}`, content: content.toString("base64") },
+      });
+      if (res.ok) {
+        return;
+      }
+      // A try whose answer got lost may have stored the file: the next try finds it there (422) and is done.
+      if (attempt > 1 && res.status === 422) {
+        return;
+      }
+      throw new HttpFailure(res.status, `GitHub contents ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    },
+    isTransientGithubFailure,
+    GITHUB_RETRY_DELAYS_MS,
+  );
 }
 
 export async function feedbackRoutes(app: FastifyInstance) {
@@ -95,10 +112,15 @@ export async function feedbackRoutes(app: FastifyInstance) {
           `Feedback ID: \`${id}\``,
           hasPrivate ? `Contact address${f.recording ? " and encrypted recording" : ""} are stored privately under this ID.` : "",
         ].join("\n");
-        const res = await github(`/repos/${env.GITHUB_ISSUES_REPO}/issues`, {
-          method: "POST",
-          body: { title: `[${TYPE_TITLE[f.type]}] ${neutralise(firstLine)}`, body, labels: [TYPE_LABEL[f.type], "from-app"] },
-        });
+        // The issue is only asked for again when there was no answer at all (a failed connection): an answer, even an error one, may mean it exists.
+        const res = await retrying(
+          () => github(`/repos/${env.GITHUB_ISSUES_REPO}/issues`, {
+            method: "POST",
+            body: { title: `[${TYPE_TITLE[f.type]}] ${neutralise(firstLine)}`, body, labels: [TYPE_LABEL[f.type], "from-app"] },
+          }),
+          (e) => e instanceof TypeError,
+          GITHUB_RETRY_DELAYS_MS,
+        );
         if (!res.ok) {
           throw new Error(`GitHub issues ${res.status}: ${(await res.text()).slice(0, 300)}`);
         }
