@@ -47,6 +47,6 @@ export default {
       "**신뢰:** 플레이어는 소스를 읽고 아무것도 주입되지 않음을 확인할 수 있으며, 계정 걱정 없이 게임 옆에서 미터를 실행할 수 있습니다.",
       "**성능:** 게임은 미터의 존재를 전혀 눈치채지 못합니다.",
     ]],
-    ["p", "소스 코드는 MIT 라이선스입니다: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). 미터, 랭킹, 기능 소개는 [aiondps.com](/features)에서 볼 수 있으며, [다른 AION 2 미터와의 비교](/aion-2-dps-meter)도 정리되어 있습니다."],
+    ["p", "소스 코드는 MIT 라이선스입니다: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). 미터, 랭킹, 기능 소개는 [aiondps.com](/features)에서 볼 수 있으며, [다른 AION 2 미터와의 비교](/aion-2-dps-meter)도 정리되어 있습니다. 푸시할 때마다 타입 검사와 모든 백엔드 테스트가 공개적으로 실행되고 클라이언트도 빌드됩니다: [테스트 결과](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };

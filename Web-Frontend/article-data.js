@@ -53,7 +53,7 @@ export const ARTICLE = {
       "**Trust:** players can read the source, see that nothing is injected, and run the meter next to the game without worrying about their account.",
       "**Performance:** the game never notices the meter.",
     ]],
-    ["p", "The source code is MIT licensed: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). The meter, the leaderboards and the feature tour are on [aiondps.com](/features), and [how it compares with other AION 2 meters](/aion-2-dps-meter) is written down as well."],
+    ["p", "The source code is MIT licensed: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). The meter, the leaderboards and the feature tour are on [aiondps.com](/features), and [how it compares with other AION 2 meters](/aion-2-dps-meter) is written down as well. Every push runs the type check and all backend tests in public and builds the client: [the test results](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };
 
@@ -109,7 +109,7 @@ export const ARTICLE_DE = {
       "**Vertrauen:** Spieler können den Quelltext lesen, sehen, dass nichts eingeschleust wird, und den Meter neben dem Spiel laufen lassen, ohne um ihren Account zu fürchten.",
       "**Leistung:** Das Spiel bemerkt den Meter nie.",
     ]],
-    ["p", "Der Quelltext steht unter MIT-Lizenz: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Den Meter, die Bestenlisten und die Funktionsübersicht findest du auf [aiondps.com](/features), und [der Vergleich mit anderen AION-2-Metern](/aion-2-dps-meter) ist ebenfalls aufgeschrieben."],
+    ["p", "Der Quelltext steht unter MIT-Lizenz: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Den Meter, die Bestenlisten und die Funktionsübersicht findest du auf [aiondps.com](/features), und [der Vergleich mit anderen AION-2-Metern](/aion-2-dps-meter) ist ebenfalls aufgeschrieben. Bei jedem Push laufen die Typprüfung und alle Backend-Tests öffentlich, außerdem wird der Client gebaut: [die Testergebnisse](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };
 

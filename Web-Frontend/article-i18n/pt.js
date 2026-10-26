@@ -47,6 +47,6 @@ export default {
       "**Confiança:** os jogadores podem ler o código-fonte, ver que nada é injetado e rodar o medidor ao lado do jogo sem se preocupar com a conta.",
       "**Desempenho:** o jogo nunca percebe o medidor.",
     ]],
-    ["p", "O código-fonte é licenciado sob MIT: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). O medidor, os rankings e o tour de funcionalidades estão em [aiondps.com](/features), e [como ele se compara a outros medidores de AION 2](/aion-2-dps-meter) também está documentado."],
+    ["p", "O código-fonte é licenciado sob MIT: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). O medidor, os rankings e o tour de funcionalidades estão em [aiondps.com](/features), e [como ele se compara a outros medidores de AION 2](/aion-2-dps-meter) também está documentado. A cada push, a verificação de tipos e todos os testes do backend rodam em público e o cliente é compilado: [os resultados dos testes](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };

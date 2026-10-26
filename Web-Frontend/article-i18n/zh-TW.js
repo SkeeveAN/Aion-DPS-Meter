@@ -47,6 +47,6 @@ export default {
       "**信任：** 玩家可以閱讀原始碼，確認沒有注入任何東西，並在遊戲旁邊執行統計器而不必擔心帳號。",
       "**效能：** 遊戲完全不會察覺統計器的存在。",
     ]],
-    ["p", "原始碼採用 MIT 授權：[github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter)。統計器、排行榜與功能導覽都在 [aiondps.com](/features)，而[它與其他 AION 2 統計器的比較](/aion-2-dps-meter)也已寫成文章。"],
+    ["p", "原始碼採用 MIT 授權：[github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter)。統計器、排行榜與功能導覽都在 [aiondps.com](/features)，而[它與其他 AION 2 統計器的比較](/aion-2-dps-meter)也已寫成文章。每次推送都會公開執行型別檢查與所有後端測試，並建置用戶端：[測試結果](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)。"],
   ],
 };

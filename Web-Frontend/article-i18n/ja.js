@@ -47,6 +47,6 @@ export default {
       "**信頼:** プレイヤーはソースコードを読んで何も注入されていないことを確認でき、アカウントを心配せずにゲームと並べてメーターを動かせます。",
       "**パフォーマンス:** ゲームはメーターの存在にまったく気づきません。",
     ]],
-    ["p", "ソースコードはMITライセンスです:[github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter)。メーター、ランキング、機能紹介は[aiondps.com](/features)にあり、[他のAION 2メーターとの比較](/aion-2-dps-meter)もまとめてあります。"],
+    ["p", "ソースコードはMITライセンスです:[github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter)。メーター、ランキング、機能紹介は[aiondps.com](/features)にあり、[他のAION 2メーターとの比較](/aion-2-dps-meter)もまとめてあります。プッシュのたびに型チェックとバックエンドの全テストが公開で実行され、クライアントもビルドされます:[テスト結果](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)。"],
   ],
 };

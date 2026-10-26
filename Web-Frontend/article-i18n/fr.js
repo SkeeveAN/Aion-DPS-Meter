@@ -47,6 +47,6 @@ export default {
       "**Confiance :** les joueurs peuvent lire le code source, constater que rien n'est injecté, et faire tourner le compteur à côté du jeu sans craindre pour leur compte.",
       "**Performance :** le jeu ne remarque jamais le compteur.",
     ]],
-    ["p", "Le code source est sous licence MIT : [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Le compteur, les classements et la présentation des fonctionnalités se trouvent sur [aiondps.com](/features), et [la comparaison avec d'autres compteurs AION 2](/aion-2-dps-meter) est également rédigée."],
+    ["p", "Le code source est sous licence MIT : [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Le compteur, les classements et la présentation des fonctionnalités se trouvent sur [aiondps.com](/features), et [la comparaison avec d'autres compteurs AION 2](/aion-2-dps-meter) est également rédigée. À chaque push, la vérification des types et tous les tests du backend s'exécutent publiquement et le client est compilé : [les résultats des tests](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };
