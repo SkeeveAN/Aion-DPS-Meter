@@ -52,6 +52,13 @@
      "Website"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "nginx: maintenance page in all ten site languages while the backend is down (503 + Retry-After, reloads itself, API paths keep the plain error); build script and notes in deploy/",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
