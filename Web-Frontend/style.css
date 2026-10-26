@@ -921,68 +921,7 @@ a.star-link:hover {
   white-space: nowrap;
 }
 
-.download-hero {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.download-hero img {
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-}
-
-.download-hero h2 {
-  margin: 0 0 4px;
-  font-size: 22px;
-}
-
-.download-hero p {
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
-.download-cta {
-  display: inline-block;
-  /* Same calm warm gold as the header/footer download buttons, not the brighter theme primary. */
-  background: linear-gradient(180deg, #e2b457 0%, #c4932f 100%);
-  color: #2a1a04;
-  font-weight: 700;
-  font-size: 16px;
-  /* Fixed line-height so the "⬇" glyph (whose fallback font has taller metrics than the
-     surrounding text) doesn't stretch this button's line box relative to plain-text buttons
-     like .home-hero .link-button - without it the two buttons drift out of vertical alignment
-     when placed side by side (see .home-hero-ctas). */
-  line-height: 1.2;
-  padding: 12px 24px;
-  border-radius: 6px;
-  text-decoration: none;
-  margin: 4px 0 6px;
-  border: 1px solid rgba(255, 225, 160, 0.55);
-  box-shadow: 0 4px 14px rgba(196, 147, 47, 0.18);
-  transition: filter 150ms ease, box-shadow 150ms ease, transform 150ms ease;
-}
-
-.download-cta:hover {
-  filter: brightness(1.07);
-  box-shadow: 0 6px 20px rgba(196, 147, 47, 0.28);
-  transform: translateY(-1px);
-}
-
-.download-cta:active {
-  filter: brightness(0.96);
-  transform: translateY(0);
-}
-
 /* The installer's SHA-256 and the VirusTotal report under the download button. */
-.download-proof code { word-break: break-all; font-size: 0.85em; }
 .download-copy { margin-left: 6px; padding: 2px 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 0.85em; cursor: pointer; }
 .download-copy:hover { border-color: var(--color-primary); }
 
@@ -1019,21 +958,6 @@ a.star-link:hover {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 13px;
-}
-
-.steps {
-  padding-left: 20px;
-}
-
-.steps li {
-  margin-bottom: 8px;
-}
-
-.steps code {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 3px;
-  padding: 1px 5px;
 }
 
 /* Search + category filter above the instance grid (aiondps_design_pack_v1 section 5) - client-side
@@ -2607,8 +2531,8 @@ header .wordmark {
 /* Download page: the header link and the footer button step back so the page's own gold download
    button is the only thing that stands out. Both take the theme's surface colours, so dark and
    light mode each get a quiet button close to their own background. Scoped by the page's hero. */
-body:has(.download-hero) .nav-download-link,
-#app:has(.download-hero) .btn-gold {
+body:has(.dl-page) .nav-download-link,
+#app:has(.dl-page) .btn-gold {
   --btn-color-top: color-mix(in srgb, #c4932f 34%, var(--color-surface));
   --btn-color-bottom: color-mix(in srgb, #c4932f 20%, var(--color-surface));
   --btn-edge: transparent;
@@ -2622,21 +2546,21 @@ body:has(.download-hero) .nav-download-link,
   text-shadow: none;
 }
 
-body:has(.download-hero) .nav-download-link:hover,
-#app:has(.download-hero) .btn-gold:hover {
+body:has(.dl-page) .nav-download-link:hover,
+#app:has(.dl-page) .btn-gold:hover {
   color: #f3d58c;
   box-shadow: none;
 }
 
 /* Footer button on the download page: flat, no gloss and no pressable bottom edge. */
-#app:has(.download-hero) .btn-gold::before,
-#app:has(.download-hero) .btn-gold::after {
+#app:has(.dl-page) .btn-gold::before,
+#app:has(.dl-page) .btn-gold::after {
   display: none;
 }
 
-#app:has(.download-hero) .btn-gold,
-#app:has(.download-hero) .btn-gold:hover,
-#app:has(.download-hero) .btn-gold:active {
+#app:has(.dl-page) .btn-gold,
+#app:has(.dl-page) .btn-gold:hover,
+#app:has(.dl-page) .btn-gold:active {
   transform: none;
   filter: none;
   box-shadow: none;
@@ -3953,8 +3877,6 @@ button.cmp-mem { cursor: pointer; }
 }
 @media(min-width:1101px){#feature-details .fx-copy{margin-right:0 !important}}
 
-.download-shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-.download-shots img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--color-border); }
 /* Szenen-Siegel (z. B. "In Entwicklung" beim Assist) */
 .fx-badge{display:inline-block;margin:0 0 10px;padding:3px 10px;border:1px solid var(--fx-accent);border-radius:999px;color:var(--fx-accent);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(9,13,18,.45)}
 /* Pet-Stufe: das kleine Overlay schwebt über dem Tier statt es zu verdecken */
@@ -4481,3 +4403,69 @@ button.cmp-mem { cursor: pointer; }
 .boss-tab-thumb { width: 56px; height: 38px; border-radius: 6px; background-size: cover; background-position: center; background-color: var(--color-surface2); }
 .boss-tab b { display: block; font-size: 0.9rem; }
 .boss-tab small { color: var(--color-text-muted); font-size: 0.75rem; }
+
+/* ---- Download page (2026-10-26): download card | screenshot viewer | latest client changes, then steps and FAQ ---- */
+.dl-top { display: grid; grid-template-columns: 560px minmax(0, 1fr) 480px; gap: 20px; align-items: stretch; }
+.dl-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.dl-main { padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+.dl-pill { align-self: flex-start; padding: 3px 11px; border-radius: 99px; font-size: 12.5px; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent); }
+.dl-main h2 { margin: 0; font-size: 34px; line-height: 1.15; }
+.dl-main h2 span { color: var(--color-primary); }
+.dl-lead { margin: 0; color: var(--color-text-muted); }
+.dl-cta { display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 30px; font-size: 19px; font-weight: 700; text-decoration: none; color: #2a1a04; border-radius: 8px; border: 1px solid #d98e00; background: linear-gradient(180deg, #ffd35c, #ffb51b); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 4px 0 #b86f00; margin-bottom: 4px; }
+.dl-cta svg { width: 28px; height: 28px; }
+.dl-cta:hover { filter: brightness(1.05); }
+.dl-cta:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 2px 0 #b86f00; }
+.dl-tiles { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; }
+.dl-tiles > * { background: color-mix(in srgb, var(--color-text) 6%, var(--color-surface)); border-radius: 8px; padding: 10px 12px; text-align: center; color: inherit; text-decoration: none; }
+.dl-tiles b { display: block; font-size: 20px; }
+.dl-tiles span { font-size: 12px; color: var(--color-text-muted); }
+.dl-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+.dl-checks li::before { content: "✔"; color: var(--color-success); margin-right: 8px; }
+.dl-sha > span:first-child { white-space: nowrap; }
+.dl-sha { margin-top: auto; display: flex; align-items: center; gap: 8px; color: var(--color-text-muted); font-size: 14px; min-width: 0; }
+.dl-sha code { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; padding: 2px 7px; border: 1px solid var(--color-border); border-radius: 5px; background: var(--color-background); }
+.dl-qwrap { position: relative; display: inline-flex; }
+.dl-q { width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1.5px solid var(--color-primary); color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, transparent); font: inherit; font-size: 13px; cursor: help; }
+.dl-pop { display: none; position: absolute; left: -10px; bottom: 30px; z-index: 20; width: 430px; max-width: 80vw; padding: 16px 18px; flex-direction: column; gap: 6px; background: var(--color-background); border: 1px solid var(--color-primary); border-radius: 10px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); color: var(--color-text); font-size: 13.5px; line-height: 1.5; text-align: left; white-space: normal; }
+.dl-pop code { font-size: 12px; padding: 4px 7px; border: 1px solid var(--color-border); border-radius: 5px; background: var(--color-surface); word-break: break-all; }
+.dl-pop-alt { opacity: 0.75; margin-top: 6px; }
+.dl-qwrap:hover .dl-pop, .dl-qwrap:focus-within .dl-pop, .dl-qwrap.open .dl-pop { display: flex; }
+.dl-stage { padding: 20px; display: flex; flex-direction: column; min-width: 0; }
+.dl-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.dl-tabs button { padding: 6px 14px; border-radius: 99px; border: 1px solid var(--color-border); background: transparent; color: var(--color-text-muted); font: inherit; font-size: 13px; cursor: pointer; }
+.dl-tabs button:hover { border-color: var(--color-primary); }
+.dl-tabs button.on { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-primary-on); font-weight: 700; }
+.dl-view { flex: 1; min-height: 380px; position: relative; display: grid; place-items: center; padding: 20px; border-radius: 8px; overflow: hidden; background: #0b131a url(/images/ui/banner-bg-1920.webp) center / cover; }
+.dl-view::before { content: ""; position: absolute; inset: 0; background: rgba(8, 16, 24, 0.55); }
+.dl-view img { position: relative; max-height: 340px; max-width: 100%; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
+.dl-thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 12px; }
+.dl-thumbs button { padding: 0; border: 1px solid var(--color-border); border-radius: 6px; background: none; opacity: 0.7; cursor: pointer; overflow: hidden; }
+.dl-thumbs button.on { opacity: 1; border-color: var(--color-primary); }
+.dl-thumbs img { display: block; width: 100%; height: 70px; object-fit: cover; }
+.dl-side { padding: 22px; min-width: 0; }
+.dl-side h2 { margin: 0 0 4px; font-size: 24px; }
+.dl-side h3 { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--color-border); font-size: 17px; }
+.dl-sub { margin: 4px 0 6px; color: var(--color-text-muted); }
+.dl-rel { padding: 10px 0; border-bottom: 1px solid var(--color-border); }
+.dl-rel-head { display: flex; gap: 12px; align-items: baseline; }
+.dl-rel-head b { color: var(--color-primary); }
+.dl-rel-head span { color: var(--color-text-muted); font-size: 13px; }
+.dl-rel p { margin: 2px 0 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dl-all { margin: 14px 0 0; }
+.dl-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 20px; }
+.dl-step { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; }
+.dl-num { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: var(--color-primary-on); font-weight: 800; display: grid; place-items: center; }
+.dl-step b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+.dl-step div span { display: block; color: var(--color-text-muted); font-size: 13.5px; line-height: 1.45; }
+.dl-faq-head { margin: 28px 0 12px; }
+.dl-faq { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.dl-faq-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s, transform 0.15s; }
+.dl-faq-card:hover { border-color: var(--color-primary); transform: translateY(-2px); }
+.dl-faq-ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent); }
+.dl-faq-card b { font-size: 15.5px; line-height: 1.3; }
+.dl-faq-card > span:last-child { color: var(--color-text-muted); font-size: 13.5px; line-height: 1.5; }
+@media (max-width: 1500px) { .dl-top { grid-template-columns: 1fr 1fr; } .dl-side { grid-column: 1 / -1; } .dl-steps, .dl-faq { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .dl-top, .dl-steps, .dl-faq { grid-template-columns: 1fr; } .dl-pop { left: auto; right: -10px; } }
+.dl-page .download-meta { margin-top: 14px; }
+.dl-faq-head { font-size: 24px; }

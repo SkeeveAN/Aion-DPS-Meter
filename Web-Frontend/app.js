@@ -995,116 +995,195 @@ async function applyFeatureLayout(scenes) {
   }
 }
 
-// The release notes carry the installer's SHA-256 and the VirusTotal report (written by the release workflow); the download page shows both.
-// Only what has the exact shape is shown: a 64-digit hash and a link to virustotal.com's file page.
-function releaseProofRows(body, installerName) {
-  const rows = [];
-  const sha = /SHA-256 of the installer \([^)]*\): ([0-9a-f]{64})\b/.exec(body)?.[1];
-  if (sha) {
-    const copy = el("button", { type: "button", className: "download-copy", textContent: t("download.copy") });
-    copy.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(sha);
-        copy.textContent = t("download.copied");
-        setTimeout(() => { copy.textContent = t("download.copy"); }, 2000);
-      } catch {
-        // no clipboard access: the hash can still be selected by hand
-      }
-    });
-    rows.push(el("p", { className: "download-meta download-proof" }, [`${t("download.sha256Label", { name: installerName })} `, el("code", { textContent: sha }), " ", copy]));
-  }
-  const vt = /VirusTotal scan of the installer: (\d+\/\d+) detections - (https:\/\/www\.virustotal\.com\/gui\/file\/[0-9a-f]{64})/.exec(body);
-  if (vt) {
-    rows.push(el("p", { className: "download-meta download-proof" }, [
-      `${t("download.vtLabel", { result: vt[1] })} `,
-      el("a", { href: vt[2], target: "_blank", rel: "noopener", textContent: t("download.vtReportLink") }),
+// The download page (2026-10-26 redesign): download card, screenshot viewer and latest client changes side by side, then the five install steps and the FAQ.
+// The page's own marker class dl-page is what makes the header link and the footer button step back (style.css), so only this page's button stands out.
+const DOWNLOAD_VIEWS = [
+  ["tabMeter", "meter"],
+  ["tabOverlay", "overlay"],
+  ["tabAnalysis", "analyzer"],
+  ["tabSettings", "settings"],
+  ["tabSessions", "sessions"],
+];
+const DOWNLOAD_FAQ_ICONS = [
+  '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5L15.5 10"/>',
+  '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.8-2.5.8-2.5 1.9 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/>',
+  '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  '<circle cx="8" cy="14" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/>',
+  '<path d="M7 18a4.5 4.5 0 010-9 6 6 0 0111.5 1.5A3.5 3.5 0 0117 18z"/><path d="M4 4l16 16"/>',
+];
+
+function svgIcon(paths, size = 22) {
+  return el("span", { className: "dl-ico", innerHTML: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>` });
+}
+
+// The "?" next to the SHA-256: what it is and how to check it on Windows. Opens on hover, focus or click.
+function shaHelp(installerName) {
+  const code = (text) => el("code", { textContent: text });
+  const pop = el("span", { className: "dl-pop", role: "tooltip" }, [
+    el("strong", { textContent: t("download.shaHelpTitle") }),
+    el("span", { textContent: t("download.shaHelpText") }),
+    el("strong", { textContent: t("download.shaHowTitle") }),
+    el("span", { textContent: t("download.shaHow1") }),
+    el("span", { textContent: t("download.shaHow2") }),
+    code(`Get-FileHash .\\${installerName} -Algorithm SHA256`),
+    el("span", { textContent: t("download.shaHow3") }),
+    el("span", { className: "dl-pop-alt", textContent: t("download.shaAlt") }),
+    code(`certutil -hashfile ${installerName} SHA256`),
+  ]);
+  const q = el("button", { type: "button", className: "dl-q", textContent: "?", "aria-label": t("download.shaHelpTitle") });
+  const wrap = el("span", { className: "dl-qwrap" }, [q, pop]);
+  q.addEventListener("click", () => wrap.classList.toggle("open"));
+  q.addEventListener("blur", () => wrap.classList.remove("open"));
+  return wrap;
+}
+
+// Latest client changes, one line each: from changelog.json (German texts from changelog.de.json when the site is German, otherwise English).
+async function downloadReleaseRows() {
+  const german = getLocale() === "de";
+  const [releases, texts] = await Promise.all([
+    fetchJson("/changelog.json"),
+    german ? fetchJson("/changelog.de.json").catch(() => ({})) : Promise.resolve({}),
+  ]);
+  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(intlTag());
+  return releases
+    .filter((r) => r.version !== "Unreleased")
+    .map((r) => ({ r, items: r.items.filter((i) => i.areas.includes("Client")).slice(0, 2) }))
+    .filter(({ items }) => items.length > 0)
+    .slice(0, 4)
+    .map(({ r, items }) => el("div", { className: "dl-rel" }, [
+      el("div", { className: "dl-rel-head" }, [el("b", { textContent: r.version }), el("span", { textContent: fmt(r.date) })]),
+      ...items.map((i) => {
+        const text = texts[i.text] ?? i.text;
+        return el("p", { textContent: text.charAt(0).toUpperCase() + text.slice(1), title: text });
+      }),
     ]));
-  }
-  return rows;
 }
 
 async function renderDownload() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.download")]);
   showLoading(t("loading.version"));
 
-  const hero = el("div", { className: "download-hero" }, [
-    el("img", { src: "/logo.webp", alt: "" }),
-    el("div", {}, [
-      el("h2", { textContent: "Aion DPS" }),
-      el("p", { textContent: t("download.heroDescription") }),
-    ]),
+  let latest = null;
+  let setupAsset = null;
+  let loadError = null;
+  try {
+    const releases = await fetchJson(`https://api.github.com/repos/${GITHUB_REPO}/releases`);
+    // a tag with a suffix ("v1.0.0-alpha.1") is a test release: never offered here
+    latest = releases.find((r) => !r.draft && !r.tag_name.includes("-"));
+    setupAsset = latest?.assets?.find((a) => a.name.endsWith("-Setup.exe"));
+  } catch (err) {
+    loadError = err;
+  }
+  const releaseRows = await downloadReleaseRows().catch(() => []);
+
+  // --- left: the download card ---
+  const left = el("div", { className: "dl-card dl-main" });
+  if (latest && setupAsset) {
+    const body = latest.body ?? "";
+    const sha = /SHA-256 of the installer \([^)]*\): ([0-9a-f]{64})\b/.exec(body)?.[1];
+    const vt = /VirusTotal scan of the installer: (\d+\/\d+) detections - (https:\/\/www\.virustotal\.com\/gui\/file\/[0-9a-f]{64})/.exec(body);
+    const published = new Date(latest.published_at).toLocaleDateString(intlTag());
+    const size = (setupAsset.size / (1024 * 1024)).toLocaleString(intlTag(), { maximumFractionDigits: 1 });
+    left.append(
+      el("span", { className: "dl-pill", textContent: `● ${latest.tag_name} · ${published}` }),
+      el("h2", {}, ["Aion DPS", el("br"), el("span", { textContent: t("download.forWindows") })]),
+      el("p", { className: "dl-lead", textContent: t("download.heroDescription") }),
+      el("a", { className: "dl-cta", href: "/download/latest" }, [
+        el("span", { innerHTML: DOWNLOAD_CIRCLE_SVG, "aria-hidden": "true" }),
+        el("span", { textContent: `${t("download.buttonLabel")} · ${size} MB` }),
+      ]),
+      el("div", { className: "dl-tiles" }, [
+        ...(vt ? [el("a", { href: vt[2], target: "_blank", rel: "noopener", title: t("download.vtReportLink") }, [el("b", { textContent: vt[1] }), el("span", { textContent: t("download.tileVt") })])] : []),
+        el("div", {}, [el("b", { textContent: "MIT" }), el("span", { textContent: t("download.tileOpen") })]),
+        el("div", {}, [el("b", { textContent: String(LOCALES.length) }), el("span", { textContent: t("download.tileLanguages") })]),
+      ]),
+      el("ul", { className: "dl-checks" }, [1, 2, 3].map((n) => el("li", { textContent: t(`download.check${n}`) }))),
+    );
+    if (sha) {
+      const copy = el("button", { type: "button", className: "download-copy", textContent: t("download.copy") });
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(sha);
+          copy.textContent = t("download.copied");
+          setTimeout(() => { copy.textContent = t("download.copy"); }, 2000);
+        } catch {
+          // no clipboard access: the hash can still be selected by hand
+        }
+      });
+      left.append(el("div", { className: "dl-sha" }, [
+        el("span", { textContent: "SHA-256" }),
+        shaHelp(setupAsset.name),
+        el("code", { textContent: sha, title: sha }),
+        copy,
+      ]));
+    }
+  } else if (loadError) {
+    left.append(el("p", { className: "error", textContent: t("download.versionLoadError", { msg: loadError.message }) }));
+  } else {
+    left.append(el("p", { className: "empty", textContent: t("download.noInstallerFound") }));
+  }
+
+  // --- middle: screenshot viewer ---
+  const shotSrc = (name) => `/images/features/${name}@2x.webp`;
+  const stageImg = el("img", { src: shotSrc(DOWNLOAD_VIEWS[0][1]), alt: t(`download.${DOWNLOAD_VIEWS[0][0]}`) });
+  const tabs = [];
+  const thumbs = [];
+  const show = (n) => {
+    const [key, name] = DOWNLOAD_VIEWS[n];
+    stageImg.src = shotSrc(name);
+    stageImg.alt = t(`download.${key}`);
+    tabs.forEach((x, i) => x.classList.toggle("on", i === n));
+    thumbs.forEach((x, i) => x.classList.toggle("on", i === n));
+  };
+  DOWNLOAD_VIEWS.forEach(([key, name], n) => {
+    const tab = el("button", { type: "button", className: n === 0 ? "on" : "", textContent: t(`download.${key}`) });
+    tab.addEventListener("click", () => show(n));
+    tabs.push(tab);
+    const thumb = el("button", { type: "button", className: n === 0 ? "on" : "", "aria-label": t(`download.${key}`) }, [el("img", { src: shotSrc(name), alt: "", loading: "lazy" })]);
+    thumb.addEventListener("click", () => show(n));
+    thumbs.push(thumb);
+  });
+  const middle = el("div", { className: "dl-card dl-stage" }, [
+    el("div", { className: "dl-tabs" }, tabs),
+    el("div", { className: "dl-view" }, [stageImg]),
+    el("div", { className: "dl-thumbs" }, thumbs),
   ]);
 
-  const features = el("div", { className: "feature-grid" }, [
-    featureCard(t("download.feature1Title"), t("download.feature1Text")),
-    featureCard(t("download.feature2Title"), t("download.feature2Text")),
-    featureCard(t("download.feature3Title"), t("download.feature3Text")),
-    featureCard(t("download.feature4Title"), t("download.feature4Text")),
+  // --- right: latest client changes and requirements ---
+  const right = el("div", { className: "dl-card dl-side" }, [
+    el("h2", { textContent: t("download.releasesHeading") }),
+    el("p", { className: "dl-sub", textContent: t("download.releasesSub") }),
+    ...releaseRows,
+    el("p", { className: "dl-all" }, [link(t("download.allChanges"), "/changelog")]),
+    el("h3", { textContent: t("download.requirementsHeading") }),
+    el("p", { className: "dl-sub", textContent: t("download.requirementsText") }),
   ]);
 
-  const stepsSection = el("div", {}, [
-    el("h2", { textContent: t("download.installationHeading") }),
-    el("ol", { className: "steps" }, [
-      el("li", { textContent: t("download.step1") }),
-      el("li", { textContent: t("download.step2") }),
-      el("li", { textContent: t("download.step3") }),
-      el("li", { textContent: t("download.step4") }),
-      el("li", { textContent: t("download.step5") }),
-    ]),
-  ]);
-
-  const repoLink = el("p", { className: "download-meta" }, [
+  // --- below: install steps and FAQ ---
+  const steps = el("div", { className: "dl-steps" }, [1, 2, 3, 4, 5].map((n) => el("div", { className: "dl-card dl-step" }, [
+    el("span", { className: "dl-num", textContent: String(n) }),
+    el("div", {}, [el("b", { textContent: t(`download.s${n}T`) }), el("span", { textContent: t(`download.s${n}D`) })]),
+  ])));
+  const faq = el("div", { className: "dl-faq" }, [1, 2, 3, 4, 5].map((n) => el("div", { className: "dl-card dl-faq-card" }, [
+    el("span", { className: "dl-faq-ico" }, [svgIcon(DOWNLOAD_FAQ_ICONS[n - 1])]),
+    el("b", { textContent: t(`download.faq${n}Q`) }),
+    el("span", { textContent: t(`download.faq${n}A`) }),
+  ])));
+  const note = el("p", { className: "download-meta" }, [
+    t("download.vtNote") + " ",
+    el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.vtLink") }),
+    " · ",
     t("download.repoLinkPrefix"),
     el("a", { href: `https://github.com/${GITHUB_REPO}`, textContent: `github.com/${GITHUB_REPO}`, target: "_blank", rel: "noopener" }),
   ]);
 
-  let downloadSection;
-  try {
-    const releases = await fetchJson(`https://api.github.com/repos/${GITHUB_REPO}/releases`);
-    // a tag with a suffix ("v1.0.0-alpha.1") is a test release: never offered here
-    const latest = releases.find((r) => !r.draft && !r.tag_name.includes("-"));
-    const setupAsset = latest?.assets?.find((a) => a.name.endsWith("-Setup.exe"));
-
-    if (latest && setupAsset) {
-      downloadSection = el("div", {}, [
-        el("a", { className: "download-cta", href: "/download/latest", textContent: t("download.downloadButton", { tag: latest.tag_name }) }),
-        el("p", { className: "download-meta", textContent: t("download.meta", { name: setupAsset.name, size: formatBytes(setupAsset.size) }) }),
-        ...releaseProofRows(latest.body ?? "", setupAsset.name),
-      ]);
-    } else {
-      downloadSection = el("p", { className: "empty", textContent: t("download.noInstallerFound") });
-    }
-  } catch (err) {
-    downloadSection = el("p", { className: "error", textContent: t("download.versionLoadError", { msg: err.message }) });
-  }
-
-  // To check a download: the installer's SHA-256 is in the release notes and in SHA256SUMS.txt on GitHub.
-  const checksumNote = el("p", { className: "download-meta" }, [
-    t("download.checksumNote") + " ",
-    el("code", { textContent: "Get-FileHash .\\AionDpsMeter-win-Setup.exe -Algorithm SHA256" }),
-    " ",
-    el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.checksumLink") }),
-  ]);
-  const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
-  const requirements = el("div", {}, [
-    el("h2", { textContent: t("download.requirementsHeading") }),
-    el("p", { textContent: t("download.requirementsText") }),
-  ]);
-  const shots = el("div", {}, [
-    el("h2", { textContent: t("download.screenshotsHeading") }),
-    el("div", { className: "download-shots" }, [
-      ["meter", "Aion 2 DPS meter window showing live damage per second for every group member"],
-      ["overlay", "Transparent click-through in-game overlay of the Aion 2 DPS meter"],
-      ["details", "Aion 2 combat analysis with skill breakdown and crit rates"],
-    ].map(([name, alt]) => el("img", { src: `/images/features/${name}.webp`, alt, loading: "lazy" }))),
-  ]);
-  const faq = el("div", {}, [
-    el("h2", { textContent: t("download.faqHeading") }),
-    ...[1, 2, 3, 4, 5].flatMap((n) => [el("h3", { textContent: t(`download.faq${n}Q`) }), el("p", { textContent: t(`download.faq${n}A`) })]),
-    el("p", {}, [t("download.vtNote") + " ", el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.vtLink") })]),
-  ]);
-  const starNote = el("p", { className: "download-meta star-note" }, [t("star.hint") + " ", buildStarLink()]);
-  app.replaceChildren(hero, downloadSection, checksumNote, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
+  app.replaceChildren(el("div", { className: "dl-page" }, [
+    el("div", { className: "dl-top" }, [left, middle, right]),
+    steps,
+    el("h2", { className: "dl-faq-head", textContent: t("download.faqHeading") }),
+    faq,
+    note,
+  ]));
 }
 
 // Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with
@@ -1986,17 +2065,6 @@ async function renderChangelog() {
     ]);
   });
   app.replaceChildren(el("h2", { textContent: L.title }), el("p", { className: "download-meta" }, [L.intro, link(L.download, "/download")]), ...sections);
-}
-
-function featureCard(title, text) {
-  return el("div", { className: "feature-card" }, [
-    el("h3", { textContent: title }),
-    el("p", { textContent: text }),
-  ]);
-}
-
-function formatBytes(bytes) {
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 // Boss order of the expedition and transcendence dungeons by instance slug, English boss names, the final boss last. sequence: true = the
