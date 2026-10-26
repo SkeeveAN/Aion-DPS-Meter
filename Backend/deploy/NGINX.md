@@ -21,6 +21,15 @@ Google ankommt. Nach jeder Änderung mit `nginx -t` prüfen und mit `curl -I` na
 - `proxy_intercept_errors off;` - das Backend liefert bei unbekannten Pfaden selbst eine 404-Seite
   mit `noindex`; nginx darf die nicht durch eine eigene Fehlerseite ersetzen.
 
+## Wartungsseite
+
+- Fällt das Backend aus (nginx erzeugt 502/503/504), liefert `location /` per `error_page ... =503 @aiondps_maintenance`
+  eine statische Wartungsseite in der Browsersprache (Map `$aiondps_maint_lang`, 10 Sprachen, Fallback Englisch),
+  mit `Retry-After`, `no-store` und `noindex`. `/api/` bleibt beim schlichten Fehler, damit der Client wiederholt.
+- Die Seiten erzeugt `Backend/deploy/maintenance/build.mjs <Zielordner>`; sie liegen auf dem Server unter
+  `/var/www/aiondps-maintenance/` (CSS/Logo unter `/_maintenance/`). Texte ändern → Skript laufen lassen, hochladen.
+- Kein Schalter nötig: nginx probiert jede Anfrage neu, sobald das Backend wieder antwortet, geht es normal weiter.
+
 ## Kompression / Caching
 
 - `gzip on; gzip_types text/html text/css application/javascript application/json application/xml;`
