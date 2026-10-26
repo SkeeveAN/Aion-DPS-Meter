@@ -1058,4 +1058,13 @@ export default {
   "timeline.legendUse": "スキル使用",
   "timeline.selection": "{from} – {to}：スキル使用 {uses} 回",
   "timeline.subtitle": "全プレイヤーのスキル使用を1本の時間軸に表示します。ドラッグで一部を選ぶと内容を確認でき、ダブルクリックで解除します。",
+  "arcana.set": "セット効果",
+  "arcana.sum": "スキルボーナス合計",
+  "arcana.reinforcement": "強化",
+  "arcana.max": "MAX",
+  "arcana.tipTotal": "スキルレベル {n}",
+  "arcana.tipBase": "習得: {n}",
+  "arcana.tipGear": "装備: +{n}",
+  "arcana.tipArcana": "アルカナ: +{n}",
+  "arcana.tipOther": "その他: +{n}",
 };

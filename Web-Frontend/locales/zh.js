@@ -1058,4 +1058,13 @@ export default {
   "timeline.legendUse": "技能使用",
   "timeline.selection": "{from} – {to}：技能使用 {uses} 次",
   "timeline.subtitle": "所有玩家的每次技能使用显示在同一条时间轴上。拖动选择一段可查看其内容，双击清除。",
+  "arcana.set": "套装效果",
+  "arcana.sum": "技能加成合计",
+  "arcana.reinforcement": "强化",
+  "arcana.max": "已满",
+  "arcana.tipTotal": "技能等级 {n}",
+  "arcana.tipBase": "已学习：{n}",
+  "arcana.tipGear": "装备：+{n}",
+  "arcana.tipArcana": "Arcana：+{n}",
+  "arcana.tipOther": "其他来源：+{n}",
 };

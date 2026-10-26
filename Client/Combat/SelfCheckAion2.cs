@@ -1505,7 +1505,15 @@ public static class SelfCheckAion2
         var older = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>("""{"Slot":43,"ItemId":810330001,"Enchant":2}""");
         bool disk = saved?.Arcana is { EnchantExp: 600, GodValue: 22 } && saved.Arcana.SkillBonuses.Count == 4 && older is { Arcana: null };
         Console.WriteLine($"  -> saved with the character file and read back (an older entry without them still loads): {disk}");
-        return compassOk && mirrorOk && disk;
+
+        // the profile upload carries them (own character only, camelCase like every upload field); a piece without them sends none
+        var uploadJson = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+        string sent = JsonSerializer.Serialize(AionDPS.Ui.MainWindow.GearUpload(compass!), uploadJson);
+        string plainSent = JsonSerializer.Serialize(AionDPS.Ui.MainWindow.GearUpload(new Aion2EquippedItem(1, 110150026, 3)), uploadJson);
+        bool upload = sent.Contains("\"arcana\":{\"exp\":600,\"god\":8,\"godValue\":22,\"skillBonuses\":[{\"skill\":11280000,\"level\":1},{\"skill\":11260000,\"level\":2},{\"skill\":11010000,\"level\":1},{\"skill\":11050000,\"level\":2}]}")
+            && !plainSent.Contains("arcana");
+        Console.WriteLine($"  -> the profile upload carries experience, god stat and skill bonuses of an arcana piece, and nothing for other pieces: {upload}");
+        return compassOk && mirrorOk && disk && upload;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

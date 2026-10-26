@@ -689,11 +689,12 @@ public partial class MainWindow : Window
     }
 
     /// <summary>The gear entry of a profile upload, with the mana stones and rolled stats when they were read.</summary>
-    private static ProfileGearUpload GearUpload(Aion2.Aion2EquippedItem i) => new(i.SlotIndex, i.ItemId, i.Enchant,
+    internal static ProfileGearUpload GearUpload(Aion2.Aion2EquippedItem i) => new(i.SlotIndex, i.ItemId, i.Enchant,
         i.Stones?.Select(k => new ProfileStoneUpload(k.StatId, k.Tier)).ToList(),
         i.Stats?.Select(k => new ProfileStatUpload(k.StatId, k.Value)).ToList(),
         i.GodstoneId > 0 ? i.GodstoneId : null,
-        i.SkillBonuses?.Select(k => new ProfileSkillBonusUpload(k.SkillId, k.Level)).ToList());
+        i.SkillBonuses?.Select(k => new ProfileSkillBonusUpload(k.SkillId, k.Level)).ToList(),
+        i.Arcana is { } a ? new ProfileArcanaUpload(a.EnchantExp, a.GodStatId, a.GodValue, a.SkillBonuses.Where(k => k.Level > 0).Select(k => new ProfileSkillBonusUpload(k.SkillId, k.Level)).ToList()) : null);
 
     /// <summary>
     /// What a global hotkey (see GlobalHotkeys) does. They replace the in-game chat commands, which

@@ -1,7 +1,10 @@
 """Builds Client/assets/aion2/items/arcana.json: the experience each arcana grade needs per enchant level (decrypted
 ArcanaEnchant table), the arcana sets (name and set effects, 8 client languages) from the l10n JSON files.
 
-Usage:  python3 build_arcana.py <ArcanaEnchant.bin from dectable.py> <dir with l10n_<locale>.json> <out.json>
+Usage:  python3 build_arcana.py <ArcanaEnchant.bin from dectable.py> <dir with l10n_<locale>.json> <out.json> [<item_info.json> <item_names_i18n.json>]
+
+With the last two files the names of the arcana items ("Heiliger Gral der Lebenskraft") are added to the site's item name table: the Item table has no
+arcana, their names are String_STR_ARCANA_<CARD>_A_SET_<n>_B_body, matched by the English name of the item.
 
 ArcanaEnchant rows: [FString "Arcana_Enchant_<Grade>"][u8 level][i32 exp to the next level]...; a grade's last level carries 0
 (Unique: 3000 6000 12000 24000 48000 0 - the +2 and +3 caps 12.000 / 24.000 match the in-game window). Set effects: ItemSetEffect lists sets 001 and 002 with a 2 and a 4 piece effect each; the texts are
@@ -50,3 +53,20 @@ for number in ("001",):
 
 json.dump({"expPerLevel": caps, "sets": sets}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print(caps)
+
+if len(sys.argv) > 5:
+    info = json.load(open(sys.argv[4], encoding="utf-8"))
+    names_path = sys.argv[5]
+    table = json.load(open(names_path, encoding="utf-8"))
+    by_text = {}
+    for key, value in texts["en"].items():
+        if key.startswith("String_STR_ARCANA_") and key.endswith("_body"):
+            by_text.setdefault(value, key)
+    added = 0
+    for english in sorted({v[0] for v in info.values() if v[1] == "Arcana"}):
+        key = by_text.get(english)
+        if key and english not in table:
+            table[english] = {c: texts[c][key] for c in locales if c != "en" and texts[c].get(key) and texts[c][key] != english}
+            added += 1
+    open(names_path, "w", encoding="utf-8").write(json.dumps(table, ensure_ascii=False, separators=(",", ":")))
+    print("arcana item names added:", added)

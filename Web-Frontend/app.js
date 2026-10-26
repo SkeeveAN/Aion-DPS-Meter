@@ -4254,9 +4254,172 @@ function renderRanksTab(profile) {
   ]);
 }
 
+// What the game's tables say about arcana (arcana.json, Tools/aion2-dat/build_arcana.py): the experience a piece needs per level (only the five
+// base card types, Grail to Mirror) and the effects of the sets, in the game client's languages. Loaded when the tab is drawn; until it arrived the
+// pieces simply show their experience without a limit and no set effect.
+let arcanaTables = { data: null, pending: null };
+
+function loadArcanaTables() {
+  arcanaTables.pending ??= fetch("/arcana.json")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      arcanaTables.data = data;
+    })
+    .catch(() => {
+      arcanaTables.data = null;
+    });
+  return arcanaTables.pending;
+}
+
+const LORD_KEYS = { 7: "justice", 8: "freedom", 9: "illusion", 10: "life", 11: "time" };
+
 function renderArcanaTab(profile) {
   const list = profile.gear.filter((g) => g.slotName === "Arcana").sort((a, b) => a.slot - b.slot);
-  return el("div", { className: "pf-arcana" }, list.map(gearSlot));
+  // Details (experience, god stat, skill bonuses) only exist for a character whose own client uploaded them; otherwise the plain tiles.
+  if (!list.some((g) => g.arcana)) {
+    return el("div", { className: "pf-arcana" }, list.map(gearSlot));
+  }
+  const body = el("div", { className: "pf-arc" });
+  const draw = () => body.replaceChildren(...arcanaBlocks(profile, list));
+  draw();
+  if (!arcanaTables.data) {
+    loadArcanaTables().then(() => arcanaTables.data && draw());
+  }
+  return body;
+}
+
+function arcanaBlocks(profile, list) {
+  const locale = getLocale();
+  const tables = arcanaTables.data;
+  const lang = tables?.sets && ["de", "en", "es", "fr", "ja", "ko", "pt", "ru"].includes(locale) ? locale : "en";
+  const sumBonus = (pieces) => {
+    const total = new Map();
+    for (const g of pieces) {
+      for (const b of g.arcana?.skillBonuses ?? g.skillBonuses ?? []) {
+        total.set(b.skill, (total.get(b.skill) ?? 0) + b.level);
+      }
+    }
+    return total;
+  };
+  const arcanaBonus = sumBonus(list);
+  const gearBonus = sumBonus(profile.gear.filter((g) => g.slotName !== "Arcana"));
+  const trained = new Map((profile.skills ?? []).map((k) => [k.id, k]));
+  const skillName = (id, names, name) => names?.[locale] ?? name;
+  const names = new Map(list.flatMap((g) => (g.arcana?.skillBonuses ?? []).map((b) => [b.skill, b])));
+
+  // the final level of a skill is its trained level plus the equipment, the arcana and further sources; without the skill list only the parts known from the pieces
+  const skillTip = (id) => {
+    const known = trained.get(id);
+    const fromGear = gearBonus.get(id) ?? 0;
+    const fromArcana = arcanaBonus.get(id) ?? 0;
+    const entry = names.get(id);
+    const rows = [el("div", { className: "pf-tip-title", textContent: skillName(id, entry?.names, entry?.name ?? String(id)) })];
+    const line = (text) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: text })]);
+    if (known) {
+      rows.push(line(t("arcana.tipTotal", { n: known.level })), line(t("arcana.tipBase", { n: known.baseLevel > 0 ? known.baseLevel : known.level })));
+    }
+    rows.push(line(t("arcana.tipGear", { n: fromGear })), line(t("arcana.tipArcana", { n: fromArcana })));
+    const other = known && known.baseLevel > 0 ? known.level - known.baseLevel - fromGear - fromArcana : 0;
+    if (other > 0) {
+      rows.push(line(t("arcana.tipOther", { n: other })));
+    }
+    return rows;
+  };
+
+  const skillRow = (b, level) => {
+    const row = el("div", { className: "pf-arc-skill" }, [
+      el("span", { className: "pf-arc-skname", textContent: skillName(b.skill, b.names, b.name) }),
+      el("strong", { className: level >= 3 ? "hi" : "", textContent: `${t("profile.levelAbbr")} +${level}` }),
+    ]);
+    attachTooltip(row, () => skillTip(b.skill));
+    return row;
+  };
+
+  const expLimit = (g) => {
+    const card = Math.floor(g.itemId / 100000) % 100;
+    if (!tables || Math.floor(g.itemId / 10_000_000) !== 81 || card < 1 || card > 5) {
+      return { limit: null, maxed: false };
+    }
+    const row = tables.expPerLevel?.[String(g.grade)];
+    const value = row?.[g.enchant];
+    return { limit: value > 0 ? value : null, maxed: Array.isArray(row) && value === 0 };
+  };
+
+  const piece = (g) => {
+    const a = g.arcana;
+    const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
+    const name = localizedSkillName(g);
+    const head = el("div", { className: "pf-arc-head" }, [
+      iconTile("item", g.icon, name, { color, badge: g.enchant > 0 ? `+${shownEnchant(g)}` : "" }),
+      el("div", {}, [
+        el("div", { className: "pf-slot-name", textContent: name }),
+        el("div", { className: "pf-slot-sub", textContent: g.itemLevel > 0 ? `${t("slot.Arcana")} · ${t("profile.itemLevelShort")} ${g.itemLevel}` : t("slot.Arcana") }),
+      ]),
+    ]);
+    attachTooltip(head, () => gearTip(g));
+    const card = el("div", { className: "pf-slot pf-arc-card", style: `--ico-color:${color}` }, [head]);
+    if (a) {
+      const { limit, maxed } = expLimit(g);
+      card.append(
+        el("div", { className: "pf-arc-exp" }, [
+          el("span", { textContent: t("arcana.reinforcement") }),
+          el("strong", { textContent: maxed ? t("arcana.max") : limit ? `${formatNumber(a.exp)} / ${formatNumber(limit)}` : formatNumber(a.exp) }),
+        ]),
+      );
+      if (limit) {
+        card.append(el("div", { className: "pf-arc-bar" }, [el("i", { style: `width:${Math.min(100, (a.exp / limit) * 100)}%` })]));
+      }
+      const lord = LORD_KEYS[a.god];
+      if (lord) {
+        card.append(
+          el("div", { className: "pf-arc-god" }, [
+            el("span", {}, [el("strong", { textContent: t(`attr.${lord}`) }), el("small", { textContent: ` [${t(`lord.${lord}`)}]` })]),
+            el("strong", { textContent: String(a.godValue) }),
+          ]),
+        );
+      }
+      card.append(...a.skillBonuses.map((b) => skillRow(b, b.level)));
+    }
+    return card;
+  };
+
+  // the effects of the sets the pieces belong to; a set counts the pieces of it that are worn
+  const sets = new Map();
+  for (const g of list) {
+    const key = g.itemId % 10000;
+    sets.set(key, (sets.get(key) ?? 0) + 1);
+  }
+  const setCards = [...sets]
+    .map(([key, count]) => [tables?.sets?.[String(key).padStart(3, "0")], count])
+    .filter(([set]) => set)
+    .map(([set, count]) =>
+      el("div", { className: "pf-arc-set" }, [
+        el("div", { className: "pf-arc-set-title" }, [el("h3", { textContent: set.name[lang] ?? set.name.en }), el("span", { textContent: `${count} / ${list.length}` })]),
+        ...set.effects.map((e) =>
+          el("div", { className: `pf-arc-eff${count >= e.pieces ? "" : " off"}` }, [el("em", { textContent: String(e.pieces) }), el("span", { textContent: e.text[lang] ?? e.text.en })]),
+        ),
+      ]),
+    );
+  const lords = list.filter((g) => g.arcana && LORD_KEYS[g.arcana.god]);
+  const top = el("div", { className: "pf-arc-top" }, [
+    ...setCards,
+    lords.length > 0
+      ? el("div", { className: "pf-card pf-arc-lords" }, [
+          el("h4", { textContent: t("profile.attrLords") }),
+          el("div", { className: "pf-arc-lordrow" }, lords.map((g) => {
+            const key = LORD_KEYS[g.arcana.god];
+            return el("div", { title: `${t(`attr.${key}`)} [${t(`lord.${key}`)}]` }, [attrIcon(key, true), el("strong", { textContent: String(g.arcana.godValue) }), el("small", { textContent: t(`attr.${key}`) })]);
+          })),
+        ])
+      : null,
+  ].filter((x) => x != null));
+
+  const sum = [...arcanaBonus].sort((x, y) => y[1] - x[1] || skillName(x[0], names.get(x[0])?.names, names.get(x[0])?.name).localeCompare(skillName(y[0], names.get(y[0])?.names, names.get(y[0])?.name), locale));
+  const sumCard = el("div", { className: "pf-card pf-arc-sum" }, [
+    el("h4", { textContent: t("arcana.sum") }),
+    ...sum.map(([id, level]) => skillRow(names.get(id) ?? { skill: id, name: String(id) }, level)),
+  ]);
+  return [top, el("div", { className: "pf-arc-grid" }, [el("div", { className: "pf-arc-pieces" }, list.map(piece)), sumCard])];
 }
 
 // The three lists the skills tab shows; the tab counts and the header count use the same lists.

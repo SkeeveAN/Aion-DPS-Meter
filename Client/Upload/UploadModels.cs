@@ -138,7 +138,11 @@ public sealed record ProfilePetUpload(int Species, int Level, IReadOnlyList<int>
 
 public sealed record ProfileBoardCountUpload(int Board, int Count);
 
-public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant, IReadOnlyList<ProfileStoneUpload>? Stones = null, IReadOnlyList<ProfileStatUpload>? Stats = null, int? Godstone = null, IReadOnlyList<ProfileSkillBonusUpload>? SkillBonuses = null);
+public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant, IReadOnlyList<ProfileStoneUpload>? Stones = null, IReadOnlyList<ProfileStatUpload>? Stats = null, int? Godstone = null, IReadOnlyList<ProfileSkillBonusUpload>? SkillBonuses = null, ProfileArcanaUpload? Arcana = null);
+
+/// <summary>What an arcana piece carries besides its level (own character only, from the login list): the experience collected towards the next level, the god stat id
+/// and its value, and the skill level bonuses of the piece (own and rolled levels added up).</summary>
+public sealed record ProfileArcanaUpload(int Exp, int God, int GodValue, IReadOnlyList<ProfileSkillBonusUpload> SkillBonuses);
 
 /// <summary>A skill level bonus on an item (skill id, bonus levels).</summary>
 public sealed record ProfileSkillBonusUpload(int Skill, int Level);

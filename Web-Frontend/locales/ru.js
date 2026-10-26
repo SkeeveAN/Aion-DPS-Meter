@@ -1058,4 +1058,13 @@ export default {
   "timeline.legendUse": "применение навыка",
   "timeline.selection": "{from} – {to}: применений навыков — {uses}",
   "timeline.subtitle": "Каждое применение навыка каждым игроком на одной оси времени. Проведите по участку, чтобы увидеть, что в нём, двойной щелчок сбрасывает выбор.",
+  "arcana.set": "Эффект комплекта",
+  "arcana.sum": "Сумма бонусов умений",
+  "arcana.reinforcement": "Усиление",
+  "arcana.max": "Макс.",
+  "arcana.tipTotal": "Уровень умения {n}",
+  "arcana.tipBase": "Изучено: {n}",
+  "arcana.tipGear": "Экипировка: +{n}",
+  "arcana.tipArcana": "Арканы: +{n}",
+  "arcana.tipOther": "Другие источники: +{n}",
 };

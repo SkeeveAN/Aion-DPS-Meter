@@ -569,3 +569,28 @@ test("own ranks: a new reading replaces the one of its type and scope, the other
   assert.deepEqual(merged.map((r) => [r.type, r.scope, r.rank]), [[1, 0, 90], [3, 0, 5], [5, 2, 7]]);
   assert.ok(profileSchema.safeParse({ source: "self", ranks: [{ type: 1, scope: 0, rank: 1764, points: 92435, change: -16, grade: 18, stats: "{\"kill_count\":11}", at: "2026-10-23T12:00:00Z" }] }).success);
 });
+
+test("an arcana piece of the own character keeps its experience, god stat and skill bonuses, named in the client's languages", () => {
+  const id = playerId("Aahz");
+  // Kompass of Vigor +2 as the in-game window showed it (2026-10-26): 600 experience, Vaizel 22, Klingenraserei +1, Schockaufhebung +2
+  upsertProfile(id, profileSchema.parse({
+    source: "self",
+    level: 45,
+    classId: 1,
+    classBits: 2,
+    gear: [
+      { slot: 1, itemId: 110150026, enchant: 0 },
+      { slot: 43, itemId: 810330001, enchant: 2, arcana: { exp: 600, god: 8, godValue: 22, skillBonuses: [{ skill: 11280000, level: 1 }, { skill: 11260000, level: 2 }] } },
+    ],
+  }));
+  const view = buildProfileView(id)!;
+  const compass = view.gear.find((g) => g.slot === 43)!;
+  assert.deepEqual([compass.slotName, compass.enchant], ["Arcana", 2]);
+  assert.deepEqual([compass.arcana?.exp, compass.arcana?.god, compass.arcana?.godValue], [600, 8, 22]);
+  assert.deepEqual(compass.arcana?.skillBonuses.map((k) => [k.names?.de, k.level]), [["Klingenraserei", 1], ["Schockaufhebung", 2]]);
+  // an ordinary piece and an arcana piece of an older client carry none
+  assert.equal(view.gear.find((g) => g.slot === 1)!.arcana, null);
+  // nonsense is rejected rather than stored
+  assert.throws(() => profileSchema.parse({ source: "self", gear: [{ slot: 43, itemId: 810330001, enchant: 2, arcana: { exp: -1, god: 8, godValue: 22, skillBonuses: [] } }] }));
+  assert.throws(() => profileSchema.parse({ source: "self", gear: [{ slot: 43, itemId: 810330001, enchant: 2, arcana: { exp: 1, god: 8, godValue: 22, skillBonuses: Array.from({ length: 9 }, () => ({ skill: 1, level: 1 })) } }] }));
+});

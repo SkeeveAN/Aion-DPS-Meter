@@ -1058,4 +1058,13 @@ export default {
   "timeline.legendUse": "스킬 사용",
   "timeline.selection": "{from} – {to}: 스킬 사용 {uses}회",
   "timeline.subtitle": "모든 플레이어의 스킬 사용을 하나의 시간축에 표시합니다. 드래그로 구간을 선택해 내용을 확인하고, 더블클릭으로 해제합니다.",
+  "arcana.set": "세트 효과",
+  "arcana.sum": "스킬 보너스 합계",
+  "arcana.reinforcement": "강화",
+  "arcana.max": "최대",
+  "arcana.tipTotal": "스킬 레벨 {n}",
+  "arcana.tipBase": "습득: {n}",
+  "arcana.tipGear": "장비: +{n}",
+  "arcana.tipArcana": "아르카나: +{n}",
+  "arcana.tipOther": "기타: +{n}",
 };

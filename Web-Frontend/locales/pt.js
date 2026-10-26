@@ -1058,4 +1058,13 @@ export default {
   "timeline.legendUse": "uso de habilidade",
   "timeline.selection": "{from} – {to}: {uses} usos de habilidade",
   "timeline.subtitle": "Cada uso de habilidade de cada jogador em um único eixo de tempo. Arraste sobre uma parte para ver o que ela contém, clique duas vezes para limpar.",
+  "arcana.set": "Efeito de conjunto",
+  "arcana.sum": "Soma dos bônus de habilidade",
+  "arcana.reinforcement": "Reforço",
+  "arcana.max": "Máx.",
+  "arcana.tipTotal": "Nível da habilidade {n}",
+  "arcana.tipBase": "Aprendido: {n}",
+  "arcana.tipGear": "Equipamento: +{n}",
+  "arcana.tipArcana": "Arcana: +{n}",
+  "arcana.tipOther": "Outras fontes: +{n}",
 };

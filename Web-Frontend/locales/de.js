@@ -1052,4 +1052,13 @@ export default {
   "guide.faq.rdps.q": "Warum zeigt der Meter kein rDPS?",
   "guide.faq.rdps.a": "rDPS schätzt, wie viel vom Schaden eines Spielers auf die Buffs anderer Spieler zurückgeht, und schreibt diesen Anteil dem zu, der den Buff gesetzt hat. Das beruht auf Modellannahmen und nicht auf gemessenen Zahlen. Wir zeigen stattdessen den iDPS pro Ziel und die Kampfzeit. Daran sieht man die Wirkung eines Buffs auf die Gruppe, ohne etwas zu schätzen.",
   "footer.howItWorks": "Technischer Hintergrund",
+  "arcana.set": "Set-Effekt",
+  "arcana.sum": "Summe der Skill-Boni",
+  "arcana.reinforcement": "Verstärkung",
+  "arcana.max": "Max.",
+  "arcana.tipTotal": "Skill-Stufe {n}",
+  "arcana.tipBase": "Gelernt: {n}",
+  "arcana.tipGear": "Ausrüstung: +{n}",
+  "arcana.tipArcana": "Arkana: +{n}",
+  "arcana.tipOther": "Weitere Quellen: +{n}",
 };

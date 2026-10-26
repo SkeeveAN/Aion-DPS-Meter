@@ -1058,4 +1058,13 @@ export default {
   "timeline.legendUse": "utilisation de compétence",
   "timeline.selection": "{from} – {to} : {uses} utilisations de compétence",
   "timeline.subtitle": "Chaque utilisation de compétence de chaque joueur sur un seul axe temporel. Faites glisser sur une partie pour voir son contenu, double-clic pour effacer.",
+  "arcana.set": "Effet de set",
+  "arcana.sum": "Total des bonus de compétences",
+  "arcana.reinforcement": "Renforcement",
+  "arcana.max": "Max.",
+  "arcana.tipTotal": "Niveau de compétence {n}",
+  "arcana.tipBase": "Appris : {n}",
+  "arcana.tipGear": "Équipement : +{n}",
+  "arcana.tipArcana": "Arcanes : +{n}",
+  "arcana.tipOther": "Autres sources : +{n}",
 };

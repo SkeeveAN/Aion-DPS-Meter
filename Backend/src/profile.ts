@@ -50,6 +50,16 @@ export const profileSchema = z.object({
         // The godstone set into the piece (its item id) and the skill level bonuses the piece gives.
         godstone: z.number().int().min(1).max(2_000_000_000).optional(),
         skillBonuses: z.array(z.object({ skill: z.number().int().min(1).max(2_000_000_000), level: z.number().int().min(1).max(20) })).max(8).optional(),
+        // An arcana piece of the own character (login list): the experience collected towards the next level, the god stat (id 7-11 = Nezekan,
+        // Vaizel, Kaisinel, Yustiel, Siel) with its value, and the skill levels the piece gives (own and rolled levels added up).
+        arcana: z
+          .object({
+            exp: z.number().int().min(0).max(100_000_000),
+            god: z.number().int().min(0).max(100),
+            godValue: z.number().int().min(0).max(100_000),
+            skillBonuses: z.array(z.object({ skill: z.number().int().min(1).max(2_000_000_000), level: z.number().int().min(1).max(40) })).max(8),
+          })
+          .optional(),
       }),
     )
     // 25 pieces seen on a real character (slots up to 29); the cap only fends off nonsense.
@@ -467,6 +477,8 @@ export type ProfileView = {
     godstone: { itemId: number; name: string; names?: Record<string, string> } | null;
     /** Skill level bonuses of the piece ("Abwärtsschlag +1"). */
     skillBonuses: { skill: number; name: string; names?: Record<string, string>; level: number }[] | null;
+    /** Arcana pieces of the own character: experience towards the next level, god stat id and value, skill levels of the piece; null when not read. */
+    arcana: { exp: number; god: number; godValue: number; skillBonuses: { skill: number; name: string; names?: Record<string, string>; level: number }[] } | null;
   }[];
   averageItemLevel: number | null;
   skills: ProfileSkill[];
@@ -612,7 +624,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
     const known = itemStats![String(stat)];
     return { name: known?.names.en ?? `Stat ${stat}`, names: known?.names };
   };
-  const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number; stones?: { stat: number; tier: number }[]; stats?: { stat: number; value: number }[]; godstone?: number; skillBonuses?: { skill: number; level: number }[] }[])
+  const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number; stones?: { stat: number; tier: number }[]; stats?: { stat: number; value: number }[]; godstone?: number; skillBonuses?: { skill: number; level: number }[]; arcana?: { exp: number; god: number; godValue: number; skillBonuses: { skill: number; level: number }[] } }[])
     .map((g) => {
       const info = itemInfo![String(g.itemId)];
       return {
@@ -632,6 +644,9 @@ export function buildProfileView(playerId: number): ProfileView | null {
         stats: g.stats ? g.stats.map((k) => ({ stat: k.stat, ...statName(k.stat), value: itemStats![String(k.stat)]?.hundredths === true ? Math.round(k.value / 100) : k.value, percent: itemStats![String(k.stat)]?.percent === true })) : null,
         godstone: g.godstone ? { itemId: g.godstone, name: godstones![String(g.godstone)]?.en ?? `Item ${g.godstone}`, names: godstones![String(g.godstone)] } : null,
         skillBonuses: g.skillBonuses ? g.skillBonuses.map((k) => ({ skill: k.skill, name: skillNames![String(k.skill)] ?? String(k.skill), names: skillNamesI18n![String(k.skill)], level: k.level })) : null,
+        arcana: g.arcana
+          ? { exp: g.arcana.exp, god: g.arcana.god, godValue: g.arcana.godValue, skillBonuses: g.arcana.skillBonuses.map((k) => ({ skill: k.skill, name: skillNames![String(k.skill)] ?? String(k.skill), names: skillNamesI18n![String(k.skill)], level: k.level })) }
+          : null,
       };
     })
     .sort((a, b) => a.slot - b.slot);
