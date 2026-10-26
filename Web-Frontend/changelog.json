@@ -88,6 +88,13 @@
      "Backend"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Technical background page: says that every push runs the type check and all backend tests in public and builds the client, with a link to the test results (ten languages)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
