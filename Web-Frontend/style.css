@@ -4477,3 +4477,17 @@ button.cmp-mem { cursor: pointer; }
 @media (max-width: 900px) { .dl-top, .dl-steps, .dl-faq { grid-template-columns: 1fr; } .dl-pop { left: auto; right: -10px; } }
 .dl-page .download-meta { margin-top: 14px; }
 .dl-faq-head { font-size: 24px; }
+
+/* DPS = Daevas Power Suite: the three initials of the name in the banner are highlighted */
+.home-banner h1.home-banner-name span { color: inherit; }
+.home-banner h1.home-banner-name b { color: #ffba42; font-weight: inherit; }
+
+/* FAQ row under the two ranking cards: five equal cards side by side, two then one column on narrower windows */
+.home-faq { margin-top: 24px; }
+.home-faq-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 0 4px 4px; }
+.home-faq-item { background: var(--color-surface2); border: 1px solid var(--color-border); border-radius: 8px; padding: 14px 16px; }
+.home-faq-item b { display: block; margin-bottom: 6px; color: var(--color-text); }
+.home-faq-item p { margin: 0; color: var(--color-text-muted); font-size: 14px; line-height: 1.5; }
+@media (max-width: 1500px) { .home-faq-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1100px) { .home-faq-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) { .home-faq-grid { grid-template-columns: 1fr; } }

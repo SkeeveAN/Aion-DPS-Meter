@@ -83,28 +83,28 @@ export function displayName(row: { name: string; nameEn: string | null }): strin
 /** Each main page has its own preview picture (Web-Frontend/og/pages/<slug>.jpg, 1200x630) with the text in the middle,
  *  because WhatsApp cuts a square out of the middle of the picture. */
 function pageCard(slug: string): Pick<PageMeta, "ogImage" | "ogImageSize" | "ogImageAlt"> {
-  return { ogImage: `/og/pages/${slug}.jpg?v=20261019`, ogImageSize: { width: 1200, height: 630 }, ogImageAlt: "Aion DPS Meter" };
+  return { ogImage: `/og/pages/${slug}.jpg?v=20261019`, ogImageSize: { width: 1200, height: 630 }, ogImageAlt: "Aion DPS" };
 }
 
 export function homePage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Aion DPS Meter – Free Damage Meter & Boss Leaderboards",
+      title: "Aion DPS – Daevas Power Suite | AION 2 Companion App & DPS Meter",
       description:
-        "Free open-source Aion 2 DPS meter: click-through overlay, boss leaderboards, character profiles, pet map, event timetable and world boss timers. No memory reading.",
+        "Aion DPS, the Daevas Power Suite: free open-source AION 2 companion app with live combat stats (DPS meter), click-through overlay, boss leaderboards, character profiles, pet map and world boss timers. No memory reading.",
       canonicalPath: "/",
       ...pageCard("home"),
       jsonLd: [websiteJsonLd(), softwareApplicationJsonLd(), faqJsonLd(HOME_FAQ)],
     },
     body: html`
-      <h1>Aion 2 DPS Meter</h1>
-      <p><strong>The Aion 2 DPS Meter from aiondps.com is a free, open-source tool and companion app for AION 2 that shows live damage (DPS) and healing (HPS) for every player in your group, using passive packet capture.</strong> It also brings community boss leaderboards and character profiles.</p>
+      <h1>Aion DPS – Daevas Power Suite</h1>
+      <p><strong>Aion DPS, short for Daevas Power Suite, is a free, open-source companion app for AION 2: live combat stats for your whole group, boss leaderboards, character profiles, an interactive map, event and world boss timers, and more. It works by passive packet capture and never reads game memory.</strong></p>
       <h3>What it does</h3>
-      <p>Aion DPS Meter shows live damage per second and healing per second for every player in your party or raid while you play. It runs beside the game as its own window or as a transparent click-through overlay, and keeps a full log of each fight so you can review skill breakdowns and group composition afterwards.</p>
-      <p>The meter works by passive packet capture: it only reads the network traffic your own computer already receives. It never reads game memory, never injects code and never hooks the game client.</p>
-      <h3>More than a damage meter</h3>
-      <p>Besides DPS and HPS the client brings an interactive map with pet spawns and gathering spots, an event timetable and world boss timers with sound reminders, a network overlay with ping and packet loss, your character with gear and Daevanion boards, and shortcuts to the official AION 2 announcements and Twitch Drops. <a href="/features">See all features</a>.</p>
+      <p>Aion DPS shows live damage and healing per second for every player in your party or raid while you play. It runs beside the game as its own window or as a transparent click-through overlay, and keeps a full log of each fight so you can review skill breakdowns and group composition afterwards.</p>
+      <p>Aion DPS works by passive packet capture: it only reads the network traffic your own computer already receives. It never reads game memory, never injects code and never hooks the game client.</p>
+      <h3>More than combat stats</h3>
+      <p>Besides DPS and HPS the app brings an interactive map with pet spawns and gathering spots, an event timetable and world boss timers with sound reminders, a network overlay with ping and packet loss, your character with gear and Daevanion boards, and shortcuts to the official AION 2 announcements and Twitch Drops. <a href="/features">See all features</a>.</p>
       <h3>Boss leaderboards and guides</h3>
       <p>Players can optionally upload their encounters. The site turns them into community leaderboards for every instance, boss and difficulty step, from Expeditions and Nightmare levels to Ascension Rite and Transcendence stages. Each boss page also lists its mechanics, the fastest clears, the strongest groups, the best results per class and the skills each class uses, which you can narrow by gear score. A single run shows the buffs on every player and, from client 1.9.0 on, a group timeline of every skill use and which effects ran at each one, so you can compare your own run with what others achieve.</p>
       <h3>Character profiles</h3>
@@ -112,10 +112,10 @@ export function homePage(): Page {
       <h3>Frequently asked questions</h3>
       ${HOME_FAQ.map((f) => html`<h4>${f.q}</h4><p>${f.a}</p>`)}
       <h3>Get started</h3>
-      <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. It works with the global release of AION 2; Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there. Updates are installed by the client itself, and every release is documented in the changelog.</p>
+      <p>Install the Windows client, start Aion 2 and Aion DPS picks up your fights automatically. It works with the global release of AION 2; Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there. Updates are installed by the client itself, and every release is documented in the changelog.</p>
       <ul class="plain">
         ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
-        <li><a href="/features">Features of the Aion 2 DPS meter</a></li>
+        <li><a href="/features">Features of Aion DPS</a></li>
         <li><a href="/aion-2-dps-meter">Aion 2 DPS meter: features, installation and comparison</a></li>
         <li><a href="/legions">Legions</a></li>
         <li><a href="/status">AION 2 server status</a></li>
@@ -131,46 +131,46 @@ export function downloadPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "AION 2 DPS Meter Download – Free Windows Damage Meter",
+      title: "Download Aion DPS – Free AION 2 Companion App & DPS Meter for Windows",
       description:
-        "Free Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload, via passive packet capture. Windows installer, auto-updates.",
+        "Aion DPS, the free AION 2 companion app: live combat stats (DPS meter) per player, transparent click-through overlay and optional leaderboard upload, via passive packet capture. Windows installer, auto-updates.",
       canonicalPath: "/download",
       ...pageCard("download"),
       jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Download", path: "/download" }]),
-        {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it safe to use?", "acceptedAnswer": {"@type": "Answer", "text": "The meter only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client."}}, {"@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. Aion DPS Meter is free and open source under the MIT license."}}, {"@type": "Question", "name": "Which AION 2 regions does it support?", "acceptedAnswer": {"@type": "Answer", "text": "The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there."}}, {"@type": "Question", "name": "Do I need administrator rights?", "acceptedAnswer": {"@type": "Answer", "text": "Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them."}}, {"@type": "Question", "name": "Are my fights uploaded automatically?", "acceptedAnswer": {"@type": "Answer", "text": "No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on."}}]}],
+        {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it safe to use?", "acceptedAnswer": {"@type": "Answer", "text": "Aion DPS only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client."}}, {"@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. Aion DPS is free and open source under the MIT license."}}, {"@type": "Question", "name": "Which AION 2 regions does it support?", "acceptedAnswer": {"@type": "Answer", "text": "The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there."}}, {"@type": "Question", "name": "Do I need administrator rights?", "acceptedAnswer": {"@type": "Answer", "text": "Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them."}}, {"@type": "Question", "name": "Are my fights uploaded automatically?", "acceptedAnswer": {"@type": "Answer", "text": "No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on."}}]}],
     },
     body: html`
-      <h1>AION 2 DPS Meter Download</h1>
-      <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
+      <h1>Download Aion DPS</h1>
+      <p>A companion app for Aion 2 with live combat stats that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
       <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
       <p>To check your download, compare its SHA-256 with the value in the <a href="https://github.com/SkeeveAN/Aion-DPS-Meter/releases/latest">release notes or in SHA256SUMS.txt on GitHub</a>. In PowerShell: <code>Get-FileHash .\\AionDpsMeter-win-Setup.exe -Algorithm SHA256</code></p>
       <h3>Requirements</h3>
       <ul class="plain">
         <li>Windows 10 or 11</li>
-        <li>The <a href="https://npcap.com" rel="noopener">Npcap</a> driver, which the meter uses to see the game's network traffic. It is not part of the installer.</li>
+        <li>The <a href="https://npcap.com" rel="noopener">Npcap</a> driver, which Aion DPS uses to see the game's network traffic. It is not part of the installer.</li>
       </ul>
       <h3>Installation</h3>
       <ol class="steps">
         <li>Download and run the installer (installs per user).</li>
         <li>Install the Npcap driver from npcap.com.</li>
-        <li>Start the meter, then log in with your character.</li>
+        <li>Start Aion DPS, then log in with your character.</li>
         <li>Optional: switch on the profile upload in the settings (off by default) to appear in the leaderboards.</li>
-        <li>Done. The meter updates itself whenever a new version is released.</li>
+        <li>Done. Aion DPS updates itself whenever a new version is released.</li>
       </ol>
       <h3>Screenshots</h3>
-      <p><img src="/images/features/meter.webp" alt="Aion 2 DPS meter window showing live damage per second for every group member" width="600" loading="lazy" />
-      <img src="/images/features/overlay.webp" alt="Transparent click-through in-game overlay of the Aion 2 DPS meter" width="600" loading="lazy" />
+      <p><img src="/images/features/meter.webp" alt="Aion DPS window showing live damage per second for every group member" width="600" loading="lazy" />
+      <img src="/images/features/overlay.webp" alt="Transparent click-through in-game overlay of Aion DPS" width="600" loading="lazy" />
       <img src="/images/features/details.webp" alt="Aion 2 combat analysis with skill breakdown and crit rates" width="600" loading="lazy" /></p>
       <h3>FAQ</h3>
       <h4>Is it safe to use?</h4>
-      <p>The meter only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client.</p>
+      <p>Aion DPS only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client.</p>
       <h4>Does it cost anything?</h4>
-      <p>No. Aion DPS Meter is free and open source under the MIT license.</p>
+      <p>No. Aion DPS is free and open source under the MIT license.</p>
       <h4>Which AION 2 regions does it support?</h4>
       <p>The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
       <h4>Do I need administrator rights?</h4>
-      <p>Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them.</p>
+      <p>Not for Aion DPS: it installs per user. Only the installer of the Npcap driver asks for them.</p>
       <h4>Are my fights uploaded automatically?</h4>
       <p>No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on.</p>
       <p><a href="/features">All features</a> · <a href="/changelog">Changelog</a> · <a href="https://github.com/SkeeveAN/Aion-DPS-Meter">Source code on GitHub</a></p>`,
@@ -263,7 +263,7 @@ export function featuresPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Aion 2 DPS Meter Features – Overlay, Pet Map, Timetable, Boss Timers",
+      title: "Aion DPS Features – Overlay, Pet Map, Timetable, Boss Timers",
       description:
         "All features of the free Aion 2 DPS meter: live DPS/HPS, overlay, skill breakdown, character view, pet map, event timetable, world boss timers, network overlay.",
       canonicalPath: "/features",
@@ -271,8 +271,8 @@ export function featuresPage(): Page {
       jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
     },
     body: html`
-      <h1>Aion 2 DPS Meter Toolkit – everything it does</h1>
-      <p>A free, open-source damage and heal meter and toolkit for Aion 2. It only reads the network traffic your own computer already receives: no memory reading, no injection, no packets sent.</p>
+      <h1>Aion DPS – Daevas Power Suite: everything it does</h1>
+      <p>Aion DPS is a free, open-source companion app for Aion 2 with live damage and healing stats. It only reads the network traffic your own computer already receives: no memory reading, no injection, no packets sent.</p>
       <p>It works with the global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
       <h2>Live damage and healing meter</h2>
       <p>Every player in your group or raid with name, total damage, DPS and a share bar; faction and class as icons. Filter by class, group or target. The Mob/Boss filter switches between overall DPS and true per-target iDPS, a PvE/PvP switch separates the two, and every wipe on a boss gets an entry of its own.</p>
@@ -289,9 +289,9 @@ export function featuresPage(): Page {
       <h2>Boss fight overlay</h2>
       <p>The boss's casts with a countdown, whom they hit and when a hit would kill you, plus the target of the target with its picture, name, health bar and debuffs for healers. Every part moves and scales on its own.</p>
       <h2>Streaming for OBS</h2>
-      <p>A browser source for OBS or Streamlabs shows the meter live, also from a second streaming PC in your own network. Names are off by default.</p>
+      <p>A browser source for OBS or Streamlabs shows the live stats, also from a second streaming PC in your own network. Names are off by default.</p>
       <h2>Your character</h2>
-      <p>Gear with item level and enchant (including the Amplify stage), arcana, species knowledge, all skills and the full Daevanion boards. The meter keeps your last login, so the window is never empty.</p>
+      <p>Gear with item level and enchant (including the Amplify stage), arcana, species knowledge, all skills and the full Daevanion boards. Aion DPS keeps your last login, so the window is never empty.</p>
       <h2>Interactive map: pets and gathering</h2>
       <p>A map overlay with your position, the spawn points of the pets you are after, and the gathering spots you switch on – herbs, ores, wood, gems and more – for Verteron, Altgard and the Abyss. Edge arrows point to the nearest pet or gatherable, and a Rare tab lists pets with few spawn points.</p>
       <h2>Event timetable and world boss timers</h2>
@@ -299,7 +299,7 @@ export function featuresPage(): Page {
       <h2>Network overlay</h2>
       <p>Ping, jitter, traffic, packet loss and online time of your connection to the game server, measured from the traffic your PC already receives.</p>
       <h2>Announcements and Twitch Drops</h2>
-      <p>One click from the meter: the official AION 2 announcements and patch notes with kind filters, and while a campaign runs, the Twitch Drops rewards, watch times and the streams with Drops enabled right now.</p>
+      <p>One click from Aion DPS: the official AION 2 announcements and patch notes with kind filters, and while a campaign runs, the Twitch Drops rewards, watch times and the streams with Drops enabled right now.</p>
       <h2>Aion 2 checklist</h2>
       <p>Per character, read from the game at login: the Odyle energy (basic and charged), the entries and attempts of Shugo Festival, Nightmare, Ascension rite, Dimensional Invasion and the daily dungeon, the five mandatory daily tasks and the time left in the lower Abyss. Counters you have not reached the level for are greyed out at 0.</p>
       <h2>Design editor</h2>
@@ -320,15 +320,15 @@ export function changelogPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Changelog – Aion DPS Meter",
-      description: "What changed in each release of the Aion DPS Meter Windows client, newest first.",
+      title: "Changelog – Aion DPS",
+      description: "What changed in each release of the Aion DPS Windows client, newest first.",
       canonicalPath: "/changelog",
       ...pageCard("changelog"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Changelog", path: "/changelog" }])],
     },
     body: html`
       <h1>Changelog</h1>
-      <p>What changed in each release of the Aion DPS Meter Windows client. <a href="/download">Download</a></p>`,
+      <p>What changed in each release of the Aion DPS Windows client. <a href="/download">Download</a></p>`,
   };
 }
 
@@ -336,7 +336,7 @@ export function guildsPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Legions – Aion DPS Meter",
+      title: "Legions – Aion DPS",
       description: "The legions of the Aion 2 players known to Aion DPS, per server, with the members we have seen.",
       canonicalPath: "/legions",
       ...pageCard("legions"),
@@ -376,7 +376,7 @@ export function statsPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Statistics – Aion DPS Meter",
+      title: "Statistics – Aion DPS",
       description: "How many players, characters with full profiles, boss fights and downloads Aion DPS has - live numbers from the community leaderboards.",
       canonicalPath: "/stats",
       ...pageCard("stats"),
@@ -392,7 +392,7 @@ export function serverStatusPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Server Status – Aion DPS Meter",
+      title: "Server Status – Aion DPS",
       description: "Are the Aion 2 login and game servers reachable right now? Live checks every minute, uptime of the last 24 hours and the worlds on each game server address.",
       canonicalPath: "/status",
       ...pageCard("status"),
@@ -408,7 +408,7 @@ export function announcementsPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "AION 2 Announcements – Aion DPS Meter",
+      title: "AION 2 Announcements – Aion DPS",
       description: "The official AION 2 announcements in one place: maintenance, outages, new servers, server transfers, compensation and account notices, in your language and with colored labels.",
       canonicalPath: "/announcements",
       ...pageCard("announcements"),
@@ -424,7 +424,7 @@ export function patchnotesPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "AION 2 Patch Notes – Aion DPS Meter",
+      title: "AION 2 Patch Notes – Aion DPS",
       description: "The official AION 2 patch notes in full text, in your language: improvements, drop rates, merchants and fixes, newest first.",
       canonicalPath: "/patchnotes",
       ...pageCard("patchnotes"),
@@ -440,7 +440,7 @@ export function twitchDropsPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "AION 2 Twitch Drops – Aion DPS Meter",
+      title: "AION 2 Twitch Drops – Aion DPS",
       description: "AION 2 Twitch Drops: the running campaign with every reward and its watch time, how to link your accounts and claim, and the earlier campaigns.",
       canonicalPath: "/twitch-drops",
       ...pageCard("twitch-drops"),
@@ -468,15 +468,15 @@ export function privacyPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Privacy Policy – Aion DPS Meter",
+      title: "Privacy Policy – Aion DPS",
       description:
-        "What Aion DPS Meter's client and website collect, and why: passive network capture, optional uploads, hashed IPs, no accounts, no tracking.",
+        "What Aion DPS's client and website collect, and why: passive network capture, optional uploads, hashed IPs, no accounts, no tracking.",
       canonicalPath: "/privacy",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Privacy Policy", path: "/privacy" }])],
     },
     body: html`
       <h1>Privacy Policy</h1>
-      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client passively observes your own network traffic to compute stats locally; uploading a parse to the community leaderboards is optional, and your own character profile is only uploaded automatically after login if you switch that on in the settings (off by default). See the full policy on the site for details on what gets stored and your rights.</p>`,
+      <p>Aion DPS is a free, open-source, hobby-run community project. The client passively observes your own network traffic to compute stats locally; uploading a parse to the community leaderboards is optional, and your own character profile is only uploaded automatically after login if you switch that on in the settings (off by default). See the full policy on the site for details on what gets stored and your rights.</p>`,
   };
 }
 
@@ -484,8 +484,8 @@ export function feedbackPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Report a problem or suggest an improvement – Aion DPS Meter",
-      description: "Report a bug, ask for a feature or suggest an improvement for Aion DPS Meter; your message becomes a GitHub issue.",
+      title: "Report a problem or suggest an improvement – Aion DPS",
+      description: "Report a bug, ask for a feature or suggest an improvement for Aion DPS; your message becomes a GitHub issue.",
       canonicalPath: "/feedback",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Feedback", path: "/feedback" }])],
     },
@@ -499,14 +499,14 @@ export function termsPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Terms of Service – Aion DPS Meter",
-      description: "Terms for using Aion DPS Meter's free client and website: fan-made project, provided as-is, acceptable use of the upload feature.",
+      title: "Terms of Service – Aion DPS",
+      description: "Terms for using Aion DPS's free client and website: fan-made project, provided as-is, acceptable use of the upload feature.",
       canonicalPath: "/terms",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Terms of Service", path: "/terms" }])],
     },
     body: html`
       <h1>Terms of Service</h1>
-      <p>Aion DPS Meter is a free, fan-made community project, not affiliated with or endorsed by NCSoft or any official Aion publisher. It is provided "as is", without warranty. See the full terms on the site for acceptable use and liability details.</p>`,
+      <p>Aion DPS is a free, fan-made community project, not affiliated with or endorsed by NCSoft or any official Aion publisher. It is provided "as is", without warranty. See the full terms on the site for acceptable use and liability details.</p>`,
   };
 }
 

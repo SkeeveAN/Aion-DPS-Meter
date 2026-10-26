@@ -1,8 +1,8 @@
 🇬🇧 [English](README.md) · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 **한국어**
 
-# Aion DPS Meter
+# Aion DPS – Daevas Power Suite
 
-**AION 2용 무료 DPS 미터** — 파티 전체의 피해량과 치유량을 실시간으로 표시하고, 클릭이 통과하는 오버레이, 보스 순위표, 펫·채집 지도, 이벤트 일정, 월드 보스 타이머를 제공합니다. Windows용, 오픈 소스이며 게임 메모리를 절대 읽지 않습니다.
+**AION 2용 무료 오픈 소스 컴패니언 앱** — 파티 전체의 피해량과 치유량을 실시간으로 표시하고, 클릭이 통과하는 오버레이, 보스 순위표, 펫·채집 지도, 이벤트 일정, 월드 보스 타이머를 제공합니다. Windows용, 오픈 소스이며 게임 메모리를 절대 읽지 않습니다.
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Windows용 다운로드</b></a> · <a href="https://aiondps.com">웹사이트</a> · <a href="https://aiondps.com/features">모든 기능</a> · <a href="https://aiondps.com/instances">보스 순위표</a>

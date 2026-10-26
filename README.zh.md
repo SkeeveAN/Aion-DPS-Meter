@@ -1,8 +1,8 @@
 🇬🇧 [English](README.md) · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 **中文** · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 
-# Aion DPS Meter
+# Aion DPS – Daevas Power Suite
 
-**AION 2 免费 DPS 统计器** —— 实时显示全队伤害与治疗，提供可点击穿透的悬浮窗、首领排行榜、宠物与采集地图、活动时间表和世界首领计时器。适用于 Windows，开源，绝不读取游戏内存。
+**AION 2 免费开源的辅助应用** —— 实时显示全队伤害与治疗，提供可点击穿透的悬浮窗、首领排行榜、宠物与采集地图、活动时间表和世界首领计时器。适用于 Windows，开源，绝不读取游戏内存。
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ 下载 Windows 版</b></a> · <a href="https://aiondps.com">网站</a> · <a href="https://aiondps.com/features">全部功能</a> · <a href="https://aiondps.com/instances">首领排行榜</a>

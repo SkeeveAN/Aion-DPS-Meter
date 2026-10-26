@@ -1,8 +1,8 @@
 🇬🇧 [English](README.md) · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 **Português (Brasil)** · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 
-# Aion DPS Meter
+# Aion DPS – Daevas Power Suite
 
-**O medidor de DPS gratuito para AION 2** — dano e cura ao vivo de todo o seu grupo, uma sobreposição que não intercepta cliques, rankings de chefes, um mapa de mascotes e coleta, uma agenda de eventos e temporizadores de chefes mundiais. Para Windows, de código aberto e nunca lê a memória do jogo.
+**O aplicativo complementar gratuito e de código aberto para AION 2** — dano e cura ao vivo de todo o seu grupo, uma sobreposição que não intercepta cliques, rankings de chefes, um mapa de mascotes e coleta, uma agenda de eventos e temporizadores de chefes mundiais. Para Windows, de código aberto e nunca lê a memória do jogo.
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Baixar para Windows</b></a> · <a href="https://aiondps.com">Site</a> · <a href="https://aiondps.com/features">Todos os recursos</a> · <a href="https://aiondps.com/instances">Rankings de chefes</a>

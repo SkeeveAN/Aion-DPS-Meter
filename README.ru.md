@@ -1,8 +1,8 @@
 🇬🇧 [English](README.md) · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 **Русский** · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 
-# Aion DPS Meter
+# Aion DPS – Daevas Power Suite
 
-**Бесплатный счётчик DPS для AION 2** — урон и лечение всей группы в реальном времени, оверлей, пропускающий клики, рейтинги боссов, карта питомцев и сбора ресурсов, расписание событий и таймеры мировых боссов. Для Windows, с открытым кодом и никогда не читает память игры.
+**Бесплатное приложение-компаньон с открытым кодом для AION 2** — урон и лечение всей группы в реальном времени, оверлей, пропускающий клики, рейтинги боссов, карта питомцев и сбора ресурсов, расписание событий и таймеры мировых боссов. Для Windows, с открытым кодом и никогда не читает память игры.
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Скачать для Windows</b></a> · <a href="https://aiondps.com">Сайт</a> · <a href="https://aiondps.com/features">Все возможности</a> · <a href="https://aiondps.com/instances">Рейтинги боссов</a>

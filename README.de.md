@@ -1,8 +1,8 @@
 🇬🇧 [English](README.md) · 🇩🇪 **Deutsch** · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 
-# Aion DPS Meter
+# Aion DPS – Daevas Power Suite
 
-**Der kostenlose DPS-Meter für AION 2** — Live-Schaden und -Heilung für deine ganze Gruppe, ein durchklickbares Overlay, Boss-Ranglisten, eine Karte für Pets und Sammelpunkte, ein Event-Zeitplan und Weltboss-Timer. Für Windows, Open Source, und er liest nie den Spielspeicher.
+**Die kostenlose Open-Source-Companion-App für AION 2** — Live-Schaden und -Heilung für deine ganze Gruppe, ein durchklickbares Overlay, Boss-Ranglisten, eine Karte für Pets und Sammelpunkte, ein Event-Zeitplan und Weltboss-Timer. Für Windows, Open Source, und er liest nie den Spielspeicher.
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Für Windows herunterladen</b></a> · <a href="https://aiondps.com">Webseite</a> · <a href="https://aiondps.com/features">Alle Funktionen</a> · <a href="https://aiondps.com/instances">Boss-Ranglisten</a>

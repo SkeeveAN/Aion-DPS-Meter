@@ -193,8 +193,8 @@ function iconLabel(iconEl, text) {
   return el("span", { className: "icon-label" }, [iconEl, text].filter((x) => x != null));
 }
 
-const SITE_TITLE = "Aion DPS Meter";
-const HOME_TITLE = "Aion DPS Meter – Free Damage Meter & Boss Leaderboards";
+const SITE_TITLE = "Aion DPS";
+const HOME_TITLE = "Aion DPS – Daevas Power Suite | AION 2 Companion App & DPS Meter";
 
 function setBreadcrumb(parts) {
   breadcrumb.replaceChildren();
@@ -322,6 +322,15 @@ function bannerCta(href, icon, title, sub, main = false) {
     el("span", { className: "home-cta-arrow", innerHTML: BANNER_ARROW, "aria-hidden": "true" }),
   ]);
 }
+const HOME_NAME_PARTS = [["D", "aevas "], ["P", "ower "], ["S", "uite"]];
+const HOME_FAQ_KEYS = ["what", "stand", "safe", "install", "free"];
+// FAQ row under the two ranking cards: the same text the server renders for search engines (Backend/src/seo/meta.ts HOME_FAQ), so visitors and crawlers read the same thing.
+function buildHomeFaq() {
+  return el("section", { className: "home-section-card home-faq" }, [
+    el("div", { className: "home-section-head" }, [el("h2", { textContent: t("home.faqHeading") })]),
+    el("div", { className: "home-faq-grid" }, HOME_FAQ_KEYS.map((k) => el("div", { className: "home-faq-item" }, [el("b", { textContent: t(`home.faq.${k}.q`) }), el("p", { textContent: t(`home.faq.${k}.a`) })]))),
+  ]);
+}
 async function renderHome() {
   setBreadcrumb([]);
   document.title = HOME_TITLE;
@@ -335,9 +344,9 @@ async function renderHome() {
     el("div", { className: "home-banner-bg" }),
     el("div", { className: "home-banner-stage" }, [bannerWin("meter", 250), bannerWin("map-crop", 220)]),
     el("div", { className: "home-banner-copy" }, [
-      el("p", { className: "home-banner-eyebrow", textContent: t("features.hero.eyebrow") }),
-      el("h1", {}, [`${t("features.hero.title")} `, el("span", { textContent: t("features.hero.accent") })]),
-      el("p", { className: "home-banner-tag", textContent: t("features.hero.tagline") }),
+      // The name is not translated: the first letters of Daevas Power Suite are highlighted so that DPS reads out of it.
+      el("h1", { className: "home-banner-name" }, HOME_NAME_PARTS.map(([initial, rest]) => el("span", {}, [el("b", { textContent: initial }), rest]))),
+      el("p", { className: "home-banner-tag", textContent: t("home.heroTagline") }),
       el("p", { className: "home-banner-intro", textContent: t("home.bannerIntro") }),
     ]),
     el("div", { className: "home-banner-ctas" }, [
@@ -396,7 +405,7 @@ async function renderHome() {
   // One wrapper carries the 190px pull-up into the hero, so the stats card can sit at a fixed
   // offset above the cards' top edge (see .home-below-hero / .home-stats-card) exactly as in the
   // prototype, instead of being measured down from the hero's bottom.
-  app.replaceChildren(heroRow, el("div", { className: "home-below-hero" }, [...(statsBar ? [statsBar] : []), contentGrid]));
+  app.replaceChildren(heroRow, el("div", { className: "home-below-hero" }, [...(statsBar ? [statsBar] : []), contentGrid, buildHomeFaq()]));
 }
 
 // 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left, CTA
@@ -440,7 +449,7 @@ function buildSiteFooter() {
       el("h2", { textContent: t("home.footerCtaHeading") }),
       el("a", { className: "btn btn-gold", href: "/download" }, [
         el("span", { className: "btn-icon btn-icon-circle", innerHTML: DOWNLOAD_CIRCLE_SVG, "aria-hidden": "true" }),
-        el("span", { textContent: "Aion DPS Meter" }),
+        el("span", { textContent: "Aion DPS" }),
       ]),
     ]),
     el("div", { className: "home-footer-links" }, [
