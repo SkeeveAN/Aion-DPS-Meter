@@ -1175,7 +1175,12 @@ async function renderDownload() {
   // --- below: install steps and FAQ ---
   const steps = el("div", { className: "dl-steps" }, [1, 2, 3, 4, 5].map((n) => el("div", { className: "dl-card dl-step" }, [
     el("span", { className: "dl-num", textContent: String(n) }),
-    el("div", {}, [el("b", { textContent: t(`download.s${n}T`) }), el("span", { textContent: t(`download.s${n}D`) })]),
+    el("div", {}, [
+      el("b", { textContent: t(`download.s${n}T`) }),
+      el("span", { textContent: t(`download.s${n}D`) }),
+      // Npcap has no "latest" download link, so step 2 points to its download section
+      ...(n === 2 ? [el("a", { className: "dl-step-link", href: "https://npcap.com/#download", target: "_blank", rel: "noopener", textContent: "npcap.com/#download ↗" })] : []),
+    ]),
   ])));
   const faq = el("div", { className: "dl-faq" }, [1, 2, 3, 4, 5].map((n) => el("div", { className: "dl-card dl-faq-card" }, [
     el("span", { className: "dl-faq-ico" }, [svgIcon(DOWNLOAD_FAQ_ICONS[n - 1])]),

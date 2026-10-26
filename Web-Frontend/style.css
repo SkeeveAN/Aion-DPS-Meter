@@ -4463,6 +4463,8 @@ button.cmp-mem { cursor: pointer; }
 .dl-step { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; }
 .dl-num { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: var(--color-primary-on); font-weight: 800; display: grid; place-items: center; }
 .dl-step b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+.dl-step-link { display: inline-block; margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--color-primary); text-decoration: none; }
+.dl-step-link:hover { text-decoration: underline; }
 .dl-step div span { display: block; color: var(--color-text-muted); font-size: 13.5px; line-height: 1.45; }
 .dl-faq-head { margin: 28px 0 12px; }
 .dl-faq { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
