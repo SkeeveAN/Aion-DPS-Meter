@@ -307,7 +307,22 @@ const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
  * (Backend/src/routes/stats.ts already returns honest zeros for an empty game), and the top
  * players/recent activity columns only draw from whichever games actually have real rows.
  */
-const BANNER_WIN_SIZE = { meter: [1040, 840], "map-crop": [878, 570] };
+const BANNER_WIN_SIZE = {
+  meter: [1040, 840], "map-crop": [878, 570], "overlay-chips": [640, 320], bossfight: [956, 700], analyzer: [1760, 820],
+  craft: [1960, 1280], "craft-overlay": [544, 284], "character-gear": [2360, 1800], "character-skills": [2360, 1280], "timetable-hero": [545, 500],
+};
+// The pictures of the banner slider: background, the client windows (name, height in px, how it looks) and where "More about this" leads.
+// "dark" puts a dark fill behind windows with see-through areas, so that the gold frame gradient does not shine through them;
+// "bare" is a window that already carries its own frame and fade (timetable-hero), "over" lays the second window over the first.
+const HOME_SLIDES = [
+  { key: "suite", bg: "/images/ui/banner-bg-1920.webp", wins: [["meter", 250], ["map-crop", 220]], link: "/features" },
+  { key: "stats", bg: "/images/ui/hero/colosseum.webp", pos: "-470px 18%", size: "125% auto", wins: [["meter", 250], ["overlay-chips", 140]], link: "/features#feature-meter" },
+  { key: "boss", bg: "/images/features/scene-bossfight.webp", wins: [["bossfight", 250, "dark"], ["analyzer", 205]], link: "/features#feature-bossfight" },
+  { key: "craft", bg: "/images/features/scene-craft.webp", wins: [["craft", 210], ["craft-overlay", 175, "dark over"]], link: "/features#feature-craft" },
+  { key: "character", bg: "/images/features/scene-character.webp", wins: [["character-gear", 250], ["character-skills", 210]], link: "/features#feature-character" },
+  { key: "event", bg: "/images/ui/hero/sundial.webp", pos: "-497px 18%", size: "110% auto", wins: [["timetable-hero", 250, "bare"]], link: "/features#feature-timetable" },
+];
+const HOME_SLIDE_SECONDS = 7;
 
 // The banner's three ways in: big buttons (icon, title, one line of what is behind them, an arrow) so that they read as links, not as labels.
 const bannerIcon = (paths) => `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
@@ -331,6 +346,98 @@ function buildHomeFaq() {
     el("div", { className: "home-faq-grid" }, HOME_FAQ_KEYS.map((k) => el("div", { className: "home-faq-item" }, [el("b", { textContent: t(`home.faq.${k}.q`) }), el("p", { textContent: t(`home.faq.${k}.a`) })]))),
   ]);
 }
+let homeSliderTimer = null;
+// The banner slider: one picture every few seconds; small squares jump to a picture, arrows go to the previous or next one.
+// It stops while the mouse is over the banner and does not run by itself when the system asks for less motion.
+function mountHomeSlider(hero, parts, bannerWin) {
+  clearInterval(homeSliderTimer);
+  const layers = new Map(); // slide index -> background layer, made when first needed
+  let current = -1;
+  let hovering = false;
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  const slideText = (slide) =>
+    slide.key === "suite"
+      ? { tag: t("home.heroTagline"), text: t("home.bannerIntro"), more: t("home.slideAll") }
+      : { title: t(`home.slide.${slide.key}.title`), tag: t(`home.slide.${slide.key}.tag`), text: t(`home.slide.${slide.key}.text`), more: t("home.slideMore") };
+
+  const bgLayer = (i) => {
+    if (!layers.has(i)) {
+      const slide = HOME_SLIDES[i];
+      const layer = el("div", { className: "home-banner-bgimg" });
+      layer.style.backgroundImage = `url(${slide.bg})`;
+      if (slide.size) layer.style.backgroundSize = slide.size;
+      if (slide.pos) layer.style.backgroundPosition = slide.pos;
+      parts.bg.append(layer);
+      layers.set(i, layer);
+    }
+    return layers.get(i);
+  };
+
+  const dots = HOME_SLIDES.map((slide, i) =>
+    el("button", { type: "button", className: "home-slider-dot", "aria-label": t("home.slideGo", { n: i + 1 }), onclick: () => show(i, true) }),
+  );
+  const arrow = (dir) =>
+    el("button", {
+      type: "button",
+      className: `home-slider-arrow home-slider-arrow-${dir < 0 ? "prev" : "next"}`,
+      "aria-label": t(dir < 0 ? "home.slidePrev" : "home.slideNext"),
+      innerHTML: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${dir < 0 ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}"/></svg>`,
+      onclick: () => show((current + dir + HOME_SLIDES.length) % HOME_SLIDES.length, true),
+    });
+  hero.append(arrow(-1), arrow(1), el("div", { className: "home-slider-dots", role: "group" }, dots));
+
+  const fill = (i) => {
+    const slide = HOME_SLIDES[i];
+    const text = slideText(slide);
+    parts.stage.replaceChildren(...slide.wins.map(([name, h, look]) => bannerWin(name, h, look)));
+    const title =
+      slide.key === "suite"
+        ? el("h1", { className: "home-banner-name" }, HOME_NAME_PARTS.map(([initial, rest]) => el("span", {}, [el("b", { textContent: initial }), rest])))
+        : el("h1", { textContent: text.title });
+    parts.copy.replaceChildren(
+      title,
+      el("p", { className: "home-banner-tag", textContent: text.tag }),
+      el("p", { className: "home-banner-intro", textContent: text.text }),
+      el("a", { className: "home-slide-more", href: slide.link, textContent: `${text.more} \u2192` }),
+    );
+  };
+
+  const show = (i, byUser = false) => {
+    if (i === current) return;
+    const first = current < 0;
+    const swap = () => {
+      for (const [k, layer] of layers) layer.classList.toggle("is-on", k === i);
+      bgLayer(i).classList.add("is-on");
+      fill(i);
+      dots.forEach((d, k) => { d.classList.toggle("is-on", k === i); d.setAttribute("aria-current", k === i ? "true" : "false"); });
+      parts.stage.classList.remove("is-out"); parts.copy.classList.remove("is-out");
+    };
+    current = i;
+    if (first) { swap(); return; }
+    parts.stage.classList.add("is-out"); parts.copy.classList.add("is-out");
+    setTimeout(swap, 180);
+    if (byUser) restart();
+  };
+
+  const restart = () => {
+    clearInterval(homeSliderTimer);
+    if (reduceMotion) return;
+    homeSliderTimer = setInterval(() => { if (!hovering && document.hidden !== true && hero.isConnected) show((current + 1) % HOME_SLIDES.length); else if (!hero.isConnected) clearInterval(homeSliderTimer); }, HOME_SLIDE_SECONDS * 1000);
+  };
+
+  hero.addEventListener("mouseenter", () => { hovering = true; });
+  hero.addEventListener("mouseleave", () => { hovering = false; });
+  hero.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") show((current - 1 + HOME_SLIDES.length) % HOME_SLIDES.length, true);
+    else if (e.key === "ArrowRight") show((current + 1) % HOME_SLIDES.length, true);
+  });
+  show(0);
+  restart();
+  // The other pictures load in the background once the page is quiet, so that the first change does not wait for them.
+  setTimeout(() => HOME_SLIDES.slice(1).forEach((s) => { const img = new Image(); img.src = s.bg; }), 3000);
+}
+
 async function renderHome() {
   setBreadcrumb([]);
   document.title = HOME_TITLE;
@@ -338,23 +445,23 @@ async function renderHome() {
 
   // Slim banner = the Features hero (same look as the tour's scenes): it points at the three entry areas (Features, Instances, World Bosses)
   // but stays small, so Top players and Recent activity below remain the main content.
-  const bannerWin = (name, h) =>
-    el("img", { className: "home-banner-win", width: BANNER_WIN_SIZE[name][0], height: BANNER_WIN_SIZE[name][1], src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`, alt: "", style: `--h:${h}px` });
-  const heroRow = el("section", { className: "home-banner" }, [
-    el("div", { className: "home-banner-bg" }),
-    el("div", { className: "home-banner-stage" }, [bannerWin("meter", 250), bannerWin("map-crop", 220)]),
-    el("div", { className: "home-banner-copy" }, [
-      // The name is not translated: the first letters of Daevas Power Suite are highlighted so that DPS reads out of it.
-      el("h1", { className: "home-banner-name" }, HOME_NAME_PARTS.map(([initial, rest]) => el("span", {}, [el("b", { textContent: initial }), rest]))),
-      el("p", { className: "home-banner-tag", textContent: t("home.heroTagline") }),
-      el("p", { className: "home-banner-intro", textContent: t("home.bannerIntro") }),
-    ]),
+  const bannerWin = (name, h, look = "") =>
+    el("img", { className: `home-banner-win${look ? ` ${look.split(" ").map((c) => `is-${c}`).join(" ")}` : ""}`, width: BANNER_WIN_SIZE[name][0], height: BANNER_WIN_SIZE[name][1], src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`, alt: "", style: `--h:${h}px` });
+  const bannerBg = el("div", { className: "home-banner-bg" });
+  const bannerStage = el("div", { className: "home-banner-stage" });
+  const bannerCopy = el("div", { className: "home-banner-copy" });
+  const heroRow = el("section", { className: "home-banner", tabIndex: 0, "aria-roledescription": "carousel" }, [
+    bannerBg,
+    bannerStage,
+    bannerCopy,
     el("div", { className: "home-banner-ctas" }, [
       bannerCta("/features", BANNER_ICON_TOOL, t("home.bannerFeatures"), t("home.bannerFeaturesSub"), true),
       bannerCta("/instances", BANNER_ICON_RANK, t("home.bannerInstances"), t("home.bannerInstancesSub")),
       bannerCta("/worldbosses", BANNER_ICON_BOSS, t("home.bannerWorldbosses"), t("home.bannerWorldbossesSub")),
     ]),
   ]);
+
+  mountHomeSlider(heroRow, { bg: bannerBg, stage: bannerStage, copy: bannerCopy }, bannerWin);
 
   // The three requests do not depend on each other: started together, the page waits for the slowest instead of the sum.
   const aion2StatsRequest = fetchJson("/api/stats/summary?game=aion2").catch(() => null);
