@@ -1,5 +1,27 @@
 [
  {
+  "version": "1.16.4",
+  "date": "2026-10-26",
+  "items": [
+   {
+    "text": "Character page, Arcana tab: for a character whose own client uploaded the details it shows each piece with its reinforcement experience and the limit, its god value and its four skill bonuses (tooltips name the final skill level and where it comes from), above them the set effect and the five lord values, and a column with the sum of all skill bonuses; the arcana have their names in the game's languages",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "with \"upload my profile\" the client now also sends the details of the arcana pieces it read at login (reinforcement experience, god value and skill bonuses of each piece), so the character page on the website can show them",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-26"
+   }
+  ]
+ },
+ {
   "version": "1.16.3",
   "date": "2026-10-26",
   "items": [
