@@ -311,7 +311,7 @@ export default {
   "download.requirementsHeading": "Voraussetzungen",
   "download.requirementsText": "Windows 10 oder 11 und der Npcap-Treiber, über den der Meter den Netzwerkverkehr des Spiels sieht. Npcap gehört nicht zum Installer.",
   "download.screenshotsHeading": "Screenshots",
-  "download.faqHeading": "FAQ",
+  "download.faqHeading": "Häufige Fragen",
   "download.faq1Q": "Ist die Nutzung sicher?",
   "download.faq1A": "Der Meter liest nur den Netzwerkverkehr mit, den dein Rechner ohnehin empfängt, über den Npcap-Treiber. Er liest nie den Spielspeicher, schleust keinen Code ein und hakt sich nicht in den Spielclient ein.",
   "download.faq2Q": "Kostet das etwas?",

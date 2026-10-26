@@ -175,7 +175,7 @@ export default {
   "download.requirementsHeading": "Prérequis",
   "download.requirementsText": "Windows 10 ou 11 et le pilote Npcap, que le meter utilise pour voir le trafic réseau du jeu. Npcap ne fait pas partie de l'installateur.",
   "download.screenshotsHeading": "Captures d'écran",
-  "download.faqHeading": "FAQ",
+  "download.faqHeading": "Questions fréquentes",
   "download.faq1Q": "Est-ce sûr à utiliser ?",
   "download.faq1A": "Le meter ne lit que le trafic réseau que votre propre ordinateur reçoit déjà, via le pilote Npcap. Il ne lit jamais la mémoire du jeu, n'injecte jamais de code et ne s'accroche jamais au client du jeu.",
   "download.faq2Q": "Est-ce payant ?",
