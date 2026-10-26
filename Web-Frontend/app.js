@@ -308,6 +308,20 @@ const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
  * players/recent activity columns only draw from whichever games actually have real rows.
  */
 const BANNER_WIN_SIZE = { meter: [1040, 840], "map-crop": [878, 570] };
+
+// The banner's three ways in: big buttons (icon, title, one line of what is behind them, an arrow) so that they read as links, not as labels.
+const bannerIcon = (paths) => `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+const BANNER_ICON_TOOL = bannerIcon('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 14l3-4 3 3 4-6M8 21h8"/>');
+const BANNER_ICON_RANK = bannerIcon('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/>');
+const BANNER_ICON_BOSS = bannerIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M12 3v2M21 12h-2M12 21v-2M3 12h2"/>');
+const BANNER_ARROW = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+function bannerCta(href, icon, title, sub, main = false) {
+  return el("a", { className: `home-cta${main ? " home-cta-main" : ""}`, href }, [
+    el("span", { className: "home-cta-ico", innerHTML: icon, "aria-hidden": "true" }),
+    el("span", { className: "home-cta-text" }, [el("b", { textContent: title }), el("small", { textContent: sub })]),
+    el("span", { className: "home-cta-arrow", innerHTML: BANNER_ARROW, "aria-hidden": "true" }),
+  ]);
+}
 async function renderHome() {
   setBreadcrumb([]);
   document.title = HOME_TITLE;
@@ -327,9 +341,9 @@ async function renderHome() {
       el("p", { className: "home-banner-intro", textContent: t("home.bannerIntro") }),
     ]),
     el("div", { className: "home-banner-ctas" }, [
-      el("a", { className: "btn btn-ghost btn-ghost-main", href: "/features" }, [el("span", { textContent: t("home.bannerFeatures") })]),
-      el("a", { className: "btn btn-ghost", href: "/instances" }, [el("span", { textContent: t("home.bannerInstances") })]),
-      el("a", { className: "btn btn-ghost", href: "/worldbosses" }, [el("span", { textContent: t("home.bannerWorldbosses") })]),
+      bannerCta("/features", BANNER_ICON_TOOL, t("home.bannerFeatures"), t("home.bannerFeaturesSub"), true),
+      bannerCta("/instances", BANNER_ICON_RANK, t("home.bannerInstances"), t("home.bannerInstancesSub")),
+      bannerCta("/worldbosses", BANNER_ICON_BOSS, t("home.bannerWorldbosses"), t("home.bannerWorldbossesSub")),
     ]),
   ]);
 
@@ -420,7 +434,6 @@ function buildSiteFooter() {
       el("div", { className: "home-footer-legal home-footer-legal-logo" }, [
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
-        link(t("legal.codeSigningTitle"), "/code-signing-policy"),
       ]),
     ]),
     el("div", { className: "home-footer-center" }, [
