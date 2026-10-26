@@ -38,6 +38,13 @@
      "Website"
     ],
     "date": "2026-10-26"
+   },
+   {
+    "text": "Website: boss pages with no fights and no mechanics guide, legions with fewer than three known members and characters without gear or a valid best run are kept out of the search index (Google rated them soft 404); such boss pages leave the sitemap",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
    }
   ]
  },
