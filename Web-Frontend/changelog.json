@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-26",
+  "items": [
+   {
+    "text": "Player servers: a character's server must fit the world boss fights he was in (only the uploader's own server, and in the Abyss and in rift hours also the server NC's matchmaking paired with it); a server a client names for a crowd player outside that is taken from him, a hit at NC on any other server counts as a namesake, and the characters found with a wrong server are moved to the one their fights allow",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
+   }
+  ]
+ },
+ {
   "version": "1.16.4",
   "date": "2026-10-26",
   "items": [
