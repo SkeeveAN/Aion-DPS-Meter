@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-26",
+  "items": [
+   {
+    "text": "Website: everything about the code signing application is removed (the Code Signing Policy page, its link and the note on the download page)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-26"
+   }
+  ]
+ },
+ {
   "version": "1.16.2",
   "date": "2026-10-26",
   "items": [
