@@ -12,6 +12,7 @@
   <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
   <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <a href="../../actions/workflows/ci.yml"><img src="https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml/badge.svg" alt="tests"></a>
   <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
 </p>
 
