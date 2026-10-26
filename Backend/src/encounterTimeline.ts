@@ -188,8 +188,13 @@ export function shapeTimeline(
       for (let i = 0; i + 1 < (b.spans?.length ?? 0); i += 2) {
         spans.push([round1(shift + b.spans[i]! / 10), round1(shift + b.spans[i + 1]! / 10)]);
       }
+      // An effect the client's text tables have no name for (a hidden passive, shown by its number) is no information for the reader.
+      const named = buffNames(b.skillId, b.skill);
+      if (/^\d+$/.test(b.skill) && !named) {
+        continue;
+      }
       const art2 = buffIcon(b.skillId);
-      bossDebuffs.push({ skillId: b.skillId, name: b.skill, names: buffNames(b.skillId, b.skill), icon: art2?.icon ?? null, iconKind: art2?.iconKind ?? null, casts: b.casts, uptimePermille: b.uptimePermille, givers: b.givers, spans });
+      bossDebuffs.push({ skillId: b.skillId, name: b.skill, names: named, icon: art2?.icon ?? null, iconKind: art2?.iconKind ?? null, casts: b.casts, uptimePermille: b.uptimePermille, givers: b.givers, spans });
     }
     bossDebuffs.sort((a, b) => b.uptimePermille - a.uptimePermille);
   }

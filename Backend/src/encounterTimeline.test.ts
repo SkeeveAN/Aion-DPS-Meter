@@ -35,6 +35,27 @@ test("the time axis is lined up on the start of the encounter and the effects at
   assert.deepEqual(anna.buffs[0]!.spans, [[2.5, 7.5]]);
 });
 
+test("effects on the boss: a monster skill gets its client names, an effect the text tables have no name for is left out", () => {
+  const o = START;
+  const out = shapeTimeline({
+    startedAt: START,
+    durationSeconds: 60,
+    bossHp: null,
+    bossDebuffs: {
+      o,
+      list: [
+        { skillId: 1600920, skill: "Whirlwind Shot", casts: 4, uptimePermille: 182, givers: ["Specimen"], spans: [10, 50], origin: o },
+        { skillId: 1900000, skill: "Poison", casts: 2, uptimePermille: 1000, givers: ["Anna"], spans: [0, 600], origin: o },
+        { skillId: 99999999, skill: "99999999", casts: 3, uptimePermille: 1000, givers: ["Anna"], spans: [0, 600], origin: o },
+      ],
+    },
+    players: [],
+  });
+  assert.deepEqual(out.bossDebuffs.map((b) => b.skillId), [1900000, 1600920], "the unnamed number is not shown; the rest is sorted by uptime");
+  assert.equal(out.bossDebuffs[1]!.names?.de, "Wirbelschuss");
+  assert.equal(out.bossDebuffs[0]!.names?.de, "Vergiftung");
+});
+
 test("a group effect lies over the uses it covers", () => {
   const out = shapeTimeline({
     startedAt: START,
