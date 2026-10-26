@@ -4963,11 +4963,11 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   if (character?.attributes) {
     tabs.unshift(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
   }
-  if (profile?.ranks?.length > 0) {
-    tabs.push(["ranks", t("profile.tabRanks"), profile.ranks.length, () => renderRanksTab(profile)]);
-  }
   if (profile?.gear.some((g) => g.slotName === "Arcana")) {
     tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
+  }
+  if (profile?.ranks?.length > 0) {
+    tabs.push(["ranks", t("profile.tabRanks"), profile.ranks.length, () => renderRanksTab(profile)]);
   }
 
   const scrollY = window.scrollY;
