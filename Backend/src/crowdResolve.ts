@@ -21,20 +21,9 @@ import { acceptUpload } from "./routes/uploads.js";
  *    apart by the class the upload names); whoever is not placed stays without server and faction and is left out by the top rule (isCompletePlayer).
  * Where the rule is not known (a world boss that is on no list, an uploader of the other faction than the map) NC is asked, never a guess.
  */
-// ---- the clock: who can be on the map ------------------------------------------------------------------------------------------------------------
-
-/**
- * The rift hours: a spacetime rift opens every three hours on the game's UTC clock (00:00, 03:00 ... 21:00 UTC - the same in every region, 02:00, 05:00 ... 23:00
- * in summer time in Central Europe) and the other faction can cross over for the hour after it; everybody is sent home when the hour ends.
- */
-export const RIFT_EVERY_HOURS = 3;
-/** A little slack on both sides: the game's clock and the client's are not the same, and a fight can reach over the edge. */
-const RIFT_SLACK_MS = 2 * 60_000;
-
-/** Whether a rift hour is open (or just about) at the moment of the kill. */
-export function riftOpen(startedAt: number, endedAt: number): boolean {
-  return [startedAt - RIFT_SLACK_MS, startedAt, endedAt, endedAt + RIFT_SLACK_MS].some((at) => new Date(at).getUTCHours() % RIFT_EVERY_HOURS === 0);
-}
+// ---- the clock: who can be on the map (riftHours.ts) --------------------------------------------------------------------------------------------
+export { RIFT_EVERY_HOURS, riftOpen } from "./riftHours.js";
+import { riftOpen } from "./riftHours.js";
 
 type BossGroup = "verteron" | "altgard" | "abyss";
 let groupOf: Map<number, BossGroup> | null = null;
@@ -81,6 +70,45 @@ export function fillHomeCrowd(payload: UploadPayload): number {
     filled++;
   }
   return filled;
+}
+
+/**
+ * The servers a player of this world boss kill can be on (the rule of crowdMode above): the uploader's own outside the rift hours on a home-map field boss, else his
+ * and the one he is paired with right now. `pairKnown` is false when no pairing is on record (then the other faction cannot be judged). Null without an uploader's server.
+ */
+export function allowedServers(payload: UploadPayload): { servers: Set<number>; pairKnown: boolean } | null {
+  const self = payload.participants.find((p) => p.isSelf);
+  if (self?.serverId === undefined) {
+    return null;
+  }
+  if (crowdMode(payload) === "home") {
+    return { servers: new Set([self.serverId]), pairKnown: true };
+  }
+  const servers = new Set(candidateServers(payload));
+  return { servers, pairKnown: [...servers].some((id) => Math.floor(id / 1000) !== Math.floor(self.serverId! / 1000)) };
+}
+
+/**
+ * A client names a server for players of a crowd it cannot know it of (the uploader's own for everybody, a namesake's, an id nobody has): a server outside the rule is
+ * wrong. The player loses server and faction like a player the client knows nothing of, and is placed by the clock or looked up at NC (both servers of the pairing)
+ * like him. Returns how many lost their server.
+ */
+export function dropServersOutsideRule(payload: UploadPayload): number {
+  const rule = allowedServers(payload);
+  if (rule === null) {
+    return 0;
+  }
+  const home = Math.floor(payload.participants.find((p) => p.isSelf)!.serverId! / 1000);
+  let dropped = 0;
+  for (const p of payload.participants) {
+    if (p.isSelf || p.serverId === undefined || rule.servers.has(p.serverId) || (!rule.pairKnown && Math.floor(p.serverId / 1000) !== home)) {
+      continue;
+    }
+    delete p.serverId;
+    p.faction = "";
+    dropped++;
+  }
+  return dropped;
 }
 
 export const CROWD_PENDING = "crowd_pending";

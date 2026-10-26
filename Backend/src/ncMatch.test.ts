@@ -539,3 +539,21 @@ test("the class an upload named is enough to move a player whose client sent the
   assert.equal(matchRow(id)?.via, "name-elsewhere");
   assert.equal(matchRow(id)?.s, 1305);
 });
+
+test("a hit on a server that his world boss fights rule out is a namesake: it moves nobody", async () => {
+  const { bosses, encounterParticipants, encounters, instances, uploads } = await import("./db/schema.js");
+  const inst = db.insert(instances).values({ name: "Verteron", nameEn: "Verteron", game: "aion2", slug: "verteron-nc", category: "worldboss" }).returning().get();
+  const boss = db.insert(bosses).values({ instanceId: inst.id, name: "Gartuy", nameEn: "Gartuy", slug: "gartuy-nc" }).returning().get();
+  // 14:06 UTC is no rift hour: on a home map only the uploader's own server (Kaisinel 1304) can be there
+  const e = db.insert(encounters).values({ serverId: kaisinel, bossId: boss.id, startedAt: "2026-10-20T14:06:00.000Z", endedAt: "2026-10-20T14:06:30.000Z", durationSeconds: 30, groupIDps: 1, rosterFingerprint: "x" }).returning().get();
+  db.insert(uploads).values({ uploaderReportedName: "Up", ipHash: "h", status: "merged", rawPayloadJson: "{}", clientServerId: 1304, matchedEncounterId: e.id }).run();
+  const crowd = player("Vetter", kaisinel, { faction: "Elyos" });
+  db.insert(encounterParticipants).values({ encounterId: e.id, playerId: crowd, className: "Ranger", faction: "Elyos", totalDamage: 1, dps: 1, idps: 1, critRatePercent: 0 }).run();
+  const status = await processMatch(crowd, ncAnswer([raw({ name: "Vetter", serverId: 1306 })]), 1_000_000);
+  assert.notEqual(status, "verified");
+  assert.equal(serverOf(crowd).d, "Europe - Kaisinel", "the namesake on Ariel (1306) is none of the servers the fight allows");
+  // the same answer for a character who was at no such fight does move him
+  const other = player("Vetter2", kaisinel, { faction: "Elyos" });
+  assert.equal(await processMatch(other, ncAnswer([raw({ name: "Vetter2", serverId: 1306 })]), 1_000_000), "verified");
+  assert.equal(serverOf(other).d, "Europe - Ariel");
+});

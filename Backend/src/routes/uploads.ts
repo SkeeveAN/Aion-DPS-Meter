@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { CROWD_PENDING, crowdLookupEnabled, crowdMode, crowdToLookUp, fillHomeCrowd } from "../crowdResolve.js";
+import { CROWD_PENDING, crowdLookupEnabled, crowdMode, crowdToLookUp, dropServersOutsideRule, fillHomeCrowd } from "../crowdResolve.js";
 import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncompletePlayers } from "../uploadSchema.js";
 import { findEncounterForReplay, mergedReplayTracks, replayUploadSchema, storeReplayTracks } from "../replayTracks.js";
 import { findBossId, processProfilesUpload, processUpload } from "../matching/merge.js";
@@ -74,6 +74,13 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
     // home-map field boss they are the uploader's own; else they are looked up at NC (both servers of the pairing) before the upload is filed, which
     // takes minutes (NC is asked slowly), so the upload waits. Nobody is given a server or faction by a guess.
     const worldBossUpload = isWorldBossNpc(payload.bossNpcId);
+    // A server the client named for a player of the crowd that the rule does not allow (only the uploader's own, and in the Abyss and in rift hours the paired one) is wrong: the player is placed like one the client knows nothing of.
+    if (worldBossUpload) {
+      const reset = dropServersOutsideRule(payload);
+      if (reset > 0) {
+        log.info({ reset, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: servers outside the world boss rule taken from players of the crowd");
+      }
+    }
     if (worldBossUpload && crowdMode(payload) === "home") {
       const filled = fillHomeCrowd(payload);
       if (filled > 0) {

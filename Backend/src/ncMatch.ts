@@ -4,6 +4,7 @@ import { encounterParticipants, playerNcMatch, playerProfiles, players, servers 
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
+import { plausibleServersOf } from "./crowdRule.js";
 import { normalizeName } from "./matching/roster.js";
 import { PortraitQueue, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
@@ -317,7 +318,7 @@ function subjectOf(player: PlayerRow): Subject {
 }
 
 /** The row of a server by its NC id, created when it is new (same naming as the upload path: "Europe - Kaisinel"). */
-function serverRowOf(ncServerId: number): number {
+export function serverRowOf(ncServerId: number): number {
   const { fingerprint, displayName } = canonicalServer(`aion2:aion-2-server-${ncServerId}`, undefined);
   const found = db.select({ id: servers.id }).from(servers).where(and(eq(servers.fingerprint, fingerprint), eq(servers.displayName, displayName ?? ""))).get();
   if (found) {
@@ -476,8 +477,11 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   const race = subject.faction === "Elyos" ? 1 : subject.faction === "Asmodian" ? 2 : undefined;
   let hits: Hit[];
   let decision: Decision;
+  // The world boss fights he took part in say which servers he can be on (crowdRule.ts): a hit on any other server is a namesake, never him.
+  const plausible = plausibleServersOf(playerId);
+  const plausibleOnly = (list: Hit[]) => (plausible === null ? list : list.filter((h) => plausible.has(h.serverId)));
   try {
-    hits = await searchHits(fetchFn, player.name, shard, { race, serverId: clientServer ?? undefined });
+    hits = plausibleOnly(await searchHits(fetchFn, player.name, shard, { race, serverId: clientServer ?? undefined }));
     if (clientServer !== null) {
       hits = hits.filter((h) => h.serverId === clientServer);
     }
@@ -488,7 +492,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     // The server his client named is wrong for some players (the party roster prints two ids per member and clients before 1.1.10 read the wrong one): NC knows nobody of that
     // name there. Exactly one character of his faction AND class elsewhere is him - the class must be known and fit, so a namesake of another class never moves anyone.
     if (clientServer !== null && decision.status === "none" && decision.candidates === 0 && subject.className) {
-      const elsewhere = decide(await searchHits(fetchFn, player.name, shard, { race }), subject);
+      const elsewhere = decide(plausibleOnly(await searchHits(fetchFn, player.name, shard, { race })), subject);
       if (elsewhere.status === "verified" && elsewhere.hit && elsewhere.hit.classId !== null && AION2_CLASS_BY_ID[elsewhere.hit.classId] === subject.className) {
         decision = { ...elsewhere, via: "name-elsewhere" };
       }

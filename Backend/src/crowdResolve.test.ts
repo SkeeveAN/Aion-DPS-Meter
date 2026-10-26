@@ -16,7 +16,7 @@ const { default: Fastify } = await import("fastify");
 const { uploadRoutes } = await import("./routes/uploads.js");
 const { bossNpcIds, bosses, encounters, instances, players, uploads } = await import("./db/schema.js");
 const { syncMatchmakingToDb } = await import("./serverMatchmakingDb.js");
-const { settleCrowdPending, candidateServers, riftOpen } = await import("./crowdResolve.js");
+const { settleCrowdPending, candidateServers, riftOpen, dropServersOutsideRule } = await import("./crowdResolve.js");
 const { eq } = await import("drizzle-orm");
 
 const app = Fastify({ logger: false });
@@ -94,4 +94,32 @@ test("a rift hour is the hour after each of 00:00, 03:00 ... 21:00 UTC (with two
   }
   assert.equal(riftOpen(utc(11, 59), utc(11, 59) + 12_000), true, "slack before the hour");
   assert.equal(riftOpen(utc(13, 5), utc(13, 5) + 12_000), false, "the hour is over");
+});
+
+test("a server the client names for a player of the crowd outside the rule is taken from him, and he is placed like a player the client knows nothing of", () => {
+  const filed = (startedAt: number, servers: Record<string, number>) => {
+    const copy = JSON.parse(JSON.stringify(payload));
+    copy.bossNpcId = 2100003; // a Verteron field boss: Elyos home map
+    copy.startedAt = new Date(startedAt).toISOString();
+    copy.endedAt = new Date(startedAt + 12_000).toISOString();
+    for (const p of copy.participants) {
+      if (servers[p.name] !== undefined) {
+        p.serverId = servers[p.name];
+        p.faction = servers[p.name] < 2000 ? "Elyos" : "Asmodian";
+      }
+    }
+    return copy;
+  };
+  const names = (copy: { participants: { name: string; serverId?: number }[] }) => Object.fromEntries(copy.participants.map((p) => [p.name, p.serverId]));
+  // 20:00 UTC: no rift hour, only the uploader's own server is on the map of a home-map field boss
+  const quiet = filed(Date.UTC(2026, 0, 5, 20, 0, 0), { Bob: 1311, Cara: 2304, Dan: 1304 });
+  assert.equal(dropServersOutsideRule(quiet), 2);
+  assert.deepEqual([names(quiet).Bob, names(quiet).Cara, names(quiet).Dan], [undefined, undefined, 1304]);
+  assert.equal(quiet.participants.find((p: { name: string }) => p.name === "Bob").faction, "", "faction goes with the server");
+  // 21:30 UTC: a rift hour, the paired server (Lumiel 2304) can be there, a third one (Kaisinel's neighbour 1311) never
+  const rift = filed(Date.UTC(2026, 0, 5, 21, 30, 0), { Bob: 1311, Cara: 2304, Dan: 1304 });
+  assert.equal(dropServersOutsideRule(rift), 1);
+  assert.deepEqual([names(rift).Bob, names(rift).Cara, names(rift).Dan], [undefined, 2304, 1304]);
+  // the uploader himself is never touched
+  assert.equal(names(rift).Anna, 1304);
 });
