@@ -6,11 +6,16 @@ namespace AionDPS.Aion2;
 
 /// <summary>One equipped item as the character record lists it: its position and its id, the enchant level and,
 /// where the frame carries them, the mana stones set into it and the rolled stats of the piece (null = not read).</summary>
-public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 0, IReadOnlyList<Aion2Stone>? Stones = null, IReadOnlyList<Aion2RolledStat>? Stats = null, int GodstoneId = 0, IReadOnlyList<Aion2SkillBonus>? SkillBonuses = null);
+public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 0, IReadOnlyList<Aion2Stone>? Stones = null, IReadOnlyList<Aion2RolledStat>? Stats = null, int GodstoneId = 0, IReadOnlyList<Aion2SkillBonus>? SkillBonuses = null, Aion2ArcanaDetails? Arcana = null);
 
 /// <summary>A mana stone slot of an item: the stat the stone gives (the game's stat id, 0 = empty slot) and its tier
 /// (1 white, 2 green, 3 blue; the amount the stone adds is not in the frame).</summary>
 public sealed record Aion2Stone(int StatId, int Tier);
+
+/// <summary>What an arcana piece carries besides its level (login list; read for the screen only, never uploaded): the experience
+/// collected towards the next level, the god stat (the game's god id 7 Nezekan, 8 Vaizel, 9 Kaisinel, 10 Yustiel, 11 Siel, and its value)
+/// and the skill levels the piece adds (the piece's own bonus and the rolled extra levels added up per skill).</summary>
+public sealed record Aion2ArcanaDetails(int EnchantExp, int GodStatId, int GodValue, IReadOnlyList<Aion2SkillBonus> SkillBonuses);
 
 /// <summary>A skill level bonus on an item ("Abwärtsschlag St. +1").</summary>
 public sealed record Aion2SkillBonus(int SkillId, int Level);
@@ -276,7 +281,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 return; // fresh data already arrived
             }
 
-            var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant, i.Stones, i.Stats, i.GodstoneId, i.SkillBonuses)).ToList();
+            var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant, i.Stones, i.Stats, i.GodstoneId, i.SkillBonuses, i.Arcana)).ToList();
             _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true, ServerId: saved.ServerId);
             _fullEquipment = equipment;
             _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones)).ToList();
@@ -366,7 +371,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Level = c.Level,
                 ServerId = c.ServerId,
                 SavedAt = DateTime.Now,
-                Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant, i.Stones, i.Stats, i.GodstoneId, i.SkillBonuses)).ToList(),
+                Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant, i.Stones, i.Stats, i.GodstoneId, i.SkillBonuses, i.Arcana)).ToList(),
                 Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones?.ToArray())).ToList(),
                 ActivePreset = _activePreset,
                 Presets = PresetsLocked().Select(x => new Aion2SavedCharacter.SavedPreset(x.Index, x.SeenAt,

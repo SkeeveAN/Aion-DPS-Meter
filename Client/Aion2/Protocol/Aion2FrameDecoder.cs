@@ -2735,6 +2735,7 @@ public sealed class Aion2FrameDecoder
             // byte" search took for the enchant: Vakron Guard +10 read as +1, a second Clash Rune +4 as +0.
             int enchant = 0;
             Aion2ItemDetails? details = null;
+            Aion2ArcanaDetails? arcana = null;
             for (int k = p + 14 + 20; k < Math.Min(frame.Length, p + 14 + 31); k++)
             {
                 if (frame[k] != 0)
@@ -2744,12 +2745,16 @@ public sealed class Aion2FrameDecoder
                     {
                         TryReadItemDetails(frame, k, out details);
                     }
+                    else
+                    {
+                        arcana = TryReadArcana(frame, k);
+                    }
 
                     break;
                 }
             }
 
-            items.Add(ItemWith(slot, itemId, enchant, details));
+            items.Add(ItemWith(slot, itemId, enchant, details) with { Arcana = arcana });
         }
 
         if (items.Count > 0)
@@ -2779,6 +2784,60 @@ public sealed class Aion2FrameDecoder
         }
 
         at += 1 + count * 6;
+        return true;
+    }
+
+    /// <summary>
+    /// The part of an arcana entry behind its level (login list; checked against the in-game windows of all five arcana of one
+    /// character, 2026-10-26: experience 0/500/600/200/3800, god values 22/23, every skill bonus). <paramref name="sizePos"/> is
+    /// the entry's size byte, 14 bytes behind the level byte: the experience collected is the u32 right behind the level
+    /// (sizePos - 13). From the size byte on: size (u32), slot index, 23 bytes of zeros and counters, then <c>01 | god id | 00 |
+    /// god value (u32) | 2 bytes</c> at +28, and at +37 two skill lists of the same form: count (u8), per skill id (u32) and
+    /// levels (u8) - the first holds the levels the piece gives, the second (same ids) the extra levels it rolled; the tooltip
+    /// shows the sum. Null when the entry does not look like this.
+    /// </summary>
+    private static Aion2ArcanaDetails? TryReadArcana(ReadOnlySpan<byte> frame, int sizePos)
+    {
+        if (sizePos < 14 || sizePos + 38 > frame.Length || frame[sizePos + 1] != 0 || frame[sizePos + 2] != 0 || frame[sizePos + 3] != 0 || frame[sizePos + 28] != 1)
+        {
+            return null;
+        }
+
+        int exp = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(sizePos - 13)..]));
+        int godStat = frame[sizePos + 29];
+        int godValue = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(sizePos + 31)..]));
+        int at = sizePos + 37;
+        if (!TryReadSkillLevels(frame, ref at, out var given) || !TryReadSkillLevels(frame, ref at, out var rolled))
+        {
+            return null;
+        }
+
+        var sum = new List<Aion2SkillBonus>(given.Count);
+        foreach (Aion2SkillBonus g in given)
+        {
+            sum.Add(new Aion2SkillBonus(g.SkillId, g.Level + rolled.Where(r => r.SkillId == g.SkillId).Sum(r => r.Level)));
+        }
+
+        return new Aion2ArcanaDetails(exp, godStat, godValue, sum);
+    }
+
+    /// <summary>A list of skill levels: count (u8, at most 8), per entry skill id (u32) and levels (u8). Advances <paramref name="at"/>.</summary>
+    private static bool TryReadSkillLevels(ReadOnlySpan<byte> frame, ref int at, out List<Aion2SkillBonus> list)
+    {
+        list = new List<Aion2SkillBonus>();
+        if (at >= frame.Length || frame[at] > 8 || at + 1 + frame[at] * 5 > frame.Length)
+        {
+            return false;
+        }
+
+        int count = frame[at];
+        for (int i = 0; i < count; i++)
+        {
+            int o = at + 1 + i * 5;
+            list.Add(new Aion2SkillBonus(unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[o..])), frame[o + 4]));
+        }
+
+        at += 1 + count * 5;
         return true;
     }
 

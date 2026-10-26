@@ -1,0 +1,72 @@
+{
+ "expPerLevel": {
+  "1": [
+   300,
+   600,
+   0
+  ],
+  "2": [
+   600,
+   1200,
+   2400,
+   0
+  ],
+  "3": [
+   1200,
+   2400,
+   4800,
+   9600,
+   0
+  ],
+  "4": [
+   3000,
+   6000,
+   12000,
+   24000,
+   48000,
+   0
+  ]
+ },
+ "sets": {
+  "001": {
+   "name": {
+    "de": "Lebenskraft des Urlichts",
+    "en": "Primal Vigor",
+    "es": "Vitalidad primordial",
+    "fr": "Vigueur primordiale",
+    "ja": "太初の活力",
+    "ko": "태초의 활력",
+    "pt": "Vigor Primordial",
+    "ru": "Рождение жизни"
+   },
+   "effects": [
+    {
+     "pieces": 2,
+     "text": {
+      "de": "Angriffskraft (PvE) +60: Bei LP ≥ 70 %",
+      "en": "+60 PvE Attack when HP is 70% or more",
+      "es": "Aumento de Ataque JcE en 60 cuando los Puntos de Vida están al 70 % o más",
+      "fr": "Augmente l'ATQ JcE de 60 si les PV sont à 70 % ou plus.",
+      "ja": "HPが70%以上の時にPvE攻撃力60増加",
+      "ko": "생명력이 70% 이상일 때 PVE 공격력 60 증가",
+      "pt": "+60 de Ataque em JvA quando PV estiver em 70% ou mais",
+      "ru": "АТК в PvE +60 при ОЗ 70% и выше"
+     }
+    },
+    {
+     "pieces": 4,
+     "text": {
+      "de": "Angriffskraft (PvE) +150: Bei LP ≥ 70 %",
+      "en": "+150 PvE Attack when HP is 70% or more",
+      "es": "Aumento de Ataque JcE en 150 cuando los Puntos de Vida están al 70% o más",
+      "fr": "Augmente l'ATQ JcE de 150 si les PV sont à 70 % ou plus.",
+      "ja": "HPが70%以上の時にPvE攻撃力150増加",
+      "ko": "생명력이 70% 이상일 때 PVE 공격력 150 증가",
+      "pt": "+150 de Ataque em JvA quando PV estiver em 70% ou mais",
+      "ru": "АТК в PvE +150 при ОЗ 70% и выше"
+     }
+    }
+   ]
+  }
+ }
+}

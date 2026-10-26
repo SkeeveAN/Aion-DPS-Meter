@@ -340,7 +340,7 @@ public sealed class CharacterWindow : Window
 
         if (arcana.Count > 0)
         {
-            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana)));
+            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana, gear, skills)));
         }
 
         if (tabs.Count > 0 && tabs.All(t => t.Id != _tab))
@@ -660,7 +660,7 @@ public sealed class CharacterWindow : Window
 
         if (arcana.Count > 0)
         {
-            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana)));
+            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana, gear, skills)));
         }
 
         if (tabs.Count > 0 && tabs.All(t => t.Id != _tab))
@@ -1285,18 +1285,286 @@ public sealed class CharacterWindow : Window
         return page;
     }
 
-    /// <summary>The arcana slots as a grid of tiles, three to a row (the website lists them the same way).</summary>
-    private UIElement BuildArcana(IReadOnlyList<GearRow> arcana)
+    /// <summary>
+    /// The arcana tab. With the login list (own character) every piece shows what the game's window shows: the level and the experience
+    /// towards the next, the god stat, the four skill bonuses; above them the set effect and the god values, and a last tile adds the
+    /// skill bonuses of all pieces up. Without those details (a character seen through the server) it stays the plain grid of tiles.
+    /// </summary>
+    private UIElement BuildArcana(IReadOnlyList<GearRow> arcana, IReadOnlyList<GearRow> gear, IReadOnlyList<Aion2SkillEntry> skills)
     {
-        var wrap = new UniformGrid { Columns = 3 };
-        foreach (GearRow g in arcana)
+        if (arcana.All(a => a.Item.Arcana is null))
         {
-            UIElement slot = GearSlot(g);
-            slot.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 10, 10));
-            wrap.Children.Add(slot);
+            var plain = new UniformGrid { Columns = 3 };
+            foreach (GearRow g in arcana)
+            {
+                UIElement slot = GearSlot(g);
+                slot.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 10, 10));
+                plain.Children.Add(slot);
+            }
+
+            return plain;
         }
 
-        return wrap;
+        string language = LocalizationManager.Instance.Language;
+        var gearBonus = gear.Where(g => g.Info?.Slot != "Arcana").SelectMany(g => g.Item.SkillBonuses ?? Array.Empty<Aion2SkillBonus>())
+            .GroupBy(b => b.SkillId).ToDictionary(g => g.Key, g => g.Sum(b => b.Level));
+        var arcanaBonus = arcana.SelectMany(a => a.Item.Arcana?.SkillBonuses ?? Array.Empty<Aion2SkillBonus>())
+            .GroupBy(b => b.SkillId).ToDictionary(g => g.Key, g => g.Sum(b => b.Level));
+        var known = skills.ToDictionary(k => k.SkillId, k => k);
+
+        // what the tooltip of a skill says: the final level and where it comes from (the game's levels: trained + equipment + arcana + other sources);
+        // without the skill list only the two parts known from the pieces
+        string SkillTip(int skillId)
+        {
+            string tip = Aion2SkillNames.Display(Aion2SkillNames.NameOf(skillId));
+            int fromGear = gearBonus.GetValueOrDefault(skillId);
+            int fromArcana = arcanaBonus.GetValueOrDefault(skillId);
+            if (known.TryGetValue(skillId, out Aion2SkillEntry? entry))
+            {
+                tip += "\n" + string.Format(Loc("Arcana.TipTotal"), entry.Level) + "\n" + string.Format(Loc("Arcana.TipBase"), entry.BaseLevel);
+            }
+
+            tip += "\n" + string.Format(Loc("Arcana.TipGear"), fromGear) + "\n" + string.Format(Loc("Arcana.TipArcana"), fromArcana);
+            if (known.TryGetValue(skillId, out entry) && entry.Level - entry.BaseLevel - fromGear - fromArcana is > 0 and int other)
+            {
+                tip += "\n" + string.Format(Loc("Arcana.TipOther"), other);
+            }
+
+            return tip;
+        }
+
+        UIElement SkillRow(int skillId, int level)
+        {
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 5), Background = Brushes.Transparent, ToolTip = SkillTip(skillId) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            TextBlock name = Text(Aion2SkillNames.Display(Aion2SkillNames.NameOf(skillId)), 12.5, brush: Solid(Color.FromRgb(0x6F, 0xE3, 0xF0)));
+            name.TextDecorations = TextDecorations.Underline;
+            Grid.SetColumn(name, 0);
+            TextBlock value = Text($"Lv +{level}", 12.5, level >= 3 ? FontWeights.Bold : FontWeights.Normal, level >= 3 ? Solid(Color.FromRgb(0xFF, 0xD6, 0x6B)) : Res("Brush.TextMuted"), new Thickness(8, 0, 0, 0));
+            Grid.SetColumn(value, 1);
+            row.Children.Add(name);
+            row.Children.Add(value);
+            return row;
+        }
+
+        UIElement PieceCard(GearRow g)
+        {
+            Aion2ArcanaDetails? d = g.Item.Arcana;
+            Aion2ItemInfo? info = g.Info;
+            Color color = GradeColor(info?.Grade ?? 1);
+            string name = info?.Name ?? $"Item {g.Item.ItemId}";
+            var stack = new StackPanel();
+
+            var head = new Grid { Height = 56 };
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            FrameworkElement icon = IconTile(Aion2Artwork.ItemIconPath(g.Item.ItemId), name, color, 56, g.Item.Enchant > 0 ? EnchantBadge(g.Item.Enchant) : null);
+            var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0) };
+            titles.Children.Add(Text(name, 13, FontWeights.SemiBold, wrap: TextWrapping.Wrap));
+            titles.Children.Add(Text(info is { ItemLevel: > 0 } ? $"{info.Slot} \u00B7 IL {info.ItemLevel}" : info?.Slot ?? "", 11.5, brush: Res("Brush.TextMuted")));
+            Grid.SetColumn(titles, 1);
+            head.Children.Add(icon);
+            head.Children.Add(titles);
+            stack.Children.Add(head);
+
+            if (d is not null)
+            {
+                // experience towards the next level; the limit comes from the game's table (none for the other card types)
+                int? limit = Aion2ArcanaCatalog.ExpToNext(g.Item.ItemId, info?.Grade ?? 0, g.Item.Enchant);
+                bool maxed = limit is null && Aion2ArcanaCatalog.IsBaseCard(g.Item.ItemId) && info is { Grade: >= 1 and <= 4 } && Aion2ArcanaCatalog.ExpToNext(g.Item.ItemId, info.Grade, Math.Max(0, g.Item.Enchant - 1)) is not null;
+                var expLine = new Grid { Margin = new Thickness(0, 12, 0, 0) };
+                expLine.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                expLine.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                expLine.Children.Add(Text(Loc("Arcana.Reinforcement"), 11.5, brush: Res("Brush.TextMuted")));
+                string amount = maxed ? Loc("Arcana.Max") : limit is { } cap ? $"{d.EnchantExp.ToString("N0", CultureInfo.CurrentCulture)} / {cap.ToString("N0", CultureInfo.CurrentCulture)}" : d.EnchantExp.ToString("N0", CultureInfo.CurrentCulture);
+                TextBlock amountText = Text(amount, 11.5, FontWeights.SemiBold, margin: new Thickness(8, 0, 0, 0));
+                Grid.SetColumn(amountText, 1);
+                expLine.Children.Add(amountText);
+                stack.Children.Add(expLine);
+                if (limit is { } total && total > 0)
+                {
+                    double fraction = Math.Clamp((double)d.EnchantExp / total, 0, 1);
+                    var bar = new Grid { Height = 5, Margin = new Thickness(0, 4, 0, 0) };
+                    bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(fraction, 0.0001), GridUnitType.Star) });
+                    bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(1 - fraction, 0.0001), GridUnitType.Star) });
+                    bar.Children.Add(new Border { Background = Solid(Color.FromArgb(0x24, 0xFF, 0xFF, 0xFF)), CornerRadius = new CornerRadius(2.5), Opacity = 1 });
+                    Grid.SetColumnSpan(bar.Children[0], 2);
+                    var fill = new Border { Background = Solid(Color.FromRgb(0xF0, 0xB0, 0x30)), CornerRadius = new CornerRadius(2.5) };
+                    bar.Children.Add(fill);
+                    stack.Children.Add(bar);
+                }
+
+                var lord = Lords.FirstOrDefault(l => l.Id == d.GodStatId);
+                if (lord.Key is not null)
+                {
+                    var god = new Grid();
+                    god.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    god.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    var label = new TextBlock { VerticalAlignment = VerticalAlignment.Center };
+                    label.Inlines.Add(new System.Windows.Documents.Run(Loc("Character.Attr." + lord.Key)) { FontWeight = FontWeights.SemiBold, FontSize = 13 });
+                    label.Inlines.Add(new System.Windows.Documents.Run($" [{Loc("Character.Lord." + lord.Key)}]") { Foreground = Res("Brush.TextMuted"), FontSize = 11.5 });
+                    label.Foreground = Res("Brush.Text");
+                    TextBlock value = Text(d.GodValue.ToString(CultureInfo.CurrentCulture), 13, FontWeights.SemiBold);
+                    Grid.SetColumn(value, 1);
+                    god.Children.Add(label);
+                    god.Children.Add(value);
+                    stack.Children.Add(new Border
+                    {
+                        BorderBrush = Res("Brush.Border"),
+                        BorderThickness = new Thickness(0, 1, 0, 1),
+                        Padding = new Thickness(0, 7, 0, 7),
+                        Margin = new Thickness(0, 12, 0, 10),
+                        Child = god,
+                    });
+                }
+
+                foreach (Aion2SkillBonus bonus in d.SkillBonuses)
+                {
+                    stack.Children.Add(SkillRow(bonus.SkillId, bonus.Level));
+                }
+            }
+
+            Color panel = PanelColor;
+            return new Border
+            {
+                Padding = new Thickness(12),
+                Margin = new Thickness(0, 0, 10, 10),
+                CornerRadius = new CornerRadius(10),
+                BorderThickness = new Thickness(1),
+                BorderBrush = Solid(Blend(color, ((SolidColorBrush)Res("Brush.Border")).Color, 0.65)),
+                Background = new LinearGradientBrush(Blend(color, panel, 0.24), Blend(color, panel, 0.07), 0),
+                ToolTip = $"{name}{(g.Item.Enchant > 0 ? $" +{g.Item.Enchant}" : "")}",
+                Child = stack,
+            };
+        }
+
+        var page = new StackPanel();
+
+        // set effect (one card per set the pieces belong to) and the god values of the five pieces
+        var topRow = new Grid { Margin = new Thickness(0, 0, 10, 10) };
+        var sets = arcana.GroupBy(a => Aion2ArcanaCatalog.SetOf(a.Item.ItemId)).Select(g => (Set: Aion2ArcanaCatalog.SetFor(g.First().Item.ItemId), Count: g.Count())).Where(x => x.Set is not null).ToList();
+        int topColumns = 0;
+        if (sets.Count > 0)
+        {
+            var setStack = new StackPanel();
+            foreach ((Aion2ArcanaSet? set, int count) in sets)
+            {
+                Color green = Color.FromRgb(0x2F, 0xC5, 0x8B);
+                var title = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
+                title.Children.Add(Text(Aion2ArcanaCatalog.Pick(set!.Name, language), 15, FontWeights.Bold, Solid(green)));
+                title.Children.Add(new Border
+                {
+                    Margin = new Thickness(10, 0, 0, 0),
+                    Padding = new Thickness(9, 0, 9, 0),
+                    CornerRadius = new CornerRadius(9),
+                    BorderThickness = new Thickness(1),
+                    BorderBrush = Solid(green),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Child = Text($"{count} / {arcana.Count}", 11.5, FontWeights.SemiBold, Solid(green)),
+                });
+                setStack.Children.Add(title);
+                foreach (Aion2ArcanaSetEffect effect in set.Effects)
+                {
+                    bool active = count >= effect.Pieces;
+                    var line = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 5), Opacity = active ? 1 : 0.5 };
+                    line.Children.Add(new Border
+                    {
+                        Width = 20, Height = 20, CornerRadius = new CornerRadius(4), BorderThickness = new Thickness(1), BorderBrush = Solid(green),
+                        Margin = new Thickness(0, 0, 8, 0),
+                        Child = Centered(Text(effect.Pieces.ToString(CultureInfo.InvariantCulture), 11.5, FontWeights.SemiBold, Solid(green))),
+                    });
+                    line.Children.Add(Text(Aion2ArcanaCatalog.Pick(effect.Text, language), 12.5));
+                    setStack.Children.Add(line);
+                }
+            }
+
+            Border setCard = Card(setStack, new Thickness(14), new Thickness(0, 0, 10, 0));
+            setCard.BorderBrush = Solid(Color.FromRgb(0x1F, 0x9D, 0x6B));
+            setCard.Background = new LinearGradientBrush(Color.FromArgb(0x38, 0x1F, 0x9D, 0x6B), Color.FromArgb(0x0C, 0x1F, 0x9D, 0x6B), 0);
+            topRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Grid.SetColumn(setCard, topColumns++);
+            topRow.Children.Add(setCard);
+        }
+
+        var gods = new UniformGrid { Rows = 1 };
+        foreach (GearRow g in arcana)
+        {
+            var lord = Lords.FirstOrDefault(l => l.Id == g.Item.Arcana?.GodStatId);
+            if (lord.Key is null || g.Item.Arcana is null)
+            {
+                continue;
+            }
+
+            var cell = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, ToolTip = $"{Loc("Character.Attr." + lord.Key)} [{Loc("Character.Lord." + lord.Key)}]" };
+            // symbol, value and name all on the middle line of the cell
+            var icon = (FrameworkElement)AttrIcon(lord.Key, true, 34);
+            icon.HorizontalAlignment = HorizontalAlignment.Center;
+            cell.Children.Add(icon);
+            TextBlock value = Text(g.Item.Arcana.GodValue.ToString(CultureInfo.CurrentCulture), 15, FontWeights.Bold, margin: new Thickness(0, 4, 0, 0));
+            value.HorizontalAlignment = HorizontalAlignment.Center;
+            cell.Children.Add(value);
+            TextBlock caption = Text(Loc("Character.Attr." + lord.Key), 11, brush: Res("Brush.TextMuted"));
+            caption.HorizontalAlignment = HorizontalAlignment.Center;
+            cell.Children.Add(caption);
+            gods.Children.Add(cell);
+        }
+
+        if (gods.Children.Count > 0)
+        {
+            var godStack = new StackPanel();
+            godStack.Children.Add(Heading(Loc("Character.AttrLords")));
+            godStack.Children.Add(gods);
+            topRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Border godCard = Card(godStack);
+            Grid.SetColumn(godCard, topColumns++);
+            topRow.Children.Add(godCard);
+        }
+
+        if (topColumns > 0)
+        {
+            page.Children.Add(topRow);
+        }
+
+        // the pieces, three to a row; the sum of all their skill bonuses is a column of its own on the right
+        var wrap = new Grid();
+        for (int c = 0; c < 3; c++)
+        {
+            wrap.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        }
+
+        for (int r = 0; r < (arcana.Count + 2) / 3; r++)
+        {
+            wrap.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        }
+
+        for (int i = 0; i < arcana.Count; i++)
+        {
+            UIElement card = PieceCard(arcana[i]);
+            Grid.SetRow(card, i / 3);
+            Grid.SetColumn(card, i % 3);
+            wrap.Children.Add(card);
+        }
+
+        var sum = arcanaBonus.OrderByDescending(kv => kv.Value).ThenBy(kv => Aion2SkillNames.Display(Aion2SkillNames.NameOf(kv.Key)), StringComparer.CurrentCultureIgnoreCase).ToList();
+        if (sum.Count > 0)
+        {
+            wrap.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.8, GridUnitType.Star) });
+            var sumStack = new StackPanel();
+            sumStack.Children.Add(Heading(Loc("Arcana.SkillSum")));
+            foreach ((int skillId, int level) in sum)
+            {
+                sumStack.Children.Add(SkillRow(skillId, level));
+            }
+
+            Border sumCard = Card(sumStack, new Thickness(12), new Thickness(0, 0, 10, 10));
+            Grid.SetColumn(sumCard, 3);
+            Grid.SetRowSpan(sumCard, Math.Max(1, wrap.RowDefinitions.Count));
+            wrap.Children.Add(sumCard);
+        }
+
+        page.Children.Add(wrap);
+        return page;
     }
 
     private static readonly Dictionary<string, string> PetGlyphs = new()

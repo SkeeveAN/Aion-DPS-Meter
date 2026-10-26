@@ -12840,5 +12840,113 @@
     "ko": "개인정보 처리방침에 동의할지 선택해 주세요.",
     "zh": "请选择是否同意隐私政策。",
     "zh-TW": "請選擇是否同意隱私權政策。"
+  },
+  "Arcana.Set": {
+    "en": "Set effect",
+    "de": "Set-Effekt",
+    "fr": "Effet de set",
+    "es": "Efecto de conjunto",
+    "ru": "Эффект комплекта",
+    "zh": "套装效果",
+    "zh-TW": "套裝效果",
+    "pt": "Efeito de conjunto",
+    "ja": "セット効果",
+    "ko": "세트 효과"
+  },
+  "Arcana.SkillSum": {
+    "en": "Sum of skill bonuses",
+    "de": "Summe der Skill-Boni",
+    "fr": "Total des bonus de compétences",
+    "es": "Suma de bonos de habilidad",
+    "ru": "Сумма бонусов умений",
+    "zh": "技能加成合计",
+    "zh-TW": "技能加成合計",
+    "pt": "Soma dos bônus de habilidade",
+    "ja": "スキルボーナス合計",
+    "ko": "스킬 보너스 합계"
+  },
+  "Arcana.Reinforcement": {
+    "en": "Reinforcement",
+    "de": "Verstärkung",
+    "fr": "Renforcement",
+    "es": "Refuerzo",
+    "ru": "Усиление",
+    "zh": "强化",
+    "zh-TW": "強化",
+    "pt": "Reforço",
+    "ja": "強化",
+    "ko": "강화"
+  },
+  "Arcana.TipTotal": {
+    "en": "Skill level {0}",
+    "de": "Skill-Stufe {0}",
+    "fr": "Niveau de compétence {0}",
+    "es": "Nivel de habilidad {0}",
+    "ru": "Уровень умения {0}",
+    "zh": "技能等级 {0}",
+    "zh-TW": "技能等級 {0}",
+    "pt": "Nível da habilidade {0}",
+    "ja": "スキルレベル {0}",
+    "ko": "스킬 레벨 {0}"
+  },
+  "Arcana.TipBase": {
+    "en": "Trained: {0}",
+    "de": "Gelernt: {0}",
+    "fr": "Appris : {0}",
+    "es": "Aprendido: {0}",
+    "ru": "Изучено: {0}",
+    "zh": "已学习：{0}",
+    "zh-TW": "已學習：{0}",
+    "pt": "Aprendido: {0}",
+    "ja": "習得: {0}",
+    "ko": "습득: {0}"
+  },
+  "Arcana.TipGear": {
+    "en": "Equipment: +{0}",
+    "de": "Ausrüstung: +{0}",
+    "fr": "Équipement : +{0}",
+    "es": "Equipo: +{0}",
+    "ru": "Экипировка: +{0}",
+    "zh": "装备：+{0}",
+    "zh-TW": "裝備：+{0}",
+    "pt": "Equipamento: +{0}",
+    "ja": "装備: +{0}",
+    "ko": "장비: +{0}"
+  },
+  "Arcana.TipArcana": {
+    "en": "Arcana: +{0}",
+    "de": "Arkana: +{0}",
+    "fr": "Arcanes : +{0}",
+    "es": "Arcanas: +{0}",
+    "ru": "Арканы: +{0}",
+    "zh": "Arcana：+{0}",
+    "zh-TW": "Arcana：+{0}",
+    "pt": "Arcana: +{0}",
+    "ja": "アルカナ: +{0}",
+    "ko": "아르카나: +{0}"
+  },
+  "Arcana.TipOther": {
+    "en": "Other sources: +{0}",
+    "de": "Weitere Quellen: +{0}",
+    "fr": "Autres sources : +{0}",
+    "es": "Otras fuentes: +{0}",
+    "ru": "Другие источники: +{0}",
+    "zh": "其他来源：+{0}",
+    "zh-TW": "其他來源：+{0}",
+    "pt": "Outras fontes: +{0}",
+    "ja": "その他: +{0}",
+    "ko": "기타: +{0}"
+  },
+  "Arcana.Max": {
+    "en": "Max.",
+    "de": "Max.",
+    "fr": "Max.",
+    "es": "Máx.",
+    "ru": "Макс.",
+    "zh": "已满",
+    "zh-TW": "已滿",
+    "pt": "Máx.",
+    "ja": "MAX",
+    "ko": "최대"
   }
 }

@@ -56,6 +56,7 @@ public static class SelfCheckAion2
         ok &= RunAion2LoginListsScenario();
         ok &= RunAion2OwnProfileExtrasScenario();
         ok &= RunAion2ItemDetailsScenario();
+        ok &= RunAion2ArcanaScenario();
         ok &= RunAion2SpeciesScenario();
         ok &= RunAion2CharacterStoreScenario();
         ok &= RunAion2PresetScenario();
@@ -1466,6 +1467,45 @@ public static class SelfCheckAion2
             && entities.InspectedPlayers().First(p => p.Name == "Testspieler").UploadedAt is not null;
         Console.WriteLine($"  -> a looked-at player keeps faction, server and the uploaded mark on disk; an older file without them still loads; marking sticks: {originOk}");
         return ownOk && kromOk && aulOk && disk && weaponOk && guardOk && originOk;
+    }
+
+    /// <summary>The arcana of the login list, cut out of the real frame 0x1156 of 2026-10-26 (Aahz) and checked against the five in-game
+    /// windows of that day: Kompass of Vigor +2 with 600 of 12.000 experience, god stat Vaizel 22, skill bonuses Klingenraserei +1,
+    /// Schockaufhebung +2, Zerreissender Schlag +1, Zerschmetternde Welle +2 (the piece's own level and the rolled extra added up); Spiegel of
+    /// Vigor +2 with 3.800, Kaisinel 22, Toedliche Eruption +1, Erfahrener Konterangriff +3, Schocktreffer +1, Schwaechenanalyse +1.</summary>
+    private static bool RunAion2ArcanaScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 arcana details (experience, god stat, skill bonuses):");
+        byte[] body = Convert.FromHexString("1156" + "91a74c3001000000000000000b2b000000000000000000000000000258020000000000000000000000520000002b000000000000000000000300000000000000000000000001080016000000000004801eac000160d0ab0001d0ffa70001109ca8000104801eac000060d0ab0001d0ffa70000109ca80001000000014478130000a2" + "d1b44f3001000000000000000b2d00000000000000000000000002d80e0000000000000000000000520000002d000000000000000000000300000000000000000000000001090016000000000004c00db40001a0bfb300018071b300016023b3000104c00db40000a0bfb300028071b300006023b30000000000014571030000a900");
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        source.Ingest(Segment(500, wire.ToArray()));
+        var entities = (Aion2EntityDirectory)source.Entities;
+        string Bonuses(Aion2EquippedItem? i) => string.Join(" ", i?.Arcana?.SkillBonuses.Select(k => $"{k.SkillId}+{k.Level}") ?? Array.Empty<string>());
+        Aion2EquippedItem? compass = entities.LocalEquipment.FirstOrDefault(i => i.SlotIndex == 43);
+        Aion2EquippedItem? mirror = entities.LocalEquipment.FirstOrDefault(i => i.SlotIndex == 45);
+        bool compassOk = compass is { ItemId: 810330001, Enchant: 2, Arcana: { EnchantExp: 600, GodStatId: 8, GodValue: 22 } }
+            && Bonuses(compass) == "11280000+1 11260000+2 11010000+1 11050000+2";
+        bool mirrorOk = mirror is { ItemId: 810530001, Enchant: 2, Arcana: { EnchantExp: 3800, GodStatId: 9, GodValue: 22 } }
+            && Bonuses(mirror) == "11800000+1 11780000+3 11760000+1 11740000+1";
+        Console.WriteLine($"  -> Kompass +2: 600 experience, Vaizel 22, four skill bonuses: {compassOk}");
+        Console.WriteLine($"  -> Spiegel +2: 3.800 experience, Kaisinel 22, four skill bonuses: {mirrorOk}");
+
+        // the file on disk keeps them; an entry saved by an older meter has none
+        var saved = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>(JsonSerializer.Serialize(new Aion2SavedCharacter.SavedItem(43, 810330001, 2, Arcana: compass?.Arcana)));
+        var older = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>("""{"Slot":43,"ItemId":810330001,"Enchant":2}""");
+        bool disk = saved?.Arcana is { EnchantExp: 600, GodValue: 22 } && saved.Arcana.SkillBonuses.Count == 4 && older is { Arcana: null };
+        Console.WriteLine($"  -> saved with the character file and read back (an older entry without them still loads): {disk}");
+        return compassOk && mirrorOk && disk;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05
