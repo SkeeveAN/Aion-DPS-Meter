@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.16.2",
   "date": "2026-10-26",
   "items": [
    {
@@ -104,6 +104,14 @@
    {
     "text": "Effects on the boss: the monsters' own skills have their client names in every language, the poison of the client's damage over time is named, and a hidden effect without any name is no longer listed by its number",
     "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-26"
+   },
+   {
+    "text": "Downloads: the release carries SHA256SUMS.txt (installer and update packages) and the installer's SHA-256 in its notes; the download page says how to check it",
+    "areas": [
+     "Website",
      "Backend"
     ],
     "date": "2026-10-26"
