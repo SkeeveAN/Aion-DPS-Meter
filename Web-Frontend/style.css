@@ -981,6 +981,11 @@ a.star-link:hover {
   transform: translateY(0);
 }
 
+/* The installer's SHA-256 and the VirusTotal report under the download button. */
+.download-proof code { word-break: break-all; font-size: 0.85em; }
+.download-copy { margin-left: 6px; padding: 2px 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 0.85em; cursor: pointer; }
+.download-copy:hover { border-color: var(--color-primary); }
+
 .download-meta {
   color: var(--color-text-muted);
   font-size: 12px;

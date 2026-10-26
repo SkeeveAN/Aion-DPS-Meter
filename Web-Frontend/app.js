@@ -995,6 +995,34 @@ async function applyFeatureLayout(scenes) {
   }
 }
 
+// The release notes carry the installer's SHA-256 and the VirusTotal report (written by the release workflow); the download page shows both.
+// Only what has the exact shape is shown: a 64-digit hash and a link to virustotal.com's file page.
+function releaseProofRows(body, installerName) {
+  const rows = [];
+  const sha = /SHA-256 of the installer \([^)]*\): ([0-9a-f]{64})\b/.exec(body)?.[1];
+  if (sha) {
+    const copy = el("button", { type: "button", className: "download-copy", textContent: t("download.copy") });
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(sha);
+        copy.textContent = t("download.copied");
+        setTimeout(() => { copy.textContent = t("download.copy"); }, 2000);
+      } catch {
+        // no clipboard access: the hash can still be selected by hand
+      }
+    });
+    rows.push(el("p", { className: "download-meta download-proof" }, [`${t("download.sha256Label", { name: installerName })} `, el("code", { textContent: sha }), " ", copy]));
+  }
+  const vt = /VirusTotal scan of the installer: (\d+\/\d+) detections - (https:\/\/www\.virustotal\.com\/gui\/file\/[0-9a-f]{64})/.exec(body);
+  if (vt) {
+    rows.push(el("p", { className: "download-meta download-proof" }, [
+      `${t("download.vtLabel", { result: vt[1] })} `,
+      el("a", { href: vt[2], target: "_blank", rel: "noopener", textContent: t("download.vtReportLink") }),
+    ]));
+  }
+  return rows;
+}
+
 async function renderDownload() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.download")]);
   showLoading(t("loading.version"));
@@ -1041,6 +1069,7 @@ async function renderDownload() {
       downloadSection = el("div", {}, [
         el("a", { className: "download-cta", href: "/download/latest", textContent: t("download.downloadButton", { tag: latest.tag_name }) }),
         el("p", { className: "download-meta", textContent: t("download.meta", { name: setupAsset.name, size: formatBytes(setupAsset.size) }) }),
+        ...releaseProofRows(latest.body ?? "", setupAsset.name),
       ]);
     } else {
       downloadSection = el("p", { className: "empty", textContent: t("download.noInstallerFound") });
