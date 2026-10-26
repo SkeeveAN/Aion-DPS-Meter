@@ -188,8 +188,21 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             gh release create $tag --prerelease --title $tag --notes "Release $tag"
           }
+          # SHA-256 of the installer and the update packages, so a download can be checked (Get-FileHash on Windows, sha256sum elsewhere).
+          # The list is written before the upload and goes up with the rest; the installer's hash is also put into the release notes (once).
+          $sumFiles = Get-ChildItem releases -File | Where-Object { $_.Name -like '*.exe' -or $_.Name -like '*.nupkg' } | Sort-Object Name
+          $sums = ($sumFiles | ForEach-Object { "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)" }) -join "`n"
+          [System.IO.File]::WriteAllText((Join-Path (Resolve-Path releases).Path 'SHA256SUMS.txt'), "$sums`n")
           $files = Get-ChildItem releases -File | Where-Object { $_.Name -notlike '*-Portable.zip' }
           gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
+          $installer = $sumFiles | Where-Object { $_.Name -like '*-Setup.exe' } | Select-Object -First 1
+          if ($installer) {
+            $body = gh release view $tag --json body --jq .body
+            if ($body -notmatch 'SHA-256') {
+              $sha = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower()
+              gh release edit $tag --notes "$body`n`nSHA-256 of the installer ($($installer.Name)): $sha"
+            }
+          }
           # Add the VirusTotal report to the release notes (once; a re-run does not duplicate it).
           $vtLink = "${{ steps.vt.outputs.link }}"
           if ($vtLink) {

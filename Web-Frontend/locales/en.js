@@ -190,6 +190,8 @@ export default {
   "legal.privacySection14Body": "If you send feedback, your message and the name you enter become a public GitHub issue. Your optional e-mail address is stored privately, only to answer questions, and never published. If you tick \"attach recording\", the client sends the last minutes of game network traffic (it can contain character names), encrypted on your PC; only the developer holds the key. It is stored in a private repository and used only to analyse your report.",
   "download.codeSigningNote": "Code signing: free code signing provided by SignPath.io, certificate by the SignPath Foundation (being set up, releases are unsigned until then).",
   "download.codeSigningLink": "Code signing policy",
+  "download.checksumNote": "To check your download, compare its SHA-256 with the value in the release notes or in SHA256SUMS.txt on GitHub. In PowerShell:",
+  "download.checksumLink": "Release on GitHub",
   "legal.codeSigningTitle": "Code Signing Policy",
   "legal.codeSigningIntro": "How the Windows installer and program files of the Aion DPS Meter client are built and signed. This page is the code signing policy of the project.",
   "legal.codeSigningSection1Heading": "Code signing provider",

@@ -1054,6 +1054,13 @@ async function renderDownload() {
   }
 
   const signingNote = el("p", { className: "download-meta" }, [t("download.codeSigningNote") + " ", link(t("download.codeSigningLink"), "/code-signing-policy")]);
+  // To check a download: the installer's SHA-256 is in the release notes and in SHA256SUMS.txt on GitHub.
+  const checksumNote = el("p", { className: "download-meta" }, [
+    t("download.checksumNote") + " ",
+    el("code", { textContent: "Get-FileHash .\\AionDpsMeter-win-Setup.exe -Algorithm SHA256" }),
+    " ",
+    el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.checksumLink") }),
+  ]);
   const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
   const requirements = el("div", {}, [
     el("h2", { textContent: t("download.requirementsHeading") }),
@@ -1073,7 +1080,7 @@ async function renderDownload() {
     el("p", {}, [t("download.vtNote") + " ", el("a", { href: `https://github.com/${GITHUB_REPO}/releases/latest`, target: "_blank", rel: "noopener", textContent: t("download.vtLink") })]),
   ]);
   const starNote = el("p", { className: "download-meta star-note" }, [t("star.hint") + " ", buildStarLink()]);
-  app.replaceChildren(hero, downloadSection, signingNote, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
+  app.replaceChildren(hero, downloadSection, signingNote, checksumNote, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
 }
 
 // Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with

@@ -143,6 +143,7 @@ export function downloadPage(): Page {
       <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
       <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
       <p>Code signing: free code signing provided by SignPath.io, certificate by the SignPath Foundation (being set up, releases are unsigned until then). See the <a href="/code-signing-policy">code signing policy</a>.</p>
+      <p>To check your download, compare its SHA-256 with the value in the <a href="https://github.com/SkeeveAN/Aion-DPS-Meter/releases/latest">release notes or in SHA256SUMS.txt on GitHub</a>. In PowerShell: <code>Get-FileHash .\\AionDpsMeter-win-Setup.exe -Algorithm SHA256</code></p>
       <h3>Requirements</h3>
       <ul class="plain">
         <li>Windows 10 or 11</li>
