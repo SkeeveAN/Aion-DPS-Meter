@@ -642,11 +642,13 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     /// <summary>Seconds an entity's latest place counts as "around" and how the middle is taken; the defaults are what the recordings measured best.</summary>
     public static double AroundMaxAge { get; set; } = 5;
-    public static AroundMode AroundHow { get; set; } = AroundMode.Mean;
+    public static AroundMode AroundHow { get; set; } = AroundMode.Trimmed;
     public static int AroundMinEntities { get; set; } = 3;
 
     // 46,446 exact reports of four recordings: the mean of the entities that moved or appeared in the last 5 s is 12 m off where the last exact report is 24 m off
-    // after 5 to 15 s (older entities and the median or a trimmed middle were all worse); with none that fresh, the last 20 s still beat an old report (14 m)
+    // after 5 to 15 s; with none that fresh, the last 20 s still beat an old report (14 m). On the Insel der Ewigkeit (27 October, 253 exact reports) the mean was 479 m off
+    // in the median - the entities announced far away (2 to 3 km) pull it - where the trimmed middle (the ones within 45 m of the median) was 15 m off
+    // and the median 19 m; the trimmed middle is the default since.
     private (float X, float Y, int Count)? EnvironmentEstimateLocked(DateTime now) => Around(now, AroundMaxAge, AroundHow, AroundMinEntities) ?? Around(now, 4 * AroundMaxAge, AroundHow, AroundMinEntities);
 
     /// <summary>The middle of the entities around the player that moved or appeared within <paramref name="maxAgeSeconds"/>; null with fewer than <paramref name="min"/>.</summary>
