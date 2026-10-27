@@ -4253,6 +4253,14 @@ button.cmp-mem { cursor: pointer; }
 .article-columns { column-count: 2; column-gap: 72px; }
 .article-columns h2 { break-after: avoid; margin-top: 0; padding-top: 34px; }
 .article-columns ul, .article-columns ol, .article-columns p { break-inside: avoid; }
+.article-flow { margin: 22px 0; padding: 16px 18px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; break-inside: avoid; }
+.article-flow-steps { display: flex; flex-wrap: wrap; gap: 10px 0; }
+.article-flow-item { display: flex; align-items: center; }
+.article-flow-step { padding: 8px 12px; background: var(--color-surface2); border: 1px solid var(--color-border); border-radius: 8px; font-size: 15px; line-height: 1.35; }
+.article-flow-step.gap { border-style: dashed; border-color: var(--color-warning); color: var(--color-warning); }
+.article-flow-step.result { border-color: var(--color-success); }
+.article-flow-arrow { color: var(--color-text-muted); font-size: 18px; padding: 0 9px; }
+.article-flow figcaption { margin-top: 12px; color: var(--color-text-muted); font-size: 15px; line-height: 1.5; }
 @media (max-width: 1100px) { .article-columns { column-count: 1; } }
 
 /* ---- Players panel with the buff columns (encounters whose uploads carry buff data, see app.js playersPanel) ---- */

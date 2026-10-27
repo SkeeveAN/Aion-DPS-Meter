@@ -27,6 +27,7 @@ export default {
     ["p", "Deux leçons tirées de la production :"],
     ["p", "**Garder le callback minuscule.** Notre première version décodait les frames directement dans le callback de capture. Pendant un combat de boss mondial, la rafale de trafic a fait déborder le tampon du pilote et des paquets ont été perdus. Désormais, les threads de capture se contentent d'analyser les en-têtes et de placer les segments dans une file bornée, un seul worker décode, et le tampon du noyau a été porté à 32 Mo. Un paquet perdu à la capture est la seule défaillance que l'on ne peut plus réparer ensuite."],
     ["p", "**Ne jamais laisser un mauvais paquet mettre fin au thread de capture.** Une exception non gérée dans un callback de capture peut arrêter la capture en silence. Nous comptons et ignorons les erreurs, et affichons la dernière dans l'interface."],
+    ["flow", {"caption": "Le chemin d'un paquet : les threads de capture ne font presque rien, un seul worker décode.", "steps": ["Carte réseau", "Filtre du pilote : uniquement le trafic TCP du serveur de jeu", "Callback de capture : lire les en-têtes, mettre en file", "File bornée", "Un worker : décoder les frames", "Journal de combat"]}],
     ["h2", "Des segments aux frames : le réassemblage TCP"],
     ["p", "Une frame de jeu ne coïncide pas avec un segment TCP. Un segment peut contenir plusieurs frames, et une frame peut s'étendre sur plusieurs segments. La couche suivante est donc un petit réassembleur TCP :"],
     ["ul", [
@@ -35,6 +36,7 @@ export default {
       "Un trou qui ne se comble jamais n'est pas une erreur sur le câble, mais un paquet que nous avons manqué à la capture. Le réassembleur abandonne après une limite, se réaligne sur le segment suivant et comptabilise l'événement. Les frames sont précédées de leur longueur, une frontière se retrouve donc, et au plus les frames qui chevauchaient le trou sont perdues.",
     ]],
     ["p", "Ce dernier point est important : **prévoir la perte côté capture.** Un compteur qui cesse de fonctionner dès le premier paquet manqué est un compteur auquel personne ne fait confiance."],
+    ["flow", {"caption": "Un trou qui ne se comble jamais : le réassembleur abandonne après une limite, se réaligne sur le segment suivant et compte l'événement. Seules les frames qui traversaient le trou sont perdues.", "steps": ["Segment 1", "Segment 2", "!Le segment 3 n'est jamais arrivé", "Segment 4 : se réaligner ici", "=Les frames suivantes sont intactes"]}],
     ["h2", "Décodage : comprendre le protocole"],
     ["p", "Une fois les frames obtenues, le travail consiste à retrouver leur signification : quel message est lequel, comment les champs sont organisés, quelles frames sont compressées, quels nombres sont des dégâts et lesquels des soins. C'est de l'observation patiente plutôt que de l'ingénierie astucieuse : enregistrer une session, combattre un ennemi connu et comparer ce que l'on a fait avec ce que dit le flux de données. Deux habitudes ont rendu cela maîtrisable :"],
     ["ul", [

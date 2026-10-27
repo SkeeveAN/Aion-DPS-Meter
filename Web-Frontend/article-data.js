@@ -1,6 +1,7 @@
 // The technical article at /how-it-works. One source for the page in the app (app.js renderArticle) and for the text the
 // server sends to crawlers (Backend/src/seo/pages.ts articlePage). English for crawlers, German in the app when the site language is German.
 // Inline markup in the texts: **bold** and [label](url).
+// Block types: lead, h2, p, ul, ol and flow ({ caption, steps }: a diagram of boxes with arrows; a step starting with "!" is the gap, one starting with "=" the result).
 
 export const ARTICLE = {
   path: "/how-it-works",
@@ -33,6 +34,7 @@ export const ARTICLE = {
     ["p", "Two lessons from production:"],
     ["p", "**Keep the callback tiny.** Our first version decoded frames inside the capture callback. During a world boss fight the burst of traffic overflowed the driver's buffer and packets were lost. Now the capture threads only parse and enqueue into a bounded queue, a single worker does the decoding, and the kernel buffer is raised to 32 MB. A packet lost at capture time is the one failure you cannot repair later."],
     ["p", "**Never let one bad packet end the capture thread.** An unhandled exception inside a capture callback can silently stop capturing. We count and skip the failures and show the last error in the interface instead."],
+    ["flow", {"caption": "The way of a packet: the capture threads do almost nothing, one worker does the decoding.", "steps": ["Network adapter", "Driver filter: only the game server's TCP traffic", "Capture callback: read headers, enqueue", "Bounded queue", "One worker: decode the frames", "Combat log"]}],
     ["h2", "From segments to frames: TCP reassembly"],
     ["p", "A game frame does not line up with a TCP segment. One segment can carry several frames, and one frame can span several segments. So the next layer is a small TCP reassembler:"],
     ["ul", [
@@ -41,6 +43,7 @@ export const ARTICLE = {
       "A hole that never fills is not an error on the wire but a packet we missed while capturing. The reassembler gives up after a bound, realigns on the next segment and counts the event. Frames are length-prefixed, so a boundary is found again and at most the frames that spanned the hole are lost.",
     ]],
     ["p", "That last point matters: **design for loss on the capture side.** A meter that stops working after the first missed packet is a meter nobody trusts."],
+    ["flow", {"caption": "A hole that never fills: the reassembler gives up after a bound, realigns on the next segment and counts the event. Only frames that spanned the hole are lost.", "steps": ["Segment 1", "Segment 2", "!Segment 3 never arrived", "Segment 4: realign here", "=Later frames are intact"]}],
     ["h2", "Decoding: understanding the protocol"],
     ["p", "Once you have frames, the work is working out what they mean: which message is which, how the fields are laid out, which frames are compressed, which numbers are damage and which are healing. That part is patient observation rather than clever engineering: record a session, fight one known enemy, and compare what you did with what the stream says. Two habits made it tractable:"],
     ["ul", [
@@ -116,6 +119,7 @@ export const ARTICLE_DE = {
     ["p", "Zwei Lehren aus dem Echtbetrieb:"],
     ["p", "**Den Callback winzig halten.** Unsere erste Version hat Frames direkt im Mitschnitt-Callback entschlüsselt. Bei einem Weltboss-Kampf lief der Treiberpuffer unter dem Datenschwall über, und Pakete gingen verloren. Jetzt lesen die Mitschnitt-Threads nur noch die Kopfdaten und stellen die Segmente in eine begrenzte Warteschlange, ein einzelner Worker dekodiert, und der Kernelpuffer wurde auf 32 MB erhöht. Ein Paket, das beim Mitschnitt verloren geht, ist der eine Fehler, den man später nicht mehr reparieren kann."],
     ["p", "**Nie zulassen, dass ein schlechtes Paket den Mitschnitt-Thread beendet.** Eine unbehandelte Ausnahme im Callback kann den Mitschnitt still anhalten. Wir zählen und überspringen die Fehler und zeigen stattdessen den letzten in der Oberfläche an."],
+    ["flow", {"caption": "Der Weg eines Pakets: Die Mitschnitt-Threads tun fast nichts, ein Worker dekodiert.", "steps": ["Netzwerkadapter", "Treiberfilter: nur der TCP-Verkehr des Spielservers", "Mitschnitt-Callback: Kopfdaten lesen, einreihen", "Begrenzte Warteschlange", "Ein Worker: Frames dekodieren", "Kampfprotokoll"]}],
     ["h2", "Von Segmenten zu Frames: TCP-Zusammensetzung"],
     ["p", "Ein Spiel-Frame deckt sich nicht mit einem TCP-Segment. Ein Segment kann mehrere Frames tragen, und ein Frame kann über mehrere Segmente laufen. Die nächste Schicht ist deshalb ein kleiner TCP-Zusammensetzer:"],
     ["ul", [
@@ -124,6 +128,7 @@ export const ARTICLE_DE = {
       "Eine Lücke, die sich nie füllt, ist kein Fehler auf der Leitung, sondern ein Paket, das wir beim Mitschnitt verpasst haben. Der Zusammensetzer gibt nach einer Grenze auf, richtet sich am nächsten Segment neu aus und zählt das Ereignis. Frames tragen ihre Länge voran, deshalb findet sich eine Grenze wieder, und höchstens die Frames, die über die Lücke liefen, gehen verloren.",
     ]],
     ["p", "Der letzte Punkt ist wichtig: **Auf der Mitschnitt-Seite mit Verlust rechnen.** Ein Meter, der nach dem ersten verpassten Paket aufhört zu funktionieren, ist ein Meter, dem niemand traut."],
+    ["flow", {"caption": "Eine Lücke, die sich nie füllt: Der Zusammensetzer gibt nach einer Grenze auf, richtet sich am nächsten Segment neu aus und zählt das Ereignis. Nur Frames, die über die Lücke liefen, gehen verloren.", "steps": ["Segment 1", "Segment 2", "!Segment 3 kam nie an", "Segment 4: hier neu ausrichten", "=Spätere Frames sind intakt"]}],
     ["h2", "Dekodieren: das Protokoll verstehen"],
     ["p", "Hat man die Frames, besteht die Arbeit im Herausfinden ihrer Bedeutung: welche Nachricht welche ist, wie die Felder aufgebaut sind, welche Frames komprimiert sind, welche Zahlen Schaden und welche Heilung sind. Das ist geduldiges Beobachten statt kluger Technik: eine Sitzung aufzeichnen, einen bekannten Gegner bekämpfen und vergleichen, was man getan hat, mit dem, was der Datenstrom sagt. Zwei Gewohnheiten haben das beherrschbar gemacht:"],
     ["ul", [
@@ -166,6 +171,13 @@ export const ARTICLE_DE = {
     ["p", "Der Quelltext steht unter MIT-Lizenz: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Den Meter, die Bestenlisten und die Funktionsübersicht findest du auf [aiondps.com](/features), und [der Vergleich mit anderen AION-2-Metern](/aion-2-dps-meter) ist ebenfalls aufgeschrieben. Bei jedem Push laufen die Typprüfung und alle Backend-Tests öffentlich, außerdem wird der Client gebaut: [die Testergebnisse](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };
+
+/** A step of a flow diagram: its text and kind ("gap" for "!…", "result" for "=…", else "step"). */
+export function flowStep(text) {
+  if (text.startsWith("!")) return { text: text.slice(1), kind: "gap" };
+  if (text.startsWith("=")) return { text: text.slice(1), kind: "result" };
+  return { text, kind: "step" };
+}
 
 /** Splits a text with **bold** and [label](url) into plain, bold and link parts. */
 export function articleSegments(text) {

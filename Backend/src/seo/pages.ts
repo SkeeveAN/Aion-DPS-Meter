@@ -9,7 +9,7 @@ import { classBoxes, findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MOD
 import { instanceStatistics } from "../instanceStats.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
 import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
-import { ARTICLE, articleSegments } from "../../../Web-Frontend/article-data.js";
+import { ARTICLE, articleSegments, flowStep } from "../../../Web-Frontend/article-data.js";
 import { GUIDE_ASOF, GUIDE_FAQ, GUIDE_OSS, GUIDE_ROWS, GUIDE_STRONG, GUIDE_TABLES, GUIDE_WEAK, GUIDE_WHAT } from "../../../Web-Frontend/guide-data.js";
 import enStrings from "../../../Web-Frontend/locales/en.js";
 import { parseIdOrSlug } from "./slug.js";
@@ -183,10 +183,14 @@ const en = ((enStrings as unknown as { default?: Record<string, string> }).defau
 /** The technical article; text and markup come from Web-Frontend/article-data.js, the same file the app renders. */
 export function articlePage(): Page {
   const inline = (text: string) => articleSegments(text).map((s) => (s.href ? html`<a href="${s.href}">${s.text}</a>` : s.bold ? html`<strong>${s.text}</strong>` : s.text));
-  const block = ([type, value]: [string, string | string[]]) => {
+  const block = ([type, value]: [string, string | string[] | { caption: string; steps: string[] }]) => {
     if (type === "h2") return html`<h2>${value as string}</h2>`;
     if (type === "ul") return html`<ul class="plain">${(value as string[]).map((i) => html`<li>${inline(i)}</li>`)}</ul>`;
     if (type === "ol") return html`<ol class="steps">${(value as string[]).map((i) => html`<li>${inline(i)}</li>`)}</ol>`;
+    if (type === "flow") {
+      const flow = value as unknown as { caption: string; steps: string[] };
+      return html`<figure><ol class="steps">${flow.steps.map((i) => html`<li>${flowStep(i).text}</li>`)}</ol><figcaption>${flow.caption}</figcaption></figure>`;
+    }
     return html`<p>${inline(value as string)}</p>`;
   };
   return {

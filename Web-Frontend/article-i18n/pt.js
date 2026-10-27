@@ -27,6 +27,7 @@ export default {
     ["p", "Duas lições da produção:"],
     ["p", "**Mantenha o callback minúsculo.** Nossa primeira versão decodificava os frames dentro do callback de captura. Durante uma luta de chefe mundial, a rajada de tráfego estourou o buffer do driver e pacotes foram perdidos. Agora as threads de captura apenas interpretam e enfileiram em uma fila limitada, um único worker faz a decodificação, e o buffer do kernel foi aumentado para 32 MB. Um pacote perdido na captura é a única falha que não se pode reparar depois."],
     ["p", "**Nunca deixe um pacote ruim encerrar a thread de captura.** Uma exceção não tratada dentro de um callback de captura pode interromper a captura silenciosamente. Nós contamos e ignoramos as falhas e mostramos o último erro na interface."],
+    ["flow", {"caption": "O caminho de um pacote: as threads de captura quase não fazem nada, um único worker decodifica.", "steps": ["Adaptador de rede", "Filtro do driver: só o tráfego TCP do servidor do jogo", "Callback de captura: ler cabeçalhos, enfileirar", "Fila limitada", "Um worker: decodificar os frames", "Registro de combate"]}],
     ["h2", "De segmentos a frames: remontagem TCP"],
     ["p", "Um frame do jogo não coincide com um segmento TCP. Um segmento pode carregar vários frames, e um frame pode se estender por vários segmentos. Por isso, a próxima camada é um pequeno remontador TCP:"],
     ["ul", [
@@ -35,6 +36,7 @@ export default {
       "Uma lacuna que nunca é preenchida não é um erro na rede, mas um pacote que perdemos durante a captura. O remontador desiste após um limite, realinha no próximo segmento e conta o evento. Os frames carregam o comprimento à frente, então uma fronteira é encontrada de novo e, no máximo, se perdem os frames que atravessavam a lacuna.",
     ]],
     ["p", "Esse último ponto é importante: **projete para a perda no lado da captura.** Um medidor que para de funcionar após o primeiro pacote perdido é um medidor em que ninguém confia."],
+    ["flow", {"caption": "Uma lacuna que nunca se preenche: o remontador desiste após um limite, realinha no próximo segmento e conta o evento. Só se perdem os frames que atravessavam a lacuna.", "steps": ["Segmento 1", "Segmento 2", "!O segmento 3 nunca chegou", "Segmento 4: realinhar aqui", "=Os frames seguintes estão intactos"]}],
     ["h2", "Decodificação: entendendo o protocolo"],
     ["p", "Depois de ter os frames, o trabalho é descobrir o que eles significam: qual mensagem é qual, como os campos estão organizados, quais frames são comprimidos, quais números são dano e quais são cura. Isso é observação paciente, mais do que engenharia engenhosa: grave uma sessão, lute contra um inimigo conhecido e compare o que você fez com o que o fluxo diz. Dois hábitos tornaram isso viável:"],
     ["ul", [

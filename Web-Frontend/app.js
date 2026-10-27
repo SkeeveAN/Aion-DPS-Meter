@@ -4,7 +4,7 @@ import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildGearFilters, buildInstanceStats } from "./boss-stats.js";
 import { buildBossDebuffs, buildBuffsPerSkill, buildFocus, buildGroupTimeline } from "./encounter-timeline.js";
-import { ARTICLE, ARTICLE_DE, articleSegments } from "./article-data.js";
+import { ARTICLE, ARTICLE_DE, articleSegments, flowStep } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
@@ -843,6 +843,14 @@ async function renderArticle() {
   const block = ([type, value]) => {
     if (type === "h2") return el("h2", { textContent: value });
     if (type === "ul" || type === "ol") return el(type, { className: "guide-list" }, value.map((item) => el("li", {}, inline(item))));
+    if (type === "flow") {
+      // the arrow belongs to the step before it, so a line never starts with one when the row wraps
+      const steps = value.steps.map(flowStep).map((step, i, all) => el("div", { className: "article-flow-item", role: "listitem" }, [
+        el("div", { className: `article-flow-step ${step.kind}`, textContent: step.text }),
+        ...(i < all.length - 1 ? [el("span", { className: "article-flow-arrow", textContent: "→", "aria-hidden": "true" })] : []),
+      ]));
+      return el("figure", { className: "article-flow" }, [el("div", { className: "article-flow-steps", role: "list" }, steps), el("figcaption", { textContent: value.caption })]);
+    }
     return el("p", { className: type === "lead" ? "guide-intro" : "" }, inline(value));
   };
   const [lead, ...rest] = ARTICLE_TEXT.blocks;

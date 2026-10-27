@@ -27,6 +27,7 @@ export default {
     ["p", "Dos lecciones de producción:"],
     ["p", "**Mantén el callback mínimo.** Nuestra primera versión decodificaba los frames dentro del callback de captura. Durante un combate contra un jefe mundial, la ráfaga de tráfico desbordó el búfer del controlador y se perdieron paquetes. Ahora los hilos de captura solo analizan las cabeceras y encolan los segmentos en una cola acotada, un único worker se encarga de decodificar y el búfer del kernel se ha subido a 32 MB. Un paquete perdido durante la captura es el único fallo que no se puede reparar después."],
     ["p", "**Nunca dejes que un paquete defectuoso termine el hilo de captura.** Una excepción no controlada dentro de un callback de captura puede detener la captura en silencio. Contamos y omitimos los fallos y mostramos el último error en la interfaz."],
+    ["flow", {"caption": "El camino de un paquete: los hilos de captura casi no hacen nada, un solo worker decodifica.", "steps": ["Adaptador de red", "Filtro del controlador: solo el tráfico TCP del servidor del juego", "Callback de captura: leer cabeceras, encolar", "Cola acotada", "Un worker: decodificar los frames", "Registro de combate"]}],
     ["h2", "De segmentos a frames: reensamblado TCP"],
     ["p", "Un frame del juego no coincide con un segmento TCP. Un segmento puede contener varios frames y un frame puede abarcar varios segmentos. Por eso la siguiente capa es un pequeño reensamblador TCP:"],
     ["ul", [
@@ -35,6 +36,7 @@ export default {
       "Un hueco que nunca se llena no es un error de la línea, sino un paquete que se nos escapó durante la captura. El reensamblador se rinde pasado un límite, se realinea con el siguiente segmento y cuenta el suceso. Los frames llevan su longitud por delante, así que se vuelve a encontrar un límite y, como mucho, se pierden los frames que cruzaban el hueco.",
     ]],
     ["p", "Este último punto es importante: **diseña contando con pérdidas en el lado de la captura.** Un medidor que deja de funcionar tras el primer paquete perdido es un medidor en el que nadie confía."],
+    ["flow", {"caption": "Un hueco que nunca se llena: el reensamblador se rinde tras un límite, se realinea en el siguiente segmento y cuenta el evento. Solo se pierden los frames que cruzaban el hueco.", "steps": ["Segmento 1", "Segmento 2", "!El segmento 3 nunca llegó", "Segmento 4: realinear aquí", "=Los frames posteriores están intactos"]}],
     ["h2", "Decodificación: entender el protocolo"],
     ["p", "Una vez que tienes los frames, el trabajo consiste en averiguar qué significan: qué mensaje es cuál, cómo se organizan los campos, qué frames están comprimidos, qué números son daño y cuáles son curación. Es observación paciente más que ingeniería ingeniosa: grabar una sesión, combatir contra un enemigo conocido y comparar lo que hiciste con lo que dice el flujo de datos. Dos hábitos lo hicieron abordable:"],
     ["ul", [
