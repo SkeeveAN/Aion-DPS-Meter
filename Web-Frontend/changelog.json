@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-27",
+  "items": [
+   {
+    "text": "Website: the Pantheon has its own tab on the profile page instead of sharing the Arcana tab (which already holds the set effect, the god values, three cards and the skill bonus sum)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-27"
+   }
+  ]
+ },
+ {
   "version": "1.16.6",
   "date": "2026-10-27",
   "items": [
