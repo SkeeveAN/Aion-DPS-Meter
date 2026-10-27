@@ -31,7 +31,7 @@
 - Rankings de chefes e perfis públicos de personagens em aiondps.com (envio opcional, desativado por padrão)
 - Mapa interativo, agenda de eventos, temporizadores de chefes mundiais e sobreposição de rede
 - Conjurações de chefes anunciadas por voz, um registro de saque, uma ferramenta de atributos, uma calculadora de crafting e uma lista de tarefas diárias
-- Seguro: captura passiva de pacotes, sem ler a memória nem injetar código
+- Passivo: apenas captura de pacotes, sem ler a memória, sem injetar código, nada enviado ao jogo
 - Gratuito, de código aberto (MIT) e se atualiza sozinho
 
 Funciona com a versão global de AION 2 — todas as regiões lançadas pela NCSOFT em 5 de outubro de 2026. Coreia e Taiwan estão algumas versões à frente, então o reconhecimento de habilidades pode ser incompleto lá.
@@ -321,8 +321,7 @@ Somente Windows (WPF). `Tools/aion2-dat` lê as tabelas de texto do jogo (nomes 
 
 ## Uma observação sobre as regras dos servidores
 
-O medidor apenas observa passivamente o tráfego de rede do próprio jogo. Mesmo assim, as publicadoras definem suas próprias
-regras sobre ferramentas de terceiros — vale conferir os termos do jogo antes de usá-lo.
+A NCSOFT não aprovou esta ferramenta. A política de operação sanciona «programas não autorizados»: programas ou dispositivos que contornam proteções técnicas ou prejudicam o funcionamento normal, por exemplo programas que permitem ações que jogadores normais não conseguem realizar, bem como a criação ou distribuição desses programas e a modificação do software do cliente ou do servidor. Bots são citados à parte, e um aviso sobre o status de confiança da conta menciona «software suspeito» sem defini-lo. A NCSOFT cita comportamentos, não programas específicos; medidores de dano e a leitura passiva do tráfego de rede não constam nem são expressamente proibidos, mas a lista não é exaustiva. O medidor não joga por você, não automatiza nada, não aumenta dano nem velocidade, não lê a memória do jogo, não altera cliente nem servidor e não envia nenhum pacote ao jogo; que ele esteja fora da definição é a nossa leitura, não uma declaração da NCSOFT. Confira [as regras atuais](https://aion2.plaync.com/de-de/board/rules/list) e use por sua conta e risco.
 
 ## Aviso legal e licença
 

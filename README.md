@@ -31,7 +31,7 @@
 - Boss leaderboards and public character profiles on aiondps.com (optional upload, off by default)
 - Interactive map, event timetable, world boss timers and a network overlay
 - Boss casts announced by voice, a loot log, an attributes tool, a crafting calculator and a daily checklist
-- Safe: passive packet capture, no memory reading, no injection
+- Passive: packet capture only, no memory reading, no injection, nothing sent to the game
 - Free, open source (MIT) and updates itself
 
 Works with the global release of AION 2 — every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.
@@ -321,8 +321,7 @@ Windows only (WPF). `Tools/aion2-dat` reads the game's text tables (names in eig
 
 ## A note on server rules
 
-The meter only passively observes the game's own network traffic. Even so, publishers set their own
-rules about third-party tools — worth a look at the terms of the game before using it.
+NCSOFT has not approved this tool. Its operating policy sanctions "unauthorized programs": programs or devices that bypass technical protection or impair normal operation, for example programs that enable actions regular players cannot perform, and the creation or distribution of such programs or changes to client or server software. Bots are listed separately, and a notice on the account trust status mentions "suspicious software" without defining it. NCSOFT names behaviors, not individual programs; damage meters and the passive reading of network traffic are neither listed nor prohibited by name, but the list is not exhaustive. The meter plays nothing for you, automates nothing, raises no damage or speed, reads no game memory, changes neither client nor server and sends no packet to the game; that it falls outside the definition is our reading, not a statement from NCSOFT. Check [the current rules](https://aion2.plaync.com/de-de/board/rules/list) and use it at your own responsibility.
 
 ## Disclaimer and license
 

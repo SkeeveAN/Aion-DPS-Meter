@@ -31,7 +31,7 @@
 - Boss-Ranglisten und öffentliche Charakterprofile auf aiondps.com (Upload optional, standardmäßig aus)
 - Interaktive Karte, Event-Zeitplan, Weltboss-Timer und ein Netzwerk-Overlay
 - Boss-Casts per Sprachausgabe angesagt, ein Beute-Log, ein Attribute-Tool, ein Crafting-Rechner und eine tägliche Checkliste
-- Sicher: passiver Paketmitschnitt, kein Speicherlesen, keine Code-Injektion
+- Passiv: nur Paketmitschnitt, kein Speicherlesen, keine Code-Injektion, nichts ans Spiel gesendet
 - Kostenlos, Open Source (MIT) und aktualisiert sich selbst
 
 Funktioniert mit der globalen Version von AION 2 — allen Regionen, die NCSOFT am 5. Oktober 2026 gestartet hat. Korea und Taiwan sind einige Versionen voraus, dort kann die Skill-Erkennung unvollständig sein.
@@ -321,8 +321,7 @@ Nur Windows (WPF). `Tools/aion2-dat` liest die Texttabellen des Spiels (Namen in
 
 ## Hinweis zu Serverregeln
 
-Der Meter beobachtet nur passiv den Netzwerkverkehr des Spiels. Trotzdem legen Publisher eigene
-Regeln für Drittwerkzeuge fest — wirf vor der Nutzung einen Blick in die Bedingungen des Spiels.
+NCSOFT hat dieses Werkzeug nicht freigegeben. Die Betriebsrichtlinien sanktionieren „nicht autorisierte Programme“: Programme oder Vorrichtungen, die technische Schutzmaßnahmen umgehen oder den ordnungsgemäßen Betrieb beeinträchtigen, etwa Programme, die Handlungen ermöglichen, zu denen reguläre Spieler nicht in der Lage sind, sowie das Erstellen oder Verbreiten solcher Programme und das Verändern von Client- oder Serverprogrammen. Bots werden gesondert genannt, und ein Hinweis zum Vertrauensstatus eines Kontos erwähnt „verdächtige Software“, ohne sie zu definieren. NCSOFT nennt Verhaltensweisen, keine einzelnen Programme; Schadensmeter und das passive Mitlesen von Netzwerkverkehr sind weder aufgelistet noch ausdrücklich verboten, die Liste ist aber nicht abschließend. Der Meter spielt nichts für dich, automatisiert nichts, erhöht weder Schaden noch Geschwindigkeit, liest keinen Spielspeicher, verändert weder Client noch Server und sendet kein Paket an das Spiel; dass er außerhalb der Definition liegt, ist unsere Lesart, keine Aussage von NCSOFT. Prüfe [die aktuellen Regeln](https://aion2.plaync.com/de-de/board/rules/list) und nutze ihn auf eigene Verantwortung.
 
 ## Haftungsausschluss und Lizenz
 

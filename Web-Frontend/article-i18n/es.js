@@ -2,12 +2,12 @@ export default {
   title: "Seguimiento pasivo del combate con Npcap y .NET 10",
   description: "Cómo un medidor de daño puede leer un juego sin tocarlo: captura de paquetes con Npcap y SharpPcap, reensamblado TCP, sesiones grabadas y los límites del enfoque.",
   blocks: [
-    ["lead", "La mayoría de los medidores de daño obtienen sus números leyendo la memoria del juego o inyectando un hook en el proceso del juego. Funciona, pero es frágil (cada parche mueve las direcciones), puede acabar en un baneo y el software anti-cheat tiene buenos motivos para no verlo con buenos ojos. El [Aion DPS Meter](/features) toma el otro camino para AION 2: nunca toca el proceso del juego. Escucha el tráfico de red del propio juego en tu equipo, como lo haría un analizador de paquetes, y reconstruye a partir de ahí el registro de combate. Este artículo describe la arquitectura, los obstáculos y lo que volveríamos a hacer."],
+    ["lead", "La mayoría de los medidores de daño obtienen sus números leyendo la memoria del juego o inyectando un hook en el proceso del juego. Funciona, pero es frágil (cada parche mueve las direcciones), y es justo lo que busca el software anti-cheat. El [Aion DPS Meter](/features) toma el otro camino para AION 2: nunca toca el proceso del juego. Escucha el tráfico de red del propio juego en tu equipo, como lo haría un analizador de paquetes, y reconstruye a partir de ahí el registro de combate. Este artículo describe la arquitectura, los obstáculos y lo que volveríamos a hacer."],
     ["h2", "El principio"],
     ["p", "El servidor ya le cuenta todo a tu cliente: quién golpeó a quién y con cuánto daño, quién curó, quién murió. Si puedes leer esos bytes, no necesitas el proceso del juego para nada. El medidor solo recibe una copia de paquetes que ya han llegado; nunca envía ninguno."],
     ["ul", [
       "**Nada que inyectar, nada que esquivar.** Una actualización del juego cambia los datos, no la forma en que los leemos.",
-      "**Seguro por diseño.** Sin lectura de memoria, sin hooks, sin inyección de paquetes.",
+      "**Sin intervención.** Sin lectura de memoria, sin hooks, sin inyección de paquetes.",
       "**Ve lo que el servidor te envía.** Eso incluye los eventos de combate de todos los miembros de tu grupo o banda, no solo los de tu propio personaje.",
     ]],
     ["h2", "La capa de captura: SharpPcap sobre Npcap"],
@@ -29,7 +29,7 @@ export default {
     ]],
     ["p", "Este último punto es importante: **diseña contando con pérdidas en el lado de la captura.** Un medidor que deja de funcionar tras el primer paquete perdido es un medidor en el que nadie confía."],
     ["h2", "Decodificación: entender el protocolo"],
-    ["p", "Una vez que tienes los frames, el trabajo consiste en deducir por ingeniería inversa qué significan: qué mensaje es cuál, cómo se organizan los campos, qué frames están comprimidos, qué números son daño y cuáles son curación. Es observación paciente más que ingeniería ingeniosa: grabar una sesión, combatir contra un enemigo conocido y comparar lo que hiciste con lo que dice el flujo de datos. Dos hábitos lo hicieron abordable:"],
+    ["p", "Una vez que tienes los frames, el trabajo consiste en averiguar qué significan: qué mensaje es cuál, cómo se organizan los campos, qué frames están comprimidos, qué números son daño y cuáles son curación. Es observación paciente más que ingeniería ingeniosa: grabar una sesión, combatir contra un enemigo conocido y comparar lo que hiciste con lo que dice el flujo de datos. Dos hábitos lo hicieron abordable:"],
     ["ul", [
       "**Grabar sesiones en bruto y reproducirlas sin conexión.** Cada cambio de protocolo se puede comprobar contra grabaciones antiguas, y un fallo se convierte en una prueba reproducible en lugar de «pasó una vez en una raid».",
       "**Contrastar con cifras que el propio juego comunica.** Un ejemplo son los puntos de vida del jefe: el medidor compara el daño que contó con los puntos de vida que el jefe perdió realmente. Una discrepancia apunta a paquetes perdidos o a un formato cambiado. En las grabaciones de depuración, además, un monitor de salud avisa cuando un tipo de mensaje que normalmente fluye se queda en silencio tras una actualización del juego.",
@@ -41,10 +41,17 @@ export default {
       "El tráfico cifrado acabaría con el enfoque. El flujo de combate de este juego es legible, y esa es la premisa de todo el diseño.",
       "Necesita un controlador de captura. Npcap es una instalación aparte, lo que es un obstáculo real para algunos jugadores.",
     ]],
+    ["h2", "Qué dicen las normas de NCSOFT"],
+    ["p", "Leímos las normas publicadas de NCSOFT antes de escribir este artículo. Su política de operación sanciona el uso de «programas no autorizados», es decir, programas o dispositivos que eluden protecciones técnicas o perjudican el funcionamiento normal, por ejemplo programas que permiten acciones que los jugadores normales no pueden realizar, así como crear o distribuir esos programas o modificar el software del cliente o del servidor. Los bots se mencionan aparte, y un aviso sobre el estado de confianza de la cuenta habla de «software sospechoso» sin definirlo. Los términos de servicio también prohíben descompilar o aplicar ingeniería inversa al software del juego; nosotros analizamos solo el flujo de datos, nunca el programa del juego. [Las normas son públicas](https://aion2.plaync.com/de-de/board/rules/list)."],
+    ["ul", [
+      "**Lo que el medidor no hace:** no juega por ti, no automatiza nada, no aumenta el daño ni la velocidad, no lee la memoria del juego, no modifica ni el cliente ni el servidor y no envía ningún paquete al juego.",
+      "**Cómo están construidas las normas:** NCSOFT nombra comportamientos, no programas concretos, porque una herramienta podría esconder mecánicas no permitidas. Los medidores de daño, la captura de paquetes y la lectura pasiva del tráfico de red ni figuran ni están prohibidos expresamente.",
+      "**Lo que no podemos prometer:** la lista no es exhaustiva, NCSOFT no ha aprobado expresamente Aion DPS y «software sospechoso» no está definido. Que el medidor quede fuera de los comportamientos citados es nuestra interpretación, no una declaración de NCSOFT. Consulta las normas vigentes y úsalo bajo tu propia responsabilidad.",
+    ]],
     ["h2", "Por qué lo elegiríamos de nuevo"],
     ["ul", [
       "**Mantenimiento:** los parches rompen formatos, no hooks, y las sesiones grabadas convierten cada corrección en una prueba de regresión.",
-      "**Confianza:** los jugadores pueden leer el código fuente, comprobar que no se inyecta nada y usar el medidor junto al juego sin preocuparse por su cuenta.",
+      "**Confianza:** los jugadores pueden leer el código fuente, comprobar que no se inyecta nada y juzgar por sí mismos lo que hace y lo que no hace.",
       "**Rendimiento:** el juego nunca nota el medidor.",
     ]],
     ["p", "El código fuente tiene licencia MIT: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). El medidor, las clasificaciones y el recorrido por las funciones están en [aiondps.com](/features), y también está escrita la [comparación con otros medidores de AION 2](/aion-2-dps-meter). En cada push se ejecutan en público la comprobación de tipos y todas las pruebas del backend, y se compila el cliente: [los resultados de las pruebas](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],

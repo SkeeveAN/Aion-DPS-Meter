@@ -2,12 +2,12 @@ export default {
   title: "Suivi de combat passif avec Npcap et .NET 10",
   description: "Comment un compteur de dégâts peut lire un jeu sans y toucher : capture de paquets avec Npcap et SharpPcap, réassemblage TCP, sessions enregistrées et limites de l'approche.",
   blocks: [
-    ["lead", "La plupart des compteurs de dégâts tirent leurs chiffres de la mémoire du jeu ou d'un hook injecté dans le processus du jeu. Cela fonctionne, mais c'est fragile (chaque patch déplace les adresses), cela peut mener à un bannissement, et les logiciels anti-triche ont de bonnes raisons de ne pas apprécier cela. L'[Aion DPS Meter](/features) prend l'autre voie pour AION 2 : il ne touche jamais au processus du jeu. Il écoute sur votre machine le trafic réseau du jeu lui-même, comme le ferait un analyseur de paquets, et reconstruit à partir de là le journal de combat. Cet article décrit l'architecture, les pièges et ce que nous referions."],
+    ["lead", "La plupart des compteurs de dégâts tirent leurs chiffres de la mémoire du jeu ou d'un hook injecté dans le processus du jeu. Cela fonctionne, mais c'est fragile (chaque patch déplace les adresses), et c'est précisément ce que cherchent les logiciels anti-triche. L'[Aion DPS Meter](/features) prend l'autre voie pour AION 2 : il ne touche jamais au processus du jeu. Il écoute sur votre machine le trafic réseau du jeu lui-même, comme le ferait un analyseur de paquets, et reconstruit à partir de là le journal de combat. Cet article décrit l'architecture, les pièges et ce que nous referions."],
     ["h2", "Le principe"],
     ["p", "Le serveur dit déjà tout à votre client : qui a frappé qui, pour combien, qui a soigné, qui est mort. Si l'on sait lire ces octets, on n'a pas besoin du processus du jeu. Le compteur ne reçoit qu'une copie de paquets déjà arrivés ; il n'en envoie jamais."],
     ["ul", [
       "**Rien à injecter, rien à contourner.** Une mise à jour du jeu change les données, pas la manière dont nous les lisons.",
-      "**Sûr par construction.** Pas de lecture de la mémoire, pas de hooks, pas d'injection de paquets.",
+      "**Aucune intervention.** Pas de lecture de la mémoire, pas de hooks, pas d'injection de paquets.",
       "**Il voit ce que le serveur vous envoie.** Cela inclut les événements de combat de tous les membres de votre groupe ou de votre raid, pas seulement ceux de votre propre personnage.",
     ]],
     ["h2", "La couche de capture : SharpPcap sur Npcap"],
@@ -29,7 +29,7 @@ export default {
     ]],
     ["p", "Ce dernier point est important : **prévoir la perte côté capture.** Un compteur qui cesse de fonctionner dès le premier paquet manqué est un compteur auquel personne ne fait confiance."],
     ["h2", "Décodage : comprendre le protocole"],
-    ["p", "Une fois les frames obtenues, le travail consiste à retrouver par rétro-ingénierie leur signification : quel message est lequel, comment les champs sont organisés, quelles frames sont compressées, quels nombres sont des dégâts et lesquels des soins. C'est de l'observation patiente plutôt que de l'ingénierie astucieuse : enregistrer une session, combattre un ennemi connu et comparer ce que l'on a fait avec ce que dit le flux de données. Deux habitudes ont rendu cela maîtrisable :"],
+    ["p", "Une fois les frames obtenues, le travail consiste à retrouver leur signification : quel message est lequel, comment les champs sont organisés, quelles frames sont compressées, quels nombres sont des dégâts et lesquels des soins. C'est de l'observation patiente plutôt que de l'ingénierie astucieuse : enregistrer une session, combattre un ennemi connu et comparer ce que l'on a fait avec ce que dit le flux de données. Deux habitudes ont rendu cela maîtrisable :"],
     ["ul", [
       "**Enregistrer des sessions brutes et les rejouer hors ligne.** Chaque modification du protocole peut être vérifiée sur d'anciens enregistrements, et un bogue devient un test reproductible au lieu de « c'est arrivé une fois en raid ».",
       "**Recouper avec des chiffres que le jeu fournit lui-même.** Un exemple : les points de vie du boss. Le compteur compare les dégâts comptés avec les points de vie que le boss a réellement perdus. Un écart indique des paquets manqués ou une structure modifiée. Dans les enregistrements de débogage, un moniteur de santé signale en outre lorsqu'un type de message qui circule normalement se tait après une mise à jour du jeu.",
@@ -41,10 +41,17 @@ export default {
       "Un trafic chiffré mettrait fin à l'approche. Le flux de combat de ce jeu est lisible, ce qui est la prémisse de toute la conception.",
       "Elle nécessite un pilote de capture. Npcap est une installation séparée, ce qui est un vrai obstacle pour certains joueurs.",
     ]],
+    ["h2", "Ce que disent les règles de NCSOFT"],
+    ["p", "Nous avons lu les règles publiées de NCSOFT avant d'écrire cet article. Sa politique d'exploitation sanctionne l'utilisation de « programmes non autorisés », c'est-à-dire de programmes ou dispositifs qui contournent les protections techniques ou perturbent le fonctionnement normal, par exemple des programmes qui permettent des actions dont les joueurs normaux sont incapables, ainsi que la création ou la diffusion de tels programmes et la modification des programmes client ou serveur. Les bots sont cités à part, et un avis sur le statut de confiance d'un compte mentionne des « logiciels suspects » sans les définir. Les conditions d'utilisation interdisent aussi de décompiler ou de rétro-concevoir le logiciel du jeu ; nous n'analysons que le flux de données, jamais le programme du jeu. [Les règles sont publiques](https://aion2.plaync.com/de-de/board/rules/list)."],
+    ["ul", [
+      "**Ce que le compteur ne fait pas :** il ne joue rien à votre place, n'automatise rien, n'augmente ni les dégâts ni la vitesse, ne lit pas la mémoire du jeu, ne modifie ni le client ni le serveur et n'envoie aucun paquet au jeu.",
+      "**Comment les règles sont construites :** NCSOFT nomme des comportements, pas des programmes précis, car un outil pourrait cacher des mécanismes non autorisés. Les compteurs de dégâts, la capture de paquets et la lecture passive du trafic réseau n'y figurent pas et ne sont pas expressément interdits.",
+      "**Ce que nous ne pouvons pas promettre :** la liste n'est pas exhaustive, NCSOFT n'a pas expressément approuvé Aion DPS, et « logiciels suspects » n'est pas défini. Que le compteur sorte des comportements cités est notre lecture, pas une déclaration de NCSOFT. Consultez les règles en vigueur et utilisez-le sous votre propre responsabilité.",
+    ]],
     ["h2", "Pourquoi nous la choisirions à nouveau"],
     ["ul", [
       "**Maintenance :** les patchs cassent des structures, pas des hooks, et les sessions enregistrées font de chaque correction un test de régression.",
-      "**Confiance :** les joueurs peuvent lire le code source, constater que rien n'est injecté, et faire tourner le compteur à côté du jeu sans craindre pour leur compte.",
+      "**Confiance :** les joueurs peuvent lire le code source, constater que rien n'est injecté, et juger eux-mêmes ce qu'il fait et ne fait pas.",
       "**Performance :** le jeu ne remarque jamais le compteur.",
     ]],
     ["p", "Le code source est sous licence MIT : [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Le compteur, les classements et la présentation des fonctionnalités se trouvent sur [aiondps.com](/features), et [la comparaison avec d'autres compteurs AION 2](/aion-2-dps-meter) est également rédigée. À chaque push, la vérification des types et tous les tests du backend s'exécutent publiquement et le client est compilé : [les résultats des tests](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],

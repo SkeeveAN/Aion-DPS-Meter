@@ -30,7 +30,7 @@
 - Clasificaciones de jefes y perfiles públicos de personajes en aiondps.com (subida opcional, desactivada por defecto)
 - Mapa interactivo, calendario de eventos, temporizadores de jefes de mundo y superposición de red
 - Lanzamientos de jefes anunciados por voz, un registro de botín, una herramienta de atributos, una calculadora de crafteo y una lista de tareas diarias
-- Seguro: captura pasiva de paquetes, sin leer la memoria ni inyectar código
+- Pasivo: solo captura de paquetes, sin lectura de memoria, sin inyección, nada se envía al juego
 - Gratuito, de código abierto (MIT) y se actualiza solo
 
 Funciona con la versión global de AION 2: todas las regiones que NCSOFT lanzó el 5 de octubre de 2026. Corea y Taiwán van varias versiones por delante, por lo que allí el reconocimiento de habilidades puede ser incompleto.
@@ -322,8 +322,7 @@ Solo Windows (WPF). `Tools/aion2-dat` lee las tablas de texto del juego (nombres
 
 ## Nota sobre las reglas de los servidores
 
-El medidor solo observa pasivamente el tráfico de red del propio juego. Aun así, las editoras fijan sus propias
-reglas sobre herramientas de terceros — conviene revisar las condiciones del juego antes de usarlo.
+NCSOFT no ha aprobado esta herramienta. Su política de operación sanciona los «programas no autorizados»: programas o dispositivos que eluden protecciones técnicas o perjudican el funcionamiento normal, por ejemplo programas que permiten acciones que los jugadores normales no pueden realizar, así como crear o distribuir esos programas o modificar el software del cliente o del servidor. Los bots se mencionan aparte, y un aviso sobre el estado de confianza de la cuenta habla de «software sospechoso» sin definirlo. NCSOFT nombra comportamientos, no programas concretos; los medidores de daño y la lectura pasiva del tráfico de red ni figuran ni están prohibidos expresamente, aunque la lista no es exhaustiva. El medidor no juega por ti, no automatiza nada, no aumenta el daño ni la velocidad, no lee la memoria del juego, no modifica ni el cliente ni el servidor y no envía ningún paquete al juego; que quede fuera de la definición es nuestra interpretación, no una declaración de NCSOFT. Consulta [las normas vigentes](https://aion2.plaync.com/de-de/board/rules/list) y úsalo bajo tu propia responsabilidad.
 
 ## Aviso legal y licencia
 

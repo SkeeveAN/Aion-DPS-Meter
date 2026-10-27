@@ -31,7 +31,7 @@
 - Classements de boss et profils publics de personnages sur aiondps.com (envoi facultatif, désactivé par défaut)
 - Carte interactive, calendrier d'événements, minuteurs de boss mondiaux et surcouche réseau
 - Incantations de boss annoncées par la voix, journal de butin, outil d'attributs, calculateur de craft et checklist quotidienne
-- Sûr : capture passive des paquets, aucune lecture de la mémoire, aucune injection
+- Passif : capture de paquets uniquement, aucune lecture de la mémoire, aucune injection, rien envoyé au jeu
 - Gratuit, open source (MIT) et se met à jour tout seul
 
 Fonctionne avec la version mondiale d'AION 2 : toutes les régions lancées par NCSOFT le 5 octobre 2026. La Corée et Taïwan ont quelques versions d'avance, la reconnaissance des compétences peut donc y être incomplète.
@@ -326,8 +326,7 @@ Windows uniquement (WPF). `Tools/aion2-dat` lit les tables de texte du jeu (noms
 
 ## Remarque sur les règles des serveurs
 
-Le compteur observe uniquement, passivement, le trafic réseau du jeu. Les éditeurs fixent néanmoins leurs propres
-règles sur les outils tiers — consultez les conditions du jeu avant de l'utiliser.
+NCSOFT n'a pas approuvé cet outil. Sa politique d'exploitation sanctionne les « programmes non autorisés » : programmes ou dispositifs qui contournent les protections techniques ou perturbent le fonctionnement normal, par exemple des programmes qui permettent des actions dont les joueurs normaux sont incapables, ainsi que la création ou la diffusion de tels programmes et la modification des programmes client ou serveur. Les bots sont cités à part, et un avis sur le statut de confiance d'un compte mentionne des « logiciels suspects » sans les définir. NCSOFT nomme des comportements, pas des programmes précis ; les compteurs de dégâts et la lecture passive du trafic réseau n'y figurent pas et ne sont pas expressément interdits, mais la liste n'est pas exhaustive. Le compteur ne joue rien à votre place, n'automatise rien, n'augmente ni les dégâts ni la vitesse, ne lit pas la mémoire du jeu, ne modifie ni le client ni le serveur et n'envoie aucun paquet au jeu ; qu'il sorte de cette définition est notre lecture, pas une déclaration de NCSOFT. Consultez [les règles en vigueur](https://aion2.plaync.com/de-de/board/rules/list) et utilisez-le sous votre propre responsabilité.
 
 ## Avertissement et licence
 
