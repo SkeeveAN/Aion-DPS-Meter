@@ -74,7 +74,11 @@ Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fr
 | `0x2656` | Verstärkung: Art/alt/neu | neu 23.10. | skill-frames |
 | `0x0056` | Schnellleiste | neu 23.10. | skill-frames |
 | `0x0556` | Schnellleiste (Preset-Wechsel) | neu 23.10. | skill-frames |
-| `0x8ce2` | Schnellleiste | neu 23.10. | skill-frames |
+| `0x8ce2` | Schnellleiste; die letzten 88 Byte = Pantheon-Aufstellung | neu 23.10., Pantheon 27.10. | skill-frames, pantheon-frames |
+| `0x96e2` | Pantheon: Aufstellung eines Tabs | 27.10. | pantheon-frames |
+| `0xaf8a` | Pantheon: freigeschaltete Dekorationen | 27.10. | pantheon-frames |
+| `0xb18a` | Pantheon: aufgestellte Dekorationen | 27.10. | pantheon-frames |
+| `0x90e2` | Pantheon: Tab-Wechsel | 27.10. | pantheon-frames |
 | `0x0e38` | Bewegte Fläche/Geschoss eines Monsterskills | neu 23.10. | skill-frames |
 | `0x0795` | NPC-Zustandsblock | neu 23.10., Zweck Hypothese | skill-frames |
 | `0x0895` | NPC-Zustandsblock | neu 23.10., Zweck Hypothese | skill-frames |

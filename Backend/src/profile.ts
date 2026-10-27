@@ -144,6 +144,23 @@ export const profileSchema = z.object({
     )
     .max(24)
     .default([]),
+  // Own character only: the Pantheon. Slots 1-12 paintings, 13-16 statues, 17 the colossus; id is the game's decoration number (paintings: the
+  // item number's last digits, statues 1000 + n - 1, colossi 5000 + n - 1). presets are the setups seen (the login sends the active one); owned are
+  // all registered decorations.
+  pantheon: z
+    .object({
+      presets: z
+        .array(
+          z.object({
+            preset: z.number().int().min(1).max(3),
+            slots: z.array(z.object({ slot: z.number().int().min(1).max(17), id: z.number().int().min(1).max(100_000) })).max(17),
+          }),
+        )
+        .max(3)
+        .default([]),
+      owned: z.array(z.number().int().min(1).max(100_000)).max(400).default([]),
+    })
+    .optional(),
   // Another player's activated node count per Daevanion board (their node lists are not sent).
   boardCounts: z
     .array(z.object({ board: z.number().int().min(1).max(10_000), count: z.number().int().min(0).max(1000) }))
@@ -163,6 +180,26 @@ export const profileSchema = z.object({
 export type ProfileUpload = z.infer<typeof profileSchema>;
 
 type RankReading = { type: number; scope: number; at: string; [key: string]: unknown };
+
+type PantheonData = { presets: { preset: number; slots: { slot: number; id: number }[] }[]; owned: number[] };
+
+/** The stored Pantheon with a fresh reading: a setup replaces the stored setup of its preset (an empty one clears it), the others stay; owned decorations are replaced when sent. */
+export function mergePantheon(storedJson: string | undefined, fresh: Partial<PantheonData>): PantheonData {
+  let stored: Partial<PantheonData> = {};
+  try {
+    stored = storedJson ? (JSON.parse(storedJson) as Partial<PantheonData>) : {};
+  } catch {
+    stored = {};
+  }
+
+  const presets = new Map<number, { preset: number; slots: { slot: number; id: number }[] }>();
+  for (const p of stored.presets ?? []) presets.set(p.preset, p);
+  for (const p of fresh.presets ?? []) presets.set(p.preset, p);
+  return {
+    presets: [...presets.values()].sort((a, b) => a.preset - b.preset),
+    owned: fresh.owned && fresh.owned.length > 0 ? [...fresh.owned].sort((a, b) => a - b) : (stored.owned ?? []),
+  };
+}
 
 export function mergeRanks(storedJson: string | undefined, fresh: RankReading[]): RankReading[] {
   const byKey = new Map<string, RankReading>();
@@ -230,6 +267,8 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     boardCountsJson: profile.boardCounts.length > 0 ? JSON.stringify(profile.boardCounts) : (existing?.boardCountsJson ?? "[]"),
     // The ranks of the ranking window: a new reading replaces the one of its type and scope, the others stay.
     ranksJson: profile.source === "self" && profile.ranks.length > 0 ? JSON.stringify(mergeRanks(existing?.ranksJson, profile.ranks)) : (existing?.ranksJson ?? "[]"),
+    // The Pantheon (own character): a setup replaces the stored one of its preset, the others stay; a list of owned decorations replaces the stored one.
+    pantheonJson: profile.source === "self" && profile.pantheon ? JSON.stringify(mergePantheon(existing?.pantheonJson, profile.pantheon)) : (existing?.pantheonJson ?? "{}"),
     // Character window (own character): an upload without attributes, wing or pet (older client, window not read) keeps what is stored.
     attributesJson: profile.attributes && Object.keys(profile.attributes).length > 0 ? JSON.stringify(profile.attributes) : (existing?.attributesJson ?? "{}"),
     wingId: profile.wingId ? profile.wingId : (existing?.wingId ?? null),
@@ -507,6 +546,8 @@ export type ProfileView = {
   titles: { slot: number; titleId: number; name: string; names: Record<string, string>; grade: string | null }[];
   /** The own ranks the game's ranking window showed (own character only): type 1 Abyss, 3 Nightmare, 4 Transcendence, 5 Arena 1v1, 6 Arena 5v5, 21 Ascension rite; scope 0 overall, 2 within the class. */
   ranks: { type: number; scope: number; rank: number; points: number; change: number; grade: number; stats: Record<string, number> | null; at: string }[];
+  /** The Pantheon (own character only): the setups seen per preset (slot 1-12 paintings, 13-16 statues, 17 colossus; id = the game's decoration number) and the owned decorations; null when never read. */
+  pantheon: PantheonView | null;
   /** One circle per species: the quality of each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange). */
   pets: { species: number; key: string; names: Record<string, string>; level: number; kinds: number[] }[];
   /** Daevanion board progress: points (node grades) for the own character from the node lists; other players only have a node count. */
@@ -761,9 +802,71 @@ export function buildProfileView(playerId: number): ProfileView | null {
       stats: statsOf(r.stats),
       at: r.at,
     })),
+    pantheon: pantheonOf(row.pantheonJson),
     boards: boardSummary(row.boardCountsJson, boards),
     ...buildCharacterView(playerId),
     portraitUrl: null,
+  };
+}
+
+/** The game's Pantheon tables (Tools/aion2-dat/build_pantheon.py): decoration number -> kind (frame, statue, colossus), race, names and effects, and the names of the stats they raise. */
+type PantheonTables = {
+  stats: Record<string, Record<string, string>>;
+  decorations: Record<string, { k: "frame" | "statue" | "colossus"; r: string; n: Record<string, string>; e: [string, number][] }>;
+};
+let pantheonTables: PantheonTables | null = null;
+
+/** The order the game's Pantheon window lists the stats in. */
+const PANTHEON_STAT_ORDER = ["Illusion", "Life", "Destiny", "Wisdom", "Freedom", "Death", "Space", "Justice", "Time", "Destruction"];
+
+export interface PantheonDecorationView {
+  id: number;
+  kind: "frame" | "statue" | "colossus";
+  names: Record<string, string>;
+  effects: { stat: string; value: number }[];
+}
+
+export interface PantheonView {
+  /** The setups seen, each with its decorations (slot 1-12 frames, 13-16 statues, 17 colossus) and the sum of their effects the way the window shows it. */
+  presets: {
+    preset: number;
+    slots: (PantheonDecorationView & { slot: number })[];
+    totals: { stat: string; names: Record<string, string>; value: number }[];
+  }[];
+  /** Every registered decoration; placed = it stands in a setup seen. */
+  owned: (PantheonDecorationView & { placed: boolean })[];
+  /** The names of the stats (Illusion, Life ...) in the client's languages. */
+  statNames: Record<string, Record<string, string>>;
+}
+
+/** The stored Pantheon as the view shows it, with the game's names and effects; null while nothing was read. */
+export function pantheonOf(json: string): PantheonView | null {
+  const data = mergePantheon(json, {});
+  if (data.presets.length === 0 && data.owned.length === 0) {
+    return null;
+  }
+
+  pantheonTables ??= loadJson("pantheon.json", { stats: {}, decorations: {} });
+  const tables = pantheonTables;
+  const deco = (id: number): PantheonDecorationView => {
+    const row = tables.decorations[String(id)];
+    return { id, kind: row?.k ?? (id >= 5000 ? "colossus" : id >= 1000 ? "statue" : "frame"), names: row?.n ?? {}, effects: (row?.e ?? []).map(([stat, value]) => ({ stat, value })) };
+  };
+  const placed = new Set(data.presets.flatMap((p) => p.slots.map((k) => k.id)));
+  return {
+    presets: data.presets.map((p) => {
+      const slots = p.slots.map((k) => ({ slot: k.slot, ...deco(k.id) }));
+      const sums = new Map<string, number>();
+      for (const k of slots) for (const e of k.effects) sums.set(e.stat, (sums.get(e.stat) ?? 0) + e.value);
+      const order = (stat: string) => (PANTHEON_STAT_ORDER.includes(stat) ? PANTHEON_STAT_ORDER.indexOf(stat) : 99);
+      return {
+        preset: p.preset,
+        slots,
+        totals: [...sums.entries()].sort((a, b) => order(a[0]) - order(b[0])).map(([stat, value]) => ({ stat, names: tables.stats[stat] ?? {}, value })),
+      };
+    }),
+    owned: data.owned.map((id) => ({ ...deco(id), placed: placed.has(id) })),
+    statNames: tables.stats,
   };
 }
 

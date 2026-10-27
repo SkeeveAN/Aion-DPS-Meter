@@ -151,7 +151,7 @@ Ausrüstungs-Eintrag (33 Byte, so auch im 4536-Auftauchen-Frame): `Item u32 | St
 - 0056 (Login, 623 B): Slots 0,1,2,3,4,7 und 0x14..0x17 = Skills (Keen Strike, Rage Burst, Rending Blow, Leaping Slam/Rush Strike, Mocking Blade, Focused Block, Ruinous Blow, Crushing Wave, Ankle Slice/Aerial Snare, Sword Aura Rampage, Lunge Stance/Zikel's Blessing), Slots 0x0a..0x11 = Items (510116006 Superior Life Serum, 510126003 Mana Potion, 510146002 Superior Healing Potion, 531060003 Speed Scroll, 531060004 Courage Scroll, 531060027 Benediction Scroll ...). `QuickSlotData` hat Slots 1..20.
 - B und C (zusätzliche Skill-IDs hinter A) sind "Kontext-Skills" der Quickslot (Beispiel Slot 1: A = 11020000? / B,C = Overhead Slam, Rending Blow); passt zu `PCContextSkillSlot.ContextChangeSkillList` [Hypothese für die Rolle].
 - 0556 kommt nur im Preset-Wechsel-Schwung (cur3 81460, direkt vor `92e2`): `0556 06 | 01 01 ... | 01 04 | 01 05 | 01 07 | 01 15 | 01 16` = die 6 Slots, die sich ändern (Slot 1, 4, 5, 7, 21, 22).
-- 8ce2 enthält die vollständigen 3 Seiten (Seite = Preset-Seite 1..3, je 24 Slots) plus Item-Slots. Bekannt als "skillbar"; der Aufbau passt zu 0056/0556.
+- 8ce2 enthält die vollständigen 3 Seiten (Seite = Preset-Seite 1..3, je 24 Slots) plus Item-Slots. Bekannt als "skillbar"; der Aufbau passt zu 0056/0556. Die letzten 88 Byte des Frames sind die aktive Pantheon-Aufstellung (siehe [pantheon-frames.md](pantheon-frames.md)).
 
 ---------------------------------------------------------------------------------------------------
 

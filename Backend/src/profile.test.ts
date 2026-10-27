@@ -570,6 +570,42 @@ test("own ranks: a new reading replaces the one of its type and scope, the other
   assert.ok(profileSchema.safeParse({ source: "self", ranks: [{ type: 1, scope: 0, rank: 1764, points: 92435, change: -16, grade: 18, stats: "{\"kill_count\":11}", at: "2026-10-23T12:00:00Z" }] }).success);
 });
 
+test("own Pantheon: a setup replaces the stored one of its preset, an empty one clears it, the owned list is replaced when sent, the view shows it", () => {
+  const id = playerId("Aahz");
+  // Nunzio's login (2026-10-27): preset 1 with eight decorations, eleven registered
+  upsertProfile(id, profileSchema.parse({
+    source: "self",
+    level: 45,
+    classId: 1,
+    classBits: 2,
+    pantheon: {
+      presets: [{ preset: 1, slots: [{ slot: 1, id: 43 }, { slot: 2, id: 9 }, { slot: 3, id: 61 }, { slot: 13, id: 1008 }, { slot: 14, id: 1021 }, { slot: 15, id: 1004 }, { slot: 16, id: 1023 }, { slot: 17, id: 5015 }] }],
+      owned: [5015, 9, 1006, 43, 61, 1004, 1001, 1002, 1008, 1021, 1023],
+    },
+  }));
+  let view = buildProfileView(id)!;
+  assert.equal(view.pantheon?.presets.length, 1);
+  assert.equal(view.pantheon?.presets[0]!.slots.length, 8);
+  assert.equal(view.pantheon?.owned.length, 11);
+  // the sums the Pantheon window showed for exactly these eight decorations (screenshot 2026-10-27), in the window's order, named in the client's languages
+  assert.deepEqual(view.pantheon?.presets[0]!.totals.map((t) => [t.stat, t.value]), [["Illusion", 2], ["Life", 5], ["Destiny", 5], ["Wisdom", 2], ["Freedom", 18], ["Death", 36], ["Space", 18], ["Justice", 35], ["Time", 35]]);
+  assert.equal(view.pantheon?.presets[0]!.totals.find((t) => t.stat === "Death")?.names.de, "Tod [Triniel]");
+  assert.equal(view.pantheon?.presets[0]!.slots.find((k) => k.slot === 17)?.names.de, "Koloss: Manifestierte Schwinge der Behütung");
+  assert.equal(view.pantheon?.owned.filter((d) => d.placed).length, 8);
+  // the game sends preset 2 as empty after a tab change; preset 1 stays, the owned list stays when an upload brings none
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2, pantheon: { presets: [{ preset: 2, slots: [] }] } }));
+  view = buildProfileView(id)!;
+  assert.deepEqual(view.pantheon?.presets.map((p) => [p.preset, p.slots.length]), [[1, 8], [2, 0]]);
+  assert.equal(view.pantheon?.owned.length, 11);
+  // an upload without a Pantheon (an older client) keeps all of it; nonsense is rejected
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2 }));
+  assert.equal(buildProfileView(id)!.pantheon?.presets.length, 2);
+  assert.throws(() => profileSchema.parse({ source: "self", pantheon: { presets: [{ preset: 4, slots: [] }] } }));
+  assert.throws(() => profileSchema.parse({ source: "self", pantheon: { presets: [{ preset: 1, slots: [{ slot: 18, id: 1 }] }] } }));
+  // a character that never sent one has none
+  assert.equal(buildProfileView(playerId("Stranger"))?.pantheon ?? null, null);
+});
+
 test("an arcana piece of the own character keeps its experience, god stat and skill bonuses, named in the client's languages", () => {
   const id = playerId("Aahz");
   // Kompass of Vigor +2 as the in-game window showed it (2026-10-26): 600 experience, Vaizel 22, Klingenraserei +1, Schockaufhebung +2

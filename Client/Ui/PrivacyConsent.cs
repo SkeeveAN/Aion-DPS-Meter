@@ -13,7 +13,7 @@ namespace AionDPS.Ui;
 public static class PrivacyConsent
 {
     /// <summary>Raise with every change of the privacy texts (website page and the client's texts): the accepted version in the settings is then too old and the player is asked again.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     public const int NotAsked = 0, Accepted = 1, Declined = 2;
 

@@ -4254,6 +4254,61 @@ function renderRanksTab(profile) {
   ]);
 }
 
+// The own Pantheon: the sums of the decorations set up (as the game's Pantheon window shows them, one setup at a time), the decorations by slot and, folded away, the
+// whole collection. Names and effects come from the game's tables on the server; a decoration it does not know shows its number.
+function renderPantheon(pan) {
+  const locale = getLocale();
+  const pick = (names) => names?.[locale] ?? names?.en ?? "";
+  const statName = (stat) => pick(pan.statNames[stat]) || stat;
+  const effectsText = (effects) => effects.map((e) => `${statName(e.stat)} ${e.value}`).join(" · ");
+  const decoName = (d) => pick(d.names) || `#${d.id}`;
+  const body = el("div", { className: "pf-pan-body" });
+  const kinds = ["frame", "statue", "colossus"];
+  const draw = (preset) => {
+    const slots = preset.slots;
+    const totals = preset.totals.length > 0
+      ? el("table", { className: "pf-pan-totals" }, [el("tbody", {}, preset.totals.map((x) => el("tr", {}, [el("td", { textContent: pick(x.names) || x.stat }), el("td", { textContent: String(x.value) })])))])
+      : el("p", { className: "profile-source", textContent: t("pantheon.empty") });
+    const lists = kinds
+      .map((kind) => [kind, slots.filter((d) => d.kind === kind).sort((a, b) => a.slot - b.slot)])
+      .filter(([, list]) => list.length > 0)
+      .map(([kind, list]) => el("div", { className: "pf-pan-group" }, [
+        el("h4", { textContent: `${t(`pantheon.kind.${kind}`)} (${list.length})` }),
+        ...list.map((d) => el("div", { className: "pf-pan-row" }, [el("span", { textContent: decoName(d) }), el("small", { textContent: effectsText(d.effects) })])),
+      ]));
+    body.replaceChildren(el("div", { className: "pf-pan-sums" }, [el("h4", { textContent: t("pantheon.effects") }), totals]), el("div", { className: "pf-pan-slots" }, lists));
+  };
+  const buttons = pan.presets.map((preset) =>
+    el("button", { type: "button", textContent: t("pantheon.preset", { n: preset.preset }) }, [el("small", { textContent: String(preset.slots.length) })]),
+  );
+  const pick1 = (i) => {
+    buttons.forEach((b, k) => b.setAttribute("aria-selected", String(k === i)));
+    draw(pan.presets[i]);
+  };
+  buttons.forEach((b, i) => b.addEventListener("click", () => pick1(i)));
+  const placedCount = pan.owned.filter((d) => d.placed).length;
+  const collection = pan.owned.length > 0
+    ? el("details", { className: "pf-pan-owned" }, [
+      el("summary", { textContent: t("pantheon.owned", { n: pan.owned.length, placed: placedCount }) }),
+      ...kinds.map((kind) => [kind, pan.owned.filter((d) => d.kind === kind).sort((a, b) => decoName(a).localeCompare(decoName(b), locale))]).filter(([, list]) => list.length > 0).map(([kind, list]) =>
+        el("div", { className: "pf-pan-group" }, [
+          el("h4", { textContent: `${t(`pantheon.kind.${kind}`)} (${list.length})` }),
+          ...list.map((d) => el("div", { className: `pf-pan-row${d.placed ? " placed" : ""}` }, [el("span", { textContent: decoName(d) }), el("small", { textContent: effectsText(d.effects) })])),
+        ])),
+    ])
+    : null;
+  if (pan.presets.length > 0) {
+    pick1(0);
+  }
+  return el("section", { className: "pf-pan" }, [
+    el("h3", { textContent: t("pantheon.title") }),
+    pan.presets.length > 1 ? el("div", { className: "pf-pan-tabs", role: "tablist" }, buttons) : null,
+    body,
+    collection,
+    el("p", { className: "profile-source", textContent: t("pantheon.note") }),
+  ].filter((x) => x != null));
+}
+
 // What the game's tables say about arcana (arcana.json, Tools/aion2-dat/build_arcana.py): the experience a piece needs per level (only the five
 // base card types, Grail to Mirror) and the effects of the sets, in the game client's languages. Loaded when the tab is drawn; until it arrived the
 // pieces simply show their experience without a limit and no set effect.
@@ -5126,8 +5181,16 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   if (character?.attributes) {
     tabs.unshift(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
   }
-  if (profile?.gear.some((g) => g.slotName === "Arcana")) {
-    tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
+  // Arcana and Pantheon share one tab (both are about the gods' values, and the profile has enough tabs): the Pantheon only exists for a character whose own client uploaded it.
+  const hasArcana = profile?.gear.some((g) => g.slotName === "Arcana");
+  if (hasArcana || profile?.pantheon) {
+    const placed = profile?.pantheon?.presets[0]?.slots.length ?? 0;
+    tabs.push([
+      hasArcana ? "arcana" : "pantheon",
+      t(hasArcana ? (profile.pantheon ? "profile.tabArcanaPantheon" : "slot.Arcana") : "profile.tabPantheon"),
+      hasArcana ? profile.gear.filter((g) => g.slotName === "Arcana").length : placed,
+      () => el("div", {}, [hasArcana ? renderArcanaTab(profile) : null, profile.pantheon ? renderPantheon(profile.pantheon) : null].filter((x) => x != null)),
+    ]);
   }
   if (profile?.ranks?.length > 0) {
     tabs.push(["ranks", t("profile.tabRanks"), profile.ranks.length, () => renderRanksTab(profile)]);

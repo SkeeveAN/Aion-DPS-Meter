@@ -14,6 +14,7 @@ Einordnung der Frames gegen den Client: die Familien in `Client/assets/aion2/pro
 | `0x8c8d` | gelernte Wandlungsrezepte | wie `0x7e8d`, IDs aus `ConversionRecipe`, 108 bis 146 |
 | `0x3292` | freigeschaltete Teleporter | `varint n` dann `n` x `u32` aus `TeleportArtifact`, 21 bis 70 (70 = alle) |
 | `0x7956` | Titel | `varint n`, `n` x `u32` (Tabelle `Title`), 16 Byte Rest (bereits im Client) |
+| `0xaf8a` / `0x8ce2` (Ende) | Pantheon: freigeschaltete Dekorationen / aktive Aufstellung | siehe [pantheon-frames.md](pantheon-frames.md), im Client gelesen |
 | `0x8f8d` | Konvertierungszähler | `00 00 00 00 10`, dann Paare (`u32 ConversionRecipe-ID`, `u32 Zähler`) |
 
 Die Rezeptzahl ändert sich mit Patches (21.10.2026: acht Rezepte entfernt, sieben Wandlungen dazu). Nicht auf eine feste Zahl bauen.
