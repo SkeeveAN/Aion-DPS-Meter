@@ -9,8 +9,8 @@ public enum ControlMode
 }
 
 /// <summary>
-/// Tells a game menu from play by the mouse cursor: in the control mode that hides the cursor while playing, the game shows it when a menu opens (map,
-/// inventory, legion, shop, Esc ...). Holding the show-cursor key (Alt by default) shows it as well, without a menu, to click the meter - that must not hide it.
+/// Tells a game menu from play by the mouse cursor (in Aion 2 only Esc and the menus show it; Alt shows it without a menu): in the control mode that hides the cursor while playing, the game shows it when a menu opens (map,
+/// inventory, legion, shop, Esc ...).
 /// Pure: the time and what the system says are handed in, so a test can walk through a menu.
 /// </summary>
 public sealed class MenuDetector
@@ -18,11 +18,14 @@ public sealed class MenuDetector
     /// <summary>The cursor must have been shown this long, with nothing held, before it counts as a menu (a key press that shows it for a blink is no menu).</summary>
     public static readonly TimeSpan MenuAfter = TimeSpan.FromMilliseconds(250);
 
+    /// <summary>A key held longer than this is taken as stuck (or a game that always shows the cursor) and ignored.</summary>
+    public static readonly TimeSpan StuckAfter = TimeSpan.FromSeconds(20);
+
     /// <summary>After the cursor hides, the menu state stays this long (the menu is closing; no flicker).</summary>
     public static readonly TimeSpan Linger = TimeSpan.FromMilliseconds(300);
 
-    /// <summary>A key held longer than this is taken as stuck (or a game that always shows the cursor) and ignored.</summary>
-    public static readonly TimeSpan StuckAfter = TimeSpan.FromSeconds(20);
+    /// <summary>A click in a menu makes the game swap the cursor for a moment (the glow at its tip), which can read as "hidden": after a click the menu state stays this long.</summary>
+    public static readonly TimeSpan ClickLinger = TimeSpan.FromMilliseconds(1500);
 
     private DateTime? _shownSince;
     private DateTime? _heldSince;
@@ -37,7 +40,7 @@ public sealed class MenuDetector
     }
 
     /// <summary>One look. <paramref name="suppressed"/>: the meter's own windows are being used (an unlocked overlay is placed), which must never hide.</summary>
-    public bool Update(DateTime now, bool gameInFront, bool cursorShown, bool keyHeld, bool suppressed)
+    public bool Update(DateTime now, bool gameInFront, bool cursorShown, bool keyHeld, bool suppressed, DateTime? lastClick = null)
     {
         if (!gameInFront || suppressed)
         {
@@ -51,7 +54,8 @@ public sealed class MenuDetector
             if (MenuOpen)
             {
                 _hiddenSince ??= now;
-                if (now - _hiddenSince >= Linger)
+                var linger = lastClick is DateTime click && now - click < ClickLinger ? ClickLinger : Linger;
+                if (now - _hiddenSince >= linger)
                 {
                     MenuOpen = false;
                     _hiddenSince = null;
@@ -72,7 +76,8 @@ public sealed class MenuDetector
             _heldSince = null;
         }
 
-        bool peek = keyHeld && now - _heldSince < StuckAfter;
+        // Alt shows the cursor without a menu; it is held before the cursor shows. A key pressed inside a menu already open (a hotkey, Shift ...) is no peek
+        bool peek = !MenuOpen && keyHeld && now - _heldSince < StuckAfter;
         if (peek)
         {
             MenuOpen = false;

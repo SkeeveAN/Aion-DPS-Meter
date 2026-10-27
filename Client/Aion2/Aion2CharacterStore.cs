@@ -19,6 +19,8 @@ public sealed class Aion2SavedCharacter
     public List<SavedSpecies> Species { get; set; } = new();
     public List<SavedTitle> Titles { get; set; } = new();
     public List<SavedPet> Pets { get; set; } = new();
+    // The Pantheon (setups per preset and the registered decorations); null = never seen.
+    public SavedPantheon? Pantheon { get; set; }
     // Base attributes / Lord values (id 1..17), wing + skin and the summoned pet; null = never seen.
     public Dictionary<int, int>? Attributes { get; set; }
     public int? WingId { get; set; }
@@ -41,6 +43,12 @@ public sealed class Aion2SavedCharacter
     public sealed record SavedEffect(int Page, int Slot, int Stat, long Value, int Kind = 0);
 
     public sealed record SavedTitle(int Slot, int TitleId);
+
+    public sealed record SavedPantheonSlot(int Slot, int Id);
+
+    public sealed record SavedPantheonPreset(int Preset, List<SavedPantheonSlot> Slots);
+
+    public sealed record SavedPantheon(List<SavedPantheonPreset> Presets, List<int> Owned);
 }
 
 /// <summary>

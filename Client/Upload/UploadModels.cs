@@ -123,7 +123,17 @@ public sealed record ProfileUpload(
     // Own character only: a hash of the account key of the login's character list (16 hex digits); the same on every character of one account.
     string? AccountKey = null,
     // Own character only: the ranks the game showed in its ranking window (see ProfileRankUpload). Null when the window was not opened in this session.
-    IReadOnlyList<ProfileRankUpload>? Ranks = null);
+    IReadOnlyList<ProfileRankUpload>? Ranks = null,
+    // Own character only: the Pantheon (decorations set up per preset as the game sent them, and every registered decoration). Null before the game sent it.
+    ProfilePantheonUpload? Pantheon = null);
+
+/// <summary>The own Pantheon: the setups seen (preset 1..3) and the registered decorations by the game's decoration number.</summary>
+public sealed record ProfilePantheonUpload(IReadOnlyList<ProfilePantheonPresetUpload> Presets, IReadOnlyList<int> Owned);
+
+/// <summary>One preset's decorations: slot 1-12 painting, 13-16 statue, 17 colossus; empty slots are left out.</summary>
+public sealed record ProfilePantheonPresetUpload(int Preset, IReadOnlyList<ProfilePantheonSlotUpload> Slots);
+
+public sealed record ProfilePantheonSlotUpload(int Slot, int Id);
 
 /// <summary>The own rank in one content (type 1 Abyss, 3 Nightmare, 4 Transcendence, 5 Arena 1v1, 6 Arena 5v5, 21 Ascension rite; scope 0 overall, 2 within the class): the rank, the points, the change
 /// since the last ranking (negative = fell), the season grade, the stats the game lists next to it (kills and deaths, wins and losses) as the game's own JSON text and when it was read.</summary>

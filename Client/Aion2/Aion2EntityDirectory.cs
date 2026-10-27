@@ -89,6 +89,12 @@ public static class Aion2Attributes
 /// <summary>A worn title: the slot (1..3) and the game's title id (see Table/Title.dat).</summary>
 public sealed record Aion2TitleSlot(int Slot, int TitleId);
 
+/// <summary>One decoration of the Pantheon: slot 1-12 painting, 13-16 statue, 17 colossus; the id is the game's own decoration number.</summary>
+public sealed record Aion2PantheonSlot(int Slot, int Id);
+
+/// <summary>The own Pantheon: the setups seen per preset (1..3; the login sends the active one, a tab change the others) and every registered decoration.</summary>
+public sealed record Aion2Pantheon(IReadOnlyDictionary<int, IReadOnlyList<Aion2PantheonSlot>> Presets, IReadOnlyList<int> Owned);
+
 /// <summary>One pet circle of the growth overview: the species (2 Cognia .. 6 Specia), its level and the quality of
 /// each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange).</summary>
 public sealed record Aion2Pet(int SpeciesId, int Level, IReadOnlyList<int> Kinds);
@@ -215,6 +221,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _petStates = null;
                 _petStatesLive = false;
                 _titles = null;
+                _pantheon = null;
                 _attributes = null;
                 _stats = null;
                 _wing = null;
@@ -315,12 +322,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _species = saved.Species.Select(k => new Aion2SpeciesKnowledge(k.Id, k.Level, k.Progress,
                 k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value, e.Kind)).ToList())).ToList();
             _titles = saved.Titles.Select(t => new Aion2TitleSlot(t.Slot, t.TitleId)).ToList();
+            _pantheon = saved.Pantheon is { } sp
+                ? new Aion2Pantheon(sp.Presets.ToDictionary(x => x.Preset, x => (IReadOnlyList<Aion2PantheonSlot>)x.Slots.Select(k => new Aion2PantheonSlot(k.Slot, k.Id)).ToList()), sp.Owned.ToList())
+                : null;
             _attributes = saved.Attributes is { Count: > 0 } ? new Dictionary<int, int>(saved.Attributes) : null;
             _wing = saved.WingId is int savedWing ? new Aion2Wing(savedWing, saved.WingSkinId ?? 0) : null;
             _activePet = saved.ActivePet;
             _petStates = saved.Pets.Select(p => new Aion2PetState(p.Id, p.Level, p.Progress)).ToList();
             _restoredOwner = saved.Name;
-            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet);
+            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet, _pantheon);
         }
     }
 
@@ -350,9 +360,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         if (ReferenceEquals(_attributes, was.Attributes)) { _attributes = null; }
         if (Equals(_wing, was.Wing)) { _wing = null; }
         if (_activePet == was.ActivePet) { _activePet = null; }
+        if (ReferenceEquals(_pantheon, was.Pantheon)) { _pantheon = null; }
     }
 
-    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet)? _restoredLists;
+    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet, object? Pantheon)? _restoredLists;
 
     /// <summary>The local player's data as it should be kept on disk, or null before any is known.</summary>
     public Aion2SavedCharacter? ToSaved()
@@ -380,6 +391,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,
                     k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
                 Titles = (_titles ?? Array.Empty<Aion2TitleSlot>()).Select(t => new Aion2SavedCharacter.SavedTitle(t.Slot, t.TitleId)).ToList(),
+                Pantheon = _pantheon is null ? null : new Aion2SavedCharacter.SavedPantheon(
+                    _pantheon.Presets.OrderBy(x => x.Key).Select(x => new Aion2SavedCharacter.SavedPantheonPreset(x.Key, x.Value.Select(k => new Aion2SavedCharacter.SavedPantheonSlot(k.Slot, k.Id)).ToList())).ToList(),
+                    _pantheon.Owned.ToList()),
                 Attributes = _attributes is null ? null : new Dictionary<int, int>(_attributes),
                 WingId = _wing?.WingId,
                 WingSkinId = _wing?.SkinId,
@@ -1043,6 +1057,40 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     private IReadOnlyList<Aion2TitleSlot>? _titles;
+    private Aion2Pantheon? _pantheon;
+
+    /// <summary>The own Pantheon as the game sent it (login: the active setup and the registered decorations; later each setup it shows); null before it did.</summary>
+    public Aion2Pantheon? LocalPantheon
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _pantheon;
+            }
+        }
+    }
+
+    /// <summary>The login's registered decorations replace the stored list; the setups are kept as they were.</summary>
+    public void SetPantheonOwned(IReadOnlyList<int> owned)
+    {
+        lock (_gate)
+        {
+            _pantheon = new Aion2Pantheon(_pantheon?.Presets ?? new Dictionary<int, IReadOnlyList<Aion2PantheonSlot>>(), owned);
+            _listsAt = DateTime.UtcNow;
+        }
+    }
+
+    /// <summary>The setup of one preset (empty = nothing set up) replaces the one seen before; the other presets stay.</summary>
+    public void SetPantheonPreset(int preset, IReadOnlyList<Aion2PantheonSlot> slots)
+    {
+        lock (_gate)
+        {
+            var presets = new Dictionary<int, IReadOnlyList<Aion2PantheonSlot>>(_pantheon?.Presets ?? new Dictionary<int, IReadOnlyList<Aion2PantheonSlot>>()) { [preset] = slots };
+            _pantheon = new Aion2Pantheon(presets, _pantheon?.Owned ?? Array.Empty<int>());
+            _listsAt = DateTime.UtcNow;
+        }
+    }
 
     /// <summary>The titles the local player wears (slot 1..3); empty before the game sent them.</summary>
     public IReadOnlyList<Aion2TitleSlot> LocalTitles

@@ -390,11 +390,19 @@ internal static class GameWindow
         return GetCursorInfo(ref info) && (info.Flags & CursorShowing) != 0 && info.Cursor != IntPtr.Zero;
     }
 
-    /// <summary>Whether any key or mouse button is held (not the lock keys). Asked only while the cursor shows, to tell a menu from the show-cursor key being held.</summary>
+    /// <summary>Whether a mouse button (left, right, middle) is held.</summary>
+    public static bool MouseButtonDown() => (GetAsyncKeyState(0x01) & 0x8000) != 0 || (GetAsyncKeyState(0x02) & 0x8000) != 0 || (GetAsyncKeyState(0x04) & 0x8000) != 0;
+
+    /// <summary>Whether any keyboard key is held (not the lock keys, not the mouse buttons). Asked only while the cursor shows, to tell a menu from the show-cursor key being held.</summary>
     public static bool AnyKeyDown()
     {
         for (int key = 1; key < 255; key++)
         {
+            if (key is 0x01 or 0x02 or 0x04 or 0x05 or 0x06)
+            {
+                continue; // mouse buttons: clicking around in a menu must not look like the show-cursor key and bring the overlays back
+            }
+
             if (key is 0x14 or 0x90 or 0x91)
             {
                 continue; // Caps, Num and Scroll lock stay "on" without being held

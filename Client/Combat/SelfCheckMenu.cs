@@ -18,22 +18,27 @@ public static class SelfCheckMenu
         bool lingers = d.Update(t + Ms(2000), true, false, false, false) && !d.Update(t + Ms(2400), true, false, false, false);
         Console.WriteLine($"  -> a menu counts after a quarter second of cursor ({early && menu}) and ends a moment after it hides ({lingers})");
 
-        // the show-cursor key (Alt) shows the cursor without a menu: the meter stays
+        // keys and clicks inside a menu change nothing; a click makes the menu state last longer while the cursor flickers
+        d = new MenuDetector();
+        d.Update(t, true, true, false, false);
+        d.Update(t + Ms(300), true, true, false, false);
+        bool clickLinger = d.Update(t + Ms(1200), true, false, false, false, t + Ms(1000)) && !d.Update(t + Ms(3000), true, false, false, false, t + Ms(1000));
+        Console.WriteLine($"  -> after a click the menu state lasts longer while the cursor is swapped out: {clickLinger}");
+
+        // the show-cursor key (Alt) shows the cursor without a menu: the meter stays; a key pressed inside an open menu changes nothing
         d = new MenuDetector();
         bool peek = true;
-        for (double s = 0; s < 19.5; s += 0.5)
+        for (double sec = 0; sec < 19.5; sec += 0.5)
         {
-            peek &= !d.Update(t + TimeSpan.FromSeconds(s), true, true, true, false);
+            peek &= !d.Update(t + TimeSpan.FromSeconds(sec), true, true, true, false);
         }
 
         bool stuck = d.Update(t + TimeSpan.FromSeconds(20.6), true, true, true, false);
-        Console.WriteLine($"  -> holding the show-cursor key keeps the meter up ({peek}); a key held for 20 s is taken as stuck ({stuck})");
-
-        // letting the key go after a peek: no menu, the clock starts again
         d = new MenuDetector();
-        d.Update(t, true, true, true, false);
-        bool afterPeek = !d.Update(t + Ms(100), true, true, false, false) && d.Update(t + Ms(400), true, true, false, false);
-        Console.WriteLine($"  -> after the key is let go the cursor takes a quarter second to count as a menu: {afterPeek}");
+        d.Update(t, true, true, false, false);
+        d.Update(t + Ms(300), true, true, false, false);
+        bool keyInMenu = d.Update(t + Ms(600), true, true, true, false);
+        Console.WriteLine($"  -> holding the show-cursor key keeps the meter up ({peek}); stuck after 20 s ({stuck}); a key inside an open menu changes nothing ({keyInMenu})");
 
         // other windows in front, or the meter's own overlays being placed: never a menu
         d = new MenuDetector();
@@ -66,6 +71,6 @@ public static class SelfCheckMenu
 
         bool quiet = learner.Mode == ControlMode.Unknown;
         Console.WriteLine($"  -> cursor shown while fighting for 13 s = classic ({classic}); hidden for 16 s = hidden ({hidden}); no fight, nothing learnt ({quiet})");
-        return early && menu && lingers && peek && stuck && afterPeek && away && placing && classic && hidden && quiet;
+        return early && menu && lingers && clickLinger && peek && stuck && keyInMenu && away && placing && classic && hidden && quiet;
     }
 }

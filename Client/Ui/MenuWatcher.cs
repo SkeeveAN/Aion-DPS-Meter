@@ -17,6 +17,7 @@ public sealed class MenuWatcher : IDisposable
     private DateTime _lastOwnHit = DateTime.MinValue;
     private int _look;
     private bool _held;
+    private DateTime? _lastClick;
 
     public MenuWatcher()
     {
@@ -111,7 +112,12 @@ public sealed class MenuWatcher : IDisposable
             _held = GameWindow.AnyKeyDown();
         }
 
-        bool menu = _detector.Update(DateTime.UtcNow, inGame, cursor, _held, !AllOverlaysLocked(_settings));
+        if (inGame && GameWindow.MouseButtonDown())
+        {
+            _lastClick = DateTime.UtcNow;
+        }
+
+        bool menu = _detector.Update(DateTime.UtcNow, inGame, cursor, _held, !AllOverlaysLocked(_settings), _lastClick);
         if (!menu)
         {
         }

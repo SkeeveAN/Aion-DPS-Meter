@@ -58,6 +58,7 @@ public static class SelfCheckAion2
         ok &= RunAion2OwnProfileExtrasScenario();
         ok &= RunAion2ItemDetailsScenario();
         ok &= RunAion2ArcanaScenario();
+        ok &= RunAion2PantheonScenario();
         ok &= RunAion2SpeciesScenario();
         ok &= RunAion2CharacterStoreScenario();
         ok &= RunAion2PresetScenario();
@@ -1536,6 +1537,79 @@ public static class SelfCheckAion2
             && !plainSent.Contains("arcana");
         Console.WriteLine($"  -> the profile upload carries experience, god stat and skill bonuses of an arcana piece, and nothing for other pieces: {upload}");
         return compassOk && mirrorOk && disk && upload;
+    }
+
+    /// <summary>The Pantheon of the login, cut out of the real frames of 2026-10-27 (Nunzio, checked against the Pantheon window): preset 1 holds eight decorations
+    /// (paintings Teinas Portraet 43, Handelsgilde 9, Essenzextraktionsmeister 61, the statues 1008 1021 1004 1023, the colossus 5015), eleven are registered; presets
+    /// 2 and 3 are empty. 0x8ce2 ends with the active setup, 0xaf8a lists the registered ones, 0x96e2 is the setup of the tab the window shows.</summary>
+    private static bool RunAion2PantheonScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 Pantheon (setups per preset, registered decorations):");
+        const string setup = "0101112b0000000109000000023d00000003000000000400000000050000000006000000000700000000080000000009000000000a000000000b000000000cf00300000dfd0300000eec0300000fff03000010971300001100";
+        string loginState = "8ce2" + new string('0', 80) + setup[..^2]; // the real block closes the frame; what comes before it is of no interest here
+        string registered = "af8a0bf00300000d0900000002ee030000002b000000013d00000003ec0300000fe903000000ea03000000fd0300000eff030000109713000011";
+        static byte[] Wire(params string[] frames)
+        {
+            var wire = new List<byte>();
+            foreach (string hex in frames)
+            {
+                byte[] body = Convert.FromHexString(hex);
+                int length = body.Length + 4;
+                while (length >= 0x80)
+                {
+                    wire.Add((byte)(length & 0x7f | 0x80));
+                    length >>= 7;
+                }
+
+                wire.Add((byte)length);
+                wire.AddRange(body);
+            }
+
+            return wire.ToArray();
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        uint seq = 500;
+        void Send(params string[] frames)
+        {
+            byte[] wire = Wire(frames);
+            source.Ingest(Segment(seq, wire));
+            seq += (uint)wire.Length;
+        }
+
+        Send(loginState, registered);
+        var entities = (Aion2EntityDirectory)source.Entities;
+        string Slots(int preset) => entities.LocalPantheon is { } p && p.Presets.TryGetValue(preset, out var list) ? string.Join(" ", list.Select(k => $"{k.Slot}:{k.Id}")) : "-";
+        bool login = Slots(1) == "1:43 2:9 3:61 13:1008 14:1021 15:1004 16:1023 17:5015"
+            && entities.LocalPantheon is { Owned.Count: 11 } own && own.Owned.Contains(1006) && own.Owned.Contains(1001) && own.Owned.Contains(1002);
+        Console.WriteLine($"  -> the login gives preset 1 with eight decorations and eleven registered: {login}");
+
+        // the window: the colossus taken out (slot 17 empty) replaces preset 1, an empty tab 2 is stored as empty
+        string withoutColossus = setup.Replace("97130000", "00000000");
+        Send("96e2" + withoutColossus, "96e2" + "01020000");
+        bool changes = Slots(1) == "1:43 2:9 3:61 13:1008 14:1021 15:1004 16:1023" && Slots(2) == "" && Slots(3) == "-";
+        Console.WriteLine($"  -> a change replaces its preset, an empty tab is stored empty, an unseen one stays unknown: {changes}");
+
+        // bytes that are not a setup (slots out of order, a tab 4) change nothing
+        string shuffled = setup.Replace("0109000000", "0209000000");
+        Send("96e2" + shuffled, "96e2" + "01040000");
+        bool foreign = Slots(1) == "1:43 2:9 3:61 13:1008 14:1021 15:1004 16:1023" && Slots(2) == "" && Slots(3) == "-" && Slots(4) == "-";
+        Console.WriteLine($"  -> something that is not a setup is ignored: {foreign}");
+
+        // the character file keeps it, an older file without it still loads; the upload carries it in camelCase, empty slots left out
+        var saved = JsonSerializer.Deserialize<Aion2SavedCharacter>(JsonSerializer.Serialize(new Aion2SavedCharacter
+        {
+            Pantheon = new Aion2SavedCharacter.SavedPantheon(new() { new(1, new() { new(1, 43), new(17, 5015) }) }, new() { 43, 5015 }),
+        }));
+        var older = JsonSerializer.Deserialize<Aion2SavedCharacter>("""{"Name":"Aahz"}""");
+        bool disk = saved?.Pantheon is { Owned.Count: 2 } sp && sp.Presets[0].Slots[1].Id == 5015 && older is { Pantheon: null };
+        Console.WriteLine($"  -> saved with the character file and read back (an older file without it still loads): {disk}");
+        var uploadJson = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+        string sent = JsonSerializer.Serialize(new AionDPS.Upload.ProfilePantheonUpload(
+            new[] { new AionDPS.Upload.ProfilePantheonPresetUpload(1, new[] { new AionDPS.Upload.ProfilePantheonSlotUpload(1, 43) }) }, new[] { 43, 9 }), uploadJson);
+        bool upload = sent == "{\"presets\":[{\"preset\":1,\"slots\":[{\"slot\":1,\"id\":43}]}],\"owned\":[43,9]}";
+        Console.WriteLine($"  -> the profile upload carries presets, slots and registered decorations: {upload}");
+        return login && changes && foreign && disk && upload;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

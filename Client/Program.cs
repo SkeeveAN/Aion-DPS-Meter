@@ -2110,6 +2110,12 @@ internal static class Program
             {
                 Console.WriteLine($"  {pp.Name,-14} {pp.ClassName,-13} {pp.Profile.Source,-5} level {pp.Profile.Level?.ToString() ?? "-"} gear {pp.Profile.Gear.Count} (enchant sum {pp.Profile.Gear.Sum(g => g.Enchant)}) legion {pp.Guild ?? "-"}");
             }
+
+            if (profilesRequest.Participants.Select(pp => pp.Profile).FirstOrDefault(pr => pr.Pantheon is not null) is { Pantheon: { } pantheon })
+            {
+                Console.WriteLine($"aion2-upload-dryrun: the own Pantheon: {pantheon.Owned.Count} registered, setups " + string.Join(" | ",
+                    pantheon.Presets.Select(x => $"preset {x.Preset}: " + string.Join(" ", x.Slots.Select(k => $"{k.Slot}:{k.Id}")))));
+            }
         }
         else
         {

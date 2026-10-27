@@ -488,6 +488,87 @@ public sealed class Aion2FrameDecoder
         }
     }
 
+    private const int PantheonSlotCount = 17;
+    private const int PantheonBlockSize = 3 + 5 * PantheonSlotCount;
+
+    /// <summary>
+    /// The own Pantheon (decorations set up in the Pantheon window, three presets). The login sends it twice: <c>0x8ce2</c> (the login state of many things) ends with the active
+    /// setup, <c>0xaf8a</c> lists the registered decorations (<c>n (u8) | n x (id u32 | slot u8)</c>, slot 0 = not set up in the active preset). A change or a tab switch in the window
+    /// brings <c>0x96e2</c> with the setup of that tab. A setup is <c>01 | preset (1..3) | count (17, or 0 = empty) | count x (id u32 | slot u8)</c>, slot 1-12 painting, 13-16
+    /// statue, 17 colossus, id 0 = empty. The ids are the game's own decoration numbers (painting: the last digits of the item number, statue 1000 + n - 1, colossus 5000 + n - 1).
+    /// </summary>
+    private void NotePantheon(int opcode, ReadOnlySpan<byte> frame)
+    {
+        switch (opcode)
+        {
+            case 0x8ce2 when frame.Length >= 2 + PantheonBlockSize:
+                if (TryReadPantheonSetup(frame[^PantheonBlockSize..], out int loginPreset, out List<Aion2PantheonSlot> loginSlots))
+                {
+                    _entities.SetPantheonPreset(loginPreset, loginSlots);
+                }
+
+                break;
+            case 0x96e2 when frame.Length is 2 + 3 or 2 + 3 + 1 or 2 + PantheonBlockSize or 2 + PantheonBlockSize + 1:
+                if (TryReadPantheonSetup(frame[2..], out int preset, out List<Aion2PantheonSlot> slots))
+                {
+                    _entities.SetPantheonPreset(preset, slots);
+                }
+
+                break;
+            case 0xaf8a when frame.Length >= 3 && frame[2] > 0 && frame.Length == 3 + 5 * frame[2]:
+            {
+                var owned = new List<int>();
+                for (int k = 0; k < frame[2]; k++)
+                {
+                    long id = BinaryPrimitives.ReadUInt32LittleEndian(frame[(3 + 5 * k)..]);
+                    if (id is <= 0 or > 100_000)
+                    {
+                        return; // not this list
+                    }
+
+                    owned.Add((int)id);
+                }
+
+                _entities.SetPantheonOwned(owned);
+                break;
+            }
+        }
+    }
+
+    /// <summary>One Pantheon setup (see <see cref="NotePantheon"/>); false when the bytes are not that, so nothing foreign is taken for it.</summary>
+    private static bool TryReadPantheonSetup(ReadOnlySpan<byte> block, out int preset, out List<Aion2PantheonSlot> slots)
+    {
+        preset = 0;
+        slots = new List<Aion2PantheonSlot>();
+        if (block.Length < 3 || block[0] != 1 || block[1] is < 1 or > 3 || (block[2] != 0 && block[2] != PantheonSlotCount) || block.Length < 3 + 5 * block[2])
+        {
+            return false;
+        }
+
+        for (int k = 0; k < block[2]; k++)
+        {
+            int at = 3 + 5 * k;
+            if (block[at + 4] != k + 1)
+            {
+                return false; // the slots run 1..17 in order
+            }
+
+            uint id = BinaryPrimitives.ReadUInt32LittleEndian(block[at..]);
+            if (id > 100_000)
+            {
+                return false;
+            }
+
+            if (id != 0)
+            {
+                slots.Add(new Aion2PantheonSlot(k + 1, (int)id));
+            }
+        }
+
+        preset = block[1];
+        return true;
+    }
+
     private IEnumerable<DamageEvent> DecodeFrame(ReadOnlySpan<byte> frame, DateTime timestamp, bool nested)
     {
         FrameLayout layout = _protocol.FrameLayout;
@@ -500,6 +581,7 @@ public sealed class Aion2FrameDecoder
         int opcode = (int)ReadUnsigned(frame, new FieldSpec(layout.OpcodeOffset, layout.OpcodeSize), layout.LittleEndian && !layout.OpcodeBigEndian);
         FrameTap?.Invoke(opcode, frame, timestamp);
         NoteOwnedCounts(opcode, frame);
+        NotePantheon(opcode, frame);
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);
