@@ -2,7 +2,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { bosses, encounterParticipants, encounters, instances, playerNcMatch, players, servers } from "./db/schema.js";
 import { serverOfName } from "./content/aion2Servers.js";
-import { allowedServersOfEncounter, plausibleServersOf } from "./crowdRule.js";
+import { allowedServersOfEncounter, plausibleServers } from "./crowdRule.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { noteClientServer, serverRowOf } from "./ncMatch.js";
 import { dropNcData } from "./portraitService.js";
@@ -12,10 +12,12 @@ import { dropNcData } from "./portraitService.js";
 
 export type CrowdViolator = { playerId: number; name: string; serverRowId: number | null; ncServerId: number | null; fights: number[] };
 export type CrowdCleanupReport = {
-  /** Players moved (or to be moved) to the one server their fights allow. */
-  fixed: { playerId: number; name: string; from: number | null; to: number }[];
-  /** The row of the same name already exists on that server: left alone, to be decided. */
-  duplicate: { playerId: number; name: string; to: number }[];
+  /** Players moved (or to be moved) to the one server their fights allow; `faction` is the faction of that server when it differs from the one he had. */
+  fixed: { playerId: number; name: string; from: number | null; to: number; faction?: string }[];
+  /** His server is the one his newest fights allow: older fights of other servers are left as they are (older clients put everybody on the uploader's server). */
+  accepted: { playerId: number; name: string; server: number }[];
+  /** The row of the same name already exists on that server: his fights that break the rule move to that row (`moved`; `kept` = the row was in the fight already and stays). */
+  duplicate: { playerId: number; name: string; to: number; moved: number; kept: number }[];
   /** His fights allow no server or several: left alone, to be decided. */
   undecided: { playerId: number; name: string; ncServerId: number | null; candidates: number[] }[];
 };
@@ -72,30 +74,47 @@ export function findCrowdViolators(): CrowdViolator[] {
  * A character that is moved loses his NC data (the data of a namesake) and his match; he is filed as "client" and asked at NC again at once.
  */
 export function cleanUpCrowdServers(apply: boolean, now = Date.now()): CrowdCleanupReport {
-  const report: CrowdCleanupReport = { fixed: [], duplicate: [], undecided: [] };
+  const report: CrowdCleanupReport = { fixed: [], accepted: [], duplicate: [], undecided: [] };
   for (const v of findCrowdViolators()) {
-    const plausible = plausibleServersOf(v.playerId);
-    if (plausible === null || plausible.size !== 1) {
-      report.undecided.push({ playerId: v.playerId, name: v.name, ncServerId: v.ncServerId, candidates: [...(plausible ?? [])] });
+    const found = plausibleServers(v.playerId);
+    if (found === null || found.servers.size !== 1) {
+      report.undecided.push({ playerId: v.playerId, name: v.name, ncServerId: v.ncServerId, candidates: [...(found?.servers ?? [])] });
       continue;
     }
-    const target = [...plausible][0];
-    const row = db.select({ nameNormalized: players.nameNormalized }).from(players).where(eq(players.id, v.playerId)).get();
+    const target = [...found.servers][0];
+    if (target === v.ncServerId) {
+      report.accepted.push({ playerId: v.playerId, name: v.name, server: target });
+      continue;
+    }
+    if (found.contradictory) {
+      // His fights contradict each other and his server is not the one of the newest: only a person decides who he is.
+      report.undecided.push({ playerId: v.playerId, name: v.name, ncServerId: v.ncServerId, candidates: [target] });
+      continue;
+    }
+    const row = db.select({ nameNormalized: players.nameNormalized, faction: players.faction }).from(players).where(eq(players.id, v.playerId)).get();
     const targetRow = existingServerRow(target);
     const taken =
       row && targetRow !== null
         ? db.select({ id: players.id }).from(players).where(and(eq(players.serverId, targetRow), eq(players.nameNormalized, row.nameNormalized), ne(players.id, v.playerId))).get()
         : undefined;
     if (taken) {
-      report.duplicate.push({ playerId: v.playerId, name: v.name, to: target });
+      // The row of that name on the right server is the character of these fights: the fights that break the rule were filed under the wrong row by a client.
+      const free = v.fights.filter((f) => !db.select({ id: encounterParticipants.id }).from(encounterParticipants).where(and(eq(encounterParticipants.encounterId, f), eq(encounterParticipants.playerId, taken.id))).get());
+      report.duplicate.push({ playerId: v.playerId, name: v.name, to: target, moved: free.length, kept: v.fights.length - free.length });
+      if (apply) {
+        for (const f of free) {
+          db.update(encounterParticipants).set({ playerId: taken.id }).where(and(eq(encounterParticipants.encounterId, f), eq(encounterParticipants.playerId, v.playerId))).run();
+        }
+      }
       continue;
     }
-    report.fixed.push({ playerId: v.playerId, name: v.name, from: v.ncServerId, to: target });
+    const faction = Math.floor(target / 1000) === 1 ? "Elyos" : "Asmodian";
+    report.fixed.push({ playerId: v.playerId, name: v.name, from: v.ncServerId, to: target, ...(row && row.faction !== faction ? { faction } : {}) });
     if (!apply) {
       continue;
     }
     db.transaction(() => {
-      db.update(players).set({ serverId: serverRowOf(target) }).where(eq(players.id, v.playerId)).run();
+      db.update(players).set({ serverId: serverRowOf(target), faction }).where(eq(players.id, v.playerId)).run();
       dropNcData(v.playerId);
       db.delete(playerNcMatch).where(eq(playerNcMatch.playerId, v.playerId)).run();
       noteClientServer(v.playerId, target, now);

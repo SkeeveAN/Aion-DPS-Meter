@@ -31,7 +31,7 @@ export function partnerServerAt(ncServerId: number, at: number): number | null {
  * The servers a participant of this fight can be on, as NC server ids. `pairKnown` is false when no pairing was on record at the time (the other faction cannot be
  * judged then). Null for a fight that is no world boss or has no uploader with a server.
  */
-export function allowedServersOfEncounter(encounterId: number): { servers: Set<number>; pairKnown: boolean } | null {
+export function allowedServersOfEncounter(encounterId: number): { servers: Set<number>; pairKnown: boolean; startedAt: number } | null {
   const fight = db
     .select({ startedAt: encounters.startedAt, endedAt: encounters.endedAt, instanceName: instances.name, category: instances.category })
     .from(encounters)
@@ -70,7 +70,7 @@ export function allowedServersOfEncounter(encounterId: number): { servers: Set<n
       servers.add(partner);
     }
   }
-  return { servers, pairKnown };
+  return { servers, pairKnown, startedAt: start };
 }
 
 /** The NC server id a servers-table row stands for (null for a label no id can be read from). */
@@ -84,13 +84,20 @@ export function ncIdOfServerRow(serverRowId: number | null, names: Map<number, s
 }
 
 /**
- * The servers a player can be on given every world boss kill he took part in: what all those fights allow at the same time, narrowed to his faction. Null when he
- * took part in none (nothing is known); an empty set when his fights contradict each other. A fight whose pairing is unknown only counts its home server, and only
- * for the servers of the uploader's faction.
+ * The servers a player can be on given every world boss kill he took part in: what all those fights allow at the same time. Null when he took part in none (nothing is known).
+ * When his fights contradict each other (one row holds two characters of one name, filed so by older clients that put everybody on the uploader's server) the newest fight
+ * speaks: the clients of today read the servers better. His faction narrows the answer only when something is left: a faction the game's frame gave a player whose server was
+ * read wrongly (an Asmodian in an Elyos home fight) is as wrong as that server, so a home-only fight decides alone. A fight whose pairing is unknown only counts its home server,
+ * and for it any server of the other faction is possible.
  */
 export function plausibleServersOf(playerId: number): Set<number> | null {
+  return plausibleServers(playerId)?.servers ?? null;
+}
+
+/** Like plausibleServersOf, and whether his fights contradicted each other (the newest one decided then). */
+export function plausibleServers(playerId: number): { servers: Set<number>; contradictory: boolean } | null {
   const rows = db.selectDistinct({ id: encounterParticipants.encounterId }).from(encounterParticipants).where(eq(encounterParticipants.playerId, playerId)).all();
-  const fights: { servers: Set<number>; pairKnown: boolean; homeFaction: number }[] = [];
+  const fights: { servers: Set<number>; pairKnown: boolean; homeFaction: number; startedAt: number }[] = [];
   for (const { id } of rows) {
     const allowed = allowedServersOfEncounter(id);
     if (allowed) {
@@ -100,14 +107,24 @@ export function plausibleServersOf(playerId: number): Set<number> | null {
   if (fights.length === 0) {
     return null;
   }
-  // a fight whose pairing is unknown allows its home server and, besides, any server of the other faction (it cannot be judged)
+  fights.sort((x, y) => x.startedAt - y.startedAt);
   const allows = (f: (typeof fights)[number], s: number) => f.servers.has(s) || (!f.pairKnown && Math.floor(s / 1000) !== f.homeFaction);
-  const universe = new Set(fights.flatMap((f) => [...f.servers]));
-  let result = [...universe].filter((s) => fights.every((f) => allows(f, s)));
+  const within = (list: typeof fights) => {
+    const universe = new Set(list.flatMap((f) => [...f.servers]));
+    return [...universe].filter((s) => list.every((f) => allows(f, s)));
+  };
+  let result = within(fights);
+  const contradictory = result.length === 0;
+  if (contradictory) {
+    result = within([fights[fights.length - 1]]);
+  }
   const faction = db.select({ f: players.faction }).from(players).where(eq(players.id, playerId)).get()?.f;
   if (faction === "Elyos" || faction === "Asmodian") {
     const digit = faction === "Elyos" ? 1 : 2;
-    result = result.filter((s) => Math.floor(s / 1000) === digit);
+    const narrowed = result.filter((s) => Math.floor(s / 1000) === digit);
+    if (narrowed.length > 0) {
+      result = narrowed;
+    }
   }
-  return new Set(result);
+  return { servers: new Set(result), contradictory };
 }

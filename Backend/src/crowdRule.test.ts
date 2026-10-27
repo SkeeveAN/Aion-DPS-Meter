@@ -89,7 +89,8 @@ test("the clean-up files a character under the one server his fights allow, drop
 
   const dry = cleanUpCrowdServers(false);
   assert.deepEqual(dry.fixed.map((f) => [f.name, f.from, f.to]), [["Bob", MUNIN, KROMEDE]]);
-  assert.deepEqual(dry.undecided.map((u) => u.name), ["Eli"], "Eli: his fights exclude each other, nothing is decided for him");
+  assert.deepEqual(dry.undecided.map((u) => u.name), [], "nobody is left open");
+  assert.deepEqual(dry.accepted.map((a) => a.name), ["Eli"], "Eli: his fights exclude each other, his newest one (Munin) speaks and he is on Munin: nothing to change");
   assert.equal(db.select().from(players).where(eq(players.id, bob)).get()!.serverId, muninRow, "a dry run writes nothing");
 
   const done = cleanUpCrowdServers(true, 5000);
@@ -101,11 +102,40 @@ test("the clean-up files a character under the one server his fights allow, drop
   assert.equal(findCrowdViolators().map((v) => v.name).join(), "Eli");
 });
 
-test("a row of the same name that already sits on the right server is left alone", () => {
+test("a row of the same name on the right server takes the fights that were filed under the wrong row", () => {
   const f = fight(gartua.id, "2026-10-21T14:06:00.000Z", KROMEDE);
+  const f2 = fight(gartua.id, "2026-10-21T14:20:00.000Z", KROMEDE);
   const twin = player("Twin", muninRow, "Asmodian");
-  player("Twin", kromedeRow, "Asmodian");
+  const right = player("Twin", kromedeRow, "Asmodian");
   join(f, twin);
+  join(f2, twin);
+  join(f2, right); // he is in this fight already: the other row's entry stays where it is
+  const dry = cleanUpCrowdServers(false);
+  assert.deepEqual(dry.duplicate.map((d) => [d.name, d.moved, d.kept]), [["Twin", 1, 1]]);
+  assert.equal(db.select().from(encounterParticipants).where(eq(encounterParticipants.playerId, twin)).all().length, 2, "a dry run writes nothing");
+  cleanUpCrowdServers(true, 6000);
+  assert.deepEqual(db.select().from(encounterParticipants).where(eq(encounterParticipants.playerId, right)).all().map((x) => x.encounterId).sort(), [f, f2].sort());
+  assert.deepEqual(db.select().from(encounterParticipants).where(eq(encounterParticipants.playerId, twin)).all().map((x) => x.encounterId), [f2]);
+});
+
+test("a faction the game gave a player whose server was read wrongly is as wrong as the server: an Elyos on an Elyos server in an Asmodian home fight is filed on the home server", () => {
+  const f = fight(gartua.id, "2026-10-22T14:30:00.000Z", KROMEDE);
+  const wrongside = player("Wrongside", serverRowOf(BAKARMA), "Elyos");
+  join(f, wrongside);
   const report = cleanUpCrowdServers(false);
-  assert.deepEqual(report.duplicate.map((d) => d.name), ["Twin"]);
+  assert.deepEqual(report.fixed.filter((x) => x.name === "Wrongside").map((x) => [x.from, x.to, x.faction]), [[BAKARMA, KROMEDE, "Asmodian"]]);
+  cleanUpCrowdServers(true, 7000);
+  const row = db.select().from(players).where(eq(players.id, wrongside)).get()!;
+  assert.deepEqual([row.serverId, row.faction], [kromedeRow, "Asmodian"]);
+});
+
+test("a character whose fights contradict each other and whose server is not the one of his newest fight is left to a person", () => {
+  const older = fight(gartua.id, "2026-10-23T14:06:00.000Z", MUNIN);
+  const newer = fight(gartua.id, "2026-10-24T14:06:00.000Z", KROMEDE);
+  const mixed = player("Mixed", serverRowOf(2315), "Asmodian"); // Zemurru: neither
+  join(older, mixed);
+  join(newer, mixed);
+  const report = cleanUpCrowdServers(false);
+  assert.deepEqual(report.undecided.filter((u) => u.name === "Mixed").map((u) => u.candidates), [[KROMEDE]], "the newest fight says Kromede, but nobody moves him on that alone");
+  assert.equal(report.fixed.some((f) => f.name === "Mixed"), false);
 });
