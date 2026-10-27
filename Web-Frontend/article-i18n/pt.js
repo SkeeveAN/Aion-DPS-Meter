@@ -26,6 +26,7 @@ export default {
     ]],
     ["p", "Duas lições da produção:"],
     ["p", "**Mantenha o callback minúsculo.** Nossa primeira versão decodificava os frames dentro do callback de captura. Durante uma luta de chefe mundial, a rajada de tráfego estourou o buffer do driver e pacotes foram perdidos. Agora as threads de captura apenas interpretam e enfileiram em uma fila limitada, um único worker faz a decodificação, e o buffer do kernel foi aumentado para 32 MB. Um pacote perdido na captura é a única falha que não se pode reparar depois."],
+    ["p", "**O volume não era o problema.** Nas 47 lutas contra chefes mundiais que nossas gravações contêm por inteiro, com até 702 jogadores, o tráfego do jogo chegou no máximo a cerca de 164 segmentos e 48 KB de dados úteis por segundo. O que estourou o buffer foi o trabalho feito dentro do callback, não a quantidade de dados."],
     ["p", "**Nunca deixe um pacote ruim encerrar a thread de captura.** Uma exceção não tratada dentro de um callback de captura pode interromper a captura silenciosamente. Nós contamos e ignoramos as falhas e mostramos o último erro na interface."],
     ["flow", {"caption": "O caminho de um pacote: as threads de captura quase não fazem nada, um único worker decodifica.", "steps": ["Adaptador de rede", "Filtro do driver: só o tráfego TCP do servidor do jogo", "Callback de captura: ler cabeçalhos, enfileirar", "Fila limitada", "Um worker: decodificar os frames", "Registro de combate"]}],
     ["h2", "De segmentos a frames: remontagem TCP"],
