@@ -30,6 +30,16 @@
      "Client"
     ],
     "date": "2026-10-27"
+   },
+   {
+    "text": "Pantheon: the own Pantheon (the decorations set up in its three presets and every registered decoration) is read at login and when the Pantheon window changes, uploaded with the own profile and shown on the profile page with the effects added up (in the arcana tab, which is now called Arcana & Pantheon); the privacy text names it, so everybody who accepted is asked once more (privacy version 2)",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-27"
    }
   ]
  },
