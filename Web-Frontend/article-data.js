@@ -48,6 +48,21 @@ export const ARTICLE = {
       "**Cross-check against numbers the game reports itself.** One example is the boss's own hit points: the meter compares the damage it counted with the hit points the boss really lost. A mismatch points to missed packets or a changed layout. In debug recordings a health monitor also reports when a kind of message that normally flows goes silent after a game update.",
     ]],
     ["p", "We deliberately do not publish message tables or field layouts here. They change with every patch, and the interesting part is the method."],
+    ["h2", "From frames to a combat log"],
+    ["p", "A frame is not a fight yet. From the damage and healing events the server sends, the meter rebuilds the log you see in the window in three steps:"],
+    ["ol", [
+      "**Assign the events.** Each event says who hit or healed whom with which skill, and for how much. The meter attributes it to the player and counts it as damage, healing or damage taken.",
+      "**Add up per player.** That gives DPS, iDPS and HPS and the breakdown by skill. The kind of hit, such as a critical hit, is already in the event, so crit rates are counted, not estimated.",
+      "**Check against the boss.** The boss reports its own hit points. The meter compares the damage it counted with the hit points actually lost and warns when they differ by more than one percent.",
+    ]],
+    ["p", "Because every session can be recorded and replayed, each of these rules can be checked against old fights."],
+    ["h2", "Upload and leaderboards"],
+    ["p", "Nothing leaves your computer unless you upload it. Uploading is voluntary and off by default."],
+    ["ul", [
+      "**What is sent:** for a boss fight, the boss, the players who took part, damage, healing, damage taken and skills. Your character profile is only sent if you switch that on separately.",
+      "**What the server accepts:** only bosses the game announced and the catalog knows. If several players report the same fight, it counts once. Fights that look implausible compared with other kills of the same boss (hit points, kill time, damage per class) are flagged and checked.",
+      "**What this data is:** it describes game characters, not the person behind them. Class, gear, inventory and damage say nothing about the player. Only a character name might, in some cases, allow a conclusion about a person. The [privacy policy](/privacy) lists exactly what is stored and why.",
+    ]],
     ["h2", "What this design cannot do"],
     ["ul", [
       "It sees only what the server sends. If the server does not tell the client something, no meter can show it.",
@@ -64,7 +79,7 @@ export const ARTICLE = {
     ["p", "**Is it allowed?** NCSOFT lists the behaviors it sanctions, such as bypassing protection, bots or tools that raise damage or speed, and does not name individual programs. Aion DPS does none of that, and damage meters are neither listed nor prohibited by name. That is our reading, not a statement from NCSOFT: check the current rules and use it at your own responsibility."],
     ["p", "**Why Npcap?** The meter needs a copy of the network traffic your own computer receives, and on Windows Npcap is the driver that provides it. It is a separate install, and the meter sends nothing through it."],
     ["p", "**What does the meter not see?** Only what the server sends your client. If the server does not tell you something, no meter can show it."],
-    ["p", "**Does it slow the game down?** The meter is a separate program and never runs inside the game process. The driver drops everything except the game's traffic before the meter sees it."],
+    ["p", "**Does it slow the game down?** The meter is a separate program and never runs inside the game process. The driver drops everything except the game's traffic before the meter sees it. In a five-minute recording of normal play the game's payload came to about 2.4 KB per second on average and 30 KB per second at the peak."],
     ["p", "The source code is MIT licensed: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). The meter, the leaderboards and the feature tour are on [aiondps.com](/features), and [how it compares with other AION 2 meters](/aion-2-dps-meter) is written down as well. Every push runs the type check and all backend tests in public and builds the client: [the test results](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };
@@ -116,6 +131,21 @@ export const ARTICLE_DE = {
       "**Gegen Zahlen prüfen, die das Spiel selbst meldet.** Ein Beispiel sind die Trefferpunkte des Bosses: Der Meter vergleicht den gezählten Schaden mit den Trefferpunkten, die der Boss tatsächlich verloren hat. Eine Abweichung weist auf verpasste Pakete oder einen geänderten Aufbau hin. In Debug-Aufnahmen meldet außerdem ein Gesundheitsmonitor, wenn eine Nachrichtenart, die sonst fließt, nach einem Spielupdate verstummt.",
     ]],
     ["p", "Nachrichtentabellen und Feldaufbauten veröffentlichen wir hier bewusst nicht. Sie ändern sich mit jedem Patch, und das Interessante ist die Methode."],
+    ["h2", "Vom Frame zum Kampfprotokoll"],
+    ["p", "Ein Frame ist noch kein Kampf. Aus den Schadens- und Heilungsereignissen, die der Server schickt, baut der Meter in drei Schritten das Protokoll nach, das du im Fenster siehst:"],
+    ["ol", [
+      "**Ereignisse zuordnen.** Jedes Ereignis nennt, wer wen mit welcher Fertigkeit für wie viel getroffen oder geheilt hat. Der Meter ordnet es dem Spieler zu und zählt es als Schaden, Heilung oder erlittenen Schaden.",
+      "**Pro Spieler summieren.** Daraus entstehen DPS, iDPS und HPS sowie die Aufschlüsselung nach Fertigkeiten. Die Trefferart steht schon im Ereignis, deshalb sind Krit-Raten gezählt und nicht geschätzt.",
+      "**Gegen den Boss prüfen.** Der Boss meldet seine Trefferpunkte selbst. Der Meter vergleicht den gezählten Schaden mit dem tatsächlichen Verlust und warnt bei einer Abweichung über einem Prozent.",
+    ]],
+    ["p", "Weil jede Sitzung aufgezeichnet und wieder abgespielt werden kann, lässt sich jede dieser Regeln an alten Kämpfen prüfen."],
+    ["h2", "Upload und Bestenlisten"],
+    ["p", "Nichts verlässt deinen Rechner, solange du nichts hochlädst. Das Hochladen ist freiwillig und standardmäßig aus."],
+    ["ul", [
+      "**Was hochgeht:** Bei einem Bosskampf der Boss, die beteiligten Spieler, Schaden, Heilung, erlittener Schaden und Fertigkeiten. Dein Charakterprofil geht nur hoch, wenn du es zusätzlich einschaltest.",
+      "**Was der Server annimmt:** Nur Bosse, die das Spiel angekündigt hat und die der Katalog kennt. Melden mehrere Spieler denselben Kampf, zählt er einmal. Kämpfe, die im Vergleich mit anderen Kills desselben Bosses unplausibel wirken (Trefferpunkte, Kampfzeit, Schaden je Klasse), werden markiert und geprüft.",
+      "**Was das für Daten sind:** Sie beschreiben Spielfiguren, nicht die Person dahinter. Klasse, Ausrüstung, Inventar und Schaden sagen nichts über den Spieler selbst aus. Nur der Spielname könnte unter Umständen einen Rückschluss auf eine Person erlauben. Die [Datenschutzerklärung](/privacy) nennt genau, was gespeichert wird und warum.",
+    ]],
     ["h2", "Was dieser Ansatz nicht kann"],
     ["ul", [
       "Er sieht nur, was der Server schickt. Wenn der Server dem Client etwas nicht mitteilt, kann kein Meter es anzeigen.",
@@ -132,7 +162,7 @@ export const ARTICLE_DE = {
     ["p", "**Ist das erlaubt?** NCSOFT listet die Verhaltensweisen auf, die sanktioniert werden, etwa Schutzmaßnahmen umgehen, Bots oder Werkzeuge, die Schaden oder Geschwindigkeit erhöhen, und nennt keine einzelnen Programme. Aion DPS tut nichts davon, und Schadensmeter sind weder aufgelistet noch ausdrücklich verboten. Das ist unsere Lesart, keine Aussage von NCSOFT: Prüfe die aktuellen Regeln und nutze es auf eigene Verantwortung."],
     ["p", "**Warum Npcap?** Der Meter braucht eine Kopie des Netzwerkverkehrs, den dein eigener Rechner empfängt, und unter Windows liefert der Npcap-Treiber sie. Er ist eine eigene Installation, und der Meter sendet nichts darüber."],
     ["p", "**Was sieht der Meter nicht?** Nur das, was der Server deinem Client schickt. Was der Server nicht mitteilt, kann kein Meter anzeigen."],
-    ["p", "**Bremst er das Spiel?** Der Meter ist ein eigenes Programm und läuft nie im Spielprozess. Der Treiber verwirft alles außer dem Verkehr des Spiels, bevor der Meter es sieht."],
+    ["p", "**Bremst er das Spiel?** Der Meter ist ein eigenes Programm und läuft nie im Spielprozess. Der Treiber verwirft alles außer dem Verkehr des Spiels, bevor der Meter es sieht. In einer fünfminütigen Aufzeichnung normalen Spiels lag der Nutzdatenstrom des Spiels im Schnitt bei etwa 2,4 KB pro Sekunde und in der Spitze bei 30 KB pro Sekunde."],
     ["p", "Der Quelltext steht unter MIT-Lizenz: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Den Meter, die Bestenlisten und die Funktionsübersicht findest du auf [aiondps.com](/features), und [der Vergleich mit anderen AION-2-Metern](/aion-2-dps-meter) ist ebenfalls aufgeschrieben. Bei jedem Push laufen die Typprüfung und alle Backend-Tests öffentlich, außerdem wird der Client gebaut: [die Testergebnisse](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };

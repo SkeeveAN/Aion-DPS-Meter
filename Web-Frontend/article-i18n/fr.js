@@ -42,6 +42,21 @@ export default {
       "**Recouper avec des chiffres que le jeu fournit lui-même.** Un exemple : les points de vie du boss. Le compteur compare les dégâts comptés avec les points de vie que le boss a réellement perdus. Un écart indique des paquets manqués ou une structure modifiée. Dans les enregistrements de débogage, un moniteur de santé signale en outre lorsqu'un type de message qui circule normalement se tait après une mise à jour du jeu.",
     ]],
     ["p", "Nous ne publions volontairement pas ici de tables de messages ni de structures de champs. Elles changent à chaque patch, et ce qui est intéressant, c'est la méthode."],
+    ["h2", "Des frames au journal de combat"],
+    ["p", "Une frame n'est pas encore un combat. À partir des événements de dégâts et de soins envoyés par le serveur, le compteur reconstruit en trois étapes le journal que vous voyez dans la fenêtre :"],
+    ["ol", [
+      "**Attribuer les événements.** Chaque événement indique qui a frappé ou soigné qui, avec quelle compétence et pour combien. Le compteur l'attribue au joueur et le compte comme dégâts, soins ou dégâts subis.",
+      "**Additionner par joueur.** On obtient le DPS, l'iDPS et le HPS, ainsi que le détail par compétence. Le type de coup, comme un coup critique, figure déjà dans l'événement : les taux de critique sont donc comptés, pas estimés.",
+      "**Vérifier avec le boss.** Le boss annonce lui-même ses points de vie. Le compteur compare les dégâts comptés aux points de vie réellement perdus et avertit en cas d'écart de plus d'un pour cent.",
+    ]],
+    ["p", "Comme chaque session peut être enregistrée et rejouée, chacune de ces règles se vérifie sur d'anciens combats."],
+    ["h2", "Envoi et classements"],
+    ["p", "Rien ne quitte votre ordinateur tant que vous n'envoyez rien. L'envoi est volontaire et désactivé par défaut."],
+    ["ul", [
+      "**Ce qui est envoyé :** pour un combat de boss, le boss, les joueurs qui y ont participé, les dégâts, les soins, les dégâts subis et les compétences. Votre profil de personnage n'est envoyé que si vous l'activez séparément.",
+      "**Ce que le serveur accepte :** uniquement les boss annoncés par le jeu et connus du catalogue. Si plusieurs joueurs signalent le même combat, il compte une fois. Les combats qui paraissent invraisemblables par rapport à d'autres victoires sur le même boss (points de vie, durée, dégâts par classe) sont signalés et vérifiés.",
+      "**Ce que sont ces données :** elles décrivent des personnages de jeu, pas la personne derrière. Classe, équipement, inventaire et dégâts ne disent rien du joueur. Seul le nom du personnage pourrait, dans certains cas, permettre de remonter à une personne. La [politique de confidentialité](/privacy) détaille ce qui est stocké et pourquoi.",
+    ]],
     ["h2", "Ce que cette approche ne sait pas faire"],
     ["ul", [
       "Elle ne voit que ce que le serveur envoie. Si le serveur ne communique pas quelque chose au client, aucun compteur ne peut l'afficher.",
@@ -58,7 +73,7 @@ export default {
     ["p", "**Est-ce autorisé ?** NCSOFT énumère les comportements qu'elle sanctionne, comme contourner les protections, les bots ou les outils qui augmentent les dégâts ou la vitesse, et ne nomme pas de programmes précis. Aion DPS ne fait rien de cela, et les compteurs de dégâts n'y figurent pas et ne sont pas expressément interdits. C'est notre lecture, pas une déclaration de NCSOFT : consultez les règles en vigueur et utilisez-le sous votre propre responsabilité."],
     ["p", "**Pourquoi Npcap ?** Le compteur a besoin d'une copie du trafic réseau que reçoit votre propre ordinateur, et sous Windows le pilote Npcap la fournit. C'est une installation séparée, et le compteur n'envoie rien par ce biais."],
     ["p", "**Que ne voit pas le compteur ?** Seulement ce que le serveur envoie à votre client. Ce que le serveur ne communique pas, aucun compteur ne peut l'afficher."],
-    ["p", "**Ralentit-il le jeu ?** Le compteur est un programme distinct et ne s'exécute jamais dans le processus du jeu. Le pilote écarte tout sauf le trafic du jeu avant que le compteur ne le voie."],
+    ["p", "**Ralentit-il le jeu ?** Le compteur est un programme distinct et ne s'exécute jamais dans le processus du jeu. Le pilote écarte tout sauf le trafic du jeu avant que le compteur ne le voie. Dans un enregistrement de cinq minutes de jeu normal, les données utiles du jeu représentaient environ 2,4 Ko par seconde en moyenne et 30 Ko par seconde au pic."],
     ["p", "Le code source est sous licence MIT : [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). Le compteur, les classements et la présentation des fonctionnalités se trouvent sur [aiondps.com](/features), et [la comparaison avec d'autres compteurs AION 2](/aion-2-dps-meter) est également rédigée. À chaque push, la vérification des types et tous les tests du backend s'exécutent publiquement et le client est compilé : [les résultats des tests](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };

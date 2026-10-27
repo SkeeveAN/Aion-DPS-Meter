@@ -42,6 +42,21 @@ export default {
       "**Confira com números que o próprio jogo informa.** Um exemplo são os pontos de vida do chefe: o medidor compara o dano que contou com os pontos de vida que o chefe realmente perdeu. Uma divergência aponta para pacotes perdidos ou um layout alterado. Em gravações de depuração, um monitor de saúde também avisa quando um tipo de mensagem que normalmente flui fica em silêncio após uma atualização do jogo.",
     ]],
     ["p", "Deliberadamente não publicamos aqui tabelas de mensagens nem layouts de campos. Eles mudam a cada patch, e a parte interessante é o método."],
+    ["h2", "De frames a um registro de combate"],
+    ["p", "Um frame ainda não é um combate. A partir dos eventos de dano e cura que o servidor envia, o medidor reconstrói em três passos o registro que você vê na janela:"],
+    ["ol", [
+      "**Atribuir os eventos.** Cada evento diz quem atingiu ou curou quem, com qual habilidade e por quanto. O medidor o atribui ao jogador e o conta como dano, cura ou dano recebido.",
+      "**Somar por jogador.** Daí saem o DPS, o iDPS e o HPS e o detalhamento por habilidade. O tipo de golpe, como um crítico, já vem no evento, então as taxas de crítico são contadas, não estimadas.",
+      "**Conferir com o chefe.** O chefe informa seus próprios pontos de vida. O medidor compara o dano contado com os pontos de vida realmente perdidos e avisa quando diferem em mais de um por cento.",
+    ]],
+    ["p", "Como cada sessão pode ser gravada e reproduzida, cada uma dessas regras pode ser conferida em combates antigos."],
+    ["h2", "Envio e rankings"],
+    ["p", "Nada sai do seu computador a menos que você envie. O envio é voluntário e vem desativado por padrão."],
+    ["ul", [
+      "**O que é enviado:** em uma luta de chefe, o chefe, os jogadores que participaram, dano, cura, dano recebido e habilidades. O perfil do seu personagem só é enviado se você ativá-lo separadamente.",
+      "**O que o servidor aceita:** apenas chefes que o jogo anunciou e que o catálogo conhece. Se vários jogadores informam a mesma luta, ela conta uma vez. Lutas que parecem inverossímeis em comparação com outras vitórias sobre o mesmo chefe (pontos de vida, duração, dano por classe) são sinalizadas e verificadas.",
+      "**O que são esses dados:** descrevem personagens do jogo, não a pessoa por trás. Classe, equipamento, inventário e dano não dizem nada sobre o jogador. Apenas o nome do personagem poderia, em alguns casos, permitir uma conclusão sobre uma pessoa. A [política de privacidade](/privacy) detalha o que é armazenado e por quê.",
+    ]],
     ["h2", "O que esta abordagem não consegue fazer"],
     ["ul", [
       "Ela só vê o que o servidor envia. Se o servidor não informa algo ao cliente, nenhum medidor pode mostrar.",
@@ -58,7 +73,7 @@ export default {
     ["p", "**É permitido?** A NCSOFT lista os comportamentos que sanciona, como contornar proteções, bots ou ferramentas que aumentam dano ou velocidade, e não cita programas específicos. O Aion DPS não faz nada disso, e medidores de dano não constam nem são expressamente proibidos. Essa é a nossa leitura, não uma declaração da NCSOFT: confira as regras atuais e use por sua conta e risco."],
     ["p", "**Por que Npcap?** O medidor precisa de uma cópia do tráfego de rede que o seu próprio computador recebe, e no Windows o driver Npcap a fornece. É uma instalação separada, e o medidor não envia nada por ele."],
     ["p", "**O que o medidor não vê?** Apenas o que o servidor envia ao seu cliente. O que o servidor não informa, nenhum medidor pode mostrar."],
-    ["p", "**Ele deixa o jogo lento?** O medidor é um programa separado e nunca roda dentro do processo do jogo. O driver descarta tudo, exceto o tráfego do jogo, antes que o medidor o veja."],
+    ["p", "**Ele deixa o jogo lento?** O medidor é um programa separado e nunca roda dentro do processo do jogo. O driver descarta tudo, exceto o tráfego do jogo, antes que o medidor o veja. Em uma gravação de cinco minutos de jogo normal, os dados úteis do jogo foram de cerca de 2,4 KB por segundo em média e 30 KB por segundo no pico."],
     ["p", "O código-fonte é licenciado sob MIT: [github.com/SkeeveAN/Aion-DPS-Meter](https://github.com/SkeeveAN/Aion-DPS-Meter). O medidor, os rankings e o tour de funcionalidades estão em [aiondps.com](/features), e [como ele se compara a outros medidores de AION 2](/aion-2-dps-meter) também está documentado. A cada push, a verificação de tipos e todos os testes do backend rodam em público e o cliente é compilado: [os resultados dos testes](https://github.com/SkeeveAN/Aion-DPS-Meter/actions/workflows/ci.yml)."],
   ],
 };
