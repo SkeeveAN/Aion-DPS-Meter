@@ -2,7 +2,7 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, serverMatchmaking, uploads } from "./db/schema.js";
 import { nameOf, serverOfName } from "./content/aion2Servers.js";
-import { riftOpen } from "./riftHours.js";
+import { regionOfServerName, riftOpen } from "./riftHours.js";
 
 // The world boss rule, applied to the fights already filed (crowdResolve.ts applies it to an upload on its way in).
 // Who can be on the map of a world boss kill:
@@ -54,11 +54,12 @@ export function allowedServersOfEncounter(encounterId: number): { servers: Set<n
   const start = Date.parse(fight.startedAt);
   const end = Date.parse(fight.endedAt);
   const homeMap = HOME_MAP_FACTION[fight.instanceName];
-  const rift = riftOpen(start, end);
   const servers = new Set<number>();
   let pairKnown = true;
   for (const home of homes) {
     servers.add(home);
+    // the rifts follow the local time of the uploader's region
+    const rift = riftOpen(start, end, regionOfServerName(nameOf(home)));
     if (homeMap !== undefined && Math.floor(home / 1000) === homeMap && !rift) {
       continue;
     }

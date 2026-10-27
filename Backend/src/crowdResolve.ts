@@ -22,8 +22,8 @@ import { acceptUpload } from "./routes/uploads.js";
  * Where the rule is not known (a world boss that is on no list, an uploader of the other faction than the map) NC is asked, never a guess.
  */
 // ---- the clock: who can be on the map (riftHours.ts) --------------------------------------------------------------------------------------------
-export { RIFT_EVERY_HOURS, riftOpen } from "./riftHours.js";
-import { riftOpen } from "./riftHours.js";
+export { RIFT_EVERY_HOURS, riftOpen, regionOfServerName } from "./riftHours.js";
+import { regionOfServerName, riftOpen } from "./riftHours.js";
 
 type BossGroup = "verteron" | "altgard" | "abyss";
 let groupOf: Map<number, BossGroup> | null = null;
@@ -54,7 +54,7 @@ export function crowdMode(payload: UploadPayload): "home" | "lookup" {
   if (mapFaction === null || self === undefined || self.faction !== mapFaction || self.serverId === undefined) {
     return "lookup";
   }
-  return riftOpen(Date.parse(payload.startedAt), Date.parse(payload.endedAt)) ? "lookup" : "home";
+  return riftOpen(Date.parse(payload.startedAt), Date.parse(payload.endedAt), regionOfServerName(payload.serverName)) ? "lookup" : "home";
 }
 
 /** The home rule: players without server or faction are the uploader's (outside the rift hours only home players are on the map). Returns how many were filled. */

@@ -84,18 +84,35 @@ test("a world boss crowd waits, is looked up at NC on both servers, and only pla
   assert.equal(waiting.length, 0);
 });
 
-test("a rift hour is the hour after each of 00:00, 03:00 ... 21:00 UTC (with two minutes of slack)", () => {
+test("without a region a rift is the hour after each of 00:00, 03:00 ... 21:00 UTC (with two minutes of slack)", () => {
   const utc = (h: number, m: number) => Date.UTC(2026, 9, 5, h, m, 0);
   for (const h of [0, 3, 6, 9, 12, 15, 18, 21]) {
     assert.equal(riftOpen(utc(h, 30), utc(h, 30) + 12_000), true, `${h}:30 UTC`);
   }
-  for (const [h, m] of [[10, 36], [13, 30], [16, 30], [19, 30], [22, 30], [1, 30], [4, 30], [14, 5]]) {
+  for (const [h, m] of [[10, 36], [13, 30], [16, 30], [19, 30], [22, 30], [1, 30], [4, 30]]) {
     assert.equal(riftOpen(utc(h, m), utc(h, m) + 12_000), false, `${h}:${m} UTC`);
   }
   assert.equal(riftOpen(utc(11, 59), utc(11, 59) + 12_000), true, "slack before the hour");
-  assert.equal(riftOpen(utc(13, 3), utc(13, 3) + 12_000), true, "the other faction is still on the map in the first minutes after the hour (25.10.: 16:03)");
-  assert.equal(riftOpen(utc(13, 9), utc(13, 9) + 12_000), true, "up to ten minutes");
-  assert.equal(riftOpen(utc(13, 15), utc(13, 15) + 12_000), false, "the hour is over");
+  assert.equal(riftOpen(utc(13, 5), utc(13, 5) + 12_000), false, "the hour is over");
+});
+
+test("in Europe the rifts are at 02:00, 05:00 ... 23:00 local time, so an hour later in UTC after the clocks went back (25.10.2026)", () => {
+  const at = (day: number, h: number, m: number) => Date.UTC(2026, 9, day, h, m, 0);
+  const open = (t: number) => riftOpen(t, t + 12_000, "Europe");
+  // summer time (UTC+2): 14:00-15:00 local = 12:00-13:00 UTC, 17:00 = 15:00 UTC
+  assert.equal(open(at(20, 12, 30)), true, "20.10. 14:30 local");
+  assert.equal(open(at(20, 13, 30)), false, "20.10. 15:30 local");
+  assert.equal(open(at(20, 15, 30)), true, "20.10. 17:30 local");
+  // winter time (UTC+1): 14:00 local = 13:00 UTC, 17:00 = 16:00 UTC, 20:00 = 19:00 UTC
+  assert.equal(open(at(26, 13, 30)), true, "26.10. 14:30 local");
+  assert.equal(open(at(26, 12, 30)), false, "26.10. 13:30 local");
+  assert.equal(open(at(26, 16, 3)), true, "26.10. 17:03 local (the Kasaka kill with 23 Asmodians of Zemurru, 25.10.)");
+  assert.equal(open(at(26, 16, 10)), true, "17:10 local");
+  assert.equal(open(at(26, 15, 30)), false, "26.10. 16:30 local");
+  assert.equal(open(at(26, 17, 30)), false, "26.10. 18:30 local: the hour is over");
+  // other regions keep the UTC hours until their zone is known
+  assert.equal(riftOpen(at(26, 12, 30), at(26, 12, 30) + 12_000, "Asia"), true);
+  assert.equal(riftOpen(at(26, 13, 30), at(26, 13, 30) + 12_000, "Asia"), false);
 });
 
 test("a server the client names for a player of the crowd outside the rule is taken from him, and he is placed like a player the client knows nothing of", () => {
@@ -113,13 +130,13 @@ test("a server the client names for a player of the crowd outside the rule is ta
     return copy;
   };
   const names = (copy: { participants: { name: string; serverId?: number }[] }) => Object.fromEntries(copy.participants.map((p) => [p.name, p.serverId]));
-  // 20:00 UTC: no rift hour, only the uploader's own server is on the map of a home-map field boss
-  const quiet = filed(Date.UTC(2026, 0, 5, 20, 0, 0), { Bob: 1311, Cara: 2304, Dan: 1304 });
+  // 20:30 UTC = 21:30 local in winter: no rift, only the uploader's own server is on the map of a home-map field boss
+  const quiet = filed(Date.UTC(2026, 0, 5, 20, 30, 0), { Bob: 1311, Cara: 2304, Dan: 1304 });
   assert.equal(dropServersOutsideRule(quiet), 2);
   assert.deepEqual([names(quiet).Bob, names(quiet).Cara, names(quiet).Dan], [undefined, undefined, 1304]);
   assert.equal(quiet.participants.find((p: { name: string }) => p.name === "Bob").faction, "", "faction goes with the server");
-  // 21:30 UTC: a rift hour, the paired server (Lumiel 2304) can be there, a third one (Kaisinel's neighbour 1311) never
-  const rift = filed(Date.UTC(2026, 0, 5, 21, 30, 0), { Bob: 1311, Cara: 2304, Dan: 1304 });
+  // 19:30 UTC = 20:30 local: a rift, the paired server (Lumiel 2304) can be there, a third one (Kaisinel's neighbour 1311) never
+  const rift = filed(Date.UTC(2026, 0, 5, 19, 30, 0), { Bob: 1311, Cara: 2304, Dan: 1304 });
   assert.equal(dropServersOutsideRule(rift), 1);
   assert.deepEqual([names(rift).Bob, names(rift).Cara, names(rift).Dan], [undefined, 2304, 1304]);
   // the uploader himself is never touched
