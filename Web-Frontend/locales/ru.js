@@ -970,7 +970,6 @@ export default {
   "ranks.content": "Режим",
   "ranks.note": "Места, которые показывала игра, когда этот игрок в последний раз открывал окно рейтинга; сами по себе они не обновляются.",
   "profile.tabPantheon": "Пантеон",
-  "profile.tabArcanaPantheon": "Аркана & Пантеон",
   "pantheon.title": "Пантеон",
   "pantheon.effects": "Эффекты размещения",
   "pantheon.preset": "Пресет {n}",

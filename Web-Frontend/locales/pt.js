@@ -970,7 +970,6 @@ export default {
   "ranks.content": "Conteúdo",
   "ranks.note": "As posições que o jogo mostrou quando este jogador abriu pela última vez a sua janela de ranking; não são atualizadas por si só.",
   "profile.tabPantheon": "Panteão",
-  "profile.tabArcanaPantheon": "Arcana & Panteão",
   "pantheon.title": "Panteão",
   "pantheon.effects": "Efeitos de colocação do Panteão",
   "pantheon.preset": "Preset {n}",

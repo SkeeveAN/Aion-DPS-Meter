@@ -5181,16 +5181,12 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   if (character?.attributes) {
     tabs.unshift(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
   }
-  // Arcana and Pantheon share one tab (both are about the gods' values, and the profile has enough tabs): the Pantheon only exists for a character whose own client uploaded it.
-  const hasArcana = profile?.gear.some((g) => g.slotName === "Arcana");
-  if (hasArcana || profile?.pantheon) {
-    const placed = profile?.pantheon?.presets[0]?.slots.length ?? 0;
-    tabs.push([
-      hasArcana ? "arcana" : "pantheon",
-      t(hasArcana ? (profile.pantheon ? "profile.tabArcanaPantheon" : "slot.Arcana") : "profile.tabPantheon"),
-      hasArcana ? profile.gear.filter((g) => g.slotName === "Arcana").length : placed,
-      () => el("div", {}, [hasArcana ? renderArcanaTab(profile) : null, profile.pantheon ? renderPantheon(profile.pantheon) : null].filter((x) => x != null)),
-    ]);
+  if (profile?.gear.some((g) => g.slotName === "Arcana")) {
+    tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
+  }
+  // The Pantheon only exists for a character whose own client uploaded it.
+  if (profile?.pantheon) {
+    tabs.push(["pantheon", t("profile.tabPantheon"), profile.pantheon.presets[0]?.slots.length ?? 0, () => renderPantheon(profile.pantheon)]);
   }
   if (profile?.ranks?.length > 0) {
     tabs.push(["ranks", t("profile.tabRanks"), profile.ranks.length, () => renderRanksTab(profile)]);

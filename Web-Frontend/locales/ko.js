@@ -970,7 +970,6 @@ export default {
   "ranks.content": "콘텐츠",
   "ranks.note": "이 플레이어가 마지막으로 랭킹 창을 열었을 때 게임이 보여 준 순위입니다. 자동으로 갱신되지 않습니다.",
   "profile.tabPantheon": "만신전",
-  "profile.tabArcanaPantheon": "아르카나 & 만신전",
   "pantheon.title": "만신전",
   "pantheon.effects": "만신전 배치 효과",
   "pantheon.preset": "프리셋 {n}",

@@ -970,7 +970,6 @@ export default {
   "ranks.content": "內容",
   "ranks.note": "該玩家上次開啟排名視窗時遊戲顯示的名次；不會自動更新。",
   "profile.tabPantheon": "萬神殿",
-  "profile.tabArcanaPantheon": "奧術 & 萬神殿",
   "pantheon.title": "萬神殿",
   "pantheon.effects": "萬神殿配置效果",
   "pantheon.preset": "預設 {n}",

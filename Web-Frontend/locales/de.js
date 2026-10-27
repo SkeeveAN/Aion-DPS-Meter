@@ -560,7 +560,6 @@ export default {
   "ranks.stat.lose_count": "Niederlagen",
   "ranks.note": "Die Ränge, die das Spiel zeigte, als dieser Spieler zuletzt sein Ranglistenfenster öffnete; sie aktualisieren sich nicht von selbst.",
   "profile.tabPantheon": "Pantheon",
-  "profile.tabArcanaPantheon": "Arcana & Pantheon",
   "pantheon.title": "Pantheon",
   "pantheon.effects": "Pantheon-Aufstellungseffekte",
   "pantheon.preset": "Preset {n}",

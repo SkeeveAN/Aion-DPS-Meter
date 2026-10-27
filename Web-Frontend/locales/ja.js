@@ -970,7 +970,6 @@ export default {
   "ranks.content": "コンテンツ",
   "ranks.note": "このプレイヤーが最後にランキング画面を開いたときにゲームが表示した順位です。自動では更新されません。",
   "profile.tabPantheon": "万神殿",
-  "profile.tabArcanaPantheon": "アルカナ & 万神殿",
   "pantheon.title": "万神殿",
   "pantheon.effects": "万神殿配置効果",
   "pantheon.preset": "プリセット{n}",

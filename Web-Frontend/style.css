@@ -4578,9 +4578,6 @@ button.cmp-mem { cursor: pointer; }
 @media(prefers-reduced-motion:reduce){.home-banner-bgimg,.home-banner-stage,.home-banner-copy{transition:none}}
 
 /* The Pantheon in the arcana tab: sums on the left, decorations by slot on the right, the collection folded below. */
-.pf-pan {
-  margin-top: 24px;
-}
 .pf-pan h3 {
   margin: 0 0 12px;
 }
