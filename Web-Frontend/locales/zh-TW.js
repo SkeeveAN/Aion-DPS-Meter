@@ -141,7 +141,7 @@ export default {
   "home.faq.stand.q": "DPS 代表什麼？",
   "home.faq.stand.a": "Daevas Power Suite。這個名稱源自每秒傷害（damage-per-second）統計工具的領域，Aion DPS 正是從那裡起步，後來發展成適用於 AION 2 的完整工具組。",
   "home.faq.safe.q": "Aion DPS 允許使用嗎？",
-  "home.faq.safe.a": "NCSOFT 並未點名個別程式，而是列出會受到處罰的行為：繞過技術保護措施、機器人、提高傷害或速度的工具，以及一切讓玩家做到一般玩家做不到之事的東西。Aion DPS 一項都不做：它只透過 Npcap 驅動程式讀取您自己的電腦本來就會收到的網路流量，從不讀取遊戲記憶體、不注入程式碼、不掛鉤遊戲用戶端，也不傳送任何封包。這些規則並沒有禁止傷害統計器，但也沒有明確批准，而且該列表並不窮盡。Aion DPS 不在其中是我們的理解，而不是 NCSOFT 的表態，因此請查看最新規則，並自行承擔使用責任。",
+  "home.faq.safe.a": "NCSOFT 並未點名個別程式，而是對外掛機器人、提升傷害的工具等行為進行處罰。Aion DPS 只讀取你自己電腦本來就會收到的網路流量，從不讀取遊戲記憶體、注入程式碼或傳送封包。不在這些規則範圍內是我們的理解，並非 NCSOFT 的聲明，請查看最新規則並自行承擔使用風險。",
   "home.faq.install.q": "如何安裝 Aion DPS？",
   "home.faq.install.a": "安裝 Npcap 驅動程式，從 aiondps.com/download 下載 Windows 安裝程式，然後啟動 AION 2。Aion DPS 會自動擷取您的戰鬥並自行更新。",
   "home.faq.free.q": "Aion DPS 免費嗎？",

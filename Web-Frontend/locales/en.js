@@ -166,7 +166,7 @@ export default {
   "home.faq.stand.q": "What does DPS stand for?",
   "home.faq.stand.a": "Daevas Power Suite. The name comes from the world of damage-per-second meters, where Aion DPS started, and grew into a full toolkit for AION 2.",
   "home.faq.safe.q": "Is Aion DPS allowed?",
-  "home.faq.safe.a": "NCSOFT does not name individual programs; it lists behaviors that are sanctioned: bypassing technical protection, bots, tools that raise damage or speed, anything that lets players do what regular players cannot. Aion DPS does none of that: it only reads the network traffic your own computer already receives, through the Npcap driver, and never reads game memory, injects code, hooks the game client or sends a packet. Damage meters are not prohibited by those rules, but not expressly approved either, and the list is not exhaustive. That Aion DPS falls outside it is our reading, not a statement from NCSOFT, so check the current rules and use it at your own responsibility.",
+  "home.faq.safe.a": "NCSOFT names no individual programs, only sanctioned behaviors such as bots or tools that raise damage. Aion DPS only reads the network traffic your own computer already receives; it never reads game memory, injects code or sends packets. That it falls outside those rules is our reading, not a statement from NCSOFT, so check the current rules and use it at your own risk.",
   "home.faq.install.q": "How do I install Aion DPS?",
   "home.faq.install.a": "Install the Npcap driver, download the Windows installer from aiondps.com/download, and start AION 2. Aion DPS picks up your fights automatically and updates itself.",
   "home.faq.free.q": "Is Aion DPS free?",
