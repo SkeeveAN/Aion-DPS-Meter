@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.16.7",
   "date": "2026-10-27",
   "items": [
    {
@@ -14,6 +14,35 @@
     "text": "Website: the how it works article says up front what NCSOFT's rules sanction and where the tool stands (no more claim that it is safe), and gets a questions section; the FAQ on the home and download pages now answers \"Is it allowed?\" in all ten languages",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-27"
+   },
+   {
+    "text": "Website: the Pantheon tab draws the Pantheon as a ring like the game's window (twelve paintings on the outer ring, four statues in hexagons, the colossus in the middle, with the game's icons and the frame colour of each decoration's grade), with the effects and details beside it",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-27"
+   },
+   {
+    "text": "Own position: without a fresh exact report the middle of the entities around is the trimmed one (only those within 45 m of the median) instead of the mean - monsters announced 2 to 3 km away pulled the mean 479 m off in the median on the Insel der Ewigkeit, the trimmed middle is 15 m off",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-27"
+   },
+   {
+    "text": "Verteron map: the offset correction of 12 October is taken back - with it only 62 % of the spawn points of the Insel der Ewigkeit lay on land (monsters and cubes drawn in the sea, the player 80 m east and 115 m north of the arrow), without it 98 %",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-27"
+   },
+   {
+    "text": "the own position without a fresh exact report is no longer pulled away by monsters announced far away, and the Verteron map is shifted back so that monsters and cubes on the Insel der Ewigkeit are no longer drawn in the sea",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-27"
    }
