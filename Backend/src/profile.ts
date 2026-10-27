@@ -812,7 +812,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
 /** The game's Pantheon tables (Tools/aion2-dat/build_pantheon.py): decoration number -> kind (frame, statue, colossus), race, names and effects, and the names of the stats they raise. */
 type PantheonTables = {
   stats: Record<string, Record<string, string>>;
-  decorations: Record<string, { k: "frame" | "statue" | "colossus"; r: string; n: Record<string, string>; e: [string, number][] }>;
+  decorations: Record<string, { k: "frame" | "statue" | "colossus"; r: string; i?: string; g?: number; n: Record<string, string>; e: [string, number][] }>;
 };
 let pantheonTables: PantheonTables | null = null;
 
@@ -824,6 +824,10 @@ export interface PantheonDecorationView {
   kind: "frame" | "statue" | "colossus";
   names: Record<string, string>;
   effects: { stat: string; value: number }[];
+  /** The icon's file name (Web-Frontend/images/aion2/pantheon/<icon>.webp); null for a decoration the tables do not know. */
+  icon: string | null;
+  /** The grade of the decoration's item (1 common, 2 uncommon/green, 3 rare/blue, 4 legend/gold, 5 unique); 0 = unknown. */
+  grade: number;
 }
 
 export interface PantheonView {
@@ -850,7 +854,7 @@ export function pantheonOf(json: string): PantheonView | null {
   const tables = pantheonTables;
   const deco = (id: number): PantheonDecorationView => {
     const row = tables.decorations[String(id)];
-    return { id, kind: row?.k ?? (id >= 5000 ? "colossus" : id >= 1000 ? "statue" : "frame"), names: row?.n ?? {}, effects: (row?.e ?? []).map(([stat, value]) => ({ stat, value })) };
+    return { id, kind: row?.k ?? (id >= 5000 ? "colossus" : id >= 1000 ? "statue" : "frame"), names: row?.n ?? {}, effects: (row?.e ?? []).map(([stat, value]) => ({ stat, value })), icon: row?.i ?? null, grade: row?.g ?? 0 };
   };
   const placed = new Set(data.presets.flatMap((p) => p.slots.map((k) => k.id)));
   return {

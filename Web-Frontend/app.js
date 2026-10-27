@@ -4254,38 +4254,82 @@ function renderRanksTab(profile) {
   ]);
 }
 
-// The own Pantheon: the sums of the decorations set up (as the game's Pantheon window shows them, one setup at a time), the decorations by slot and, folded away, the
-// whole collection. Names and effects come from the game's tables on the server; a decoration it does not know shows its number.
+// The own Pantheon, drawn the way the game's window shows it: twelve paintings on the outer ring (slot 1-2 top right, then clockwise in pairs), four statues in
+// hexagons, the colossus in the middle; beside it the sums of the decorations set up (one setup at a time), the decorations by slot and, folded away, the whole
+// collection. Names, effects and icons come from the game's tables on the server; a decoration it does not know shows its number.
+const PANTHEON_FRAME_ANGLES = [36, 53, 82, 98, 127, 144, 216, 233, 262, 278, 307, 324];
+const PANTHEON_STATUE_SPOTS = { 13: [33, 33], 14: [33, 67], 15: [67, 67], 16: [67, 33] };
+
 function renderPantheon(pan) {
   const locale = getLocale();
   const pick = (names) => names?.[locale] ?? names?.en ?? "";
   const statName = (stat) => pick(pan.statNames[stat]) || stat;
   const effectsText = (effects) => effects.map((e) => `${statName(e.stat)} ${e.value}`).join(" · ");
   const decoName = (d) => pick(d.names) || `#${d.id}`;
-  const body = el("div", { className: "pf-pan-body" });
   const kinds = ["frame", "statue", "colossus"];
-  const draw = (preset) => {
-    const slots = preset.slots;
-    const totals = preset.totals.length > 0
-      ? el("table", { className: "pf-pan-totals" }, [el("tbody", {}, preset.totals.map((x) => el("tr", {}, [el("td", { textContent: pick(x.names) || x.stat }), el("td", { textContent: String(x.value) })])))])
-      : el("p", { className: "profile-source", textContent: t("pantheon.empty") });
-    const lists = kinds
-      .map((kind) => [kind, slots.filter((d) => d.kind === kind).sort((a, b) => a.slot - b.slot)])
-      .filter(([, list]) => list.length > 0)
-      .map(([kind, list]) => el("div", { className: "pf-pan-group" }, [
-        el("h4", { textContent: `${t(`pantheon.kind.${kind}`)} (${list.length})` }),
-        ...list.map((d) => el("div", { className: "pf-pan-row" }, [el("span", { textContent: decoName(d) }), el("small", { textContent: effectsText(d.effects) })])),
-      ]));
-    body.replaceChildren(el("div", { className: "pf-pan-sums" }, [el("h4", { textContent: t("pantheon.effects") }), totals]), el("div", { className: "pf-pan-slots" }, lists));
+
+  const ring = el("div", { className: "pf-pan-ring" });
+  const drawRing = (preset) => {
+    const bySlot = new Map(preset.slots.map((d) => [d.slot, d]));
+    const nodes = [];
+    for (let slot = 1; slot <= 17; slot++) {
+      const d = bySlot.get(slot);
+      const kind = slot <= 12 ? "frame" : slot <= 16 ? "statue" : "colossus";
+      const [x, y] = slot <= 12
+        ? [50 + 44.5 * Math.sin((PANTHEON_FRAME_ANGLES[slot - 1] * Math.PI) / 180), 50 - 44.5 * Math.cos((PANTHEON_FRAME_ANGLES[slot - 1] * Math.PI) / 180)]
+        : slot <= 16 ? PANTHEON_STATUE_SPOTS[slot] : [50, 50];
+      const node = el("div", { className: `pf-pan-slot ${kind}${d ? "" : " empty"}` });
+      node.style.left = `${x}%`;
+      node.style.top = `${y}%`;
+      if (d) {
+        node.style.setProperty("--g", GRADE_COLOR[d.grade] ?? "#8a93a0");
+        if (d.icon) {
+          node.append(el("img", { src: `/images/aion2/pantheon/${d.icon}.webp`, alt: decoName(d), loading: "lazy" }));
+        } else {
+          node.append(el("span", { textContent: decoName(d).replace(/^[^:：]*[:：]\s*/, "").slice(0, 2) }));
+        }
+
+        attachTooltip(node, () => [
+          el("div", { className: "pf-tip-title", textContent: decoName(d) }),
+          ...d.effects.map((e) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: `${statName(e.stat)} ${e.value}` })])),
+        ]);
+      }
+
+      nodes.push(node);
+    }
+
+    ring.replaceChildren(...nodes);
   };
+
+  const sums = el("div", { className: "pf-pan-sums" });
+  const slotsBox = el("div", { className: "pf-pan-slots" });
+  const draw = (preset) => {
+    drawRing(preset);
+    sums.replaceChildren(
+      el("h4", { textContent: t("pantheon.effects") }),
+      preset.totals.length > 0
+        ? el("table", { className: "pf-pan-totals" }, [el("tbody", {}, preset.totals.map((x) => el("tr", {}, [el("td", { textContent: pick(x.names) || x.stat }), el("td", { textContent: String(x.value) })])))])
+        : el("p", { className: "profile-source", textContent: t("pantheon.empty") }),
+    );
+    slotsBox.replaceChildren(
+      ...kinds
+        .map((kind) => [kind, preset.slots.filter((d) => d.kind === kind).sort((a, b) => a.slot - b.slot)])
+        .filter(([, list]) => list.length > 0)
+        .map(([kind, list]) => el("div", { className: "pf-pan-group" }, [
+          el("h4", { textContent: `${t(`pantheon.kind.${kind}`)} (${list.length})` }),
+          ...list.map((d) => el("div", { className: "pf-pan-row" }, [el("span", { textContent: decoName(d) }), el("small", { textContent: effectsText(d.effects) })])),
+        ])),
+    );
+  };
+
   const buttons = pan.presets.map((preset) =>
     el("button", { type: "button", textContent: t("pantheon.preset", { n: preset.preset }) }, [el("small", { textContent: String(preset.slots.length) })]),
   );
-  const pick1 = (i) => {
+  const choose = (i) => {
     buttons.forEach((b, k) => b.setAttribute("aria-selected", String(k === i)));
     draw(pan.presets[i]);
   };
-  buttons.forEach((b, i) => b.addEventListener("click", () => pick1(i)));
+  buttons.forEach((b, i) => b.addEventListener("click", () => choose(i)));
   const placedCount = pan.owned.filter((d) => d.placed).length;
   const collection = pan.owned.length > 0
     ? el("details", { className: "pf-pan-owned" }, [
@@ -4298,12 +4342,12 @@ function renderPantheon(pan) {
     ])
     : null;
   if (pan.presets.length > 0) {
-    pick1(0);
+    choose(0);
   }
+
   return el("section", { className: "pf-pan" }, [
-    el("h3", { textContent: t("pantheon.title") }),
     pan.presets.length > 1 ? el("div", { className: "pf-pan-tabs", role: "tablist" }, buttons) : null,
-    body,
+    el("div", { className: "pf-pan-body" }, [ring, sums, slotsBox]),
     collection,
     el("p", { className: "profile-source", textContent: t("pantheon.note") }),
   ].filter((x) => x != null));
