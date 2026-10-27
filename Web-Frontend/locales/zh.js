@@ -268,7 +268,7 @@ export default {
   "legal.termsSection3Body": "客户端和网站均免费提供,不附带任何明示或暗示的担保。我们不保证该工具完全无错误、数据完全准确,或始终可用。",
   "legal.termsSection4Heading": "你对游戏规则的责任",
   "legal.termsSection4Body":
-    "客户端仅被动观察您自己电脑的网络流量。它不会修改游戏客户端，不会注入代码，也不会自行发送任何网络数据包。尽管如此，部分游戏会限制第三方工具的使用，因此在使用本工具或类似工具之前，请您自行确认游戏当前的使用条款。",
+    "客户端仅被动观察您自己电脑的网络流量。它不会修改游戏客户端，不会注入代码，也不会自行发送任何网络数据包。尽管如此，部分游戏会限制第三方工具的使用，因此在使用本工具或类似工具之前，请您自行确认游戏当前的使用条款。 NCSOFT 的最新规则：[运营政策](https://aion2.plaync.com/de-de/board/rules/list)和[服务条款](https://www.plaync.com/policy/service/game_de)。",
   "legal.termsSection5Heading": "上传功能的运作方式",
   "legal.termsSection5Body": "上传功能是可选的,仅会发送我们隐私政策中所描述的战斗数据。我们保留在不另行通知的情况下拒绝、删除或隐藏任何上传内容的权利。",
   "legal.termsSection6Heading": "可接受的使用方式",

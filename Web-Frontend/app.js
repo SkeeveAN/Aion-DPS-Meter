@@ -648,7 +648,7 @@ function legalBody(text) {
   let list = null;
   const flush = () => {
     if (paragraph.length > 0) {
-      blocks.push(el("p", { textContent: paragraph.join(" ") }));
+      blocks.push(el("p", {}, articleSegments(paragraph.join(" ")).map((s) => (s.href ? link(s.text, s.href) : s.bold ? el("strong", { textContent: s.text }) : document.createTextNode(s.text)))));
       paragraph = [];
     }
     list = null;

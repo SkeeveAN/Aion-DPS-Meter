@@ -228,7 +228,7 @@ export default {
   "legal.termsSection3Body": "用戶端與網站皆免費提供，不附帶任何明示或默示的保證。我們不保證本工具沒有錯誤、準確無誤，或隨時可用。",
   "legal.termsSection4Heading": "您對遊戲規則的責任",
   "legal.termsSection4Body":
-    "用戶端只會被動觀察您自己電腦的網路流量。它不會修改遊戲用戶端、不會注入程式碼，也不會自行傳送任何網路封包。即便如此，部分遊戲仍會限制第三方工具的使用，因此在使用本工具或任何類似工具之前，請您自行確認所玩遊戲目前的服務條款。",
+    "用戶端只會被動觀察您自己電腦的網路流量。它不會修改遊戲用戶端、不會注入程式碼，也不會自行傳送任何網路封包。即便如此，部分遊戲仍會限制第三方工具的使用，因此在使用本工具或任何類似工具之前，請您自行確認所玩遊戲目前的服務條款。 NCSOFT 的最新規則：[營運政策](https://aion2.plaync.com/de-de/board/rules/list)和[服務條款](https://www.plaync.com/policy/service/game_de)。",
   "legal.termsSection5Heading": "上傳功能的運作方式",
   "legal.termsSection5Body": "上傳是選擇性的，只會傳送我們隱私權政策中所述的戰鬥資料。我們保留在不另行通知的情況下拒絕、移除或隱藏任何上傳內容的權利。",
   "legal.termsSection6Heading": "合理使用",

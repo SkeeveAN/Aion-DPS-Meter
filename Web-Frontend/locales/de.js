@@ -237,7 +237,7 @@ export default {
   "legal.termsSection3Body": "Client und Website werden kostenlos und ohne jegliche Garantie, weder ausdrücklich noch stillschweigend, bereitgestellt. Wir garantieren nicht, dass das Tool fehlerfrei, korrekt oder jederzeit verfügbar ist.",
   "legal.termsSection4Heading": "Deine Verantwortung bezüglich der Spielregeln",
   "legal.termsSection4Body":
-    "Der Client beobachtet nur passiv den Netzwerkverkehr deines eigenen Rechners. Er verändert den Spielclient nie, schleust keinen Code ein und sendet keine eigenen Netzwerkpakete. Trotzdem schränken manche Spiele die Nutzung von Drittwerkzeugen ein; es liegt in deiner Verantwortung, vor der Nutzung dieses oder eines ähnlichen Werkzeugs die aktuellen Nutzungsbedingungen des Spiels zu prüfen.",
+    "Der Client beobachtet nur passiv den Netzwerkverkehr deines eigenen Rechners. Er verändert den Spielclient nie, schleust keinen Code ein und sendet keine eigenen Netzwerkpakete. Trotzdem schränken manche Spiele die Nutzung von Drittwerkzeugen ein; es liegt in deiner Verantwortung, vor der Nutzung dieses oder eines ähnlichen Werkzeugs die aktuellen Nutzungsbedingungen des Spiels zu prüfen. Die aktuellen Regeln von NCSOFT: [Betriebsrichtlinien](https://aion2.plaync.com/de-de/board/rules/list) und [Nutzungsbedingungen](https://www.plaync.com/policy/service/game_de).",
   "legal.termsSection5Heading": "Wie die Upload-Funktion funktioniert",
   "legal.termsSection5Body": "Der Upload ist optional und überträgt nur die in unserer Datenschutzerklärung beschriebenen Kampfdaten. Wir behalten uns vor, Uploads ohne Vorankündigung abzulehnen, zu entfernen oder auszublenden.",
   "legal.termsSection6Heading": "Angemessene Nutzung",
