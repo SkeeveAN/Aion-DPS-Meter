@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseMatchmaking, recordNotice, regionOfTitle, resetMatchmaking, matchmakingView } from "./serverMatchmaking.js";
+import { parseAbyssMatchmaking, parseMatchmaking, recordNotice, regionOfTitle, resetMatchmaking, matchmakingView } from "./serverMatchmaking.js";
 
 const fixture = (name: string) => (JSON.parse(readFileSync(new URL(`./fixtures/nc-server-matchmaking-${name}.json`, import.meta.url), "utf8")) as { article: { content: { content: string } } }).article.content.content;
 const html = fixture("asia");
@@ -47,4 +47,17 @@ test("lineup notice: phases per block, Europe has the later pairs with their tim
   const ishtar = eu.find((p) => p.elyos === "Ishtar");
   assert.deepEqual([ishtar?.asmodian, ishtar?.phase, ishtar?.updated], ["Fafnir", "Launch", "09:30 PDT / 18:30 CEST"]);
   assert.equal(eu.find((p) => p.elyos === "Siel")?.phase, "Advanced Access");
+});
+
+test("abyss + rift notice (28 Oct): South America is LATAM, the abyss tables with factions are read apart from the rift pairs", () => {
+  const notice = fixture("abyss-rift");
+  const count = (list: { region: string | null }[], r: string) => list.filter((p) => p.region === r).length;
+  const rift = parseMatchmaking(notice);
+  assert.deepEqual(["Europe", "NA East", "NA West", "LATAM", "Asia"].map((r) => count(rift, r)), [23, 9, 5, 6, 10]);
+  assert.deepEqual(rift.filter((p) => p.region === "LATAM").slice(5).map((p) => [p.elyos, p.asmodian]), [["Vaizel", "Azphel"]]);
+  const abyss = parseAbyssMatchmaking(notice);
+  assert.deepEqual(["Europe", "NA East", "NA West", "LATAM", "Asia"].map((r) => count(abyss, r)), [23, 9, 5, 6, 10]);
+  assert.deepEqual(abyss[0], { region: "Europe", server1: "Triniel", server2: "Lumiel", faction1: "Asmodian", faction2: "Asmodian" });
+  assert.deepEqual(abyss.find((p) => p.region === "Europe" && p.server1 === "Zikel"), { region: "Europe", server1: "Zikel", server2: "Kaisinel", faction1: "Asmodian", faction2: "Elyos" });
+  assert.deepEqual(parseAbyssMatchmaking(fixture("lineup")), []);
 });

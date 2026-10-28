@@ -723,6 +723,28 @@ export const serverMatchmaking = sqliteTable(
   }),
 );
 
+// The Abyss pairings of the same notices: two servers meet in the Abyss, in any faction combination (Elyos and Elyos is possible), so they are not an Elyos/Asmodian
+// column pair like in server_matchmaking. Same history scheme: valid_to is null while NC still lists the pairing.
+export const serverMatchmakingAbyss = sqliteTable(
+  "server_matchmaking_abyss",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    region: text("region").notNull(),
+    server1: text("server1").notNull(),
+    server2: text("server2").notNull(),
+    faction1: text("faction1").notNull(),
+    faction2: text("faction2").notNull(),
+    server1Id: integer("server1_id").references(() => servers.id),
+    server2Id: integer("server2_id").references(() => servers.id),
+    noticeId: text("notice_id"),
+    validFrom: integer("valid_from").notNull(),
+    validTo: integer("valid_to"),
+  },
+  (table) => ({
+    regionOpenIdx: index("server_matchmaking_abyss_region_open_idx").on(table.region, table.validTo),
+  }),
+);
+
 // Full login traffic (gzipped JSON lines of the game server's segments) of members of the legion Akatsuki on Kaisinel, kept only for a while to work out
 // what ties the characters of one player together (see routes/loginDumps.ts). Nobody else's login is ever stored; rows are purged after LOGIN_DUMP_KEEP_DAYS.
 export const loginDumps = sqliteTable("login_dumps", {

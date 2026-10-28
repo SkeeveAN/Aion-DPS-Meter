@@ -17,6 +17,13 @@
      "Backend"
     ],
     "date": "2026-10-29"
+   },
+   {
+    "text": "Server matchmaking: the Abyss pairings (with the factions of both servers) are now kept as well, and the South America pairings are read as LATAM instead of being mixed into NA West",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-29"
    }
   ]
  },

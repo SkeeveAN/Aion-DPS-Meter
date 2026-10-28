@@ -12,9 +12,9 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
-const { parseMatchmaking } = await import("./serverMatchmaking.js");
+const { parseAbyssMatchmaking, parseMatchmaking } = await import("./serverMatchmaking.js");
 const { servers } = await import("./db/schema.js");
-const { currentMatches, matchedServer, syncMatchmakingToDb } = await import("./serverMatchmakingDb.js");
+const { currentMatches, matchedServer, syncAbyssToDb, syncMatchmakingToDb } = await import("./serverMatchmakingDb.js");
 
 const fixture = (name: string) => (JSON.parse(readFileSync(new URL(`./fixtures/nc-server-matchmaking-${name}.json`, import.meta.url), "utf8")) as { article: { content: { content: string } } }).article.content.content;
 const europe = () => ({ region: "Europe", noticeId: "n1", pairs: parseMatchmaking(fixture("lineup")).filter((p) => p.region === "Europe") });
@@ -55,4 +55,11 @@ test("a server that uploads later gets its id on the open row", () => {
 test("a region the notices do not mention keeps its rows", () => {
   assert.deepEqual(syncMatchmakingToDb([{ region: "Asia", noticeId: "n2", pairs: [] }], 4000), { opened: 0, closed: 0 });
   assert.equal(currentMatches("Europe").length, 23);
+});
+
+test("abyss pairings: same sync scheme, a changed pairing closes the old row", () => {
+  const abyss = parseAbyssMatchmaking(fixture("abyss-rift")).filter((p) => p.region === "Europe");
+  assert.deepEqual(syncAbyssToDb([{ region: "Europe", noticeId: "n2", pairs: abyss }], 5000), { opened: 23, closed: 0 });
+  assert.deepEqual(syncAbyssToDb([{ region: "Europe", noticeId: "n2", pairs: abyss }], 6000), { opened: 0, closed: 0 });
+  assert.deepEqual(syncAbyssToDb([{ region: "Europe", noticeId: "n2", pairs: abyss.map((p) => (p.server1 === "Zikel" ? { ...p, server2: "Siel" } : p)) }], 7000), { opened: 1, closed: 1 });
 });
