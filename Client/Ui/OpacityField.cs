@@ -35,6 +35,8 @@ public sealed class OpacityField : Grid
         _box.SetResourceReference(Control.ForegroundProperty, "Brush.Text");
         _box.SetResourceReference(Control.BorderBrushProperty, "Brush.Border");
         var percent = new TextBlock { Text = " %", VerticalAlignment = VerticalAlignment.Center };
+        label.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text"); // the app's text colour, not the Windows default
+        percent.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         var right = new StackPanel { Orientation = Orientation.Horizontal };
         right.Children.Add(_box);
         right.Children.Add(percent);
