@@ -494,7 +494,9 @@ const jobContext = new AsyncLocalStorage<{ background: boolean }>();
 
 /** The one rate limit towards NC, shared by everything that asks it (portraits, character data, the player match). */
 export const ncPacing = new NcPacing();
-const paced = pacedFetch(fetch, () => ncPacing.gapMs());
+// The timeout starts only when the request really goes out: the caller's one ran during the wait in the queue, so at a wide gap the later workers
+// timed out before they were sent, which counted as network errors, kept the gap wide and failed every request.
+const paced = pacedFetch((input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) }), () => ncPacing.gapMs());
 const requestTimes: number[] = [];
 /** The same for the requests of background jobs alone: they have a share of their own (see withinBudget). */
 const backgroundRequestTimes: number[] = [];
