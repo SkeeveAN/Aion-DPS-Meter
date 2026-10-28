@@ -55,6 +55,8 @@ if [[ -f "$DB_FILE" ]]; then
   fi
 fi
 
+install -m 0755 "$REPO_DIR/Backend/deploy/dpsmeter_keys" /usr/local/bin/dpsmeter_keys
+
 echo "==> Starte Service neu..."
 systemctl restart "$SERVICE_NAME"
 sleep 2
