@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { eq } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { bossHpReference } from "./db/schema.js";
-import { consistentWithReference, near, type BossHpRef } from "./bossHpRules.js";
+import { consistentWithReference, HP_BEFORE_PATCH_2026_10_28, near, type BossHpRef } from "./bossHpRules.js";
 
 export * from "./bossHpRules.js";
 
@@ -77,6 +77,11 @@ export function learnSpawnHp(npcId: number | undefined, spawnHp: number | undefi
     return;
   }
   const ref = { baseHp: row.baseHp, partyScaled: row.partyScaled };
+  // A late upload of a fight from before the patch must not raise the reduced reference again.
+  const before = HP_BEFORE_PATCH_2026_10_28[npcId];
+  if (before !== undefined && near(spawnHp, before)) {
+    return;
+  }
   if (!consistentWithReference(spawnHp, ref)) {
     return;
   }

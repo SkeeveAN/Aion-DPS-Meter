@@ -498,6 +498,13 @@
       "when": 1793400000000,
       "tag": "0070_profile_pantheon",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "6",
+      "when": 1793500000000,
+      "tag": "0071_transcendence_hp_patch",
+      "breakpoints": true
     }
   ]
 }

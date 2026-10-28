@@ -444,7 +444,7 @@
   },
   "2320601": {
    "name": "Atiel",
-   "baseHp": 11067000,
+   "baseHp": 10347645,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 108,
@@ -452,7 +452,7 @@
   },
   "2320615": {
    "name": "Nazmun",
-   "baseHp": 5859000,
+   "baseHp": 5478165,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 38,
@@ -460,7 +460,7 @@
   },
   "2320616": {
    "name": "Gelcos",
-   "baseHp": 5859000,
+   "baseHp": 5478165,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 38,
@@ -468,7 +468,7 @@
   },
   "2330707": {
    "name": "Siliator of Deceit",
-   "baseHp": 5859000,
+   "baseHp": 5478165,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 42,
@@ -476,7 +476,7 @@
   },
   "2330708": {
    "name": "Ruthilis of Pain",
-   "baseHp": 5859000,
+   "baseHp": 5478165,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 39,
@@ -484,7 +484,7 @@
   },
   "2330709": {
    "name": "Talisra of the Void",
-   "baseHp": 11067000,
+   "baseHp": 10347645,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 36,
@@ -492,7 +492,7 @@
   },
   "2340601": {
    "name": "Atiel",
-   "baseHp": 13685000,
+   "baseHp": 12795475,
    "partyScaled": false,
    "source": "uploads",
    "uploads": 137,
@@ -500,7 +500,7 @@
   },
   "2340615": {
    "name": "Nazmun",
-   "baseHp": 7245000,
+   "baseHp": 6774075,
    "partyScaled": false,
    "source": "uploads",
    "uploads": 40,
@@ -508,7 +508,7 @@
   },
   "2340616": {
    "name": "Gelcos",
-   "baseHp": 7244480,
+   "baseHp": 6773589,
    "partyScaled": false,
    "source": "uploads",
    "uploads": 41,
@@ -564,7 +564,7 @@
   },
   "2350707": {
    "name": "Siliator of Deceit",
-   "baseHp": 7245000,
+   "baseHp": 6774075,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 61,
@@ -572,7 +572,7 @@
   },
   "2350708": {
    "name": "Ruthilis of Pain",
-   "baseHp": 7245000,
+   "baseHp": 6774075,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 66,
@@ -580,7 +580,7 @@
   },
   "2350709": {
    "name": "Talisra of the Void",
-   "baseHp": 13685000,
+   "baseHp": 12795475,
    "partyScaled": false,
    "source": "spawn",
    "uploads": 57,

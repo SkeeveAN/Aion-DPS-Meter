@@ -16,6 +16,12 @@ export const MAX_HP_GROWTH = 1.2;
 /** Two health values this close count as the same one. */
 const SAME_HP_TOLERANCE = 0.01;
 
+/** Patch 2026-10-28 cut the health of Transcendence stages 1 and 2 by 6.5 %: boss NPC id -> health before the patch (migration 0071 sets the reference). */
+export const HP_BEFORE_PATCH_2026_10_28: Readonly<Record<number, number>> = {
+  2320601: 11067000, 2320615: 5859000, 2320616: 5859000, 2330707: 5859000, 2330708: 5859000, 2330709: 11067000,
+  2340601: 13685000, 2340615: 7245000, 2340616: 7244480, 2350707: 7245000, 2350708: 7245000, 2350709: 13685000,
+};
+
 export interface BossHpRef {
   baseHp: number;
   partyScaled: boolean;
