@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-10-28",
+  "date": "2026-10-29",
   "items": [
    {
     "text": "Twitch Drops page: the running and upcoming campaigns are listed newest first, like the past ones",
@@ -9,6 +9,14 @@
      "Website"
     ],
     "date": "2026-10-28"
+   },
+   {
+    "text": "Pet knowledge: Regeneration, Perfection and the resist and penetration stats get their names, and Damage Amplification and HP + show as percent instead of raw numbers",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-29"
    }
   ]
  },
