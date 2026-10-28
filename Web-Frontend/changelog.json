@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-10-28"
+   },
+   {
+    "text": "NC requests: the 15 s timeout now starts when a request is really sent and not while it waits in the shared queue, so at a wide gap the later workers no longer time out before they are sent, which had counted as network errors, kept the gap at its maximum and failed almost every request",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-28"
    }
   ]
  },
