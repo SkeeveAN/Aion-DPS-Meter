@@ -36,9 +36,12 @@ STATS = {
     # it gives the last open ones: 28, 70, 159, 449; 589/590 and 102/103 follow the Front/BackAttack families.
     28: "AmplifyAllDamage", 70: "DecreaseDamage", 159: "AbnormalResistance", 449: "IgnoreIronWall",
     589: "AmplifyFrontAttack", 590: "DecreaseFrontAttack", 102: "AmplifyBackAttack", 103: "DecreaseBackAttack",
+    # 444 Regeneration 2,9 % (player page, 2026-10-28, user); neighbours from the enum gap 442..448: Perfect, Regeneration, Perfect/Double Resist, Regeneration Penetration.
+    442: "Perfect", 444: "Restoration", 446: "PerfectResist", 447: "HardHitResist", 448: "IgnoreRestoration",
     587: "FrontAttackDamage", 591: "FrontAttackCritical", 592: "FrontAttackCriticalResist",
 }
-PERCENT = {44, 47, 158, 443, 445}
+# Percent proven by the in-game pet window 2026-10-28: 28 "Schadensverstärkung" 2 % (sent 200), 196 "LP +" 0,8 % (sent 84); 379 follows 28 (same family, 226/272 on the site).
+PERCENT = {28, 44, 47, 196, 379, 158, 442, 443, 444, 445, 446, 447, 448}
 SPECIES = {2: ("cognia", "INTELLECT"), 3: ("fera", "FERA"), 4: ("natura", "NATURE"), 5: ("varia", "TRANS"), 6: ("specia", "SPECIAL")}
 LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 

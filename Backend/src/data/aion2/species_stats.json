@@ -778,7 +778,8 @@
     "pt": "Aumento de PV",
     "ja": "HP増加",
     "ko": "생명력 증가"
-   }
+   },
+   "percent": true
   },
   "379": {
    "names": {
@@ -790,7 +791,8 @@
     "pt": "Amplificação de Dano em JvA",
     "ja": "PvEダメージ増幅",
     "ko": "PVE 피해 증폭"
-   }
+   },
+   "percent": true
   },
   "380": {
    "names": {
@@ -814,7 +816,8 @@
     "pt": "Amplificação de Dano",
     "ja": "ダメージ増幅",
     "ko": "피해 증폭"
-   }
+   },
+   "percent": true
   },
   "70": {
    "names": {
@@ -935,6 +938,71 @@
     "ja": "前方クリティカル抵抗",
     "ko": "전방 치명타 저항"
    }
+  },
+  "442": {
+   "names": {
+    "de": "Perfektion",
+    "en": "Perfect Chance",
+    "es": "Perforación",
+    "fr": "Coup parfait",
+    "ru": "Совершенный удар",
+    "pt": "Acerto Perfeito",
+    "ja": "完璧",
+    "ko": "완벽"
+   },
+   "percent": true
+  },
+  "444": {
+   "names": {
+    "de": "Regeneration",
+    "en": "Regeneration",
+    "es": "Recuperación",
+    "fr": "Restauration",
+    "ru": "Регенерация",
+    "pt": "Recuperação",
+    "ja": "再生",
+    "ko": "재생"
+   },
+   "percent": true
+  },
+  "446": {
+   "names": {
+    "de": "Perfekter Widerstand",
+    "en": "Perfect Resist",
+    "es": "Resistencia a Perforación",
+    "fr": "RÉS parfaite",
+    "ru": "Сопротивление Совершенному удару",
+    "pt": "Resistência a Acerto Perfeito",
+    "ja": "完璧抵抗",
+    "ko": "완벽 저항"
+   },
+   "percent": true
+  },
+  "447": {
+   "names": {
+    "de": "Wucht-Widerstand",
+    "en": "Double Resist",
+    "es": "Resistencia a Golpe",
+    "fr": "RÉS coup puissant",
+    "ru": "Сопротивление Мощному удару",
+    "pt": "Resistência a Golpe Potente",
+    "ja": "強打抵抗",
+    "ko": "강타 저항"
+   },
+   "percent": true
+  },
+  "448": {
+   "names": {
+    "de": "Regenerations-Penetration",
+    "en": "Regeneration Penetration",
+    "es": "Penetración de Recuperación",
+    "fr": "Perforation de la restauration",
+    "ru": "Пробитие Регенерации",
+    "pt": "Penetração de Regeneração",
+    "ja": "再生貫通",
+    "ko": "재생 관통"
+   },
+   "percent": true
   }
  }
 }
