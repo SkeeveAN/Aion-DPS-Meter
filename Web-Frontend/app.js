@@ -2110,7 +2110,7 @@ async function renderTwitchDrops() {
   };
 
   const sorted = data.campaigns.map((c) => [c, stateOf(c)]);
-  const current = sorted.filter(([, s]) => s !== "ended");
+  const current = sorted.filter(([, s]) => s !== "ended").reverse(); // newest start first, like the past ones
   const past = sorted.filter(([, s]) => s === "ended").reverse();
   const liveBlock = data.live
     ? el("section", { className: "td-live" }, [
