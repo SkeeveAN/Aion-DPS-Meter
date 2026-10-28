@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.17.0",
   "date": "2026-10-28",
   "items": [
    {
@@ -36,6 +36,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-28"
+   },
+   {
+    "text": "new setting \"Show the current boss automatically\": while a boss is attacked the table shows only the damage on that boss, 10 seconds after its death it returns to everything, and everything is recorded all the time",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-28"
    }
