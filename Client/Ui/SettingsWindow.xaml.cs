@@ -187,7 +187,8 @@ public partial class SettingsWindow : Window
     private void PopulateCaptureAdapters(string? saved)
     {
         var adapters = AionDPS.Aion2.Capture.CaptureAdapters.List();
-        string auto = AionDPS.Aion2.Capture.CaptureAdapters.Recommended(adapters) is { } rec ? $"Automatic ({rec.Name}, {rec.Ipv4})" : "Automatic";
+        string auto = MainWindow.Headless ? "Automatic (Ethernet, 192.168.1.20)" // the pictures of the render modes show a made-up address, not the PC's own
+            : AionDPS.Aion2.Capture.CaptureAdapters.Recommended(adapters) is { } rec ? $"Automatic ({rec.Name}, {rec.Ipv4})" : "Automatic";
         CaptureAdapterBox.Items.Add(new ComboBoxItem { Content = auto, Tag = "" });
         CaptureAdapterBox.Items.Add(new ComboBoxItem { Content = "All adapters", Tag = AionDPS.Aion2.Capture.CaptureAdapters.AllAdapters });
         foreach (var adapter in adapters)

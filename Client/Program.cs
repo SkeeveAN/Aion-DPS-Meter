@@ -237,6 +237,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-tool")
+        {
+            Ui.ToolRender.Run(args.Length > 1 ? args[1] : "tool.png", args.Length > 2 ? args[2] : "tools");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-privacy")
         {
             Ui.PrivacyRender.Run(args.Length > 1 ? args[1] : "privacy.png", args.Length > 2 ? args[2] : "dialog");
@@ -1055,7 +1061,13 @@ internal static class Program
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } pictureLanguage)
+        {
+            Ui.LocalizationManager.Instance.Language = pictureLanguage; // pictures in a chosen language, whatever the system's is
+        }
+
         var window = new Ui.MainWindow();
+        window.Title = "Aion DPS"; // the pictures carry no version number
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
         var type = typeof(Ui.MainWindow);
         var rows = (System.Collections.ObjectModel.ObservableCollection<Ui.PlayerRow>)type.GetField("_rows", flags)!.GetValue(window)!;
@@ -1131,7 +1143,8 @@ internal static class Program
         panel.UpdateLayout();
         int w = kind is "window" or "window-open" ? 520 : (int)Math.Ceiling(panel.DesiredSize.Width), h = kind is "window" or "window-open" ? 420 : (int)Math.Ceiling(panel.DesiredSize.Height); // the window is drawn at the size it was arranged at
         var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x30, 0x40, 0x30)) };
-        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        int overlayScale = kind == "window-open" ? 1 : int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int osc) && osc is >= 1 and <= 4 ? osc : 1; // 2 = a sharp picture
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w * overlayScale, h * overlayScale, 96 * overlayScale, 96 * overlayScale, System.Windows.Media.PixelFormats.Pbgra32);
         backdrop.Measure(new System.Windows.Size(w, h));
         backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
         bitmap.Render(backdrop);
@@ -1866,7 +1879,7 @@ internal static class Program
             speechOn.IsChecked = true; // layout check: the voice output block open
         }
 
-        if (tab is "Loot" or "Combat")
+        if (tab.ToLowerInvariant() is "network" or "loot" or "combat" or "timetable" or "boss" or "petmap" or "stream")
         {
             window.ShowModule(tab.ToLowerInvariant()); // the tool's own settings, without the sidebar
         }
