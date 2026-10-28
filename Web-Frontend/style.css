@@ -3260,6 +3260,7 @@ button.cmp-mem { cursor: pointer; }
 .fx-jump a:hover,.fx-jump a.on{border-color:var(--color-primary);color:var(--color-primary)}
 .fx-jump a:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 .fx-scene{scroll-margin-top:56px}
+.legal-section,.home-faq-item,.dl-faq-card{scroll-margin-top:56px}
 .fx-more h2{font-size:28px;margin:28px 0 16px}
 .fx-mores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:8px}
 .fx-more-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);padding:20px}

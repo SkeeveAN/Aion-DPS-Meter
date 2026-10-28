@@ -343,7 +343,7 @@ const HOME_FAQ_KEYS = ["what", "stand", "safe", "install", "free"];
 function buildHomeFaq() {
   return el("section", { className: "home-section-card home-faq" }, [
     el("div", { className: "home-section-head" }, [el("h2", { textContent: t("home.faqHeading") })]),
-    el("div", { className: "home-faq-grid" }, HOME_FAQ_KEYS.map((k) => el("div", { className: "home-faq-item" }, [el("b", { textContent: t(`home.faq.${k}.q`) }), el("p", { textContent: t(`home.faq.${k}.a`) })]))),
+    el("div", { className: "home-faq-grid" }, HOME_FAQ_KEYS.map((k) => el("div", { className: "home-faq-item", id: `faq-${k}` }, [el("b", { textContent: t(`home.faq.${k}.q`) }), el("p", { textContent: t(`home.faq.${k}.a`) })]))),
   ]);
 }
 let homeSliderTimer = null;
@@ -513,6 +513,7 @@ async function renderHome() {
   // offset above the cards' top edge (see .home-below-hero / .home-stats-card) exactly as in the
   // prototype, instead of being measured down from the hero's bottom.
   app.replaceChildren(heroRow, el("div", { className: "home-below-hero" }, [...(statsBar ? [statsBar] : []), contentGrid, buildHomeFaq()]));
+  scrollToHash();
 }
 
 // 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left, CTA
@@ -675,6 +676,14 @@ function legalBody(text) {
   return blocks;
 }
 
+// Anchors for linking to one section from outside (e.g. /terms#game-rules); the numbers alone would break when a section moves.
+const LEGAL_SECTION_IDS = { terms: ["accept", "fan-project", "no-warranty", "game-rules", "uploads", "fair-use", "availability", "open-source", "liability", "law", "contact"] };
+/** After a page is built: jump to the element the URL's #anchor names (the browser tried before the page existed). */
+function scrollToHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (id) document.getElementById(id)?.scrollIntoView();
+}
+
 function renderLegalPage(prefix, titleKey, introKey) {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t(titleKey)]);
   document.title = `${t(titleKey)} – ${SITE_TITLE}`;
@@ -686,11 +695,12 @@ function renderLegalPage(prefix, titleKey, introKey) {
     if (heading === headingKey) {
       break;
     }
-    sections.push(el("section", { className: "legal-section" }, [el("h2", { textContent: heading }), ...legalBody(t(bodyKey))]));
+    sections.push(el("section", { className: "legal-section", id: LEGAL_SECTION_IDS[prefix]?.[i - 1] ?? `section-${i}` }, [el("h2", { textContent: heading }), ...legalBody(t(bodyKey))]));
   }
   app.replaceChildren(
     el("div", { className: "legal-page" }, [el("h1", { textContent: t(titleKey) }), el("p", { className: "legal-intro", textContent: t(introKey) }), ...sections]),
   );
+  scrollToHash();
 }
 
 /** "Problem / Improvement" form: POSTs to /api/feedback, which opens a GitHub issue. */
@@ -1306,7 +1316,7 @@ async function renderDownload() {
       ...(n === 2 ? [el("a", { className: "dl-step-link", href: "https://npcap.com/#download", target: "_blank", rel: "noopener", textContent: "npcap.com/#download ↗" })] : []),
     ]),
   ])));
-  const faq = el("div", { className: "dl-faq" }, [1, 2, 3, 4, 5].map((n) => el("div", { className: "dl-card dl-faq-card" }, [
+  const faq = el("div", { className: "dl-faq" }, [1, 2, 3, 4, 5].map((n) => el("div", { className: "dl-card dl-faq-card", id: n === 1 ? "faq-safe" : `faq-${n}` }, [
     el("span", { className: "dl-faq-ico" }, [svgIcon(DOWNLOAD_FAQ_ICONS[n - 1])]),
     el("b", { textContent: t(`download.faq${n}Q`) }),
     el("span", { textContent: t(`download.faq${n}A`) }),
@@ -1326,6 +1336,7 @@ async function renderDownload() {
     faq,
     note,
   ]));
+  scrollToHash();
 }
 
 // Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with
