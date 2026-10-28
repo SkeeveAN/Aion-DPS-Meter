@@ -23,6 +23,13 @@
      "Backend"
     ],
     "date": "2026-10-28"
+   },
+   {
+    "text": "Dummy test and Skill Assist: the opacity label and the percent sign of the overlay take the app's text colour instead of the Windows default",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-28"
    }
   ]
  },
