@@ -274,5 +274,18 @@
    "pt": "Chapéu Cônico Preto (Elmo)",
    "ru": "Черная остроконечная шляпа (шлем)"
   }
+ },
+ "chubby panda": {
+  "names": {
+   "en": "Chubby Panda (Helm)",
+   "de": "Rundlicher Panda (Helm)",
+   "es": "Panda rechoncho (yelmo)",
+   "fr": "Panda rondouillard (Casque)",
+   "ja": "まるまるパンダ(ヘルム)",
+   "ko": "둥글둥글 판다 (투구)",
+   "pt": "Panda Rechonchudo (Elmo)",
+   "ru": "Кругленькая панда (шлем)"
+  },
+  "icon": "images/twitch-drops/chubby-panda.png"
  }
 }

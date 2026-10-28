@@ -36,6 +36,18 @@ test("war for atreia notice: three periods, explicit times, a TBD start falls ba
   assert.deepEqual(campaigns[2].rewards.map((r) => [r.name, r.qty]), [["Odyle Energy (Bound)", 4], ["Skin Chest x10 (Bound)", 1], ["Resurrection Spiritstone (Bound)", 15], ["Leather Crop Fit", 1]]);
 });
 
+test("halloween notice: 'All Channels' without a colon, the period comes from the Event Schedule, the name from the title", () => {
+  const { claimBy, campaigns } = parseDropsNotice(fixture("nc-twitch-drops-halloween.json"), "h", "2026-10-28T14:00:00.000Z", "Global Halloween Twitch Drops: October 28 - November 3 PT");
+  assert.equal(campaigns.length, 1);
+  const [c] = campaigns;
+  assert.equal(c.name, "Halloween");
+  assert.equal(c.startAt, "2026-10-28T17:00:00.000Z");
+  assert.equal(c.endAt, "2026-11-04T07:59:00.000Z");
+  assert.equal(c.dateOnly, false);
+  assert.deepEqual(c.rewards.map((r) => [r.minutes, r.name, r.qty]), [[60, "Resurrection Spiritstone (Bound)", 15], [120, "Appearance Change Voucher (Bound)", 1], [240, "Customization Voucher (Bound)", 3], [360, "Odyle Energy (Bound)", 4], [480, "Chubby Panda (Helm)", 1]]);
+  assert.equal(claimBy, "2026-11-18T07:59:00.000Z");
+});
+
 test("a notice without tables gives no campaigns", () => {
   assert.deepEqual(parseDropsNotice("<p>Hello Daevas, last chance to earn rewards.</p>", "x", "2026-10-04T06:00:00.000Z").campaigns, []);
 });

@@ -86,14 +86,22 @@ function parseDayRange(text: string, year: number): { from: [number, number]; to
 }
 
 const ROW = /(\d+)\s*(minutes?|mins?|hours?|hrs?)\s+(.+?)\s+x\s?([\d,]+)(?!\d)(?!\s*\()/gi;
-const HEADER = /(?:\d+\s*\.\s*)?(?:\[[^\]]+\]\s*)?(?:All\s+)?Channels\s*:/gi;
+const HEADER = /(?:\d+\s*\.\s*)?(?:\[[^\]]+\]\s*)?(?:All\s+)?Channels\s*(?::|(?=Watch Time))/gi; // newer notices write "All Channels" with no colon
+const SCHEDULE = /Event Schedule\s*(?:PDT\/PST|PST\/PDT|PT)?\s*:?\s*(.*?)\s+-\s+(.*?)(?:\s+CET\b|\s+■|$)/i;
 
 /** All campaigns in one notice. The tables are free text, so this is strict about what counts as a row and returns nothing rather than guesses. */
-export function parseDropsNotice(html: string, noticeId: string, postedAt: string): { claimBy: string | null; campaigns: DropCampaign[] } {
+export function parseDropsNotice(html: string, noticeId: string, postedAt: string, title = ""): { claimBy: string | null; campaigns: DropCampaign[] } {
   const flat = noticeText(html).replace(/\s+/g, " ");
   const year = new Date(postedAt).getUTCFullYear();
   const claim = /before\s+(?:\([A-Za-z]+\)\s*)?([A-Za-z]+\s+\d{1,2},\s*\d{4}\s+at\s+\d{1,2}:\d{2}\s*(?:AM|PM)?\s*P[DS]T)/i.exec(flat);
   const claimBy = claim ? parseDateTime(claim[1]) : null;
+
+  // Notices since the Halloween drops give the period once under "Event Schedule" ("PDT/PST: <start> - <end>") instead of per table.
+  const schedule = SCHEDULE.exec(flat);
+  const scheduleStart = schedule ? parseDateTime(schedule[1]) : null;
+  const scheduleEnd = schedule ? parseDateTime(schedule[2]) : null;
+  // "Global Halloween Twitch Drops: October 28 - November 3 PT" -> "Halloween"
+  const titleName = title.replace(/:.*$/, "").replace(/^Global\s+/i, "").replace(/\s*Twitch Drops\s*/i, " ").trim();
 
   const starts: number[] = [];
   for (const m of flat.matchAll(HEADER)) {
@@ -139,10 +147,16 @@ export function parseDropsNotice(html: string, noticeId: string, postedAt: strin
         dateOnly = true;
       }
     }
+    if (!startAt && !endAt && scheduleStart && scheduleEnd) {
+      startAt = scheduleStart;
+      endAt = scheduleEnd;
+      dateOnly = false;
+    }
+    const generic = !/\[[^\]]+\]/.test(header) && !/Channels\s*:\s*\S/i.test(header);
     campaigns.push({
       id: `${noticeId}-${campaigns.length + 1}`,
       noticeId,
-      name: label.replace(/\s+/g, " ").trim(),
+      name: (generic && titleName ? titleName : label).replace(/\s+/g, " ").trim(),
       part: part ? Number(part) : null,
       startAt,
       endAt,
@@ -199,7 +213,7 @@ export async function refreshTwitchDrops(fetchFn: FetchFn = fetch, now = Date.no
       const json = JSON.parse(body.toString("utf8")) as { article?: { content?: { content?: unknown } } };
       const html = json?.article?.content?.content;
       if (typeof html === "string") {
-        const { claimBy, campaigns } = parseDropsNotice(html, item.id, item.postedAt);
+        const { claimBy, campaigns } = parseDropsNotice(html, item.id, item.postedAt, item.title);
         // a notice without tables (a reminder) keeps its place so it is not fetched again and again; a parse that found nothing in a known notice keeps the old result
         if (campaigns.length > 0 || !known) {
           notices.set(item.id, { id: item.id, title: item.title, postedAt: item.postedAt, checkedAt: now, claimBy, campaigns });
