@@ -172,8 +172,8 @@ test("a player whose own client named his server is checked by NC too, but never
   noteClientServer(id, 1304, 1_000_500);
   assert.equal((sqlite.prepare("select checked_at c from player_nc_match where player_id = ?").get(id) as { c: number }).c, 1_000_000, "a later upload does not reset the row");
   // NC lists a namesake on another server only: his client's word stays
-  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 })]), 2_000_000), "client");
-  assert.equal(matchRow(id)?.status, "client");
+  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 })]), 2_000_000), "unmatched");
+  assert.equal(matchRow(id)?.status, "unmatched");
   assert.equal(matchRow(id)?.s, 1304);
   // NC may simply not list a young character yet (a renamed one): asked again after three hours in his first two days, not in a month
   assert.deepEqual(dueOf([id], 2_000_000 + 2 * 3_600_000), []);
@@ -199,12 +199,22 @@ test("a namesake of another class, or one without a known class, never moves a p
   const other = player("Namensvetter", kaisinel);
   db.insert(playerProfiles).values({ playerId: other, source: "seen", classId: 8, level: 45 }).run();
   noteClientServer(other, 1304, 1_000_000);
-  assert.equal(await processMatch(other, ncAnswer([raw({ name: "Namensvetter", serverId: 1305, pcId: 6 })]), 2_000_000), "client", "a Gladiator is not the Chanter he is");
+  assert.equal(await processMatch(other, ncAnswer([raw({ name: "Namensvetter", serverId: 1305, pcId: 6 })]), 2_000_000), "unmatched", "a Gladiator is not the Chanter he is");
   assert.equal(serverOf(other).d, "Europe - Kaisinel");
   const unknown = player("Klasselos", kaisinel);
   noteClientServer(unknown, 1304, 1_000_000);
-  assert.equal(await processMatch(unknown, ncAnswer([raw({ name: "Klasselos", serverId: 1305, pcId: 34 })]), 2_000_000), "client");
+  assert.equal(await processMatch(unknown, ncAnswer([raw({ name: "Klasselos", serverId: 1305, pcId: 34 })]), 2_000_000), "unmatched");
   assert.equal(serverOf(unknown).d, "Europe - Kaisinel");
+});
+
+test("a namesake elsewhere below the level we saw him at is no match, one at or above it is", async () => {
+  const low = player("Stufenlos", kaisinel);
+  db.insert(playerProfiles).values({ playerId: low, source: "seen", classId: 8, level: 45 }).run();
+  noteClientServer(low, 1304, 1_000_000);
+  assert.equal(await processMatch(low, ncAnswer([raw({ name: "Stufenlos", serverId: 1305, pcId: 34, level: 30 })]), 2_000_000), "unmatched");
+  assert.equal(serverOf(low).d, "Europe - Kaisinel");
+  assert.equal(await processMatch(low, ncAnswer([raw({ name: "Stufenlos", serverId: 1305, pcId: 34, level: 45 })]), 3_000_000), "verified");
+  noteClientServer(low, 1304, 4_000_000);
 });
 
 test("a profile's class helps to pick, and a level lower than his own is no match", async () => {

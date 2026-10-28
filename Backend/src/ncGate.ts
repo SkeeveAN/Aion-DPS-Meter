@@ -44,10 +44,10 @@ export function gateOfPlayers(ids: number[], now = Date.now(), openIds?: number[
       }
       continue;
     }
-    // 'client': his own client named his server. Before NC has looked (the next try is due) the check is open; after it, "no candidate at NC"
+    // 'client' / 'unmatched': his own client named his server. Before NC has looked (the next try is due) the check is open; after it, "no candidate at NC"
     // is a failed check like 'none' (the search ran on his server only), several candidates stay open.
     // A player we saw first within the last two days (a renamed character is one) is not turned away yet: NC's search may not know him, the run waits for the next try.
-    if (r.status === "client" && r.nextTryAt !== null && r.nextTryAt > now && r.candidates === 0 && now - Date.parse(`${r.firstSeenAt.replace(" ", "T")}Z`) >= YOUNG_FOR) {
+    if ((r.status === "client" || r.status === "unmatched") && r.nextTryAt !== null && r.nextTryAt > now && r.candidates === 0 && now - Date.parse(`${r.firstSeenAt.replace(" ", "T")}Z`) >= YOUNG_FOR) {
       return "fail";
     }
     open = true;

@@ -30,8 +30,8 @@ const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 /** How long after we first saw a player his runs wait for NC to know him instead of being turned away (see ncGate). */
 export const YOUNG_FOR = 2 * DAY;
-/** When to ask again, by outcome ('client': after NC could not confirm him either, a character NC does know but could not match - his class or profile may have arrived since; a fresh client player is due at once, but last in line). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
-export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 3 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
+/** When to ask again, by outcome ('client': his client named his server and NC has not looked yet, due at once but last in line; 'unmatched': NC looked and could not confirm him - it does not know him or could not match a character it knows - his class or profile may have arrived since, so it is asked again). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
+export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 3 * DAY, unmatched: 3 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
 export type MatchStatus = keyof typeof MATCH_RETRY_AFTER;
 /** A player his client named and NC found one character for that did not settle (a class or level that did not fit at that moment): his runs wait for the next look, so it comes soon. */
 const CLIENT_WITH_HIT_RETRY = 6 * HOUR;
@@ -253,7 +253,7 @@ function legionServersOf(player: PlayerRow): number[] {
     .select({ ncServerId: playerNcMatch.ncServerId })
     .from(players)
     .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
-    .where(and(eq(players.guildId, player.guildId), ne(players.id, player.id), inArray(playerNcMatch.status, ["verified", "client"])))
+    .where(and(eq(players.guildId, player.guildId), ne(players.id, player.id), inArray(playerNcMatch.status, ["verified", "client", "unmatched"])))
     .all()
     .map((r) => r.ncServerId)
     .filter((x): x is number => x !== null);
@@ -448,7 +448,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   }
   // A player whose own client named his server stays there: NC confirms or enriches him; it moves him only when NC knows nobody of that name there and exactly one character of his faction and class elsewhere (below).
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
-  const clientServer = before?.status === "client" ? before.ncServerId : null;
+  const clientServer = before?.status === "client" || before?.status === "unmatched" ? before.ncServerId : null;
   // A player NC confirmed before is asked for by his character id: a rename changes the name, never the id, and a search by the old name would lose him.
   // `suspect`: what we hold about him is in doubt (the id is gone, or the class does not fit what the game shows); if he is not confirmed again as the same character, his NC data goes.
   let suspect = false;
@@ -505,7 +505,8 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     // name there. Exactly one character of his faction AND class elsewhere is him - the class must be known and fit, so a namesake of another class never moves anyone.
     if (clientServer !== null && decision.status === "none" && decision.candidates === 0 && subject.className) {
       const elsewhere = decide(await search({ race }), subject);
-      if (elsewhere.status === "verified" && elsewhere.hit && elsewhere.hit.classId !== null && AION2_CLASS_BY_ID[elsewhere.hit.classId] === subject.className) {
+      // A character never loses levels: one below the level we saw him at is a namesake.
+      if (elsewhere.status === "verified" && elsewhere.hit && elsewhere.hit.classId !== null && AION2_CLASS_BY_ID[elsewhere.hit.classId] === subject.className && (!subject.level || elsewhere.hit.level >= subject.level)) {
         decision = { ...elsewhere, via: "name-elsewhere" };
       }
     }
@@ -566,8 +567,8 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     // A renamed character is new to us and often to NC's search too: for the first two days he is asked again every three hours (his runs wait for that, see ncGate).
     const age = now - Date.parse(`${player.firstSeenAt.replace(" ", "T")}Z`);
     const young = age < 7 * DAY;
-    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (age < YOUNG_FOR ? 3 * HOUR : young ? DAY : 7 * DAY) : CLIENT_WITH_HIT_RETRY) }, now);
-    return "client";
+    record(playerId, "unmatched", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (age < YOUNG_FOR ? 3 * HOUR : young ? DAY : 7 * DAY) : CLIENT_WITH_HIT_RETRY) }, now);
+    return "unmatched";
   }
   record(playerId, decision.status, { candidates: decision.candidates }, now);
   return decision.status;
@@ -585,11 +586,11 @@ function twinOf(playerId: number, ncCharacterId: string): number | null {
 /** A server the player's own client named: as good as a match, but NC is still asked later (low priority, see duePlayers) to confirm him and fill in his character. */
 export function noteClientServer(playerId: number, ncServerId: number, now = Date.now()): void {
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
-  if ((before?.status === "verified" || before?.status === "client") && before.ncServerId === ncServerId) {
+  if ((before?.status === "verified" || before?.status === "client" || before?.status === "unmatched") && before.ncServerId === ncServerId) {
     return;
   }
   // What NC decided (a conflict, no character, several) is not overwritten by a client's word on every later upload: the decision stays until its retry is due
-  if (before && before.status !== "client" && before.status !== "error" && before.nextTryAt > now) {
+  if (before && before.status !== "client" && before.status !== "unmatched" && before.status !== "error" && before.nextTryAt > now) {
     return;
   }
   record(playerId, "client", { ncServerId, nextTryAt: now }, now);
@@ -746,7 +747,7 @@ export function duePlayers(limit: number, now = Date.now()): number[] {
     .innerJoin(servers, eq(players.serverId, servers.id))
     .leftJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
     .where(sql`${servers.fingerprint} like 'aion2:%' and (${playerNcMatch.nextTryAt} is null or ${playerNcMatch.nextTryAt} <= ${now})`)
-    .orderBy(sql`${playerNcMatch.status} = 'client'`, sql`${playerNcMatch.nextTryAt} is not null`, sql`${players.lastSeenAt} desc`)
+    .orderBy(sql`${playerNcMatch.status} in ('client', 'unmatched')`, sql`${playerNcMatch.nextTryAt} is not null`, sql`${players.lastSeenAt} desc`)
     .all();
   return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
 }

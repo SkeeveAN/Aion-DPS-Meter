@@ -70,7 +70,7 @@ test("one failed player fails the whole run, at once for known players and later
   const first = await post(body(2, ["Ccc", "Ddd"]));
   assert.equal(first.json().status, "pending_review");
   setStatus("Ccc", "verified");
-  setStatus("Ddd", "client");
+  setStatus("Ddd", "unmatched");
   // a player seen for more than two days: NC knows nobody of his name, the run is turned away (a younger one waits, see the next test)
   db.update(players).set({ firstSeenAt: "2026-01-01 00:00:00" }).where(eq(players.name, "Ddd")).run();
   assert.deepEqual(settleNcPending(), { merged: 0, failed: 1 });
@@ -91,7 +91,7 @@ test("a player first seen within two days, whom NC does not know yet (a renamed 
   const response = await post(body(5, ["Eee", "Fff"]));
   assert.equal(response.json().status, "pending_review");
   setStatus("Eee", "verified");
-  setStatus("Fff", "client"); // NC found nobody of that name - he was only just created
+  setStatus("Fff", "unmatched"); // NC found nobody of that name - he was only just created
   assert.deepEqual(settleNcPending(), { merged: 0, failed: 0 }, "young: the run waits");
   assert.equal(db.select().from(encounters).all().length, 2, "no new run yet");
 
