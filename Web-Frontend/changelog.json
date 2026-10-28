@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-28",
+  "items": [
+   {
+    "text": "Twitch Drops page: the running and upcoming campaigns are listed newest first, like the past ones",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-28"
+   }
+  ]
+ },
+ {
   "version": "1.17.0",
   "date": "2026-10-28",
   "items": [
