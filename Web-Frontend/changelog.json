@@ -16,6 +16,13 @@
      "Backend"
     ],
     "date": "2026-10-28"
+   },
+   {
+    "text": "NC matching: players NC has looked at and could not confirm now have their own status 'unmatched', and 'client' only means his client named a server and NC has not looked yet; a player found elsewhere on another server is moved there only when that character is at least at the level we saw him at",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-28"
    }
   ]
  },
