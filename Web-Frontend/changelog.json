@@ -30,6 +30,14 @@
      "Client"
     ],
     "date": "2026-10-28"
+   },
+   {
+    "text": "Twitch Drops: the Halloween campaign is found again after NC changed the notice layout (heading without colon, period under Event Schedule), and its Chubby Panda reward shows its picture and the game's own name in every language",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-28"
    }
   ]
  },
