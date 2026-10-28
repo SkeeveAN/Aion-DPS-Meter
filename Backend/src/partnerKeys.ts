@@ -27,6 +27,11 @@ export function revokeKey(id: number): boolean {
   return db.update(apiKeys).set({ revokedAt: new Date().toISOString() }).where(and(eq(apiKeys.id, id), isNull(apiKeys.revokedAt))).run().changes > 0;
 }
 
+/** Changes the requests per minute of a key that is not revoked. */
+export function setRate(id: number, ratePerMinute: number): boolean {
+  return db.update(apiKeys).set({ ratePerMinute }).where(and(eq(apiKeys.id, id), isNull(apiKeys.revokedAt))).run().changes > 0;
+}
+
 export type PartnerKey = { id: number; name: string; ratePerMinute: number };
 
 /** The key behind a given secret, null for an unknown or revoked one. */
