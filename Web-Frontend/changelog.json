@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-28",
+  "items": [
+   {
+    "text": "Website: the terms sections and the FAQ answers on the home and download pages have anchors (for example /terms#game-rules and /download#faq-safe), and a page opened with such an anchor jumps to that place",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-28"
+   }
+  ]
+ },
+ {
   "version": "1.16.8",
   "date": "2026-10-28",
   "items": [
