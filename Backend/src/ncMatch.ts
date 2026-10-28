@@ -6,7 +6,7 @@ import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { plausibleServersOf } from "./crowdRule.js";
 import { normalizeName } from "./matching/roster.js";
-import { PortraitQueue, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { PortraitQueue, type MatchSource, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
 
@@ -615,7 +615,8 @@ export function dueOf(ids: number[], now = Date.now()): number[] {
  * Two lanes: the players of an ordinary upload come first, the bulk (the hundreds of a world boss crowd, the background sweep) only when no ordinary player
  * waits - a four-player run must not stand behind a crowd. A player queued in the bulk lane and asked for again as an ordinary one moves up.
  */
-export class MatchQueue {
+export class MatchQueue implements MatchSource {
+  host: { wake(): void } | null = null;
   private readonly waiting = new Set<number>();
   private readonly bulk = new Set<number>();
   private running = false;
@@ -650,9 +651,30 @@ export class MatchQueue {
       }
     }
     if (added > 0) {
-      void this.drain();
+      if (this.host) {
+        this.host.wake();
+      } else {
+        void this.drain();
+      }
     }
     return added;
+  }
+
+  next(): { background: boolean } | null {
+    return this.waiting.size > 0 ? { background: false } : this.bulk.size > 0 ? { background: true } : null;
+  }
+
+  take(): number | undefined {
+    const lane = this.waiting.size > 0 ? this.waiting : this.bulk;
+    const id = lane.values().next().value as number | undefined;
+    if (id !== undefined) {
+      lane.delete(id);
+    }
+    return id;
+  }
+
+  run(playerId: number): Promise<unknown> {
+    return this.work(playerId);
   }
 
   /** Resolves when the queue is empty (tests). */
@@ -688,6 +710,10 @@ export class MatchQueue {
 export const matchEnabled = () => process.env.NC_MATCH_OFF !== "1" && !process.env.NODE_TEST_CONTEXT;
 
 export const matchQueue = new MatchQueue((id) => processMatch(id));
+// The workers of the portrait queue (NC_WORKERS, the learned pace of ncPacing) also do the player matches: no second set of workers towards NC.
+if (matchEnabled()) {
+  portraitQueue.attachMatches(matchQueue);
+}
 
 /** A player whose new name just turned up under his game character id: asks NC about him right now (his NC character id gives his current name). */
 export function askAboutRenamed(playerId: number, queue: MatchQueue = matchQueue): void {
@@ -725,6 +751,19 @@ export function duePlayers(limit: number, now = Date.now()): number[] {
   return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
 }
 
+/** Players still waiting for a retry that is not due yet (unclear, client-named, failed), the one due soonest first: work for an idle queue. */
+export function waitingPlayers(limit: number, now = Date.now()): number[] {
+  const rows = db
+    .select({ id: players.id, serverName: servers.displayName })
+    .from(players)
+    .innerJoin(servers, eq(players.serverId, servers.id))
+    .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
+    .where(sql`${servers.fingerprint} like 'aion2:%' and ${playerNcMatch.status} <> 'verified' and ${playerNcMatch.nextTryAt} > ${now}`)
+    .orderBy(playerNcMatch.nextTryAt)
+    .all();
+  return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
+}
+
 /** Background sweep: a few players that are due, every quarter hour, so players seen before this existed and unclear ones get their turn. */
 export function startMatchSweep(intervalMs = 15 * 60_000, batch = 60): void {
   if (!matchEnabled()) {
@@ -733,6 +772,10 @@ export function startMatchSweep(intervalMs = 15 * 60_000, batch = 60): void {
   const sweep = () => {
     try {
       matchQueue.enqueue(duePlayers(batch), "bulk");
+      // Nothing due and nobody waiting: the worker does not sit idle, it takes the players whose turn is not yet but who wait for one.
+      if (matchQueue.size === 0) {
+        matchQueue.enqueue(waitingPlayers(batch), "bulk");
+      }
     } catch {
       // try again at the next round
     }

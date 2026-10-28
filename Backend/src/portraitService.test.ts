@@ -443,3 +443,21 @@ test("NC's page of a player standing in the evened-out arena is recognised by it
   assert.equal(isArenaEqualized({ combatPower: null }), false);
   assert.equal(isArenaEqualized(null), false);
 });
+
+test("queue: the workers of the portrait queue also take the player matches, a profile somebody looks at before the bulk ones", async () => {
+  const order: string[] = [];
+  const q = new PortraitQueue(async (k) => { order.push(`p${k.playerId}`); }, { minGapMs: 0, maxLength: 20, now: () => 0, sleep: async () => {}, concurrency: 2 });
+  const { MatchQueue } = await import("./ncMatch.js");
+  const matches = new MatchQueue(async (id) => { order.push(`m${id}`); });
+  q.attachMatches(matches);
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  q.enqueue(k(1), { priority: 0 });
+  q.enqueue(k(2), { priority: 2 });
+  matches.enqueue([10, 11], "bulk");
+  matches.enqueue([12]);
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(order.length, 5);
+  assert.ok(order.includes("m10") && order.includes("m11") && order.includes("m12") && order.includes("p1") && order.includes("p2"));
+  assert.ok(order.indexOf("p2") < order.indexOf("m10"), "a viewed profile goes before a bulk match");
+  assert.equal(matches.size, 0);
+});

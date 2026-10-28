@@ -323,6 +323,18 @@ export function pacedFetch(
 
 type Job = { key: PlayerKey; priority: Priority; force: boolean };
 
+/** Player matches (ncMatch.ts) that the workers of the PortraitQueue take as well: one set of workers and one learned pace for everything asked of NC. */
+export interface MatchSource {
+  /** Players waiting. */
+  readonly size: number;
+  /** Whether the next one to take is from the bulk lane (true), the ordinary one (false), or nobody waits (null). */
+  next(): { background: boolean } | null;
+  take(): number | undefined;
+  run(playerId: number): Promise<unknown>;
+  /** Set by the queue that hosts the workers: told when players were added. */
+  host: { wake(): void } | null;
+}
+
 /**
  * Work queue: one job at a time, a pause between jobs, bounded, no duplicates. Two buckets: the normal one (a profile somebody looks at, then a
  * player an upload named, in order of arrival within one priority) and the background one (the sweep, with its backlog of thousands). Normal jobs go first,
@@ -335,6 +347,9 @@ export class PortraitQueue {
   private workers = 0;
   private readonly current = new Set<number>();
   private lastStart = 0;
+  private matches: MatchSource | null = null;
+  /** Workers that are busy with a player match (these are not in `current`). */
+  private activeMatches = 0;
   constructor(
     private readonly work: (key: PlayerKey, job: { force: boolean }) => Promise<void>,
     private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void>; allow?: (priority: Priority) => boolean; concurrency?: number; pausedUntil?: () => number } = {
@@ -347,6 +362,17 @@ export class PortraitQueue {
 
   get length(): number {
     return this.waiting.size;
+  }
+
+  /** From now on the workers also take the players of `source`: its own worker stops, these do the work. */
+  attachMatches(source: MatchSource): void {
+    this.matches = source;
+    source.host = { wake: () => this.kick() };
+    this.kick();
+  }
+
+  private matchesWaiting(): number {
+    return this.matches?.size ?? 0;
   }
 
   /** false when the player is already queued (his job only moves up if this one is more urgent) or the queue is full. */
@@ -370,6 +396,15 @@ export class PortraitQueue {
   static readonly NORMAL_PER_BACKGROUND = 3;
   private normalStreak = 0;
 
+  private hasNormalJob(): boolean {
+    for (const job of this.waiting.values()) {
+      if (job.priority > PRIORITY.background) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** The jobs to take next, in the order to try them: the best normal job (by priority, then arrival) and the oldest background job - the background one first after NORMAL_PER_BACKGROUND normal ones. */
   private candidates(): [number, Job][] {
     let normal: [number, Job] | null = null;
@@ -391,7 +426,7 @@ export class PortraitQueue {
   private kick(): void {
     const limit = Math.max(1, this.opts.concurrency ?? 1);
     // a worker that is still waiting for its start slot will take a waiting job itself: only more jobs than idle workers need a new one
-    while (this.workers < limit && this.waiting.size > this.workers - this.current.size) {
+    while (this.workers < limit && this.waiting.size + this.matchesWaiting() > this.workers - this.current.size - this.activeMatches) {
       this.workers++;
       void this.worker();
     }
@@ -399,7 +434,7 @@ export class PortraitQueue {
 
   private async worker(): Promise<void> {
     try {
-      while (this.waiting.size > 0) {
+      while (this.waiting.size > 0 || this.matchesWaiting() > 0) {
         // The start slot is taken before waiting: workers that come together start one gap apart.
         const startAt = Math.max(this.opts.now(), this.lastStart + this.opts.minGapMs);
         this.lastStart = startAt;
@@ -407,13 +442,28 @@ export class PortraitQueue {
         if (wait > 0) {
           await this.opts.sleep(wait);
         }
-        if (this.waiting.size === 0) {
+        if (this.waiting.size === 0 && this.matchesWaiting() === 0) {
           break;
         }
         // NC said "too many" (429/403): no job starts until the pause is over, so no player is marked as failed for it.
         const paused = (this.opts.pausedUntil?.() ?? 0) - this.opts.now();
         if (paused > 0) {
           await this.opts.sleep(paused);
+          continue;
+        }
+        // A player match goes before the sweep's backlog (it settles who the player is, his runs wait for it), but not before a profile somebody looks at.
+        const match = this.matches?.next();
+        if (match && (match.background ? !this.hasNormalJob() : true) && (!this.opts.allow || this.opts.allow(match.background ? PRIORITY.background : PRIORITY.upload))) {
+          const id = this.matches?.take();
+          if (id !== undefined) {
+            this.activeMatches++;
+            try {
+              await jobContext.run({ background: match.background }, () => this.matches?.run(id));
+            } catch {
+              // the match records its own failures
+            }
+            this.activeMatches--;
+          }
           continue;
         }
         // The first job of the order the budget lets through; none: the hourly budget is used up for them, look again in a minute.
