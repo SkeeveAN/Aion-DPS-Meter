@@ -562,6 +562,7 @@ public partial class MainWindow : Window
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
         _showBossHp = settings.ShowBossHp;
+        _autoBossView = settings.AutoBossView;
         _autoReset = settings.AutoResetEnabled;
         _autoResetIdle = TimeSpan.FromSeconds(Math.Clamp(settings.AutoResetSeconds, 1, 600));
         _scope = Enum.TryParse(settings.ViewScope, true, out MeterScope scope) ? scope : MeterScope.Group;
@@ -958,6 +959,8 @@ public partial class MainWindow : Window
         _dummy?.RaiseToFront();
         _petFarm?.RaiseToFront();
         _petMapController?.RaiseToFront();
+
+        FollowBossAutomatically();
 
         // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
         if (++_historyTickCounter >= 5)
@@ -6792,6 +6795,86 @@ public partial class MainWindow : Window
             : check.OverFullHealth || check.Verdict != HpCheckVerdict.Match ? "⚠ " + check.Ratio.ToString("P0", CultureInfo.CurrentCulture)
             : "✓";
         OverlayHpBlock.Visibility = Visibility.Visible;
+    }
+
+    private bool _autoBossView;
+    private int? _autoBossId;
+    private DateTime? _autoBossDeadAt;
+
+    /// <summary>A boss hit this recently counts as being fought.</summary>
+    private static readonly TimeSpan AutoBossEngaged = TimeSpan.FromSeconds(8);
+
+    /// <summary>How long the dead boss stays on screen before the table shows everything again.</summary>
+    private static readonly TimeSpan AutoBossAfterDeath = TimeSpan.FromSeconds(10);
+
+    /// <summary>A boss nobody has hit for this long without dying (a wipe, the group left) gives the table back.</summary>
+    private static readonly TimeSpan AutoBossAbandoned = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// The "show the current boss automatically" option: everything is recorded all the time, but the
+    /// Mob/Boss filter jumps to a boss as soon as it is attacked, stays on it for
+    /// <see cref="AutoBossAfterDeath"/> after its death and then returns to "All". Only moves the
+    /// filter on those changes, so a target picked by hand in between stays until the next one.
+    /// </summary>
+    private void FollowBossAutomatically()
+    {
+        if (!_autoBossView || Headless || _historyMode || _pvpOnly || !ViewingLive || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            _autoBossId = null;
+            _autoBossDeadAt = null;
+            return;
+        }
+
+        DateTime now = DateTime.Now;
+        if (_autoBossId is int current)
+        {
+            bool dead = directory.HitPoints.Latest(current) is { } latest && BossDied(directory, directory.HitPoints, current, latest);
+            if (dead)
+            {
+                _autoBossDeadAt ??= now;
+            }
+
+            bool abandoned = !dead && _bossActivity.TryGetValue(current, out var seen) && now - seen.Last >= AutoBossAbandoned;
+            if ((dead && now - _autoBossDeadAt >= AutoBossAfterDeath) || abandoned)
+            {
+                if (_selectedTargetId == current)
+                {
+                    MobBossFilter.SelectedItem = _mobBossAllItem;
+                }
+
+                _autoBossId = null;
+                _autoBossDeadAt = null;
+            }
+        }
+
+        int? engaged = null;
+        DateTime engagedAt = DateTime.MinValue;
+        foreach ((int bossId, (DateTime _, DateTime last)) in _bossActivity)
+        {
+            if (now - last > AutoBossEngaged || last <= engagedAt
+                || (directory.HitPoints.Latest(bossId) is { } hp && BossDied(directory, directory.HitPoints, bossId, hp)))
+            {
+                continue;
+            }
+
+            engaged = bossId;
+            engagedAt = last;
+        }
+
+        if (engaged is int boss && boss != _autoBossId)
+        {
+            // The newest entry of that boss (a boss farmed again comes as "#1".."#N").
+            ComboBoxItem? entry = MobBossFilter.Items.OfType<ComboBoxItem>().LastOrDefault(item => item.Tag is MobBossTag tag && tag.TargetId == boss);
+            if (entry is not null)
+            {
+                _autoBossId = boss;
+                _autoBossDeadAt = null;
+                if (!ReferenceEquals(MobBossFilter.SelectedItem, entry))
+                {
+                    MobBossFilter.SelectedItem = entry;
+                }
+            }
+        }
     }
 
     /// <summary>While the compact overlay is up, keeps it on the newest fight in the Mob/Boss list

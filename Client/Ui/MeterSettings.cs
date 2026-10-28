@@ -283,6 +283,9 @@ public sealed class MeterSettings
     /// <summary>The overlays step aside while a game menu is open (the game shows the mouse cursor then). Only works in the control mode that hides the cursor while playing; off until switched on.</summary>
     public bool HideDuringMenus { get; set; }
 
+    /// <summary>The table follows the boss being fought: only its damage is shown while it is attacked, for 10 s after its death, then everything again (see MainWindow.FollowBossAutomatically). The whole fight is recorded either way. Off until switched on.</summary>
+    public bool AutoBossView { get; set; }
+
     /// <summary>The stream overlay for OBS and Streamlabs (see StreamOverlayServer): a web page that shows the meter live, for the same PC or (two-PC streaming) others in the own network. Off until switched on.</summary>
     public bool StreamOverlayOn { get; set; }
 

@@ -542,6 +542,8 @@
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayChips}"/>
                                 <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}"/>
                                 <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
+                                <CheckBox x:Name="AutoBossViewBox" Content="{local:Loc Settings.AutoBossView}" Margin="0,6,0,0"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.AutoBossView.Hint}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
 <Border Style="{StaticResource SettingsCard}">

@@ -12948,5 +12948,29 @@
     "pt": "Máx.",
     "ja": "MAX",
     "ko": "최대"
+  },
+  "Settings.AutoBossView": {
+    "en": "Automatically show the current boss",
+    "de": "Aktuellen Boss automatisch anzeigen",
+    "fr": "Afficher automatiquement le boss actuel",
+    "es": "Mostrar automáticamente al jefe actual",
+    "ru": "Автоматически показывать текущего босса",
+    "zh": "自动显示当前首领",
+    "zh-TW": "自動顯示目前首領",
+    "pt": "Mostrar automaticamente o chefe atual",
+    "ja": "現在のボスを自動で表示",
+    "ko": "현재 보스 자동 표시"
+  },
+  "Settings.AutoBossView.Hint": {
+    "en": "Everything is still recorded. While a boss is attacked, only the damage on that boss is shown; 10 seconds after it dies, the view returns to everything.",
+    "de": "Alles wird weiterhin aufgezeichnet. Solange ein Boss angegriffen wird, zeigt die Liste nur den Schaden auf diesen Boss; 10 Sekunden nach seinem Tod wechselt sie wieder zu allem.",
+    "fr": "Tout continue d'être enregistré. Tant qu'un boss est attaqué, seuls les dégâts sur ce boss sont affichés ; 10 secondes après sa mort, l'affichage revient à l'ensemble.",
+    "es": "Todo se sigue registrando. Mientras se ataca a un jefe, solo se muestra el daño a ese jefe; 10 segundos tras su muerte, la vista vuelve a mostrar todo.",
+    "ru": "Записывается по-прежнему всё. Пока атакуют босса, показывается только урон по нему; через 10 секунд после его смерти список снова показывает всё.",
+    "zh": "所有数据仍会被记录。攻击首领时仅显示对该首领的伤害；首领死亡 10 秒后恢复显示全部。",
+    "zh-TW": "所有資料仍會被記錄。攻擊首領時僅顯示對該首領的傷害；首領死亡 10 秒後恢復顯示全部。",
+    "pt": "Tudo continua sendo registrado. Enquanto um chefe é atacado, só o dano nele é mostrado; 10 segundos após sua morte, a vista volta a mostrar tudo.",
+    "ja": "記録は引き続きすべて行われます。ボスを攻撃している間はそのボスへのダメージだけを表示し、ボスの死亡から10秒後にすべての表示へ戻ります。",
+    "ko": "모든 것은 계속 기록됩니다. 보스를 공격하는 동안에는 해당 보스에 대한 대미지만 표시되며, 보스가 죽고 10초 뒤에 전체 보기로 돌아옵니다."
   }
 }
