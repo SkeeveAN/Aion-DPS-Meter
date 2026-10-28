@@ -55,6 +55,13 @@
      "Database"
     ],
     "date": "2026-10-28"
+   },
+   {
+    "text": "NC matching: the same four workers that fetch the character data now also do the player matches, at the pace they have learned, and a worker with nothing due takes players whose retry is not due yet instead of sitting idle",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-28"
    }
   ]
  },
