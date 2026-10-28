@@ -191,3 +191,14 @@ fastest known one, a class far above its median, a boss nobody has catalogued. I
   all with `Authorization: Bearer <ADMIN_TOKEN>`.
 - Dates that cannot be a fight (end before start, shorter than 3 s, longer than 6 h, in the future) are always turned away (400) and kept with their reason in `uploads`.
 - Thresholds: `src/constants.ts` (`MAX_KILL_DAMAGE_SHARE`, `HP_REFERENCE_TOLERANCE`, `FASTEST_KILL_FACTOR`, `CLASS_DPS_FACTOR`, `MIN_REFERENCE_RUNS`, `MIN_CLASS_SAMPLES`).
+
+## Partner API
+
+A read-only API for other community sites: the game's static data (names, places, times) plus the site's statistics, announcements, patch notes and Twitch drops. No players, characters, fights or uploads. The routes the website itself uses stay open; this part needs a key.
+
+- Base: `/api/partner/v1/`, key in the `X-API-Key` header (call it from your server, not from a visitor's browser, or the key is public).
+- Language: `?lang=en|de|fr|es|ru|pt|ja|ko|zh`, English by default; a name the game has not in that language comes in English. An unknown language answers 400 and names the ones there are. Announcements and patch notes exist at NC in en, de, fr, es, pt and ja only; the answer's `lang` says which was used.
+- Resources: `classes`, `instances`, `bosses` (`?instance=<slug>`), `worldbosses`, `maps`, `events` (days 0 = Sunday, times UTC), `pets` (`?category=`), `pets/:id` (monsters, soul and shop item ids, places with the game's coordinates), `titles`, `wings`, `stats`, `announcements`, `patchnotes`, `twitch-drops`. `GET /api/partner/v1` lists them.
+- Limits: each key has its own requests-per-minute (60 by default); over it the answer is 429 with `Retry-After`. 401 for a missing, wrong or revoked key.
+- Keys: `pnpm tsx scripts/partner-key.ts create "<partner>" [per minute]` (the key is shown once, only its SHA-256 is stored), `list`, `revoke <id>`.
+- Code: `src/routes/partner.ts`, `src/partnerApi.ts` (data), `src/partnerKeys.ts` (keys and limits); the data files are `src/data/aion2/*.json` and `Client/assets/aion2/*`.

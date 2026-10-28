@@ -792,3 +792,15 @@ export const encounterReplayTracks = sqliteTable(
     byEncounter: index("replay_tracks_encounter_idx").on(t.encounterId),
   }),
 );
+
+/** Keys of the partner API (partnerApi.ts, routes/partner.ts): only the SHA-256 of a key is stored, the key itself is shown once when it is made (scripts/partner-key.ts). */
+export const apiKeys = sqliteTable("api_keys", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  keyHash: text("key_hash").notNull().unique(),
+  /** Requests per minute this key may make. */
+  ratePerMinute: integer("rate_per_minute").notNull().default(60),
+  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+  lastUsedAt: text("last_used_at"),
+  revokedAt: text("revoked_at"),
+});
