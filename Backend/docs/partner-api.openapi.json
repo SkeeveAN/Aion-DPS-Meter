@@ -1,0 +1,1265 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Aion DPS partner API",
+    "version": "1.0.0",
+    "description": "Read-only static game data of AION 2 (names, places, times) and a few site feeds, for other community sites. No players, characters or fights.\n\nCall it from your server, not from a visitor's browser (the key would be public), and cache the answers for 5 to 60 minutes. Each key has its own requests-per-minute limit; over it the answer is 429 with Retry-After.\n\nGame names come from the AION 2 client; AION 2 and its names, texts and artwork belong to NCSOFT. Please name aiondps.com as the source and link it."
+  },
+  "servers": [
+    {
+      "url": "https://aiondps.com"
+    }
+  ],
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/partner/v1": {
+      "get": {
+        "tags": [
+          "Index"
+        ],
+        "summary": "The resources and languages there are",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "integer"
+                    },
+                    "defaultLang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "languages": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Lang"
+                      }
+                    },
+                    "resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/classes": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "The playable classes",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Class"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/instances": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Instances (dungeons, expeditions, ...)",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Instance"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/bosses": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Bosses of the instances",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          },
+          {
+            "name": "instance",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only the bosses of this instance (its slug)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Boss"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/worldbosses": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Field and world bosses with their places",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WorldBoss"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/maps": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Field maps with the places of their bosses",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Map"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/events": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Recurring events and their times",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "timeZone": {
+                      "type": "string",
+                      "example": "UTC"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Times are in the zone named by timeZone (UTC); days are 0 = Sunday ... 6 = Saturday."
+      }
+    },
+    "/api/partner/v1/pets": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "All pets with the regions they are found in",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only this category (for example Feral)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/pets/{id}": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "One pet with the monsters that drop it and their places",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "No such pet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/partner/v1/titles": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Titles",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Title"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/wings": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Wings",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Wing"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/stats": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "The totals of the statistics page",
+        "description": "The same figures the website's statistics page shows (totals only).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/announcements": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "NC's announcements, newest first",
+        "description": "NC publishes in en, de, fr, es, pt and ja; for another language the answer is English and `lang` says so.",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "de",
+                        "fr",
+                        "es",
+                        "pt",
+                        "ja"
+                      ]
+                    },
+                    "checkedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Announcement"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/patchnotes": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "NC's patch notes, newest first",
+        "description": "Same languages as the announcements.",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "de",
+                        "fr",
+                        "es",
+                        "pt",
+                        "ja"
+                      ]
+                    },
+                    "checkedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patchnote"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/partner/v1/twitch-drops": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Twitch drop campaigns and who is streaming them",
+        "description": "Campaign names are as NC titles them (English).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "Lang": {
+        "type": "string",
+        "enum": [
+          "en",
+          "de",
+          "fr",
+          "es",
+          "ru",
+          "pt",
+          "ja",
+          "ko",
+          "zh"
+        ],
+        "default": "en"
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Class": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          }
+        }
+      },
+      "Instance": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "expedition"
+          },
+          "modes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Per mode (for example explore): minLevel, itemLevel, players, weeklyTries."
+          }
+        }
+      },
+      "Boss": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true,
+            "description": "Slug of the instance."
+          },
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer",
+            "nullable": true
+          },
+          "npcIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "WorldBoss": {
+        "type": "object",
+        "properties": {
+          "npcId": {
+            "type": "integer"
+          },
+          "group": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "map": {
+            "type": "string",
+            "nullable": true
+          },
+          "x": {
+            "type": "number",
+            "nullable": true
+          },
+          "y": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "Map": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "bosses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "npcId": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "EventWindow": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "description": "0 = Sunday ... 6 = Saturday."
+          },
+          "start": {
+            "type": "string",
+            "example": "19:00"
+          },
+          "end": {
+            "type": "string",
+            "example": "19:30"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "example": "world_boss"
+          },
+          "players": {
+            "type": "string",
+            "nullable": true,
+            "example": "10v10"
+          },
+          "name": {
+            "type": "string"
+          },
+          "windows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventWindow"
+            }
+          }
+        }
+      },
+      "PetRegion": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "example": "verteron"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "Feral"
+          },
+          "name": {
+            "type": "string"
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PetRegion"
+            }
+          }
+        }
+      },
+      "PetDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "lang": {
+                "$ref": "#/components/schemas/Lang"
+              },
+              "monsters": {
+                "type": "array",
+                "description": "Monsters that drop the pet.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "npcId": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "soulItemIds": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "shopItemIds": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "spawns": {
+                "type": "array",
+                "description": "Maps with the places of those monsters, in the game's own coordinates.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "map": {
+                      "type": "string"
+                    },
+                    "points": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "description": "[x, y, z]"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Title": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "grade": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Wing": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "grade": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Announcement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "type": "string",
+            "example": "maintenance"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "done"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "Patchnote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "body": {
+            "description": "The text of the notes as structured by the site."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Key missing (api_key_required), wrong or revoked (invalid_api_key).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "BadLang": {
+        "description": "Unsupported lang (unsupported_lang); the answer lists the languages there are.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "languages": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Over the key's limit; wait Retry-After seconds.",
+        "headers": {
+          "Retry-After": {
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "retryAfterSeconds": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
