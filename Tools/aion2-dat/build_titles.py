@@ -34,14 +34,14 @@ while p < len(body) - 8:
 
 rows = {}
 for i, (pos, s) in enumerate(strings):
-    if re.fullmatch(r"[LD]_[A-Za-z0-9_]+", s) and i + 1 < len(strings) and strings[i + 1][1] == f"Title_{s}_desc":
+    if re.fullmatch(r"(?:G_)?[LD]_[A-Za-z0-9_]+", s) and i + 1 < len(strings) and strings[i + 1][1] == f"Title_{s}_desc":
         title_id = struct.unpack_from("<I", body, pos - 4)[0]
         grade = None
         for _, t in strings[i + 2:i + 40]:
             if t.startswith("ETitleGrade::"):
                 grade = t.split("::")[1]
                 break
-            if re.fullmatch(r"[LD]_[A-Za-z0-9_]+", t):
+            if re.fullmatch(r"(?:G_)?[LD]_[A-Za-z0-9_]+", t):
                 break
         names = {code: texts[code].get(f"Title_{s}_desc") for code in locales}
         names = {k: v for k, v in names.items() if v and v != "???"}
