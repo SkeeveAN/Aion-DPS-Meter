@@ -146,6 +146,7 @@ public partial class SettingsWindow : Window
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         AutoBossViewBox.IsChecked = settings.AutoBossView;
+        AutoBossSecondsBox.Text = Math.Clamp(settings.AutoBossSeconds, 0, 600).ToString();
         CompactClickThroughBox.IsChecked = settings.CompactClickThrough;
         HideDuringMenusBox.IsChecked = settings.HideDuringMenus;
         StreamOverlayOnBox.IsChecked = settings.StreamOverlayOn;
@@ -819,6 +820,7 @@ public partial class SettingsWindow : Window
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
         _settings.AutoBossView = AutoBossViewBox.IsChecked ?? false;
+        _settings.AutoBossSeconds = int.TryParse(AutoBossSecondsBox.Text, out int bossSeconds) ? Math.Clamp(bossSeconds, 0, 600) : 10;
         _settings.CompactClickThrough = CompactClickThroughBox.IsChecked ?? false;
         _settings.HideDuringMenus = HideDuringMenusBox.IsChecked ?? false;
         _settings.StreamOverlayOn = StreamOverlayOnBox.IsChecked ?? false;

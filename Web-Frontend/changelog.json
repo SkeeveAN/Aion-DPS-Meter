@@ -62,6 +62,13 @@
      "Client"
     ],
     "date": "2026-10-29"
+   },
+   {
+    "text": "Settings: the \"Show the current boss automatically\" setting has an input field for how many seconds the boss stays shown after its death (10 by default) instead of the fixed 10 seconds",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
    }
   ]
  },

@@ -547,7 +547,31 @@
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayChips}"/>
                                 <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}"/>
                                 <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
-                                <CheckBox x:Name="AutoBossViewBox" Content="{local:Loc Settings.AutoBossView}" Margin="0,6,0,0"/>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.AutoBossView}" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource Brush.Text}"
+                                               ToolTip="{local:Loc Settings.AutoBossView.Tooltip}"/>
+                                    <Border Grid.Column="1" Width="52" Height="24" Margin="12,0,4,0" CornerRadius="3" BorderThickness="1"
+                                            Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEnabled, ElementName=AutoBossSecondsBox}" Value="False"><Setter Property="Opacity" Value="0.5"/></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <!-- the "s" sits inside the field, fixed: it is not part of the text and cannot be deleted -->
+                                            <TextBlock Text="s" Margin="0,0,6,0" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Brush.Text}"/>
+                                            <TextBox x:Name="AutoBossSecondsBox" Margin="0,0,12,0" BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center"
+                                                     HorizontalContentAlignment="Right" MaxLength="3" Foreground="{DynamicResource Brush.Text}"
+                                                     IsEnabled="{Binding IsChecked, ElementName=AutoBossViewBox}" PreviewTextInput="OnDigitsOnly"
+                                                     ToolTip="{local:Loc Settings.AutoBossView.Tooltip}"/>
+                                        </Grid>
+                                    </Border>
+                                    <CheckBox x:Name="AutoBossViewBox" Grid.Column="2" VerticalAlignment="Center" Margin="0"
+                                              ToolTip="{local:Loc Settings.AutoBossView.Tooltip}"/>
+                                </Grid>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.AutoBossView.Hint}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>

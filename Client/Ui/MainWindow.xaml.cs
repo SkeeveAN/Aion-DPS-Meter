@@ -563,6 +563,7 @@ public partial class MainWindow : Window
         _showDamageTaken = settings.ShowDamageTaken;
         _showBossHp = settings.ShowBossHp;
         _autoBossView = settings.AutoBossView;
+        _autoBossAfterDeath = TimeSpan.FromSeconds(Math.Clamp(settings.AutoBossSeconds, 0, 600));
         _autoReset = settings.AutoResetEnabled;
         _autoResetIdle = TimeSpan.FromSeconds(Math.Clamp(settings.AutoResetSeconds, 1, 600));
         _scope = Enum.TryParse(settings.ViewScope, true, out MeterScope scope) ? scope : MeterScope.Group;
@@ -6804,8 +6805,8 @@ public partial class MainWindow : Window
     /// <summary>A boss hit this recently counts as being fought.</summary>
     private static readonly TimeSpan AutoBossEngaged = TimeSpan.FromSeconds(8);
 
-    /// <summary>How long the dead boss stays on screen before the table shows everything again.</summary>
-    private static readonly TimeSpan AutoBossAfterDeath = TimeSpan.FromSeconds(10);
+    /// <summary>How long the dead boss stays on screen before the table shows everything again (setting, default 10 s).</summary>
+    private TimeSpan _autoBossAfterDeath = TimeSpan.FromSeconds(10);
 
     /// <summary>A boss nobody has hit for this long without dying (a wipe, the group left) gives the table back.</summary>
     private static readonly TimeSpan AutoBossAbandoned = TimeSpan.FromSeconds(30);
@@ -6813,7 +6814,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// The "show the current boss automatically" option: everything is recorded all the time, but the
     /// Mob/Boss filter jumps to a boss as soon as it is attacked, stays on it for
-    /// <see cref="AutoBossAfterDeath"/> after its death and then returns to "All". Only moves the
+    /// <see cref="_autoBossAfterDeath"/> after its death and then returns to "All". Only moves the
     /// filter on those changes, so a target picked by hand in between stays until the next one.
     /// </summary>
     private void FollowBossAutomatically()
@@ -6835,7 +6836,7 @@ public partial class MainWindow : Window
             }
 
             bool abandoned = !dead && _bossActivity.TryGetValue(current, out var seen) && now - seen.Last >= AutoBossAbandoned;
-            if ((dead && now - _autoBossDeadAt >= AutoBossAfterDeath) || abandoned)
+            if ((dead && now - _autoBossDeadAt >= _autoBossAfterDeath) || abandoned)
             {
                 if (_selectedTargetId == current)
                 {

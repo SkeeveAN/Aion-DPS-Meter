@@ -286,6 +286,9 @@ public sealed class MeterSettings
     /// <summary>The table follows the boss being fought: only its damage is shown while it is attacked, for 10 s after its death, then everything again (see MainWindow.FollowBossAutomatically). The whole fight is recorded either way. Off until switched on.</summary>
     public bool AutoBossView { get; set; }
 
+    /// <summary>Seconds the dead boss stays on screen before the table shows everything again (see <see cref="AutoBossView"/>).</summary>
+    public int AutoBossSeconds { get; set; } = 10;
+
     /// <summary>The stream overlay for OBS and Streamlabs (see StreamOverlayServer): a web page that shows the meter live, for the same PC or (two-PC streaming) others in the own network. Off until switched on.</summary>
     public bool StreamOverlayOn { get; set; }
 
