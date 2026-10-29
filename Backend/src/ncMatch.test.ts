@@ -13,7 +13,7 @@ migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta
 after(() => sqlite.close());
 
 const ncMatchModule = await import("./ncMatch.js");
-const { decide, parseHits, processMatch, noteClientServer, noteLevelHint, forgetLevelHint, dueOf, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
+const { decide, parseHits, processMatch, noteClientServer, noteLevelHint, forgetLevelHint, dueOf, waitingPlayers, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
 const { players, servers, playerProfiles, playerNcMatch } = await import("./db/schema.js");
 const { linkPlayerGuild } = await import("./guilds.js");
 const { eq } = await import("drizzle-orm");
@@ -585,4 +585,22 @@ test("a character whose fights leave one or two servers is searched on those ser
   }) as unknown as typeof fetch;
   assert.equal(await processMatch(id, answer, 1_000_000), "verified");
   assert.equal(serverOf(id).d, "Europe - Lumiel", "found on the one server his fight allows");
+});
+
+test("an idle queue gets the players NC looked at longest ago, verified ones too, and never one whose retry is due or whose region NC cannot search", () => {
+  const row = (name: string, srv: number, status: string, checkedAt: number, nextTryAt: number) => {
+    const id = player(name, srv);
+    db.insert(playerNcMatch).values({ playerId: id, status, candidates: 0, checkedAt, nextTryAt }).run();
+    return id;
+  };
+  const unknown = server("aion2:aion-2-server-9998", "Hogalum [9998]");
+  const newer = row("WartetNeu", kaisinel, "verified", 5_000, 90_000_000);
+  const older = row("WartetAlt", kaisinel, "verified", 1_000, 90_000_000);
+  const unclear = row("WartetUnklar", kaisinel, "ambiguous", 3_000, 90_000_000);
+  const due = row("Faellig", kaisinel, "verified", 100, 1_000);
+  const foreign = row("WartetFremd", unknown, "verified", 50, 90_000_000);
+  const list = waitingPlayers(100, 2_000);
+  assert.deepEqual(list.filter((id) => [newer, older, unclear].includes(id)), [older, unclear, newer]);
+  assert.ok(!list.includes(due) && !list.includes(foreign));
+  assert.equal(waitingPlayers(1, 2_000).length, 1);
 });

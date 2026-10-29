@@ -752,29 +752,48 @@ export function duePlayers(limit: number, now = Date.now()): number[] {
   return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
 }
 
-/** Players still waiting for a retry that is not due yet (unclear, client-named, failed), the one due soonest first: work for an idle queue. */
+/** Players whose retry is not due yet, the one NC looked at longest ago first (verified ones too: a rename or a transfer shows only when NC is asked again): work for an idle queue. */
 export function waitingPlayers(limit: number, now = Date.now()): number[] {
-  const rows = db
-    .select({ id: players.id, serverName: servers.displayName })
-    .from(players)
-    .innerJoin(servers, eq(players.serverId, servers.id))
-    .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
-    .where(sql`${servers.fingerprint} like 'aion2:%' and ${playerNcMatch.status} <> 'verified' and ${playerNcMatch.nextTryAt} > ${now}`)
-    .orderBy(playerNcMatch.nextTryAt)
-    .all();
-  return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
+  const out: number[] = [];
+  const page = Math.max(limit * 3, 200);
+  for (let offset = 0; out.length < limit; offset += page) {
+    const rows = db
+      .select({ id: players.id, serverName: servers.displayName })
+      .from(players)
+      .innerJoin(servers, eq(players.serverId, servers.id))
+      .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
+      .where(sql`${servers.fingerprint} like 'aion2:%' and ${playerNcMatch.nextTryAt} > ${now}`)
+      .orderBy(playerNcMatch.checkedAt)
+      .limit(page)
+      .offset(offset)
+      .all();
+    for (const r of rows) {
+      if (shardOf(r.serverName) !== null && out.length < limit) {
+        out.push(r.id);
+      }
+    }
+    if (rows.length < page) {
+      break;
+    }
+  }
+  return out;
 }
 
-/** Background sweep: a few players that are due, every quarter hour, so players seen before this existed and unclear ones get their turn. */
-export function startMatchSweep(intervalMs = 15 * 60_000, batch = 60): void {
+/** The queue is topped up when fewer than this many players wait: the workers always have something to ask NC. */
+const KEEP_QUEUED = 20;
+
+/** Background sweep: every few seconds tops the queue up - first with the players that are due, then, when that does not fill it, with the ones NC looked at longest ago - so the workers never sit idle. NC's pace and hourly budget (portraitService) are what limit the rate. */
+export function startMatchSweep(intervalMs = 15_000, batch = 60): void {
   if (!matchEnabled()) {
     return;
   }
   const sweep = () => {
     try {
+      if (matchQueue.size >= KEEP_QUEUED) {
+        return;
+      }
       matchQueue.enqueue(duePlayers(batch), "bulk");
-      // Nothing due and nobody waiting: the worker does not sit idle, it takes the players whose turn is not yet but who wait for one.
-      if (matchQueue.size === 0) {
+      if (matchQueue.size < KEEP_QUEUED) {
         matchQueue.enqueue(waitingPlayers(batch), "bulk");
       }
     } catch {
