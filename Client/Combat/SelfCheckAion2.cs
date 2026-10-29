@@ -1523,6 +1523,26 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> Kompass +2: 600 experience, Vaizel 22, four skill bonuses: {compassOk}");
         Console.WriteLine($"  -> Spiegel +2: 3.800 experience, Kaisinel 22, four skill bonuses: {mirrorOk}");
 
+        // the login of 2026-10-29 sent some entries with one more zero byte between the size field and the slot index: the compass again, shifted
+        int sizeAt = body.AsSpan().IndexOf(new byte[] { 0x52, 0, 0, 0, 0x2b });
+        byte[] shiftedBody = body[..(sizeAt + 4)].Concat(new byte[] { 0 }).Concat(body[(sizeAt + 4)..]).ToArray();
+        var shiftedWire = new List<byte>();
+        int shiftedLength = shiftedBody.Length + 4;
+        while (shiftedLength >= 0x80)
+        {
+            shiftedWire.Add((byte)(shiftedLength & 0x7f | 0x80));
+            shiftedLength >>= 7;
+        }
+
+        shiftedWire.Add((byte)shiftedLength);
+        shiftedWire.AddRange(shiftedBody);
+        using var shiftedSource = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        shiftedSource.Ingest(Segment(500, shiftedWire.ToArray()));
+        Aion2EquippedItem? shiftedCompass = ((Aion2EntityDirectory)shiftedSource.Entities).LocalEquipment.FirstOrDefault(i => i.SlotIndex == 43);
+        bool shiftedOk = shiftedCompass is { ItemId: 810330001, Enchant: 2, Arcana: { EnchantExp: 600, GodStatId: 8, GodValue: 22 } }
+            && Bonuses(shiftedCompass) == "11280000+1 11260000+2 11010000+1 11050000+2";
+        Console.WriteLine($"  -> Kompass with one extra zero byte behind the size field is read the same: {shiftedOk}");
+
         // the file on disk keeps them; an entry saved by an older meter has none
         var saved = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>(JsonSerializer.Serialize(new Aion2SavedCharacter.SavedItem(43, 810330001, 2, Arcana: compass?.Arcana)));
         var older = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>("""{"Slot":43,"ItemId":810330001,"Enchant":2}""");
@@ -1536,7 +1556,7 @@ public static class SelfCheckAion2
         bool upload = sent.Contains("\"arcana\":{\"exp\":600,\"god\":8,\"godValue\":22,\"skillBonuses\":[{\"skill\":11280000,\"level\":1},{\"skill\":11260000,\"level\":2},{\"skill\":11010000,\"level\":1},{\"skill\":11050000,\"level\":2}]}")
             && !plainSent.Contains("arcana");
         Console.WriteLine($"  -> the profile upload carries experience, god stat and skill bonuses of an arcana piece, and nothing for other pieces: {upload}");
-        return compassOk && mirrorOk && disk && upload;
+        return compassOk && mirrorOk && shiftedOk && disk && upload;
     }
 
     /// <summary>The Pantheon of the login, cut out of the real frames of 2026-10-27 (Nunzio, checked against the Pantheon window): preset 1 holds eight decorations
