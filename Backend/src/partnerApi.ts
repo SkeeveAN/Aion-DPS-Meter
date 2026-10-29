@@ -101,6 +101,9 @@ type RegionsFile = { groups: { id: string; regions: { key: string; names: Names;
 type SpawnsFile = { maps: Record<string, Record<string, number[][]>> };
 type PetMapNames = { maps: Record<string, Names> };
 
+/** The pictures are the site's own files (the pets as 256 px portraits, the wings as 128 px icons). */
+const IMAGE_BASE = "https://aiondps.com/images/aion2";
+
 const petFile = () => load<PetsFile>(assetDir("pets", "pets.json"));
 
 export function pets(lang: Lang, category?: string) {
@@ -113,7 +116,7 @@ export function pets(lang: Lang, category?: string) {
     }
   }
   return Object.entries(petFile().pets)
-    .map(([id, p]) => ({ id: Number(id), key: p.key, category: p.category, name: pick(p.names, lang), regions: regionsOf.get(Number(id)) ?? [] }))
+    .map(([id, p]) => ({ id: Number(id), key: p.key, category: p.category, name: pick(p.names, lang), image: `${IMAGE_BASE}/pets/${p.key}.webp`, regions: regionsOf.get(Number(id)) ?? [] }))
     .filter((p) => category === undefined || p.category.toLowerCase() === category.toLowerCase());
 }
 
@@ -176,5 +179,5 @@ export function titles(lang: Lang) {
 }
 
 export function wings(lang: Lang) {
-  return Object.entries(load<Record<string, { names: Names; icon: string; grade: string }>>(dataDir("wings.json"))).map(([id, w]) => ({ id: Number(id), grade: w.grade, icon: w.icon, name: pick(w.names, lang) }));
+  return Object.entries(load<Record<string, { names: Names; icon: string; grade: string }>>(dataDir("wings.json"))).map(([id, w]) => ({ id: Number(id), grade: w.grade, icon: w.icon, image: `${IMAGE_BASE}/icons/item/${w.icon}.webp`, name: pick(w.names, lang) }));
 }
