@@ -4587,8 +4587,13 @@ function skillSpecTexts(skill) {
   return skillSpec.data?.[String(skill.id)] ?? null;
 }
 
+// The stones carry the emblem of the class (the game's stigma icons per class); a class without a set shows the Gladiator one.
+const STONE_CLASSES = ["gladiator", "templar", "ranger", "assassin", "spiritmaster", "sorcerer", "cleric", "chanter"];
+let stoneClass = "";
+
 function stoneImg(number, size) {
-  return el("img", { className: "pf-stone-img", src: `${STONE_BASE}/stone${number}.webp`, alt: "", width: size, height: size, loading: "lazy" });
+  const dir = STONE_CLASSES.includes(stoneClass) ? `${STONE_BASE}/${stoneClass}` : STONE_BASE;
+  return el("img", { className: "pf-stone-img", src: `${dir}/stone${number}.webp`, alt: "", width: size, height: size, loading: "lazy" });
 }
 
 // The three slots of an active skill as small shields under its icon: a stone, an empty slot or (the third) a shut one.
@@ -4721,6 +4726,7 @@ function skillBlocks(profile, skills) {
 
 function renderSkillsTab(profile) {
   loadSkillSpec();
+  stoneClass = (profile.className ?? "").toLowerCase();
   // A character with several skill presets gets the three blocks once per preset, headed with the preset's number (the game
   // sends only the active one, so the others are as they were when last active).
   const body =
