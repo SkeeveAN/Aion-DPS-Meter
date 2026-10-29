@@ -12972,5 +12972,65 @@
     "pt": "Tudo continua sendo registrado. Enquanto um chefe é atacado, só o dano nele é mostrado; 10 segundos após sua morte, a vista volta a mostrar tudo.",
     "ja": "記録は引き続きすべて行われます。ボスを攻撃している間はそのボスへのダメージだけを表示し、ボスの死亡から10秒後にすべての表示へ戻ります。",
     "ko": "모든 것은 계속 기록됩니다. 보스를 공격하는 동안에는 해당 보스에 대한 대미지만 표시되며, 보스가 죽고 10초 뒤에 전체 보기로 돌아옵니다."
+  },
+  "Settings.Card.Privacy": {
+    "en": "Privacy",
+    "de": "Datenschutz",
+    "fr": "Confidentialité",
+    "es": "Privacidad",
+    "ru": "Конфиденциальность",
+    "zh": "隐私",
+    "zh-TW": "隱私權",
+    "pt": "Privacidade",
+    "ja": "プライバシー",
+    "ko": "개인정보"
+  },
+  "Settings.Privacy.Show": {
+    "en": "Show the privacy policy …",
+    "de": "Datenschutzerklärung anzeigen …",
+    "fr": "Afficher la politique de confidentialité …",
+    "es": "Mostrar la política de privacidad …",
+    "ru": "Показать политику конфиденциальности …",
+    "zh": "查看隐私政策 …",
+    "zh-TW": "查看隱私權政策 …",
+    "pt": "Mostrar a política de privacidade …",
+    "ja": "プライバシーポリシーを表示 …",
+    "ko": "개인정보 처리방침 보기 …"
+  },
+  "Settings.Privacy.Accepted": {
+    "en": "You have accepted the current privacy policy. Open it again to read it or to change your answer.",
+    "de": "Du hast die aktuelle Datenschutzerklärung akzeptiert. Öffne sie erneut, um sie zu lesen oder deine Antwort zu ändern.",
+    "fr": "Vous avez accepté la politique de confidentialité actuelle. Ouvrez-la à nouveau pour la relire ou changer votre réponse.",
+    "es": "Has aceptado la política de privacidad actual. Ábrela de nuevo para leerla o cambiar tu respuesta.",
+    "ru": "Вы приняли действующую политику конфиденциальности. Откройте её снова, чтобы прочитать или изменить ответ.",
+    "zh": "你已接受当前的隐私政策。可再次打开以阅读或更改你的选择。",
+    "zh-TW": "你已接受目前的隱私權政策。可再次開啟以閱讀或變更你的選擇。",
+    "pt": "Você aceitou a política de privacidade atual. Abra-a novamente para lê-la ou alterar sua resposta.",
+    "ja": "現在のプライバシーポリシーに同意済みです。もう一度開いて読むか、回答を変更できます。",
+    "ko": "현재 개인정보 처리방침에 동의했습니다. 다시 열어 읽거나 답변을 변경할 수 있습니다."
+  },
+  "Settings.Privacy.Declined": {
+    "en": "You declined the privacy policy: nothing is uploaded and the meter runs in its restricted mode. Open it again to read it and answer anew.",
+    "de": "Du hast die Datenschutzerklärung abgelehnt: nichts wird hochgeladen, das Tool läuft im eingeschränkten Modus. Öffne sie erneut, um sie zu lesen und neu zu antworten.",
+    "fr": "Vous avez refusé la politique de confidentialité : rien n’est envoyé et l’outil fonctionne en mode restreint. Ouvrez-la à nouveau pour la lire et répondre de nouveau.",
+    "es": "Has rechazado la política de privacidad: no se sube nada y la herramienta funciona en modo restringido. Ábrela de nuevo para leerla y responder otra vez.",
+    "ru": "Вы отклонили политику конфиденциальности: ничего не загружается, инструмент работает в ограниченном режиме. Откройте её снова, чтобы прочитать и ответить заново.",
+    "zh": "你已拒绝隐私政策：不会上传任何内容，工具以受限模式运行。可再次打开以阅读并重新选择。",
+    "zh-TW": "你已拒絕隱私權政策：不會上傳任何內容，工具以受限模式執行。可再次開啟以閱讀並重新選擇。",
+    "pt": "Você recusou a política de privacidade: nada é enviado e a ferramenta funciona em modo restrito. Abra-a novamente para lê-la e responder de novo.",
+    "ja": "プライバシーポリシーを拒否しました：何もアップロードされず、ツールは制限モードで動作します。もう一度開いて読み、回答し直せます。",
+    "ko": "개인정보 처리방침을 거부했습니다. 아무것도 업로드되지 않으며 도구는 제한 모드로 실행됩니다. 다시 열어 읽고 새로 답변할 수 있습니다."
+  },
+  "Settings.Privacy.Open": {
+    "en": "You have not answered the current privacy policy yet. Open it to read it and accept or decline.",
+    "de": "Du hast die aktuelle Datenschutzerklärung noch nicht beantwortet. Öffne sie, um sie zu lesen und zuzustimmen oder abzulehnen.",
+    "fr": "Vous n’avez pas encore répondu à la politique de confidentialité actuelle. Ouvrez-la pour la lire et l’accepter ou la refuser.",
+    "es": "Aún no has respondido a la política de privacidad actual. Ábrela para leerla y aceptarla o rechazarla.",
+    "ru": "Вы ещё не ответили на действующую политику конфиденциальности. Откройте её, чтобы прочитать, принять или отклонить.",
+    "zh": "你尚未回应当前的隐私政策。打开以阅读并选择接受或拒绝。",
+    "zh-TW": "你尚未回應目前的隱私權政策。開啟以閱讀並選擇接受或拒絕。",
+    "pt": "Você ainda não respondeu à política de privacidade atual. Abra-a para lê-la e aceitar ou recusar.",
+    "ja": "現在のプライバシーポリシーにはまだ回答していません。開いて読み、同意または拒否してください。",
+    "ko": "현재 개인정보 처리방침에 아직 답하지 않았습니다. 열어서 읽고 동의하거나 거부하세요."
   }
 }

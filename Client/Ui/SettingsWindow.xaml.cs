@@ -52,6 +52,7 @@ public partial class SettingsWindow : Window
         AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
         DebugRecordingBox.IsChecked = settings.DebugRecording;
         UploadOtherProfilesBox.IsChecked = settings.UploadOtherPlayersProfiles;
+        ShowPrivacyStatus();
         // switching an upload on needs the privacy policy to be accepted: it is asked again when it was declined (set after the values above, so loading does not ask)
         foreach (CheckBox uploadSwitch in new[] { AutoUploadProfileBox, AutoUploadBossBox, UploadOtherProfilesBox })
         {
@@ -309,6 +310,31 @@ public partial class SettingsWindow : Window
         }
 
         _capturingBox = null;
+    }
+
+    private void ShowPrivacyStatus()
+    {
+        MeterSettings now = MeterSettings.Load();
+        string key = PrivacyConsent.IsAccepted(now) ? "Settings.Privacy.Accepted" : now.PrivacyDecision == PrivacyConsent.Declined ? "Settings.Privacy.Declined" : "Settings.Privacy.Open";
+        PrivacyStatusText.Text = LocalizationManager.Instance[key];
+    }
+
+    /// <summary>Shows the policy again to read; the answer replaces the earlier one. A "declined" switches the uploads off, so the boxes follow.</summary>
+    private void OnShowPrivacyClicked(object sender, RoutedEventArgs e)
+    {
+        PrivacyConsent.Ask(this);
+        MeterSettings now = MeterSettings.Load();
+        _settings.PrivacyDecision = now.PrivacyDecision;
+        _settings.PrivacyVersion = now.PrivacyVersion;
+        if (now.PrivacyDecision == PrivacyConsent.Declined)
+        {
+            AutoUploadProfileBox.IsChecked = false;
+            AutoUploadBossBox.IsChecked = false;
+            UploadOtherProfilesBox.IsChecked = false;
+            ShareLoginBox.IsChecked = false;
+        }
+
+        ShowPrivacyStatus();
     }
 
     private void OnUploadSwitchChecked(object sender, RoutedEventArgs e)

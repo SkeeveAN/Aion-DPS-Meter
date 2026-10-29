@@ -315,10 +315,15 @@
             <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
                        Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="30,0,0,0"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="─" Click="OnMinimizeClicked" Width="28" Height="30"
-                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
-                <Button Content="✕" Click="OnCancelClicked" Width="28" Height="30"
-                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
+                <!-- Drawn lines, not text glyphs (the same as ThemedChrome): the cross came out of a fallback font, too big and uneven. -->
+                <Button Click="OnMinimizeClicked" Width="28" Height="30" Padding="0"
+                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0">
+                    <Path Data="M0,5 L10,5" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.2" Width="10" Height="10" Stretch="Fill" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <Button Click="OnCancelClicked" Width="28" Height="30" Padding="0"
+                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0">
+                    <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.2" Width="10" Height="10" Stretch="Fill" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
             </StackPanel>
         </Grid>
         <!-- Right/bottom margin keeps Cancel clear of the window's resize grip in the corner. -->
@@ -575,6 +580,13 @@
                                           ToolTip="Also sends the data of other players the meter has seen (name, class, level, gear, legion), the members of your own legion and, with the replay upload, their positions in a fight. Off by default: with it off only your own character is sent."/>
                                 <CheckBox x:Name="AutoUploadBossBox" Content="{local:Loc Settings.AutoUploadBoss}"
                                           ToolTip="Uploads the fight to aiondps.com a few seconds after a boss died, the same as the Upload button. Off by default."/>
+                            </StackPanel>
+                        </Border>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.Privacy}"/>
+                                <TextBlock x:Name="PrivacyStatusText" Style="{StaticResource CardHint}"/>
+                                <Button Content="{local:Loc Settings.Privacy.Show}" HorizontalAlignment="Left" Margin="0,8,0,0" Padding="12,3" Click="OnShowPrivacyClicked"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
