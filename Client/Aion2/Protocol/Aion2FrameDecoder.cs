@@ -3287,12 +3287,23 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
-    /// The active skill preset (0x92e2): in the short form <c>00 00 | count | (category, preset) pairs | 00</c>, at login the same
+    /// The active skill preset (0x92e2, 0x90e2): in the short form <c>00 00 | count | (category, preset) pairs | 00</c>, at login the same
     /// pairs after a longer header. Category 2 is the one the skill window follows (categories 3 and 4 always matched it in
     /// the recordings), so the pairs are looked for as 02 a 03 b 04 c.
     /// </summary>
     private void DecodePresetSwitch(ReadOnlySpan<byte> frame)
     {
+        // The short frame 0x90e2 (00 00, category, preset, 00 00) is what most switches send; the 0x92e2 above comes only now and then.
+        if (frame.Length == 8 && frame[2] == 0 && frame[3] == 0)
+        {
+            if (frame[4] == 2 && frame[5] is >= 1 and <= 9)
+            {
+                _entities.SwitchPreset(frame[5]);
+            }
+
+            return;
+        }
+
         for (int i = 2; i + 5 < frame.Length; i++)
         {
             if (frame[i] == 2 && frame[i + 2] == 3 && frame[i + 4] == 4 && frame[i + 1] is >= 1 and <= 9)

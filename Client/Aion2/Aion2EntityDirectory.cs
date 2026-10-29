@@ -1325,16 +1325,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             // merged into the new one for good. The class the new list is mostly made of decides.
             int? classPrefix = skills.Select(s => s.SkillId / 1_000_000).Where(k => k is >= 10 and < 20)
                 .GroupBy(k => k).OrderByDescending(g => g.Count()).Select(g => (int?)g.Key).FirstOrDefault();
+            // The list that follows a preset switch (and the first one of a login) names the stigmas of that preset and no others: a stigma
+            // of the old list that it lacks is in another preset (it would otherwise show as a fifth and sixth one).
+            bool replaceStigmas = _pruneStigmas;
             var merged = (_skills ?? Array.Empty<Aion2SkillEntry>())
                 .Where(old => skills.All(s => s.SkillId != old.SkillId))
+                .Where(old => !replaceStigmas || !old.Stigma && !_stigmas.Contains(old.SkillId))
                 .Where(old => classPrefix is null || old.SkillId / 1_000_000 is < 10 or >= 20 || old.SkillId / 1_000_000 == classPrefix)
                 .Concat(skills);
             _liveLists = true;
-            var listed = merged.Select(k => k.SkillId).ToHashSet();
             if (_pruneStigmas)
             {
-                // The first full list after a switch to a preset not seen before: a stigma it does not list is not in that preset.
-                _stigmas.IntersectWith(listed);
+                // The first full list after a switch: a stigma it does not list is not in that preset.
+                _stigmas.IntersectWith(skills.Select(k => k.SkillId));
                 _pruneStigmas = false;
             }
 
@@ -1398,6 +1401,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                     // The first word of the game on the active preset and only a restored list from before the presets is held: it is taken to
                     // belong to that preset - the lists of the login overwrite it, it is not parked as another preset.
                     _activePreset = number;
+                    _pruneStigmas = true;
                     return;
                 }
             }
@@ -1424,7 +1428,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 }
 
                 _presetAt = known.At;
-                _pruneStigmas = false;
+                _pruneStigmas = true;
             }
             else
             {
