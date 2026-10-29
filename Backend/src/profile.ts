@@ -50,7 +50,7 @@ export const profileSchema = z.object({
         // The godstone set into the piece (its item id) and the skill level bonuses the piece gives.
         godstone: z.number().int().min(1).max(2_000_000_000).optional(),
         skillBonuses: z.array(z.object({ skill: z.number().int().min(1).max(2_000_000_000), level: z.number().int().min(1).max(20) })).max(8).optional(),
-        // An arcana piece of the own character (login list): the experience collected towards the next level, the god stat (id 7-11 = Nezekan,
+        // An arcana piece of the own character (login list): the experience collected towards the next level, the god stat (id 7-11 and 13-17 = the ten lords: Nezekan,
         // Vaizel, Kaisinel, Yustiel, Siel) with its value, and the skill levels the piece gives (own and rolled levels added up).
         arcana: z
           .object({

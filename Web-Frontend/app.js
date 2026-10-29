@@ -4390,7 +4390,7 @@ function loadArcanaTables() {
   return arcanaTables.pending;
 }
 
-const LORD_KEYS = { 7: "justice", 8: "freedom", 9: "illusion", 10: "life", 11: "time" };
+const LORD_KEYS = { 7: "justice", 8: "freedom", 9: "illusion", 10: "life", 11: "time", 13: "destruction", 14: "death", 15: "wisdom", 16: "destiny", 17: "space" };
 
 function renderArcanaTab(profile) {
   const list = profile.gear.filter((g) => g.slotName === "Arcana").sort((a, b) => a.slot - b.slot);
