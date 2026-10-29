@@ -52,6 +52,7 @@ public static class SelfCheck
         ok &= SelfCheckIdentity.Run();
         ok &= SelfCheckStatCalc.Run();
         ok &= SelfCheckEstimateRescale.Run();
+        ok &= SelfCheckPlacement.Run();
         return ok;
     }
 

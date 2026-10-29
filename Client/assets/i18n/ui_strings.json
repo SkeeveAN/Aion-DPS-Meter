@@ -13044,5 +13044,65 @@
     "pt": "Você ainda não respondeu à política de privacidade atual. Abra-a para lê-la e aceitar ou recusar.",
     "ja": "現在のプライバシーポリシーにはまだ回答していません。開いて読み、同意または拒否してください。",
     "ko": "현재 개인정보 처리방침에 아직 답하지 않았습니다. 열어서 읽고 동의하거나 거부하세요."
+  },
+  "Tools.PopOut.Tip": {
+    "en": "Pop out: show this tool in a window of its own that you can put anywhere, also on another monitor. Where it was left is kept; closing it with the X ends it.",
+    "de": "Pop out: Dieses Tool in einem eigenen Fenster zeigen, das du überall ablegen kannst, auch auf einem anderen Monitor. Die Position wird gemerkt; mit dem X wird es beendet.",
+    "fr": "Détacher : afficher cet outil dans une fenêtre à part que vous pouvez placer où vous voulez, y compris sur un autre écran. Sa position est mémorisée ; la fermer avec la croix y met fin.",
+    "es": "Separar: muestra esta herramienta en una ventana propia que puedes colocar donde quieras, también en otro monitor. Se recuerda su posición; al cerrarla con la X se termina.",
+    "ru": "Открепить: показать этот инструмент в отдельном окне, которое можно разместить где угодно, в том числе на другом мониторе. Положение запоминается; закрытие крестиком завершает окно.",
+    "zh": "弹出：将此工具显示在独立窗口中，可放在任意位置，包括另一台显示器。窗口位置会被记住；点击 X 关闭即结束弹出。",
+    "zh-TW": "彈出：將此工具顯示在獨立視窗中，可放在任何位置，包括另一台螢幕。視窗位置會被記住；按 X 關閉即結束彈出。",
+    "pt": "Destacar: mostra esta ferramenta numa janela própria que podes colocar em qualquer lugar, também noutro monitor. A posição é guardada; fechar com o X termina-a.",
+    "ja": "ポップアウト：このツールを別ウィンドウで表示します。別のモニターを含め、好きな場所に置けます。位置は記憶され、X で閉じるとポップアウトは終了します。",
+    "ko": "팝아웃: 이 도구를 별도 창으로 표시합니다. 다른 모니터를 포함해 원하는 곳에 둘 수 있습니다. 위치는 기억되며 X로 닫으면 팝아웃이 종료됩니다."
+  },
+  "Placement.OffScreen.Title": {
+    "en": "Window positions",
+    "de": "Fensterpositionen",
+    "fr": "Positions des fenêtres",
+    "es": "Posiciones de las ventanas",
+    "ru": "Положение окон",
+    "zh": "窗口位置",
+    "zh-TW": "視窗位置",
+    "pt": "Posições das janelas",
+    "ja": "ウィンドウの位置",
+    "ko": "창 위치"
+  },
+  "Placement.OffScreen.Text": {
+    "en": "Your positions were saved on another monitor that is not active right now. Should the saved positions be overwritten, or reused at the next start?\n\nAll windows appear on monitor 1 for now. If you keep the saved positions, the positions of this run are not saved.",
+    "de": "Deine Positionen waren auf einem anderen Monitor gespeichert, der derzeit nicht aktiv ist. Sollen die gespeicherten Positionen überschrieben oder beim nächsten Start wiederverwendet werden?\n\nAlle Fenster erscheinen vorerst auf Monitor 1. Behältst du die gespeicherten Positionen, werden die Positionen dieses Starts nicht gesichert.",
+    "fr": "Vos positions étaient enregistrées sur un autre écran qui n'est pas actif pour le moment. Faut-il écraser les positions enregistrées ou les réutiliser au prochain démarrage ?\n\nToutes les fenêtres apparaissent pour l'instant sur l'écran 1. Si vous conservez les positions enregistrées, les positions de cette session ne sont pas sauvegardées.",
+    "es": "Tus posiciones estaban guardadas en otro monitor que no está activo ahora. ¿Quieres sobrescribir las posiciones guardadas o reutilizarlas en el próximo inicio?\n\nPor ahora todas las ventanas aparecen en el monitor 1. Si conservas las posiciones guardadas, las posiciones de esta sesión no se guardan.",
+    "ru": "Ваши положения окон были сохранены на другом мониторе, который сейчас не активен. Перезаписать сохранённые положения или использовать их снова при следующем запуске?\n\nПока все окна появляются на мониторе 1. Если вы сохраните прежние положения, положения этого запуска не записываются.",
+    "zh": "您保存的位置在另一台当前未启用的显示器上。要覆盖已保存的位置，还是在下次启动时继续使用？\n\n目前所有窗口都显示在显示器 1 上。如果保留已保存的位置，本次运行的位置不会被保存。",
+    "zh-TW": "您儲存的位置位於另一台目前未啟用的螢幕上。要覆寫已儲存的位置，還是在下次啟動時繼續使用？\n\n目前所有視窗都顯示在螢幕 1 上。若保留已儲存的位置，本次執行的位置不會被儲存。",
+    "pt": "As tuas posições estavam guardadas noutro monitor que não está ativo neste momento. Queres substituir as posições guardadas ou reutilizá-las no próximo arranque?\n\nPor agora, todas as janelas aparecem no monitor 1. Se mantiveres as posições guardadas, as posições desta sessão não são guardadas.",
+    "ja": "保存されていた位置は、現在有効でない別のモニターのものでした。保存した位置を上書きしますか？それとも次回の起動時に再び使いますか？\n\n今はすべてのウィンドウをモニター 1 に表示します。保存した位置を残す場合、今回の位置は保存されません。",
+    "ko": "저장된 위치가 현재 활성화되지 않은 다른 모니터에 있었습니다. 저장된 위치를 덮어쓸까요, 아니면 다음 시작 때 다시 사용할까요?\n\n지금은 모든 창이 모니터 1에 표시됩니다. 저장된 위치를 유지하면 이번 실행의 위치는 저장되지 않습니다."
+  },
+  "Placement.OffScreen.Overwrite": {
+    "en": "Overwrite",
+    "de": "Überschreiben",
+    "fr": "Écraser",
+    "es": "Sobrescribir",
+    "ru": "Перезаписать",
+    "zh": "覆盖",
+    "zh-TW": "覆寫",
+    "pt": "Substituir",
+    "ja": "上書き",
+    "ko": "덮어쓰기"
+  },
+  "Placement.OffScreen.Keep": {
+    "en": "Reuse at next start",
+    "de": "Beim nächsten Start wiederverwenden",
+    "fr": "Réutiliser au prochain démarrage",
+    "es": "Reutilizar en el próximo inicio",
+    "ru": "Использовать при следующем запуске",
+    "zh": "下次启动时继续使用",
+    "zh-TW": "下次啟動時繼續使用",
+    "pt": "Reutilizar no próximo arranque",
+    "ja": "次回の起動時に使う",
+    "ko": "다음 시작 때 다시 사용"
   }
 }

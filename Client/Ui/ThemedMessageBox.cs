@@ -127,8 +127,8 @@ public static class ThemedMessageBox
                 AddButton("Cancel", MessageBoxResult.Cancel, isCancel: true);
                 break;
             case MessageBoxButton.YesNo:
-                AddButton("Yes", MessageBoxResult.Yes, isDefault: true);
-                AddButton("No", MessageBoxResult.No, isCancel: true);
+                AddButton(labels?.Yes ?? "Yes", MessageBoxResult.Yes, isDefault: true);
+                AddButton(labels?.No ?? "No", MessageBoxResult.No, isCancel: true);
                 break;
             case MessageBoxButton.YesNoCancel:
                 AddButton(labels?.Yes ?? "Yes", MessageBoxResult.Yes, isDefault: true);

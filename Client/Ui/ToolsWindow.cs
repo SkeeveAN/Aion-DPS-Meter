@@ -46,15 +46,15 @@ public sealed class ToolsWindow : Window
     private string _sizeKey = "";
 
     /// <summary>The width a tool's page starts with when the player has not sized it yet: a checklist is narrow, the design editor wide.</summary>
-    private static double DefaultWidth(string id) => id switch
+    internal static double DefaultWidth(string id) => id switch
     {
         "checklist" => 660,
         "attributes" => 1060,
         "statcalc" => 1180,
         "craft" => 980,
         "assist" => 640,
-        "timetable" => 640,
-        "stream" => 700,
+        "timetable" => 720,
+        "stream" => 760,
         "dummy" => 1300,
         "theme" => 1700,
         _ => 860,
@@ -89,16 +89,19 @@ public sealed class ToolsWindow : Window
         MeterSettings saved = MeterSettings.Load();
         if (saved.ToolsWindowHeight is > 0)
         {
-            Height = Math.Clamp(saved.ToolsWindowHeight.Value, MinHeight, SystemParameters.WorkArea.Height);
+            Height = Math.Clamp(saved.ToolsWindowHeight.Value, MinHeight, WindowPlacement.Primary().Height);
         }
 
-        if (saved.ToolsWindowLeft is { } left && saved.ToolsWindowTop is { } top
-            && left >= SystemParameters.VirtualScreenLeft - 50 && left < SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth - 100
-            && top >= SystemParameters.VirtualScreenTop - 10 && top < SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight - 100)
+        if (saved.ToolsWindowLeft is { } left && saved.ToolsWindowTop is { } top)
         {
-            WindowStartupLocation = WindowStartupLocation.Manual;
-            Left = left;
-            Top = top;
+            // where it was left, on whichever monitor; one that is not connected any more puts it in the middle of the meter again (the first monitor)
+            WindowPlacement.Resolve(new Rect(left, top, Width, Height), out bool moved);
+            if (!moved)
+            {
+                WindowStartupLocation = WindowStartupLocation.Manual;
+                Left = left;
+                Top = top;
+            }
         }
 
         var nav = new StackPanel { Margin = new Thickness(6) };
@@ -296,8 +299,12 @@ public sealed class ToolsWindow : Window
         MeterSettings s = MeterSettings.Load();
         s.ToolWidths[_sizeKey] = Math.Round(ActualWidth);
         s.ToolHeights[_sizeKey] = Math.Round(ActualHeight);
-        s.ToolsWindowLeft = Left;
-        s.ToolsWindowTop = Top;
+        if (WindowPlacement.CanSave)
+        {
+            s.ToolsWindowLeft = Left;
+            s.ToolsWindowTop = Top;
+        }
+
         s.ToolsWindowHeight = Math.Round(ActualHeight);
         s.Save();
     }
@@ -313,7 +320,8 @@ public sealed class ToolsWindow : Window
         MeterSettings s = MeterSettings.Load();
         double width = s.ToolWidths.TryGetValue(_sizeKey, out double w) ? w : s.ToolWidths.TryGetValue(id, out double w0) ? w0 : DefaultWidth(id);
         double height = s.ToolHeights.TryGetValue(_sizeKey, out double h) ? h : s.ToolHeights.TryGetValue(id, out double h0) ? h0 : s.ToolsWindowHeight ?? Height;
-        var area = SystemParameters.WorkArea;
+        // the screen the window is on, not the first one: on a second monitor the window stays where it is when another tool is chosen
+        Rect area = double.IsNaN(Left) || double.IsNaN(Top) ? WindowPlacement.Primary() : WindowPlacement.WorkAreaOf(new Rect(Left, Top, ActualWidth > 0 ? ActualWidth : Width, ActualHeight > 0 ? ActualHeight : Height));
         width = Math.Clamp(width, MinWidth, area.Width);
         height = Math.Clamp(height, MinHeight, area.Height);
         _applyingWidth = true;
