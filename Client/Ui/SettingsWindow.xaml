@@ -318,11 +318,11 @@
                 <!-- Drawn lines, not text glyphs (the same as ThemedChrome): the cross came out of a fallback font, too big and uneven. -->
                 <Button Click="OnMinimizeClicked" Width="28" Height="30" Padding="0"
                         Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0">
-                    <Path Data="M0,5 L10,5" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.2" Width="10" Height="10" Stretch="Fill" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Path Data="M1,6 L11,6" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.4" Width="12" Height="12" Stretch="None" SnapsToDevicePixels="False" StrokeStartLineCap="Round" StrokeEndLineCap="Round" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
                 <Button Click="OnCancelClicked" Width="28" Height="30" Padding="0"
                         Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0">
-                    <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.2" Width="10" Height="10" Stretch="Fill" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Path Data="M1.5,1.5 L10.5,10.5 M10.5,1.5 L1.5,10.5" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.4" Width="12" Height="12" Stretch="None" SnapsToDevicePixels="False" StrokeStartLineCap="Round" StrokeEndLineCap="Round" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
             </StackPanel>
         </Grid>

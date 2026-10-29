@@ -89,7 +89,13 @@ public static class ThemedChrome
         Button Caption(string geometry, Action action)
         {
             // Drawn lines, not a text glyph: the cross came out of a fallback font, and in some installs only half of it showed.
-            var line = new System.Windows.Shapes.Path { Data = Geometry.Parse(geometry), StrokeThickness = 1.2, Width = 10, Height = 10, Stretch = Stretch.Fill, SnapsToDevicePixels = true, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            // The drawing sits inside a 12 x 12 box with a margin of 1 for the stroke, Stretch.None: stretched into a box exactly as large as the lines, the ends of the cross were cut off
+            // at some display scalings (125 %, 150 %), and pixel snapping made one arm thinner than the other.
+            var line = new System.Windows.Shapes.Path
+            {
+                Data = Geometry.Parse(geometry), StrokeThickness = 1.4, Width = 12, Height = 12, Stretch = Stretch.None, SnapsToDevicePixels = false, UseLayoutRounding = false,
+                StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
+            };
             line.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.TextMuted");
             // Padding 0: the button style of the main window pads every button by 8 px, which squeezes the glyph out of a 28 px wide caption button
             var button = new Button { Content = line, Width = 28, Height = 30, BorderThickness = new Thickness(0), Background = Brushes.Transparent, Margin = new Thickness(0), Padding = new Thickness(0) };
@@ -99,8 +105,8 @@ public static class ThemedChrome
         }
 
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-        buttons.Children.Add(Caption("M0,5 L10,5", () => window.WindowState = WindowState.Minimized));
-        buttons.Children.Add(Caption("M0,0 L10,10 M10,0 L0,10", window.Close));
+        buttons.Children.Add(Caption("M1,6 L11,6", () => window.WindowState = WindowState.Minimized));
+        buttons.Children.Add(Caption("M1.5,1.5 L10.5,10.5 M10.5,1.5 L1.5,10.5", window.Close));
 
         var bar = new Grid { Height = 30 };
         bar.SetResourceReference(Panel.BackgroundProperty, "Brush.TitleBar");
