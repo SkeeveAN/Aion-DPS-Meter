@@ -40,6 +40,13 @@
      "Website"
     ],
     "date": "2026-10-29"
+   },
+   {
+    "text": "NC matching: the workers never sit idle - the queue is topped up every 15 seconds, first with the players that are due, then with the ones NC looked at longest ago (confirmed players too), so renames and server transfers show up as soon as possible",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-29"
    }
   ]
  },
