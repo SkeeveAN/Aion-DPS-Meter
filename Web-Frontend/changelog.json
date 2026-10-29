@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.17.2",
   "date": "2026-10-29",
   "items": [
    {
@@ -13,6 +13,20 @@
    },
    {
     "text": "Arcana: pieces whose login entry has one extra zero byte after the size field are read again (they showed no experience, lord or skills)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Selftest: arcana entry with one extra zero byte behind the size field",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "arcana pieces with a shifted login entry show their experience, lord and skills again, and the website shows the lord value for all ten lords",
     "areas": [
      "Client"
     ],
