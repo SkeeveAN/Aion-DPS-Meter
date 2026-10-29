@@ -563,6 +563,7 @@ function buildSiteFooter() {
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
         link("Changelog", "/changelog"),
+        link(t("guide.breadcrumb"), "/aion-2-dps-meter"),
         link(t("footer.howItWorks"), "/how-it-works"),
         buildStarLink(),
       ]),
