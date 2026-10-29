@@ -47,6 +47,21 @@
      "Backend"
     ],
     "date": "2026-10-29"
+   },
+   {
+    "text": "Partner API: pets and wings carry the URL of their picture; all 207 pet portraits from the game client",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Settings: a Privacy block under Upload shows whether the privacy policy is accepted and opens it again to read and to accept or decline; the close and minimize buttons of the settings window are drawn lines like in the other windows, the cross was too big",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
    }
   ]
  },
