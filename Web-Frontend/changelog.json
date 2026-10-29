@@ -1,5 +1,26 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-29",
+  "items": [
+   {
+    "text": "Profile arcana: the lord value shows for all ten lords (ids 13-17 were missing on the website)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Arcana: pieces whose login entry has one extra zero byte after the size field are read again (they showed no experience, lord or skills)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
+   }
+  ]
+ },
+ {
   "version": "1.17.1",
   "date": "2026-10-29",
   "items": [
@@ -64,16 +85,24 @@
     "date": "2026-10-29"
    },
    {
-    "text": "Settings: the \"Show the current boss automatically\" setting has an input field for how many seconds the boss stays shown after its death (10 by default) instead of the fixed 10 seconds",
+    "text": "Settings: input field for how many seconds the boss stays shown after its death (auto boss view)",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
     ],
     "date": "2026-10-29"
    },
    {
-    "text": "Website: the footer links to the DPS meter guide",
+    "text": "Website: footer links to the DPS meter guide",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "input field for the seconds the current boss stays shown after its death, privacy block in settings, NC matching never idles, pet and wing pictures in the partner API",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-29"
    }
