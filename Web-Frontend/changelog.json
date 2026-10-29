@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-29",
+  "items": [
+   {
+    "text": "Titles: the 18 achievement titles of the G_ rows (Journey's Path and others) get their names, they showed as Title 13051004 on profiles",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-29"
+   }
+  ]
+ },
+ {
   "version": "1.17.2",
   "date": "2026-10-29",
   "items": [
