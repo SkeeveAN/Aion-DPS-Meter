@@ -19,9 +19,18 @@
     "date": "2026-10-29"
    },
    {
-    "text": "Server matchmaking: the Abyss pairings (with the factions of both servers) are now kept as well, and the South America pairings are read as LATAM instead of being mixed into NA West",
+    "text": "Server matchmaking: South America is read as LATAM (its pairs no longer land in NA West), the Abyss pairings with both factions are stored in their own table",
     "areas": [
-     "Backend"
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Skill presets: the short preset switch frame is read and a preset's skill list replaces its stigmas, so every preset shows only its own four stigmas with their levels",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-29"
    }
