@@ -2886,15 +2886,18 @@ public sealed class Aion2FrameDecoder
     /// </summary>
     private static Aion2ArcanaDetails? TryReadArcana(ReadOnlySpan<byte> frame, int sizePos)
     {
-        if (sizePos < 14 || sizePos + 38 > frame.Length || frame[sizePos + 1] != 0 || frame[sizePos + 2] != 0 || frame[sizePos + 3] != 0 || frame[sizePos + 28] != 1)
+        // some entries carry one more zero byte between the size field and the slot index (seen at login 2026-10-29: the
+        // piece then read as having no arcana data at all), which shifts everything behind by one
+        int shift = sizePos + 5 < frame.Length && frame[sizePos + 4] == 0 ? 1 : 0;
+        if (sizePos < 14 || sizePos + 38 + shift > frame.Length || frame[sizePos + 1] != 0 || frame[sizePos + 2] != 0 || frame[sizePos + 3] != 0 || frame[sizePos + 28 + shift] != 1)
         {
             return null;
         }
 
         int exp = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(sizePos - 13)..]));
-        int godStat = frame[sizePos + 29];
-        int godValue = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(sizePos + 31)..]));
-        int at = sizePos + 37;
+        int godStat = frame[sizePos + 29 + shift];
+        int godValue = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(sizePos + 31 + shift)..]));
+        int at = sizePos + 37 + shift;
         if (!TryReadSkillLevels(frame, ref at, out var given) || !TryReadSkillLevels(frame, ref at, out var rolled))
         {
             return null;
