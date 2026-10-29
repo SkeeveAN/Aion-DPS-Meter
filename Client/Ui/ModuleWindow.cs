@@ -15,6 +15,8 @@ public sealed class ModulePage : DockPanel
     private readonly Func<MeterSettings, string>? _getKey;
     private readonly CheckBox _master = new();
     private readonly Button _key = new();
+    private readonly Button _pop = new();
+    private Action? _popOut;
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _syncing;
 
@@ -75,6 +77,18 @@ public sealed class ModulePage : DockPanel
 
         right.Children.Add(masterText);
         right.Children.Add(_master);
+        // right of the overlay switch: the tool in a window of its own, to put it anywhere (only where the owner of the page has set PopOut)
+        var popIcon = new TextBlock { Text = "\uE8A7", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, VerticalAlignment = VerticalAlignment.Center };
+        popIcon.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        _pop.Content = popIcon;
+        _pop.Margin = new Thickness(12, 0, 0, 0);
+        _pop.Padding = new Thickness(8, 2, 8, 2);
+        _pop.MinHeight = 26;
+        _pop.ToolTip = loc["Tools.PopOut.Tip"];
+        _pop.Visibility = Visibility.Collapsed;
+        _pop.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
+        _pop.Click += (_, _) => PopOut?.Invoke();
+        right.Children.Add(_pop);
         var name = new TextBlock { Text = title, FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         header.Children.Add(right);
@@ -91,6 +105,17 @@ public sealed class ModulePage : DockPanel
             tick?.Invoke();
         };
         _timer.Start();
+    }
+
+    /// <summary>Shows the tool in a window of its own; the button for it (right of the overlay switch) is there only while this is set.</summary>
+    public Action? PopOut
+    {
+        get => _popOut;
+        set
+        {
+            _popOut = value;
+            _pop.Visibility = value is null ? Visibility.Collapsed : Visibility.Visible;
+        }
     }
 
     public void Stop() => _timer.Stop();

@@ -57,6 +57,19 @@ public static class ToolRender
                 break;
             }
 
+            case "placement":
+            {
+                // the question when a saved window place was on a monitor that is not there
+                Window box = ThemedMessageBox.Build(null, loc["Placement.OffScreen.Text"], loc["Placement.OffScreen.Title"], MessageBoxButton.YesNo, MessageBoxImage.Question,
+                    null, null, out _, (loc["Placement.OffScreen.Overwrite"], loc["Placement.OffScreen.Keep"], ""));
+                shown = (FrameworkElement)box.Content;
+                box.Content = null;
+                shown.Width = 520;
+                width = 0;
+                height = 0;
+                break;
+            }
+
             default:
             {
                 Func<string, ToolPage?> build = id => id switch
@@ -130,6 +143,7 @@ public static class ToolRender
         UIElement body = view.DetachView();
         view.Refresh();
         var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, hotkeys, applied, view.Refresh);
+        page.PopOut = () => { };
         return new ToolPage { Content = page };
     }
 
@@ -143,6 +157,7 @@ public static class ToolRender
         stack.Children.Add(status);
         stack.Children.Add(copy);
         var page = new ModulePage(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, hotkeys, applied);
+        page.PopOut = () => { };
         return new ToolPage { Content = page };
     }
 }

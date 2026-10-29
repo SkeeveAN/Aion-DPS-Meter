@@ -184,6 +184,10 @@ public sealed class MeterSettings
 
     public double? ToolsWindowHeight { get; set; }
 
+    /// <summary>The tools shown in a window of their own ("pop out"), by the tool's id: where each was left and whether it was open when the meter closed (a pop-out
+    /// closed with its X is not open any more; its place is kept for the next time).</summary>
+    public Dictionary<string, PopOutPlace> PopOuts { get; set; } = new();
+
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
@@ -872,4 +876,16 @@ public sealed class CombatElementLayout
     public double Width { get; set; }
     public double Height { get; set; }
     public double Scale { get; set; } = 1.0;
+}
+
+/// <summary>Place and size of one popped-out tool window, in device-independent pixels of the whole desktop (a second monitor has coordinates beyond the first).</summary>
+public sealed class PopOutPlace
+{
+    public double Left { get; set; }
+    public double Top { get; set; }
+    public double Width { get; set; }
+    public double Height { get; set; }
+
+    /// <summary>The window is to come back at the next start.</summary>
+    public bool Open { get; set; }
 }

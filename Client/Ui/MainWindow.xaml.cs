@@ -408,6 +408,8 @@ public partial class MainWindow : Window
                 }
 
                 ApplyPrivacyRestrictions();
+                RestorePopOuts();
+                WindowPlacement.AskIfNeeded(this);
                 AskForNpcapIfMissing();
             };
         }
@@ -536,8 +538,13 @@ public partial class MainWindow : Window
 
         if (settings.WindowLeft is double left && settings.WindowTop is double top)
         {
-            Left = left;
-            Top = top;
+            // on a monitor that is not there any more the window stays where Windows puts it (the first monitor)
+            WindowPlacement.Resolve(new Rect(left, top, Width, Height), out bool moved);
+            if (!moved)
+            {
+                Left = left;
+                Top = top;
+            }
         }
     }
 
@@ -552,8 +559,11 @@ public partial class MainWindow : Window
         // Closed while the compact overlay is up: the window has the panel's size, not its own.
         settings.WindowWidth = _sizeBeforeCompactOverlay?.Width ?? bounds.Width;
         settings.WindowHeight = _sizeBeforeCompactOverlay?.Height ?? bounds.Height;
-        settings.WindowLeft = bounds.X;
-        settings.WindowTop = bounds.Y;
+        if (WindowPlacement.CanSave)
+        {
+            settings.WindowLeft = bounds.X;
+            settings.WindowTop = bounds.Y;
+        }
     }
 
     /// <summary>Re-reads the display settings - called once at startup and again after Settings is saved.</summary>
@@ -1268,6 +1278,10 @@ public partial class MainWindow : Window
     {
         SaveWindowStateToSettings();
         base.OnClosing(e);
+        if (!e.Cancel)
+        {
+            PopOutWindow.Exiting = true; // the pop-out windows close with the meter: they are to come back at the next start
+        }
     }
 
     /// <summary>Extracted from OnClosing so the update restart can reuse it: Velopack's
@@ -5593,7 +5607,7 @@ public partial class MainWindow : Window
                 groups = groups.Select(g => g.Where(t => PrivacyConsent.RestrictedTools.Contains(t.Id)).ToArray()).Where(g => g.Length > 0).ToArray();
             }
 
-            _toolsWindow = new ToolsWindow(groups, BuildToolPage, tool =>
+            _toolsWindow = new ToolsWindow(groups, id => BuildToolPage(id), tool =>
             {
                 if (tool == "analyzer")
                 {
@@ -5602,6 +5616,7 @@ public partial class MainWindow : Window
             }) { Owner = this };
             _toolsWindow.Closed += (_, _) => _toolsWindow = null;
             _toolsWindow.Show();
+            WindowPlacement.AskIfNeeded(this);
         }
 
         _toolsWindow.Select(id);
@@ -5627,8 +5642,37 @@ public partial class MainWindow : Window
         _settingsWindow?.Activate();
     }
 
-    /// <summary>The page of one tool for the tools window; null when the tool is not available (headless, no capture yet).</summary>
-    private ToolPage? BuildToolPage(string module)
+    /// <summary>The page of one tool for the tools window; null when the tool is not available (headless, no capture yet). A page with an overlay switch also gets the pop-out button.</summary>
+    private ToolPage? BuildToolPage(string module, bool inPopOut = false)
+    {
+        ToolPage? page = BuildToolPageContent(module);
+        if (!inPopOut && page?.Content is ModulePage modulePage)
+        {
+            modulePage.PopOut = () => OpenPopOut(module);
+        }
+
+        return page;
+    }
+
+    private void OpenPopOut(string module, bool restore = false)
+    {
+        string title = ToolsWindow.Groups().SelectMany(g => g).FirstOrDefault(t => t.Id == module)?.Title ?? module;
+        PopOutWindow.Open(module, title, id => BuildToolPage(id, inPopOut: true), restore);
+    }
+
+    /// <summary>The tools that were popped out when the meter closed come back where they were (without taking the focus from the game); a place on a monitor that is gone asks what to do with the saved places.</summary>
+    private void RestorePopOuts()
+    {
+        foreach (string id in MeterSettings.Load().PopOuts.Where(p => p.Value.Open).Select(p => p.Key).ToList())
+        {
+            if (!PrivacyConsent.Restricted || PrivacyConsent.RestrictedTools.Contains(id))
+            {
+                OpenPopOut(id, restore: true);
+            }
+        }
+    }
+
+    private ToolPage? BuildToolPageContent(string module)
     {
         var loc = LocalizationManager.Instance;
         Action<MeterSettings> applied = ApplySettingsEverywhere;

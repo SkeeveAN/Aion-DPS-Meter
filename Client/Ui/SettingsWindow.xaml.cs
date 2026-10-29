@@ -718,6 +718,7 @@ public partial class SettingsWindow : Window
         _settings.ToolsWindowLeft = onDisk.ToolsWindowLeft;
         _settings.ToolsWindowTop = onDisk.ToolsWindowTop;
         _settings.ToolsWindowHeight = onDisk.ToolsWindowHeight;
+        _settings.PopOuts = onDisk.PopOuts;
         _settings.TimetableLeft = onDisk.TimetableLeft;
         _settings.TimetableTop = onDisk.TimetableTop;
         _settings.TimetableScale = onDisk.TimetableScale;
