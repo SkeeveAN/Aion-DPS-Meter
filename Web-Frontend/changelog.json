@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.0",
   "date": "2026-10-29",
   "items": [
    {
@@ -8,6 +8,34 @@
     "areas": [
      "Client",
      "Backend"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Windows: the X and the minimize line of the title bars are drawn with room for their stroke, so the cross is no longer cut off on some display scalings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Windows: the tools window stays on its second monitor when another tool is chosen (it was pulled back to the first monitor); a saved place on a monitor that is not connected puts the window on monitor 1 and asks once whether to overwrite the saved places or keep them for the next start",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "Tools: pop out button right of the overlay switch shows a tool in a window of its own that can go anywhere, also on a second monitor; place and open state are kept and the windows come back at the next start",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-29"
+   },
+   {
+    "text": "pop out windows for the tools with an overlay switch, the tools window stays on a second monitor, saved window places on a monitor that is gone fall back to monitor 1",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-29"
    }
