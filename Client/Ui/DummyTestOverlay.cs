@@ -176,6 +176,12 @@ public sealed class DummyTestController : IDisposable
             }
         }
 
+        // the levels of the skills now: the game's own when the login or an entry was seen, else unknown (a saved file is not what the game shows)
+        if (dir.SkillLevelsLive)
+        {
+            run.SkillLevels = dir.LocalSkills.GroupBy(s => DummyAnalysis.BaseOf(s.SkillId)).ToDictionary(g => g.Key, g => g.Max(s => s.Level));
+        }
+
         // the targets the player hit: the analysis compares only runs fought at a training dummy
         foreach (int target in run.Events.Select(e => e.TargetObjectId).Distinct())
         {

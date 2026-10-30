@@ -416,6 +416,9 @@
     "equipment": [
       4438
     ],
+    "skillEntry": [4920],
+    "skillVariant": [3896],
+    "skillRemoved": [4152],
     "skills": [
       81
     ],

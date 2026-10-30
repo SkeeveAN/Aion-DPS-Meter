@@ -13264,5 +13264,50 @@
     "en": "{0} skills with too few hits (at least {1} on each side) are not listed.",
     "de": "{0} Skills mit zu wenigen Treffern (mindestens {1} je Seite) sind nicht aufgeführt.",
     "fr": "{0} compétences avec trop peu de coups (au moins {1} de chaque côté) ne sont pas listées."
+  },
+  "Dummy.StatLevel": {
+    "en": "Level",
+    "de": "Stufe",
+    "fr": "Niveau"
+  },
+  "Dummy.StatLevelsUnknown": {
+    "en": "The game's skill levels are not known for these runs (the meter did not see the login), so levels are not compared.",
+    "de": "Die Skill-Stufen des Spiels sind für diese Läufe nicht bekannt (der Meter hat den Login nicht gesehen), deshalb werden Stufen nicht verglichen.",
+    "fr": "Les niveaux de compétences du jeu ne sont pas connus pour ces séries (le compteur n'a pas vu la connexion), ils ne sont donc pas comparés."
+  },
+  "Dummy.StatLevelsSame": {
+    "en": "All skill levels are the same in both runs: the difference does not come from a skill level (rotation, buffs, gear or luck).",
+    "de": "Alle Skill-Stufen sind in beiden Läufen gleich: der Unterschied kommt nicht von einer Skill-Stufe (Rotation, Buffs, Ausrüstung oder Glück).",
+    "fr": "Tous les niveaux de compétences sont identiques dans les deux séries : la différence ne vient pas d'un niveau (rotation, buffs, équipement ou chance)."
+  },
+  "Dummy.StatLevelsOne": {
+    "en": "One skill level differs: {0}. The change can be put on that skill.",
+    "de": "Eine Skill-Stufe unterscheidet sich: {0}. Die Änderung lässt sich diesem Skill zuordnen.",
+    "fr": "Un niveau diffère : {0}. La variation peut lui être attribuée."
+  },
+  "Dummy.StatLevelsMany": {
+    "en": "{0} skill levels differ. The change in iDPS cannot be put on one skill; look at the skills one by one.",
+    "de": "{0} Skill-Stufen unterscheiden sich. Die iDPS-Änderung lässt sich keinem einzelnen Skill zuordnen; schau dir die Skills einzeln an.",
+    "fr": "{0} niveaux diffèrent. La variation d'iDPS ne peut pas être attribuée à une seule compétence ; regardez les compétences une par une."
+  },
+  "Dummy.CurveTitle": {
+    "en": "What a level is worth",
+    "de": "Was eine Stufe bringt",
+    "fr": "Ce que vaut un niveau"
+  },
+  "Dummy.CurveNote": {
+    "en": "Skills that were fought at two or more levels in the chosen runs: the change of the plain hit per level, and about how much iDPS one level adds. An estimate from few runs, without a range: it shows where a level seems to pay, not how much for sure.",
+    "de": "Skills, die in den gewählten Läufen auf zwei oder mehr Stufen gespielt wurden: die Änderung des normalen Treffers pro Stufe und etwa, wie viel iDPS eine Stufe bringt. Eine Schätzung aus wenigen Läufen, ohne Bereich: sie zeigt, wo sich eine Stufe zu lohnen scheint, nicht sicher wie viel.",
+    "fr": "Compétences jouées à deux niveaux ou plus dans les séries choisies : la variation du coup normal par niveau, et à peu près combien d'iDPS un niveau ajoute. Une estimation à partir de peu de séries, sans intervalle : elle montre où un niveau semble payer, pas combien exactement."
+  },
+  "Dummy.CurveLine": {
+    "en": "{0}: level {1} to {2}, {3} per level{4} (from {5} runs)",
+    "de": "{0}: Stufe {1} bis {2}, {3} pro Stufe{4} (aus {5} Läufen)",
+    "fr": "{0} : niveau {1} à {2}, {3} par niveau{4} (sur {5} séries)"
+  },
+  "Dummy.CurveGain": {
+    "en": ", about {0} iDPS",
+    "de": ", etwa {0} iDPS",
+    "fr": ", environ {0} iDPS"
   }
 }

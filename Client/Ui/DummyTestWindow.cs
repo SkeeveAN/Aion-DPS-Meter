@@ -999,9 +999,19 @@ public sealed class DummyTestWindow : Window
             noiseLine.Margin = new Thickness(0, 4, 0, 8);
             stack.Children.Add(noiseLine);
 
+            // which skill levels differ: with one the change can be put on that skill, with several it cannot
+            string levelLine = !comparison.LevelsKnown ? loc["Dummy.StatLevelsUnknown"]
+                : comparison.DifferingLevels is { Count: 0 } ? loc["Dummy.StatLevelsSame"]
+                : comparison.DifferingLevels is { Count: 1 } one ? string.Format(loc["Dummy.StatLevelsOne"], Aion2SkillNames.Display(one[0]))
+                : string.Format(loc["Dummy.StatLevelsMany"], comparison.DifferingLevels!.Count);
+            TextBlock levels = Label(levelLine, "Brush.TextSubtle", 12);
+            levels.TextWrapping = TextWrapping.Wrap;
+            levels.Margin = new Thickness(0, 0, 0, 8);
+            stack.Children.Add(levels);
+
             if (comparison.Skills.Count > 0)
             {
-                double[] widths = { 0, 80, 80, 130, 130, 210, 190 };
+                double[] widths = { 0, 90, 80, 80, 130, 130, 210, 190 };
                 Grid Row()
                 {
                     var grid = new Grid();
@@ -1013,14 +1023,14 @@ public sealed class DummyTestWindow : Window
                     return grid;
                 }
 
-                string[] heads = { loc["Dummy.StatSkill"], loc["Dummy.StatHitsRef"], loc["Dummy.StatHitsOther"], loc["Dummy.StatMeanRef"], loc["Dummy.StatMeanOther"], loc["Dummy.StatChange"], loc["Dummy.StatVerdict"] };
+                string[] heads = { loc["Dummy.StatSkill"], loc["Dummy.StatLevel"], loc["Dummy.StatHitsRef"], loc["Dummy.StatHitsOther"], loc["Dummy.StatMeanRef"], loc["Dummy.StatMeanOther"], loc["Dummy.StatChange"], loc["Dummy.StatVerdict"] };
                 Grid head = Row();
                 head.SetResourceReference(Panel.BackgroundProperty, "Brush.Control");
                 for (int i = 0; i < heads.Length; i++)
                 {
                     TextBlock text = Label(heads[i], "Brush.TextSubtle", 12, true);
                     text.Margin = new Thickness(8, 5, 8, 5);
-                    text.HorizontalAlignment = i is 1 or 2 or 3 or 4 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                    text.HorizontalAlignment = i is 1 or 2 or 3 or 4 or 5 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
                     Grid.SetColumn(text, i);
                     head.Children.Add(text);
                 }
@@ -1040,13 +1050,14 @@ public sealed class DummyTestWindow : Window
                         : "–";
                     string verdictKey = skill.Verdict switch { DummyVerdict.Better => "Dummy.StatBetter", DummyVerdict.Worse => "Dummy.StatWorse", _ => "Dummy.StatNoDifference" };
                     string verdictBrush = skill.Verdict switch { DummyVerdict.Better => "Brush.Heal", DummyVerdict.Worse => "Brush.DangerSoft", _ => "Brush.TextSubtle" };
-                    string[] cells = { Aion2SkillNames.Display(skill.Name), skill.HitsA.ToString("N0"), skill.HitsB.ToString("N0"), skill.MeanA.ToString("N0"), skill.MeanB.ToString("N0"), changeText, loc[verdictKey] };
+                    string level = skill.LevelA is { } la && skill.LevelB is { } lb ? (la == lb ? la.ToString() : $"{la} → {lb}") : "–";
+                    string[] cells = { Aion2SkillNames.Display(skill.Name), level, skill.HitsA.ToString("N0"), skill.HitsB.ToString("N0"), skill.MeanA.ToString("N0"), skill.MeanB.ToString("N0"), changeText, loc[verdictKey] };
                     for (int i = 0; i < cells.Length; i++)
                     {
-                        TextBlock text = Label(cells[i], i == 6 ? verdictBrush : "Brush.Text", 13);
+                        TextBlock text = Label(cells[i], i == 7 ? verdictBrush : cells[i].Contains('→') ? "Brush.Accent" : "Brush.Text", 13);
                         text.Margin = new Thickness(8, 6, 8, 6);
                         text.TextTrimming = TextTrimming.CharacterEllipsis;
-                        text.HorizontalAlignment = i is 1 or 2 or 3 or 4 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                        text.HorizontalAlignment = i is 1 or 2 or 3 or 4 or 5 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
                         Grid.SetColumn(text, i);
                         row.Children.Add(text);
                     }
@@ -1064,6 +1075,29 @@ public sealed class DummyTestWindow : Window
             }
 
             _result.Children.Add(Card(stack));
+        }
+
+        // what a level is worth, from the skills that were fought at two or more levels
+        IReadOnlyList<DummyLevelCurve> curves = DummyComparison.LevelCurves(runs, multipliers);
+        if (curves.Count > 0)
+        {
+            var curveStack = new StackPanel();
+            curveStack.Children.Add(Label(loc["Dummy.CurveTitle"], "Brush.Text", 14, true));
+            TextBlock curveNote = Label(loc["Dummy.CurveNote"], "Brush.TextMuted", 12);
+            curveNote.TextWrapping = TextWrapping.Wrap;
+            curveNote.Margin = new Thickness(0, 2, 0, 6);
+            curveStack.Children.Add(curveNote);
+            foreach (DummyLevelCurve curve in curves.Take(12))
+            {
+                string percent = curve.PercentPerLevel.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture) + " %";
+                string gain = curve.IdpsPerLevel is { } g ? string.Format(loc["Dummy.CurveGain"], g.ToString("+#,0;-#,0;0", CultureInfo.CurrentCulture)) : "";
+                TextBlock line = Label(string.Format(loc["Dummy.CurveLine"], Aion2SkillNames.Display(curve.Name), curve.LowLevel, curve.HighLevel, percent, gain, curve.Runs), "Brush.Text", 13);
+                line.TextWrapping = TextWrapping.Wrap;
+                line.Margin = new Thickness(0, 3, 0, 3);
+                curveStack.Children.Add(line);
+            }
+
+            _result.Children.Add(Card(curveStack));
         }
     }
 }

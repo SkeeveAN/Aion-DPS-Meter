@@ -142,7 +142,7 @@ public static class ToolRender
         var window = new DummyTestWindow(controller, () => { });
         if (analyse)
         {
-            window.ShowAnalysisForRender(1, 2, 4);
+            window.ShowAnalysisForRender(1, 2, 7);
         }
 
         return new ToolPage { Content = ThemedChrome.TakeContent(window) ?? new Grid(), CurrentTab = () => window.Tab };
@@ -182,6 +182,8 @@ public static class ToolRender
                 }
             }
 
+            int[] levelOfSkillA = { 18, 20, 18, 18, 20, 18, 22, 18 };
+            run.SkillLevels = new Dictionary<int, int> { [11010000] = levelOfSkillA[i], [11420000] = 10 };
             run.Names[100] = i == 5 ? "Gadioton" : "Punching Bag";
             runs.Add(run);
         }

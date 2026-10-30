@@ -48,6 +48,9 @@ public sealed class DummyRun
 
     public Dictionary<int, string> Names { get; } = new();
 
+    /// <summary>The level of each skill (by base id) when the run ended, as the game showed it; null when the meter had not read the game's levels (it started after the login and no skill changed).</summary>
+    public Dictionary<int, int>? SkillLevels { get; set; }
+
     /// <summary>Uses and effects have been read from the capture: nothing more is added to the run.</summary>
     public bool Closed { get; internal set; }
 }
@@ -488,22 +491,22 @@ public static class DummyStore
 {
     public static string DefaultPath => Path.Combine(Ui.MeterSettings.DataDirectory, "dummy-test.json");
 
-    private sealed record EventDto(long T, int S, int G, long A, string? Sk, bool C, bool Tk, int Id, int N);
+    private sealed record EventDto(long T, int S, int G, long A, string? Sk, bool C, bool Tk, int Id, int N, int? K = null);
 
     private sealed record UseDto(long T, int A, int Id);
 
     private sealed record BuffDto(long T, int K, int G, int I, int Id, int C, int D);
 
     private sealed record RunDto(int Number, long Start, double PlannedSeconds, double LengthSeconds, string Note, int PlayerId,
-        List<EventDto> Events, List<UseDto> Uses, List<BuffDto> Buffs, Dictionary<string, string> Names);
+        List<EventDto> Events, List<UseDto> Uses, List<BuffDto> Buffs, Dictionary<string, string> Names, Dictionary<string, int>? Levels = null);
 
     public static void Save(string path, IEnumerable<DummyRun> runs)
     {
         var dtos = runs.Where(r => r.Closed).Select(r => new RunDto(r.Number, r.Start.Ticks, r.Planned.TotalSeconds, r.Length.TotalSeconds, r.Note, r.PlayerId,
-            r.Events.Select(e => new EventDto(e.Timestamp.Ticks, e.SourceObjectId, e.TargetObjectId, e.Amount, e.Skill, e.IsCritical, e.IsTick, e.SkillId, e.HitCount)).ToList(),
+            r.Events.Select(e => new EventDto(e.Timestamp.Ticks, e.SourceObjectId, e.TargetObjectId, e.Amount, e.Skill, e.IsCritical, e.IsTick, e.SkillId, e.HitCount, e.Kinds is { } kinds ? (int)kinds : null)).ToList(),
             r.Uses.Select(u => new UseDto(u.At.Ticks, u.Actor, u.SkillId)).ToList(),
             r.Buffs.Select(b => new BuffDto(b.At.Ticks, (int)b.Kind, b.Target, b.Instance, b.SkillId, b.Caster, b.DurationMs)).ToList(),
-            r.Names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value))).ToList();
+            r.Names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value), r.SkillLevels?.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value))).ToList();
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         string temp = path + ".tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(dtos));
@@ -532,12 +535,17 @@ public static class DummyStore
                     PlayerId = d.PlayerId,
                     Closed = true,
                 };
-                run.Events.AddRange(d.Events.Select(e => new DamageEvent(new DateTime(e.T), e.S, e.G, e.A, false, e.Sk, e.C, e.Tk, e.Id, null, e.N)));
+                run.Events.AddRange(d.Events.Select(e => new DamageEvent(new DateTime(e.T), e.S, e.G, e.A, false, e.Sk, e.C, e.Tk, e.Id, e.K is { } k ? (HitKinds)k : null, e.N)));
                 run.Uses.AddRange(d.Uses.Select(u => new SkillUse(new DateTime(u.T), u.A, u.Id)));
                 run.Buffs.AddRange(d.Buffs.Select(b => new BuffEvent(new DateTime(b.T), (BuffKind)b.K, b.G, b.I, b.Id, b.C, b.D)));
                 foreach (var (key, value) in d.Names)
                 {
                     run.Names[int.Parse(key)] = value;
+                }
+
+                if (d.Levels is not null)
+                {
+                    run.SkillLevels = d.Levels.ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
                 }
 
                 runs.Add(run);

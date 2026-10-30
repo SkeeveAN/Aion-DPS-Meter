@@ -6,12 +6,17 @@ namespace AionDPS.Combat;
 public enum DummyVerdict { Better, Worse, NoDifference, NotEnoughData }
 
 /// <summary>One skill of two runs: the mean of a plain hit on each side (the other kinds of hit brought back to a plain one) and what the difference is worth with its 95 % interval.</summary>
-public sealed record DummySkillResult(string Name, int HitsA, int HitsB, double MeanA, double MeanB, double? ChangePercent, double? LowPercent, double? HighPercent, DummyVerdict Verdict, long TotalA);
+public sealed record DummySkillResult(string Name, int HitsA, int HitsB, double MeanA, double MeanB, double? ChangePercent, double? LowPercent, double? HighPercent, DummyVerdict Verdict, long TotalA, int? LevelA = null, int? LevelB = null);
 
 /// <summary>The iDPS of the two runs and whether the difference is larger than the noise: the spread the hits themselves have (their random damage, crit, double and perfect hits).</summary>
 public sealed record DummyNoise(double IdpsA, double IdpsB, double Change, double ChangePercent, double StandardError, bool AboveNoise);
 
-public sealed record DummyRunComparison(DummyRun Reference, DummyRun Other, DummyNoise? Noise, IReadOnlyList<DummySkillResult> Skills, int NotMeasurable);
+/// <param name="LevelsKnown">The game's skill levels are known for both runs.</param>
+/// <param name="DifferingLevels">The names of the skills whose level differs between the two runs (all skills with a known level, not only the measurable ones).</param>
+public sealed record DummyRunComparison(DummyRun Reference, DummyRun Other, DummyNoise? Noise, IReadOnlyList<DummySkillResult> Skills, int NotMeasurable, bool LevelsKnown = false, IReadOnlyList<string>? DifferingLevels = null);
+
+/// <summary>What one more level of a skill is worth, read from the runs that were fought at different levels of it: the change of the plain hit per level, and about how much iDPS that is.</summary>
+public sealed record DummyLevelCurve(string Name, int Runs, int LowLevel, int HighLevel, double PercentPerLevel, double? IdpsPerLevel);
 
 /// <summary>
 /// The dummy test's statistics: is the difference between two runs real, or only the luck of the hits? Two answers. The iDPS of a run is compared with the noise its own hits make
@@ -114,6 +119,12 @@ public static class DummyComparison
         return events.Count > 1 ? (events.Max(e => e.Timestamp) - events.Min(e => e.Timestamp)).TotalSeconds : 0;
     }
 
+    /// <summary>A run contributes a point to a level curve with at least this many usable hits of the skill.</summary>
+    public const int MinCurvePointHits = 5;
+
+    private static int? LevelOf(DummyRun run, string key) =>
+        key.StartsWith('#') && run.SkillLevels is { } levels && int.TryParse(key.AsSpan(1), NumberStyles.None, CultureInfo.InvariantCulture, out int baseId) && levels.TryGetValue(baseId, out int level) ? level : null;
+
     /// <summary>The other run against the reference. <paramref name="multipliers"/> are measured on the events of all the runs being compared (see <see cref="EstimateMultipliers"/>).</summary>
     public static DummyRunComparison Compare(DummyRun reference, DummyRun other, IReadOnlyDictionary<(string Key, int Class), double> multipliers)
     {
@@ -154,9 +165,80 @@ public static class DummyComparison
             }
 
             DummyVerdict verdict = w.Significant ? (w.Difference > 0 ? DummyVerdict.Better : DummyVerdict.Worse) : DummyVerdict.NoDifference;
-            results.Add(new DummySkillResult(name, a.Count, b.Count, meanA, DummyStatistics.Mean(b), 100 * w.Difference / meanA, 100 * w.Low / meanA, 100 * w.High / meanA, verdict, total));
+            results.Add(new DummySkillResult(name, a.Count, b.Count, meanA, DummyStatistics.Mean(b), 100 * w.Difference / meanA, 100 * w.Low / meanA, 100 * w.High / meanA, verdict, total, LevelOf(reference, key), LevelOf(other, key)));
         }
 
-        return new DummyRunComparison(reference, other, noise, results.OrderByDescending(r => r.TotalA).ToList(), notMeasurable);
+        // the skill levels of the two runs: which skills differ (the iDPS change cannot be put on one skill when several do)
+        bool known = reference.SkillLevels is not null && other.SkillLevels is not null;
+        var differing = new List<string>();
+        if (known)
+        {
+            foreach (int baseId in reference.SkillLevels!.Keys.Union(other.SkillLevels!.Keys))
+            {
+                if (reference.SkillLevels.GetValueOrDefault(baseId) != other.SkillLevels.GetValueOrDefault(baseId))
+                {
+                    string key = "#" + baseId.ToString(CultureInfo.InvariantCulture);
+                    differing.Add(DamageOf(reference).Concat(DamageOf(other)).Where(e => KeyOf(e) == key).Select(e => e.Skill).FirstOrDefault(s => !string.IsNullOrEmpty(s)) ?? key);
+                }
+            }
+        }
+
+        return new DummyRunComparison(reference, other, noise, results.OrderByDescending(r => r.TotalA).ToList(), notMeasurable, known, differing);
+    }
+
+    /// <summary>
+    /// What a level of a skill is worth: for every skill that was fought at two or more levels in the runs, the least-squares slope of its plain hit over the level (each run with at least
+    /// <see cref="MinCurvePointHits"/> usable hits is a point), as a share of the hit at the lowest level, and about how much iDPS one level adds (that share of the skill's part of the
+    /// reference run's iDPS). An estimate from few points, with no range: it says where a level seems to pay, not how much for sure.
+    /// </summary>
+    public static IReadOnlyList<DummyLevelCurve> LevelCurves(IReadOnlyList<DummyRun> runs, IReadOnlyDictionary<(string Key, int Class), double> multipliers)
+    {
+        var curves = new List<DummyLevelCurve>();
+        if (runs.Count < 2)
+        {
+            return curves;
+        }
+
+        DummyRun reference = runs[0];
+        double referenceIdps = DummyAnalysis.IDps(reference) ?? 0;
+        double referenceTotal = Math.Max(1, DamageOf(reference).Sum(e => e.Amount));
+        foreach (string key in runs.SelectMany(DamageOf).Select(KeyOf).Where(k => k.StartsWith('#')).Distinct())
+        {
+            var points = new List<(int Level, double Mean)>();
+            foreach (DummyRun run in runs)
+            {
+                if (LevelOf(run, key) is { } level)
+                {
+                    List<double> sample = Corrected(DamageOf(run).Where(e => KeyOf(e) == key), key, multipliers);
+                    if (sample.Count >= MinCurvePointHits)
+                    {
+                        points.Add((level, DummyStatistics.Mean(sample)));
+                    }
+                }
+            }
+
+            if (points.Select(p => p.Level).Distinct().Count() < 2)
+            {
+                continue;
+            }
+
+            double meanX = points.Average(p => (double)p.Level), meanY = points.Average(p => p.Mean);
+            double sxx = points.Sum(p => (p.Level - meanX) * (p.Level - meanX));
+            double slope = points.Sum(p => (p.Level - meanX) * (p.Mean - meanY)) / sxx;
+            int low = points.Min(p => p.Level);
+            double lowMean = points.Where(p => p.Level == low).Average(p => p.Mean);
+            if (lowMean <= 0)
+            {
+                continue;
+            }
+
+            double percent = 100 * slope / lowMean;
+            long skillDamage = DamageOf(reference).Where(e => KeyOf(e) == key).Sum(e => e.Amount);
+            double? idps = referenceIdps > 0 && skillDamage > 0 ? percent / 100 * referenceIdps * skillDamage / referenceTotal : null;
+            string name = runs.SelectMany(DamageOf).Where(e => KeyOf(e) == key).Select(e => e.Skill).FirstOrDefault(s => !string.IsNullOrEmpty(s)) ?? key;
+            curves.Add(new DummyLevelCurve(name, points.Count, low, points.Max(p => p.Level), percent, idps));
+        }
+
+        return curves.OrderByDescending(c => Math.Abs(c.IdpsPerLevel ?? 0)).ToList();
     }
 }

@@ -175,7 +175,55 @@ public static class SelfCheckDummy
             bool noise = versusMuch.Noise is { AboveNoise: true } && versusBetter.Noise is { AboveNoise: false } && versusSame.Noise is { AboveNoise: false } && versusSame.Skills.All(r => r.Verdict == DummyVerdict.NoDifference);
             Console.WriteLine($"  -> two runs: a skill hit harder is better (+10 %), one alike has no measurable difference, one with 5 hits is not measurable, the crits are brought back to plain: {skills}");
             Console.WriteLine($"  -> the iDPS change: +60 % is above the noise, +10 % of one skill and runs alike are within it: {noise}");
-            return ok && parse && clock && chains && rates && steadyRates && targets && welch && skills && noise;
+            // the skill entries the game sends when a level changes: 0x1338 (Identify Weakness 11740000, level 18 = base 10 + 8), 0x0F38 (variant 11010350, level 17), 0x1038 takes a variant away
+            var skillDirectory = new Aion2.Aion2EntityDirectory();
+            var skillDecoder = new Aion2.Protocol.Aion2FrameDecoder(Aion2.Protocol.Aion2Protocol.Load(), skillDirectory);
+            bool beforeLevels = !skillDirectory.SkillLevelsLive;
+            skillDecoder.Decode(Convert.FromHexString("1338" + "01" + "6023b300" + "01" + "6023b300" + "120a040002020 00a".Replace(" ", "")), t0);
+            skillDecoder.Decode(Convert.FromHexString("0f38" + "01" + "2e01a800" + "110a0400010200" + "06"), t0);
+            bool entries = skillDirectory.SkillLevelsLive && skillDirectory.LocalSkills.Any(k => k.SkillId == 11740000 && k.Level == 18 && k.BaseLevel == 10)
+                && skillDirectory.LocalSkills.Any(k => k.SkillId == 11010350 && k.Level == 17);
+            skillDecoder.Decode(Convert.FromHexString("1038" + "2e01a800"), t0);
+            skillDecoder.Decode(Convert.FromHexString("1338" + "01" + "6023b300" + "01" + "6023b300" + "140a040002020 00a".Replace(" ", "")), t0); // the level goes to 20
+            bool removed = skillDirectory.LocalSkills.All(k => k.SkillId != 11010350) && skillDirectory.LocalSkills.Single(k => k.SkillId == 11740000).Level == 20;
+            Console.WriteLine($"  -> skill entries (0x1338, 0x0F38) set a level at once, 0x1038 takes a variant away, a later entry changes the level: {beforeLevels && entries && removed}");
+
+            // the runs keep hit kinds, skill levels and a file of before (no kinds, no levels) still loads
+            string levelPath = Path.Combine(Path.GetTempPath(), "dummy-levels-" + Guid.NewGuid().ToString("N") + ".json");
+            try
+            {
+                var kept = new DummyRun { Number = 1, Start = t0, Planned = TimeSpan.FromSeconds(60), Length = TimeSpan.FromSeconds(60), Closed = true, SkillLevels = new Dictionary<int, int> { [11010000] = 18 } };
+                kept.Events.Add(new DamageEvent(t0, you, dummy, 700, false, "X", Kinds: HitKinds.Double | HitKinds.Perfect, SkillId: 11010340));
+                DummyStore.Save(levelPath, new[] { kept });
+                DummyRun loaded = DummyStore.Load(levelPath).Single();
+                File.WriteAllText(levelPath, "[{\"Number\":1,\"Start\":638000000000000000,\"PlannedSeconds\":60,\"LengthSeconds\":60,\"Note\":\"\",\"PlayerId\":1,\"Events\":[{\"T\":638000000000000000,\"S\":1,\"G\":100,\"A\":500,\"Sk\":\"X\",\"C\":false,\"Tk\":false,\"Id\":0,\"N\":1}],\"Uses\":[],\"Buffs\":[],\"Names\":{}}]");
+                DummyRun old = DummyStore.Load(levelPath).Single();
+                bool store = loaded.Events[0].Kinds == (HitKinds.Double | HitKinds.Perfect) && loaded.SkillLevels is { } lv && lv[11010000] == 18 && old.Events.Count == 1 && old.Events[0].Kinds is null && old.SkillLevels is null;
+                Console.WriteLine($"  -> a saved run keeps its hit kinds and skill levels, a file from before them still loads: {store}");
+                ok &= store;
+            }
+            finally
+            {
+                File.Delete(levelPath);
+            }
+
+            // levels in the comparison: one skill differs (X 18 -> 20), and three runs at X 18, 20 and 22 hitting 1,000, 1,100 and 1,200 give +5 % a level
+            DummyRun atLevel(DummyRun r, int levelX)
+            {
+                r.SkillLevels = new Dictionary<int, int> { [11010000] = levelX, [11420000] = 10 };
+                return r;
+            }
+
+            DummyRun l18 = atLevel(Make(1000, 5, 11), 18), l20 = atLevel(Make(1100, 5, 12), 20), l22 = atLevel(Make(1200, 5, 13), 22);
+            var levelMultipliers = DummyComparison.EstimateMultipliers(l18.Events.Concat(l20.Events).Concat(l22.Events));
+            DummyRunComparison levelCompare = DummyComparison.Compare(l18, l20, levelMultipliers);
+            var curve = DummyComparison.LevelCurves(new[] { l18, l20, l22 }, levelMultipliers).FirstOrDefault(c => c.Name == "X");
+            bool levels = levelCompare.LevelsKnown && levelCompare.DifferingLevels is { Count: 1 } one && one[0] == "X" && levelCompare.Skills.First(r => r.Name == "X") is { LevelA: 18, LevelB: 20 }
+                && DummyComparison.Compare(l18, l18, levelMultipliers).DifferingLevels is { Count: 0 } && !DummyComparison.Compare(refRun, betterRun, multipliers).LevelsKnown
+                && curve is { LowLevel: 18, HighLevel: 22, Runs: 3 } && Math.Abs(curve.PercentPerLevel - 5) < 0.6 && curve.IdpsPerLevel is > 0
+                && DummyComparison.LevelCurves(new[] { l18, atLevel(Make(1100, 5, 14), 18) }, levelMultipliers).Count == 0; // one level only: no curve
+            Console.WriteLine($"  -> levels: the differing skill is named, none differ for equal runs, unknown levels say so, 18/20/22 give +5 % a level, one level gives no curve: {levels}");
+            return ok && parse && clock && chains && rates && steadyRates && targets && welch && skills && noise && levels;
         }
         finally
         {

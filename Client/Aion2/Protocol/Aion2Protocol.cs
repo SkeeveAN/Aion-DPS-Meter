@@ -47,6 +47,12 @@ public enum OpcodeFamily
     Equipment,
     /// <summary>The local player's skill list at login: skill id with total and base level.</summary>
     Skills,
+    /// <summary>One skill of the local player with its level, sent at login and when a preset or a level changes (0x1338, layout in docs/protocol/skill-frames.md section 3): the level of a skill after the player changed it.</summary>
+    SkillEntry,
+    /// <summary>The same for a skill's variant (0x0F38).</summary>
+    SkillVariant,
+    /// <summary>A variant skill taken away (0x1038).</summary>
+    SkillRemoved,
     /// <summary>The local player's activated Daevanion nodes, per board.</summary>
     Daevanion,
     /// <summary>The local player's species knowledge (Cognia, Fera, Natura, Varia, Specia) at login: level,

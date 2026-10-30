@@ -924,6 +924,13 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Skills:
                 DecodeSkills(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.SkillEntry:
+            case OpcodeFamily.SkillVariant:
+                DecodeSkillEntry(frame, family == OpcodeFamily.SkillVariant);
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.SkillRemoved:
+                DecodeSkillRemoved(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Stigmas:
                 DecodeStigmas(frame);
                 return Array.Empty<DamageEvent>();
@@ -3184,6 +3191,45 @@ public sealed class Aion2FrameDecoder
 
         block = new Aion2SpeciesKnowledge(id, (int)level, unchecked((long)progress), effects);
         return true;
+    }
+
+    /// <summary>
+    /// One skill entry of the local player, sent at login and when a preset or a level changes (layouts in docs/protocol/skill-frames.md section 3, total = base + bonuses; Stacy's fork reads
+    /// them the same way, 2026-10-23): 0x1338 = 01 | id u32 | 01 | id u32 | total level | base level | bonuses (20 bytes); 0x0F38 (a variant) = 01 | id u32 | total level | base level | bonuses
+    /// (15 bytes). Updates that one skill in the directory, the rest of the list stays, so the level a player just changed is known at once.
+    /// </summary>
+    private void DecodeSkillEntry(ReadOnlySpan<byte> frame, bool variant)
+    {
+        int idAt = variant ? 3 : 8, levelAt = variant ? 7 : 12;
+        if (frame.Length < levelAt + 2 || frame[2] != 1 || !variant && frame[7] != 1)
+        {
+            return;
+        }
+
+        int id = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[idAt..]));
+        int level = frame[levelAt];
+        int baseLevel = frame[levelAt + 1];
+        if (id < 1_000_000 || level is < 1 or > 60 || baseLevel > level)
+        {
+            return;
+        }
+
+        _entities.UpdateLocalSkill(new Aion2SkillEntry(id, level, baseLevel));
+    }
+
+    /// <summary>A variant skill taken away (0x1038): opcode | id u32.</summary>
+    private void DecodeSkillRemoved(ReadOnlySpan<byte> frame)
+    {
+        if (frame.Length != 6)
+        {
+            return;
+        }
+
+        int id = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[2..]));
+        if (id >= 1_000_000)
+        {
+            _entities.RemoveLocalSkill(id);
+        }
     }
 
     /// <summary>

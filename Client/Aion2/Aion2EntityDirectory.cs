@@ -1372,6 +1372,60 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         NotifyCharacterChanged();
     }
 
+    /// <summary>One skill entry the game sent (its level changed, or a preset switch named it): replaces that skill in the list, everything else stays as it was. It is not a list, so it
+    /// does not trigger what the first full list after a preset switch does to the stigmas.</summary>
+    public void UpdateLocalSkill(Aion2SkillEntry entry)
+    {
+        lock (_gate)
+        {
+            _listsAt = DateTime.UtcNow;
+            _liveLists = true;
+            var list = (_skills ?? Array.Empty<Aion2SkillEntry>()).ToList();
+            Aion2SkillEntry shown = entry with { Stigma = _stigmas.Contains(entry.SkillId), Equipped = _bar.Contains(entry.SkillId), Stones = StonesOf(entry.SkillId) };
+            int at = list.FindIndex(s => s.SkillId == entry.SkillId);
+            if (at >= 0)
+            {
+                list[at] = shown;
+            }
+            else
+            {
+                list.Add(shown);
+            }
+
+            _skills = list;
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    /// <summary>A variant skill the game took away: gone from the list (the new variant arrives as an entry of its own).</summary>
+    public void RemoveLocalSkill(int skillId)
+    {
+        lock (_gate)
+        {
+            if (_skills is null || _skills.All(s => s.SkillId != skillId))
+            {
+                return;
+            }
+
+            _skills = _skills.Where(s => s.SkillId != skillId).ToList();
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    /// <summary>True when the game sent skill levels in this session (the login list or an entry), not only a saved file: the levels are then the game's own, kept up to date by the entries it sends when one changes.</summary>
+    public bool SkillLevelsLive
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _liveLists && _skills is { Count: > 0 };
+            }
+        }
+    }
+
     public void SetLocalSkills(IReadOnlyList<Aion2SkillEntry> skills)
     {
         lock (_gate)
