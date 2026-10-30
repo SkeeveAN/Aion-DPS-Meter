@@ -1040,7 +1040,7 @@ export default {
   "guide.weak.regions": "Korea and Taiwan are only partly supported: those servers run a few versions ahead, so skill recognition is incomplete there. Other meters cover them fully.",
   "guide.weak.platform": "Windows only. There is no Linux or Proton version.",
   "guide.weak.driver": "The Npcap driver has to be installed separately. One other meter bundles its own driver.",
-  "guide.weak.missing": "We have no rDPS, no live PvP view, no character scorer and no connection optimization like LagoFast's.",
+  "guide.weak.missing": "We have no character scorer and no connection optimization like LagoFast's.",
   "guide.weak.boards": "The leaderboards only cover bosses that players uploaded fights for, and the group of uploaders is small next to the large meters. Many bosses have no data yet.",
   "guide.weak.unreleased": "Parts of the feature set are still in development, for example the Assist window, and its cooldown times are estimated.",
   "guide.h.strong": "Where we are stronger",

@@ -1040,7 +1040,7 @@ export default {
   "guide.weak.regions": "Korea und Taiwan werden nur teilweise unterstützt: Diese Server sind einige Versionen voraus, daher ist die Skill-Erkennung dort unvollständig. Andere Meter decken sie vollständig ab.",
   "guide.weak.platform": "Nur Windows. Es gibt keine Linux- oder Proton-Version.",
   "guide.weak.driver": "Der Npcap-Treiber muss separat installiert werden. Ein anderer Meter bringt seinen eigenen Treiber mit.",
-  "guide.weak.missing": "Wir haben keine rDPS, keine PvP-Live-Ansicht, keinen Charakter-Scorer und keine Verbindungsoptimierung wie LagoFast.",
+  "guide.weak.missing": "Wir haben keinen Charakter-Scorer und keine Verbindungsoptimierung wie LagoFast.",
   "guide.weak.boards": "Die Bestenlisten decken nur Bosse ab, für die Spieler Kämpfe hochgeladen haben, und die Gruppe der Uploader ist klein im Vergleich zu den großen Metern. Für viele Bosse gibt es noch keine Daten.",
   "guide.weak.unreleased": "Teile des Funktionsumfangs sind noch in Entwicklung, zum Beispiel das Assist-Fenster, dessen Abklingzeiten geschätzt sind.",
   "guide.h.strong": "Wo wir stärker sind",

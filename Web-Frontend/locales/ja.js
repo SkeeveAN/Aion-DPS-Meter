@@ -863,7 +863,7 @@ export default {
   "guide.weak.regions": "韓国と台湾は一部のみの対応です。これらのサーバーは数バージョン先を行っているため、スキルの認識が不完全です。他のメーターは完全に対応しています。",
   "guide.weak.platform": "Windowsのみ対応です。LinuxやProton向けのバージョンはありません。",
   "guide.weak.driver": "Npcap ドライバーを別途インストールする必要があります。専用ドライバーを同梱しているメーターも1つあります。",
-  "guide.weak.missing": "rDPS、PvPのライブ表示、キャラクター採点、LagoFast のような接続の最適化はありません。",
+  "guide.weak.missing": "キャラクター採点や、LagoFast のような接続の最適化はありません。",
   "guide.weak.boards": "ランキングは、プレイヤーが戦闘をアップロードしたボスだけが対象で、アップロードする人の数も大手のメーターに比べると少なめです。まだデータのないボスも多くあります。",
   "guide.weak.unreleased": "機能の一部はまだ開発中です。たとえばアシストウィンドウは、クールダウン時間が推定です。",
   "guide.h.strong": "当方が優れている点",

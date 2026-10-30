@@ -863,7 +863,7 @@ export default {
   "guide.weak.regions": "한국과 대만은 일부만 지원합니다. 이 서버들은 몇 버전 앞서 있어 스킬 인식이 불완전합니다. 다른 미터들은 완전히 지원합니다.",
   "guide.weak.platform": "Windows 전용입니다. Linux나 Proton 버전은 없습니다.",
   "guide.weak.driver": "Npcap 드라이버를 따로 설치해야 합니다. 자체 드라이버를 포함한 미터도 하나 있습니다.",
-  "guide.weak.missing": "rDPS, PvP 실시간 보기, 캐릭터 평가, LagoFast 같은 접속 최적화는 없습니다.",
+  "guide.weak.missing": "캐릭터 평가나 LagoFast 같은 접속 최적화는 없습니다.",
   "guide.weak.boards": "순위표는 플레이어가 전투를 업로드한 보스만 다루며, 업로드하는 사람 수는 대형 미터에 비해 적습니다. 아직 데이터가 없는 보스가 많습니다.",
   "guide.weak.unreleased": "일부 기능은 아직 개발 중입니다. 예를 들어 어시스트 창은 쿨타임이 추정값입니다.",
   "guide.h.strong": "강점",

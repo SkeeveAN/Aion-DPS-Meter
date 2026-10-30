@@ -847,7 +847,7 @@ export default {
   "guide.weak.regions": "Corea y Taiwán solo tienen soporte parcial: esos servidores van unas versiones por delante, así que el reconocimiento de habilidades es incompleto. Otros medidores los cubren por completo.",
   "guide.weak.platform": "Solo Windows. No hay versión para Linux ni Proton.",
   "guide.weak.driver": "El controlador Npcap hay que instalarlo aparte. Otro medidor incluye su propio controlador.",
-  "guide.weak.missing": "No tenemos rDPS, ni vista de PvP en directo, ni evaluador de personajes, ni optimización de la conexión como la de LagoFast.",
+  "guide.weak.missing": "No tenemos evaluador de personajes ni optimización de la conexión como la de LagoFast.",
   "guide.weak.boards": "Las clasificaciones solo cubren jefes para los que los jugadores subieron combates, y el grupo de quienes suben es pequeño frente a los grandes medidores. Muchos jefes aún no tienen datos.",
   "guide.weak.unreleased": "Partes del conjunto de funciones siguen en desarrollo, por ejemplo la ventana de asistencia, y sus tiempos de reutilización son estimados.",
   "guide.h.strong": "Dónde somos más fuertes",

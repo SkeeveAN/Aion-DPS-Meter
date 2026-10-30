@@ -842,7 +842,7 @@ export default {
   "guide.weak.regions": "韩服和台服只有部分支持：那些服务器版本领先几个版本，因此技能识别不完整。其他统计器对它们的支持更完整。",
   "guide.weak.platform": "仅支持 Windows。没有 Linux 或 Proton 版本。",
   "guide.weak.driver": "Npcap 驱动需要单独安装。有一款其他统计器内置了自己的驱动。",
-  "guide.weak.missing": "我们没有 rDPS、没有 PvP 实时视图、没有角色评分，也没有像 LagoFast 那样的连接优化。",
+  "guide.weak.missing": "我们没有角色评分，也没有像 LagoFast 那样的连接优化。",
   "guide.weak.boards": "排行榜只涵盖有玩家上传过战斗记录的首领，而且上传者的人数和大型统计器相比还很少。许多首领暂时还没有数据。",
   "guide.weak.unreleased": "部分功能仍在开发中，例如辅助窗口，其冷却时间为估算值。",
   "guide.h.strong": "我们的优势",
