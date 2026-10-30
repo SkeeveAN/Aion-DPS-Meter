@@ -23,6 +23,13 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Website: the comparison page no longer lists \"no live PvP view\" as a weakness (the meter has a PvE/PvP switch showing damage against players) and no longer lists rDPS as missing, since leaving it out is a deliberate choice explained on the same page",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
