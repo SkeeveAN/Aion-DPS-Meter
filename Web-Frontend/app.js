@@ -4,6 +4,7 @@ import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildGearFilters, buildInstanceStats } from "./boss-stats.js";
 import { buildBossDebuffs, buildBuffsPerSkill, buildFocus, buildGroupTimeline } from "./encounter-timeline.js";
+import { buildAnalysisPlayers, buildBuffUsage, buildCurveCompare, buildDamageCurve, buildTakenSources, qualityBadge, qualityLegend, unavailableCell } from "./encounter-analysis.js";
 import { ARTICLE, ARTICLE_DE, articleSegments, flowStep } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
@@ -3813,7 +3814,12 @@ async function renderEncounter(encounterId) {
       if (data.encounter.isPartial === true && typeof data.encounter.hpSeenShare === "number" && Array.isArray(timeline.bossHp)) {
         timeline.bossHp = timeline.bossHp.map(([s, permille]) => [s, Math.round(permille * data.encounter.hpSeenShare)]);
       }
-      const panels = [buildGroupTimeline(timeline, deps), buildFocus(timeline, deps), buildBossDebuffs(timeline, deps), buildBuffsPerSkill(timeline, deps)].filter((p) => p !== null);
+      const estimated = data.roster.some((p) => p.estimated);
+      const analysisPanels = [buildDamageCurve(timeline, deps, estimated), buildAnalysisPlayers(timeline, data.roster, deps), buildTakenSources(timeline, deps), buildBuffUsage(timeline, deps)].filter((p) => p !== null);
+      const panels = [buildGroupTimeline(timeline, deps), ...analysisPanels, buildFocus(timeline, deps), buildBossDebuffs(timeline, deps), buildBuffsPerSkill(timeline, deps)].filter((p) => p !== null);
+      if (analysisPanels.length > 0) {
+        panels.push(qualityLegend(deps));
+      }
       grid.after(...panels);
     } catch {
       // the lists above stay as they are
@@ -5581,6 +5587,7 @@ async function renderCompareRuns(params) {
     ]);
 
   const sameBoss = ea.bossId === eb.bossId;
+  const pullBox = el("div", { className: "meter-panel cmp-pull", hidden: true });
   app.replaceChildren(
     el("h2", { textContent: `${t("compare.runsTitle")}: ${bossName}${sameBoss ? "" : ` / ${translateGameName(eb.bossName)}`}` }),
     ...(sameBoss ? [] : [el("p", { className: "error", textContent: t("compare.differentBoss") })]),
@@ -5589,8 +5596,51 @@ async function renderCompareRuns(params) {
       link(t("compare.swap"), compareLink("/compare/runs", { a: b, b: a })),
     ]),
     metrics,
+    pullBox,
     el("div", { className: "cmp-columns" }, [column(t("compare.runA"), sortedA), column(t("compare.runB"), sortedB)]),
   );
+  // the figures that explain a pull (deaths, time alive, focus, effects, the damage curve) come from the summaries; an older server or fight just leaves them out
+  try {
+    const [sa, sb] = await Promise.all([fetchJson(`/api/encounters/${encodeURIComponent(a)}/summary`), fetchJson(`/api/encounters/${encodeURIComponent(b)}/summary`)]);
+    const deps = { el, t, formatNumber, classLabel, classIcon, iconLabel, getLocale };
+    const num = (v) => formatNumber(Math.round(v));
+    const pct = (v) => `${(v * 100).toFixed(1)} %`;
+    const rows = [
+      pullRow(t("compare.pull.killtime"), sa.durationSeconds, sb.durationSeconds, formatDuration, false, "certain"),
+      pullRow(t("compare.pull.idps"), sa.groupIDps, sb.groupIDps, num, true, "certain"),
+      pullRow(t("compare.pull.deaths"), sa.deaths, sb.deaths, num, false, "certain"),
+      pullRow(t("compare.pull.alive"), sa.aliveShare, sb.aliveShare, pct, true, "derived"),
+      pullRow(t("compare.pull.focus"), sa.bossFocusShare, sb.bossFocusShare, pct, true, "derived"),
+      pullRow(t("compare.pull.buffUsable"), sa.buffUsableShare, sb.buffUsableShare, pct, true, "derived"),
+      pullRow(t("compare.pull.bossDamage"), sa.bossDamage, sb.bossDamage, num, null, "certain"),
+      pullRow(t("compare.pull.addDamage"), sa.addDamage, sb.addDamage, num, null, "certain"),
+    ];
+    const table = el("table", { className: "cmp-table" }, [
+      el("thead", {}, [el("tr", {}, [el("th", {}), el("th", {}, [heading(t("compare.runA"), ea)]), el("th", {}, [heading(t("compare.runB"), eb)]), el("th", { textContent: t("compare.difference") })])]),
+      el("tbody", {}, rows),
+    ]);
+    pullBox.replaceChildren(
+      el("div", { className: "meter-panel-heading" }, [el("span", { className: "meter-panel-title", textContent: t("compare.pull.heading") }), el("span", { className: "meter-panel-subtitle", textContent: t("compare.pull.subtitle") })]),
+      table,
+      ...[buildCurveCompare(sa, sb, deps)].filter((c) => c !== null),
+      qualityLegend(deps),
+    );
+    pullBox.hidden = false;
+  } catch {
+    // the table above stays as it is
+  }
+}
+
+/** One pull-comparison row. A figure the fight has no data for is "not available" (never a 0) and carries no difference; `higherIsBetter` null = no side is highlighted. */
+function pullRow(label, a, b, format, higherIsBetter, level) {
+  const has = (v) => typeof v === "number" && Number.isFinite(v);
+  const deps = { el, t };
+  const cell = (v, win) => el("td", { className: win ? "cmp-win" : "" }, has(v) ? [format(v), " ", qualityBadge(level, deps)] : [unavailableCell(deps)]);
+  if (!has(a) || !has(b)) {
+    return el("tr", {}, [el("td", { textContent: label }), cell(a, false), cell(b, false), el("td", { className: "cmp-delta", textContent: "–" })]);
+  }
+  const better = higherIsBetter === null || a === b ? 0 : (a > b) === higherIsBetter ? 1 : -1;
+  return el("tr", {}, [el("td", { textContent: label }), cell(a, better > 0), cell(b, better < 0), el("td", { className: "cmp-delta", textContent: formatDelta(a, b) })]);
 }
 
 async function renderComparePlayers(params) {

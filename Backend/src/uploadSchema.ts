@@ -29,6 +29,23 @@ const buffUsageSchema = z.object({
   spans: z.array(z.number().int().min(0).max(100_000)).max(400).optional(),
 });
 
+// What one participant did besides using skills (see docs/plans/combat-analysis.md): damage to the boss per 5-second bucket, damage to other monsters, the spans of being dead
+// and the hostile damage taken by source and skill. Times are tenths of a second from the start of the uploaded fight, like the rest of the time axis.
+const analysisSchema = z.object({
+  damage: z.array(z.number().int().min(0).max(2_000_000_000)).max(720).default([]),
+  addDamage: z.number().int().min(0).max(2_000_000_000).default(0),
+  // start, end, start, end ... (an end is the revive, else the end of the fight)
+  dead: z
+    .array(z.number().int().min(0).max(100_000))
+    .max(80)
+    .refine((d) => d.length % 2 === 0, { message: "analysis.dead must pair up as start, end" })
+    .default([]),
+  taken: z
+    .array(z.object({ from: z.enum(["boss", "add", "other"]), skill: z.string().trim().min(1).max(120), hits: z.number().int().min(0).max(1_000_000), total: z.number().int().min(0).max(2_000_000_000), max: z.number().int().min(0).max(2_000_000_000) }))
+    .max(16)
+    .default([]),
+});
+
 // The time axis of one participant (clients from 1.9.0 on): which skill was used when, and when the participant died. Times are tenths of a second from the start of the
 // fight; times[i] is the use of skills[index[i]].
 const timelineSchema = z
@@ -39,6 +56,7 @@ const timelineSchema = z
     deaths: z.array(z.number().int().min(0).max(100_000)).max(40).default([]),
     // How the player split his time between the boss and anything else he had selected (tenths of a second), and how often he changed targets. Only his target, never a place.
     focus: z.object({ onBoss: z.number().int().min(0).max(100_000), onOthers: z.number().int().min(0).max(100_000), switches: z.number().int().min(0).max(10_000) }).optional(),
+    analysis: analysisSchema.optional(),
   })
   .refine((t) => t.times.length === t.index.length && t.index.every((i) => i < t.skills.length), { message: "timeline: times and index must pair up with skills" });
 

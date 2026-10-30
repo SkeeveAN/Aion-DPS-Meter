@@ -593,6 +593,31 @@ test("the time axis of a fight is stored once per player: the upload with the mo
   assert.equal(shaped.bossHp.length, 5);
 });
 
+test("the analysis of a time axis is stored with it: an upload that brings one replaces an axis without, one without never replaces one that has it", async () => {
+  const { loadEncounterTimeline } = await import("../encounterTimeline.js");
+  const instance = db.insert(instances).values({ name: "Analysis place", nameEn: "Analysis place", game: "aion2", slug: "analysis-place", category: "expedition" }).returning().get();
+  db.insert(bosses).values({ name: "Analysis Boss", instanceId: instance.id }).run();
+  const timeline = (times: number[], analysis?: { damage: number[]; addDamage: number; dead: number[]; taken: never[] }) => ({ skills: [{ id: 1, name: "Rending Blow" }], times, index: times.map(() => 0), deaths: [], ...(analysis ? { analysis } : {}) });
+  const at = (start: string, tl: ReturnType<typeof timeline>) =>
+    processUpload(
+      basePayload({
+        bossNpcName: "Analysis Boss",
+        startedAt: start,
+        endedAt: "2026-08-02T18:01:30.000Z",
+        participants: basePayload().participants.map((p) => (p.name === "Anna" ? { ...p, timeline: tl } : p)),
+      }),
+    );
+  const first = at("2026-08-02T18:00:00.000Z", timeline([10, 30, 50]));
+  assert.equal(loadEncounterTimeline(first.encounterId)!.analysis, undefined, "an older client sends none");
+  at("2026-08-02T18:00:00.000Z", timeline([10], { damage: [100, 200], addDamage: 5, dead: [], taken: [] }));
+  const withAnalysis = loadEncounterTimeline(first.encounterId)!;
+  assert.deepEqual(withAnalysis.analysis?.groupDamage.slice(0, 2), [100, 200], "the upload with the analysis replaced the one without");
+  at("2026-08-02T18:00:00.000Z", timeline([10, 20, 30, 40]));
+  assert.deepEqual(loadEncounterTimeline(first.encounterId)!.analysis?.groupDamage.slice(0, 2), [100, 200], "a longer axis without an analysis does not replace one that has it");
+  at("2026-08-02T18:00:00.000Z", timeline([10, 20, 30, 40], { damage: [999], addDamage: 0, dead: [], taken: [] }));
+  assert.deepEqual(loadEncounterTimeline(first.encounterId)!.analysis?.groupDamage.slice(0, 1), [999], "a longer axis keeps its own analysis whole, never mixed with the older one");
+});
+
 test("a plain time axis is packed by the archive job and reads back unchanged", async () => {
   const { encounterTimelines } = await import("../db/schema.js");
   const { eq } = await import("drizzle-orm");

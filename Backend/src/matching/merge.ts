@@ -519,7 +519,7 @@ function insertBuffUsage(participantId: number, buffs: ParticipantUpload["buffs"
 
 /**
  * The time axis of a participant. Every client of a fight sees every player's skills, so several uploads bring one: the one with the most skill uses is kept
- * (a client that joined late or lost packets has fewer), never a second copy.
+ * (a client that joined late or lost packets has fewer), never a second copy. Its analysis (see uploadSchema.ts) is part of it and keeps the origin of that upload.
  */
 function storeTimeline(participantId: number, timeline: ParticipantUpload["timeline"]) {
   if (!timeline || timeline.times.length === 0) {
@@ -527,8 +527,12 @@ function storeTimeline(participantId: number, timeline: ParticipantUpload["timel
   }
   const existing = db.select().from(encounterTimelines).where(eq(encounterTimelines.participantId, participantId)).get();
   if (existing) {
-    const known = (JSON.parse(timelineJsonOf(existing) ?? "{}") as { times?: unknown[] }).times?.length ?? 0;
-    if (known >= timeline.times.length) {
+    const stored = JSON.parse(timelineJsonOf(existing) ?? "{}") as { times?: unknown[]; analysis?: unknown };
+    const known = stored.times?.length ?? 0;
+    // an upload with the analysis replaces an axis without it, even with fewer skill uses, and one without never replaces one that has it; the analysis is never mixed from two uploads (its buckets start at its own origin)
+    const bringsAnalysis = timeline.analysis !== undefined && stored.analysis === undefined;
+    const losesAnalysis = timeline.analysis === undefined && stored.analysis !== undefined;
+    if ((known >= timeline.times.length && !bringsAnalysis) || losesAnalysis) {
       return;
     }
   }

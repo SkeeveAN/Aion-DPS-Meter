@@ -9,6 +9,7 @@ import { ownSkillRows, skillIconByName, skillNamesByName } from "../profile.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 import { encounterBuffDetails } from "../encounterBuffs.js";
 import { hasTimeline, loadEncounterTimeline } from "../encounterTimeline.js";
+import { loadEncounterSummary } from "../encounterSummary.js";
 import { gameFromQuery } from "./instances.js";
 
 /*
@@ -21,6 +22,15 @@ import { gameFromQuery } from "./instances.js";
  *   every list of single fights (/api/activity/recent, boss page recent runs / top groups / history, instance page runs and clears,
  *   player history, compare picker)  -> per row isPartial: boolean
  * Rankings, best lists, averages, kill counts and statistics leave partial fights out (is_partial = 0 in the query).
+ *
+ * Combat analysis (docs/plans/combat-analysis.md): clients from the analysis release on send timeline.analysis per player; every field below is absent/null for older uploads.
+ *   GET /api/encounters/:id/timeline -> additionally analysis?: { bucketSeconds: 5, groupDamage: number[] (boss damage per bucket, encounter clock),
+ *                                       coverage: { players, withAnalysis }, players: [{ participantId, name, className, damage: number[], addDamage, deadSeconds,
+ *                                       aliveShare (0..1), deaths, taken: [{ from: "boss"|"add"|"other", skill, hits, total, max }] }] }
+ *                                       and players[].buffs[].usable?: { seconds, dead, idle, active } (effect seconds on the player: dead / alive without a skill use within 3 s / rest)
+ *   GET /api/encounters/:id/summary  -> { encounterId, bossId, durationSeconds, groupIDps, isPartial, bossDamage, addDamage|null, deaths|null, aliveShare|null,
+ *                                       bossFocusShare|null, buffUsableShare|null, damageCurve|null (cumulative per 5 s), bossHp|null, coverage: { players, withTimeline, withAnalysis } }
+ *                                       404 { error: "encounter_not_found" } for an unknown fight. Estimated rows (crowded world boss) are left out of every figure.
  */
 
 // The fights of one run (3-4 bosses of the same instance and step), the same rule as the website's runs tab: same instance, step and server,
@@ -134,6 +144,16 @@ export async function encounterRoutes(app: FastifyInstance) {
     }
     const timeline = loadEncounterTimeline(encounterId);
     return timeline ? reply.send(timeline) : reply.status(404).send({ error: "no_timeline" });
+  });
+
+  // The figures two fights are compared by (see encounterSummary.ts); 404 for an unknown fight, null where no client sent the data.
+  app.get<{ Params: { id: string } }>("/api/encounters/:id/summary", async (request, reply) => {
+    const encounterId = Number(request.params.id);
+    if (!Number.isInteger(encounterId)) {
+      return reply.status(400).send({ error: "invalid_encounter_id" });
+    }
+    const summary = loadEncounterSummary(encounterId);
+    return summary ? reply.send(summary) : reply.status(404).send({ error: "encounter_not_found" });
   });
 
   app.get<{ Params: { id: string } }>("/api/encounters/:id", async (request, reply) => {

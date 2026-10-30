@@ -13,6 +13,23 @@ export interface StoredTimeline {
   index: number[];
   deaths: number[];
   focus?: { onBoss: number; onOthers: number; switches: number };
+  /** Damage per 5-second bucket, add damage, spans of being dead and damage taken (see uploadSchema.ts analysisSchema); from clients that send it. */
+  analysis?: StoredAnalysis;
+}
+
+export interface StoredAnalysis {
+  damage?: number[];
+  addDamage?: number;
+  dead?: number[];
+  taken?: TakenRow[];
+}
+
+export interface TakenRow {
+  from: "boss" | "add" | "other";
+  skill: string;
+  hits: number;
+  total: number;
+  max: number;
 }
 
 export interface TimelineBuffIn {
@@ -32,6 +49,8 @@ export interface TimelinePlayerIn {
   className: string;
   timeline: StoredTimeline | null;
   buffs: TimelineBuffIn[];
+  /** The row's damage is estimated from hit counts (a crowded world boss): it never enters the analysis figures. */
+  estimated?: boolean;
 }
 
 export interface SkillBuffShare {
@@ -50,7 +69,7 @@ export interface TimelinePlayerOut {
   deaths: number[];
   /** Seconds with the boss selected and with anything else, and the changes from one target to another. */
   focus: { onBoss: number; onOthers: number; switches: number } | null;
-  buffs: { skillId: number; name: string; names?: Record<string, string>; icon: string | null; iconKind: "skill" | "item" | null; kind: BuffKind; food: boolean; uptimePermille: number; spans: [number, number][] }[];
+  buffs: { skillId: number; name: string; names?: Record<string, string>; icon: string | null; iconKind: "skill" | "item" | null; kind: BuffKind; food: boolean; uptimePermille: number; spans: [number, number][]; usable?: UsableOut }[];
   /** Per skill (index into skills): its number of uses and which effects were on the player at those moments. */
   skillBuffs: { skill: number; uses: number; buffs: SkillBuffShare[] }[];
   /** Chain skills: per used skill with a follow-up, how often the follow-up came within its window. */
@@ -80,8 +99,42 @@ export interface BossDebuffOut {
   spans: [number, number][];
 }
 
+/** Bucket width of the damage curves, in seconds (the client's buckets). */
+export const BUCKET_SECONDS = 5;
+
+/** Seconds of an effect on a player that could count: while he was dead, while alive without using a skill nearby, and the rest. */
+export interface UsableOut {
+  seconds: number;
+  dead: number;
+  idle: number;
+  active: number;
+}
+
+export interface AnalysisPlayerOut {
+  participantId: number;
+  name: string;
+  className: string;
+  /** Damage to the boss per bucket, lined up on the start of the encounter. */
+  damage: number[];
+  addDamage: number;
+  deadSeconds: number;
+  /** 0..1 of the fight's length. */
+  aliveShare: number;
+  deaths: number;
+  taken: TakenRow[];
+}
+
+export interface AnalysisOut {
+  bucketSeconds: number;
+  groupDamage: number[];
+  coverage: { players: number; withAnalysis: number };
+  players: AnalysisPlayerOut[];
+}
+
 export interface EncounterTimelineOut {
   durationSeconds: number;
+  /** Only when at least one player's client sent the analysis. */
+  analysis?: AnalysisOut;
   /** [seconds, thousandths of the boss's health] */
   bossHp: [number, number][];
   /** The effects the players put on the boss, longest first. */
@@ -98,6 +151,110 @@ const round1 = (v: number) => Math.round(v * 10) / 10;
 
 function insideAny(t: number, spans: [number, number][]): boolean {
   return spans.some(([s, e]) => t >= s && t <= e);
+}
+
+type Span = [number, number];
+
+/** The union of spans as sorted, disjoint spans; empty and reversed spans are dropped. */
+export function unionSpans(spans: Span[]): Span[] {
+  const sorted = spans.filter(([s, e]) => e > s).sort((a, b) => a[0] - b[0]);
+  const out: Span[] = [];
+  for (const [s, e] of sorted) {
+    const last = out.at(-1);
+    if (last && s <= last[1]) {
+      last[1] = Math.max(last[1], e);
+    } else {
+      out.push([s, e]);
+    }
+  }
+  return out;
+}
+
+/** The parts both lists (sorted, disjoint) cover. */
+export function intersectSpans(a: Span[], b: Span[]): Span[] {
+  const out: Span[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    const s = Math.max(a[i]![0], b[j]![0]);
+    const e = Math.min(a[i]![1], b[j]![1]);
+    if (e > s) {
+      out.push([s, e]);
+    }
+    if (a[i]![1] < b[j]![1]) {
+      i++;
+    } else {
+      j++;
+    }
+  }
+  return out;
+}
+
+/** The parts of `a` that `b` does not cover (both sorted, disjoint). */
+export function subtractSpans(a: Span[], b: Span[]): Span[] {
+  const out: Span[] = [];
+  for (const [s0, e] of a) {
+    let s = s0;
+    for (const [bs, be] of b) {
+      if (be <= s || bs >= e) {
+        continue;
+      }
+      if (bs > s) {
+        out.push([s, bs]);
+      }
+      s = Math.max(s, be);
+    }
+    if (s < e) {
+      out.push([s, e]);
+    }
+  }
+  return out;
+}
+
+const spanLength = (spans: Span[]) => spans.reduce((sum, [s, e]) => sum + (e - s), 0);
+
+/** A skill use keeps an effect "active" for this long to either side; an effect on a living player with no use that near is idle time. */
+const ACTIVE_WINDOW_SECONDS = 3;
+
+/**
+ * Of the time an effect was on a player: how much he was dead, how much he lived but used no skill within 3 s, and the rest. Known facts only
+ * (the effect ran, the player lived, something happened); what the effect did to his damage is not known and not claimed.
+ */
+export function usableOf(buffSpans: Span[], deadSpans: Span[], useTimes: number[], durationSeconds: number): UsableOut {
+  const clip = (spans: Span[]): Span[] => unionSpans(spans.map(([s, e]) => [Math.max(0, s), Math.min(durationSeconds, e)] as Span));
+  const on = clip(buffSpans);
+  const dead = intersectSpans(on, clip(deadSpans));
+  const alive = subtractSpans(on, dead);
+  const busy = unionSpans(useTimes.map((t) => [t - ACTIVE_WINDOW_SECONDS, t + ACTIVE_WINDOW_SECONDS] as Span));
+  const active = intersectSpans(alive, busy);
+  const seconds = spanLength(on);
+  const deadSeconds = spanLength(dead);
+  const activeSeconds = spanLength(active);
+  return { seconds: round1(seconds), dead: round1(deadSeconds), idle: round1(Math.max(0, seconds - deadSeconds - activeSeconds)), active: round1(activeSeconds) };
+}
+
+/**
+ * Damage per bucket of the uploader's clock, moved onto the encounter's clock: a bucket that starts `shift` seconds after the encounter's start is spread over the
+ * encounter's buckets it overlaps, in proportion. The total stays the same.
+ */
+export function rebinDamage(damage: number[], shift: number, durationSeconds: number): number[] {
+  const width = BUCKET_SECONDS;
+  const out: number[] = [];
+  damage.forEach((amount, i) => {
+    if (amount <= 0) {
+      return;
+    }
+    const from = shift + i * width;
+    const to = from + width;
+    for (let k = Math.max(0, Math.floor(from / width)); k * width < to; k++) {
+      const overlap = Math.min(to, (k + 1) * width) - Math.max(from, k * width);
+      if (overlap > 0) {
+        out[k] = (out[k] ?? 0) + (amount * overlap) / width;
+      }
+    }
+  });
+  const length = Math.max(Math.ceil(durationSeconds / width), out.length);
+  return Array.from({ length }, (_, k) => Math.round(out[k] ?? 0));
 }
 
 /**
@@ -127,11 +284,17 @@ export function shapeTimeline(
   }
 
   const out: TimelinePlayerOut[] = [];
+  const analysisPlayers: AnalysisPlayerOut[] = [];
   for (const p of input.players) {
     if (!p.timeline || p.timeline.times.length === 0) {
       continue;
     }
     const shift = shiftSeconds(p.timeline.origin, start);
+    const analysis = p.timeline.analysis;
+    const deadSpans: Span[] = [];
+    for (let i = 0; i + 1 < (analysis?.dead?.length ?? 0); i += 2) {
+      deadSpans.push([shift + analysis!.dead![i]! / 10, shift + analysis!.dead![i + 1]! / 10]);
+    }
     const uses = p.timeline.times.map((t, i) => [round1(shift + t / 10), p.timeline!.index[i]!] as [number, number]).sort((a, b) => a[0] - b[0]);
     const counts = new Map<number, number>();
     for (const [, idx] of uses) {
@@ -159,7 +322,9 @@ export function shapeTimeline(
         spans.push([round1(bShift + b.spans[i]! / 10), round1(bShift + b.spans[i + 1]! / 10)]);
       }
       const art2 = buffIcon(b.skillId);
-      buffs.push({ skillId: b.skillId, name: b.skill, names: buffNames(b.skillId, b.skill), icon: art2?.icon ?? null, iconKind: art2?.iconKind ?? null, kind, food: isFood(b.skillId), uptimePermille: b.uptimePermille, spans });
+      // the dead spans are known only from a client that sends the analysis; without them nothing is said about lost time
+      const usable = analysis?.dead ? usableOf(spans, deadSpans, uses.map(([t]) => t), input.durationSeconds) : undefined;
+      buffs.push({ skillId: b.skillId, name: b.skill, names: buffNames(b.skillId, b.skill), icon: art2?.icon ?? null, iconKind: art2?.iconKind ?? null, kind, food: isFood(b.skillId), uptimePermille: b.uptimePermille, spans, ...(usable ? { usable } : {}) });
       spansOf.set(b.skillId, spans);
     }
 
@@ -177,6 +342,20 @@ export function shapeTimeline(
       skillBuffs.push({ skill: idx, uses: n, buffs: shares.sort((a, b) => b.share - a.share) });
     }
 
+    if (analysis && !p.estimated && p.className !== "?") {
+      const deadSeconds = spanLength(unionSpans(deadSpans.map(([s, e]) => [Math.max(0, s), Math.min(input.durationSeconds, e)] as Span)));
+      analysisPlayers.push({
+        participantId: p.id,
+        name: p.name,
+        className: p.className,
+        damage: rebinDamage(analysis.damage ?? [], shift, input.durationSeconds),
+        addDamage: analysis.addDamage ?? 0,
+        deadSeconds: round1(deadSeconds),
+        aliveShare: input.durationSeconds > 0 ? Math.round(Math.min(1, Math.max(0, 1 - deadSeconds / input.durationSeconds)) * 1000) / 1000 : 1,
+        deaths: p.timeline.deaths.length,
+        taken: analysis.taken ?? [],
+      });
+    }
     const chains = chainsOf(p.timeline.skills, uses, art.chains ?? {}, art.skillInfo ?? (() => null));
     out.push({ participantId: p.id, name: p.name, className: p.className, skills, uses, deaths: p.timeline.deaths.map((d) => round1(shift + d / 10)), focus: p.timeline.focus ? { onBoss: round1(p.timeline.focus.onBoss / 10), onOthers: round1(p.timeline.focus.onOthers / 10), switches: p.timeline.focus.switches } : null, buffs, skillBuffs, chains });
   }
@@ -198,7 +377,17 @@ export function shapeTimeline(
     }
     bossDebuffs.sort((a, b) => b.uptimePermille - a.uptimePermille);
   }
-  return { durationSeconds: input.durationSeconds, bossHp, bossDebuffs, players: out };
+  let analysis: AnalysisOut | undefined;
+  if (analysisPlayers.length > 0) {
+    const length = Math.max(...analysisPlayers.map((a) => a.damage.length));
+    analysis = {
+      bucketSeconds: BUCKET_SECONDS,
+      groupDamage: Array.from({ length }, (_, k) => analysisPlayers.reduce((sum, a) => sum + (a.damage[k] ?? 0), 0)),
+      coverage: { players: input.players.filter((p) => p.className !== "?").length, withAnalysis: analysisPlayers.length },
+      players: analysisPlayers,
+    };
+  }
+  return { durationSeconds: input.durationSeconds, ...(analysis ? { analysis } : {}), bossHp, bossDebuffs, players: out };
 }
 
 /** Window tolerance: the use times have a resolution of 0.1 s and the client counts its 3 s from its own tick. */
@@ -275,7 +464,7 @@ export function loadEncounterTimeline(encounterId: number): EncounterTimelineOut
     return null;
   }
   const rows = db
-    .select({ id: encounterParticipants.id, name: players.name, className: encounterParticipants.className, data: encounterTimelines.dataJson, gz: encounterTimelines.dataGz })
+    .select({ id: encounterParticipants.id, name: players.name, className: encounterParticipants.className, estimated: encounterParticipants.estimated, data: encounterTimelines.dataJson, gz: encounterTimelines.dataGz })
     .from(encounterParticipants)
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .leftJoin(encounterTimelines, eq(encounterTimelines.participantId, encounterParticipants.id))
@@ -289,6 +478,7 @@ export function loadEncounterTimeline(encounterId: number): EncounterTimelineOut
     id: r.id,
     name: r.name,
     className: r.className,
+    estimated: r.estimated,
     timeline: parse<StoredTimeline | null>(timelineJsonOf({ dataJson: r.data ?? "", dataGz: r.gz ?? null }), null),
     buffs: buffRows
       .filter((b) => b.participantId === r.id && b.skillId > 0)
