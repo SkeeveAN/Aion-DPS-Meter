@@ -863,7 +863,7 @@ export default {
   "guide.weak.regions": "韓國與台灣只有部分支援：那些伺服器的版本比較新，因此技能辨識不完整。其他統計器對它們有完整支援。",
   "guide.weak.platform": "僅支援 Windows。沒有 Linux 或 Proton 版本。",
   "guide.weak.driver": "Npcap 驅動程式需要另外安裝。另有一款統計器內建了自己的驅動程式。",
-  "guide.weak.missing": "我們沒有角色評分，也沒有像 LagoFast 那樣的連線優化。",
+  "guide.weak.missing": "我們沒有 rDPS（把玩家的傷害算給施加增益者的數值）、沒有角色評分，也沒有像 LagoFast 那樣的連線優化。我們刻意選擇 iDPS：它只統計戰鬥時間內實測的傷害，而 rDPS 依賴對增益如何疊加的假設，因為遊戲的傷害公式並未公布。代價是：輔助的價值體現在隊伍的擊殺時間上，而不是他們自己的數字上。",
   "guide.weak.boards": "排行榜只涵蓋有玩家上傳過戰鬥的首領，而且上傳者的人數比大型統計器少很多。許多首領還沒有資料。",
   "guide.weak.unreleased": "部分功能仍在開發中，例如輔助視窗，其冷卻時間也是估算的。",
   "guide.h.strong": "我們比較強的地方",

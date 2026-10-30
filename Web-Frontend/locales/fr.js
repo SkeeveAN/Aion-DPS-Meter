@@ -847,7 +847,7 @@ export default {
   "guide.weak.regions": "La Corée et Taïwan ne sont prises en charge qu'en partie : ces serveurs ont quelques versions d'avance, la reconnaissance des compétences y est donc incomplète. D'autres meters les couvrent entièrement.",
   "guide.weak.platform": "Windows uniquement. Il n'existe pas de version Linux ou Proton.",
   "guide.weak.driver": "Le pilote Npcap doit être installé séparément. Un autre meter inclut son propre pilote.",
-  "guide.weak.missing": "Nous n'avons ni évaluation de personnage, ni optimisation de la connexion comme celle de LagoFast.",
+  "guide.weak.missing": "Nous n'avons ni rDPS (le chiffre qui attribue les dégâts d'un joueur à celui qui a posé le buff), ni évaluation de personnage, ni optimisation de la connexion comme celle de LagoFast. Nous avons choisi l'iDPS volontairement : il ne compte que les dégâts mesurés sur la durée du combat, alors que le rDPS repose sur des hypothèses sur le cumul des buffs, car la formule de dégâts du jeu n'est pas publiée. Le prix : la valeur d'un soutien se voit dans le temps de victoire du groupe, pas dans son propre chiffre.",
   "guide.weak.boards": "Les classements ne couvrent que les boss pour lesquels des joueurs ont envoyé des combats, et le cercle des contributeurs est petit face aux grands meters. Beaucoup de boss n'ont encore aucune donnée.",
   "guide.weak.unreleased": "Une partie des fonctions est encore en développement, par exemple la fenêtre Assist, dont les temps de recharge sont estimés.",
   "guide.h.strong": "Là où nous sommes plus forts",

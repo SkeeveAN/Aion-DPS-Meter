@@ -1040,7 +1040,7 @@ export default {
   "guide.weak.regions": "Korea and Taiwan are only partly supported: those servers run a few versions ahead, so skill recognition is incomplete there. Other meters cover them fully.",
   "guide.weak.platform": "Windows only. There is no Linux or Proton version.",
   "guide.weak.driver": "The Npcap driver has to be installed separately. One other meter bundles its own driver.",
-  "guide.weak.missing": "We have no character scorer and no connection optimization like LagoFast's.",
+  "guide.weak.missing": "We have no rDPS (the figure that credits a player's damage to whoever set the buff), no character scorer and no connection optimization like LagoFast's. We chose iDPS on purpose: it counts only measured damage over the fight time, while rDPS rests on assumptions about how buffs stack, because the game's damage formula is not published. The price is that a support's value shows in the group's kill time, not in their own number.",
   "guide.weak.boards": "The leaderboards only cover bosses that players uploaded fights for, and the group of uploaders is small next to the large meters. Many bosses have no data yet.",
   "guide.weak.unreleased": "Parts of the feature set are still in development, for example the Assist window, and its cooldown times are estimated.",
   "guide.h.strong": "Where we are stronger",

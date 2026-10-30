@@ -863,7 +863,7 @@ export default {
   "guide.weak.regions": "Coreia e Taiwan só têm suporte parcial: esses servidores estão algumas versões à frente, então o reconhecimento de habilidades fica incompleto lá. Outros medidores cobrem essas regiões por completo.",
   "guide.weak.platform": "Só Windows. Não existe versão para Linux ou Proton.",
   "guide.weak.driver": "O driver Npcap precisa ser instalado à parte. Um outro medidor traz o próprio driver.",
-  "guide.weak.missing": "Não temos avaliação de personagens nem otimização da conexão como a do LagoFast.",
+  "guide.weak.missing": "Não temos rDPS (o número que atribui o dano de um jogador a quem colocou o buff), avaliação de personagens nem otimização da conexão como a do LagoFast. Escolhemos o iDPS de propósito: ele conta só o dano medido durante o tempo da luta, enquanto o rDPS se baseia em suposições sobre como os buffs se acumulam, porque a fórmula de dano do jogo não é publicada. O preço: o valor de um suporte aparece no tempo de vitória do grupo, não no número dele.",
   "guide.weak.boards": "Os rankings só cobrem chefes para os quais jogadores enviaram lutas, e o grupo de quem envia é pequeno perto dos grandes medidores. Muitos chefes ainda não têm dados.",
   "guide.weak.unreleased": "Partes das funções ainda estão em desenvolvimento, por exemplo a janela Assist, cujos tempos de recarga são estimados.",
   "guide.h.strong": "Onde somos mais fortes",
