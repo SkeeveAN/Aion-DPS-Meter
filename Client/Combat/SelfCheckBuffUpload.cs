@@ -78,6 +78,42 @@ public static class SelfCheckBuffUpload
         Console.WriteLine($"  -> an entity's selected target holds until he drops it: {holds && dropped}");
         bool noUses = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null) is null;
         Console.WriteLine($"  -> a player without skill uses has no time axis: {noUses}");
-        return uptime && givers && noPotion && monster && spans && joined && capped && bossEffects && axis && health && focused && holds && dropped && noUses;
+
+        // the analysis of the fight: damage on the boss in 5-second slices, damage on adds, time dead, hostile damage taken by source
+        const int add = 300;
+        DateTime t0 = start;
+        var hits = new List<DamageEvent>
+        {
+            new(t0.AddSeconds(1), you, boss, 100, false, "Strike"),
+            new(t0.AddSeconds(6), you, boss, 200, false, "Strike"),
+            new(t0.AddSeconds(7), you, boss, 999, false, "Strike", Estimated: true),
+            new(t0.AddSeconds(2), you, add, 30, false, "Strike"),
+            new(t0.AddSeconds(3), boss, you, 40, false, "Smash"),
+            new(t0.AddSeconds(4), boss, you, 60, false, "Smash"),
+            new(t0.AddSeconds(5), add, you, 10, false, "Bite"),
+            new(t0.AddSeconds(5), wendy, you, 500, true, "Heal"),
+            new(t0.AddSeconds(9), you, you, 700, false, "Self cost"),
+            new(t0.AddSeconds(-3), you, boss, 5000, false, "Strike"),
+        };
+        var dead = new List<DeathRecord> { new(t0.AddSeconds(-5), you, t0.AddSeconds(2)), new(t0.AddSeconds(8), you, t0.AddSeconds(12)), new(t0.AddSeconds(18), you) };
+        Dictionary<int, AnalysisUpload> analysis = FightAnalysis.Build(hits, boss, extras with { Deaths = dead }, new[] { you, wendy }, id => id == add || id == boss, start, end);
+        AnalysisUpload? mine = analysis.GetValueOrDefault(you);
+        bool slices = mine is not null && mine.Damage.Count == 4 && mine.Damage[0] == 100 && mine.Damage[1] == 200 && mine.Damage.Sum() == 300;
+        bool addsOk = mine?.AddDamage == 30;
+        bool deadOk = mine is not null && mine.Dead.SequenceEqual(new[] { 0, 20, 80, 120, 180, 200 });
+        TakenUpload? smash = mine?.Taken.FirstOrDefault(t => t.From == "boss" && t.Skill == "Smash");
+        bool takenOk = mine is not null && mine.Taken.Count == 2 && smash is { Hits: 2, Total: 100, Max: 60 } && mine.Taken.Any(t => t.From == "add" && t.Skill == "Bite" && t.Total == 10);
+        bool noBystander = !analysis.ContainsKey(wendy);
+        Console.WriteLine($"  -> the damage on the boss in 5-second slices (estimates and hits before the window left out): {slices}");
+        Console.WriteLine($"  -> the damage on an add is kept apart from the boss: {addsOk}");
+        Console.WriteLine($"  -> the dead spans run from the death to the revive or the end of the window, cut at its start: {deadOk}");
+        Console.WriteLine($"  -> the damage taken by source and skill, heals and self-inflicted damage left out: {takenOk}");
+        Console.WriteLine($"  -> a player without anything to report has no analysis: {noBystander}");
+        bool analysisOk = slices && addsOk && deadOk && takenOk && noBystander;
+        TimelineUpload? analysed = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null, boss, mine);
+        bool carried = analysed is not null && analysed.Analysis == mine && analysed.Times.Count == 0;
+        Console.WriteLine($"  -> the analysis goes along even for a player without skill uses: {carried}");
+
+        return uptime && givers && noPotion && monster && spans && joined && capped && bossEffects && axis && health && focused && holds && dropped && noUses && analysisOk && carried;
     }
 }

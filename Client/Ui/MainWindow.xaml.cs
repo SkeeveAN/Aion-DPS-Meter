@@ -2947,6 +2947,11 @@ public partial class MainWindow : Window
             }
         }
 
+        // The damage curve, adds, time dead and damage taken of every player for the website's analysis of the fight (only where the effects were cut: no crowded world boss).
+        Dictionary<int, AnalysisUpload> analysisByPlayer = buffExtras is not null && aion2Directory is not null
+            ? FightAnalysis.Build(_aggregator.Events, targetId, buffExtras, _rows.Select(r => r.ObjectId).ToList(), aion2Directory.IsKnownMonster, windowStart, windowEnd)
+            : new Dictionary<int, AnalysisUpload>();
+
         var emptyEvents = new List<DamageEvent>();
         var targetSpan = targetHits.Where(e => !e.IsHeal).ToList();
         double fightSeconds = targetSpan.Count == 0 ? 0 : (targetSpan.Max(e => e.Timestamp) - targetSpan.Min(e => e.Timestamp)).TotalSeconds;
@@ -3048,7 +3053,7 @@ public partial class MainWindow : Window
                 Estimated: estimated,
                 CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row))),
                 Timeline: buffExtras is not null && aion2Directory is not null
-                    ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id), targetId)
+                    ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id), targetId, analysisByPlayer.GetValueOrDefault(row.ObjectId))
                     : null));
         }
 
@@ -4845,7 +4850,7 @@ public partial class MainWindow : Window
     /// gives the clock of that region; before the own character is known the table kept from the last run stays (or the European one when there is none).</summary>
     private async Task RefreshSchedule()
     {
-        if (!PrivacyConsent.Restricted)
+        if (PrivacyConsent.Restricted)
         {
             return;
         }
@@ -4855,14 +4860,14 @@ public partial class MainWindow : Window
         {
             return;
         }
+
+        _scheduleRegion = region ?? _scheduleRegion;
+        await Schedule.ScheduleClient.RefreshAsync(region);
     }
 
     private async Task RefreshAnnouncementsBadge()
     {
         if (PrivacyConsent.Restricted)
-
-        _scheduleRegion = region ?? _scheduleRegion;
-        await Schedule.ScheduleClient.RefreshAsync(region);
         {
             return;
         }

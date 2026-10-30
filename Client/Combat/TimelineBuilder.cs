@@ -20,7 +20,7 @@ public static class TimelineBuilder
     private static int Tenths(double seconds) => (int)Math.Clamp(Math.Round(seconds * 10), 0, 100_000);
 
     /// <summary>One player's skill uses and deaths in the window; null when the stream named no skill use for them.</summary>
-    public static TimelineUpload? For(FightExtras extras, int playerId, DateTime start, DateTime end, Func<int, string?> nameOf, int bossId = 0)
+    public static TimelineUpload? For(FightExtras extras, int playerId, DateTime start, DateTime end, Func<int, string?> nameOf, int bossId = 0, AnalysisUpload? analysis = null)
     {
         RotationReport report = RotationAnalysis.Build(extras, playerId, start, end, Array.Empty<DamageEvent>(), nameOf);
         var skills = new List<TimelineSkillUpload>();
@@ -51,7 +51,7 @@ public static class TimelineBuilder
             index.Add(at);
         }
 
-        if (times.Count == 0)
+        if (times.Count == 0 && analysis is null)
         {
             return null;
         }
@@ -61,7 +61,7 @@ public static class TimelineBuilder
             .Select(d => Tenths((d.At - start).TotalSeconds))
             .Take(40)
             .ToList();
-        return new TimelineUpload(skills, times, index, deaths, bossId > 0 ? FocusOf(extras, playerId, bossId, start, end) : null);
+        return new TimelineUpload(skills, times, index, deaths, bossId > 0 ? FocusOf(extras, playerId, bossId, start, end) : null, analysis);
     }
 
     /// <summary>

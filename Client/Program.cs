@@ -2105,6 +2105,12 @@ internal static class Program
         foreach (var (targetId, request) in best)
         {
             uploads++;
+            if (Environment.GetEnvironmentVariable("AION_DRYRUN_BOSS_JSON") is { Length: > 0 } bossJsonDir)
+            {
+                // the request as the upload client would send it (same options), for checking it against the backend's schema
+                File.WriteAllText(Path.Combine(bossJsonDir, $"boss-{uploads:00}.json"), System.Text.Json.JsonSerializer.Serialize(request, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull }));
+            }
+
             Console.WriteLine($"  {request.BossNpcName} (entity {targetId}) NPC id {request.BossNpcId}, level {request.BossLevel}, max HP {request.BossMaxHp}, game {request.Game}, server {request.ServerName} [{request.ServerFingerprint}], {request.StartedAt:HH:mm:ss}-{request.EndedAt:HH:mm:ss} UTC, {request.Participants.Count} participant(s), {request.Participants.Count(p => p.IsSelf)} self");
             foreach (var d in request.BossDebuffs ?? Array.Empty<Upload.BuffUsageUpload>())
             {
@@ -2114,6 +2120,11 @@ internal static class Program
             foreach (var p in request.Participants.OrderByDescending(x => x.TotalDamage))
             {
                 Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
+                if (p.Timeline?.Analysis is { } an)
+                {
+                    Console.WriteLine($"          analysis: boss damage in slices {an.Damage.Sum():N0} of {p.TotalDamage:N0} ({an.Damage.Count} x 5 s), add damage {an.AddDamage:N0}, dead {an.Dead.Where((_, i) => i % 2 == 1).Sum() / 10.0 - an.Dead.Where((_, i) => i % 2 == 0).Sum() / 10.0:0.0} s in {an.Dead.Count / 2} span(s), taken by {string.Join(", ", an.Taken.Take(4).Select(t => $"{t.From}/{t.Skill} {t.Total:N0}"))}");
+                }
+
                 if (Environment.GetEnvironmentVariable("AION_DRYRUN_BUFFS") == "1")
                 {
                     foreach (var b in (p.Buffs ?? Array.Empty<Upload.BuffUsageUpload>()).Take(40))

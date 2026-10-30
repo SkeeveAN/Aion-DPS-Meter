@@ -34,7 +34,18 @@ public sealed record TimelineSkillUpload(int Id, string Name);
 /// <see cref="Times"/>[i] is a use of <see cref="Skills"/>[<see cref="Index"/>[i]].</summary>
 public sealed record TimelineUpload(IReadOnlyList<TimelineSkillUpload> Skills, IReadOnlyList<int> Times, IReadOnlyList<int> Index, IReadOnlyList<int> Deaths,
     // Whom this player had selected: see FocusUpload. Null when the stream named no target of his.
-    FocusUpload? Focus = null);
+    FocusUpload? Focus = null,
+    // What the analysis of the fight needs besides the skills (see AnalysisUpload). Null where the client has no data for it.
+    AnalysisUpload? Analysis = null);
+
+/// <summary>One line of the hostile damage a player took: from the fight's boss, another monster (an add) or anything else, by skill.</summary>
+public sealed record TakenUpload(string From, string Skill, int Hits, long Total, long Max);
+
+/// <summary>
+/// What the website's analysis of a fight reads from each player: <see cref="Damage"/> is his damage on the boss in 5-second slices from the start of the window, <see cref="AddDamage"/>
+/// his damage on other monsters, <see cref="Dead"/> the spans he was dead as flattened (start, end) pairs in tenths of a second, <see cref="Taken"/> the hostile damage he took.
+/// </summary>
+public sealed record AnalysisUpload(IReadOnlyList<long> Damage, long AddDamage, IReadOnlyList<int> Dead, IReadOnlyList<TakenUpload> Taken);
 
 /// <summary>How a player split his time between the boss and everything else (adds, other players to heal), in tenths of a second of the uploaded window, and how often he
 /// changed from one target to another. Only his target, never where he stood.</summary>
