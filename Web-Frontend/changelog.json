@@ -16,6 +16,13 @@
      "Website"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Hidden Cubes: a cube that goes out of sight keeps being remembered and plays its own falling sound (so you hear you walk the wrong way), the approach sound now rises from 100 m (the game announces a cube at about 100 m, not 40 to 60 m) and its rhythm goes on for 8 s between two position reports, cubes carry their height and creation time, the open frame 3836 is read; findings from the open source project dr89mh/aion2-cube-radar (github.com/dr89mh/aion2-cube-radar), checked against our own recordings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
