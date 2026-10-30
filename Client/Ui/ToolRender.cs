@@ -8,7 +8,7 @@ namespace AionDPS.Ui;
 
 /// <summary>
 /// Test mode <c>render-tool &lt;png&gt; &lt;tools|dummy|timetable|stream|hotkeys&gt;</c>: draws the tools window (with its list of tools and the checklist), the page of a tool inside that window, or the hotkey help into a picture, never showing a window.
-/// Set AIONDPS_DATA_DIR to a throw-away folder; AIONDPS_LANG picks the language, AIONDPS_RENDER_SCALE=2 makes the picture sharp.
+/// Set AIONDPS_DATA_DIR to a throw-away folder; AIONDPS_LANG picks the language, AIONDPS_RENDER_SCALE=2 makes the picture sharp, AIONDPS_RENDER_HEIGHT sets the height of a tool page picture.
 /// </summary>
 public static class ToolRender
 {
@@ -85,7 +85,7 @@ public static class ToolRender
                 shown = (FrameworkElement)toolsWindow.Content;
                 toolsWindow.Content = null;
                 width = (int)toolsWindow.Width;
-                height = (int)toolsWindow.Height;
+                height = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_HEIGHT"), out int tall) && tall > 0 ? tall : (int)toolsWindow.Height;
                 shown = new Border { Width = width, Height = height, Background = back, Child = shown };
                 break;
             }
@@ -162,11 +162,15 @@ public static class ToolRender
         for (int i = 0; i < spec.Length; i++)
         {
             var run = new History.DummyRun { Number = i + 1, Start = start.AddMinutes(i * 3), Planned = TimeSpan.FromSeconds(spec[i].Seconds), Length = TimeSpan.FromSeconds(spec[i].Seconds), Note = spec[i].Note, PlayerId = 1, Closed = true };
+            var dice = new Random(100 + i);
             for (int at = 0; at < spec[i].Seconds; at += 30)
             {
-                for (int h = 0; h < 4; h++)
+                // a burst of twenty hits in ten seconds, two skills in turn; a hit rolls its damage and one in five is a crit (about x1.85)
+                for (int h = 0; h < 20; h++)
                 {
-                    run.Events.Add(new Combat.DamageEvent(run.Start.AddSeconds(at + h * 1.1), 1, 100, (long)(spec[i].Burst / 4), false, "Skill", IsCritical: h == 0));
+                    bool crit = dice.NextDouble() < 0.2;
+                    double amount = spec[i].Burst / 20 * (0.9 + 0.2 * dice.NextDouble()) * (crit ? 1.85 : 1.0) / 1.17;
+                    run.Events.Add(new Combat.DamageEvent(run.Start.AddSeconds(at + h * 0.5), 1, 100, (long)amount, false, h % 2 == 0 ? "Skill A" : "Skill B", IsCritical: crit, SkillId: h % 2 == 0 ? 11010340 : 11420340));
                 }
             }
 
@@ -174,7 +178,7 @@ public static class ToolRender
             {
                 for (int at = 0; at < spec[i].Seconds; at++)
                 {
-                    run.Events.Add(new Combat.DamageEvent(run.Start.AddSeconds(at), 1, 100, (long)(spec[i].Steady * 100), false, "Skill"));
+                    run.Events.Add(new Combat.DamageEvent(run.Start.AddSeconds(at), 1, 100, (long)(spec[i].Steady * 100 * (0.9 + 0.2 * dice.NextDouble())), false, "Skill A", SkillId: 11010340));
                 }
             }
 

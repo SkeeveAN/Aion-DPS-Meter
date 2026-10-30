@@ -168,6 +168,7 @@ public sealed class DummyTestWindow : Window
         }
 
         ShowTab(1);
+        RunCompare();
     }
 
     private void ShowTab(int index)
@@ -944,6 +945,8 @@ public sealed class DummyTestWindow : Window
             _result.Children.Add(line);
         }
 
+        AddStatistics(runs);
+
         TextBlock timelineTitle = Label(loc["Dummy.Timeline"], "Brush.Text", 15, true);
         timelineTitle.Margin = new Thickness(2, 18, 0, 6);
         _result.Children.Add(timelineTitle);
@@ -951,6 +954,117 @@ public sealed class DummyTestWindow : Window
         var view = new DummyTimelineView(lanes, runs.Select((_, i) => RunColors[i % RunColors.Length]).ToList(), runs.Select(r => r.Length.TotalSeconds).ToList(),
             loc["Dummy.LaneSkills"], loc["Dummy.LaneEffects"], loc["Dummy.TimelineNone"]);
         _result.Children.Add(Card(view, new Thickness(0, 0, 0, 16)));
+    }
+
+    /// <summary>Is a difference real or the luck of the hits? For each run against the reference: the iDPS change with the noise the hits make, and per skill the plain hit (the other kinds brought back
+    /// to a plain one) with its 95 % interval. The idea and the routines are Stacy's, from her fork (StacysView/Aion-DPS-Meter, MIT).</summary>
+    private void AddStatistics(IReadOnlyList<DummyRun> runs)
+    {
+        if (runs.Count < 2)
+        {
+            return;
+        }
+
+        LocalizationManager loc = LocalizationManager.Instance;
+        var multipliers = DummyComparison.EstimateMultipliers(runs.SelectMany(r => r.Events));
+        TextBlock title = Label(loc["Dummy.StatTitle"], "Brush.Text", 15, true);
+        title.Margin = new Thickness(2, 18, 0, 4);
+        _result.Children.Add(title);
+        TextBlock note = Label(loc["Dummy.StatNote"], "Brush.TextMuted", 12);
+        note.TextWrapping = TextWrapping.Wrap;
+        note.Margin = new Thickness(2, 0, 0, 8);
+        _result.Children.Add(note);
+        foreach (DummyRun other in runs.Skip(1))
+        {
+            DummyRunComparison comparison = DummyComparison.Compare(runs[0], other, multipliers);
+            var stack = new StackPanel();
+            stack.Children.Add(Label(string.Format(loc["Dummy.StatVersus"], string.Format(loc["Dummy.RunNumber"], other.Number), string.Format(loc["Dummy.RunNumber"], runs[0].Number)), "Brush.Text", 14, true));
+            string line;
+            string brush;
+            if (comparison.Noise is { } noise)
+            {
+                string change = noise.ChangePercent.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture) + " %";
+                string spread = (100 * DummyStatistics.Z95 * noise.StandardError / Math.Max(1, noise.IdpsA)).ToString("0.0", CultureInfo.CurrentCulture) + " %";
+                line = string.Format(loc[noise.AboveNoise ? "Dummy.StatAbove" : "Dummy.StatWithin"], change, spread);
+                brush = !noise.AboveNoise ? "Brush.TextSubtle" : noise.Change > 0 ? "Brush.Heal" : "Brush.DangerSoft";
+            }
+            else
+            {
+                line = loc["Dummy.StatNoData"];
+                brush = "Brush.TextMuted";
+            }
+
+            TextBlock noiseLine = Label(line, brush, 13);
+            noiseLine.TextWrapping = TextWrapping.Wrap;
+            noiseLine.Margin = new Thickness(0, 4, 0, 8);
+            stack.Children.Add(noiseLine);
+
+            if (comparison.Skills.Count > 0)
+            {
+                double[] widths = { 0, 80, 80, 130, 130, 210, 190 };
+                Grid Row()
+                {
+                    var grid = new Grid();
+                    foreach (double w in widths)
+                    {
+                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = w == 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(w) });
+                    }
+
+                    return grid;
+                }
+
+                string[] heads = { loc["Dummy.StatSkill"], loc["Dummy.StatHitsRef"], loc["Dummy.StatHitsOther"], loc["Dummy.StatMeanRef"], loc["Dummy.StatMeanOther"], loc["Dummy.StatChange"], loc["Dummy.StatVerdict"] };
+                Grid head = Row();
+                head.SetResourceReference(Panel.BackgroundProperty, "Brush.Control");
+                for (int i = 0; i < heads.Length; i++)
+                {
+                    TextBlock text = Label(heads[i], "Brush.TextSubtle", 12, true);
+                    text.Margin = new Thickness(8, 5, 8, 5);
+                    text.HorizontalAlignment = i is 1 or 2 or 3 or 4 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                    Grid.SetColumn(text, i);
+                    head.Children.Add(text);
+                }
+
+                stack.Children.Add(head);
+                int index = 0;
+                foreach (DummySkillResult skill in comparison.Skills.Take(12))
+                {
+                    Grid row = Row();
+                    if (index++ % 2 == 1)
+                    {
+                        row.SetResourceReference(Panel.BackgroundProperty, "Brush.RowAlt");
+                    }
+
+                    string changeText = skill.ChangePercent is { } c && skill.LowPercent is { } lo && skill.HighPercent is { } hi
+                        ? $"{c.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture)} %  ({lo.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture)} … {hi.ToString("+0.0;-0.0;0.0", CultureInfo.CurrentCulture)})"
+                        : "–";
+                    string verdictKey = skill.Verdict switch { DummyVerdict.Better => "Dummy.StatBetter", DummyVerdict.Worse => "Dummy.StatWorse", _ => "Dummy.StatNoDifference" };
+                    string verdictBrush = skill.Verdict switch { DummyVerdict.Better => "Brush.Heal", DummyVerdict.Worse => "Brush.DangerSoft", _ => "Brush.TextSubtle" };
+                    string[] cells = { Aion2SkillNames.Display(skill.Name), skill.HitsA.ToString("N0"), skill.HitsB.ToString("N0"), skill.MeanA.ToString("N0"), skill.MeanB.ToString("N0"), changeText, loc[verdictKey] };
+                    for (int i = 0; i < cells.Length; i++)
+                    {
+                        TextBlock text = Label(cells[i], i == 6 ? verdictBrush : "Brush.Text", 13);
+                        text.Margin = new Thickness(8, 6, 8, 6);
+                        text.TextTrimming = TextTrimming.CharacterEllipsis;
+                        text.HorizontalAlignment = i is 1 or 2 or 3 or 4 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                        Grid.SetColumn(text, i);
+                        row.Children.Add(text);
+                    }
+
+                    stack.Children.Add(row);
+                }
+            }
+
+            if (comparison.NotMeasurable > 0)
+            {
+                TextBlock skipped = Label(string.Format(loc["Dummy.StatSkipped"], comparison.NotMeasurable, DummyComparison.MinHits), "Brush.TextMuted", 12);
+                skipped.TextWrapping = TextWrapping.Wrap;
+                skipped.Margin = new Thickness(0, 8, 0, 0);
+                stack.Children.Add(skipped);
+            }
+
+            _result.Children.Add(Card(stack));
+        }
     }
 }
 

@@ -132,7 +132,50 @@ public static class SelfCheckDummy
             bool targets = DummyAnalysis.AtDummy(atDummy) == true && DummyAnalysis.AtDummy(atBoss) == false && DummyAnalysis.AtDummy(noName) is null
                 && DummyTargets.IsDummy("Punching Bag_Elyos Tribe") && DummyTargets.IsDummy("Nahkampf-Trainingspuppe") && !DummyTargets.IsDummy("Vergessener Gadioton");
             Console.WriteLine($"  -> the target of a run is a dummy / not / unknown by the name it kept: {targets}");
-            return ok && parse && clock && chains && rates && steadyRates && targets;
+            // Welch's test by hand: A = 10..14, B = 12..16 (both SD 1.581, n 5): difference 2, error 1, t 2, df 8, p 0.0805, 95 % range 2 +/- 2.306 (not significant); B = 14..18: t 4, range 1.69 .. 6.31 (significant)
+            WelchResult? w1 = DummyStatistics.Welch(new double[] { 10, 11, 12, 13, 14 }, new double[] { 12, 13, 14, 15, 16 });
+            WelchResult? w2 = DummyStatistics.Welch(new double[] { 10, 11, 12, 13, 14 }, new double[] { 14, 15, 16, 17, 18 });
+            bool welch = w1 is { } a1 && Math.Abs(a1.Difference - 2) < 1e-9 && Math.Abs(a1.StandardError - 1) < 1e-9 && Math.Abs(a1.Df - 8) < 1e-9 && a1.P is > 0.080 and < 0.081
+                && Math.Abs(a1.Low - (2 - 2.306)) < 0.002 && !a1.Significant && w2 is { } a2 && Math.Abs(a2.T - 4) < 1e-9 && a2.Significant && Math.Abs(a2.Low - 1.694) < 0.002
+                && DummyStatistics.Welch(new double[] { 1 }, new double[] { 1, 2 }) is null && Math.Abs(DummyStatistics.Median(new double[] { 5, 1, 3, 2 }) - 2.5) < 1e-9;
+            Console.WriteLine($"  -> Welch's test against hand-computed values (difference, error, df, p, the 95 % range), a side with one value gives none: {welch}");
+
+            // two runs: skill X hits 1,000 +/- 20 in A and 1,100 +/- 20 in B (better), skill Y alike in both (no difference), skill Z only 5 hits (not enough); one in five hits of X is a crit of twice the damage, both sides
+            DummyRun Make(double xBase, int zHits, int seed)
+            {
+                var dice = new Random(seed);
+                var run = new DummyRun { Start = t0, Planned = TimeSpan.FromSeconds(60), Length = TimeSpan.FromSeconds(60) };
+                for (int i = 0; i < 60; i++)
+                {
+                    bool crit = i % 5 == 0;
+                    run.Events.Add(new DamageEvent(t0.AddSeconds(i * 0.9), you, dummy, (long)(xBase * (0.98 + 0.04 * dice.NextDouble()) * (crit ? 2 : 1)), false, "X", IsCritical: crit, SkillId: 11010340));
+                    run.Events.Add(new DamageEvent(t0.AddSeconds(i * 0.9 + 0.3), you, dummy, (long)(500 * (0.98 + 0.04 * dice.NextDouble())), false, "Y", SkillId: 11420340));
+                }
+
+                for (int i = 0; i < zHits; i++)
+                {
+                    run.Events.Add(new DamageEvent(t0.AddSeconds(i * 5 + 0.6), you, dummy, 2000, false, "Z", SkillId: 12030340));
+                }
+
+                return run;
+            }
+
+            DummyRun refRun = Make(1000, 5, 1), betterRun = Make(1100, 5, 2), sameRun = Make(1000, 5, 3);
+            var multipliers = DummyComparison.EstimateMultipliers(refRun.Events.Concat(betterRun.Events).Concat(sameRun.Events));
+            DummyRunComparison versusBetter = DummyComparison.Compare(refRun, betterRun, multipliers);
+            DummyRunComparison versusSame = DummyComparison.Compare(refRun, sameRun, multipliers);
+            DummySkillResult? x = versusBetter.Skills.FirstOrDefault(r => r.Name == "X");
+            DummySkillResult? y = versusBetter.Skills.FirstOrDefault(r => r.Name == "Y");
+            bool skills = x is { Verdict: DummyVerdict.Better } && x.ChangePercent is > 9 and < 11 && x.HitsA == 60 // the 12 crits are brought back to plain hits, so all 60 count
+                && y is { Verdict: DummyVerdict.NoDifference } && versusBetter.NotMeasurable == 1 // Z: 5 hits
+                && versusBetter.Skills.All(r => r.Name != "Z") && multipliers.Values.Any(m => Math.Abs(m - 2) < 0.1);
+            // +10 % on one skill's hit is within the noise of the whole run (the crits alone spread a run's damage that much); +60 % is far above it; runs alike are within it
+            DummyRun muchBetter = Make(1600, 5, 4);
+            DummyRunComparison versusMuch = DummyComparison.Compare(refRun, muchBetter, DummyComparison.EstimateMultipliers(refRun.Events.Concat(muchBetter.Events)));
+            bool noise = versusMuch.Noise is { AboveNoise: true } && versusBetter.Noise is { AboveNoise: false } && versusSame.Noise is { AboveNoise: false } && versusSame.Skills.All(r => r.Verdict == DummyVerdict.NoDifference);
+            Console.WriteLine($"  -> two runs: a skill hit harder is better (+10 %), one alike has no measurable difference, one with 5 hits is not measurable, the crits are brought back to plain: {skills}");
+            Console.WriteLine($"  -> the iDPS change: +60 % is above the noise, +10 % of one skill and runs alike are within it: {noise}");
+            return ok && parse && clock && chains && rates && steadyRates && targets && welch && skills && noise;
         }
         finally
         {

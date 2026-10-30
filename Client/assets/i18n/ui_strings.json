@@ -13179,5 +13179,90 @@
     "pt": "Reutilizar no próximo arranque",
     "ja": "次回の起動時に使う",
     "ko": "다음 시작 때 다시 사용"
+  },
+  "Dummy.StatTitle": {
+    "en": "Is the difference real?",
+    "de": "Ist der Unterschied echt?",
+    "fr": "La différence est-elle réelle ?"
+  },
+  "Dummy.StatNote": {
+    "en": "Every run has some luck in it: the random damage of a hit, crits, double and perfect hits. The change in iDPS is set against the spread the hits themselves make; per skill, crit, double and perfect hits are brought back to a plain hit (with the factor measured for that skill) and the plain hits are compared with a 95 % interval. The rotation is yours and not counted as noise.",
+    "de": "In jedem Lauf steckt etwas Glück: der zufällige Schaden eines Treffers, Krit-, Doppel- und Perfekt-Treffer. Die Änderung des iDPS wird mit der Streuung verglichen, die die Treffer selbst machen; pro Skill werden Krit-, Doppel- und Perfekt-Treffer auf einen normalen Treffer zurückgerechnet (mit dem für diesen Skill gemessenen Faktor) und die normalen Treffer mit einem 95-%-Bereich verglichen. Die Rotation ist deine und zählt nicht als Rauschen.",
+    "fr": "Chaque série a sa part de chance : les dégâts aléatoires d'un coup, les critiques, doubles et parfaits. La variation de l'iDPS est comparée à la dispersion que font les coups eux-mêmes ; par compétence, critiques, doubles et parfaits sont ramenés à un coup normal (avec le facteur mesuré pour cette compétence) et les coups normaux sont comparés avec un intervalle à 95 %. La rotation est la vôtre et ne compte pas comme du bruit."
+  },
+  "Dummy.StatVersus": {
+    "en": "{0} against {1}",
+    "de": "{0} gegen {1}",
+    "fr": "{0} contre {1}"
+  },
+  "Dummy.StatAbove": {
+    "en": "iDPS {0}: above the noise. The difference is larger than the spread of the hits (about ±{1}).",
+    "de": "iDPS {0}: über dem Rauschen. Der Unterschied ist größer als die Streuung der Treffer (etwa ±{1}).",
+    "fr": "iDPS {0} : au-dessus du bruit. La différence dépasse la dispersion des coups (environ ±{1})."
+  },
+  "Dummy.StatWithin": {
+    "en": "iDPS {0}: within the noise, no measurable difference. The luck of the hits alone can make that much (about ±{1}).",
+    "de": "iDPS {0}: im Rauschen, kein messbarer Unterschied. Allein das Glück der Treffer kann so viel ausmachen (etwa ±{1}).",
+    "fr": "iDPS {0} : dans le bruit, pas de différence mesurable. La chance des coups seule peut faire autant (environ ±{1})."
+  },
+  "Dummy.StatNoData": {
+    "en": "Too few hits to say anything about the noise.",
+    "de": "Zu wenige Treffer für eine Aussage über das Rauschen.",
+    "fr": "Trop peu de coups pour parler du bruit."
+  },
+  "Dummy.StatSkill": {
+    "en": "Skill",
+    "de": "Skill",
+    "fr": "Compétence"
+  },
+  "Dummy.StatHitsRef": {
+    "en": "Hits ★",
+    "de": "Treffer ★",
+    "fr": "Coups ★"
+  },
+  "Dummy.StatHitsOther": {
+    "en": "Hits",
+    "de": "Treffer",
+    "fr": "Coups"
+  },
+  "Dummy.StatMeanRef": {
+    "en": "Plain hit ★",
+    "de": "Normaler Treffer ★",
+    "fr": "Coup normal ★"
+  },
+  "Dummy.StatMeanOther": {
+    "en": "Plain hit",
+    "de": "Normaler Treffer",
+    "fr": "Coup normal"
+  },
+  "Dummy.StatChange": {
+    "en": "Change (95 % range)",
+    "de": "Änderung (95-%-Bereich)",
+    "fr": "Variation (intervalle 95 %)"
+  },
+  "Dummy.StatVerdict": {
+    "en": "Verdict",
+    "de": "Urteil",
+    "fr": "Verdict"
+  },
+  "Dummy.StatBetter": {
+    "en": "better",
+    "de": "besser",
+    "fr": "meilleur"
+  },
+  "Dummy.StatWorse": {
+    "en": "worse",
+    "de": "schlechter",
+    "fr": "moins bon"
+  },
+  "Dummy.StatNoDifference": {
+    "en": "no measurable difference",
+    "de": "kein messbarer Unterschied",
+    "fr": "pas de différence mesurable"
+  },
+  "Dummy.StatSkipped": {
+    "en": "{0} skills with too few hits (at least {1} on each side) are not listed.",
+    "de": "{0} Skills mit zu wenigen Treffern (mindestens {1} je Seite) sind nicht aufgeführt.",
+    "fr": "{0} compétences avec trop peu de coups (au moins {1} de chaque côté) ne sont pas listées."
   }
 }

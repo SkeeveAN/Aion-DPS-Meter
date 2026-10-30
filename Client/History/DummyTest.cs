@@ -278,6 +278,9 @@ public static class DummyAnalysis
     /// so some slice has to say how long it "lasted"; one second matches the per-second damage the run keeps and the rotations seen (a burst of three skills is two to four slices).</summary>
     public const double ActiveSlice = 1.0;
 
+    /// <summary>The base id of a skill: the level and variant digits cut off (the id divided by 10,000, as the rest of the meter does). Ids below 10,000 are kept whole.</summary>
+    public static int BaseOf(int skillId) => skillId < 10000 ? skillId : skillId / 10000 * 10000;
+
     /// <summary>The run's damage divided by the time damage was being done (every <see cref="ActiveSlice"/> with at least one damage number counts, every pause is left out): what the player
     /// does while attacking. Favours bursts: a caster who uses his strongest skills every 30 seconds and then waits shows a high figure here and a low <see cref="IDps"/>. Null without damage.</summary>
     public static double? ActiveDps(DummyRun run)
