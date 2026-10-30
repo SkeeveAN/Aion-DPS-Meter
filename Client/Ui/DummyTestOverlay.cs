@@ -175,6 +175,15 @@ public sealed class DummyTestController : IDisposable
                 run.Names[id] = name;
             }
         }
+
+        // the targets the player hit: the analysis compares only runs fought at a training dummy
+        foreach (int target in run.Events.Select(e => e.TargetObjectId).Distinct())
+        {
+            if ((dir.NameFor(target) ?? dir.MonsterNameFor(target)) is { } targetName)
+            {
+                run.Names[target] = targetName;
+            }
+        }
     }
 
     private void Tick()

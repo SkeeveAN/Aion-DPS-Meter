@@ -39,7 +39,12 @@ public sealed class DummyTestWindow : Window
     private int _lastSettingsSecond = -1;
 
     // analyse page
-    private readonly WrapPanel _picker = new();
+    private readonly StackPanel _picker = new();
+    private readonly TextBlock _pickCount = new();
+    private int? _reference;
+
+    /// <summary>At most this many runs are compared at once (more would not stay readable); the player may keep more runs and choose among them.</summary>
+    private const int MaxCompared = 4;
     private readonly StackPanel _result = new();
     private readonly HashSet<int> _selected = new();
 
@@ -106,6 +111,17 @@ public sealed class DummyTestWindow : Window
         return border;
     }
 
+    /// <summary>The fields of the setup row (time, presets, Start, Stop, note) are all this high and write this size, so the row looks like one.</summary>
+    private const double FieldHeight = 36, FieldFont = 15;
+
+    private static void UniformField(Button button, double sidePadding)
+    {
+        button.Height = FieldHeight;
+        button.FontSize = FieldFont;
+        button.Padding = new Thickness(sidePadding, 0, sidePadding, 0);
+        button.VerticalContentAlignment = VerticalAlignment.Center;
+    }
+
     private static void StyleBox(TextBox box)
     {
         box.Padding = new Thickness(6, 4, 6, 4);
@@ -139,6 +155,20 @@ public sealed class DummyTestWindow : Window
 
     /// <summary>Raised when the player chooses another tab.</summary>
     public event Action? TabChanged;
+
+    /// <summary>The render mode's view: the analysis page with the given runs chosen (the first one the reference).</summary>
+    internal void ShowAnalysisForRender(params int[] chosen)
+    {
+        foreach (int number in chosen)
+        {
+            if (_controller.Model.Runs.FirstOrDefault(r => r.Number == number) is { } run)
+            {
+                SelectRun(run, true);
+            }
+        }
+
+        ShowTab(1);
+    }
 
     private void ShowTab(int index)
     {
@@ -177,9 +207,10 @@ public sealed class DummyTestWindow : Window
         timeBlock.Children.Add(Label(loc["Dummy.Duration"], "Brush.TextSubtle", 12));
         var timeRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 4, 0, 0) };
         _durationBox.Width = 84;
-        _durationBox.FontSize = 20;
+        _durationBox.FontSize = FieldFont;
         _durationBox.FontWeight = FontWeights.Bold;
         StyleBox(_durationBox);
+        _durationBox.Height = FieldHeight;
         _durationBox.ToolTip = loc["Dummy.DurationHint"];
         timeRow.Children.Add(_durationBox);
         foreach (int seconds in new[] { 60, 120, 180, 300 })
@@ -187,7 +218,7 @@ public sealed class DummyTestWindow : Window
             int s = seconds;
             Button preset = MakeButton(FormatDuration(TimeSpan.FromSeconds(s)), (_, _) => _durationBox.Text = FormatDuration(TimeSpan.FromSeconds(s)));
             preset.Margin = new Thickness(6, 0, 0, 0);
-            preset.Padding = new Thickness(8, 4, 8, 4);
+            UniformField(preset, 12);
             timeRow.Children.Add(preset);
         }
 
@@ -195,12 +226,12 @@ public sealed class DummyTestWindow : Window
         controls.Children.Add(timeBlock);
 
         _startButton.Content = loc["Dummy.Start"];
-        _startButton.Padding = new Thickness(26, 9, 26, 9);
+        UniformField(_startButton, 26);
         _startButton.Margin = new Thickness(8, 0, 8, 0);
         _startButton.FontWeight = FontWeights.Bold;
         _startButton.Click += OnStart;
         _stopButton.Content = loc["Dummy.Stop"];
-        _stopButton.Padding = new Thickness(20, 9, 20, 9);
+        UniformField(_stopButton, 20);
         _stopButton.Margin = new Thickness(0, 0, 12, 0);
         _stopButton.Click += (_, _) =>
         {
@@ -215,6 +246,8 @@ public sealed class DummyTestWindow : Window
         _noteBox.Width = 320;
         _noteBox.Margin = new Thickness(0, 4, 0, 0);
         StyleBox(_noteBox);
+        _noteBox.FontSize = FieldFont;
+        _noteBox.Height = FieldHeight;
         _noteBox.ToolTip = loc["Dummy.NoteHint"];
         noteBlock.Children.Add(_noteBox);
         controls.Children.Add(noteBlock);
@@ -439,7 +472,7 @@ public sealed class DummyTestWindow : Window
     {
         LocalizationManager loc = LocalizationManager.Instance;
         _runList.Children.Clear();
-        string[] heads = { loc["Dummy.ColRun"], loc["Dummy.ColStart"], loc["Dummy.ColLength"], loc["Dummy.ColAvgDps"], loc["Dummy.ColMaxDps"], loc["Dummy.ColDamage"], loc["Dummy.ColNote"], "" };
+        string[] heads = { loc["Dummy.ColRun"], loc["Dummy.ColStart"], loc["Dummy.ColLength"], loc["Dummy.ColActiveDps"], loc["Dummy.ColIdps"], loc["Dummy.ColDamage"], loc["Dummy.ColNote"], "" };
         Grid Row(bool header) => RunGrid();
         Grid head = Row(true);
         for (int i = 0; i < heads.Length; i++)
@@ -476,8 +509,8 @@ public sealed class DummyTestWindow : Window
                 string.Format(loc["Dummy.RunNumber"], run.Number),
                 run.Start.ToString("HH:mm:ss", CultureInfo.CurrentCulture),
                 run.Closed ? FormatDuration(run.Length) : $"{FormatDuration(run.Length)} …",
-                stats is null ? "–" : stats.AvgDps.ToString("N0"),
-                stats is null ? "–" : stats.MaxDps.ToString("N0"),
+                DummyAnalysis.ActiveDps(run) is { } rowDps ? rowDps.ToString("N0") : "–",
+                DummyAnalysis.IDps(run) is { } rowIdps ? rowIdps.ToString("N0") : "–",
                 run.Closed && stats is not null ? DummyTestController.Compact(stats.Total) : loc["Dummy.RunLive"],
             };
             for (int i = 0; i < cells.Length; i++)
@@ -511,20 +544,39 @@ public sealed class DummyTestWindow : Window
             Grid.SetColumn(note, 6);
             row.Children.Add(note);
 
-            var remove = new Button { Content = "✕", Width = 26, Height = 24, Margin = new Thickness(4, 0, 6, 0), Padding = new Thickness(0), ToolTip = loc["Dummy.Remove"] };
-            remove.Click += (_, _) =>
-            {
-                if (ThemedMessageBox.Show(this, string.Format(loc["Dummy.RemoveAsk"], string.Format(loc["Dummy.RunNumber"], shown.Number)), loc["Dummy.Title"],
-                        MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    _controller.Model.Remove(shown);
-                }
-            };
-            remove.IsEnabled = run.Closed;
+            Button remove = TrashButton(shown);
             Grid.SetColumn(remove, 7);
             row.Children.Add(remove);
             _runList.Children.Add(row);
         }
+    }
+
+    /// <summary>The red waste bin that deletes a run (after asking): the run goes out of the list and out of the saved file. A run still being recorded cannot be deleted.</summary>
+    private Button TrashButton(DummyRun run)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var can = new System.Windows.Shapes.Path
+        {
+            Data = Geometry.Parse("M2.5,4 H13.5 M6,4 V2.2 H10 V4 M4,4 L4.8,13.8 H11.2 L12,4 M6.8,6.5 V11.5 M9.2,6.5 V11.5"),
+            StrokeThickness = 1.5,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
+            StrokeLineJoin = PenLineJoin.Round,
+            Width = 16,
+            Height = 16,
+            Stretch = Stretch.None,
+        };
+        can.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.Danger");
+        var button = new Button { Content = can, Width = 30, Height = 26, Margin = new Thickness(4, 0, 6, 0), Padding = new Thickness(0), ToolTip = loc["Dummy.Remove"], IsEnabled = run.Closed };
+        button.Click += (_, _) =>
+        {
+            if (ThemedMessageBox.Show(this, string.Format(loc["Dummy.RemoveAsk"], string.Format(loc["Dummy.RunNumber"], run.Number)), loc["Dummy.Title"],
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                _controller.Model.Remove(run);
+            }
+        };
+        return button;
     }
 
     private static Grid RunGrid()
@@ -545,61 +597,248 @@ public sealed class DummyTestWindow : Window
     {
         LocalizationManager loc = LocalizationManager.Instance;
         var column = new StackPanel();
-        var pick = new DockPanel();
+        var pick = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
         var compare = MakeButton(loc["Dummy.Compare"], (_, _) => RunCompare());
         compare.FontWeight = FontWeights.Bold;
         compare.Padding = new Thickness(22, 7, 22, 7);
         compare.Margin = new Thickness(12, 0, 0, 0);
         DockPanel.SetDock(compare, Dock.Right);
         pick.Children.Add(compare);
-        var all = MakeButton(loc["Dummy.SelectAll"], (_, _) =>
+        var clear = MakeButton(loc["Dummy.PickClear"], (_, _) =>
         {
-            foreach (DummyRun run in _controller.Model.Runs.Where(r => r.Closed))
-            {
-                _selected.Add(run.Number);
-            }
-
+            _selected.Clear();
+            _reference = null;
             RebuildPicker();
         });
-        all.Margin = new Thickness(12, 0, 0, 0);
-        DockPanel.SetDock(all, Dock.Right);
-        pick.Children.Add(all);
-        pick.Children.Add(_picker);
-        column.Children.Add(Card(pick));
+        clear.Margin = new Thickness(12, 0, 0, 0);
+        DockPanel.SetDock(clear, Dock.Right);
+        pick.Children.Add(clear);
+        _pickCount.FontWeight = FontWeights.SemiBold;
+        _pickCount.VerticalAlignment = VerticalAlignment.Center;
+        _pickCount.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        DockPanel.SetDock(_pickCount, Dock.Right);
+        pick.Children.Add(_pickCount);
+        pick.Children.Add(Label(loc["Dummy.PickTitle"], "Brush.Text", 15, true));
+        var card = new StackPanel();
+        card.Children.Add(pick);
+        card.Children.Add(_picker);
+        TextBlock legend = Label(loc["Dummy.PickLegend"], "Brush.TextMuted", 12);
+        legend.TextWrapping = TextWrapping.Wrap;
+        legend.Margin = new Thickness(0, 10, 0, 0);
+        card.Children.Add(legend);
+        column.Children.Add(Card(card));
         column.Children.Add(_result);
         _analysePage.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = column });
+    }
+
+    private enum PickBlock { None, NoDummy, Stopped, OtherLength }
+
+    /// <summary>Why a run cannot be compared (the target was no training dummy, it was stopped early, or it was planned for another length than the reference), or None. The same time and the
+    /// same kind of target for every run is what makes the figures comparable.</summary>
+    private PickBlock BlockOf(DummyRun run)
+    {
+        if (DummyAnalysis.AtDummy(run) == false)
+        {
+            return PickBlock.NoDummy;
+        }
+
+        if (run.Length < run.Planned - TimeSpan.FromSeconds(1))
+        {
+            return PickBlock.Stopped;
+        }
+
+        DummyRun? reference = _reference is int number ? _controller.Model.Runs.FirstOrDefault(r => r.Number == number) : null;
+        return reference is not null && run.Number != reference.Number && Math.Abs((run.Planned - reference.Planned).TotalSeconds) > 0.5 ? PickBlock.OtherLength : PickBlock.None;
+    }
+
+    private void SelectRun(DummyRun run, bool on)
+    {
+        if (on)
+        {
+            if (_selected.Count >= MaxCompared || BlockOf(run) != PickBlock.None)
+            {
+                return;
+            }
+
+            _selected.Add(run.Number);
+            _reference ??= run.Number;
+        }
+        else
+        {
+            _selected.Remove(run.Number);
+            if (_reference == run.Number)
+            {
+                _reference = _selected.Count > 0 ? _selected.Min() : null;
+            }
+        }
+
+        DropBlocked();
+        RebuildPicker();
+    }
+
+    private void MakeReference(DummyRun run)
+    {
+        if (BlockOf(run) is not (PickBlock.None or PickBlock.OtherLength) && !_selected.Contains(run.Number))
+        {
+            return;
+        }
+
+        if (!_selected.Contains(run.Number) && _selected.Count >= MaxCompared)
+        {
+            return;
+        }
+
+        int? before = _reference;
+        _reference = run.Number;
+        _selected.Add(run.Number);
+        // the new reference decides which length the others must have: those that no longer fit leave the selection
+        foreach (DummyRun other in _controller.Model.Runs.Where(r => _selected.Contains(r.Number) && r.Number != run.Number).ToList())
+        {
+            if (BlockOf(other) != PickBlock.None)
+            {
+                _selected.Remove(other.Number);
+            }
+        }
+
+        if (before != _reference && BlockOf(run) == PickBlock.Stopped)
+        {
+            _selected.Remove(run.Number);
+            _reference = _selected.Count > 0 ? _selected.Min() : null;
+        }
+
+        RebuildPicker();
+    }
+
+    private void DropBlocked()
+    {
+        foreach (DummyRun run in _controller.Model.Runs.Where(r => _selected.Contains(r.Number)).ToList())
+        {
+            if (BlockOf(run) != PickBlock.None)
+            {
+                _selected.Remove(run.Number);
+            }
+        }
     }
 
     private void RebuildPicker()
     {
         LocalizationManager loc = LocalizationManager.Instance;
         _picker.Children.Clear();
-        var closed = _controller.Model.Runs.Where(r => r.Closed).ToList();
+        var closed = _controller.Model.Runs.Where(r => r.Closed).OrderBy(r => r.Number).ToList();
         _selected.IntersectWith(closed.Select(r => r.Number));
+        if (_reference is int kept && !_selected.Contains(kept))
+        {
+            _reference = _selected.Count > 0 ? _selected.Min() : null;
+        }
+
+        _pickCount.Text = string.Format(loc["Dummy.PickCount"], _selected.Count, MaxCompared);
         if (closed.Count == 0)
         {
             _picker.Children.Add(Label(loc["Dummy.PickNone"], "Brush.TextMuted"));
             return;
         }
 
+        double[] widths = { 50, 80, 100, 0, 70, 110, 100, 100, 230, 46 };
+        Grid RowGrid()
+        {
+            var grid = new Grid();
+            foreach (double w in widths)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = w == 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(w) });
+            }
+
+            return grid;
+        }
+
+        string[] heads = { loc["Dummy.ColPick"], loc["Dummy.ColRef"], loc["Dummy.ColRun"], loc["Dummy.ColNote"], loc["Dummy.ColLength"], loc["Dummy.ColTotalDamage"], loc["Dummy.ColActiveDps"], loc["Dummy.ColIdps"], loc["Dummy.ColTarget"], "" };
+        Grid head = RowGrid();
+        head.SetResourceReference(Panel.BackgroundProperty, "Brush.Control");
+        for (int i = 0; i < heads.Length; i++)
+        {
+            TextBlock text = Label(heads[i], "Brush.TextSubtle", 12, true);
+            text.Margin = new Thickness(8, 6, 8, 6);
+            text.HorizontalAlignment = i is 4 or 5 or 6 or 7 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+            Grid.SetColumn(text, i);
+            head.Children.Add(text);
+        }
+
+        _picker.Children.Add(head);
+
+        // the best figures among the chosen runs show in green
+        var chosen = closed.Where(r => _selected.Contains(r.Number)).ToList();
+        double? bestDps = chosen.Count > 1 ? chosen.Max(r => DummyAnalysis.ActiveDps(r)) : null;
+        double? bestIdps = chosen.Count > 1 ? chosen.Max(r => DummyAnalysis.IDps(r)) : null;
+        int index = 0;
         foreach (DummyRun run in closed)
         {
             DummyRun shown = run;
-            string text = string.Format(loc["Dummy.RunNumber"], run.Number) + (run.Note.Length > 0 ? " · " + run.Note : "") + " · " + FormatDuration(run.Length);
-            var box = new CheckBox { Content = text, IsChecked = _selected.Contains(run.Number), Margin = new Thickness(0, 4, 22, 4), VerticalAlignment = VerticalAlignment.Center };
-            box.SetResourceReference(Control.ForegroundProperty, "Brush.Text");
-            box.Click += (_, _) =>
+            PickBlock block = BlockOf(run);
+            bool picked = _selected.Contains(run.Number);
+            bool blocked = block != PickBlock.None;
+            bool full = !picked && _selected.Count >= MaxCompared;
+            Grid row = RowGrid();
+            row.SetResourceReference(Panel.BackgroundProperty, picked ? "Brush.ControlRaised" : index % 2 == 1 ? "Brush.RowAlt" : "Brush.Panel");
+            index++;
+
+            var box = new CheckBox { IsChecked = picked, IsEnabled = !blocked && !full, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            box.Click += (_, _) => SelectRun(shown, box.IsChecked == true);
+            Grid.SetColumn(box, 0);
+            row.Children.Add(box);
+            var radio = new RadioButton { IsChecked = _reference == run.Number, IsEnabled = !blocked && (picked || !full), Margin = new Thickness(26, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = loc["Dummy.RefTip"] };
+            radio.Click += (_, _) => MakeReference(shown);
+            Grid.SetColumn(radio, 1);
+            row.Children.Add(radio);
+
+            TextBlock name = Label(string.Format(loc["Dummy.RunNumber"], run.Number), "Brush.Text", 13);
+            name.Margin = new Thickness(26, 7, 8, 7);
+            Grid.SetColumn(name, 2);
+            row.Children.Add(name);
+            if (picked)
             {
-                if (box.IsChecked == true)
-                {
-                    _selected.Add(shown.Number);
-                }
-                else
-                {
-                    _selected.Remove(shown.Number);
-                }
+                int colorIndex = chosen.IndexOf(run);
+                var dot = new Border { Width = 10, Height = 10, CornerRadius = new CornerRadius(5), Background = new SolidColorBrush(RunColors[colorIndex % RunColors.Length]), Margin = new Thickness(8, 0, 0, 0), HorizontalAlignment = HorizontalAlignment.Left };
+                Grid.SetColumn(dot, 2);
+                row.Children.Add(dot);
+            }
+
+            double? dps = DummyAnalysis.ActiveDps(run);
+            double? idps = DummyAnalysis.IDps(run);
+            string target = DummyAnalysis.TargetName(run) ?? loc["Dummy.TargetUnknown"];
+            string[] cells =
+            {
+                "", "", "", run.Note, FormatDuration(run.Length), DummyTestController.Compact(run.Events.Sum(e => e.Amount)),
+                dps is { } d ? d.ToString("N0") : "–", idps is { } i2 ? i2.ToString("N0") : "–", target,
             };
-            _picker.Children.Add(box);
+            for (int i = 3; i < cells.Length; i++)
+            {
+                bool best = picked && ((i == 6 && dps is not null && dps == bestDps) || (i == 7 && idps is not null && idps == bestIdps));
+                TextBlock text = Label(cells[i], best ? "Brush.Heal" : i == 3 ? "Brush.TextSubtle" : "Brush.Text", 13, best);
+                text.Margin = new Thickness(8, 7, 8, 7);
+                text.TextTrimming = TextTrimming.CharacterEllipsis;
+                text.HorizontalAlignment = i is 4 or 5 or 6 or 7 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                if (i == 8 && blocked)
+                {
+                    text.Inlines.Add(new System.Windows.Documents.Run("  " + loc[block switch { PickBlock.NoDummy => "Dummy.BlockNoDummy", PickBlock.Stopped => "Dummy.BlockStopped", _ => "Dummy.BlockLength" }])
+                        { Foreground = (Brush)FindResource("Brush.DangerSoft"), FontSize = 11.5 });
+                }
+
+                Grid.SetColumn(text, i);
+                row.Children.Add(text);
+            }
+
+            // a run that cannot be compared is dimmed; the waste bin stays as it is (it can still be deleted)
+            if (blocked)
+            {
+                foreach (UIElement child in row.Children)
+                {
+                    child.Opacity = 0.55;
+                }
+            }
+
+            Button trash = TrashButton(shown);
+            Grid.SetColumn(trash, 9);
+            row.Children.Add(trash);
+            _picker.Children.Add(row);
         }
     }
 
@@ -607,7 +846,7 @@ public sealed class DummyTestWindow : Window
     {
         LocalizationManager loc = LocalizationManager.Instance;
         _result.Children.Clear();
-        var runs = _controller.Model.Runs.Where(r => r.Closed && _selected.Contains(r.Number)).OrderBy(r => r.Number).ToList();
+        var runs = _controller.Model.Runs.Where(r => r.Closed && _selected.Contains(r.Number)).OrderBy(r => r.Number == _reference ? 0 : 1).ThenBy(r => r.Number).ToList();
         if (runs.Count == 0)
         {
             _result.Children.Add(Label(loc["Dummy.CompareNone"], "Brush.TextMuted"));
@@ -621,10 +860,10 @@ public sealed class DummyTestWindow : Window
 
         string[] heads =
         {
-            loc["Dummy.ColRun"], loc["Dummy.ColLength"], loc["Dummy.ColAvgDps"], loc["Dummy.ColMinDps"], loc["Dummy.ColMaxDps"], loc["Dummy.ColMinHit"], loc["Dummy.ColMaxHit"],
+            loc["Dummy.ColRun"], loc["Dummy.ColLength"], loc["Dummy.ColActiveDps"], loc["Dummy.ColIdps"], loc["Dummy.ColMinDps"], loc["Dummy.ColMaxDps"], loc["Dummy.ColMinHit"], loc["Dummy.ColMaxHit"],
             loc["Dummy.ColAvgHit"], loc["Dummy.ColDamage"], loc["Dummy.Hits"], loc["Dummy.ColCrit"], loc["Dummy.ColSkills"], loc["Dummy.ColDelta"], loc["Dummy.ColNote"],
         };
-        double[] widths = { 150, 70, 90, 90, 90, 100, 100, 100, 110, 70, 70, 70, 90, 0 };
+        double[] widths = { 150, 70, 90, 90, 90, 90, 100, 100, 100, 110, 70, 70, 70, 90, 0 };
         Grid Row()
         {
             var grid = new Grid();
@@ -657,17 +896,21 @@ public sealed class DummyTestWindow : Window
                 row.SetResourceReference(Panel.BackgroundProperty, "Brush.RowAlt");
             }
 
-            double delta = stats[0].AvgDps > 0 ? 100.0 * (s.AvgDps - stats[0].AvgDps) / stats[0].AvgDps : 0;
+            // the change against the reference is the iDPS's: the figure that compares fairly (pauses count against it)
+            double referenceIdps = DummyAnalysis.IDps(runs[0]) ?? 0;
+            double runIdps = DummyAnalysis.IDps(run) ?? 0;
+            double delta = referenceIdps > 0 ? 100.0 * (runIdps - referenceIdps) / referenceIdps : 0;
             string[] cells =
             {
-                string.Format(loc["Dummy.RunNumber"], run.Number), FormatDuration(run.Length), s.AvgDps.ToString("N0"), s.MinDps.ToString("N0"), s.MaxDps.ToString("N0"),
+                string.Format(loc["Dummy.RunNumber"], run.Number) + (r == 0 ? " ★" : ""), FormatDuration(run.Length),
+                DummyAnalysis.ActiveDps(run) is { } activeDps ? activeDps.ToString("N0") : "–", DummyAnalysis.IDps(run) is { } idpsValue ? idpsValue.ToString("N0") : "–", s.MinDps.ToString("N0"), s.MaxDps.ToString("N0"),
                 s.MinHit.ToString("N0"), s.MaxHit.ToString("N0"), s.AvgHit.ToString("N0"), DummyTestController.Compact(s.Total), s.Hits.ToString("N0"),
                 s.CritPercent.ToString("0.0", CultureInfo.CurrentCulture) + " %", s.SkillUses.ToString("N0"),
                 r == 0 ? "—" : (delta >= 0 ? "+" : "") + delta.ToString("0.0", CultureInfo.CurrentCulture) + " %", run.Note,
             };
             for (int i = 0; i < cells.Length; i++)
             {
-                string brush = i == 12 && r > 0 ? (delta >= 0 ? "Brush.Heal" : "Brush.DangerSoft") : i == 13 ? "Brush.TextSubtle" : "Brush.Text";
+                string brush = i == 13 && r > 0 ? (delta >= 0 ? "Brush.Heal" : "Brush.DangerSoft") : i == 14 ? "Brush.TextSubtle" : "Brush.Text";
                 TextBlock text = Label(cells[i], brush, 13);
                 text.Margin = new Thickness(8, 7, 8, 7);
                 text.TextTrimming = TextTrimming.CharacterEllipsis;

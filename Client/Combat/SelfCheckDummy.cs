@@ -98,7 +98,41 @@ public static class SelfCheckDummy
             chained.Uses.Add(new SkillUse(t0.AddSeconds(20), you, 11010340));
             bool chains = DummyAnalysis.Chains(chained) == (3, 1);
             Console.WriteLine($"  -> the chain skills taken (1 of 3) of a run: {chains}");
-            return ok && parse && clock && chains;
+            // DPS leaves every pause out, iDPS counts the whole span: a caster uses three strong skills at 0-3 s and again at 30-33 s, 600,000 damage each time
+            var burst = new DummyRun { Start = t0, Planned = TimeSpan.FromSeconds(60), Length = TimeSpan.FromSeconds(60) };
+            foreach (double at in new[] { 0, 1.2, 2.5, 30, 31.2, 32.5 })
+            {
+                burst.Events.Add(new DamageEvent(t0.AddSeconds(at), you, dummy, 200_000, false));
+            }
+
+            double? burstDps = DummyAnalysis.ActiveDps(burst);
+            double? burstIdps = DummyAnalysis.IDps(burst);
+            // 1,200,000 over 6 slices of 1 s with damage = 200,000; over 32.5 s from the first to the last hit = 36,923
+            bool rates = burstDps is { } bd && Math.Abs(bd - 200_000) < 1 && burstIdps is { } bi && Math.Abs(bi - 1_200_000 / 32.5) < 1 && burstDps > burstIdps * 5
+                && DummyAnalysis.ActiveDps(new DummyRun { Start = t0 }) is null && DummyAnalysis.IDps(new DummyRun { Start = t0 }) is null;
+            // a steady attack (one hit every second) has the same figure both ways, up to the one slice the span does not count
+            var steady = new DummyRun { Start = t0, Length = TimeSpan.FromSeconds(60) };
+            for (int i = 0; i < 60; i++)
+            {
+                steady.Events.Add(new DamageEvent(t0.AddSeconds(i), you, dummy, 1000, false));
+            }
+
+            bool steadyRates = DummyAnalysis.ActiveDps(steady) is { } sd && Math.Abs(sd - 1000) < 1 && DummyAnalysis.IDps(steady) is { } si && Math.Abs(si - 60_000.0 / 59) < 1;
+            Console.WriteLine($"  -> DPS leaves the pauses out (200,000), iDPS counts the whole span (36,923); a steady attack gives both about alike: {rates && steadyRates}");
+
+            // the target: the name a run kept decides; a dummy in any language, a boss is none, a run without the name is unknown
+            var atDummy = new DummyRun { Start = t0 };
+            atDummy.Events.Add(new DamageEvent(t0, you, dummy, 5, false));
+            atDummy.Names[dummy] = "Sandsack";
+            var atBoss = new DummyRun { Start = t0 };
+            atBoss.Events.Add(new DamageEvent(t0, you, 101, 5, false));
+            atBoss.Names[101] = "Gadioton";
+            var noName = new DummyRun { Start = t0 };
+            noName.Events.Add(new DamageEvent(t0, you, 102, 5, false));
+            bool targets = DummyAnalysis.AtDummy(atDummy) == true && DummyAnalysis.AtDummy(atBoss) == false && DummyAnalysis.AtDummy(noName) is null
+                && DummyTargets.IsDummy("Punching Bag_Elyos Tribe") && DummyTargets.IsDummy("Nahkampf-Trainingspuppe") && !DummyTargets.IsDummy("Vergessener Gadioton");
+            Console.WriteLine($"  -> the target of a run is a dummy / not / unknown by the name it kept: {targets}");
+            return ok && parse && clock && chains && rates && steadyRates && targets;
         }
         finally
         {

@@ -74,12 +74,12 @@ public static class ToolRender
             {
                 Func<string, ToolPage?> build = id => id switch
                 {
-                    "dummy" => DummyPage(),
+                    "dummy" => DummyPage(what is "dummy-analyse" or "dummy-runs", what == "dummy-analyse"),
                     "timetable" => TimetablePage(loc, none, applied),
                     "stream" => StreamPage(loc, none, applied),
                     _ => ChecklistPage(),
                 };
-                string tool = what is "dummy" or "timetable" or "stream" ? what : "checklist";
+                string tool = what is "dummy" or "dummy-analyse" or "dummy-runs" or "timetable" or "stream" ? (what.StartsWith("dummy", StringComparison.Ordinal) ? "dummy" : what) : "checklist";
                 var toolsWindow = new ToolsWindow(ToolsWindow.Groups(), build, _ => { });
                 toolsWindow.Select(tool);
                 shown = (FrameworkElement)toolsWindow.Content;
@@ -130,11 +130,59 @@ public static class ToolRender
         return new ToolPage { Content = ThemedChrome.TakeContent(new ChecklistWindow()) ?? new Grid() };
     }
 
-    private static ToolPage DummyPage()
+    private static ToolPage DummyPage(bool madeUp, bool analyse)
     {
+        if (madeUp)
+        {
+            // made-up runs in the throw-away data folder, so the analysis page has something to choose from
+            History.DummyStore.Save(History.DummyStore.DefaultPath, MadeUpDummyRuns());
+        }
+
         var controller = new DummyTestController(() => null);
         var window = new DummyTestWindow(controller, () => { });
+        if (analyse)
+        {
+            window.ShowAnalysisForRender(1, 2, 4);
+        }
+
         return new ToolPage { Content = ThemedChrome.TakeContent(window) ?? new Grid(), CurrentTab = () => window.Tab };
+    }
+
+    /// <summary>Eight runs of a made-up caster: bursts every 30 s (a high DPS, a low iDPS) and a steady attack, one of another length and one at a boss.</summary>
+    private static List<History.DummyRun> MadeUpDummyRuns()
+    {
+        var runs = new List<History.DummyRun>();
+        var start = new DateTime(2026, 10, 30, 18, 0, 0);
+        (string Note, int Seconds, string Target, double Burst, double Steady)[] spec =
+        {
+            ("Buffs first, skill X at 20", 60, "Punching Bag", 600_000, 0), ("Buffs after, skill X at 20", 60, "Punching Bag", 640_000, 0), ("Skill X at 18, Y at 20", 60, "Punching Bag", 560_000, 0),
+            ("Skill X at 18, Y at 20, with potion", 60, "Punching Bag", 610_000, 0), ("Test with potion", 120, "Punching Bag", 600_000, 0), ("Boss, just for fun", 60, "Training Scarecrow", 0, 700),
+            ("Skill Y at 20, Z at 15", 60, "Punching Bag", 570_000, 0), ("", 60, "Punching Bag", 540_000, 0),
+        };
+        for (int i = 0; i < spec.Length; i++)
+        {
+            var run = new History.DummyRun { Number = i + 1, Start = start.AddMinutes(i * 3), Planned = TimeSpan.FromSeconds(spec[i].Seconds), Length = TimeSpan.FromSeconds(spec[i].Seconds), Note = spec[i].Note, PlayerId = 1, Closed = true };
+            for (int at = 0; at < spec[i].Seconds; at += 30)
+            {
+                for (int h = 0; h < 4; h++)
+                {
+                    run.Events.Add(new Combat.DamageEvent(run.Start.AddSeconds(at + h * 1.1), 1, 100, (long)(spec[i].Burst / 4), false, "Skill", IsCritical: h == 0));
+                }
+            }
+
+            if (spec[i].Steady > 0)
+            {
+                for (int at = 0; at < spec[i].Seconds; at++)
+                {
+                    run.Events.Add(new Combat.DamageEvent(run.Start.AddSeconds(at), 1, 100, (long)(spec[i].Steady * 100), false, "Skill"));
+                }
+            }
+
+            run.Names[100] = i == 5 ? "Gadioton" : "Punching Bag";
+            runs.Add(run);
+        }
+
+        return runs;
     }
 
     private static ToolPage TimetablePage(LocalizationManager loc, Action hotkeys, Action<MeterSettings> applied)

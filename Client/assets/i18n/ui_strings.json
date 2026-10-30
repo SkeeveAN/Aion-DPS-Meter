@@ -7908,9 +7908,9 @@
     "fr": "Compétences"
   },
   "Dummy.ColDelta": {
-    "en": "Δ Avg DPS",
-    "de": "Δ Ø DPS",
-    "fr": "Δ DPS moy."
+    "en": "Δ iDPS",
+    "de": "Δ iDPS",
+    "fr": "Δ iDPS"
   },
   "Dummy.RunLive": {
     "en": "running …",
@@ -7947,10 +7947,85 @@
     "de": "Noch keine fertigen Läufe.",
     "fr": "Aucune série terminée pour l'instant."
   },
+  "Dummy.PickTitle": {
+    "en": "Choose the runs to compare",
+    "de": "Läufe zum Vergleichen wählen",
+    "fr": "Choisir les séries à comparer"
+  },
+  "Dummy.PickCount": {
+    "en": "Chosen: {0} of max. {1}",
+    "de": "Gewählt: {0} von max. {1}",
+    "fr": "Choisies : {0} sur {1} max."
+  },
+  "Dummy.PickClear": {
+    "en": "Clear choice",
+    "de": "Auswahl leeren",
+    "fr": "Effacer le choix"
+  },
+  "Dummy.ColPick": {
+    "en": "Pick",
+    "de": "Wahl",
+    "fr": "Choix"
+  },
+  "Dummy.ColRef": {
+    "en": "Reference",
+    "de": "Referenz",
+    "fr": "Référence"
+  },
+  "Dummy.ColTarget": {
+    "en": "Target",
+    "de": "Ziel",
+    "fr": "Cible"
+  },
+  "Dummy.ColTotalDamage": {
+    "en": "Total damage",
+    "de": "Gesamtschaden",
+    "fr": "Dégâts totaux"
+  },
+  "Dummy.ColActiveDps": {
+    "en": "DPS",
+    "de": "DPS",
+    "fr": "DPS"
+  },
+  "Dummy.ColIdps": {
+    "en": "iDPS",
+    "de": "iDPS",
+    "fr": "iDPS"
+  },
+  "Dummy.RefTip": {
+    "en": "The run the others are compared with",
+    "de": "Der Lauf, mit dem die anderen verglichen werden",
+    "fr": "La série à laquelle les autres sont comparées"
+  },
+  "Dummy.TargetUnknown": {
+    "en": "unknown",
+    "de": "unbekannt",
+    "fr": "inconnue"
+  },
+  "Dummy.BlockNoDummy": {
+    "en": "no dummy",
+    "de": "kein Dummy",
+    "fr": "pas un mannequin"
+  },
+  "Dummy.BlockStopped": {
+    "en": "stopped early",
+    "de": "vorzeitig beendet",
+    "fr": "arrêtée avant la fin"
+  },
+  "Dummy.BlockLength": {
+    "en": "other length",
+    "de": "andere Länge",
+    "fr": "autre durée"
+  },
+  "Dummy.PickLegend": {
+    "en": "Total damage = all damage numbers of the run · DPS = damage divided by the time in which damage fell (every pause is left out, slices of 1 s), it favours bursts · iDPS = damage divided by the whole time from the first to the last hit (pauses count against it), the fairest figure to compare classes · green = the best of the choice. Only runs of the same length at a training dummy can be compared; the others are greyed out and say why.",
+    "de": "Gesamtschaden = alle Schadenszahlen des Laufs · DPS = Schaden geteilt durch die Zeit, in der Schaden fiel (jede Pause fällt heraus, Zeitscheiben von 1 s), das begünstigt Bursts · iDPS = Schaden geteilt durch die ganze Zeit vom ersten bis zum letzten Treffer (Pausen zählen mit), die fairste Zahl, um Klassen zu vergleichen · grün = der beste Wert der Auswahl. Verglichen werden nur Läufe gleicher Länge an einer Trainingspuppe; die anderen sind ausgegraut und sagen warum.",
+    "fr": "Dégâts totaux = tous les chiffres de dégâts de la série · DPS = dégâts divisés par le temps pendant lequel des dégâts sont tombés (chaque pause est exclue, tranches de 1 s), favorise les rafales · iDPS = dégâts divisés par tout le temps du premier au dernier coup (les pauses comptent), le chiffre le plus juste pour comparer les classes · vert = le meilleur de la sélection. Seules les séries de même durée sur un mannequin d'entraînement se comparent ; les autres sont grisées avec la raison."
+  },
   "Dummy.CompareNone": {
-    "en": "Tick the runs to compare.",
-    "de": "Läufe zum Vergleichen ankreuzen.",
-    "fr": "Cochez les séries à comparer."
+    "en": "Pick the runs to compare.",
+    "de": "Läufe zum Vergleichen wählen.",
+    "fr": "Choisissez les séries à comparer."
   },
   "Dummy.Comparison": {
     "en": "Comparison",

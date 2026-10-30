@@ -274,6 +274,46 @@ public sealed record DummyStats(
 
 public static class DummyAnalysis
 {
+    /// <summary>The slice of time the active DPS counts in: a slice in which no damage number fell is a pause, however short the real gap was. A hit is a moment, not a stretch,
+    /// so some slice has to say how long it "lasted"; one second matches the per-second damage the run keeps and the rotations seen (a burst of three skills is two to four slices).</summary>
+    public const double ActiveSlice = 1.0;
+
+    /// <summary>The run's damage divided by the time damage was being done (every <see cref="ActiveSlice"/> with at least one damage number counts, every pause is left out): what the player
+    /// does while attacking. Favours bursts: a caster who uses his strongest skills every 30 seconds and then waits shows a high figure here and a low <see cref="IDps"/>. Null without damage.</summary>
+    public static double? ActiveDps(DummyRun run)
+    {
+        if (run.Events.Count == 0)
+        {
+            return null;
+        }
+
+        int active = run.Events.Select(e => (long)Math.Floor((e.Timestamp - run.Start).TotalSeconds / ActiveSlice)).Distinct().Count();
+        return run.Events.Sum(e => e.Amount) / (active * ActiveSlice);
+    }
+
+    /// <summary>The run's damage divided by the whole span from the first to the last damage number, pauses counted in against it (the iDPS of the meter, see DpsCalculator): the figure that
+    /// compares classes fairly. Null with fewer than two moments of damage (a span of no length has no rate).</summary>
+    public static double? IDps(DummyRun run)
+    {
+        if (run.Events.Count == 0)
+        {
+            return null;
+        }
+
+        double span = (run.Events.Max(e => e.Timestamp) - run.Events.Min(e => e.Timestamp)).TotalSeconds;
+        return span > 0 ? run.Events.Sum(e => e.Amount) / span : null;
+    }
+
+    /// <summary>The name of the target the run hit most (its damage), null when the run did not keep one (a run from before the names were kept).</summary>
+    public static string? TargetName(DummyRun run)
+    {
+        int? target = run.Events.GroupBy(e => e.TargetObjectId).OrderByDescending(g => g.Sum(e => e.Amount)).Select(g => (int?)g.Key).FirstOrDefault();
+        return target is { } id && run.Names.TryGetValue(id, out string? name) ? name : null;
+    }
+
+    /// <summary>Whether the run was fought at a training dummy: true or false when the target is known, null when it is not.</summary>
+    public static bool? AtDummy(DummyRun run) => TargetName(run) is { } name ? DummyTargets.IsDummy(name) : null;
+
     /// <summary>
     /// The chain skills of a run: how many uses of a skill with a follow-up were followed by it within its window (3 s, a third of a second more for the 0.1 s the use times are
     /// counted in), A rotation that misses its chains is why the dummy's damage stays below what the skills could do.
