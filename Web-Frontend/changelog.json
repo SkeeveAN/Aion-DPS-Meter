@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.1",
   "date": "2026-10-30",
   "items": [
    {
@@ -139,6 +139,13 @@
     "areas": [
      "Client",
      "Website"
+    ],
+    "date": "2026-10-30"
+   },
+   {
+    "text": "the timetable gets its times from the server per region and runs on the European clock, the Assist window's cooldown times come from each skill's own speed, Hidden Cubes remember a cube that went out of sight and play a falling sound, the dummy test compares up to four runs, the mandatory tasks count resets after the daily reset, boss fights send the data of the new analysis on the website",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-30"
    }
