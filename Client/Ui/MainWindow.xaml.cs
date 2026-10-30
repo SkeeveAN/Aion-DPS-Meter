@@ -846,6 +846,13 @@ public partial class MainWindow : Window
     private void OnPollTimerTick(object? sender, EventArgs e)
     {
         PollCubeMap();
+        // The own server shows up when the character is seen: the timetable is asked again for its region (once per region and session; the timer retries).
+        if (Aion2OwnServerId() is int ownServer && Aion2Servers.RegionCodeOf(ownServer) is { } ownRegion && ownRegion != _scheduleRegion)
+        {
+            _scheduleRegion = ownRegion;
+            _ = RefreshSchedule();
+        }
+
         // The Alt+Tab picture of the overlay (see RenderOverlayPreview) is redrawn on request; saying
         // it is stale every couple of seconds keeps it close to what the overlay shows.
         if (_hideUiActive && DateTime.UtcNow - _lastPreviewInvalidate > TimeSpan.FromSeconds(2))
@@ -4831,18 +4838,31 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>The event timetable from the server (see ScheduleClient); in restricted mode the meter stays with the table it has.</summary>
-    private static async Task RefreshSchedule()
+    /// <summary>The region the timetable was last asked for (only once the own server is known).</summary>
+    private string? _scheduleRegion;
+
+    /// <summary>The event timetable from the server (see ScheduleClient); in restricted mode the meter stays with the table it has. The region of the own server
+    /// gives the clock of that region; before the own character is known the table kept from the last run stays (or the European one when there is none).</summary>
+    private async Task RefreshSchedule()
     {
         if (!PrivacyConsent.Restricted)
         {
-            await Schedule.ScheduleClient.RefreshAsync();
+            return;
+        }
+
+        string? region = Aion2OwnServerId() is int serverId ? Aion2Servers.RegionCodeOf(serverId) : null;
+        if (region is null && File.Exists(Schedule.ScheduleClient.CachePath))
+        {
+            return;
         }
     }
 
     private async Task RefreshAnnouncementsBadge()
     {
         if (PrivacyConsent.Restricted)
+
+        _scheduleRegion = region ?? _scheduleRegion;
+        await Schedule.ScheduleClient.RefreshAsync(region);
         {
             return;
         }

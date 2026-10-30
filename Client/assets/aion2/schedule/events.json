@@ -763,6 +763,11 @@
     {
       "id": "spacetime_rift",
       "kind": "field_event",
+      "zones": {
+        "eu": "Europe/Berlin",
+        "nae": "America/New_York",
+        "naw": "America/Los_Angeles"
+      },
       "names": {
         "en": "Spacetime Rift",
         "de": "Raumzeit-Riss",

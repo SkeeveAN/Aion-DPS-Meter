@@ -19,12 +19,14 @@ public static class ScheduleClient
             ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"),
         "schedule-cache.json");
 
-    /// <summary>Asks the server for the table and takes it in use when it reads as a whole one. True when the table in use is now the server's.</summary>
-    public static async Task<bool> RefreshAsync()
+    /// <summary>Asks the server for the table and takes it in use when it reads as a whole one. True when the table in use is now the server's.
+    /// <paramref name="region"/> (the region code of the player's own server, see <see cref="Aion2.Protocol.Aion2Servers.RegionCodeOf"/>) lets the server give the clock of
+    /// that region; without one the table is the European one. The region is a plain word of the player's own server, no identifier.</summary>
+    public static async Task<bool> RefreshAsync(string? region = null)
     {
         try
         {
-            using HttpResponseMessage response = await Http.GetAsync(Url);
+            using HttpResponseMessage response = await Http.GetAsync(region is null ? Url : $"{Url}?region={Uri.EscapeDataString(region)}");
             if (!response.IsSuccessStatusCode)
             {
                 return false;
