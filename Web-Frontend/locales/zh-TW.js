@@ -190,7 +190,7 @@ export default {
   "legal.privacyTitle": "隱私權政策",
   "legal.privacyIntro": "Aion DPS 是一個免費、開放原始碼、由玩家自發製作的專案。本頁面以淺顯易懂的方式說明我們的桌面用戶端與本網站會蒐集哪些資料、原因為何，以及您如何控制這些資料。",
   "legal.privacySection1Heading": "概述",
-  "legal.privacySection1Body": "本隱私權政策適用於 Aion DPS 桌面用戶端與 aiondps.com 網站。我們盡可能只蒐集最少必要的資料，此處所述的一切資料僅用於營運本站所呈現的社群排行榜。",
+  "legal.privacySection1Body": "本隱私權政策適用於 Aion DPS 桌面用戶端與 aiondps.com 網站(亦可透過 daevasuite.com 與 daevaspowersuite.com 存取)。我們盡可能只蒐集最少必要的資料，此處所述的一切資料僅用於營運本站所呈現的社群排行榜。",
   "legal.privacySection2Heading": "桌面用戶端預設離線運作",
   "legal.privacySection2Body":
     "Windows 用戶端會被動觀察您自己電腦的網路流量（絕不觀察他人的流量，也絕不會將原始流量傳送到任何地方）——您的傷害與治療統計皆在本機計算。它從不讀取遊戲記憶體，也不掛接遊戲處理程序。只有您自己上傳的內容才會離開您的電腦。若您在設定中開啟，您自己的角色檔案（名稱、職業、等級、裝備、技能、軍團、伺服器）也會在登入後自動上傳；此功能預設為關閉。",
@@ -219,7 +219,7 @@ export default {
   "legal.privacySection14Heading": "意見回饋與選擇性錄製內容",
   "legal.privacySection14Body": "若您傳送意見回饋，您的訊息與您輸入的名稱會成為公開的 GitHub issue。您選填的電子郵件地址僅供私下保存，只用於回覆問題，絕不公開。若您勾選「附上錄製內容」，用戶端會傳送最近幾分鐘的遊戲網路流量（可能包含角色名稱），並在您的電腦上加密；金鑰只有開發者持有。它儲存於私人儲存庫中，僅用於分析您的回報。",
   "legal.termsTitle": "服務條款",
-  "legal.termsIntro": "本服務條款適用於 Aion DPS 桌面用戶端與 aiondps.com 網站。使用其中任何一項，即表示您同意以下各點。",
+  "legal.termsIntro": "本服務條款適用於 Aion DPS 桌面用戶端與 aiondps.com 網站(亦可透過 daevasuite.com 與 daevaspowersuite.com 存取)。使用其中任何一項，即表示您同意以下各點。",
   "legal.termsSection1Heading": "條款的接受",
   "legal.termsSection1Body": "下載用戶端或使用本網站，即表示您同意本服務條款。若您不同意，請勿使用用戶端，也請勿向本站上傳資料。",
   "legal.termsSection2Heading": "玩家自發的社群專案",

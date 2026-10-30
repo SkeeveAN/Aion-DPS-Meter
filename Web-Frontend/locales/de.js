@@ -199,7 +199,7 @@ export default {
   "legal.privacyTitle": "Datenschutzerklärung",
   "legal.privacyIntro": "Aion DPS ist ein kostenloses, quelloffenes Fan-Projekt. Diese Seite erklärt in einfachen Worten, welche Daten unser Desktop-Client und diese Website erfassen, warum, und wie du das steuern kannst.",
   "legal.privacySection1Heading": "Überblick",
-  "legal.privacySection1Body": "Diese Datenschutzerklärung gilt für den Aion DPS Desktop-Client und die Website aiondps.com. Wir erfassen bewusst so wenig Daten wie möglich, und alles hier Beschriebene dient ausschließlich dem Betrieb der öffentlichen Bestenlisten auf dieser Seite.",
+  "legal.privacySection1Body": "Diese Datenschutzerklärung gilt für den Aion DPS Desktop-Client und die Website aiondps.com (auch erreichbar unter daevasuite.com und daevaspowersuite.com). Wir erfassen bewusst so wenig Daten wie möglich, und alles hier Beschriebene dient ausschließlich dem Betrieb der öffentlichen Bestenlisten auf dieser Seite.",
   "legal.privacySection2Heading": "Der Client funktioniert standardmäßig offline",
   "legal.privacySection2Body":
     "Der Windows-Client beobachtet passiv den Netzwerkverkehr deines eigenen Rechners (nie den anderer, nie roh irgendwohin gesendet) - deine Schaden- und Heilungsstatistiken werden lokal auf deinem Rechner berechnet. Er liest nie den Speicher des Spiels und hängt sich nicht in den Spielprozess. Hochgeladen wird nur, was du selbst hochlädst. Wenn du es in den Einstellungen einschaltest, wird auch dein eigenes Charakterprofil (Name, Klasse, Level, Ausrüstung, Skills, Legion, Server) nach dem Login automatisch hochgeladen; das ist standardmäßig aus.",
@@ -228,7 +228,7 @@ export default {
   "legal.privacySection14Heading": "Feedback und optionale Mitschnitte",
   "legal.privacySection14Body": "Wenn du Feedback sendest, wird deine Nachricht samt eingegebenem Namen als öffentliches GitHub-Issue angelegt. Die optionale E-Mail-Adresse wird privat gespeichert, nur für Rückfragen, und nie veröffentlicht. Wenn du „Mitschnitt mitsenden“ ankreuzt, sendet der Client die letzten Minuten Spiel-Netzwerkverkehr (kann Charakternamen enthalten), auf deinem PC verschlüsselt; nur der Entwickler hat den Schlüssel. Er liegt in einem privaten Repository und dient nur der Analyse deiner Meldung.",
   "legal.termsTitle": "Nutzungsbedingungen",
-  "legal.termsIntro": "Diese Nutzungsbedingungen gelten für den Aion DPS Desktop-Client und die Website aiondps.com. Mit der Nutzung eines von beiden akzeptierst du die folgenden Punkte.",
+  "legal.termsIntro": "Diese Nutzungsbedingungen gelten für den Aion DPS Desktop-Client und die Website aiondps.com (auch erreichbar unter daevasuite.com und daevaspowersuite.com). Mit der Nutzung eines von beiden akzeptierst du die folgenden Punkte.",
   "legal.termsSection1Heading": "Annahme der Bedingungen",
   "legal.termsSection1Body": "Mit dem Herunterladen des Clients oder der Nutzung dieser Website akzeptierst du diese Nutzungsbedingungen. Bist du damit nicht einverstanden, nutze bitte den Client nicht und lade keine Daten auf die Seite hoch.",
   "legal.termsSection2Heading": "Ein Fan-Projekt der Community",

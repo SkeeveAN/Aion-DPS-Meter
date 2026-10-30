@@ -190,7 +190,7 @@ export default {
   "legal.privacyTitle": "개인정보 처리방침",
   "legal.privacyIntro": "Aion DPS는 팬이 만든 무료 오픈 소스 프로젝트입니다. 이 페이지에서는 데스크톱 클라이언트와 웹사이트가 어떤 데이터를 왜 수집하는지, 그리고 이를 어떻게 관리할 수 있는지 쉬운 말로 설명합니다.",
   "legal.privacySection1Heading": "개요",
-  "legal.privacySection1Body": "이 개인정보 처리방침은 Aion DPS 데스크톱 클라이언트와 aiondps.com 웹사이트에 적용됩니다. 저희는 가능한 한 적은 데이터를 수집하려고 노력하며, 여기에 설명된 모든 데이터는 이 사이트에 표시되는 커뮤니티 순위표를 운영하는 데에만 사용됩니다.",
+  "legal.privacySection1Body": "이 개인정보 처리방침은 Aion DPS 데스크톱 클라이언트와 aiondps.com 웹사이트(daevasuite.com 및 daevaspowersuite.com 으로도 접속 가능)에 적용됩니다. 저희는 가능한 한 적은 데이터를 수집하려고 노력하며, 여기에 설명된 모든 데이터는 이 사이트에 표시되는 커뮤니티 순위표를 운영하는 데에만 사용됩니다.",
   "legal.privacySection2Heading": "데스크톱 클라이언트는 기본적으로 오프라인으로 동작합니다",
   "legal.privacySection2Body":
     "Windows 클라이언트는 내 컴퓨터의 네트워크 트래픽만 수동적으로 관찰하며 (다른 사람의 트래픽은 절대 보지 않고, 원본 그대로 어디로도 전송하지 않습니다) 대미지와 치유 통계는 내 컴퓨터에서 로컬로 계산됩니다. 게임 메모리를 읽거나 게임 프로세스에 후킹하지 않습니다. 직접 업로드한 내용만 컴퓨터 밖으로 나갑니다. 설정에서 켜면 로그인 후 내 캐릭터 프로필(이름, 직업, 레벨, 장비, 스킬, 레기온, 서버)도 자동으로 업로드되며, 기본값은 꺼짐입니다.",
@@ -219,7 +219,7 @@ export default {
   "legal.privacySection14Heading": "피드백 및 선택적 녹화 파일",
   "legal.privacySection14Body": "피드백을 보내면 메시지와 입력한 이름이 GitHub의 공개 이슈가 됩니다. 선택적으로 입력한 이메일 주소는 문의에 답변하기 위해서만 비공개로 저장되며 공개되지 않습니다. \"녹화 파일 첨부\"를 선택하면 클라이언트가 최근 몇 분간의 게임 네트워크 트래픽(캐릭터 이름이 포함될 수 있음)을 PC에서 암호화하여 전송하며, 키는 개발자만 가지고 있습니다. 이 데이터는 비공개 저장소에 보관되며 제보를 분석하는 데에만 사용됩니다.",
   "legal.termsTitle": "이용약관",
-  "legal.termsIntro": "이 이용약관은 Aion DPS 데스크톱 클라이언트와 aiondps.com 웹사이트에 적용됩니다. 둘 중 하나를 사용하면 아래 내용에 동의한 것으로 간주합니다.",
+  "legal.termsIntro": "이 이용약관은 Aion DPS 데스크톱 클라이언트와 aiondps.com 웹사이트(daevasuite.com 및 daevaspowersuite.com 으로도 접속 가능)에 적용됩니다. 둘 중 하나를 사용하면 아래 내용에 동의한 것으로 간주합니다.",
   "legal.termsSection1Heading": "약관의 동의",
   "legal.termsSection1Body": "클라이언트를 다운로드하거나 이 웹사이트를 이용하면 이 이용약관에 동의하는 것입니다. 동의하지 않는다면 클라이언트를 사용하거나 사이트에 데이터를 업로드하지 마세요.",
   "legal.termsSection2Heading": "팬이 만든 커뮤니티 프로젝트",

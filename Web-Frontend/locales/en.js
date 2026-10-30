@@ -192,7 +192,7 @@ export default {
   "legal.privacyTitle": "Privacy Policy",
   "legal.privacyIntro": "Aion DPS is a free, open-source, fan-made project. This page explains in plain language what data our desktop client and website collect, why, and how you can control it.",
   "legal.privacySection1Heading": "Overview",
-  "legal.privacySection1Body": "This Privacy Policy covers the Aion DPS desktop client and the aiondps.com website. We try to collect as little data as possible, and everything described here is used only to run the community leaderboards you see on this site.",
+  "legal.privacySection1Body": "This Privacy Policy covers the Aion DPS desktop client and the aiondps.com website (also reachable as daevasuite.com and daevaspowersuite.com). We try to collect as little data as possible, and everything described here is used only to run the community leaderboards you see on this site.",
   "legal.privacySection2Heading": "The Desktop Client Works Offline by Default",
   "legal.privacySection2Body":
     "The Windows client passively observes your own computer's network traffic (never anyone else's, never sent anywhere raw) - your damage and healing statistics are calculated locally on your machine. It never reads the game's memory or hooks into the game process. Only what you upload yourself leaves your computer. If you switch it on in the settings, your own character profile (name, class, level, gear, skills, legion, server) is also uploaded automatically after you log in; this is off by default.",
@@ -228,7 +228,7 @@ export default {
   "download.vtLabel": "VirusTotal scan of the installer: {result} detections -",
   "download.vtReportLink": "view the report",
   "legal.termsTitle": "Terms of Service",
-  "legal.termsIntro": "These Terms of Service apply to the Aion DPS desktop client and the aiondps.com website. By using either, you agree to the points below.",
+  "legal.termsIntro": "These Terms of Service apply to the Aion DPS desktop client and the aiondps.com website (also reachable as daevasuite.com and daevaspowersuite.com). By using either, you agree to the points below.",
   "legal.termsSection1Heading": "Acceptance of Terms",
   "legal.termsSection1Body": "By downloading the client or using this website, you agree to these Terms of Service. If you do not agree, please do not use the client or upload data to the site.",
   "legal.termsSection2Heading": "A Fan-Made Community Project",

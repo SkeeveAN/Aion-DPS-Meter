@@ -230,7 +230,7 @@ export default {
   "legal.privacyTitle": "隐私政策",
   "legal.privacyIntro": "Aion DPS 是一个免费、开源、由玩家自发制作的项目。本页面将用简单易懂的语言说明我们的桌面客户端和本网站会收集哪些数据、原因是什么,以及你如何加以控制。",
   "legal.privacySection1Heading": "概述",
-  "legal.privacySection1Body": "本隐私政策适用于 Aion DPS 桌面客户端和 aiondps.com 网站。我们尽量只收集最少必要的数据,这里所描述的一切都仅用于运行本站你所看到的社区排行榜。",
+  "legal.privacySection1Body": "本隐私政策适用于 Aion DPS 桌面客户端和 aiondps.com 网站(也可通过 daevasuite.com 和 daevaspowersuite.com 访问)。我们尽量只收集最少必要的数据,这里所描述的一切都仅用于运行本站你所看到的社区排行榜。",
   "legal.privacySection2Heading": "客户端默认离线运行",
   "legal.privacySection2Body":
     "Windows 客户端被动观察您自己电脑的网络流量（绝不观察他人的，也绝不将原始数据发送到任何地方）——您的伤害和治疗统计在本地计算。它从不读取游戏内存，也不挂接游戏进程。只有您自己上传的内容才会离开您的电脑。如果您在设置中开启，您的角色资料（名称、职业、等级、装备、技能、军团、服务器）也会在登录后自动上传；默认为关闭。",
@@ -259,7 +259,7 @@ export default {
   "legal.privacySection14Heading": "反馈与可选录制内容",
   "legal.privacySection14Body": "如果您发送反馈，您的留言和所填名称会成为公开的 GitHub issue。可选的邮箱仅作私密保存、仅用于回复，绝不公开。若勾选“附带录制内容”，客户端会发送最近几分钟的游戏网络流量（可能含角色名），并在您的电脑上加密；密钥只有开发者持有。它保存在私有仓库中，仅用于分析您的报告。",
   "legal.termsTitle": "服务条款",
-  "legal.termsIntro": "本服务条款适用于 Aion DPS 桌面客户端和 aiondps.com 网站。使用其中任何一项,即表示你同意以下条款。",
+  "legal.termsIntro": "本服务条款适用于 Aion DPS 桌面客户端和 aiondps.com 网站(也可通过 daevasuite.com 和 daevaspowersuite.com 访问)。使用其中任何一项,即表示你同意以下条款。",
   "legal.termsSection1Heading": "条款的接受",
   "legal.termsSection1Body": "下载客户端或使用本网站,即表示你同意本服务条款。如果你不同意,请不要使用客户端,也不要向本站上传数据。",
   "legal.termsSection2Heading": "一个玩家自发的社区项目",

@@ -235,7 +235,7 @@ export default {
   "legal.privacyTitle": "Política de privacidad",
   "legal.privacyIntro": "Aion DPS es un proyecto gratuito, de código abierto, hecho por fans. Esta página explica en lenguaje sencillo qué datos recopilan nuestro cliente de escritorio y este sitio web, por qué, y cómo puedes controlarlos.",
   "legal.privacySection1Heading": "Resumen",
-  "legal.privacySection1Body": "Esta política de privacidad cubre el cliente de escritorio Aion DPS y el sitio web aiondps.com. Intentamos recopilar la menor cantidad de datos posible, y todo lo descrito aquí se usa solo para mantener las clasificaciones comunitarias que ves en este sitio.",
+  "legal.privacySection1Body": "Esta política de privacidad cubre el cliente de escritorio Aion DPS y el sitio web aiondps.com (también accesible como daevasuite.com y daevaspowersuite.com). Intentamos recopilar la menor cantidad de datos posible, y todo lo descrito aquí se usa solo para mantener las clasificaciones comunitarias que ves en este sitio.",
   "legal.privacySection2Heading": "El cliente funciona sin conexión por defecto",
   "legal.privacySection2Body":
     "El cliente de Windows observa de forma pasiva el tráfico de red de tu propio ordenador (nunca el de otros, nunca enviado en bruto a ningún sitio) - tus estadísticas de daño y curación se calculan localmente. Nunca lee la memoria del juego ni se engancha al proceso del juego. Solo sale de tu ordenador lo que tú mismo subes. Si lo activas en los ajustes, tu propio perfil de personaje (nombre, clase, nivel, equipo, habilidades, legión, servidor) también se sube automáticamente tras iniciar sesión; está desactivado por defecto.",
@@ -264,7 +264,7 @@ export default {
   "legal.privacySection14Heading": "Comentarios y grabaciones opcionales",
   "legal.privacySection14Body": "Si envías comentarios, tu mensaje y el nombre introducido se convierten en un issue público de GitHub. El correo opcional se guarda en privado, solo para responderte, y nunca se publica. Si marcas «adjuntar grabación», el cliente envía los últimos minutos de tráfico de red del juego (puede incluir nombres de personajes), cifrados en tu PC; solo el desarrollador tiene la clave. Se guarda en un repositorio privado y solo sirve para analizar tu informe.",
   "legal.termsTitle": "Términos de servicio",
-  "legal.termsIntro": "Estos términos de servicio se aplican al cliente de escritorio Aion DPS y al sitio web aiondps.com. Al usar cualquiera de los dos, aceptas los puntos siguientes.",
+  "legal.termsIntro": "Estos términos de servicio se aplican al cliente de escritorio Aion DPS y al sitio web aiondps.com (también accesible como daevasuite.com y daevaspowersuite.com). Al usar cualquiera de los dos, aceptas los puntos siguientes.",
   "legal.termsSection1Heading": "Aceptación de los términos",
   "legal.termsSection1Body": "Al descargar el cliente o usar este sitio web, aceptas estos términos de servicio. Si no estás de acuerdo, por favor no uses el cliente ni subas datos al sitio.",
   "legal.termsSection2Heading": "Un proyecto comunitario hecho por fans",

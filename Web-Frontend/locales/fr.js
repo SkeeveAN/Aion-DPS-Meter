@@ -235,7 +235,7 @@ export default {
   "legal.privacyTitle": "Politique de confidentialité",
   "legal.privacyIntro": "Aion DPS est un projet gratuit, open source, créé par des fans. Cette page explique en langage simple quelles données notre client de bureau et ce site collectent, pourquoi, et comment vous pouvez les contrôler.",
   "legal.privacySection1Heading": "Aperçu",
-  "legal.privacySection1Body": "Cette politique de confidentialité couvre le client de bureau Aion DPS et le site aiondps.com. Nous essayons de collecter le moins de données possible, et tout ce qui est décrit ici sert uniquement à faire fonctionner les classements communautaires visibles sur ce site.",
+  "legal.privacySection1Body": "Cette politique de confidentialité couvre le client de bureau Aion DPS et le site aiondps.com (aussi accessible sous daevasuite.com et daevaspowersuite.com). Nous essayons de collecter le moins de données possible, et tout ce qui est décrit ici sert uniquement à faire fonctionner les classements communautaires visibles sur ce site.",
   "legal.privacySection2Heading": "Le client fonctionne hors ligne par défaut",
   "legal.privacySection2Body":
     "Le client Windows observe passivement le trafic réseau de votre propre ordinateur (jamais celui d'autrui, jamais envoyé tel quel) - vos statistiques de dégâts et de soins sont calculées localement. Il ne lit jamais la mémoire du jeu et ne s'accroche pas au processus du jeu. Seul ce que vous envoyez vous-même quitte votre ordinateur. Si vous l'activez dans les paramètres, votre propre profil de personnage (nom, classe, niveau, équipement, compétences, légion, serveur) est aussi envoyé automatiquement après la connexion ; c'est désactivé par défaut.",
@@ -264,7 +264,7 @@ export default {
   "legal.privacySection14Heading": "Retours et enregistrements facultatifs",
   "legal.privacySection14Body": "Si vous envoyez un retour, votre message et le nom saisi deviennent un ticket GitHub public. L'e-mail facultatif est stocké en privé, uniquement pour répondre à vos questions, et jamais publié. Si vous cochez « joindre l'enregistrement », le client envoie les dernières minutes de trafic réseau du jeu (pouvant contenir des noms de personnages), chiffrées sur votre PC ; seul le développeur détient la clé. Il est stocké dans un dépôt privé et sert uniquement à analyser votre signalement.",
   "legal.termsTitle": "Conditions d'utilisation",
-  "legal.termsIntro": "Ces conditions d'utilisation s'appliquent au client de bureau Aion DPS et au site aiondps.com. En utilisant l'un ou l'autre, vous acceptez les points ci-dessous.",
+  "legal.termsIntro": "Ces conditions d'utilisation s'appliquent au client de bureau Aion DPS et au site aiondps.com (aussi accessible sous daevasuite.com et daevaspowersuite.com). En utilisant l'un ou l'autre, vous acceptez les points ci-dessous.",
   "legal.termsSection1Heading": "Acceptation des conditions",
   "legal.termsSection1Body": "En téléchargeant le client ou en utilisant ce site, vous acceptez ces conditions d'utilisation. Si vous n'êtes pas d'accord, merci de ne pas utiliser le client ni d'envoyer de données sur le site.",
   "legal.termsSection2Heading": "Un projet communautaire de fans",
