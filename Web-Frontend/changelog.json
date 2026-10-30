@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-31",
+  "items": [
+   {
+    "text": "Website: the website is also reachable under daevasuite.com and daevaspowersuite.com (aiondps.com stays the main address that search engines list), and the privacy policy and the terms of service name both domains in all ten languages",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-31"
+   }
+  ]
+ },
+ {
   "version": "1.18.1",
   "date": "2026-10-30",
   "items": [
