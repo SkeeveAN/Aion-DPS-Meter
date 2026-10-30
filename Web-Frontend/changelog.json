@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-30",
+  "items": [
+   {
+    "text": "Checklist: the mandatory tasks count goes back to 0 (shown as ~0 / 5) after the daily reset at 09:00 German time, and the first login of a day no longer takes yesterday's count; after Stacy's fork",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
+   }
+  ]
+ },
+ {
   "version": "1.18.0",
   "date": "2026-10-29",
   "items": [
