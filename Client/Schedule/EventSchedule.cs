@@ -42,7 +42,7 @@ public sealed record EventOccurrence(ScheduledEvent Event, DateTime Start, DateT
 /// <summary>
 /// The event timetable from assets/aion2/schedule/events.json and the question the timetable overlay
 /// asks of it: what is active NOW, and what starts within the next minutes. The times are those the
-/// game's own pages show, as UTC ("timeZone": "UTC": the events run on the same UTC clock in every region) or, with "local", as the PC's local time.
+/// game's own pages show, on the European clock ("timeZone": "Europe/Berlin": the events keep their hour through the change to winter time), as UTC ("UTC") or, with "local", as the PC's local time.
 /// </summary>
 public static class EventSchedule
 {
@@ -63,7 +63,10 @@ public static class EventSchedule
 
             using var document = JsonDocument.Parse(File.ReadAllText(path));
             var events = new List<ScheduledEvent>();
-            bool utc = document.RootElement.TryGetProperty("timeZone", out var zone) && string.Equals(zone.GetString(), "UTC", StringComparison.OrdinalIgnoreCase);
+            bool hasZone = document.RootElement.TryGetProperty("timeZone", out var zone);
+            bool utc = hasZone && string.Equals(zone.GetString(), "UTC", StringComparison.OrdinalIgnoreCase);
+            // A named zone for the whole table (the game's events run on the European clock); "UTC" and "local" are handled by the flag above.
+            string? tableZone = hasZone && zone.GetString() is { } zoneName && !utc && !string.Equals(zoneName, "local", StringComparison.OrdinalIgnoreCase) ? zoneName : null;
             foreach (JsonElement e in document.RootElement.GetProperty("events").EnumerateArray())
             {
                 var names = e.GetProperty("names").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString() ?? "");
@@ -78,7 +81,7 @@ public static class EventSchedule
                         DateTime.Parse(x.GetProperty("at").GetString()!, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None),
                         x.TryGetProperty("minutes", out var minutes) ? minutes.GetInt32() : 0)).ToList()
                     : new List<EventDate>();
-                string? eventZone = e.TryGetProperty("timeZone", out var ownZone) ? ownZone.GetString() : null;
+                string? eventZone = e.TryGetProperty("timeZone", out var ownZone) ? ownZone.GetString() : tableZone;
                 events.Add(new ScheduledEvent(
                     e.GetProperty("id").GetString()!,
                     e.TryGetProperty("kind", out var kind) ? kind.GetString() ?? "" : "",

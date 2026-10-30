@@ -161,8 +161,8 @@ public static class SelfCheck
         clock &= Math.Abs(Aion2.ServerClock.Offset.TotalMilliseconds - 500) < 1;
         Aion2.ServerClock.Reset();
         clock &= Aion2.ServerClock.Offset == TimeSpan.Zero;
-        // The shipped table also has the Abyss's executor bosses and Guardian Lord Nahma (UTC, 19:30 Mon/Thu/Sat and 19:00 Fri/Sun).
-        bool boss = Schedule.EventSchedule.Events.Any(e => e.Id == "executor_bosses" && e.Windows[0].Days.SequenceEqual(new[] { 1, 4, 6 }) && e.Windows[0].Start == TimeSpan.FromHours(19.5))
+        // The shipped table also has the Abyss's executor bosses and Guardian Lord Nahma (European clock, 21:30 Mon/Thu/Sat and 21:00 Fri/Sun).
+        bool boss = Schedule.EventSchedule.Events.Any(e => e.Id == "executor_bosses" && e.Windows[0].Days.SequenceEqual(new[] { 1, 4, 6 }) && e.Windows[0].Start == TimeSpan.FromHours(21.5))
             && Schedule.EventSchedule.Events.Any(e => e.Id == "guardian_lord_nahma" && e.NameIn("de") == "Wächtergott Nahma" && e.Windows[0].Days.SequenceEqual(new[] { 0, 5 }));
         Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}; UTC events: {utc}; server clock: {clock}; executor bosses and Nahma: {boss}");
         return ok && shipped && utc && clock && boss;
