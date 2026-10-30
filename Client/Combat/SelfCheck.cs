@@ -139,9 +139,18 @@ public static class SelfCheck
         var (activeU, _) = Schedule.EventSchedule.Evaluate(new[] { rift }, noonUtc.AddMinutes(5).ToLocalTime(), hour);
         var (activeV, soonV) = Schedule.EventSchedule.Evaluate(new[] { rift }, noonUtc.AddMinutes(-20).ToLocalTime(), hour);
         bool utc = activeU.Count == 1 && activeU[0].Start == noonUtc.ToLocalTime() && activeV.Count == 0 && soonV.Count == 1 && soonV[0].Start == noonUtc.ToLocalTime();
-        // The shipped rift table is UTC: 00, 03 ... 21 o'clock.
+        // The shipped rift table is on the European clock (Europe/Berlin): 02, 05 ... 23 o'clock in summer and in winter alike, so 14:00 stays 14:00 across the change to winter time (not UTC, which would move it an hour).
         var shippedRift = Schedule.EventSchedule.Events.FirstOrDefault(e => e.Id == "spacetime_rift");
-        utc &= shippedRift is { IsUtc: true } && shippedRift.Windows.Select(w => (int)w.Start.TotalHours).SequenceEqual(new[] { 0, 3, 6, 9, 12, 15, 18, 21 });
+        utc &= shippedRift is { SourceZone: not null } && shippedRift.Windows.Select(w => (int)w.Start.TotalHours).SequenceEqual(new[] { 2, 5, 8, 11, 14, 17, 20, 23 });
+        if (shippedRift?.SourceZone is { } berlin)
+        {
+            foreach (var (month, offsetHours) in new[] { (7, 2), (12, 1) })
+            {
+                DateTime at = new DateTime(2026, month, 15, 14, 0, 0, DateTimeKind.Utc).AddHours(-offsetHours);
+                var (activeRift, _) = Schedule.EventSchedule.Evaluate(new[] { shippedRift }, at.AddMinutes(5).ToLocalTime(), hour);
+                utc &= activeRift.Count == 1 && activeRift[0].Start == at.ToLocalTime();
+            }
+        }
         // The server clock: the offset to the PC's clock is taken from the frames (about 0.5 s), a value minutes off (a replay) is ignored.
         Aion2.ServerClock.Reset();
         DateTime pcNow = DateTime.UtcNow;

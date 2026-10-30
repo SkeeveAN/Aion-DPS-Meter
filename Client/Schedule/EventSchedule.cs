@@ -14,10 +14,13 @@ public sealed record EventDate(DateTime At, int Minutes);
 
 /// <summary>A recurring game event (a battlefield's matchmaking times), named per language. An
 /// <see cref="Always"/> event can be queued for at any time (the 1 vs 1 arena) and has no windows.</summary>
-public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null, bool Utc = false, bool Possible = false)
+public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null, bool Utc = false, bool Possible = false, string? Zone = null)
 {
     /// <summary>The times of <see cref="Windows"/> and <see cref="Dates"/> are UTC, the clock the game's events run on (the same in every region); they are turned into the PC's local time when the occurrences are worked out. Without it they are read as local time.</summary>
     public bool IsUtc => Utc;
+
+    /// <summary>The time zone the times of this event are given in when it has its own (the spacetime rift runs on the European local clock, so it keeps 14:00, 17:00 ... through the change to winter time), else null: <see cref="IsUtc"/> or local time applies.</summary>
+    public TimeZoneInfo? SourceZone { get; } = Zone is null ? null : EventSchedule.FindZone(Zone);
 
     /// <summary>The slots are only possible times: the game starts the event at random within them (the Dimensional Invasion does not take place at every slot), so the timetable says "possible" instead of promising it.</summary>
     public bool IsPossible => Possible;
@@ -75,12 +78,13 @@ public static class EventSchedule
                         DateTime.Parse(x.GetProperty("at").GetString()!, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None),
                         x.TryGetProperty("minutes", out var minutes) ? minutes.GetInt32() : 0)).ToList()
                     : new List<EventDate>();
+                string? eventZone = e.TryGetProperty("timeZone", out var ownZone) ? ownZone.GetString() : null;
                 events.Add(new ScheduledEvent(
                     e.GetProperty("id").GetString()!,
                     e.TryGetProperty("kind", out var kind) ? kind.GetString() ?? "" : "",
                     e.TryGetProperty("players", out var players) ? players.GetString() : null,
                     names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean(), dates, utc,
-                    e.TryGetProperty("possible", out var possible) && possible.GetBoolean()));
+                    e.TryGetProperty("possible", out var possible) && possible.GetBoolean(), eventZone));
             }
 
             return events;
@@ -90,6 +94,23 @@ public static class EventSchedule
             // No table: an empty timetable.
             return Array.Empty<ScheduledEvent>();
         }
+    }
+
+    /// <summary>A time zone by its IANA name (Windows only knows its own ids), or null when this machine has neither.</summary>
+    public static TimeZoneInfo? FindZone(string id)
+    {
+        foreach (string candidate in id == "Europe/Berlin" ? new[] { id, "W. Europe Standard Time" } : new[] { id })
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(candidate);
+            }
+            catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
+            {
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -136,9 +157,24 @@ public static class EventSchedule
     /// started yesterday).</summary>
     private static IEnumerable<EventOccurrence> OccurrencesAround(ScheduledEvent scheduled, DateTime now, int daysBefore = 1, int daysAfter = 1)
     {
-        // UTC events: the days and times are worked out on the UTC clock and handed back as local time (so a winter or a PC in another zone shows the right hour).
-        DateTime reference = scheduled.IsUtc ? now.ToUniversalTime() : now;
-        DateTime ToLocalTime(DateTime t) => scheduled.IsUtc ? DateTime.SpecifyKind(t, DateTimeKind.Utc).ToLocalTime() : t;
+        // Events on their own clock (UTC or a named zone): the days and times are worked out on that clock and handed back as local time (so a winter or a PC in another zone shows the right hour).
+        TimeZoneInfo? zone = scheduled.SourceZone ?? (scheduled.IsUtc ? TimeZoneInfo.Utc : null);
+        DateTime reference = zone is null ? now : TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), zone);
+        DateTime ToLocalTime(DateTime t)
+        {
+            if (zone is null)
+            {
+                return t;
+            }
+
+            // A time in the hour that the spring change skips does not exist: it falls to the hour after.
+            if (zone.IsInvalidTime(t))
+            {
+                t = t.AddHours(1);
+            }
+
+            return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(t, DateTimeKind.Unspecified), zone).ToLocalTime();
+        }
 
         foreach (EventDate date in scheduled.Dates ?? Array.Empty<EventDate>())
         {
