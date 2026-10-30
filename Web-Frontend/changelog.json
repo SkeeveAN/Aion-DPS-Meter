@@ -80,6 +80,13 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Timetable: all events (battlefield, Shugo festival, air raid, Abyss raid, Abyss bosses, Nahma) run on the European clock like the spacetime rift, so they keep their hour through the change to winter time instead of moving an hour with UTC",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
