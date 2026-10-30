@@ -66,6 +66,13 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Timetable: the spacetime rift runs on the European clock (Europe/Berlin), so it stays at 14:00, 17:00, 20:00, 23:00 ... through the change to winter time instead of moving an hour with UTC; an event can now have its own time zone",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
