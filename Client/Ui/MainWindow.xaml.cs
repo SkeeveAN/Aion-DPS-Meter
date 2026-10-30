@@ -317,10 +317,11 @@ public partial class MainWindow : Window
         {
             _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
             _updateTimer.Start();
-            _announcementsTimer.Tick += (_, _) => { _ = RefreshAnnouncementsBadge(); _ = RefreshTwitchDropsBadge(); };
+            _announcementsTimer.Tick += (_, _) => { _ = RefreshAnnouncementsBadge(); _ = RefreshTwitchDropsBadge(); _ = RefreshSchedule(); };
             _announcementsTimer.Start();
             _ = RefreshAnnouncementsBadge();
             _ = RefreshTwitchDropsBadge();
+            _ = RefreshSchedule();
             // The meter talks to GitHub only while "check for updates" is on in the settings.
             var startupSettings = MeterSettings.Load();
             if (startupSettings.CheckForUpdates)
@@ -4827,6 +4828,15 @@ public partial class MainWindow : Window
         finally
         {
             _updateCheckRunning = false;
+        }
+    }
+
+    /// <summary>The event timetable from the server (see ScheduleClient); in restricted mode the meter stays with the table it has.</summary>
+    private static async Task RefreshSchedule()
+    {
+        if (!PrivacyConsent.Restricted)
+        {
+            await Schedule.ScheduleClient.RefreshAsync();
         }
     }
 

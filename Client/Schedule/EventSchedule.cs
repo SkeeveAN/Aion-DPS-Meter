@@ -48,20 +48,38 @@ public static class EventSchedule
 {
     private static readonly string Path_ = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "schedule", "events.json");
 
-    private static IReadOnlyList<ScheduledEvent>? _events;
+    private static volatile IReadOnlyList<ScheduledEvent>? _events;
 
-    public static IReadOnlyList<ScheduledEvent> Events => _events ??= Load(Path_);
+    /// <summary>The timetable in use: the last one the server sent (<see cref="ScheduleClient"/>), else the one shipped with the client.</summary>
+    public static IReadOnlyList<ScheduledEvent> Events => _events ??= LoadCachedOrShipped();
+
+    /// <summary>Takes a timetable the server sent in use, once it was read as a whole.</summary>
+    public static void Replace(IReadOnlyList<ScheduledEvent> events) => _events = events;
+
+    private static IReadOnlyList<ScheduledEvent> LoadCachedOrShipped()
+    {
+        IReadOnlyList<ScheduledEvent> cached = Load(ScheduleClient.CachePath);
+        return cached.Count > 0 ? cached : Load(Path_);
+    }
 
     public static IReadOnlyList<ScheduledEvent> Load(string path)
     {
         try
         {
-            if (!File.Exists(path))
-            {
-                return Array.Empty<ScheduledEvent>();
-            }
+            return File.Exists(path) ? Parse(File.ReadAllText(path)) : Array.Empty<ScheduledEvent>();
+        }
+        catch (IOException)
+        {
+            return Array.Empty<ScheduledEvent>();
+        }
+    }
 
-            using var document = JsonDocument.Parse(File.ReadAllText(path));
+    /// <summary>Reads a timetable from its JSON text; an empty list when it is not one.</summary>
+    public static IReadOnlyList<ScheduledEvent> Parse(string json)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
             var events = new List<ScheduledEvent>();
             bool hasZone = document.RootElement.TryGetProperty("timeZone", out var zone);
             bool utc = hasZone && string.Equals(zone.GetString(), "UTC", StringComparison.OrdinalIgnoreCase);
