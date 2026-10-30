@@ -51,6 +51,14 @@
      "Website"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Website: the boss statistics get a filter by item level (Gegenstandsstufe, known for nearly every player), and the ranges of the gear score, item level and combat power filters follow the values seen (thirds) instead of fixed steps, so a hard boss with a minimum of 2600 no longer offers ranges below it",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
