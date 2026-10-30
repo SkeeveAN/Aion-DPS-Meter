@@ -9,6 +9,13 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Website: the encounter's player lists show the iDPS next to the total damage in every row and get an iDPS switch beside Damage and Healing; \"Best DPS\" on the boss pages is now called \"Best iDPS\", which is what the number is",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
