@@ -94,6 +94,13 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Assist: the time left of a cooldown is calculated from the speed each skill's own number falls at (measured from its last numbers, so stones, stats and Daevanion are included) instead of one fixed factor, which cuts the average error from about 24 to 16 percent; the \"~\" and its note stay because the speed still varies a little during a cooldown",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
