@@ -922,7 +922,7 @@ const FEATURE_BLOCKS = [
   { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
   { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
   { id: "bossfight", images: [["bossfight", 956, 700, { flat: true }]] },
-  { id: "assist", badge: "assist.badge", images: [["assist", 840, 1236]] },
+  { id: "assist", images: [["assist", 840, 1236]] },
   { id: "details", images: [["analyzer", 1760, 820]] },
   { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
   { id: "checklist", images: [["checklist", 960, 1274]] },
