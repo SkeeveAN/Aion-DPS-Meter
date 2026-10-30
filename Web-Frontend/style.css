@@ -1479,6 +1479,22 @@ h3 .icon-label {
   border-radius: 999px;
 }
 
+.meter-sub {
+  margin-left: auto;
+  padding-left: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.meter-sub + .meter-value {
+  margin-left: 0;
+  min-width: 5.5em;
+  text-align: right;
+}
+
 .meter-value {
   margin-left: auto;
   padding-left: 12px;

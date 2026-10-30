@@ -3426,6 +3426,10 @@ function meterRow(rank, p, metric, max, opts = {}) {
         (p.role ?? meta.role)
           ? el("span", { className: "meter-role-badge", style: `color: ${meta.color}; background: ${hexToRgba(meta.color, 0.16)};`, textContent: roleLabel(p.role ?? meta.role) })
           : null,
+        // Damage and iDPS always show both numbers (the other one smaller, in front): iDPS is the figure that compares the classes fairly, so it is never hidden behind a switch.
+        metric === "totalDamage" || metric === "idps"
+          ? el("span", { className: "meter-sub", title: t("encounter.idpsHint"), textContent: metric === "idps" ? `${formatNumber(p.totalDamage)} ${t("table.damage")}` : `${formatNumber(p.idps ?? 0)} ${t("leaderboard.idpsShort")}` })
+          : null,
         el("span", { className: "meter-value", textContent: formatNumber(value) }),
       ].filter((x) => x != null)),
     ],
@@ -3445,42 +3449,42 @@ function meterPanel(roster) {
   const subtitleEl = el("span", { className: "meter-panel-subtitle" });
   const listEl = el("div", { className: "meter-list" });
 
-  const dmgBtn = el("button", { type: "button", className: "active", textContent: t("table.damage") });
-  const healBtn = el("button", { type: "button", textContent: t("participant.totalHealing") });
-  dmgBtn.setAttribute("aria-pressed", "true");
-  healBtn.setAttribute("aria-pressed", "false");
+  // Total damage, iDPS (damage over the whole span from the first to the last hit, pauses count against it) and healing.
+  const metrics = [
+    { key: "totalDamage", label: () => t("table.damage"), sorted: () => t("encounter.sortedByDamage") },
+    { key: "idps", label: () => t("leaderboard.idpsShort"), sorted: () => t("encounter.sortedByIdps") },
+    { key: "totalHealing", label: () => t("participant.totalHealing"), sorted: () => t("encounter.sortedByHealing") },
+  ];
+  const buttons = metrics.map((m) => el("button", { type: "button", textContent: m.label() }));
 
   function renderRows() {
-    const sorted = [...roster].sort((a, b) => b[metric] - a[metric]);
-    const max = Math.max(...sorted.map((p) => p[metric]), 1);
-    titleEl.textContent = metric === "totalDamage" ? t("table.damage") : t("participant.totalHealing");
-    subtitleEl.textContent = t("encounter.rosterSubtitle", {
-      count: roster.length,
-      pets: petsSuffix,
-      sorted: t(metric === "totalDamage" ? "encounter.sortedByDamage" : "encounter.sortedByHealing"),
-    });
+    const current = metrics.find((m) => m.key === metric);
+    const sorted = [...roster].sort((a, b) => (b[metric] ?? 0) - (a[metric] ?? 0));
+    const max = Math.max(...sorted.map((p) => p[metric] ?? 0), 1);
+    titleEl.textContent = current.label();
+    subtitleEl.textContent = t("encounter.rosterSubtitle", { count: roster.length, pets: petsSuffix, sorted: current.sorted() });
     listEl.replaceChildren(...sorted.map((p, i) => meterRow(i + 1, p, metric, max)));
+    buttons.forEach((b, i) => {
+      const on = metrics[i].key === metric;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
   }
 
-  function selectMetric(newMetric, activeBtn, inactiveBtn) {
-    if (metric === newMetric) {
-      return;
-    }
-    metric = newMetric;
-    activeBtn.classList.add("active");
-    activeBtn.setAttribute("aria-pressed", "true");
-    inactiveBtn.classList.remove("active");
-    inactiveBtn.setAttribute("aria-pressed", "false");
-    renderRows();
-  }
-  dmgBtn.addEventListener("click", () => selectMetric("totalDamage", dmgBtn, healBtn));
-  healBtn.addEventListener("click", () => selectMetric("totalHealing", healBtn, dmgBtn));
+  buttons.forEach((b, i) =>
+    b.addEventListener("click", () => {
+      if (metric !== metrics[i].key) {
+        metric = metrics[i].key;
+        renderRows();
+      }
+    }),
+  );
   renderRows();
 
   return el("div", { className: "meter-panel" }, [
     el("div", { className: "meter-panel-header" }, [
       el("div", { className: "meter-panel-heading" }, [titleEl, subtitleEl]),
-      el("div", { className: "category-filter" }, [dmgBtn, healBtn]),
+      el("div", { className: "category-filter" }, buttons),
     ]),
     listEl,
   ]);
@@ -3566,6 +3570,7 @@ function buffCell(p, roster, kind, slotKeys) {
 
 const PLAYER_METRICS = [
   { key: "totalDamage", label: () => t("table.damage"), sorted: () => t("encounter.sortedByDamage"), danger: false },
+  { key: "idps", label: () => t("leaderboard.idpsShort"), sorted: () => t("encounter.sortedByIdps"), danger: false },
   { key: "totalHealing", label: () => t("participant.totalHealing"), sorted: () => t("encounter.sortedByHealing"), danger: false },
   { key: "damageTaken", label: () => t("encounter.aggroHeading"), sorted: () => t("encounter.sortedByTaken"), danger: true },
 ];
