@@ -117,6 +117,13 @@
      "Backend"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Website: the Assist window is no longer marked as in development (feature page badge, comparison table, weaknesses list), the weaknesses list now names the boss fight replay, the stat calculator and the estimated cooldown times as early parts",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
