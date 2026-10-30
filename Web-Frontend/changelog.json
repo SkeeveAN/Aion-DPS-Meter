@@ -109,6 +109,14 @@
      "Backend"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Timetable: the server gives the clock of the player's region (?region=, from the own server's id): the spacetime rift runs on New York time in NA East and Los Angeles time in NA West, everything else stays on the European clock until its region is verified",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
