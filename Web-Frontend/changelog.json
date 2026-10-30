@@ -101,6 +101,14 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Timetable: the event times come from aiondps.com (/api/schedule), so a changed time is changed there and the client needs no new release; the client keeps the last answer and falls back to the table it ships with",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
