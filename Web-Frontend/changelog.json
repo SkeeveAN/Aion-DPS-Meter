@@ -30,6 +30,13 @@
      "Website"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Dummy test: choose up to 4 runs to compare against a reference of your own, each run shows note, length, total damage, DPS (pauses left out) and iDPS (pauses count) and its target, only runs of the same length at a training dummy compare, a red waste bin deletes a run, the fields of the setup row are uniform; the dummy names are Stacy's, from her fork",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
