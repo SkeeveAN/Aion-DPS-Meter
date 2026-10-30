@@ -221,6 +221,9 @@ public sealed class PetMapController : IDisposable
 
     private DateTime _lastCubeBeep = DateTime.MinValue;
     private int _cubeArrivals = -1;
+    private int _cubeDepartures = -1;
+    private double _lastCubeInterval = 2.0;
+    private DateTime _lastCubeFixAt = DateTime.MinValue;
     private bool _cubeMapOverride;
     private DateTime? _cubesGoneAt;
 
@@ -260,7 +263,7 @@ public sealed class PetMapController : IDisposable
     }
 
     /// <summary>
-    /// A new Hidden Cube in range (the game announces one only within some 40 to 60 m, so its coming alone means "a cube nearby"): the arrival chime at once, before the radar beeps
+    /// A new Hidden Cube in range (the game announces one within some 100 m, measured on our recordings of 5 to 29 October 2026 at 94 and 103 m and by dr89mh/aion2-cube-radar at 97 to 105 m, so its coming alone means "a cube nearby"): the arrival chime at once, before the radar beeps
     /// that wait for the player's own place, and the map comes back when it is hidden. Both are Stacy's ideas (her fork, 17 October 2026). The first reading only takes the count
     /// (no chime for cubes seen at the start).
     /// </summary>
@@ -278,6 +281,16 @@ public sealed class PetMapController : IDisposable
         }
 
         _cubeArrivals = arrivals;
+
+        // a cube that leaves the range while the player walks away from it: the falling "out of sight" sound (the arrival chime rises), so he hears at once that he goes the wrong way
+        int departures = _directory()?.CubeDepartures ?? -1;
+        if (_cubeDepartures >= 0 && departures > _cubeDepartures && settings.CubeSoundEnabled)
+        {
+            NotifySounds.PlayCubeLeft(settings.CubeSoundVolume);
+            _lastCubeBeep = DateTime.UtcNow;
+        }
+
+        _cubeDepartures = departures;
     }
 
     /// <summary>A cube has just come into range: the chime (with the cube sound's switch and volume), and the map where the switches say so and the map shows cubes.</summary>
@@ -298,7 +311,9 @@ public sealed class PetMapController : IDisposable
 
     /// <summary>
     /// The Hidden Cube sound works like a parking sensor: while a cube is in range the sound repeats, the faster the closer the player stands to the nearest one
-    /// (about every 2 s from 60 m away down to 0.15 s within 3 m; 100 world units are a metre). Without a current own position it stays silent.
+    /// (about every 2.5 s from 100 m away, where the game announces a cube, down to 0.15 s within 3 m; 100 world units are a metre). The scale used to end at 60 m,
+    /// so from the announcement at 100 m to 60 m the rhythm did not change at all and the rise only began near the cube. The own position comes only now and then
+    /// (skills, hits, the monsters around): in between the last rhythm goes on for up to 8 s, and without any position for longer it stays silent.
     /// </summary>
     private void AnnounceCubes(MeterSettings settings)
     {
@@ -314,16 +329,18 @@ public sealed class PetMapController : IDisposable
             return;
         }
 
-        // without a current own position the distance is unknown: silence
-        if (directory!.BestPosition is not { } me || DateTime.UtcNow - me.At >= TimeSpan.FromSeconds(5))
+        if (directory!.BestPosition is { } me && DateTime.UtcNow - me.At < TimeSpan.FromSeconds(5))
         {
-            return;
+            double meters = cubes.Min(c => Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y))) / 100.0;
+            _lastCubeInterval = Math.Clamp(0.15 + (meters - 3) / 97.0 * 2.35, 0.15, 2.5);
+            _lastCubeFixAt = DateTime.UtcNow;
+        }
+        else if (DateTime.UtcNow - _lastCubeFixAt > TimeSpan.FromSeconds(8))
+        {
+            return; // no position for too long: the distance is unknown, silence
         }
 
-        double meters = cubes.Min(c => Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y))) / 100.0;
-        double interval = Math.Clamp(0.15 + (meters - 3) / 57.0 * 1.85, 0.15, 2.0);
-
-        if ((DateTime.UtcNow - _lastCubeBeep).TotalSeconds >= interval)
+        if ((DateTime.UtcNow - _lastCubeBeep).TotalSeconds >= _lastCubeInterval)
         {
             _lastCubeBeep = DateTime.UtcNow;
             NotifySounds.Play(settings.CubeSound, settings.CubeSoundVolume);

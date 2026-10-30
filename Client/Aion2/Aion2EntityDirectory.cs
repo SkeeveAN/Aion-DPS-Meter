@@ -870,19 +870,38 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    private readonly Dictionary<int, (string Kind, string Key, float X, float Y, DateTime At)> _env = new();
+    /// <summary>What happens to an environment object the game announced (a Hidden Cube goes through all of them).</summary>
+    public enum EnvState { InSight, Opening, OutOfSight }
 
-    /// <summary>A collectible or Hidden Cube was announced by the game (env object spawn frame: it is in range and there).</summary>
-    public void NoteEnv(int entityId, string kind, string key, float x, float y)
+    private sealed class EnvObject
+    {
+        public required string Kind { get; init; }
+        public required string Key { get; init; }
+        public float X, Y, Z;
+        public long CreatedMs;
+        public DateTime At;
+        public EnvState State;
+        public int Actor;
+    }
+
+    private readonly Dictionary<int, EnvObject> _env = new();
+
+    // The way a Hidden Cube is told from its announcement (template list, the open frames 3836/3a36, the remove reason 04 opened / 01 out of sight, the spawn time and
+    // height in the spawn frame) follows the findings of the open source project dr89mh/aion2-cube-radar (https://github.com/dr89mh/aion2-cube-radar, docs/FINDINGS.md B5-B12),
+    // checked against our own recordings; no code of it is used.
+
+    /// <summary>A collectible or Hidden Cube was announced by the game (env object spawn frame: it is in range and there). <paramref name="z"/> is the height and
+    /// <paramref name="createdMs"/> the Unix time the object came into being (0 when the frame does not carry it).</summary>
+    public void NoteEnv(int entityId, string kind, string key, float x, float y, float z = 0, long createdMs = 0)
     {
         lock (_gate)
         {
-            if (kind == "Cube" && !_env.ContainsKey(entityId))
+            if (kind == "Cube" && !(_env.TryGetValue(entityId, out var known) && known.State != EnvState.OutOfSight))
             {
-                CubeArrivals++;
+                CubeArrivals++; // new, or back in sight after it was out of sight
             }
 
-            _env[entityId] = (kind, key, x, y, DateTime.UtcNow);
+            _env[entityId] = new EnvObject { Kind = kind, Key = key, X = x, Y = y, Z = z, CreatedMs = createdMs, At = Now };
             if (_env.Count > 3000)
             {
                 _env.Clear(); // nothing is ever that close: the table lost its removals
@@ -890,28 +909,69 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    /// <summary>The object is gone (gathered, opened, or out of range).</summary>
-    public void ForgetEnv(int entityId)
+    /// <summary>The object is gone: <paramref name="reason"/> 4 = gathered or opened, 1 = out of range. A Hidden Cube that is only out of range stays remembered (it most
+    /// likely still stands there) and counts as a departure for the "out of sight" sound.</summary>
+    public void ForgetEnv(int entityId, int reason = 0)
     {
         lock (_gate)
         {
+            if (reason == 1 && _env.TryGetValue(entityId, out var obj) && obj.Kind == "Cube")
+            {
+                if (obj.State != EnvState.OutOfSight)
+                {
+                    CubeDepartures++;
+                }
+
+                obj.State = EnvState.OutOfSight;
+                obj.At = Now;
+                return;
+            }
+
             _env.Remove(entityId);
         }
     }
 
-    /// <summary>The collectibles in range right now (one that was never reported gone is dropped after 15 minutes).</summary>
+    /// <summary>A player starts opening an environment object (frame 3836; the cube stays in sight, the actor is the player's entity id).</summary>
+    public void NoteEnvOpening(int entityId, int actorId)
+    {
+        lock (_gate)
+        {
+            if (_env.TryGetValue(entityId, out var obj))
+            {
+                obj.State = EnvState.Opening;
+                obj.Actor = actorId;
+            }
+        }
+    }
+
+    /// <summary>The Hidden Cubes with what is known of each, in sight or out of sight (an opened one is gone and no longer listed).</summary>
+    public IReadOnlyList<(int Id, float X, float Y, float Z, long CreatedMs, EnvState State, int Actor)> CubeDetails()
+    {
+        lock (_gate)
+        {
+            return _env.Where(c => c.Value.Kind == "Cube").Select(c => (c.Key, c.Value.X, c.Value.Y, c.Value.Z, c.Value.CreatedMs, c.Value.State, c.Value.Actor)).ToArray();
+        }
+    }
+
+    /// <summary>The collectibles in range right now (one that was never reported gone is dropped after 15 minutes; a cube out of range is not listed).</summary>
     public IReadOnlyList<(string Kind, string Key, float X, float Y)> LiveEnv()
     {
         lock (_gate)
         {
-            foreach (int stale in _env.Where(c => DateTime.UtcNow - c.Value.At > TimeSpan.FromMinutes(15)).Select(c => c.Key).ToList())
+            foreach (int stale in _env.Where(c => Now - c.Value.At > (c.Value.State == EnvState.OutOfSight ? RememberedCubeFor : TimeSpan.FromMinutes(15))).Select(c => c.Key).ToList())
             {
                 _env.Remove(stale);
             }
 
-            return _env.Values.Select(c => (c.Kind, c.Key, c.X, c.Y)).ToArray();
+            return _env.Values.Where(c => c.State != EnvState.OutOfSight).Select(c => (c.Kind, c.Key, c.X, c.Y)).ToArray();
         }
     }
+
+    /// <summary>How long a cube that left the player's range is remembered as standing where it was.</summary>
+    private static readonly TimeSpan RememberedCubeFor = TimeSpan.FromMinutes(30);
+
+    /// <summary>How many times a Hidden Cube has gone out of range (the player moved away from it): the "out of sight" sound plays when the number grows.</summary>
+    public int CubeDepartures { get; private set; }
 
     /// <summary>How many Hidden Cubes have come into range so far (a new entity each, a repeated announcement of the same one does not count): the map
     /// plays its arrival chime when the number grows (Stacy's idea, 17 October 2026).</summary>

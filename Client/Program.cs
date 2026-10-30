@@ -423,6 +423,20 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-cube-check")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-cube-check <recording.jsonl>... [--port=13328]");
+                Console.WriteLine("  Replays recordings and, for every Hidden Cube, tells how long it was in sight and for how many of those seconds the own position was current (what the approach sound needs). No window.");
+                return;
+            }
+
+            RunAion2CubeCheckMode(args.Skip(1).Where(a => !a.StartsWith("--port=", StringComparison.Ordinal)).ToArray(),
+                args.Where(a => a.StartsWith("--port=", StringComparison.Ordinal)).Select(a => int.Parse(a[7..])).DefaultIfEmpty(13328).First());
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-stock-check")
         {
             if (args.Length < 2)
@@ -2807,6 +2821,95 @@ internal static class Program
 
         Aion2.Protocol.Aion2FrameDecoder.FrameTap = null;
         Console.WriteLine($"aion2-frame-dump: {total} frames of opcode 0x{opcode:x4}");
+    }
+
+    private static void RunAion2CubeCheckMode(string[] paths, int serverPort)
+    {
+        foreach (string path in paths)
+        {
+            var protocol = Aion2.Protocol.Aion2Protocol.Load();
+            using var source = new Aion2.Aion2PacketCombatSource(protocol);
+            var directory = (Aion2.Aion2EntityDirectory)source.Entities;
+            DateTime clock = DateTime.MinValue, lastSecond = DateTime.MinValue, inSightSince = DateTime.MinValue;
+            directory.Clock = () => clock;
+            int seconds = 0, current = 0, exact = 0, around = 0, departures = 0;
+            int lastCubes = 0;
+            var distances = new List<double>();
+            void Flush()
+            {
+                if (seconds > 0)
+                {
+                    Console.WriteLine($"  cube(s) in sight from {inSightSince:HH:mm:ss}: {seconds} s, own position current {current} s (exact fix {exact} s, entities around {around} s), silent {seconds - current} s; nearest cube at {(distances.Count > 0 ? distances.Min() : double.NaN):0} to {(distances.Count > 0 ? distances.Max() : double.NaN):0} m");
+                }
+
+                seconds = current = exact = around = 0;
+                distances.Clear();
+            }
+
+            Console.WriteLine(Path.GetFileName(path));
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+            {
+                bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                clock = segment.Timestamp;
+                source.Ingest(segment with { FromServer = fromServer });
+                source.Poll(false);
+                if ((clock - lastSecond).TotalSeconds < 1)
+                {
+                    continue;
+                }
+
+                lastSecond = clock;
+                var cubes = directory.LiveCubes();
+                if (directory.CubeDepartures > departures)
+                {
+                    Console.WriteLine($"  {clock:HH:mm:ss} a cube went out of sight (departure {directory.CubeDepartures})");
+                    departures = directory.CubeDepartures;
+                }
+
+                if (cubes.Count == 0)
+                {
+                    if (lastCubes > 0)
+                    {
+                        Flush();
+                    }
+
+                    lastCubes = 0;
+                    continue;
+                }
+
+                if (lastCubes == 0)
+                {
+                    inSightSince = clock;
+                }
+
+                lastCubes = cubes.Count;
+                seconds++;
+                if (directory.BestPosition is { } me && (clock - me.At).TotalSeconds < 5)
+                {
+                    current++;
+                    if (directory.LocalPosition is { } fix && (clock - fix.At) <= Aion2.Aion2EntityDirectory.FixTrust)
+                    {
+                        exact++;
+                    }
+                    else
+                    {
+                        around++;
+                    }
+
+                    distances.Add(cubes.Min(c => Math.Sqrt(((double)c.X - me.X) * (c.X - me.X) + ((double)c.Y - me.Y) * (c.Y - me.Y))) / 100.0);
+                }
+            }
+
+            if (lastCubes > 0)
+            {
+                Flush();
+            }
+        }
     }
 
     private static void RunAion2PositionCheckMode(string[] paths, int serverPort)

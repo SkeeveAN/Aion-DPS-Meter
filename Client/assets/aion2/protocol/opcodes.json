@@ -396,6 +396,7 @@
     "npcRemove": [16950],
     "envSpawn": [13366],
     "envRemove": [13622],
+    "envOpenStart": [14390],
     "zone": [],
     "roster": [
       663,

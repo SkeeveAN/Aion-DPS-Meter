@@ -100,6 +100,8 @@ public enum OpcodeFamily
     EnvSpawn,
     /// <summary>"An environment object disappears": entity id (varint), 04 03 00.</summary>
     EnvRemove,
+    /// <summary>"A player starts opening an environment object": object entity, actor entity, 01 (0x3836).</summary>
+    EnvOpenStart,
     Zone,
 }
 

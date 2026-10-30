@@ -25,6 +25,9 @@ public static class NotifySounds
     /// The idea is Stacy's (her fork, 17 October 2026).</summary>
     public static void PlayCubeArrival(int volume) => PlayFile("cube-arrival", volume);
 
+    /// <summary>The Hidden Cube "out of sight" sound (three falling notes, made by Tools/make_cube_left_sound.py): a cube went out of range, the player moves away from it.</summary>
+    public static void PlayCubeLeft(int volume) => PlayFile("cube-left", volume);
+
     private static void PlayFile(string id, int volume)
     {
         string path = Path.Combine(AppContext.BaseDirectory, "assets", "sounds", id + ".wav");

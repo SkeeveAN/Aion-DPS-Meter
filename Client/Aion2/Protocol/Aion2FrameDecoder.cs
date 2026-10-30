@@ -960,6 +960,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.EnvRemove:
                 DecodeEnvRemove(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.EnvOpenStart:
+                DecodeEnvOpenStart(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Nickname:
                 DecodeNickname(frame, fields, layout.LittleEndian);
                 return Array.Empty<DamageEvent>();
@@ -1152,16 +1155,32 @@ public sealed class Aion2FrameDecoder
         float y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 10)..]);
         if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) < 1_000_000 && Math.Abs(y) < 1_000_000)
         {
-            _entities.NoteEnv(unchecked((int)entityId), what.Value.Kind, what.Value.Key, x, y);
+            // the height follows y; the state byte is at +28 and the Unix time the object came into being (ms) at +29 (a value outside 2020 to 2052 is no time)
+            float z = frame.Length >= p + 18 ? BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 14)..]) : 0;
+            long created = frame.Length >= p + 37 ? BinaryPrimitives.ReadInt64LittleEndian(frame[(p + 29)..]) : 0;
+            _entities.NoteEnv(unchecked((int)entityId), what.Value.Kind, what.Value.Key, x, y, float.IsFinite(z) ? z : 0, created is < 1_600_000_000_000 or > 2_600_000_000_000 ? 0 : created);
         }
     }
 
+    /// <summary>"An environment object disappears": entity id (varint), reason byte (04 = gathered or opened, 01 = left the player's range), two more bytes.
+    /// The reasons are those of dr89mh/aion2-cube-radar (docs/FINDINGS.md B6), seen the same on our recordings.</summary>
     private void DecodeEnvRemove(ReadOnlySpan<byte> frame)
     {
         int p = 2;
         if (TryReadVarint(frame, ref p, out long entityId))
         {
-            _entities.ForgetEnv(unchecked((int)entityId));
+            _entities.ForgetEnv(unchecked((int)entityId), p < frame.Length ? frame[p] : 0);
+        }
+    }
+
+    /// <summary>"A player starts opening an environment object" (0x3836): object entity (varint), actor entity (varint), 01. For a Hidden Cube it is followed by 0x3a36
+    /// (the same two ids, then count 1 and the key item 630900003) and the remove frame with reason 04 (dr89mh/aion2-cube-radar, FINDINGS B6).</summary>
+    private void DecodeEnvOpenStart(ReadOnlySpan<byte> frame)
+    {
+        int p = 2;
+        if (TryReadVarint(frame, ref p, out long entityId) && TryReadVarint(frame, ref p, out long actorId))
+        {
+            _entities.NoteEnvOpening(unchecked((int)entityId), unchecked((int)actorId));
         }
     }
 

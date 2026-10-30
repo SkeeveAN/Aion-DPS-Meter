@@ -80,7 +80,7 @@ Mittelwert schlägt Median und gekappte Mitte; ältere Entitäten (60 s, 120 s) 
 
 ## Umgebungsobjekte `0x3836` / `0x3a36` / `0x3b36`
 
-Weiter nur Hypothese ("Objekt wird von einem Spieler benutzt"); Reihenfolge `3836 | Env-ID | Akteur` → `3a36` → `6d8d` → `3b36 | Env-ID`. Keine Anzeige im Client, solange die Bedeutung nicht belegt ist (Vorschlag: gezielter Test im Spiel mit Uhrzeit, dann Abgleich mit der Aufnahme).
+**Für den Hidden Cube belegt am 30.10.2026** (siehe [cube-frames.md](cube-frames.md)); für andere Objekte weiter Hypothese ("Objekt wird von einem Spieler benutzt"); Reihenfolge `3836 | Env-ID | Akteur` → `3a36` → `6d8d` → `3b36 | Env-ID`. Keine Anzeige im Client, solange die Bedeutung nicht belegt ist (Vorschlag: gezielter Test im Spiel mit Uhrzeit, dann Abgleich mit der Aufnahme).
 
 ## Aufnahme-Dateien und Testmodi
 

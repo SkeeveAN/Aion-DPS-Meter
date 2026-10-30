@@ -105,12 +105,12 @@ Dokumente: [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fr
 | `0x3c37` | Positionskorrektur/Teleport | bekannt | position-frames |
 | `0x4736` | Spieler entfernen (mit Grund) | neu 23.10. | bewegungs-frames |
 | `0x4236` | NPC entfernen | neu 23.10. | bewegungs-frames |
-| `0x3536` | Umgebungsobjekt entfernen | neu 23.10. | bewegungs-frames |
-| `0x3436` | Umgebungsobjekt (statisch) | bekannt | bewegungs-frames |
+| `0x3536` | Umgebungsobjekt entfernen; erstes Byte nach der ID = Grund: `04` geöffnet/abgeerntet, `01` außer Reichweite | Grund belegt 30.10. (Quelle dr89mh/aion2-cube-radar, eigene Aufnahmen) | cube-frames |
+| `0x3436` | Umgebungsobjekt (statisch); Hidden Cube = Env-ID aus `IsHiddenCube`; +14 Höhe z, +28 Zustand, +29 Entstehungszeit u64 ms | belegt 30.10. | cube-frames |
 | `0x4136` | NPC-Spawn | bekannt | bewegungs-frames |
 | `0x4536` | Spieler-Spawn | bekannt | bewegungs-frames |
-| `0x3836` | Umgebungsobjekt wird benutzt | neu, Art Hypothese | bewegungs-frames |
-| `0x3a36` | Umgebungsobjekt wird benutzt | neu, Art Hypothese | bewegungs-frames |
+| `0x3836` | Spieler beginnt ein Umgebungsobjekt zu öffnen (Objekt, Akteur, 01) | belegt 30.10. (Hidden Cube) | cube-frames |
+| `0x3a36` | Öffnen fertig; beim Hidden Cube danach Anzahl 1 + Schlüssel 630900003 (0x259AC523), sonst 8 Nullbytes | belegt 30.10. | cube-frames |
 | `0x3b36` | Umgebungsobjekt wird benutzt | neu, Art Hypothese | bewegungs-frames |
 | `0x4e36` | Ausrichtung (zwei Winkel) | neu 23.10. | bewegungs-frames |
 | `0x0638` | Skill-Ende | neu 23.10. | welt-frames |
