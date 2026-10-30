@@ -388,14 +388,16 @@ public sealed class ChecklistWindow : Window
     private void AddDaily(string title, TicketCharacter character)
     {
         LocalizationManager loc = LocalizationManager.Instance;
-        int done = character.Tickets.TryGetValue(Aion2Tickets.MissionsId, out TicketValue missions) ? missions.Count : 0;
+        // (Stacy's fix from her fork, MIT) the count read last, or 0 (shown as an estimate) when a daily reset came since that reading: the game sends it at a login, a hand-in or when the journal is opened, never at the reset
+        bool stale = character.Tickets.TryGetValue(Aion2Tickets.MissionsId, out TicketValue missions) && Aion2Tickets.MissionsStale(missions, DateTime.Now);
+        int done = stale ? 0 : missions.Count;
         string region = loc[character.ServerId / 1000 == 2 ? "Checklist.RegionAsmodian" : "Checklist.RegionElyos"];
         var stack = new StackPanel();
         stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
         ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
         Grid grid = NumberGrid(1);
         int row = 0;
-        AddTableRow(grid, row++, string.Format(CultureInfo.CurrentCulture, loc["Checklist.DailyTasks"], region), done, Aion2Tickets.MissionsPerDay, false, countsUp: true);
+        AddTableRow(grid, row++, string.Format(CultureInfo.CurrentCulture, loc["Checklist.DailyTasks"], region), done, Aion2Tickets.MissionsPerDay, stale, countsUp: true);
         if (done >= Aion2Tickets.MissionsPerDay)
         {
             TextBlock tick = Label("\u2713", "Brush.Accent", 15, bold: true);

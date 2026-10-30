@@ -74,6 +74,46 @@ public static class SelfCheckTickets
         bool relogKeeps = relogged.Tickets[Aion2Tickets.ShopOdyleId] is { Count: 12, TimeMs: 1_900_000_000_000 } && relogged.Tickets[7].Count == 28;
         Console.WriteLine($"  -> an entry with mask bit 2 read={maskBit2}, started in game: changes go to the last saved character={startedInGame}, relog keeps the Odyle purchases and takes the rest from the new list={relogKeeps}");
 
+        // (after Stacy's checks in her fork) the mandatory tasks reset at 09:00 on the German servers' clock all year (08:00 UTC in winter, 07:00 in summer); a count read before it is stale
+        static DateTime Utc(int month, int day, int hour, int minute = 0, int second = 0) => new(2026, month, day, hour, minute, second, DateTimeKind.Utc);
+        bool missionsReset = Aion2Tickets.LastMissionsReset(Utc(10, 30, 8, 30)).ToUniversalTime() == Utc(10, 30, 8)
+            && Aion2Tickets.LastMissionsReset(Utc(10, 30, 7, 59)).ToUniversalTime() == Utc(10, 29, 8)
+            && Aion2Tickets.LastMissionsReset(Utc(7, 15, 7, 30)).ToUniversalTime() == Utc(7, 15, 7)
+            && Aion2Tickets.LastMissionsReset(Utc(7, 15, 6, 59)).ToUniversalTime() == Utc(7, 14, 7);
+        long Ms(DateTime utc) => new DateTimeOffset(utc).ToUnixTimeMilliseconds();
+        bool missionsStale = Aion2Tickets.MissionsStale(new TicketValue(5, 5, Ms(Utc(10, 29, 20))), Utc(10, 30, 8, 30))
+            && !Aion2Tickets.MissionsStale(new TicketValue(5, 5, Ms(Utc(10, 30, 8, 10))), Utc(10, 30, 8, 30))
+            && !Aion2Tickets.MissionsStale(new TicketValue(5, 5, Ms(Utc(10, 29, 20))), Utc(10, 30, 7, 30))
+            && Aion2Tickets.MissionsStale(new TicketValue(5, 5, 0), Utc(10, 30, 8, 30));
+        // a day's counts: read with the time, the first login after the reset leaves yesterday's head out (the reading stays, stale), a relog the same day keeps the game's
+        Aion2Tickets.Reset();
+        DateTime day1 = Utc(10, 29, 18);
+        Aion2Tickets.ReceiveList(entries, day1);
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.MissionsId, new TicketValue(5, 5, 0)), day1.AddSeconds(1));
+        Aion2Tickets.NoteCharacter("Qux", 1304, day1.AddSeconds(4));
+        TicketValue evening = Aion2Tickets.Snapshot().First(c => c.Name == "Qux").Tickets[Aion2Tickets.MissionsId];
+        bool stamped = evening.Count == 5 && evening.TimeMs == Ms(day1.AddSeconds(1)) && !Aion2Tickets.MissionsStale(evening, day1.AddMinutes(5));
+        DateTime login1 = Utc(10, 30, 8, 30);
+        Aion2Tickets.ReceiveList(entries, login1);
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.MissionsId, new TicketValue(5, 5, 0)), login1.AddSeconds(1)); // yesterday's, sent again
+        Aion2Tickets.NoteCharacter("Qux", 1304, login1.AddSeconds(4));
+        TicketValue morning = Aion2Tickets.Snapshot().First(c => c.Name == "Qux").Tickets[Aion2Tickets.MissionsId];
+        bool firstLogin = Aion2Tickets.MissionsStale(morning, login1.AddMinutes(1));
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.MissionsId, new TicketValue(2, 3, 0)), login1.AddMinutes(10)); // a hand-in: the game's true count
+        DateTime login2 = login1.AddMinutes(30);
+        Aion2Tickets.ReceiveList(entries, login2);
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.MissionsId, new TicketValue(2, 3, 0)), login2.AddSeconds(1));
+        Aion2Tickets.NoteCharacter("Qux", 1304, login2.AddSeconds(4));
+        TicketValue relog = Aion2Tickets.Snapshot().First(c => c.Name == "Qux").Tickets[Aion2Tickets.MissionsId];
+        bool sameDay = relog.Count == 2 && !Aion2Tickets.MissionsStale(relog, login2.AddMinutes(1));
+        // a character the meter has never seen takes its first head
+        Aion2Tickets.ReceiveList(entries, login2.AddMinutes(5));
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.MissionsId, new TicketValue(4, 4, 0)), login2.AddMinutes(5).AddSeconds(1));
+        Aion2Tickets.NoteCharacter("Newbie", 1304, login2.AddMinutes(5).AddSeconds(4));
+        bool newcomer = Aion2Tickets.Snapshot().First(c => c.Name == "Newbie").Tickets[Aion2Tickets.MissionsId].Count == 4;
+        Console.WriteLine($"  -> missions: reset 09:00 German clock in winter and summer={missionsReset}, stale before it={missionsStale}, read with its time={stamped}, first login of the day leaves yesterday's head out={firstLogin}, relog the same day keeps it={sameDay}, a new character takes it={newcomer}");
+        Aion2Tickets.Reset();
+
         // refills since the last sight: daily +2 up to 14 (16:00), weekly 35 on Wednesday 16:00
         TicketDef? nightmare = Aion2Tickets.Find(4);
         TicketDef? kills = Aion2Tickets.Find(60000007);
@@ -300,7 +340,7 @@ public static class SelfCheckTickets
             && AionDPS.Upload.RemoteCharacterClient.Parse(nothing.RootElement) is null;
         Console.WriteLine($"  -> the server's answer for another character read (equipment with stones and god stone, attributes, wings, pet, titles; a character without a profile; no player)={remoteRead}");
         Aion2Tickets.Reset();
-        bool ok = maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = missionsReset && missionsStale && stamped && firstLogin && sameDay && newcomer && maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;

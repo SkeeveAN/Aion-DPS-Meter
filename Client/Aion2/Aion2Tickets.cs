@@ -222,6 +222,7 @@ public static class Aion2Tickets
             _likely = null;
             _awaitingName = false;
             _pending = null;
+            _pendingAt = default;
             _dirty = false;
         }
     }
@@ -448,6 +449,53 @@ public static class Aion2Tickets
         return true;
     }
 
+    private static readonly TimeZoneInfo MissionsZone = FindMissionsZone();
+
+    private static TimeZoneInfo FindMissionsZone()
+    {
+        foreach (string id in new[] { "Europe/Berlin", "W. Europe Standard Time" })
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
+            {
+            }
+        }
+
+        return TimeZoneInfo.Local;
+    }
+
+    /// <summary>The latest daily reset of the mandatory tasks at or before <paramref name="now"/>, as local time. It is 09:00 on the clock of the German servers all year:
+    /// the server follows the change between summer and winter time (SkeeveTV, 2026-10-30), so the Korean 16:00 of the other counters is not used here.</summary>
+    public static DateTime LastMissionsReset(DateTime now)
+    {
+        DateTime server = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), MissionsZone);
+        DateTime reset = server.Date.AddHours(9);
+        if (reset > server)
+        {
+            reset = reset.AddDays(-1);
+        }
+
+        return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(reset, DateTimeKind.Unspecified), MissionsZone).ToLocalTime();
+    }
+
+    /// <summary>Whether the missions count was read before the last daily reset, so the five are to be done again (the idea, the reading time and this check are Stacy's, from her fork
+    /// StacysView/Aion-DPS-Meter, MIT, 27 to 29 October 2026; here with the German servers' 09:00 reset). The game sends the count only at a login, at an accept or a hand-in and
+    /// when the journal is opened, never at the reset itself: what the meter holds is yesterday's until then (a reading with no time, stored before the time was kept, is of an unknown day).</summary>
+    public static bool MissionsStale(TicketValue missions, DateTime now) =>
+        missions.TimeMs <= 0 || DateTimeOffset.FromUnixTimeMilliseconds(missions.TimeMs).LocalDateTime < LastMissionsReset(now);
+
+    /// <summary>How long after a login list a missions head still counts as the login's own (the head follows the list by a second or two).</summary>
+    private static readonly TimeSpan LoginHeadWindow = TimeSpan.FromSeconds(15);
+
+    /// <summary>Whether a missions head sent at a login is to be left out: at the first login of a day (nothing read since the last reset) the game still sends yesterday's count
+    /// (found and solved by Stacy in her fork, 2026-10-28: 5 of 5 at 18:50 after the reset). The count then stays at 0 from the reset; a relog the same day has a reading since the reset and keeps the game's.
+    /// A character the meter has never seen has nothing to go by: it takes the head.</summary>
+    private static bool FirstLoginOfDay(TicketCharacter? before, DateTime at) =>
+        before is not null && (!before.Tickets.TryGetValue(MissionsId, out TicketValue old) || MissionsStale(old, at));
+
     /// <summary>The shop purchase counters <c>0x8e56</c> (the whole list a little after the login, one entry again after every purchase):
     /// <c>00 00 | n (u8) | n x ( counter id u32 | bought u32 | reset time u64 ms )</c>. Seen on 14 October: counter 100134 = 20 after the 20 purchases of Odyle energy
     /// (100,000 Kinah each), the reset of Wednesday 16:00 Korean time. Only the Odyle counter is read.</summary>
@@ -608,6 +656,12 @@ public static class Aion2Tickets
 
     public static void ReceiveUpdate(TicketReading reading, DateTime at)
     {
+        // The missions' head carries no time of its own: it gets the time it was read, so a daily reset since then is known (a relog keeps it). Stacy's approach (her fork, MIT).
+        if (reading.Id == MissionsId && reading.Value.TimeMs == 0)
+        {
+            reading = reading with { Value = reading.Value with { TimeMs = new DateTimeOffset(at.ToUniversalTime()).ToUnixTimeMilliseconds() } };
+        }
+
         bool changed = false;
         lock (Gate)
         {
@@ -619,6 +673,11 @@ public static class Aion2Tickets
             {
                 if (Characters.TryGetValue(name, out TicketCharacter? known))
                 {
+                    if (reading.Id == MissionsId && at - _pendingAt >= TimeSpan.Zero && at - _pendingAt < LoginHeadWindow && FirstLoginOfDay(known, at))
+                    {
+                        return;
+                    }
+
                     var tickets = new Dictionary<int, TicketValue>(known.Tickets) { [reading.Id] = reading.Value };
                     Characters[name] = known with { SavedAt = DateTime.UtcNow, Tickets = tickets };
                 }
@@ -688,6 +747,20 @@ public static class Aion2Tickets
                 if (Characters.TryGetValue(name, out TicketCharacter? before) && !_pending.ContainsKey(ShopOdyleId) && before.Tickets.TryGetValue(ShopOdyleId, out TicketValue shop))
                 {
                     _pending[ShopOdyleId] = shop;
+                }
+
+                // the first login of a day sends yesterday's missions count: the old reading stays (stale, so the checklist shows it as an estimate)
+                TicketCharacter? previous = Characters.GetValueOrDefault(name);
+                if (_pending.ContainsKey(MissionsId) && FirstLoginOfDay(previous, receivedAt))
+                {
+                    if (previous!.Tickets.TryGetValue(MissionsId, out TicketValue stale))
+                    {
+                        _pending[MissionsId] = stale;
+                    }
+                    else
+                    {
+                        _pending.Remove(MissionsId);
+                    }
                 }
 
                 Characters[name] = Characters.TryGetValue(name, out TicketCharacter? listed)
