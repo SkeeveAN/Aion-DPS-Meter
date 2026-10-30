@@ -444,6 +444,8 @@ export default {
   "stats.fewRows": "{n} class(es) have fewer than {rows} rows – read them with care.",
   "stats.tooFew": "Too few rows for a box plot yet.",
   "gear.label": "Gear score",
+  "level.label": "Item level",
+  "level.note": "The item level (from NC's character page) is known for {known} of {runs} runs. A run is kept when every known item level in it lies in the range.",
   "power.label": "Combat power",
   "power.note": "The combat power (from NC's character page) is known for {known} of {runs} runs. A run is kept when every known combat power in it lies in the range.",
   "gear.all": "All runs",

@@ -11,7 +11,7 @@ import { gameFromQuery } from "./instances.js";
 import { CATEGORY_MODES, type Game } from "../constants.js";
 import { boxesByClass, skillStatsByClass } from "../classStats.js";
 import { skillIconByName, skillNameById, skillNamesByName } from "../profile.js";
-import { gearCondition, knownGearCondition, parseGearRange, type GearRange } from "../gearFilter.js";
+import { gearCondition, gearEdges, knownGearCondition, parseGearRange, type GearRange, type Metric } from "../gearFilter.js";
 
 const TOP_N = 10;
 
@@ -313,14 +313,38 @@ function withSkillArt(classes: ReturnType<typeof classSkills>) {
 }
 
 /** How many fights of this boss in this scope have a known gear score (all of them: what the filter can work with). */
-export function gearCoverage(bossId: number, serverId: number | null, mode: string | null = null, metric: "score" | "power" = "score") {
+export function gearCoverage(bossId: number, serverId: number | null, mode: string | null = null, metric: Metric = "score") {
   const scope = encounterScope(bossId, serverId, mode);
   const row = db
     .select({ runs: count(encounters.id), known: sql<number>`sum(case when ${knownGearCondition(metric)} then 1 else 0 end)` })
     .from(encounters)
     .where(scope)
     .get();
-  return { runs: row?.runs ?? 0, known: row?.known ?? 0 };
+  return { runs: row?.runs ?? 0, known: row?.known ?? 0, edges: gearEdges(gearValues(bossId, serverId, mode, metric), metric) };
+}
+
+/** Every known value of the metric of the players of this boss's fights in this scope, a player once per fight (for the edges of the filter). */
+export function gearValues(bossId: number, serverId: number | null, mode: string | null, metric: Metric): number[] {
+  const scope = encounterScope(bossId, serverId, mode);
+  if (metric === "score") {
+    return db
+      .select({ v: playerProfiles.gearScore })
+      .from(encounters)
+      .innerJoin(encounterParticipants, eq(encounterParticipants.encounterId, encounters.id))
+      .innerJoin(playerProfiles, eq(playerProfiles.playerId, encounterParticipants.playerId))
+      .where(and(scope, sql`${playerProfiles.gearScore} > 0`))
+      .all()
+      .map((r) => r.v ?? 0);
+  }
+  const column = metric === "power" ? playerNcCharacter.combatPower : playerNcCharacter.itemLevel;
+  return db
+    .select({ v: column })
+    .from(encounters)
+    .innerJoin(encounterParticipants, eq(encounterParticipants.encounterId, encounters.id))
+    .innerJoin(playerNcCharacter, eq(playerNcCharacter.playerId, encounterParticipants.playerId))
+    .where(and(scope, sql`${column} > 0`))
+    .all()
+    .map((r) => r.v ?? 0);
 }
 
 /** The length in seconds of every fight of one boss in this scope, for the histogram of kill times (at most 5,000, the newest). */
@@ -503,14 +527,15 @@ export async function bossRoutes(app: FastifyInstance) {
       const stats = statsForBossIds([boss.id], scope, mode, gear);
       const gearInfo = { ...gearCoverage(boss.id, scope, mode), selected: gear?.metric === undefined ? gear : null };
       const powerInfo = { ...gearCoverage(boss.id, scope, mode, "power"), selected: gear?.metric === "power" ? gear : null };
+      const levelInfo = { ...gearCoverage(boss.id, scope, mode, "level"), selected: gear?.metric === "level" ? gear : null };
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode, gear), stats, gear: gearInfo, power: powerInfo });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode, gear), stats, gear: gearInfo, power: powerInfo, level: levelInfo });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode, gear), topByClass: {}, stats, gear: gearInfo, power: powerInfo });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode, gear), topByClass: {}, stats, gear: gearInfo, power: powerInfo, level: levelInfo });
     },
   );
 
@@ -548,6 +573,7 @@ export async function bossRoutes(app: FastifyInstance) {
         skills: found.game === "aion2" ? withSkillArt(classSkills(boss.id, scope, mode, gear)) : classSkills(boss.id, scope, mode, gear),
         gear: { ...gearCoverage(boss.id, scope, mode), selected: gear?.metric === undefined ? gear : null },
         power: { ...gearCoverage(boss.id, scope, mode, "power"), selected: gear?.metric === "power" ? gear : null },
+        level: { ...gearCoverage(boss.id, scope, mode, "level"), selected: gear?.metric === "level" ? gear : null },
       });
     },
   );

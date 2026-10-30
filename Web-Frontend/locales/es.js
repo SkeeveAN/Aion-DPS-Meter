@@ -937,6 +937,8 @@ export default {
   "lord.wisdom": "Lumiel",
   "mode.all": "Todos",
   "participant.playerHeading": "Jugador",
+  "level.label": "Nivel de objeto",
+  "level.note": "El nivel de objeto (de la página de personaje de NC) se conoce en {known} de {runs} partidas. Una partida se mantiene si todos los niveles de objeto conocidos en ella están dentro del rango.",
   "power.label": "Poder de combate",
   "power.note": "El poder de combate (de la página de personaje de NC) se conoce en {known} de {runs} combates. Un combate se mantiene si todos los poderes de combate conocidos en él están dentro del rango.",
   "profile.attrLords": "Valores de los señores",

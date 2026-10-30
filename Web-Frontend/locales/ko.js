@@ -953,6 +953,8 @@ export default {
   "lord.wisdom": "루미엘",
   "mode.all": "전체",
   "participant.playerHeading": "플레이어",
+  "level.label": "아이템 레벨",
+  "level.note": "아이템 레벨(NC 캐릭터 페이지 기준)은 {runs}회 중 {known}회에서 확인되었습니다. 확인된 아이템 레벨이 모두 범위 안에 있으면 해당 런을 표시합니다.",
   "power.label": "전투력",
   "power.note": "전투력(NC 캐릭터 페이지 기준)은 {runs}개 중 {known}개 기록에서 알려져 있습니다. 기록 안의 알려진 전투력이 모두 범위 안에 있을 때 유지됩니다.",
   "profile.attrLords": "군주 수치",

@@ -937,6 +937,8 @@ export default {
   "lord.wisdom": "Lumiel",
   "mode.all": "Tous",
   "participant.playerHeading": "Joueur",
+  "level.label": "Niveau d'objet",
+  "level.note": "Le niveau d'objet (de la page personnage de NC) est connu pour {known} séries sur {runs}. Une série est gardée si tous les niveaux d'objet connus qu'elle contient sont dans la plage.",
   "power.label": "Puissance de combat",
   "power.note": "La puissance de combat (de la page de personnage de NC) est connue pour {known} combats sur {runs}. Un combat est conservé si toutes les puissances de combat connues qu'il contient sont dans la plage.",
   "profile.attrLords": "Valeurs des seigneurs",

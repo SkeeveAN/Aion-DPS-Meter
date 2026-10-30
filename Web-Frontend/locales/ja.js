@@ -953,6 +953,8 @@ export default {
   "lord.wisdom": "ルミエル",
   "mode.all": "すべて",
   "participant.playerHeading": "プレイヤー",
+  "level.label": "アイテムレベル",
+  "level.note": "アイテムレベル（NCのキャラクターページより）は{runs}回中{known}回で判明しています。判明しているアイテムレベルがすべて範囲内の場合、その実行を表示します。",
   "power.label": "戦闘力",
   "power.note": "戦闘力（NC のキャラクターページより）は {runs} 件中 {known} 件で判明しています。記録内の判明している戦闘力がすべて範囲内にある場合に残ります。",
   "profile.attrLords": "ロード値",

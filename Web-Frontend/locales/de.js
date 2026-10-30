@@ -444,6 +444,8 @@ export default {
   "stats.fewRows": "{n} Klasse(n) haben weniger als {rows} Einträge – mit Vorsicht lesen.",
   "stats.tooFew": "Noch zu wenige Einträge für einen Boxplot.",
   "gear.label": "Gear Score",
+  "level.label": "Gegenstandsstufe",
+  "level.note": "Die Gegenstandsstufe (von NCs Charakterseite) ist bei {known} von {runs} Läufen bekannt. Ein Lauf bleibt, wenn jede bekannte Gegenstandsstufe darin im Bereich liegt.",
   "power.label": "Kampfkraft",
   "power.note": "Die Kampfkraft (von NCs Charakterseite) ist bei {known} von {runs} Läufen bekannt. Ein Lauf bleibt, wenn jede bekannte Kampfkraft darin im Bereich liegt.",
   "gear.all": "Alle Läufe",

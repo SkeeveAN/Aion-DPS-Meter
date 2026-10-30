@@ -290,46 +290,44 @@ export function buildBossStats(stats, deps) {
 // choice is part of the address (shareable, back button works). A second row does the same for the combat power NC lists for the characters
 // (known for far more players than the gear score; a range of it starts with "p" in the address).
 const GEAR_KINDS = {
-  score: {
-    label: "gear.label",
-    note: "gear.note",
-    ranges: [
-      { key: "all", range: null },
-      { key: "low", range: "-1500", text: (t, f) => t("gear.upTo", { max: f(1500) }) },
-      { key: "mid", range: "1500-2000", text: (t, f) => t("gear.between", { min: f(1500), max: f(2000) }) },
-      { key: "high", range: "2000-", text: (t, f) => t("gear.from", { min: f(2000) }) },
-    ],
-  },
-  power: {
-    label: "power.label",
-    note: "power.note",
-    ranges: [
-      { key: "all", range: null },
-      { key: "low", range: "p-75000", text: (t, f) => t("gear.upTo", { max: f(75000) }) },
-      { key: "mid", range: "p75000-120000", text: (t, f) => t("gear.between", { min: f(75000), max: f(120000) }) },
-      { key: "high", range: "p120000-", text: (t, f) => t("gear.from", { min: f(120000) }) },
-    ],
-  },
+  score: { label: "gear.label", note: "gear.note", prefix: "" },
+  level: { label: "level.label", note: "level.note", prefix: "i" },
+  power: { label: "power.label", note: "power.note", prefix: "p" },
 };
+
+/** The ranges of a row: all runs, and the ranges the API's edges cut the known values into (up to three: below the first edge, between the edges, from the last). */
+function gearRanges(edges, prefix) {
+  const ranges = [{ key: "all", range: null }];
+  if (edges.length === 0) {
+    return ranges;
+  }
+  ranges.push({ key: "low", range: `${prefix}-${edges[0]}`, text: (t, f) => t("gear.upTo", { max: f(edges[0]) }) });
+  if (edges.length > 1) {
+    ranges.push({ key: "mid", range: `${prefix}${edges[0]}-${edges[1]}`, text: (t, f) => t("gear.between", { min: f(edges[0]), max: f(edges[1]) }) });
+  }
+  const last = edges[edges.length - 1];
+  ranges.push({ key: "high", range: `${prefix}${last}-`, text: (t, f) => t("gear.from", { min: f(last) }) });
+  return ranges;
+}
 
 /**
  * @param gear   { runs, known, selected } from the API: how many runs have a known value and the range in use
  * @param hrefFor function(range or null) -> the address that shows this range
- * @param kind   "score" (gear score) or "power" (combat power)
- * @returns the filter row, or null when no run has a value at all
+ * @param kind   "score" (gear score), "level" (item level) or "power" (combat power)
+ * @returns the filter row, or null when no run has a value at all or too few values for ranges (the API's `edges` are then empty): the ranges follow the values seen
  */
 export function buildGearFilter(gear, hrefFor, deps, kind = "score") {
   const { el, t, formatNumber } = deps;
-  if (!gear || gear.known === 0) {
+  if (!gear || gear.known === 0 || ((gear.edges ?? []).length === 0 && !gear.selected)) {
     return null;
   }
   const spec = GEAR_KINDS[kind];
-  const prefix = kind === "power" ? "p" : "";
+  const prefix = spec.prefix;
   const selectedKey = gear.selected ? `${prefix}${gear.selected.min > 0 ? gear.selected.min : ""}-${gear.selected.max < Number.MAX_SAFE_INTEGER ? gear.selected.max : ""}` : null;
   const seg = el(
     "div",
     { className: "lb-seg", role: "group" },
-    spec.ranges.map(({ key, range, text }) => {
+    gearRanges(gear.edges, prefix).map(({ key, range, text }) => {
       const a = el("a", { href: hrefFor(range), textContent: key === "all" ? t("gear.all") : text(t, formatNumber) });
       a.setAttribute("aria-selected", String(range === selectedKey));
       return a;
@@ -341,9 +339,9 @@ export function buildGearFilter(gear, hrefFor, deps, kind = "score") {
   ]);
 }
 
-/** Both filter rows (gear score, combat power) of an API answer that carries `gear` and `power`; rows without any known value are left out. */
+/** The filter rows (gear score, item level, combat power) of an API answer that carries `gear`, `level` and `power`; rows without known values or ranges are left out. */
 export function buildGearFilters(data, hrefFor, deps) {
-  return [buildGearFilter(data.gear, hrefFor, deps, "score"), buildGearFilter(data.power, hrefFor, deps, "power")].filter((x) => x !== null);
+  return [buildGearFilter(data.gear, hrefFor, deps, "score"), buildGearFilter(data.level, hrefFor, deps, "level"), buildGearFilter(data.power, hrefFor, deps, "power")].filter((x) => x !== null);
 }
 
 /** The skill table of one class at this boss, with one tab per class. */

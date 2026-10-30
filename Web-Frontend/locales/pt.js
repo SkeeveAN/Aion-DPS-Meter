@@ -953,6 +953,8 @@ export default {
   "lord.wisdom": "Lumiel",
   "mode.all": "Todos",
   "participant.playerHeading": "Jogador",
+  "level.label": "Nível de item",
+  "level.note": "O nível de item (da página de personagem da NC) é conhecido em {known} de {runs} partidas. Uma partida é mantida quando todos os níveis de item conhecidos nela estão no intervalo.",
   "power.label": "Poder de Combate",
   "power.note": "O poder de combate (da página de personagem da NC) é conhecido em {known} de {runs} lutas. Uma luta é mantida quando todos os poderes de combate conhecidos nela estão dentro do intervalo.",
   "profile.attrLords": "Valores dos lordes",

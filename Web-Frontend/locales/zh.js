@@ -932,6 +932,8 @@ export default {
   "lord.wisdom": "Lumiel",
   "mode.all": "全部",
   "participant.playerHeading": "玩家",
+  "level.label": "装备等级",
+  "level.note": "装备等级（来自NC角色页面）在 {runs} 次战斗中有 {known} 次已知。已知的装备等级全部在范围内时，该战斗才会保留。",
   "power.label": "战斗力",
   "power.note": "战斗力（来自 NC 角色页面）在 {runs} 场战斗中有 {known} 场已知。当一场战斗中所有已知的战斗力都在该范围内时才会保留。",
   "profile.attrLords": "领主数值",
