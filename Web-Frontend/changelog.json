@@ -73,6 +73,13 @@
      "Client"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Dummy test: each run keeps the skill levels the game showed, the comparison names the skills whose level differs and shows what a level is worth (the plain hit per level, about how much iDPS); the game's skill entries are read so a changed level is known at once, and saved runs keep their hit kinds; after Stacy's fork",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
