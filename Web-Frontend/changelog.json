@@ -59,6 +59,13 @@
      "Backend"
     ],
     "date": "2026-10-30"
+   },
+   {
+    "text": "Dummy test: the comparison says whether a difference is real: the iDPS change against the noise of the hits, and per skill the plain hit (crit, double and perfect hits brought back to it) with a 95 % range and a verdict; the statistics and the approach are Stacy's, from her fork",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-30"
    }
   ]
  },
