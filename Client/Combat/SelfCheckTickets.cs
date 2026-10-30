@@ -234,6 +234,32 @@ public static class SelfCheckTickets
         Aion2Cooldowns.Reset();
         Console.WriteLine($"  -> cooldown list 0x4738: 25 entries and the numbers read={cooldownOk}, a short frame changes only its skill={shortKeeps}");
 
+        // the speed of a skill's own counter, from real numbers of the recording of 2026-10-29 (Aahz, skill 11,300,000: 36,850 at the use, then every 0.6 to 1 s) - about 2,200 a second, not the assumed 2,400
+        Aion2Cooldowns.Reset();
+        var u0 = new DateTime(2026, 10, 29, 17, 20, 0);
+        (double Offset, int Value)[] series = { (0.0, 36850), (1.051, 34800), (1.602, 33250), (2.652, 31200), (3.301, 29550), (3.999, 27850), (4.75, 26100) };
+        Aion2Cooldowns.Receive(new List<CooldownEntry> { new(11300000, series[0].Value) }, u0);
+        bool rateNotYet = Aion2Cooldowns.MeasuredRate(11300000) is null && !Aion2Cooldowns.Left(11300000, series[0].Value, u0, u0).Measured;
+        foreach ((double offset, int value) in series.Skip(1))
+        {
+            Aion2Cooldowns.Receive(new List<CooldownEntry> { new(11300000, value) }, u0.AddSeconds(offset));
+        }
+
+        double? measured = Aion2Cooldowns.MeasuredRate(11300000);
+        (double leftSeconds, _, bool isMeasured) = Aion2Cooldowns.Left(11300000, 26100, u0.AddSeconds(4.75), u0.AddSeconds(4.75));
+        bool rateOk = measured is > 2100 and < 2300 && isMeasured && Math.Abs(leftSeconds - 26100 / measured!.Value) < 0.001;
+        // a stone takes 10 s of the counter off at once (a jump): the speed is that of the numbers after it
+        Aion2Cooldowns.Receive(new List<CooldownEntry> { new(11300000, 16000) }, u0.AddSeconds(5.35));
+        Aion2Cooldowns.Receive(new List<CooldownEntry> { new(11300000, 14600) }, u0.AddSeconds(6.0));
+        Aion2Cooldowns.Receive(new List<CooldownEntry> { new(11300000, 13100) }, u0.AddSeconds(6.6));
+        double? afterJump = Aion2Cooldowns.MeasuredRate(11300000);
+        bool jumpOk = afterJump is > 2000 and < 2600;
+        // used again: the counter starts over and the old speed is forgotten
+        Aion2Cooldowns.Receive(new List<CooldownEntry> { new(11300000, 40000) }, u0.AddSeconds(60));
+        bool restartOk = Aion2Cooldowns.MeasuredRate(11300000) is null;
+        Aion2Cooldowns.Reset();
+        Console.WriteLine($"  -> cooldown speed per skill: not before two numbers={rateNotYet}, measured {measured:F0} a second from the recording={rateOk}, after a jump of the counter={jumpOk}, used again starts over={restartOk}");
+
         // the hand-ticked part: count of the five daily tasks (cleared at 16:00) and the weekly scroll counters (cleared Wednesday 16:00)
         string tmp = Path.Combine(Path.GetTempPath(), $"checklist-{Guid.NewGuid():N}.json");
         ChecklistManual.PathOverride = tmp;
@@ -340,7 +366,7 @@ public static class SelfCheckTickets
             && AionDPS.Upload.RemoteCharacterClient.Parse(nothing.RootElement) is null;
         Console.WriteLine($"  -> the server's answer for another character read (equipment with stones and god stone, attributes, wings, pet, titles; a character without a profile; no player)={remoteRead}");
         Aion2Tickets.Reset();
-        bool ok = missionsReset && missionsStale && stamped && firstLogin && sameDay && newcomer && maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = missionsReset && missionsStale && stamped && firstLogin && sameDay && newcomer && maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && rateNotYet && rateOk && jumpOk && restartOk && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;

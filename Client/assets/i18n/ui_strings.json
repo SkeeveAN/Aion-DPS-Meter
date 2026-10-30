@@ -8593,16 +8593,16 @@
     "ko": "걸린 효과가 없습니다."
   },
   "Assist.Note": {
-    "en": "Cooldown times are estimated (~) from the numbers the game sends.",
-    "de": "Die Zeiten der Abklingzeiten sind geschätzt (~) aus den Zahlen, die das Spiel sendet.",
-    "fr": "Les temps de récupération sont estimés (~) d'après les valeurs envoyées par le jeu.",
-    "es": "Los tiempos de enfriamiento son estimados (~) a partir de los números que envía el juego.",
-    "ru": "Время перезарядки оценивается (~) по числам, которые присылает игра.",
-    "zh": "冷却时间根据游戏发送的数值估算（~）。",
-    "zh-TW": "冷卻時間根據遊戲傳送的數值估算（~）。",
-    "pt": "Os tempos de recarga são estimados (~) a partir dos números enviados pelo jogo.",
-    "ja": "クールダウン時間はゲームが送る数値からの推定（~）です。",
-    "ko": "재사용 대기시간은 게임이 보내는 수치로 추정한 값(~)입니다."
+    "en": "Cooldown times are estimated (~) from how fast each skill's own number falls, so stones and stats are included; the speed varies a little during a cooldown.",
+    "de": "Die Zeiten der Abklingzeiten sind geschätzt (~) aus der Geschwindigkeit, mit der die Zahl des jeweiligen Skills fällt; Steine und Werte sind darin enthalten, die Geschwindigkeit schwankt während einer Abklingzeit etwas.",
+    "fr": "Les temps de récupération sont estimés (~) d'après la vitesse à laquelle baisse la valeur de chaque compétence, pierres et statistiques inclus ; la vitesse varie un peu pendant un temps de récupération.",
+    "es": "Los tiempos de enfriamiento son estimados (~) según la rapidez con la que baja el número de cada habilidad, con piedras y atributos incluidos; la velocidad varía un poco durante un enfriamiento.",
+    "ru": "Время перезарядки оценивается (~) по скорости, с которой падает число каждого умения; камни и характеристики уже учтены, скорость немного меняется в течение перезарядки.",
+    "zh": "冷却时间根据每个技能自身数值下降的速度估算（~），石头和属性已包含在内；冷却过程中速度会略有波动。",
+    "zh-TW": "冷卻時間根據每個技能自身數值下降的速度估算（~），石頭和屬性已包含在內；冷卻過程中速度會略有波動。",
+    "pt": "Os tempos de recarga são estimados (~) pela rapidez com que cai o número de cada habilidade, com pedras e atributos incluídos; a velocidade varia um pouco durante a recarga.",
+    "ja": "クールダウン時間は各スキルの数値が下がる速さからの推定（~）で、石やステータスも含まれます。速度はクールダウン中にわずかに変わります。",
+    "ko": "재사용 대기시간은 각 스킬의 수치가 줄어드는 속도로 추정한 값(~)이며 스톤과 능력치가 포함됩니다. 속도는 대기 중 약간 변합니다."
   },
   "Assist.ShowOverlay": {
     "en": "Show as overlay",

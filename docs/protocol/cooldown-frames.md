@@ -24,3 +24,9 @@ Die Zahl sinkt gleichmäßig, aber **etwa 2,3 bis 2,5-mal so schnell wie die Uhr
 ## Offen
 - Einheit/Faktor (oben), Bedeutung der Kleinst-IDs, `0x2238`.
 - Im C#-Decoder seit 14.10.: `Aion2Cooldowns` ([Client/Aion2/Aion2Cooldowns.cs](../../Client/Aion2/Aion2Cooldowns.cs)) hält die letzte Liste des lokalen Spielers (kurze Frames ändern nur ihren Skill). Seit 15.10. zeigt das Assist-Fenster (Tools-Menü, `Client/Ui/AssistWindow.cs`) die Liste samt Effekten auf dem eigenen Charakter; die Zeit wird mit Faktor 2,4 geschätzt („~“).
+
+## Geschwindigkeit je Skill (30.10.2026)
+
+- Der Zähler fällt nicht mit einem festen Faktor: Messung an den 5620 Frames der Aufnahme `aion2-2026-10-29_17-17-26-Aahz`. Dieselbe Fertigkeit (11100000, Ruinous Blow) fällt je Einsatz mit 1900 bis 2700 Einheiten je Sekunde, in einzelnen Läufen auch schneller (um 3600), andere Skills mit 800 bis 2400. Die Tabelle (`Skill.json`, `NeedCoolTime`) nennt 45 s für 11100000, die gemessene Abklingzeit liegt bei etwa 16 bis 17 s, ohne dass ein Stein sie verkürzt: weitere Quellen wirken (Abklingzeit-Wert des Charakters, Daevanion-Knoten, Ausrüstung, Skill-Stufe).
+- Steine (`SpecializedSkill`, Texte `*_specialized_skill_desc`): 138 von 1503 Texten ändern Abklingzeiten, bei allen acht Klassen. Fest: "-30s cooldown", "-5s", "-1min", "+3% all skill cooldowns". Im Kampf: "-Xs [Skill] cooldown on hit", "Resets cooldown on defeating an enemy / on Critical Hit / on Evasion". Die Tabelle allein sagt die Zeit daher nicht voraus.
+- Umsetzung im Assist: `Aion2Cooldowns.Left` teilt die Zahl durch die aus den letzten Zahlen desselben Skills gemessene Geschwindigkeit (Gerade durch die letzten bis zu 8 Werte, bei einem Sprung nur die Werte danach; ab zwei Werten im Abstand von mindestens 0,5 s), davor durch 2400. Gegen die Aufnahme gemessen sinkt der mittlere Fehler der Restzeit von etwa 24 % (fester Faktor) auf etwa 16 %, der 90-%-Wert von 67 % auf 43 %. Exakt ist es nicht, die Anzeige behält das "~".

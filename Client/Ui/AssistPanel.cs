@@ -16,9 +16,6 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class AssistPanel : StackPanel
 {
-    /// <summary>The cooldown number falls about 2.3 to 2.5 times as fast as the clock (docs/protocol/cooldown-frames.md); the time shown is the number divided by this, hence the "~".</summary>
-    private const double CooldownRate = 2.4;
-
     /// <summary>Skill ids from here are real skills; the small ids are shared cooldown groups.</summary>
     private const int FirstSkillId = 10_000_000;
 
@@ -78,7 +75,6 @@ public sealed class AssistPanel : StackPanel
 
         // cooldowns: running ones first (the least left on top), then the ready skills
         (IReadOnlyList<CooldownEntry> entries, DateTime at) = Aion2Cooldowns.Last;
-        double sinceList = at == default ? 0 : Math.Max(0, (now - at).TotalSeconds);
         var running = new List<(int Id, double Seconds, double Fraction)>();
         var ready = new List<int>();
         foreach (CooldownEntry e in entries)
@@ -88,7 +84,8 @@ public sealed class AssistPanel : StackPanel
                 continue;
             }
 
-            double left = e.Remaining / CooldownRate / 1000.0 - sinceList;
+            // the time left from the speed this skill's own numbers fall at (a stone, a stat or a Daevanion node may change it); still an estimate (~): the speed varies a little during a cooldown
+            (double left, double rate, _) = Aion2Cooldowns.Left(e.Id, e.Remaining, at, now);
             if (e.Remaining > 0 && left > 0)
             {
                 _peak[e.Id] = Math.Max(_peak.GetValueOrDefault(e.Id), e.Remaining);
@@ -97,7 +94,7 @@ public sealed class AssistPanel : StackPanel
                     continue;
                 }
 
-                running.Add((e.Id, left, Math.Clamp(left * CooldownRate * 1000.0 / _peak[e.Id], 0, 1)));
+                running.Add((e.Id, left, Math.Clamp(left * rate / _peak[e.Id], 0, 1)));
             }
             else
             {
