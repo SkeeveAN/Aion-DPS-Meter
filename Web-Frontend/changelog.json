@@ -1,5 +1,33 @@
 [
  {
+  "version": "1.18.3",
+  "date": "2026-10-31",
+  "items": [
+   {
+    "text": "Backend: /api/changelog gives the client changes between two versions (from, to, lang), one short line each, for the update window of the client; the short lines of 1.18.0 to 1.18.2 are in Web-Frontend/changelog-short.json (an entry without one gets its first clause), the release line that sums a release up is left out",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Update window: the question about an update is now the meter's own themed window over the meter (560 px wide, the card inside the main window had no room), it lists what changed since the installed version from aiondps.com (a block per release, newest first, one short line per change, releases beyond the third folded up), also in restricted mode as it belongs to the permission to update; new picture mode render-updatewindow",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "the question about an update is the meter's own window over the meter (560 px wide) and lists what changed since the installed version, a block per release and one short line per change, older releases folded up, fetched from aiondps.com (/api/changelog) also in restricted mode",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   }
+  ]
+ },
+ {
   "version": "1.18.2",
   "date": "2026-10-31",
   "items": [

@@ -90,5 +90,9 @@
  "Tools: pop out button right of the overlay switch shows a tool in a window of its own that can go anywhere, also on a second monitor; place and open state are kept and the windows come back at the next start": {
   "en": "Tools: the pop out button shows a tool in a window of its own",
   "de": "Tools: Der Pop-out-Knopf zeigt ein Tool in einem eigenen Fenster"
+ },
+ "Update window: the question about an update is now the meter's own themed window over the meter (560 px wide, the card inside the main window had no room), it lists what changed since the installed version from aiondps.com (a block per release, newest first, one short line per change, releases beyond the third folded up), also in restricted mode as it belongs to the permission to update; new picture mode render-updatewindow": {
+  "en": "Update window: the update question is its own window with the list of changes",
+  "de": "Update-Fenster: Die Update-Frage ist ein eigenes Fenster mit der Liste der Änderungen"
  }
 }
