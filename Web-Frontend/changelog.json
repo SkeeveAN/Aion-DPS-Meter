@@ -1,5 +1,20 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-31",
+  "items": [
+   {
+    "text": "Korea and Taiwan players are checked against NC's character search too, so they can reach the verified status (both have their own search and character pages, a player of the ids 1001-1018 / 2001-2018 is asked in both regions and stays unclear when the name exists in both), and Korea is its own region with its 21 servers per faction instead of being filed under Taiwan",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-31"
+   }
+  ]
+ },
+ {
   "version": "1.18.4",
   "date": "2026-10-31",
   "items": [
