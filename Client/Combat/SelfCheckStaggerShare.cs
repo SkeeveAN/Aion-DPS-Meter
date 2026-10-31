@@ -38,9 +38,14 @@ public static class SelfCheckStaggerShare
         StaggerShareResult afterBreak = StaggerShare.Compute(new[] { Hit(t.AddSeconds(8), 3, 100) }, broken, boss, t.AddSeconds(-5), t.AddSeconds(10), id => drops.GetValueOrDefault(id));
         bool resets = afterBreak.Total == 5 && afterBreak.BySource.GetValueOrDefault(3) == 5;
 
+        // The boss's own start-of-fight hit lowers the bar by 360 with no player's hit behind it: no part of the fall that is shared out.
+        var start = new List<StaggerEvent> { Bar(t, 1200), Bar(t.AddSeconds(1), 840), Bar(t.AddSeconds(2), 835) };
+        StaggerShareResult scripted = StaggerShare.Compute(new[] { Hit(t.AddSeconds(2), 4, 100) }, start, boss, t.AddSeconds(-5), t.AddSeconds(10), id => drops.GetValueOrDefault(id));
+        bool startHit = scripted.Total == 5 && scripted.Assigned == 5 && scripted.BySource.GetValueOrDefault(4) == 5;
+
         bool none = StaggerShare.Compute(hits, Array.Empty<StaggerEvent>(), boss, t, t, id => 5).Total == 0;
-        bool ok = packet && totals && resets && none;
-        Console.WriteLine($"  -> players credited in order={packet}, totals and unassigned={totals}, break resets={resets}, no readings={none}: {(ok ? "OK" : "FAILED")}");
+        bool ok = packet && totals && resets && none && startHit;
+        Console.WriteLine($"  -> players credited in order={packet}, totals and unassigned={totals}, break resets={resets}, no readings={none}, scripted start hit left out={startHit}: {(ok ? "OK" : "FAILED")}");
         return ok;
     }
 }

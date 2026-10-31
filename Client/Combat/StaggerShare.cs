@@ -12,8 +12,12 @@ public sealed record StaggerShareResult(IReadOnlyDictionary<int, int> BySource, 
 /// a buff of the attacker raises it by half, rounded down), and not every hit counts (the bar does not fall while it is recharging after a break),
 /// so adding up the hits would credit about 1.7 times too much. Instead each reading that fell is matched, in order, to the next hit of its packet
 /// whose drop it equals; a drop no hit explains stays unassigned (<see cref="StaggerShareResult.Total"/> minus <see cref="StaggerShareResult.Assigned"/>)
-/// rather than being guessed. Measured on five recordings, see the project notes.
+/// rather than being guessed. A fall of a fifth of the bar or more that no hit explains is the boss's scripted hit on itself at the start of a fight and does not count.
+/// Measured on five recordings, see the project notes.
 /// </summary>
+/// <summary>A fall of the bar no hit explained: the drop, and the hits that stood in its packet (skill, the table's value or 0 for an unknown skill, attacker).</summary>
+public sealed record StaggerMiss(DateTime At, int Drop, IReadOnlyList<(int Skill, int Value, int Source)> Candidates);
+
 public static class StaggerShare
 {
     /// <summary>Readings and hits of one packet carry (nearly) the same time.</summary>
@@ -21,7 +25,7 @@ public static class StaggerShare
 
     private static readonly TimeSpan LongestGap = TimeSpan.FromSeconds(5);
 
-    public static StaggerShareResult Compute(IReadOnlyList<DamageEvent> events, IReadOnlyList<StaggerEvent> staggers, int target, DateTime from, DateTime to, Func<int, int> dropOf)
+    public static StaggerShareResult Compute(IReadOnlyList<DamageEvent> events, IReadOnlyList<StaggerEvent> staggers, int target, DateTime from, DateTime to, Func<int, int> dropOf, ICollection<StaggerMiss>? misses = null)
     {
         var readings = staggers.Where(s => s.Entity == target && s.At >= from - Packet && s.At <= to + Packet).OrderBy(s => s.At).ToList();
         if (readings.Count < 2)
@@ -66,6 +70,7 @@ public static class StaggerShare
                 }
 
                 total += drop;
+                bool matched = false;
                 for (int h = hitIndex; h < hits.Count && times[h] <= readings[last].At + Packet; h++)
                 {
                     if (used[h])
@@ -80,8 +85,28 @@ public static class StaggerShare
                         hitIndex = h + 1;
                         assigned += drop;
                         bySource[hits[h].SourceObjectId] = bySource.GetValueOrDefault(hits[h].SourceObjectId) + drop;
+                        matched = true;
                         break;
                     }
+                }
+
+                if (!matched && reading.Max > 0 && drop * 5 >= reading.Max)
+                {
+                    // A fall of a fifth of the bar or more with no hit behind it is the boss's own start-of-fight hit (skill 1000007, 500 million on itself,
+                    // seen 27 times: the bar goes 1,200 to 840, or 480 to 240): no player's, so it is not part of the bar's fall that is shared out.
+                    total -= drop;
+                    continue;
+                }
+
+                if (!matched && misses is not null)
+                {
+                    var candidates = new List<(int, int, int)>();
+                    for (int h = first; h < hits.Count && times[h] <= readings[last].At + Packet; h++)
+                    {
+                        candidates.Add((hits[h].SkillId, dropOf(hits[h].SkillId), hits[h].SourceObjectId));
+                    }
+
+                    misses.Add(new StaggerMiss(reading.At, drop, candidates));
                 }
             }
 
