@@ -256,12 +256,6 @@ public partial class MainWindow : Window
     /// but reads ambiguously next to this project's own update code.</summary>
     private VelopackUpdateInfo? _downloadedUpdate;
 
-    /// <summary>The update the in-app restart card (UpdateRestartOverlay) is currently offering,
-    /// so its two buttons know what to act on without re-threading it through the event args.</summary>
-    private VelopackUpdateInfo? _pendingRestartUpdate;
-    /// <summary>The update the start-up question is about (found, not downloaded yet): "Yes" fetches it and restarts, "No" leaves it to the background check.</summary>
-    private VelopackUpdateInfo? _pendingInstallUpdate;
-
     public MainWindow()
     {
         InitializeComponent();
@@ -329,7 +323,7 @@ public partial class MainWindow : Window
                 // Queued on the dispatcher, not started right here: this runs in the constructor, before app.Run, where no UI synchronization context
                 // exists yet, so the part of the check after the network call ran on a pool thread and failed on its first touch of the window
                 // (a crash.log entry at every start and no check until the five-minute timer).
-                // Silent when up to date or when GitHub cannot be reached; a new version is asked about (OfferInstall) before anything is downloaded.
+                // Silent when up to date or when GitHub cannot be reached; a new version is asked about (OfferInstallAsync) before anything is downloaded.
                 Dispatcher.BeginInvoke(new Action(() => _ = RunUpdateCheck(announceResult: false, askBeforeInstall: true)), System.Windows.Threading.DispatcherPriority.Background);
             }
 
@@ -5107,16 +5101,16 @@ public partial class MainWindow : Window
         {
             if (announceResult)
             {
-                OfferRestart(staged, staged.TargetFullRelease.Version.ToString());
+                await OfferRestartAsync(staged, staged.TargetFullRelease.Version.ToString());
             }
 
             return;
         }
 
-        // The start-up check asks first and downloads only on "Yes" (OnUpdateRestartNowClicked); a "No" leaves the update to the five-minute check.
+        // The start-up check asks first and downloads only on "Yes" (OfferInstallAsync); a "No" leaves the update to the five-minute check.
         if (askBeforeInstall)
         {
-            OfferInstall(update, version);
+            await OfferInstallAsync(update, version);
             return;
         }
 
@@ -5147,7 +5141,7 @@ public partial class MainWindow : Window
 
         if (announceResult)
         {
-            OfferRestart(update, version);
+            await OfferRestartAsync(update, version);
         }
     }
 
@@ -5169,11 +5163,11 @@ public partial class MainWindow : Window
         _ = RunUpdateCheck(announceResult: true);
     }
 
-    private void OnUpdateNoticeClicked(object sender, MouseButtonEventArgs e)
+    private async void OnUpdateNoticeClicked(object sender, MouseButtonEventArgs e)
     {
         if (_downloadedUpdate is { } update)
         {
-            OfferRestart(update, update.TargetFullRelease.Version.ToString());
+            await OfferRestartAsync(update, update.TargetFullRelease.Version.ToString());
         }
     }
 
@@ -5185,34 +5179,41 @@ public partial class MainWindow : Window
     /// start anyway.
     ///
     /// <para>
-    /// Shown as an in-window, app-themed card (UpdateRestartOverlay) rather than MessageBox: this
-    /// window draws its own chrome everywhere else (WindowStyle="None"), and a native OS dialog
-    /// looked out of place glued onto it (per the user).
+    /// Shown as the meter's own themed window (UpdateWindow) rather than MessageBox: this window draws its own chrome
+    /// everywhere else (WindowStyle="None"), and a native OS dialog looked out of place (per the user). The window lists what changed
+    /// since the installed version.
     /// </para>
     /// </summary>
-    private void OfferRestart(VelopackUpdateInfo update, string version)
+    private async Task OfferRestartAsync(VelopackUpdateInfo update, string version)
     {
         var loc = LocalizationManager.Instance;
-        _pendingInstallUpdate = null;
-        _pendingRestartUpdate = update;
-        UpdateRestartTitle.Text = loc["Main.UpdateReady.Title"];
-        UpdateRestartLaterButton.Content = loc["Main.UpdateReady.Later"];
-        UpdateRestartNowButton.Content = loc["Main.UpdateReady.RestartNow"];
-        UpdateRestartText.Text = string.Format(loc["Main.UpdateReady.Message"], version, AppVersion.Text);
-        UpdateRestartOverlay.Visibility = Visibility.Visible;
+        if (await AskAboutUpdateAsync(version, loc["Main.UpdateReady.Title"], loc["Main.UpdateReady.Message"], loc["Main.UpdateReady.Later"], loc["Main.UpdateReady.RestartNow"]))
+        {
+            // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches
+            // because it ends the process itself -- so save first, then hand over.
+            SaveWindowStateToSettings();
+            SaveRestartSnapshot();
+            UpdateService.ApplyAndRestart(update);
+        }
     }
 
-    /// <summary>The same card as <see cref="OfferRestart"/>, asking before the download: "a new version, install it? No / Yes". Shown by the start-up check.</summary>
-    private void OfferInstall(VelopackUpdateInfo update, string version)
+    /// <summary>The same window as <see cref="OfferRestartAsync"/>, asking before the download: "a new version, install it? No / Yes". Shown by the start-up check.</summary>
+    private async Task OfferInstallAsync(VelopackUpdateInfo update, string version)
     {
         var loc = LocalizationManager.Instance;
-        _pendingRestartUpdate = null;
-        _pendingInstallUpdate = update;
-        UpdateRestartTitle.Text = loc["Main.UpdateAvailable.Title"];
-        UpdateRestartLaterButton.Content = loc["Main.UpdateAvailable.No"];
-        UpdateRestartNowButton.Content = loc["Main.UpdateAvailable.Yes"];
-        UpdateRestartText.Text = string.Format(loc["Main.UpdateAvailable.Message"], version, AppVersion.Text);
-        UpdateRestartOverlay.Visibility = Visibility.Visible;
+        if (await AskAboutUpdateAsync(version, loc["Main.UpdateAvailable.Title"], loc["Main.UpdateAvailable.Message"], loc["Main.UpdateAvailable.No"], loc["Main.UpdateAvailable.Yes"]))
+        {
+            await InstallUpdateNowAsync(update);
+        }
+    }
+
+    /// <summary>Fetches what changed since the installed version (aiondps.com, also in restricted mode: it is part of the permission to update; without an answer the window
+    /// comes without the list) and asks. Not asked twice at once: the window is modal, and a second check that finds the same update waits for the first.</summary>
+    private async Task<bool> AskAboutUpdateAsync(string version, string heading, string messageFormat, string noLabel, string yesLabel)
+    {
+        var loc = LocalizationManager.Instance;
+        IReadOnlyList<ChangelogVersion> changes = await ChangelogClient.GetAsync(AppVersion.Text, version, loc.Language);
+        return UpdateWindow.Ask(this, heading, string.Format(messageFormat, version, AppVersion.Text), string.Format(loc["Main.Update.WhatsNew"], AppVersion.Text), changes, noLabel, yesLabel);
     }
 
     /// <summary>"Yes" on the start-up question: fetch the update (the notice shows the progress) and restart into it.</summary>
@@ -5227,7 +5228,7 @@ public partial class MainWindow : Window
             SetUpdateStatus(string.Format(LocalizationManager.Instance["Overlay.UpdateDownloading"], version), "↓ " + version);
             await UpdateService.DownloadAsync(update);
             _downloadedUpdate = update;
-            // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches: save first, then hand over (as OnUpdateRestartNowClicked).
+            // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches: save first, then hand over (as OfferRestartAsync).
             SaveWindowStateToSettings();
             SaveRestartSnapshot();
             UpdateService.ApplyAndRestart(update);
@@ -5243,38 +5244,6 @@ public partial class MainWindow : Window
         {
             _updateCheckRunning = false;
         }
-    }
-
-    private void OnUpdateRestartNowClicked(object sender, RoutedEventArgs e)
-    {
-        UpdateRestartOverlay.Visibility = Visibility.Collapsed;
-        if (_pendingInstallUpdate is { } toInstall)
-        {
-            _pendingInstallUpdate = null;
-            _ = InstallUpdateNowAsync(toInstall);
-            return;
-        }
-
-        if (_pendingRestartUpdate is not { } update)
-        {
-            return;
-        }
-
-        _pendingRestartUpdate = null;
-
-        // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches
-        // because it ends the process itself -- so save first, then hand over.
-        SaveWindowStateToSettings();
-        SaveRestartSnapshot();
-
-        UpdateService.ApplyAndRestart(update);
-    }
-
-    private void OnUpdateRestartLaterClicked(object sender, RoutedEventArgs e)
-    {
-        UpdateRestartOverlay.Visibility = Visibility.Collapsed;
-        _pendingInstallUpdate = null;
-        _pendingRestartUpdate = null;
     }
 
     /// <summary>Double-click on a player's row opens the same details as the context menu. Only a

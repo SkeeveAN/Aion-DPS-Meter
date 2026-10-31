@@ -202,6 +202,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 2 && args[0] == "render-updatewindow")
+        {
+            RunRenderUpdateWindowMode(args[1], args[2], args.Length > 3 ? args[3] : "");
+            return;
+        }
+
         if (args.Length > 1 && args[0] == "render-checklist")
         {
             RunRenderChecklistMode(args[1], args.Length > 2 ? args[2] : "");
@@ -1257,6 +1263,50 @@ internal static class Program
     }
 
     /// <summary>Draws the checklist window (Tools menu) with two characters made of a real login list into a picture; no window is ever shown.</summary>
+    /// <summary>Draws the update window (never shown) with the answer of /api/changelog from a file: <c>render-updatewindow &lt;png&gt; &lt;answer.json&gt; [language]</c>.</summary>
+    private static void RunRenderUpdateWindowMode(string path, string answerFile, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        string chosen = language.Length > 0 ? language : settings.Language;
+        if (chosen.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = chosen;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var loc = Ui.LocalizationManager.Instance;
+        var changes = Update.ChangelogClient.Parse(File.ReadAllText(answerFile));
+        string from = Environment.GetEnvironmentVariable("AIONDPS_RENDER_FROM") ?? "1.18.1";
+        var window = Ui.UpdateWindow.Build(null, loc["Main.UpdateAvailable.Title"], string.Format(loc["Main.UpdateAvailable.Message"], "1.18.2", from),
+            string.Format(loc["Main.Update.WhatsNew"], from), changes, loc["Main.UpdateAvailable.No"], loc["Main.UpdateAvailable.Yes"], out _);
+        var content = (System.Windows.FrameworkElement)window.Content;
+        int w = (int)window.Width;
+        int max = (int)window.MaxHeight;
+        content.Measure(new System.Windows.Size(w, max));
+        int h = Math.Min(max, (int)Math.Ceiling(content.DesiredSize.Height));
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine($"render-updatewindow: {path} ({w} x {h}, {changes.Count} releases)");
+    }
+
     private static void RunRenderChecklistMode(string path, string language)
     {
         var app = new System.Windows.Application();

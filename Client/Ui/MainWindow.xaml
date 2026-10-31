@@ -1185,29 +1185,6 @@
 
             </DockPanel>
 
-            <!-- Update-ready confirmation, in-app and app-themed. WindowStyle="None" above means
-                 this window draws its own chrome everywhere else; a native MessageBox here would
-                 pop up with the OS's own title bar and buttons, clashing with that (per the user).
-                 A dimmed backdrop plus a themed card, both inside NormalContent, keeps it looking
-                 like part of the app and keeps it out of the way in Hide-UI overlay mode (which
-                 collapses NormalContent entirely, see OnHideUiClicked). -->
-            <Border x:Name="UpdateRestartOverlay" Visibility="Collapsed" Background="#AA000000">
-                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
-                        BorderThickness="1" CornerRadius="4" Padding="20" MaxWidth="380"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <StackPanel>
-                        <TextBlock x:Name="UpdateRestartTitle" Text="{local:Loc Main.UpdateReady.Title}" FontWeight="Bold" FontSize="14"
-                                   Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,10"/>
-                        <TextBlock x:Name="UpdateRestartText" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,16"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button x:Name="UpdateRestartLaterButton" Content="{local:Loc Main.UpdateReady.Later}" Click="OnUpdateRestartLaterClicked" Margin="0,0,8,0" Padding="12,4"/>
-                            <Button x:Name="UpdateRestartNowButton" Content="{local:Loc Main.UpdateReady.RestartNow}" Click="OnUpdateRestartNowClicked" Padding="12,4"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Border>
-
             </Grid>
         </Border>
 

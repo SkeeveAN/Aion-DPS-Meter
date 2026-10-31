@@ -227,6 +227,18 @@
     "ja": "はい、インストール",
     "ko": "예, 설치"
   },
+  "Main.Update.WhatsNew": {
+    "en": "What's new since {0}:",
+    "de": "Das ist neu seit {0}:",
+    "fr": "Nouveautés depuis {0} :",
+    "es": "Novedades desde {0}:",
+    "ru": "Что нового с версии {0}:",
+    "zh": "自 {0} 以来的更新内容:",
+    "zh-TW": "自 {0} 以來的更新內容：",
+    "pt": "Novidades desde {0}:",
+    "ja": "{0} からの変更点:",
+    "ko": "{0} 이후 변경 사항:"
+  },
   "Settings.StartWithWindows": {
     "en": "Start automatically with Windows",
     "de": "Automatisch mit Windows starten",
