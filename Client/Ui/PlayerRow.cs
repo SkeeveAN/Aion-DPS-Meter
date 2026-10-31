@@ -31,7 +31,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
 
     private string _teamSide = "";
 
-    /// <summary>The side in the 10 against 10 arena: "Own", "Enemy", or empty when not there (or not told yet). Drives the row's team colour.</summary>
+    /// <summary>The team colour in the 10 against 10 arena, as the game names it: "Red", "Blue", or empty when not there (or not told yet). Drives the row's colour.</summary>
     public string TeamSide
     {
         get => _teamSide;

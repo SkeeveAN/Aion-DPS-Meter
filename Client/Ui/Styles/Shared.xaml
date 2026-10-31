@@ -230,12 +230,12 @@
             </Setter>
         </Style>
 
-    <!-- The two sides of the 10 against 10 arena (PlayerRow.TeamSide): the row takes a muted red (own team) or blue (opponents), the
+    <!-- The two teams of the 10 against 10 arena (PlayerRow.TeamSide), in the colours the game gives them: the row takes a muted red or blue, the
          class colour shrinks to a thin bar at the foot, a stripe at the left edge repeats the colour. Theme-independent. -->
-    <SolidColorBrush x:Key="Brush.TeamOwnRow" Color="#8C873232"/>
-    <SolidColorBrush x:Key="Brush.TeamEnemyRow" Color="#8C2D5096"/>
-    <SolidColorBrush x:Key="Brush.TeamOwnEdge" Color="#D9776D"/>
-    <SolidColorBrush x:Key="Brush.TeamEnemyEdge" Color="#6F9FE0"/>
+    <SolidColorBrush x:Key="Brush.TeamRedRow" Color="#8C873232"/>
+    <SolidColorBrush x:Key="Brush.TeamBlueRow" Color="#8C2D5096"/>
+    <SolidColorBrush x:Key="Brush.TeamRedEdge" Color="#D9776D"/>
+    <SolidColorBrush x:Key="Brush.TeamBlueEdge" Color="#6F9FE0"/>
 
     <Style x:Key="TeamStripe" TargetType="Border">
         <Setter Property="Visibility" Value="Collapsed"/>
@@ -243,24 +243,24 @@
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
         <Style.Triggers>
-            <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+            <DataTrigger Binding="{Binding TeamSide}" Value="Red">
                 <Setter Property="Visibility" Value="Visible"/>
-                <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnEdge}"/>
+                <Setter Property="Background" Value="{DynamicResource Brush.TeamRedEdge}"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+            <DataTrigger Binding="{Binding TeamSide}" Value="Blue">
                 <Setter Property="Visibility" Value="Visible"/>
-                <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyEdge}"/>
+                <Setter Property="Background" Value="{DynamicResource Brush.TeamBlueEdge}"/>
             </DataTrigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="TeamFillBar" TargetType="ProgressBar" BasedOn="{StaticResource RowFillBar}">
         <Style.Triggers>
-            <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+            <DataTrigger Binding="{Binding TeamSide}" Value="Red">
                 <Setter Property="Height" Value="4"/>
                 <Setter Property="VerticalAlignment" Value="Bottom"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+            <DataTrigger Binding="{Binding TeamSide}" Value="Blue">
                 <Setter Property="Height" Value="4"/>
                 <Setter Property="VerticalAlignment" Value="Bottom"/>
             </DataTrigger>

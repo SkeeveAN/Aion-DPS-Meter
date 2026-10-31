@@ -2062,6 +2062,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _equalizedArenaEnteredAt = at;
+            _arenaBlue.Clear();
+            _arenaRed.Clear();
             foreach ((string name, DateTime met) in _lastMet)
             {
                 if (at - met >= TimeSpan.Zero && at - met <= EqualizedArenaLeadTime)
@@ -2073,6 +2075,29 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     private DateTime? _equalizedArenaEnteredAt;
+    private readonly HashSet<string> _arenaBlue = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _arenaRed = new(StringComparer.Ordinal);
+
+    /// <summary>The two teams of the 10 against 10 fight just entered, as the game's start frame names them (see <see cref="Aion2ArenaTeams"/>).</summary>
+    public void NoteArenaTeams(IEnumerable<string> blue, IEnumerable<string> red)
+    {
+        lock (_gate)
+        {
+            _arenaBlue.Clear();
+            _arenaRed.Clear();
+            _arenaBlue.UnionWith(blue);
+            _arenaRed.UnionWith(red);
+        }
+    }
+
+    /// <summary>"Blue" or "Red" for a player of the current 10 against 10 fight, null while the game has not named the teams or the name is in neither.</summary>
+    public string? ArenaTeamOf(string name)
+    {
+        lock (_gate)
+        {
+            return _arenaBlue.Contains(name) ? "Blue" : _arenaRed.Contains(name) ? "Red" : null;
+        }
+    }
 
     /// <summary>The ids of the players announced for the 10 against 10 arena the local player entered last (the teams come ahead of the zone frame),
     /// those whose name the directory has an id for.</summary>
@@ -2087,6 +2112,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
             return _metInEqualizedArena
                 .Where(name => _lastMet.TryGetValue(name, out DateTime met) && met >= entered - EqualizedArenaLeadTime)
+                .Concat(_arenaBlue).Concat(_arenaRed)
                 .Select(name => _idOfName.TryGetValue(name, out int id) ? id : 0)
                 .Where(id => id != 0)
                 .Distinct()

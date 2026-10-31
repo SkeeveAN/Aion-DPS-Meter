@@ -71,26 +71,31 @@ public static class SelfCheck
         return ok;
     }
 
-    /// <summary>The 10 against 10 arena's two sides come from who hit whom: nobody hits a team mate, so a hit puts two players on opposite sides, and chained
-    /// hits place even players who never met.</summary>
+    /// <summary>The 10 against 10 arena's start frame (0x19e3) names twenty players in two blocks of ten, the first Team Blue, the second Team Red.</summary>
     private static bool RunArenaTeamsScenario()
     {
-        Console.WriteLine("[selftest] The two sides of the 10 against 10 arena:");
-        var teams = new ArenaTeams();
-        teams.NoteHit(1, 10);   // own 1 hits enemy 10
-        teams.NoteHit(10, 2);   // enemy 10 hits 2: 2 is on the side of 1
-        teams.NoteHit(3, 11);   // a second pair, not yet linked to the first
-        bool chained = teams.IsOwnSide(2, new[] { 1 }) == true && teams.IsOwnSide(10, new[] { 1 }) == false;
-        bool unlinked = teams.IsOwnSide(3, new[] { 1 }) is null;
-        teams.NoteHit(11, 2);   // 11 hits 2: 11 is an enemy, so 3 (hit by... 3 hit 11) is an own player
-        bool joined = teams.IsOwnSide(3, new[] { 1 }) == true && teams.IsOwnSide(11, new[] { 1 }) == false;
-        teams.NoteHit(1, 2);    // a contradiction (a mind-control effect): the first answer stands
-        bool contradiction = teams.IsOwnSide(2, new[] { 1 }) == true;
-        teams.Clear();
-        bool cleared = teams.IsOwnSide(2, new[] { 1 }) is null;
-        Console.WriteLine($"  -> a hit chain tells the sides: {chained}; two pairs apart stay unknown: {unlinked}; joined by a later hit: {joined}");
-        Console.WriteLine($"  -> a contradicting hit changes nothing: {contradiction}; a new fight starts from nothing: {cleared}");
-        return chained && unlinked && joined && contradiction && cleared;
+        Console.WriteLine("[selftest] The two teams of the 10 against 10 arena:");
+        var frame = new List<byte> { 0x19, 0xe3, 0xa6, 0xed, 0x07, 0x03, 0x00, 0x00, 0x00, 0x37, 0x00, 0x00, 0x00 };
+        for (int i = 0; i < 20; i++)
+        {
+            frame.AddRange(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x6a, 0x02, 0x00, 0x00, 0x00, 0x03, 0x09 });
+            byte[] name = System.Text.Encoding.UTF8.GetBytes(i == 3 ? "Хилкин" : $"Player{i}");
+            frame.Add((byte)name.Length);
+            frame.AddRange(name);
+            frame.AddRange(new byte[] { 0x1b, 0x00, 0x00, 0x00, (byte)(i % 2 + 1), 0x2d, 0x00, 0x00, 0x00, 0x00 });
+        }
+
+        bool parsed = Aion2.Aion2ArenaTeams.TryParse(frame.ToArray(), out List<string> blue, out List<string> red);
+        bool split = parsed && blue.Count == 10 && red.Count == 10 && blue[0] == "Player0" && blue[3] == "Хилкин" && red[0] == "Player10" && red[9] == "Player19";
+        bool tooFew = !Aion2.Aion2ArenaTeams.TryParse(frame.Take(frame.Count - 60).ToArray(), out _, out _);
+        var dir = new Aion2.Aion2EntityDirectory();
+        dir.NoteArenaTeams(blue, red);
+        bool lookup = dir.ArenaTeamOf("Player0") == "Blue" && dir.ArenaTeamOf("Player10") == "Red" && dir.ArenaTeamOf("Stranger") is null;
+        dir.NoteEqualizedArenaEntered(DateTime.UtcNow); // a new fight: the teams are told afresh
+        bool cleared = dir.ArenaTeamOf("Player0") is null;
+        Console.WriteLine($"  -> twenty names split in two blocks of ten, first Blue, second Red: {split}; a frame with fewer names is not taken: {tooFew}");
+        Console.WriteLine($"  -> the team of a name is found, a stranger has none: {lookup}; a new fight starts from nothing: {cleared}");
+        return split && tooFew && lookup && cleared;
     }
 
     /// <summary>The All in One modes' row figures: in All the rate column shows the healing and the damage taken is always

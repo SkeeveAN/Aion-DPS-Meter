@@ -2424,29 +2424,29 @@
     "ja": "グループ",
     "ko": "그룹"
   },
-  "Main.Team.Own": {
-    "en": "Your team",
-    "de": "Dein Team",
-    "fr": "Votre équipe",
-    "es": "Tu equipo",
-    "ru": "Ваша команда",
-    "zh": "我方",
-    "zh-TW": "我方",
-    "pt": "Sua equipe",
-    "ja": "自チーム",
-    "ko": "아군"
+  "Main.Team.Red": {
+    "en": "Team RED",
+    "de": "Team Rot",
+    "fr": "Équipe ROUGE",
+    "es": "Equipo ROJO",
+    "ru": "Красная команда",
+    "zh": "红队",
+    "zh-TW": "紅隊",
+    "pt": "Equipe VERMELHA",
+    "ja": "REDチーム",
+    "ko": "RED팀"
   },
-  "Main.Team.Enemy": {
-    "en": "Opponents",
-    "de": "Gegner",
-    "fr": "Adversaires",
-    "es": "Rivales",
-    "ru": "Противники",
-    "zh": "敌方",
-    "zh-TW": "敵方",
-    "pt": "Adversários",
-    "ja": "敵チーム",
-    "ko": "적군"
+  "Main.Team.Blue": {
+    "en": "Team BLUE",
+    "de": "Team Blau",
+    "fr": "Équipe BLEUE",
+    "es": "Equipo AZUL",
+    "ru": "Синяя команда",
+    "zh": "蓝队",
+    "zh-TW": "藍隊",
+    "pt": "Equipe AZUL",
+    "ja": "BLUEチーム",
+    "ko": "BLUE팀"
   },
   "Main.Scope.Corps": {
     "en": "Corps",

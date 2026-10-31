@@ -647,6 +647,11 @@ public sealed class Aion2FrameDecoder
             NoteNamedServers(frame); // not final: the frame is read by whatever else knows its opcode
         }
 
+        if (opcode == Aion2ArenaTeams.Opcode && Aion2ArenaTeams.TryParse(frame, out List<string> blueTeam, out List<string> redTeam))
+        {
+            _entities.NoteArenaTeams(blueTeam, redTeam); // not final: the frame is read by whatever else knows its opcode
+        }
+
         if (opcode == ZoneOpcode)
         {
             DecodeZone(frame, timestamp);

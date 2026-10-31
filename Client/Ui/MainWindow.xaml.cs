@@ -1367,7 +1367,6 @@ public partial class MainWindow : Window
     /// </summary>
     private void RefreshRows()
     {
-        UpdateArenaTeams();
         // The index takes in what is new in every view (a few events a second): the target list and the heals are read from it
         // everywhere, and the views that ask nothing of a picked target or the scope take their damage side from it too.
         if (!ForceFullRefresh)
@@ -1645,10 +1644,6 @@ public partial class MainWindow : Window
     /// <summary>The local player is in the 10 against 10 arena (live; a stored session has no zone to tell).</summary>
     private bool InTenVsTen => !_historyMode && Aion2.Protocol.Aion2Zones.IsEqualizedArena(_lastZoneSeen);
 
-    private readonly Combat.ArenaTeams _arenaTeams = new();
-    private int _arenaTeamsFed;
-    private List<int> _arenaOwnSeeds = new();
-
     /// <summary>The players announced for the arena, so that all twenty have a row from the start, before they have hit anyone.</summary>
     private IEnumerable<int> ArenaRosterIds()
     {
@@ -1666,47 +1661,15 @@ public partial class MainWindow : Window
         return ids;
     }
 
-    /// <summary>Feeds the hits between players seen since the last refresh into the team split, and finds the players known to be on the own side
-    /// (the local player and the party roster).</summary>
-    private void UpdateArenaTeams()
-    {
-        if (!InTenVsTen || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
-        {
-            return;
-        }
-
-        IReadOnlyList<DamageEvent> events = _aggregator.Events;
-        if (_arenaTeamsFed > events.Count)
-        {
-            _arenaTeamsFed = 0;
-        }
-
-        for (; _arenaTeamsFed < events.Count; _arenaTeamsFed++)
-        {
-            DamageEvent hit = events[_arenaTeamsFed];
-            if (!hit.IsHeal && IsPlayerName(hit.SourceObjectId) && IsPlayerName(hit.TargetObjectId))
-            {
-                _arenaTeams.NoteHit(hit.SourceObjectId, hit.TargetObjectId);
-            }
-        }
-
-        _arenaOwnSeeds = _arenaTeams.Ids.Concat(ArenaRosterIds()).Distinct().Where(id => IsGroupMember(id, directory)).ToList();
-    }
-
-    /// <summary>"Own" or "Enemy" for a player of the 10 against 10 arena, empty outside it or while nothing tells the side yet.</summary>
+    /// <summary>"Red" or "Blue" for a player of the 10 against 10 arena, as the game's own team colour names him; empty outside it or while the game has not named the teams.</summary>
     private string TeamSideOf(int id)
     {
-        if (!InTenVsTen || _arenaOwnSeeds.Count == 0)
+        if (!InTenVsTen || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
         {
             return "";
         }
 
-        if (_arenaOwnSeeds.Contains(id))
-        {
-            return "Own";
-        }
-
-        return _arenaTeams.IsOwnSide(id, _arenaOwnSeeds) switch { true => "Own", false => "Enemy", null => "" };
+        return directory.ArenaTeamOf(ResolveDisplayName(id)) ?? "";
     }
 
     /// <summary>
@@ -1907,8 +1870,11 @@ public partial class MainWindow : Window
         }
 
         var strings = LocalizationManager.Instance;
-        OverlayTeamOwnText.Text = $"\u25A0 {strings["Main.Team.Own"]} {_rows.Where(r => r.TeamSide == "Own").Sum(r => r.Damage):N0}";
-        OverlayTeamEnemyText.Text = $"\u25A0 {strings["Main.Team.Enemy"]} {_rows.Where(r => r.TeamSide == "Enemy").Sum(r => r.Damage):N0}";
+        string? ownTeam = (_source?.Entities as Aion2.Aion2EntityDirectory) is { } directory && directory.LocalCharacter?.Name is string me ? directory.ArenaTeamOf(me) : null;
+        OverlayTeamRedText.Text = $"\u25A0 {strings["Main.Team.Red"]} {_rows.Where(r => r.TeamSide == "Red").Sum(r => r.Damage):N0}";
+        OverlayTeamBlueText.Text = $"\u25A0 {strings["Main.Team.Blue"]} {_rows.Where(r => r.TeamSide == "Blue").Sum(r => r.Damage):N0}";
+        OverlayTeamRedText.FontWeight = ownTeam == "Red" ? FontWeights.Bold : FontWeights.Normal; // the own team's line is bold
+        OverlayTeamBlueText.FontWeight = ownTeam == "Blue" ? FontWeights.Bold : FontWeights.Normal;
     }
 
     private void RankRows()
@@ -3975,14 +3941,6 @@ public partial class MainWindow : Window
     {
         foreach (ZoneChange zone in batch.ZoneChanges)
         {
-            if (zone.ZoneId != _lastZoneSeen && (Aion2.Protocol.Aion2Zones.IsEqualizedArena(zone.ZoneId) || Aion2.Protocol.Aion2Zones.IsEqualizedArena(_lastZoneSeen)))
-            {
-                // a new 10 against 10 fight (or its end): the teams are told afresh, from the hits that come
-                _arenaTeams.Clear();
-                _arenaTeamsFed = _aggregator.Events.Count;
-                _arenaOwnSeeds = new List<int>();
-            }
-
             if (Aion2.Protocol.Aion2Zones.IsArena(_lastZoneSeen) && !Aion2.Protocol.Aion2Zones.IsArena(zone.ZoneId))
             {
                 ScheduleArenaUpload();
@@ -5434,8 +5392,6 @@ public partial class MainWindow : Window
     private void ClearDamageData()
     {
         _aggregator.Clear();
-        _arenaTeams.Clear();
-        _arenaTeamsFed = 0;
         _groupNames.Clear();
         _avoids.Clear();
         _kills.Clear();

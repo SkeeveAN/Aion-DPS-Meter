@@ -1047,11 +1047,11 @@
                                 <DataTrigger Binding="{Binding IsEnemy}" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource Brush.RowEnemy}"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding TeamSide}" Value="Own">
-                                    <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnRow}"/>
+                                <DataTrigger Binding="{Binding TeamSide}" Value="Red">
+                                    <Setter Property="Background" Value="{DynamicResource Brush.TeamRedRow}"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
-                                    <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyRow}"/>
+                                <DataTrigger Binding="{Binding TeamSide}" Value="Blue">
+                                    <Setter Property="Background" Value="{DynamicResource Brush.TeamBlueRow}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -1332,11 +1332,11 @@
                                     <Style TargetType="Grid">
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding TeamSide}" Value="Own">
-                                                <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnRow}"/>
+                                            <DataTrigger Binding="{Binding TeamSide}" Value="Red">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.TeamRedRow}"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
-                                                <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyRow}"/>
+                                            <DataTrigger Binding="{Binding TeamSide}" Value="Blue">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.TeamBlueRow}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1350,11 +1350,11 @@
                                                 <DataTrigger Binding="{Binding IsEnemy}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource Brush.OverlayEnemy}"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                                                <DataTrigger Binding="{Binding TeamSide}" Value="Red">
                                                     <Setter Property="Height" Value="3"/>
                                                     <Setter Property="VerticalAlignment" Value="Bottom"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                                                <DataTrigger Binding="{Binding TeamSide}" Value="Blue">
                                                     <Setter Property="Height" Value="3"/>
                                                     <Setter Property="VerticalAlignment" Value="Bottom"/>
                                                 </DataTrigger>
@@ -1391,8 +1391,8 @@
                 </local:QuietItemsControl>
                 <!-- The 10 against 10 arena: what each side did together. -->
                 <StackPanel x:Name="OverlayTeamSums" Orientation="Horizontal" Margin="4,3,0,0" Visibility="Collapsed">
-                    <TextBlock x:Name="OverlayTeamOwnText" FontSize="10" Foreground="#E8938A"/>
-                    <TextBlock x:Name="OverlayTeamEnemyText" FontSize="10" Foreground="#8FB4EE" Margin="10,0,0,0"/>
+                    <TextBlock x:Name="OverlayTeamRedText" FontSize="10" Foreground="#E8938A"/>
+                    <TextBlock x:Name="OverlayTeamBlueText" FontSize="10" Foreground="#8FB4EE" Margin="10,0,0,0"/>
                 </StackPanel>
                 <!-- Corner grip: drag to scale the whole panel, text included (OnCompactOverlayResize). -->
                 <Thumb HorizontalAlignment="Right" Width="12" Height="12" Cursor="SizeNWSE" Margin="0,4,0,0"
@@ -1422,11 +1422,11 @@
                                     <DataTrigger Binding="{Binding IsEnemy}" Value="True">
                                         <Setter Property="Background" Value="{DynamicResource Brush.OverlayEnemy}"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding TeamSide}" Value="Own">
-                                        <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnRow}"/>
+                                    <DataTrigger Binding="{Binding TeamSide}" Value="Red">
+                                        <Setter Property="Background" Value="{DynamicResource Brush.TeamRedRow}"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
-                                        <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyRow}"/>
+                                    <DataTrigger Binding="{Binding TeamSide}" Value="Blue">
+                                        <Setter Property="Background" Value="{DynamicResource Brush.TeamBlueRow}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

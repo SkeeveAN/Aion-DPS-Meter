@@ -411,14 +411,16 @@ internal static class Program
         {
             if (args.Length < 3)
             {
-                Console.WriteLine("Usage: AionDPS aion2-frame-dump <recording.jsonl> <opcode hex, e.g. 058a> [max frames] [--port=13328]");
-                Console.WriteLine("  Prints the frames of one opcode of a recording as hex (opcode as the decoder reads it). No window.");
+                Console.WriteLine("Usage: AionDPS aion2-frame-dump <recording.jsonl> <opcode hex, e.g. 058a, or ffff for all> [max frames] [--port=13328] [--from=HH:mm:ss] [--to=HH:mm:ss]");
+                Console.WriteLine("  Prints the frames of one opcode (ffff: every opcode) of a recording as hex (opcode as the decoder reads it), only those inside the time window when given. No window.");
                 return;
             }
 
             int max = args.Skip(3).Where(a => !a.StartsWith("--", StringComparison.Ordinal)).Select(int.Parse).DefaultIfEmpty(5).First();
             int port = args.Where(a => a.StartsWith("--port=", StringComparison.Ordinal)).Select(a => int.Parse(a[7..])).DefaultIfEmpty(13328).First();
-            RunAion2FrameDump(args[1], Convert.ToInt32(args[2], 16), max, port);
+            string? from = args.Where(a => a.StartsWith("--from=", StringComparison.Ordinal)).Select(a => a[7..]).FirstOrDefault();
+            string? to = args.Where(a => a.StartsWith("--to=", StringComparison.Ordinal)).Select(a => a[5..]).FirstOrDefault();
+            RunAion2FrameDump(args[1], Convert.ToInt32(args[2], 16), max, port, from, to);
             return;
         }
 
@@ -1111,7 +1113,7 @@ internal static class Program
                 Rank = rank, Faction = rank is 1 or 5 ? "Elyos" : rank is 3 ? "" : "Asmodian" }; // a sample of both factions and one unknown
             if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_TEAMS") is { Length: > 0 })
             {
-                row.TeamSide = rank % 2 == 1 ? "Own" : "Enemy"; // the 10 against 10 arena's two sides, for the picture
+                row.TeamSide = rank % 2 == 1 ? "Red" : "Blue"; // the 10 against 10 arena's two teams, for the picture
             }
 
             if (all)
@@ -1129,8 +1131,8 @@ internal static class Program
         if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_TEAMS") is { Length: > 0 })
         {
             var teamStrings = Ui.LocalizationManager.Instance;
-            window.OverlayTeamOwnText.Text = $"\u25A0 {teamStrings["Main.Team.Own"]} {rows.Where(r => r.TeamSide == "Own").Sum(r => r.Damage):N0}";
-            window.OverlayTeamEnemyText.Text = $"\u25A0 {teamStrings["Main.Team.Enemy"]} {rows.Where(r => r.TeamSide == "Enemy").Sum(r => r.Damage):N0}";
+            window.OverlayTeamRedText.Text = $"\u25A0 {teamStrings["Main.Team.Red"]} {rows.Where(r => r.TeamSide == "Red").Sum(r => r.Damage):N0}";
+            window.OverlayTeamBlueText.Text = $"\u25A0 {teamStrings["Main.Team.Blue"]} {rows.Where(r => r.TeamSide == "Blue").Sum(r => r.Damage):N0}";
             window.OverlayTeamSums.Visibility = System.Windows.Visibility.Visible;
         }
 
@@ -2874,14 +2876,20 @@ internal static class Program
     }
 
     /// <summary>Replays recordings and measures the own-position estimate against the exact reports (every effect frame of the player carries his place): by the age of the previous report, and for several trust times.</summary>
-    private static void RunAion2FrameDump(string path, int opcode, int max, int serverPort)
+    private static void RunAion2FrameDump(string path, int opcode, int max, int serverPort, string? from = null, string? to = null)
     {
         var protocol = Aion2.Protocol.Aion2Protocol.Load();
         using var source = new Aion2.Aion2PacketCombatSource(protocol);
         int shown = 0, total = 0;
         Aion2.Protocol.Aion2FrameDecoder.FrameTap = (op, frame, at) =>
         {
-            if (op != opcode)
+            if (opcode != 0xFFFF && op != opcode)
+            {
+                return;
+            }
+
+            string clock = at.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+            if ((from is not null && string.CompareOrdinal(clock, from) < 0) || (to is not null && string.CompareOrdinal(clock, to) > 0))
             {
                 return;
             }
@@ -2892,9 +2900,14 @@ internal static class Program
                 Console.WriteLine($"  legion list: {legion.Count} members ({legion.Count(m => m.ServerId == legion[0].ServerId)} on server {legion[0].ServerId}): " + string.Join(", ", legion.Select(m => $"{m.Name} L{m.Level} {Aion2.Protocol.Aion2SkillNames.ClassFromCode(m.ClassCode)} {m.ItemLevel}/{m.CombatPower}")));
             }
 
+            if (op == Aion2.Aion2ArenaTeams.Opcode && shown < max && Aion2.Aion2ArenaTeams.TryParse(frame, out List<string> blueTeam, out List<string> redTeam))
+            {
+                Console.WriteLine($"  arena teams: Blue [{string.Join(", ", blueTeam)}] Red [{string.Join(", ", redTeam)}]");
+            }
+
             if (shown++ < max)
             {
-                Console.WriteLine($"{at:HH:mm:ss.fff} len {frame.Length}: {Convert.ToHexString(frame)}");
+                Console.WriteLine($"{at:HH:mm:ss.fff} op {op:x4} len {frame.Length}: {Convert.ToHexString(frame)}");
             }
         };
         foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
