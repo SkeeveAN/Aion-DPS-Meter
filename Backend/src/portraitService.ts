@@ -380,6 +380,11 @@ export class PortraitQueue {
     this.kick();
   }
 
+  /** What the workers are doing, for the log. */
+  state(): { workers: number; waiting: number; current: number; activeMatches: number; matches: number; crowd: number } {
+    return { workers: this.workers, waiting: this.waiting.size, current: this.current.size, activeMatches: this.activeMatches, matches: this.matches?.size ?? 0, crowd: this.crowd?.size ?? 0 };
+  }
+
   private matchesWaiting(): number {
     return (this.matches?.size ?? 0) + (this.crowd?.size ?? 0);
   }

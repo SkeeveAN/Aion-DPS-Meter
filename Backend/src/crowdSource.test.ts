@@ -120,3 +120,30 @@ test("the workers take the players of a waiting upload one by one, in parallel, 
   assert.equal(db.select().from(encounters).all().length, 1);
   assert.equal(db.select().from(uploads).where(eq(uploads.status, "pending")).all().length, 0);
 });
+
+test("two waiting uploads one after the other through the real worker queue: the second is taken up as soon as the first is filed", async () => {
+  const { PortraitQueue } = await import("./portraitService.js");
+  const before = db.select().from(encounters).all().length;
+  const other = (n: string, offset: number) => {
+    const p = base({ startedAt: new Date(riftStart + offset).toISOString(), endedAt: new Date(riftStart + offset + 7_000).toISOString() }, [
+      elyosSelf, ...Array.from({ length: 8 }, (_, i) => row(`${n}${i}`, "Ranger", 150_000_000, { faction: "Elyos" })),
+    ]);
+    return p;
+  };
+  for (const [n, off] of [["Erste", -10_800_000], ["Zweite", -21_600_000]] as const) {
+    const res = await app.inject({ method: "POST", url: "/api/uploads", payload: other(n, off) });
+    assert.equal(res.statusCode, 200, res.body);
+  }
+  const waiting = db.select().from(uploads).where(eq(uploads.status, "pending")).all().length;
+  assert.equal(waiting, 2);
+  const nc = (async () => new Response(JSON.stringify({ list: [], pagination: { page: 1, size: 40, total: 0, endPage: 1 } }), { status: 200 })) as unknown as typeof fetch;
+  const q = new PortraitQueue(async () => {}, { minGapMs: 0, maxLength: 20, now: () => 0, sleep: async () => {}, concurrency: 4 });
+  const source = new CrowdSource(app.log, nc);
+  q.attachCrowd(source);
+  source.refresh();
+  for (let i = 0; i < 100 && db.select().from(encounters).all().length < before + 2; i++) {
+    await new Promise((r) => setTimeout(r, 20));
+  }
+  assert.equal(db.select().from(encounters).all().length, before + 2, "both uploads were filed");
+  assert.equal(db.select().from(uploads).where(eq(uploads.status, "pending")).all().length, 0);
+});

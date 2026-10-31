@@ -314,6 +314,9 @@ export class CrowdSource implements MatchSource {
     if (this.size > 0) {
       this.host?.wake();
     }
+    if (this.pending > 0) {
+      this.log.info({ pending: this.pending, loaded: this.current?.rowId ?? null, size: this.size, cooldownMs: Math.max(0, this.cooldownUntil - this.now()), workers: portraitQueue.state() }, "crowd lookups waiting");
+    }
   }
 
   /** Loads the oldest waiting upload; false when there is none or it needs nothing from NC any more (it is then filed). */
