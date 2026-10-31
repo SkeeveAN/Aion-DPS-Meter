@@ -32,6 +32,13 @@
      "Backend"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "The database cleanup (VACUUM) no longer runs during a deploy but at night at 04:40, so a deploy no longer keeps the site offline for about eight minutes",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
