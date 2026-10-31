@@ -104,8 +104,8 @@
   "de": "10-gegen-10-Arena: alle 20 Spieler sichtbar, in der Teamfarbe des Spiels"
  },
  "Backend: /api/data/manifest and /api/data/file deliver the data files of Client/assets (aion2 and the interface texts, with SHA-256, size and layout number) to the client, so new data needs no client release; tests keep the privacy text of client and website and the tables of client and backend the same, the missing item and effect icons of the backend are copied into the client set": {
-  "en": "Backend: new data endpoints deliver the client's data files",
-  "de": "Backend: Neue Daten-Endpunkte liefern die Datendateien des Clients"
+  "en": "",
+  "de": ""
  },
  "Data from the server: the client runs from the data set it ships and takes newer files (tables, names, texts, map tiles, protocol tables) from aiondps.com into its data folder at the start and every two hours, also without the upload consent; new maps (names, zones, groups of the pet settings) and instances need no code any more; selftest and the console mode data-refresh": {
   "en": "Data from the server: tables, names, texts and maps update without a release",
