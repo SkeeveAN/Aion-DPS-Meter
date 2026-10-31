@@ -24,6 +24,28 @@
      "Client"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Backend: /api/data/manifest and /api/data/file deliver the data files of Client/assets (aion2 and the interface texts, with SHA-256, size and layout number) to the client, so new data needs no client release; tests keep the privacy text of client and website and the tables of client and backend the same, the missing item and effect icons of the backend are copied into the client set",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Data from the server: the client runs from the data set it ships and takes newer files (tables, names, texts, map tiles, protocol tables) from aiondps.com into its data folder at the start and every two hours, also without the upload consent; new maps (names, zones, groups of the pet settings) and instances need no code any more; selftest and the console mode data-refresh",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Privacy: the privacy page and the client's dialog, in all ten languages, name the data the client takes from aiondps.com now and then (tables, names, texts, maps; no identifier), also when the upload consent is declined; the consent keeps its version 2",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
