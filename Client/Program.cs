@@ -142,6 +142,13 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-stagger-check")
+        {
+            // aion2-stagger-check <recording.jsonl>...: how much of each boss's stagger bar the attribution credits to players
+            StaggerCheck.Run(args);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-session-sim")
         {
             // aion2-session-sim <recording.jsonl>: stay, change the map, fight, change back - what the list and the session menu show at each step
@@ -2127,7 +2134,7 @@ internal static class Program
 
             foreach (var p in request.Participants.OrderByDescending(x => x.TotalDamage))
             {
-                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
+                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} stagger {p.Stagger,5} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
                 if (p.Timeline?.Analysis is { } an)
                 {
                     Console.WriteLine($"          analysis: boss damage in slices {an.Damage.Sum():N0} of {p.TotalDamage:N0} ({an.Damage.Count} x 5 s), add damage {an.AddDamage:N0}, dead {an.Dead.Where((_, i) => i % 2 == 1).Sum() / 10.0 - an.Dead.Where((_, i) => i % 2 == 0).Sum() / 10.0:0.0} s in {an.Dead.Count / 2} span(s), taken by {string.Join(", ", an.Taken.Take(4).Select(t => $"{t.From}/{t.Skill} {t.Total:N0}"))}");

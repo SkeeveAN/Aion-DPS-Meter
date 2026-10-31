@@ -94,7 +94,9 @@ public sealed record ParticipantUpload(
     // The game's permanent character id of this player (it stays when he is renamed), when a player list named him. The website uses it only as a hint to recognise a renamed character.
     int? CharacterId = null,
     // When this player used which skill, and when they died (see TimelineUpload). Null where the client has no data for it.
-    TimelineUpload? Timeline = null);
+    TimelineUpload? Timeline = null,
+    // How much of the boss's stagger bar this player brought down (see Combat.StaggerShare); 0 where none was credited or the client does not read it.
+    int Stagger = 0);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 
@@ -221,7 +223,9 @@ public sealed record EncounterUploadRequest(
     // The boss's health over the fight: (tenths of a second from the start, thousandths of its health) pairs, flattened. Null when not read.
     IReadOnlyList<int>? BossHp = null,
     // The effects the players put on the boss during the fight (uptime, who gave it, when), like a participant's effects. Null when none were seen.
-    IReadOnlyList<BuffUsageUpload>? BossDebuffs = null);
+    IReadOnlyList<BuffUsageUpload>? BossDebuffs = null,
+    // How far the boss's stagger bar fell in the fight in all (the players' Stagger values add up to part of it; the rest no hit could be matched to). Null when the bar was not read.
+    int? StaggerTotal = null);
 
 /// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the
 /// character profiles the client read off the network, with no encounter and no damage attached.

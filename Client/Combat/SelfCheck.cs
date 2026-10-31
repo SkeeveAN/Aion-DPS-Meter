@@ -40,6 +40,7 @@ public static class SelfCheck
         ok &= SelfCheckStream.Run();
         ok &= SelfCheckHitKinds.Run();
         ok &= SelfCheckProtocolHealth.Run();
+        ok &= SelfCheckStaggerShare.Run();
         ok &= SelfCheckTickets.Run();
         ok &= SelfCheckInstanceTimer.Run();
         ok &= SelfCheckCubesGuards.Run();

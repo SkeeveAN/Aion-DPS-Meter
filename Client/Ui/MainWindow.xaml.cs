@@ -2992,6 +2992,11 @@ public partial class MainWindow : Window
                 .ToList();
         }
 
+        // who brought the boss's stagger bar down (the game's own drop per hit, matched to the bar's readings)
+        StaggerShareResult? stagger = buffExtras is not null
+            ? StaggerShare.Compute(targetHits, buffExtras.Staggers, targetId, windowStart, windowEnd, Aion2.Aion2StaggerTable.ValueOf)
+            : null;
+
         foreach (PlayerRow row in uploadRows)
         {
             if (aion2Directory is not null
@@ -3079,7 +3084,8 @@ public partial class MainWindow : Window
                 CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row))),
                 Timeline: buffExtras is not null && aion2Directory is not null
                     ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id), targetId, analysisByPlayer.GetValueOrDefault(row.ObjectId))
-                    : null));
+                    : null,
+                Stagger: stagger?.BySource.GetValueOrDefault(row.ObjectId) ?? 0));
         }
 
         // The backend takes at most 300 players of an instance fight: the biggest by damage, the own character always. A world boss has no cut.
@@ -3124,7 +3130,8 @@ public partial class MainWindow : Window
             GameServer: Aion2GameServerAddress(),
             BossLevel: (_source?.Entities as Aion2EntityDirectory)?.NpcLevelOf(targetId),
             BossHp: bossHp,
-            BossDebuffs: bossDebuffs);
+            BossDebuffs: bossDebuffs,
+            StaggerTotal: stagger is { Total: > 0 } ? stagger.Total : null);
     }
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is
