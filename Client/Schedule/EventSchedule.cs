@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Schedule;
 
@@ -46,7 +47,7 @@ public sealed record EventOccurrence(ScheduledEvent Event, DateTime Start, DateT
 /// </summary>
 public static class EventSchedule
 {
-    private static readonly string Path_ = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "schedule", "events.json");
+    private static readonly string Path_ = AssetStore.Path("aion2", "schedule", "events.json");
 
     private static volatile IReadOnlyList<ScheduledEvent>? _events;
 

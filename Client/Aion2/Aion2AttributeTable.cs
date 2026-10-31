@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2;
 
@@ -105,7 +106,7 @@ public static class Aion2AttributeTable
 
     // ---------------------------------------------------------------- texts
 
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "stats", "attributes.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "stats", "attributes.json");
     private static Dictionary<string, Dictionary<string, string>>? _texts;
 
     /// <summary>A text of the game ("desc.str", "stat.Block", "tip.Block", "grp.Attack") in a language; English when the client has no text in it (Chinese), the key when there is none at all.</summary>

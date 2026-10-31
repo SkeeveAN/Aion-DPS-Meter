@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -10,8 +11,8 @@ namespace AionDPS.Aion2.Protocol;
 /// </summary>
 public static class Aion2Npcs
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "npc_names.json");
-    private static readonly string SummonFilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "player_summon_npcs.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "npcs", "npc_names.json");
+    private static readonly string SummonFilePath = AssetStore.Path("aion2", "npcs", "player_summon_npcs.json");
     private static Dictionary<int, Dictionary<string, string>>? _table;
     private static HashSet<int>? _playerSummons;
 

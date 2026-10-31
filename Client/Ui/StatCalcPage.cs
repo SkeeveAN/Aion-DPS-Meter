@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using AionDPS.Aion2;
 using AionDPS.Combat;
 using AionDPS.Upload;
+using AionDPS.Update;
 
 namespace AionDPS.Ui;
 
@@ -162,7 +163,7 @@ public sealed class StatCalcPage : Grid
         var table = new Dictionary<string, Dictionary<string, string>>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "stats", "calc_names.json");
+            string path = AssetStore.Path("aion2", "stats", "calc_names.json");
             if (File.Exists(path))
             {
                 using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));

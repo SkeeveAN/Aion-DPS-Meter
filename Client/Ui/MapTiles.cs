@@ -16,9 +16,8 @@ internal static class MapTiles
     {
         try
         {
-            string folder = Aion2Maps.TileFolder(map);
-            string jpg = Path.Combine(folder, $"{col}_{row}.jpg");
-            string mask = Path.Combine(folder, $"{col}_{row}_a.png");
+            string jpg = AionDPS.Update.AssetStore.Path("aion2", "maps", map.Key, $"{col}_{row}.jpg");
+            string mask = AionDPS.Update.AssetStore.Path("aion2", "maps", map.Key, $"{col}_{row}_a.png");
             if (!File.Exists(jpg) || !File.Exists(mask))
             {
                 return null;

@@ -1961,7 +1961,14 @@ public partial class SettingsWindow : Window
         PickPetRare(pick);
     }
 
-    private static string RegionGroupName(string id) => LocalizationManager.Instance["Settings.PetRegion.Group." + id];
+    /// <summary>The name of a map group: the interface text of the three maps that have one, else the map's own name from maps.json (a map the server added needs no text).</summary>
+    private static string RegionGroupName(string id)
+    {
+        var loc = LocalizationManager.Instance;
+        string key = "Settings.PetRegion.Group." + id;
+        string text = loc[key];
+        return text != key ? text : Aion2Maps.All.FirstOrDefault(m => m.Key == id)?.NameIn(loc.Language) ?? id;
+    }
 
     /// <summary>Alphabetical order of the region names by the rules of the interface language (ä, é or ё sort differently per language).</summary>
     private static StringComparer RegionNameComparer(string language)

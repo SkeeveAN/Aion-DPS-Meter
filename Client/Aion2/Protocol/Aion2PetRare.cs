@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -142,10 +143,10 @@ public static class Aion2PetRare
                 }
 
                 // Verteron, Altgard and the Abyss are the caller's own names; the second maps (Eltnen, Morheim) keep the game's
-                string sub = table.Contains("World_L_A", StringComparison.Ordinal) ? "verteron" : table.Contains("World_D_A", StringComparison.Ordinal) ? "altgard"
-                    : table.Contains("/Abyss/", StringComparison.Ordinal) ? "abyss" : table.Split('/')[^1];
+                string sub = Aion2Maps.All.FirstOrDefault(m => table.Contains(m.Table.Split('/')[^1], StringComparison.Ordinal))?.Key
+                    ?? (table.Contains("/Abyss/", StringComparison.Ordinal) ? "abyss" : table.Split('/')[^1]);
                 result[WorldBosses].Add(new PetRareEntry($"b{npc}.{petId}.{table}", WorldBosses, petId, npc, spots.Count, mapKey, spots, Array.Empty<(float, float)>(), total,
-                    new Dictionary<string, int>(), 0, places, sub, sub is "verteron" or "altgard" or "abyss" ? null : names));
+                    new Dictionary<string, int>(), 0, places, sub, Aion2Maps.All.Any(m => m.Key == sub) ? null : names));
             }
         }
     }
@@ -240,7 +241,7 @@ public static class Aion2PetRare
         var result = new Dictionary<string, Dictionary<string, string>>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "instances.json");
+            string path = AssetStore.Path("aion2", "pets", "instances.json");
             if (File.Exists(path))
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));

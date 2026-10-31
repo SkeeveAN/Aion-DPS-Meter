@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -17,7 +18,7 @@ public static class Aion2HitAverages
 
     private sealed record Row(long Average, int Samples);
 
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "protocol", "skill_hit_average.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "protocol", "skill_hit_average.json");
     private static Dictionary<int, Row>? _skills;
     private static Dictionary<int, Row>? _families;
     private static HashSet<int>? _bossNpcs;

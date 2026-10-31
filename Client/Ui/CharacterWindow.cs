@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
+using AionDPS.Update;
 
 namespace AionDPS.Ui;
 
@@ -997,7 +998,7 @@ public sealed class CharacterWindow : Window
         var disc = new RadialGradientBrush(Color.FromRgb(0x2B, 0x47, 0x62), Color.FromRgb(0x11, 0x1F, 0x2D));
         var grid = new Grid { Width = size, Height = size };
         grid.Children.Add(new System.Windows.Shapes.Ellipse { Fill = disc, Stroke = Res("Brush.Border"), StrokeThickness = 1 });
-        if (Picture(Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "stats", file)) is { } image)
+        if (Picture(AssetStore.Path("aion2", "stats", file)) is { } image)
         {
             grid.Children.Add(new Image { Source = image, Stretch = Stretch.Uniform, Margin = new Thickness(size * 0.12) });
         }

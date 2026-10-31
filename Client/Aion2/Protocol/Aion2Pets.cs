@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -22,7 +23,7 @@ public static class Aion2Pets
 
     public static int ProgressNeeded(int level) => level switch { 1 => 25, 2 => 75, _ => 0 };
 
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "pets.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "pets", "pets.json");
     private static Catalog? _catalog;
 
     /// <summary>The species of a pet as the pet window groups them: Cognia (Intellect), Fera (Feral), Natura (Nature), Varia (Trans), Specia (Special).</summary>
@@ -68,7 +69,7 @@ public static class Aion2Pets
             return null;
         }
 
-        string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "icons", key + ".png");
+        string path = AssetStore.Path("aion2", "pets", "icons", key + ".png");
         return File.Exists(path) ? path : null;
     }
 
@@ -175,7 +176,7 @@ public static class Aion2Pets
             }
 
             // the pets that have at least one spawn point on a map (spawns.json: {"maps": {map: {npcId: [[x,y,z]...]}}})
-            string spawnsPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "spawns.json");
+            string spawnsPath = AssetStore.Path("aion2", "pets", "spawns.json");
             if (File.Exists(spawnsPath))
             {
                 using var spawns = JsonDocument.Parse(File.ReadAllText(spawnsPath));

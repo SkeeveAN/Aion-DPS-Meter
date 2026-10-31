@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -11,7 +12,7 @@ namespace AionDPS.Aion2.Protocol;
 /// </summary>
 public static class Aion2SkillNames
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_names.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "skills", "skill_names.json");
     private static IReadOnlyDictionary<int, string>? _cache;
 
     public static IReadOnlyDictionary<int, string> Load()
@@ -45,7 +46,7 @@ public static class Aion2SkillNames
         return table;
     }
 
-    private static readonly string WatchlistPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "rdps_watchlist.json");
+    private static readonly string WatchlistPath = AssetStore.Path("aion2", "skills", "rdps_watchlist.json");
     private static IReadOnlySet<int>? _buffBases;
 
     /// <summary>True for ids that show up in damage frames but are not damage: consumable uses
@@ -100,7 +101,7 @@ public static class Aion2SkillNames
         return _buffBases.Contains(skillId / 10000 * 10000);
     }
 
-    private static readonly string HealFamiliesPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "heal_skill_families.json");
+    private static readonly string HealFamiliesPath = AssetStore.Path("aion2", "skills", "heal_skill_families.json");
     private static IReadOnlySet<int>? _healBases;
 
     /// <summary>Whether the skill belongs to a heal family (assets/aion2/skills/heal_skill_families.json,
@@ -214,7 +215,7 @@ public static class Aion2SkillNames
         return code >= 1 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
     }
 
-    private static readonly string LocalizedPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_names_i18n.json");
+    private static readonly string LocalizedPath = AssetStore.Path("aion2", "skills", "skill_names_i18n.json");
     private static IReadOnlyDictionary<int, Dictionary<string, string>>? _localized;
 
     /// <summary>The UI language (an ISO 639-1 code; the UI sets it) for <see cref="Display"/>. The
@@ -369,7 +370,7 @@ public static class Aion2SkillNames
         var table = new Dictionary<long, string>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "abnormal_names_en.json");
+            string path = AssetStore.Path("aion2", "skills", "abnormal_names_en.json");
             if (File.Exists(path))
             {
                 foreach ((string key, string name) in JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path)) ?? new())

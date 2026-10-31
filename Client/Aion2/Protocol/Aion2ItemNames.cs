@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -10,7 +11,7 @@ namespace AionDPS.Aion2.Protocol;
 /// </summary>
 public static class Aion2ItemNames
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "items", "item_names.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "items", "item_names.json");
     private static readonly string[] Languages = { "en", "de", "fr", "es", "ru", "pt", "ja", "ko" };
     private static Dictionary<int, string[]>? _table;
 

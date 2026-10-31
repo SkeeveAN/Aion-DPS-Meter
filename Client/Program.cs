@@ -202,6 +202,14 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "data-refresh")
+        {
+            // One run of the data delivery against the server (no window): AIONDPS_DATA_DIR = where the files go, AIONDPS_SHIPPED_DIR = another folder as the shipped set (both for tests).
+            var outcome = Update.DataUpdateClient.RefreshAsync().GetAwaiter().GetResult();
+            Console.WriteLine($"data-refresh: reached {outcome.Reached}, taken {outcome.Taken}, dropped {outcome.Removed}, failed {outcome.Failed}");
+            return;
+        }
+
         if (args.Length > 2 && args[0] == "render-updatewindow")
         {
             RunRenderUpdateWindowMode(args[1], args[2], args.Length > 3 ? args[3] : "");

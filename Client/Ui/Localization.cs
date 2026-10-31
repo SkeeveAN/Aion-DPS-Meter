@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows.Data;
 using System.Windows.Markup;
+using AionDPS.Update;
 
 namespace AionDPS.Ui;
 
@@ -120,7 +121,7 @@ public sealed class LocalizationManager : INotifyPropertyChanged
     {
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "i18n", "ui_strings.json");
+            string path = AssetStore.Path("i18n", "ui_strings.json");
             if (!File.Exists(path))
             {
                 return;

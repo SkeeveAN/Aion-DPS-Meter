@@ -15,7 +15,8 @@ namespace AionDPS.Ui;
 /// </summary>
 public partial class SettingsWindow
 {
-    private static readonly string[] RareGroups = { "verteron", "altgard", "abyss", Aion2PetRare.Instances, Aion2PetRare.WorldBosses, Aion2PetRare.Unknown };
+    /// <summary>The maps of maps.json (a map the server added is a group of its own), then the instances, the world bosses and the pets with no known place.</summary>
+    private static string[] RareGroups => Aion2Maps.All.Select(m => m.Key).Concat(new[] { Aion2PetRare.Instances, Aion2PetRare.WorldBosses, Aion2PetRare.Unknown }).ToArray();
     private readonly HashSet<string> _rareClosed = new();
     private IReadOnlyDictionary<string, List<PetRareEntry>> _rare = new Dictionary<string, List<PetRareEntry>>();
     private string? _rareKey;
@@ -125,7 +126,7 @@ public partial class SettingsWindow
         if (entry is not null)
         {
             _rareKey = entry.Key;
-            foreach (string map in new[] { "verteron", "altgard", "abyss" }.Where(m => entry.Category != m))
+            foreach (string map in Aion2Maps.All.Select(m => m.Key).Where(m => entry.Category != m))
             {
                 _rareClosed.Add(map); // so the list shows the part with the chosen line
             }
@@ -189,7 +190,7 @@ public partial class SettingsWindow
     {
         var language = LocalizationManager.Instance.Language;
         string SubName(PetRareEntry e) => e.SubNames?.GetValueOrDefault(language) ?? e.SubNames?.GetValueOrDefault("en") ?? RareGroupName(e.SubKey ?? "");
-        string[] firstMaps = { "verteron", "altgard", "abyss" };
+        string[] firstMaps = Aion2Maps.All.Select(m => m.Key).ToArray();
         var comparer = RegionNameComparer(language);
         var subs = entries.GroupBy(e => e.SubKey ?? "").Select(g => (Key: g.Key, Name: SubName(g.First()), Items: g.ToList()))
             .OrderBy(g => group == Aion2PetRare.WorldBosses && Array.IndexOf(firstMaps, g.Key) >= 0 ? Array.IndexOf(firstMaps, g.Key) : firstMaps.Length)

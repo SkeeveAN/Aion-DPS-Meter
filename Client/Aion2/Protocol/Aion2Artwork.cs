@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -11,7 +12,6 @@ namespace AionDPS.Aion2.Protocol;
 /// </summary>
 public static class Aion2Artwork
 {
-    private static readonly string Root = Path.Combine(AppContext.BaseDirectory, "assets", "aion2");
     private static IReadOnlyDictionary<int, string>? _itemIcons;
     private static IReadOnlyDictionary<int, string>? _skillTypes;
     private static SpeciesTexts? _species;
@@ -20,15 +20,15 @@ public static class Aion2Artwork
 
     public static string? ItemIconPath(int itemId)
     {
-        _itemIcons ??= ReadMap(Path.Combine(Root, "items", "item_icons.json"));
-        if (_itemIcons.TryGetValue(itemId, out string? name) && Path.Combine(Root, "items", "icons", name + ".png") is string path && File.Exists(path))
+        _itemIcons ??= ReadMap(AssetStore.Path("aion2", "items", "item_icons.json"));
+        if (_itemIcons.TryGetValue(itemId, out string? name) && AssetStore.Path("aion2", "items", "icons", name + ".png") is string path && File.Exists(path))
         {
             return path;
         }
 
         // the materials, potions and the like of the crafting tool (assets/aion2/craft, built by Tools/aion2-icons/build_craft_icons.py)
-        _craftIcons ??= ReadMap(Path.Combine(Root, "craft", "item_icons.json"));
-        if (_craftIcons.TryGetValue(itemId, out string? craftName) && Path.Combine(Root, "craft", "icons", craftName + ".png") is string craftPath && File.Exists(craftPath))
+        _craftIcons ??= ReadMap(AssetStore.Path("aion2", "craft", "item_icons.json"));
+        if (_craftIcons.TryGetValue(itemId, out string? craftName) && AssetStore.Path("aion2", "craft", "icons", craftName + ".png") is string craftPath && File.Exists(craftPath))
         {
             return craftPath;
         }
@@ -45,10 +45,10 @@ public static class Aion2Artwork
     /// </summary>
     public static string? EffectIconPath(int effectId)
     {
-        _effectIcons ??= ReadMap(Path.Combine(Root, "items", "effect_icons.json"));
+        _effectIcons ??= ReadMap(AssetStore.Path("aion2", "items", "effect_icons.json"));
         foreach (int id in new[] { effectId, effectId / 10, effectId / 100 })
         {
-            if (id > 0 && _effectIcons.TryGetValue(id, out string? name) && Path.Combine(Root, "items", "icons", name + ".png") is string path && File.Exists(path))
+            if (id > 0 && _effectIcons.TryGetValue(id, out string? name) && AssetStore.Path("aion2", "items", "icons", name + ".png") is string path && File.Exists(path))
             {
                 return path;
             }
@@ -60,7 +60,7 @@ public static class Aion2Artwork
     /// <summary>True for passive skills ("p" in the client's skill table); everything else counts as active.</summary>
     public static bool IsPassive(int skillId)
     {
-        _skillTypes ??= ReadMap(Path.Combine(Root, "skills", "skill_types.json"));
+        _skillTypes ??= ReadMap(AssetStore.Path("aion2", "skills", "skill_types.json"));
         return _skillTypes.TryGetValue(skillId, out string? type) && type == "p";
     }
 
@@ -88,7 +88,7 @@ public static class Aion2Artwork
             _effectTypes = new();
             try
             {
-                string path = Path.Combine(Root, "skills", "effect_types.json");
+                string path = AssetStore.Path("aion2", "skills", "effect_types.json");
                 if (File.Exists(path))
                 {
                     using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
@@ -137,7 +137,7 @@ public static class Aion2Artwork
             _abnormalBases = new();
             try
             {
-                string path = Path.Combine(Root, "skills", "skill_abnormal_types.json");
+                string path = AssetStore.Path("aion2", "skills", "skill_abnormal_types.json");
                 if (File.Exists(path))
                 {
                     using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
@@ -181,7 +181,7 @@ public static class Aion2Artwork
             var map = new Dictionary<int, string>();
             try
             {
-                string index = Path.Combine(Root, "bosses", "thumbs", "index.json");
+                string index = AssetStore.Path("aion2", "bosses", "thumbs", "index.json");
                 if (File.Exists(index))
                 {
                     using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(index));
@@ -202,15 +202,15 @@ public static class Aion2Artwork
             _bossThumbs = map;
         }
 
-        return _bossThumbs.TryGetValue(npcId, out string? name) && Existing(Path.Combine(Root, "bosses", "thumbs", name)) is { } path ? path : null;
+        return _bossThumbs.TryGetValue(npcId, out string? name) && Existing(AssetStore.Path("aion2", "bosses", "thumbs", name)) is { } path ? path : null;
     }
 
     public static string? ClassEmblemPath(string className) =>
-        ClassFiles.TryGetValue(className, out string? file) && Existing(Path.Combine(Root, "classes", file + ".png")) is { } path ? path : null;
+        ClassFiles.TryGetValue(className, out string? file) && Existing(AssetStore.Path("aion2", "classes", file + ".png")) is { } path ? path : null;
 
     /// <summary>A Daevanion board tile: "common", "rare", "legend", "unique" (plus "-off" when locked) or the start tile
     /// of a class ("start-gladiator", "start").</summary>
-    public static string? BoardTilePath(string name) => Existing(Path.Combine(Root, "daevanion", "art", name + ".png"));
+    public static string? BoardTilePath(string name) => Existing(AssetStore.Path("aion2", "daevanion", "art", name + ".png"));
 
     public static string BoardStartTile(string className) => className switch
     {
@@ -274,7 +274,7 @@ public static class Aion2Artwork
         var texts = new SpeciesTexts();
         try
         {
-            string path = Path.Combine(Root, "species", "species_stats.json");
+            string path = AssetStore.Path("aion2", "species", "species_stats.json");
             if (File.Exists(path))
             {
                 texts = JsonSerializer.Deserialize<SpeciesTexts>(File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? texts;

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -15,7 +16,7 @@ public static class Aion2BossCatalog
 {
     public sealed record BossInfo(int NpcId, string Name, string Instance, long MaxHp = 0, bool PartyScaled = false);
 
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "boss_npcs.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "npcs", "boss_npcs.json");
     private static IReadOnlyDictionary<int, BossInfo>? _cache;
 
     public static BossInfo? Find(int npcId) => Load().GetValueOrDefault(npcId);

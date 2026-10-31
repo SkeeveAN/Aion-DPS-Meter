@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Capture;
 
@@ -33,7 +34,7 @@ public sealed class UnknownFrameWatch
     {
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "protocol", "known_opcodes.json");
+            string path = AssetStore.Path("aion2", "protocol", "known_opcodes.json");
             return File.Exists(path) ? JsonSerializer.Deserialize<int[]>(File.ReadAllText(path)) ?? Array.Empty<int>() : Array.Empty<int>();
         }
         catch (Exception ex) when (ex is IOException or JsonException)

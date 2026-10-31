@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -17,7 +18,7 @@ public sealed record Aion2ArcanaSet(IReadOnlyDictionary<string, string> Name, IR
 /// </summary>
 public static class Aion2ArcanaCatalog
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "items", "arcana.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "items", "arcana.json");
     private static Dictionary<int, int[]>? _exp;
     private static Dictionary<int, Aion2ArcanaSet>? _sets;
 

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -12,7 +13,7 @@ public sealed record Aion2TitleInfo(string Grade, string Name);
 /// </summary>
 public static class Aion2Titles
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "titles", "titles.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "titles", "titles.json");
     private static IReadOnlyDictionary<int, (string Grade, Dictionary<string, string> Names)>? _table;
 
     public static Aion2TitleInfo? Find(int titleId, string language)

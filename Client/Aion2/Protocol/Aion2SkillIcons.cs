@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -12,8 +13,7 @@ namespace AionDPS.Aion2.Protocol;
 /// </summary>
 public static class Aion2SkillIcons
 {
-    private static readonly string Folder = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "icons");
-    private static readonly string TokensPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_icon_tokens.json");
+    private static readonly string TokensPath = AssetStore.Path("aion2", "skills", "skill_icon_tokens.json");
     private static IReadOnlyDictionary<int, string>? _tokens;
 
     public static string? PathFor(int skillId)
@@ -23,7 +23,7 @@ public static class Aion2SkillIcons
             return null;
         }
 
-        string path = Path.Combine(Folder, token + ".png");
+        string path = AssetStore.Path("aion2", "skills", "icons", token + ".png");
         return File.Exists(path) ? path : null;
     }
 
@@ -57,7 +57,7 @@ public static class Aion2SkillIcons
         }
 
         if ((_byName.TryGetValue((className, englishName), out string? found) || _byName.TryGetValue((null, englishName), out found))
-            && Path.Combine(Folder, found + ".png") is string path && File.Exists(path))
+            && AssetStore.Path("aion2", "skills", "icons", found + ".png") is string path && File.Exists(path))
         {
             return path;
         }

@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2;
 
@@ -932,7 +933,7 @@ public static class Aion2Tickets
         var list = new List<TicketDef>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "tickets", "tickets.json");
+            string path = AssetStore.Path("aion2", "tickets", "tickets.json");
             if (!File.Exists(path))
             {
                 return list;

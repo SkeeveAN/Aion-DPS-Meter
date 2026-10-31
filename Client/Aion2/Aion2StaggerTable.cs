@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2;
 
@@ -26,7 +27,7 @@ public static class Aion2StaggerTable
         var values = new Dictionary<int, int>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "stagger", "skill_stagger.json");
+            string path = AssetStore.Path("aion2", "stagger", "skill_stagger.json");
             if (File.Exists(path))
             {
                 using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(path));

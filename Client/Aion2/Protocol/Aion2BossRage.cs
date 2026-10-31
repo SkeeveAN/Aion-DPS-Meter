@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -11,7 +12,7 @@ public static class Aion2BossRage
 {
     public const int DefaultSeconds = 300;
 
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "boss_rage.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "npcs", "boss_rage.json");
     private static IReadOnlyDictionary<int, int>? _cache;
 
     public static int SecondsFor(int? npcId) => npcId is int id && Load().TryGetValue(id, out int seconds) ? seconds : DefaultSeconds;

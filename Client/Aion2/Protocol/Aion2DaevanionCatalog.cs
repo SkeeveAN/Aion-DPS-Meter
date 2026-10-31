@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -13,7 +14,7 @@ public sealed record Aion2DaevanionNode(int Id, int Board, int Row, int Col, str
 /// </summary>
 public static class Aion2DaevanionCatalog
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "daevanion", "nodes.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "daevanion", "nodes.json");
     private static IReadOnlyDictionary<int, Aion2DaevanionNode>? _nodes;
     private static IReadOnlyDictionary<int, (string Name, string ClassName)>? _boards;
 

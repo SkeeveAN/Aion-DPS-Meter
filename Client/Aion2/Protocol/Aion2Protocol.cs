@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -162,7 +163,7 @@ public sealed class Aion2Protocol
     public IReadOnlySet<int> SyncOpcodes { get; private init; } = new HashSet<int>();
     public FrameLayout FrameLayout { get; private init; } = new(0, 2, true, true, 4, 2, 2, 65535);
 
-    public static string DefaultPath => Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "protocol", "opcodes.json");
+    public static string DefaultPath => AssetStore.Path("aion2", "protocol", "opcodes.json");
 
     /// <summary>Loads the shipped description; an unreadable or missing file yields an
     /// uncalibrated protocol rather than an exception, so the meter still starts.</summary>

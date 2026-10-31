@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using AionDPS.Ui;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2;
 
@@ -21,7 +22,7 @@ public sealed record CraftRecipe(int Id, bool Elyos, string Category, string Sub
 /// <summary>The recipes of the client, found by id or by what they make.</summary>
 public static class Aion2CraftData
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "craft", "recipes.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "craft", "recipes.json");
     private static List<CraftRecipe>? _all;
     private static Dictionary<int, CraftRecipe>? _byId;
     private static Dictionary<(int Product, bool Elyos), CraftRecipe>? _producers;

@@ -46,6 +46,7 @@ public static class SelfCheck
         ok &= SelfCheckInstanceTimer.Run();
         ok &= SelfCheckCubesGuards.Run();
         ok &= SelfCheckMaps.Run();
+        ok &= AionDPS.Update.SelfCheckData.Run();
         ok &= SelfCheckLoot.Run();
         ok &= SelfCheckCraft.Run();
         ok &= SelfCheckFightClock.Run();

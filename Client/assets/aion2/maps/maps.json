@@ -8,7 +8,11 @@
    "scale": 0.019583509634873143,
    "offsetX": 8070.937975984913,
    "offsetY": 8307.450753846877,
-   "tiles": 26
+   "tiles": 26,
+   "openZones": [
+    1010,
+    902
+   ]
   },
   "altgard": {
    "title": "Altgard",
@@ -18,7 +22,11 @@
    "scale": 0.0098227439264612,
    "offsetX": 4137.781824319782,
    "offsetY": 4062.9907075320293,
-   "tiles": 34
+   "tiles": 34,
+   "openZones": [
+    1110,
+    901
+   ]
   },
   "abyss": {
    "title": "Abyss",

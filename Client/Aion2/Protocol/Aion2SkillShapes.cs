@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -11,7 +12,7 @@ namespace AionDPS.Aion2.Protocol;
 /// </summary>
 public static class Aion2SkillShapes
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_shapes.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "skills", "skill_shapes.json");
     private static IReadOnlyDictionary<int, string>? _shapes;
 
     /// <summary>The shape word of a skill, or null when the table does not know it. A missing id borrows from its family (the id without the last digit)

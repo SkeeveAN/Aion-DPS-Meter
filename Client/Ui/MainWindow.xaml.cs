@@ -309,7 +309,11 @@ public partial class MainWindow : Window
         // user's screen - from a build folder, where there is never an Update.exe.
         if (!Headless)
         {
-            _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
+            _updateTimer.Tick += (_, _) =>
+            {
+                _ = RunUpdateCheck(announceResult: false);
+                _ = RefreshDataAsync();
+            };
             _updateTimer.Start();
             _announcementsTimer.Tick += (_, _) => { _ = RefreshAnnouncementsBadge(); _ = RefreshTwitchDropsBadge(); _ = RefreshSchedule(); };
             _announcementsTimer.Start();
@@ -325,6 +329,7 @@ public partial class MainWindow : Window
                 // (a crash.log entry at every start and no check until the five-minute timer).
                 // Silent when up to date or when GitHub cannot be reached; a new version is asked about (OfferInstallAsync) before anything is downloaded.
                 Dispatcher.BeginInvoke(new Action(() => _ = RunUpdateCheck(announceResult: false, askBeforeInstall: true)), System.Windows.Threading.DispatcherPriority.Background);
+                Dispatcher.BeginInvoke(new Action(() => _ = RefreshDataAsync()), System.Windows.Threading.DispatcherPriority.Background);
             }
 
             // Only the current version may upload (the server refuses an old one). A meter that uploads by itself asks the community server at
@@ -4972,6 +4977,21 @@ public partial class MainWindow : Window
         {
             _updateCheckRunning = false;
         }
+    }
+
+    private DateTime _dataRefreshedAt = DateTime.MinValue;
+
+    /// <summary>The data the server has newer than the shipped set (tables, names, texts, maps; see DataUpdateClient) is taken into the data folder: at the start and then every two hours, off the
+    /// window's thread. It belongs to the update function, so it runs whenever "check for updates" is on, also without the upload consent. A file taken now is used from the next start.</summary>
+    private async Task RefreshDataAsync()
+    {
+        if (Headless || DateTime.UtcNow - _dataRefreshedAt < TimeSpan.FromHours(2) || !MeterSettings.Load().CheckForUpdates)
+        {
+            return;
+        }
+
+        _dataRefreshedAt = DateTime.UtcNow;
+        await Task.Run(() => DataUpdateClient.RefreshAsync());
     }
 
     /// <summary>The region the timetable was last asked for (only once the own server is known).</summary>

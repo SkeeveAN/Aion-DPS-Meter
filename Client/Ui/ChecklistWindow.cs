@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using AionDPS.Aion2;
 using AionDPS.Data;
+using AionDPS.Update;
 
 namespace AionDPS.Ui;
 
@@ -667,7 +668,7 @@ public sealed class ChecklistWindow : Window
             _scrollNames = new Dictionary<string, Dictionary<string, string>>();
             try
             {
-                string path = System.IO.Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "tickets", "scrolls.json");
+                string path = AssetStore.Path("aion2", "tickets", "scrolls.json");
                 if (System.IO.File.Exists(path))
                 {
                     _scrollNames = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(System.IO.File.ReadAllText(path)) ?? _scrollNames;

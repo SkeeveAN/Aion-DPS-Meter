@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -15,7 +16,7 @@ public sealed record Aion2Kibelisk(IReadOnlyDictionary<string, string> Names, fl
 /// </summary>
 public static class Aion2Kibelisks
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "maps", "kibelisks.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "maps", "kibelisks.json");
     private static Dictionary<string, List<Aion2Kibelisk>>? _byMap;
 
     /// <summary>The Kibelisks of a map (by map key: verteron, altgard, abyss); empty for an unknown map.</summary>

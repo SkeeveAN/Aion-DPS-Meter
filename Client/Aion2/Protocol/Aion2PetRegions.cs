@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -19,7 +20,7 @@ public sealed record PetRegionGroup(string Id, IReadOnlyList<PetRegion> Regions)
 /// </summary>
 public static class Aion2PetRegions
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "regions.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "pets", "regions.json");
     private static IReadOnlyList<PetRegionGroup>? _groups;
 
     public static IReadOnlyList<PetRegionGroup> Groups => _groups ??= Load();

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using AionDPS.Aion2;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -97,7 +98,7 @@ public static class Aion2Gather
         var keyById = new Dictionary<long, (string Kind, string Key)>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "maps", "gather.json");
+            string path = AssetStore.Path("aion2", "maps", "gather.json");
             if (File.Exists(path))
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));

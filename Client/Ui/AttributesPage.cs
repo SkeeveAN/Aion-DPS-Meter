@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using AionDPS.Aion2;
+using AionDPS.Update;
 
 namespace AionDPS.Ui;
 
@@ -168,7 +169,7 @@ public sealed class AttributesPage : Grid
         BitmapImage? image = null;
         try
         {
-            string path = System.IO.Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "stats", file);
+            string path = AssetStore.Path("aion2", "stats", file);
             if (File.Exists(path))
             {
                 image = new BitmapImage();

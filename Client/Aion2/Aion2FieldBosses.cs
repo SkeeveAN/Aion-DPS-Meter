@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2;
 
@@ -124,7 +125,7 @@ public static class Aion2FieldBosses
         var maps = new List<FieldBossMap>();
         try
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "bosses", "field_bosses.json");
+            string path = AssetStore.Path("aion2", "bosses", "field_bosses.json");
             if (!File.Exists(path))
             {
                 return maps;

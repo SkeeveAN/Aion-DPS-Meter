@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -14,7 +15,6 @@ public sealed record Aion2WingInfo(string Name, string Grade, string? IconPath);
 /// </summary>
 public static class Aion2Wings
 {
-    private static readonly string Root = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "wings");
     private static IReadOnlyDictionary<int, (string Grade, string? Icon, Dictionary<string, string> Names)>? _table;
 
     public static Aion2WingInfo? Find(int id, string language)
@@ -29,7 +29,7 @@ public static class Aion2Wings
         string? icon = null;
         if (entry.Icon is { Length: > 0 })
         {
-            string path = Path.Combine(Root, "icons", entry.Icon + ".png");
+            string path = AssetStore.Path("aion2", "wings", "icons", entry.Icon + ".png");
             icon = File.Exists(path) ? path : null;
         }
 
@@ -41,7 +41,7 @@ public static class Aion2Wings
         var table = new Dictionary<int, (string, string?, Dictionary<string, string>)>();
         try
         {
-            string file = Path.Combine(Root, "wings.json");
+            string file = AssetStore.Path("aion2", "wings", "wings.json");
             if (File.Exists(file))
             {
                 using JsonDocument document = JsonDocument.Parse(File.ReadAllText(file));

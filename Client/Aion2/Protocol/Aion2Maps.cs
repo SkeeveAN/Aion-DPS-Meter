@@ -1,13 +1,17 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
 /// <summary>One world map of the game as the pet map draws it: its tiles (assets/aion2/maps/&lt;key&gt;), the size of a tile and the grid, and
 /// how a world coordinate becomes a pixel of the whole map (<c>pixel = offset + scale * world</c>, no flip, no rotation).</summary>
 public sealed record Aion2MapInfo(string Key, string Title, string Table, int Tile, int Grid, double Scale, double OffsetX, double OffsetY,
-    IReadOnlyList<string>? Tables = null, IReadOnlyList<int>? Zones = null)
+    IReadOnlyList<string>? Tables = null, IReadOnlyList<int>? Zones = null, IReadOnlyDictionary<string, string>? Names = null, IReadOnlyList<int>? OpenZones = null)
 {
+    /// <summary>The map's name in a language (maps.json "names"), else its English title.</summary>
+    public string NameIn(string language) => Names is not null && Names.TryGetValue(language, out string? n) && n.Length > 0 ? n : Title;
+
     /// <summary>An instance (dungeon) map: it belongs to the zone ids of its entrance and not to the open world.</summary>
     public bool Instance => Zones is { Count: > 0 };
 }
@@ -19,7 +23,6 @@ public sealed record Aion2MapInfo(string Key, string Title, string Table, int Ti
 /// </summary>
 public static class Aion2Maps
 {
-    private static readonly string Folder = Path.Combine(AppContext.BaseDirectory, "assets", "aion2");
     private static List<Aion2MapInfo>? _maps;
     private static List<Aion2MapInfo>? _instances;
     private static Dictionary<string, Dictionary<int, float[]>>? _spawns;
@@ -41,6 +44,12 @@ public static class Aion2Maps
             return instance;
         }
 
+        // the zones of an open map (and of the airships above it) are in maps.json ("openZones"); a file from before that knows only the first two maps
+        if (All.FirstOrDefault(m => m.OpenZones is not null && m.OpenZones.Contains(zoneId)) is { } open)
+        {
+            return open;
+        }
+
         string? key = zoneId switch
         {
             1010 or 902 => "verteron",
@@ -50,7 +59,7 @@ public static class Aion2Maps
         return key is null ? null : All.FirstOrDefault(m => m.Key == key);
     }
 
-    public static string TileFolder(Aion2MapInfo map) => Path.Combine(Folder, "maps", map.Key);
+    public static string TileFolder(Aion2MapInfo map) => AssetStore.Path("aion2", "maps", map.Key);
 
     public static (double X, double Y) ToNative(Aion2MapInfo map, double worldX, double worldY) =>
         (map.OffsetX + map.Scale * worldX, map.OffsetY + map.Scale * worldY);
@@ -137,7 +146,7 @@ public static class Aion2Maps
         var list = new List<Aion2MapInfo>();
         try
         {
-            string path = Path.Combine(Folder, "maps", file);
+            string path = AssetStore.Path("aion2", "maps", file);
             if (File.Exists(path))
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));
@@ -148,7 +157,9 @@ public static class Aion2Maps
                         v.GetProperty("tile").GetInt32(), v.GetProperty("grid").GetInt32(), v.GetProperty("scale").GetDouble(),
                         v.GetProperty("offsetX").GetDouble(), v.GetProperty("offsetY").GetDouble(),
                         v.TryGetProperty("tables", out var tables) ? tables.EnumerateArray().Select(t => t.GetString() ?? "").ToList() : null,
-                        v.TryGetProperty("zones", out var zones) ? zones.EnumerateArray().Select(z => z.GetInt32()).ToList() : null));
+                        v.TryGetProperty("zones", out var zones) ? zones.EnumerateArray().Select(z => z.GetInt32()).ToList() : null,
+                        v.TryGetProperty("names", out var names) && names.ValueKind == JsonValueKind.Object ? names.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.GetString() ?? "") : null,
+                        v.TryGetProperty("openZones", out var openZones) && openZones.ValueKind == JsonValueKind.Array ? openZones.EnumerateArray().Select(z => z.GetInt32()).ToList() : null));
                 }
             }
         }
@@ -170,7 +181,7 @@ public static class Aion2Maps
         var result = new Dictionary<string, Dictionary<int, float[]>>();
         try
         {
-            string path = Path.Combine(Folder, "pets", "spawns.json");
+            string path = AssetStore.Path("aion2", "pets", "spawns.json");
             if (File.Exists(path))
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));

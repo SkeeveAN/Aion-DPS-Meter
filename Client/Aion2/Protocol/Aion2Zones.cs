@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -7,7 +8,7 @@ namespace AionDPS.Aion2.Protocol;
 /// (assets/aion2/zones/zones.json). Ids the file does not list are told apart by their range alone (6xxxxx are instances) and have no name.</summary>
 public static class Aion2Zones
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "zones", "zones.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "zones", "zones.json");
     private static Dictionary<int, (bool Instance, Dictionary<string, string> Names)>? _zones;
 
     /// <summary>Whether the zone is an instance (a dungeon you enter and leave) and not an open map.</summary>

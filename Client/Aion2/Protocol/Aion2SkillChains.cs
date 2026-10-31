@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Update;
 
 namespace AionDPS.Aion2.Protocol;
 
@@ -7,7 +8,7 @@ namespace AionDPS.Aion2.Protocol;
 /// built by Tools/aion2-dat/build_skill_chains.py).</summary>
 public static class Aion2SkillChains
 {
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_chains.json");
+    private static readonly string FilePath = AssetStore.Path("aion2", "skills", "skill_chains.json");
     private static Dictionary<int, (int Next, int WindowMs)[]>? _table;
 
     /// <summary>The follow-ups of a skill with their window in milliseconds; empty when it has none.</summary>
