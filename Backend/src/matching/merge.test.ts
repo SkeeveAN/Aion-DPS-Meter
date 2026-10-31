@@ -43,7 +43,7 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
         estimated: false,
         totalHealing: 0,
         damageTaken: 0,
-        damageAbsorbed: 0,
+        damageAbsorbed: 0, stagger: 0,
         shieldsGiven: [],
         buffs: [],
         hps: 0,
@@ -61,7 +61,7 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
         estimated: false,
         totalHealing: 0,
         damageTaken: 0,
-        damageAbsorbed: 0,
+        damageAbsorbed: 0, stagger: 0,
         shieldsGiven: [],
         buffs: [],
         hps: 0,
@@ -87,6 +87,26 @@ test("two uploads of the same fight merge into one encounter, not two", () => {
   assert.equal(second.encounterId, first.encounterId);
 });
 
+test("the stagger of a fight is kept per player and in all, the most any upload of it saw", () => {
+  const withStagger = (stagger: number[], staggerTotal: number, over: Partial<Parameters<typeof processUpload>[0]> = {}) => {
+    const payload = basePayload(over);
+    return { ...payload, staggerTotal, participants: payload.participants.map((p, i) => ({ ...p, stagger: stagger[i] ?? 0 })) };
+  };
+  const first = processUpload(withStagger([300, 500], 900, { bossNpcName: "Stagger Boss", startedAt: "2026-02-01T20:00:00.000Z", endedAt: "2026-02-01T20:03:00.000Z" }));
+  const second = processUpload(withStagger([320, 0], 1000, { bossNpcName: "Stagger Boss", startedAt: "2026-02-01T20:00:05.000Z", endedAt: "2026-02-01T20:03:10.000Z" }));
+  assert.equal(second.encounterId, first.encounterId);
+  const stored = db.select({ total: encounters.staggerTotal }).from(encounters).where(eq(encounters.id, first.encounterId)).get();
+  assert.equal(stored?.total, 1000);
+  const rows = db
+    .select({ name: players.name, stagger: encounterParticipants.stagger })
+    .from(encounterParticipants)
+    .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+    .where(eq(encounterParticipants.encounterId, first.encounterId))
+    .all();
+  assert.equal(rows.find((r) => r.name === "Anna")?.stagger, 320, "the larger of the two readings of the same bar");
+  assert.equal(rows.find((r) => r.name === "Bob")?.stagger, 500);
+});
+
 test("worst case: uploader's own name is wrong, gets corrected from a teammate's earlier upload", () => {
   const first = processUpload(basePayload());
 
@@ -107,7 +127,7 @@ test("worst case: uploader's own name is wrong, gets corrected from a teammate's
           estimated: false,
           totalHealing: 0,
           damageTaken: 0,
-          damageAbsorbed: 0,
+          damageAbsorbed: 0, stagger: 0,
           shieldsGiven: [],
           buffs: [],
           hps: 0,
@@ -125,7 +145,7 @@ test("worst case: uploader's own name is wrong, gets corrected from a teammate's
           estimated: false,
           totalHealing: 0,
           damageTaken: 0,
-          damageAbsorbed: 0,
+          damageAbsorbed: 0, stagger: 0,
           shieldsGiven: [],
           buffs: [],
           hps: 0,
@@ -179,7 +199,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           estimated: false,
           totalHealing: 0,
           damageTaken: 0,
-          damageAbsorbed: 0,
+          damageAbsorbed: 0, stagger: 0,
           shieldsGiven: [],
           buffs: [],
           hps: 0,
@@ -205,7 +225,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           estimated: false,
           totalHealing: 0,
           damageTaken: 0,
-          damageAbsorbed: 0,
+          damageAbsorbed: 0, stagger: 0,
           shieldsGiven: [],
           buffs: [],
           hps: 0,
@@ -223,7 +243,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           estimated: false,
           totalHealing: 0,
           damageTaken: 0,
-          damageAbsorbed: 0,
+          damageAbsorbed: 0, stagger: 0,
           shieldsGiven: [],
           buffs: [],
           hps: 0,
@@ -319,7 +339,7 @@ test("a pure healer with zero boss damage still gets an encounter row - not just
           estimated: false,
           totalHealing: 300_000,
           damageTaken: 0,
-          damageAbsorbed: 0,
+          damageAbsorbed: 0, stagger: 0,
           shieldsGiven: [],
           buffs: [],
           hps: 1666.7,

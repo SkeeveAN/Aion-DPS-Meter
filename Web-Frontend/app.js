@@ -3431,6 +3431,10 @@ function meterRow(rank, p, metric, max, opts = {}) {
         metric === "totalDamage" || metric === "idps"
           ? el("span", { className: "meter-sub", title: t("encounter.idpsHint"), textContent: metric === "idps" ? `${formatNumber(p.totalDamage)} ${t("table.damage")}` : `${formatNumber(p.idps ?? 0)} ${t("leaderboard.idpsShort")}` })
           : null,
+        // Stagger: the player's share of the stagger that could be credited at all (opts.shareOf), beside the bar's own numbers.
+        metric === "stagger" && opts.shareOf > 0
+          ? el("span", { className: "meter-sub", textContent: `${((value / opts.shareOf) * 100).toFixed(0)} %` })
+          : null,
         el("span", { className: "meter-value", textContent: formatNumber(value) }),
       ].filter((x) => x != null)),
     ],
@@ -3574,12 +3578,17 @@ const PLAYER_METRICS = [
   { key: "idps", label: () => t("leaderboard.idpsShort"), sorted: () => t("encounter.sortedByIdps"), danger: false },
   { key: "totalHealing", label: () => t("participant.totalHealing"), sorted: () => t("encounter.sortedByHealing"), danger: false },
   { key: "damageTaken", label: () => t("encounter.aggroHeading"), sorted: () => t("encounter.sortedByTaken"), danger: true },
+  // Only for a fight whose uploads carry it (clients that match the boss's stagger bar to the hits).
+  { key: "stagger", label: () => t("encounter.staggerShort"), sorted: () => t("encounter.sortedByStagger"), danger: false, optional: true },
 ];
 
 // Replaces the damage list and the damage-taken list: one row per player with the damage / healing / damage-taken bar (switchable) and the buff columns.
-function playersPanel(roster) {
+function playersPanel(roster, encounter = {}) {
   assignRoles(roster);
-  let metric = PLAYER_METRICS[0];
+  const metrics = PLAYER_METRICS.filter((m) => !m.optional || roster.some((p) => (p[m.key] ?? 0) > 0));
+  let metric = metrics[0];
+  const staggerAssigned = roster.reduce((sum, p) => sum + (p.stagger ?? 0), 0);
+  const staggerNote = el("p", { className: "buff-legend" });
   const slots = { group: buffSlotKeys(roster, "group"), consumable: buffSlotKeys(roster, "consumable") };
   const petCount = roster.filter((p) => p.className === "?").length;
   const petsSuffix = petCount > 0 ? t("encounter.petsSuffix", { count: petCount }) : "";
@@ -3587,7 +3596,7 @@ function playersPanel(roster) {
   const titleEl = el("span", { className: "meter-panel-title" });
   const subtitleEl = el("span", { className: "meter-panel-subtitle" });
   const body = el("tbody");
-  const buttons = PLAYER_METRICS.map((m) => {
+  const buttons = metrics.map((m) => {
     const b = el("button", { type: "button", textContent: m.label() });
     b.addEventListener("click", () => select(m));
     return b;
@@ -3605,7 +3614,7 @@ function playersPanel(roster) {
     body.replaceChildren(
       ...sorted.map((p, i) =>
         el("tr", {}, [
-          el("td", { className: "pp-main" }, [meterRow(i + 1, p, metric.key, max, { danger: metric.danger })]),
+          el("td", { className: "pp-main" }, [meterRow(i + 1, p, metric.key, max, { danger: metric.danger, shareOf: metric.key === "stagger" ? staggerAssigned : 0 })]),
           buffCell(p, roster, "own", []),
           buffCell(p, roster, "group", slots.group),
           buffCell(p, roster, "consumable", slots.consumable),
@@ -3617,10 +3626,14 @@ function playersPanel(roster) {
   function select(m) {
     metric = m;
     buttons.forEach((b, i) => {
-      const on = PLAYER_METRICS[i] === m;
+      const on = metrics[i] === m;
       b.classList.toggle("active", on);
       b.setAttribute("aria-pressed", String(on));
     });
+    // The stagger list says how much of the bar's fall it covers (the rest could not be matched to a hit).
+    const covered = encounter.staggerTotal > 0 ? Math.min(100, Math.round((staggerAssigned / encounter.staggerTotal) * 100)) : null;
+    staggerNote.hidden = !(m.key === "stagger" && covered != null);
+    staggerNote.textContent = covered != null ? t("encounter.staggerNote", { percent: covered }) : "";
     renderRows();
   }
 
@@ -3643,6 +3656,7 @@ function playersPanel(roster) {
     ]),
     table,
     el("p", { className: "buff-legend", textContent: t("encounter.buffLegend") }),
+    staggerNote,
   ]);
 }
 
@@ -3786,7 +3800,7 @@ async function renderEncounter(encounterId) {
   // an older one keeps the damage list with the damage-taken panel beside it.
   const hasBuffs = data.roster.some((p) => (p.buffs ?? []).length > 0);
   const grid = hasBuffs
-    ? el("div", { className: "encounter-stack" }, [playersPanel(data.roster), aggroPanel(data.roster, true)])
+    ? el("div", { className: "encounter-stack" }, [playersPanel(data.roster, data.encounter), aggroPanel(data.roster, true)])
     : el("div", { className: "encounter-grid" }, [meterPanel(data.roster), el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)])]);
 
   // The compare link is an icon tile at the far end of the stats row.

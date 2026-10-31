@@ -33,7 +33,7 @@ const fight = {
   startedAt: new Date(START).toISOString(), endedAt: new Date(START + 100_000).toISOString(), serverFingerprint: "aion2:europe-kaisinel",
   participants: [{
     name: "Aahz", className: "Gladiator", faction: "Elyos", serverId: 1304, isSelf: true, totalDamage: 1_000_000, dps: 10_000, idps: 10_000, estimated: false,
-    totalHealing: 0, hps: 0, damageTaken: 0, damageAbsorbed: 0, shieldsGiven: [], buffs: [],
+    totalHealing: 0, hps: 0, damageTaken: 0, damageAbsorbed: 0, stagger: 0, shieldsGiven: [], buffs: [],
     skills: [{ skill: "Cleave", hits: 100, critHits: 0, total: 1_000_000, min: 1, max: 100 }], healSkills: [],
   }],
 };

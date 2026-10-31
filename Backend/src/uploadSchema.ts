@@ -106,6 +106,8 @@ export const participantSchema = z.object({
   // Group shields: damage the shields on this player absorbed, and (for a Chanter/Templar) how much
   // each shielded player got. Defaulted - clients do not report them yet.
   damageAbsorbed: z.number().int().min(0).max(2_000_000_000).default(0),
+  // How much of the boss's stagger bar this player brought down (the client matches the bar's readings to the hits; see the client's Combat/StaggerShare.cs). Defaulted for older clients.
+  stagger: z.number().int().min(0).max(1_000_000).default(0),
   shieldsGiven: z.array(z.object({ playerName: z.string().trim().min(1).max(40), amount: z.number().int().min(0).max(2_000_000_000) })).max(40).default([]),
   // Real reinforcements this row RECEIVED (see buffUsageSchema) - what the web frontend's "Buffs"
   // column actually shows now, not a damage/heal skill. A Cleric/Chanter group buff lands on every
@@ -154,6 +156,8 @@ export const uploadSchema = z
   bossHp: z.array(z.number().int().min(0).max(100_000)).max(800).optional(),
   // The effects that were on the boss during the fight (what the players put on it), like the effects of a participant: uptime, who gave it, the spans.
   bossDebuffs: z.array(buffUsageSchema).max(40).optional(),
+  // How far the boss's stagger bar fell in all; the players' stagger values add up to the part that could be matched to a hit.
+  staggerTotal: z.number().int().min(0).max(10_000_000).optional(),
   })
   .superRefine((payload, ctx) => {
     // Aion 2 has a fixed, small class roster; a class outside it is a client bug worth rejecting

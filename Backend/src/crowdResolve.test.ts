@@ -34,7 +34,7 @@ db.insert(bossNpcIds).values({ bossId: boss.id, npcId: 9300001 }).run();
 
 const row = (name: string, className: string, damage: number, extra: object = {}) => ({
   name, className, faction: "", isSelf: false, totalDamage: damage, dps: damage / 1000, idps: damage / 1000, estimated: true,
-  totalHealing: 0, hps: 0, damageTaken: 0, damageAbsorbed: 0, shieldsGiven: [], buffs: [],
+  totalHealing: 0, hps: 0, damageTaken: 0, damageAbsorbed: 0, stagger: 0, shieldsGiven: [], buffs: [],
   skills: [{ skill: "Cleave", hits: 10, critHits: 0, total: damage, min: 1, max: 100 }], healSkills: [], ...extra,
 });
 const self = row("Anna", "Gladiator", 300_000_000, { faction: "Elyos", serverId: 1304, isSelf: true, estimated: false });

@@ -556,6 +556,17 @@ function storeBossDebuffs(encounterId: number, list: unknown[]) {
   }
 }
 
+/** How far the boss's stagger bar fell: the most any upload of the fight saw (each reads the same bar; a late joiner saw less). */
+function storeStaggerTotal(encounterId: number, total: number | undefined) {
+  if (!total) {
+    return;
+  }
+  const row = db.select({ total: encounters.staggerTotal }).from(encounters).where(eq(encounters.id, encounterId)).get();
+  if ((row?.total ?? 0) < total) {
+    db.update(encounters).set({ staggerTotal: total }).where(eq(encounters.id, encounterId)).run();
+  }
+}
+
 /** The boss's health curve: kept when the fight has none yet or the new one has more points. */
 function storeBossHp(encounterId: number, bossHp: number[]) {
   if (bossHp.length < 4) {
@@ -593,6 +604,7 @@ function insertParticipant(
       hps: participant.hps,
       damageTaken: participant.damageTaken,
       damageAbsorbed: participant.damageAbsorbed,
+      stagger: participant.stagger,
       shieldsGiven: participant.shieldsGiven,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
@@ -625,6 +637,8 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
       hps: participant.hps,
       damageTaken: participant.damageTaken,
       damageAbsorbed: participant.damageAbsorbed,
+      // every upload reads the same bar: the larger value stays (an older client's 0 must not wipe what another upload credited)
+      stagger: sql`max(${encounterParticipants.stagger}, ${participant.stagger})`,
       shieldsGiven: participant.shieldsGiven,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
@@ -987,6 +1001,8 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
       idps: Math.max(...group.map((p) => p.idps)),
       damageTaken: group.reduce((sum, p) => sum + p.damageTaken, 0),
       damageAbsorbed: group.reduce((sum, p) => sum + p.damageAbsorbed, 0),
+      // every uploader read the same bar: the most one of them credited, not the sum
+      stagger: Math.max(...group.map((p) => p.stagger)),
       shieldsGiven: [...group.flatMap((p) => p.shieldsGiven).reduce((acc, g) => acc.set(g.playerName, (acc.get(g.playerName) ?? 0) + g.amount), new Map<string, number>())].map(([playerName, amount]) => ({ playerName, amount })),
       skills: group.reduce((acc, p) => mergeSkillLists(acc, p.skills), [] as ParticipantUpload["skills"]),
       healSkills: group.reduce((acc, p) => mergeSkillLists(acc, p.healSkills), [] as ParticipantUpload["healSkills"]),
@@ -1037,6 +1053,7 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
     mergeIntoEncounter(candidateEncounterId, serverId, bossId, payload);
     storeBossHp(candidateEncounterId, payload.bossHp ?? []);
     storeBossDebuffs(candidateEncounterId, payload.bossDebuffs ?? []);
+    storeStaggerTotal(candidateEncounterId, payload.staggerTotal);
     checkUploadedPlayers(payload.participants, serverId);
     return { status: "merged", encounterId: candidateEncounterId, serverId };
   }
@@ -1044,6 +1061,7 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
   const encounterId = createEncounter(bossId, serverId, payload, fightClassOf(payload, bossId));
   storeBossHp(encounterId, payload.bossHp ?? []);
   storeBossDebuffs(encounterId, payload.bossDebuffs ?? []);
+  storeStaggerTotal(encounterId, payload.staggerTotal);
   checkUploadedPlayers(payload.participants, serverId);
   return { status: "created", encounterId, serverId };
 }

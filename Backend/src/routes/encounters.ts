@@ -179,6 +179,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         hpSeenShare: encounters.hpSeenShare,
         bossRealMaxHp: encounters.bossRealMaxHp,
         bossSpawnMaxHp: encounters.bossSpawnMaxHp,
+        staggerTotal: encounters.staggerTotal,
         mode: encounters.mode,
         // Which server this run actually happened on - so a page reached from a cross-server list
         // (homepage "recent activity"/"top players") can bring the visitor's server context back in
@@ -234,6 +235,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         hps: encounterParticipants.hps,
         damageTaken: encounterParticipants.damageTaken,
         damageAbsorbed: encounterParticipants.damageAbsorbed,
+        stagger: encounterParticipants.stagger,
         shieldsGiven: encounterParticipants.shieldsGiven,
         critRatePercent: encounterParticipants.critRatePercent,
       })

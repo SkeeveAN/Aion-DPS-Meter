@@ -21,7 +21,7 @@ type Payload = Parameters<typeof processUpload>[0];
 
 function participant(name: string, className: string, damage: number, isSelf = false) {
   return {
-    name, className, faction: "Elyos", isSelf, totalDamage: damage, dps: 0, idps: 0, totalHealing: 0, damageTaken: 0, damageAbsorbed: 0, shieldsGiven: [], buffs: [], hps: 0,
+    name, className, faction: "Elyos", isSelf, totalDamage: damage, dps: 0, idps: 0, totalHealing: 0, damageTaken: 0, damageAbsorbed: 0, stagger: 0, shieldsGiven: [], buffs: [], hps: 0,
     skills: [{ skill: "Cleave", hits: 100, critHits: 20, total: damage, min: 1, max: 100 }], healSkills: [],
   };
 }

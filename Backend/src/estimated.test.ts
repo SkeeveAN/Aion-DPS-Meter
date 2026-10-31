@@ -41,7 +41,7 @@ function row(name: string, className: string, damage: number, opts: { estimated?
   return {
     name, className, faction: "Elyos", serverId: 1304, isSelf: opts.isSelf ?? false,
     totalDamage: damage, dps: damage / 100, idps: damage / 100, estimated: opts.estimated ?? false,
-    totalHealing: 0, hps: 0, damageTaken: 0, damageAbsorbed: 0, shieldsGiven: [], buffs: [],
+    totalHealing: 0, hps: 0, damageTaken: 0, damageAbsorbed: 0, stagger: 0, shieldsGiven: [], buffs: [],
     skills: [{ skill: opts.skill ?? "Cleave", hits: 100, critHits: opts.critHits ?? 0, total: damage, min: 1, max: 100 }], healSkills: [],
   };
 }

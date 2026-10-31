@@ -407,6 +407,8 @@ export const encounters = sqliteTable(
     bossHpJson: text("boss_hp_json"),
     /** The effects on the boss over the fight (debuffs of the players): {o, list}, see merge.ts storeBossDebuffs and migration 0067. */
     bossDebuffsJson: text("boss_debuffs_json"),
+    /** How far the boss's stagger bar fell in the fight in all (the participants' stagger adds up to part of it). Null = not reported, see migration 0074. */
+    staggerTotal: integer("stagger_total"),
     // Partial fight ("Teilkampf"): the uploader joined late, the highest hit-point reading is clearly below the boss's real maximum (see bossHp.ts).
     // Stored and shown, but left out of every ranking, best list and average.
     isPartial: integer("is_partial", { mode: "boolean" }).notNull().default(false),
@@ -473,6 +475,8 @@ export const encounterParticipants = sqliteTable(
     // (on top of damageTaken, which is what got through), and for the caster who got how much.
     // Empty until a client reports them.
     damageAbsorbed: integer("damage_absorbed").notNull().default(0),
+    // How much of the boss's stagger bar this participant brought down (see migration 0074). 0 = none credited or an older client.
+    stagger: integer("stagger").notNull().default(0),
     shieldsGiven: text("shields_given", { mode: "json" }).$type<{ playerName: string; amount: number }[]>().notNull().default(sql`'[]'`),
     critRatePercent: real("crit_rate_percent").notNull(),
     // True once this participant's own upload (isSelf) supplied the crit rate -
