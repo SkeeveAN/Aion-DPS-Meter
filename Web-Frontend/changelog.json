@@ -30,6 +30,22 @@
      "Client"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Stagger share: the tool credits every player with the part of a boss's stagger bar they brought down, by matching the bar's readings to the hits in the order the game sends them (the game's own drop per skill, 3,329 skills from the client's tables, checked against 109 skills seen in recordings, with the buff that raises a drop by half allowed for); on five recordings 97 % of the bar's fall is credited to a hit, a fall no hit explains stays unassigned instead of being guessed; the share and the bar's total go along with a boss fight upload; new test mode aion2-stagger-check",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Website: the encounter's player list gets a Stagger tab for fights whose uploads carry it (each player's part of the boss's stagger bar and its share, with a note how much of the bar's fall could be matched to a hit), in all ten languages; the backend stores the stagger per player and in all (the larger value of several uploads of one fight)",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
