@@ -19,7 +19,7 @@
     "date": "2026-10-31"
    },
    {
-    "text": "10 vs 10 arena: the overlay shows all twenty players and colours the two teams, your team muted red, the opponents muted blue (a stripe at the row's edge, the class colour as a thin bar at its foot), in the chips and the compact overlay and in the window's list, with the damage of each team under the compact overlay; the sides are told from who hits whom, so they are right even when the party roster names only your own group",
+    "text": "10 vs 10 arena: the overlay shows all twenty players and colours them by the game's own team colour, Team Red muted red and Team Blue muted blue (a stripe at the row's edge, the class colour as a thin bar at its foot), in the chips and the compact overlay and in the window's list, with the damage of each team under the compact overlay; the teams are read from the fight's start frame, so it is right whichever colour you are in",
     "areas": [
      "Client"
     ],
