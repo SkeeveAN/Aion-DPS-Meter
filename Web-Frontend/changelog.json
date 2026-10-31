@@ -18,6 +18,13 @@
      "Backend"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Players with a two-letter name (\"sh\") are recognised: the \"player appeared\" frame was only read for names of three letters or more, so such a player stayed \"Player #id\" in the overlay for the whole run",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
