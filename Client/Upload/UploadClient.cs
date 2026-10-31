@@ -16,6 +16,9 @@ public static class UploadClient
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
+    // Fight uploads carry up to 700 players and are zipped; the answer of a big one can take its time on the server, so they get more than the 15 s of the small calls.
+    private static readonly HttpClient BossHttp = new() { Timeout = TimeSpan.FromSeconds(60) };
+
     // WhenWritingNull is load-bearing, not cosmetic: the backend's zod schema marks optional fields
     // like serverName as .optional() (accepts a MISSING key) rather than .nullable() (accepts an
     // explicit null) - without this, a C# `null` (e.g. ServerName when nobody set a display name)
@@ -155,18 +158,55 @@ public static class UploadClient
 
         try
         {
-            using HttpResponseMessage response =
-                await Http.PostAsJsonAsync($"{ApiBaseUrl}/api/uploads", payload, JsonOptions);
-            if (response.IsSuccessStatusCode)
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOptions);
+            HttpResponseMessage response = await PostEncounterAsync(json, zipped: true);
+            // A server that cannot read zipped bodies (yet) answers 400 or 415: the same fight goes once more as plain JSON.
+            if ((int)response.StatusCode is 400 or 415)
             {
-                return UploadResult.OkWith(await EncounterIdOfAsync(response));
+                response.Dispose();
+                response = await PostEncounterAsync(json, zipped: false);
             }
 
-            return await FailureOf(response);
+            using (response)
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    return UploadResult.OkWith(await EncounterIdOfAsync(response));
+                }
+
+                return await FailureOf(response);
+            }
         }
         catch (Exception ex)
         {
             return UploadResult.Failed(ex.Message);
+        }
+    }
+
+    /// <summary>A world boss with 700 players is 600 KB of JSON and about 80 KB zipped; on a slow uplink the plain body did not get through in 15 s (2026-10-31, Soul Ruler Kashapa).</summary>
+    private static async Task<HttpResponseMessage> PostEncounterAsync(byte[] json, bool zipped)
+    {
+        ByteArrayContent content;
+        if (zipped)
+        {
+            using var packed = new System.IO.MemoryStream();
+            using (var gzip = new System.IO.Compression.GZipStream(packed, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
+            {
+                gzip.Write(json, 0, json.Length);
+            }
+
+            content = new ByteArrayContent(packed.ToArray());
+            content.Headers.ContentEncoding.Add("gzip");
+        }
+        else
+        {
+            content = new ByteArrayContent(json);
+        }
+
+        using (content)
+        {
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+            return await BossHttp.PostAsync($"{ApiBaseUrl}/api/uploads", content);
         }
     }
 

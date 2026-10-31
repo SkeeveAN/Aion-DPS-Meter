@@ -3706,6 +3706,54 @@ public partial class MainWindow : Window
         }
     }
 
+    private readonly Dictionary<int, int> _bossUploadRetries = new();
+    private const int MaxBossUploadRetries = 3;
+    private static readonly TimeSpan BossUploadRetryDelay = TimeSpan.FromSeconds(90);
+
+    /// <summary>A boss whose automatic upload failed for a reason that may pass (no connection, a timeout, a busy server) is queued again after 90 s, at most three times
+    /// (the Soul Ruler Kashapa of 2026-10-31 was lost to one timeout). A refusal (old client, privacy policy, a payload the server turned away) is not tried again.</summary>
+    private void ScheduleBossUploadRetry(int targetId, string? error)
+    {
+        if (!IsTransientUploadError(error))
+        {
+            return;
+        }
+
+        int tried = _bossUploadRetries.GetValueOrDefault(targetId);
+        if (tried >= MaxBossUploadRetries)
+        {
+            AutoUploadLog.Write($"boss {targetId}: gave up after {tried} retries");
+            return;
+        }
+
+        _bossUploadRetries[targetId] = tried + 1;
+        AutoUploadLog.Write($"boss {targetId}: retry {tried + 1} of {MaxBossUploadRetries} in {BossUploadRetryDelay.TotalSeconds:0} s");
+        _ = RetryBossUploadLaterAsync(targetId);
+    }
+
+    private async Task RetryBossUploadLaterAsync(int targetId)
+    {
+        await Task.Delay(BossUploadRetryDelay);
+        NoteBossesToUpload(new[] { targetId });
+    }
+
+    /// <summary>Upload errors read "503 Service Unavailable: ..." for an answer of the server and the exception's text for a connection that did not work.</summary>
+    internal static bool IsTransientUploadError(string? error)
+    {
+        if (string.IsNullOrEmpty(error) || UploadClient.IsBlocked || error.StartsWith("The privacy policy", StringComparison.Ordinal) || error.StartsWith("Old client", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (error.Length >= 3 && char.IsDigit(error[0]) && char.IsDigit(error[1]) && char.IsDigit(error[2]))
+        {
+            int status = int.Parse(error[..3]);
+            return status >= 500 || status is 408 or 429;
+        }
+
+        return true;
+    }
+
     private async Task UploadKilledBossesAsync()
     {
         var targetIds = _bossesToUpload.ToList();
@@ -3762,6 +3810,7 @@ public partial class MainWindow : Window
             else
             {
                 lastError = result.Error;
+                ScheduleBossUploadRetry(targetId, result.Error);
             }
         }
 
