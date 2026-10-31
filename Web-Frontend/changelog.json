@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-10-31",
+  "date": "2026-11-01",
   "items": [
    {
     "text": "Korea and Taiwan players are checked against NC's character search too, so they can reach the verified status (both have their own search and character pages, a player of the ids 1001-1018 / 2001-2018 is asked in both regions and stays unclear when the name exists in both), and Korea is its own region with its 21 servers per faction instead of being filed under Taiwan",
@@ -25,6 +25,13 @@
      "Client"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "A profile seen in the game without equipment no longer wipes the equipment stored before (a stranger's client that did not read the gear emptied the Equipment tab)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
