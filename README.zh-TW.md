@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ 下載 Windows 版</b></a> · <a href="https://aiondps.com">網站</a> · <a href="https://aiondps.com/features">全部功能</a> · <a href="https://aiondps.com/instances">首領排行榜</a>
+  <br><a href="https://aiondps.com">aiondps.com</a> · <a href="https://daevasuite.com">daevasuite.com</a> · <a href="https://daevaspowersuite.com">daevaspowersuite.com</a>
 </p>
 
 <p align="center">

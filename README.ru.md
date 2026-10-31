@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Скачать для Windows</b></a> · <a href="https://aiondps.com">Сайт</a> · <a href="https://aiondps.com/features">Все возможности</a> · <a href="https://aiondps.com/instances">Рейтинги боссов</a>
+  <br><a href="https://aiondps.com">aiondps.com</a> · <a href="https://daevasuite.com">daevasuite.com</a> · <a href="https://daevaspowersuite.com">daevaspowersuite.com</a>
 </p>
 
 <p align="center">

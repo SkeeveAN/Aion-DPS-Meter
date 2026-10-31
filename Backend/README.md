@@ -1,6 +1,6 @@
 # Aion DPS-Meter Backend
 
-API + minimalistisches Web-Frontend für `aiondps.com`. Nimmt Boss-Kampf-Uploads vom
+API + minimalistisches Web-Frontend für `aiondps.com` (auch erreichbar unter `daevasuite.com` und `daevaspowersuite.com`). Nimmt Boss-Kampf-Uploads vom
 [Aion DPS](../) DPS-Meter-Client entgegen, erkennt serverseitig, welche Uploads verschiedener
 Gruppenmitglieder zum selben Kampf gehören (siehe `src/matching/merge.ts`), und zeigt Leaderboards
 sowie Spielerprofile an.
