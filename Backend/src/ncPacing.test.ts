@@ -45,3 +45,16 @@ test("pacing: a 429 or 403 stops all requests for a minute and doubles the gap o
   for (let i = 1; i <= 10; i++) p.note(429, 5000 + i * 70_000);
   assert.equal(p.gapMs(), DEFAULT_PACING.ceilingGapMs);
 });
+
+test("pacing: the learned gap is saved and taken over after a restart, kept inside the limits", () => {
+  let saved: number | null = null;
+  const store = { load: () => saved, save: (g: number) => void (saved = g) };
+  const a = new NcPacing({ ...DEFAULT_PACING, okPerStep: 10 }, () => {}, store);
+  for (let i = 0; i < 50; i++) a.note(200);
+  assert.equal(saved, a.gapMs());
+  const b = new NcPacing({ ...DEFAULT_PACING, okPerStep: 10 }, () => {}, store);
+  assert.equal(b.gapMs(), a.gapMs(), "same gap after the restart");
+  saved = 1;
+  assert.equal(new NcPacing(DEFAULT_PACING, () => {}, store).gapMs(), DEFAULT_PACING.floorGapMs);
+  assert.equal(new NcPacing(DEFAULT_PACING, () => {}, { load: () => null, save: () => {} }).gapMs(), DEFAULT_PACING.startGapMs);
+});

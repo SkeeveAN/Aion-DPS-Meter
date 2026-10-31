@@ -3,13 +3,14 @@ import { mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
+import { env } from "./env.js";
 import { playerNcCharacter, playerNcMatch, playerPortraits, playerProfiles, players } from "./db/schema.js";
 import { mapDaevanionBoard, mapNcCharacter, openBoardIds, signatureOf, type NcCharacterData } from "./ncCharacter.js";
 import { upsertNcProfile } from "./profile.js";
 import { reconcileGuildWithNc } from "./guilds.js";
 import { EVENT_STALE_AFTER, PRIORITY, characterInterval, parseSeen, portraitInterval, type Priority } from "./refreshPolicy.js";
 import { portraitFromJpeg } from "./portrait.js";
-import { NcPacing } from "./ncPacing.js";
+import { DEFAULT_PACING, NcPacing, fileGapStore } from "./ncPacing.js";
 
 // Official character portrait and character data (attributes, wing, pet) of a player from NC's public character search, profile image
 // and character page, shown on the player page.
@@ -584,7 +585,11 @@ export class PortraitQueue {
 const jobContext = new AsyncLocalStorage<{ background: boolean }>();
 
 /** The one rate limit towards NC, shared by everything that asks it (portraits, character data, the player match). */
-export const ncPacing = new NcPacing();
+export const ncPacing = new NcPacing(
+  DEFAULT_PACING,
+  undefined,
+  process.env.NODE_TEST_CONTEXT ? null : fileGapStore(path.join(path.dirname(env.DATABASE_PATH), "nc-pacing.json")),
+);
 // The timeout starts only when the request really goes out: the caller's one ran during the wait in the queue, so at a wide gap the later workers
 // timed out before they were sent, which counted as network errors, kept the gap wide and failed every request.
 const paced = pacedFetch((input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) }), () => ncPacing.gapMs());

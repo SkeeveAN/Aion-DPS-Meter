@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from "node:fs";
+
 // The pace of all requests towards NC, learned while running: it starts slow, gets shorter in small steps while the answers are fine, and gets
 // longer again when server errors (502 and the like) pile up or NC says "too many" (429/403). Measured 2026-10-25 from a home connection: 0.9 requests
 // a second per worker and 1.8 in all without a 429/403; a single 502 now and then (0.4-1 %) is normal, a cluster of them is the sign to slow down.
@@ -42,8 +44,23 @@ export class NcPacing {
   constructor(
     private readonly opts: PacingOptions = DEFAULT_PACING,
     private readonly log: (message: string) => void = (m) => console.log(`[nc-pacing] ${m}`),
+    /** Where the learned gap is kept over a restart: `load` gives the gap saved earlier (or null), `save` is called with every new gap. */
+    private readonly store: { load(): number | null; save(gap: number): void } | null = null,
   ) {
-    this.gap = opts.startGapMs;
+    const saved = store?.load() ?? null;
+    this.gap = saved !== null && Number.isFinite(saved) ? Math.min(opts.ceilingGapMs, Math.max(opts.floorGapMs, Math.round(saved))) : opts.startGapMs;
+    if (saved !== null) {
+      this.log(`gap taken over from the last run: ${this.gap} ms`);
+    }
+  }
+
+  private setGap(gap: number): void {
+    this.gap = gap;
+    try {
+      this.store?.save(gap);
+    } catch {
+      // the pace is only a convenience; a full disk must not stop the requests
+    }
   }
 
   /** The pause between two requests now. */
@@ -64,7 +81,7 @@ export class NcPacing {
       if (now < this.pausedUntilMs) {
         return;
       }
-      this.gap = Math.min(this.opts.ceilingGapMs, Math.round(this.gap * this.opts.limitFactor));
+      this.setGap(Math.min(this.opts.ceilingGapMs, Math.round(this.gap * this.opts.limitFactor)));
       this.pausedUntilMs = now + this.opts.limitPauseMs;
       this.log(`HTTP ${status}: pause ${this.opts.limitPauseMs / 1000} s, gap raised to ${this.gap} ms`);
       return;
@@ -78,15 +95,32 @@ export class NcPacing {
       // one raise per window: the errors of one cluster do not raise it again and again
       if (this.errorTimes.length >= this.opts.clusterCount && now - this.lastRaise >= this.opts.clusterWindowMs) {
         this.lastRaise = now;
-        this.gap = Math.min(this.opts.ceilingGapMs, Math.round(this.gap * this.opts.raiseFactor));
+        this.setGap(Math.min(this.opts.ceilingGapMs, Math.round(this.gap * this.opts.raiseFactor)));
         this.log(`${this.errorTimes.length} server errors in ${this.opts.clusterWindowMs / 1000} s (last ${status}): gap raised to ${this.gap} ms`);
       }
       return;
     }
     if (++this.okRun >= this.opts.okPerStep && this.gap > this.opts.floorGapMs) {
       this.okRun = 0;
-      this.gap = Math.max(this.opts.floorGapMs, Math.round(this.gap * this.opts.stepDown));
+      this.setGap(Math.max(this.opts.floorGapMs, Math.round(this.gap * this.opts.stepDown)));
       this.log(`gap lowered to ${this.gap} ms`);
     }
   }
+}
+
+/** The learned gap in a small file next to the database: it survives a restart (a deploy would otherwise start again at the slow 2 s and take half an hour to get back down). Older than a week it is not trusted. */
+export function fileGapStore(path: string, maxAgeMs = 7 * 24 * 3600_000, now: () => number = Date.now): { load(): number | null; save(gap: number): void } {
+  return {
+    load() {
+      try {
+        const { gap, at } = JSON.parse(readFileSync(path, "utf8")) as { gap: number; at: number };
+        return typeof gap === "number" && typeof at === "number" && now() - at <= maxAgeMs ? gap : null;
+      } catch {
+        return null;
+      }
+    },
+    save(gap) {
+      writeFileSync(path, JSON.stringify({ gap, at: now() }));
+    },
+  };
 }
