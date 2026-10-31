@@ -1,5 +1,26 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-31",
+  "items": [
+   {
+    "text": "Picture mode render-updatewindow draws the window with the dark buttons of the real client (a hidden main window gives it the control styles)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Privacy: the privacy page (section 11) and the client's privacy dialog, in all ten languages, say that the update window asks aiondps.com for the changes of the new version (only the installed and the offered version number and the language), also when the upload consent is declined; the consent keeps its version 2",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-31"
+   }
+  ]
+ },
+ {
   "version": "1.18.3",
   "date": "2026-10-31",
   "items": [
