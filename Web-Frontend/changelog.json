@@ -11,6 +11,13 @@
      "Database"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "The pace towards NC that the backend learns (the gap between two requests) is kept in a file and taken over after a restart, so a deploy no longer starts again at the slow 2 seconds",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
