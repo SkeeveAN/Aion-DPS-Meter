@@ -98,5 +98,9 @@
  "Privacy: the privacy page (section 11) and the client's privacy dialog, in all ten languages, say that the update window asks aiondps.com for the changes of the new version (only the installed and the offered version number and the language), also when the upload consent is declined; the consent keeps its version 2": {
   "en": "Privacy: the privacy texts name the update window's request to aiondps.com",
   "de": "Datenschutz: Die Texte nennen die Abfrage des Update-Fensters bei aiondps.com"
+ },
+ "10 vs 10 arena: the overlay shows all twenty players and colours the two teams, your team muted red, the opponents muted blue (a stripe at the row's edge, the class colour as a thin bar at its foot), in the chips and the compact overlay and in the window's list, with the damage of each team under the compact overlay; the sides are told from who hits whom, so they are right even when the party roster names only your own group": {
+  "en": "10 vs 10 arena: all 20 players shown, your team red, the opponents blue",
+  "de": "10-gegen-10-Arena: alle 20 Spieler sichtbar, dein Team rot, die Gegner blau"
  }
 }
