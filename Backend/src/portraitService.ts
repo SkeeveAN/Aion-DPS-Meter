@@ -380,9 +380,11 @@ export class PortraitQueue {
     this.kick();
   }
 
+  private readonly seen = { checks: 0, normal: 0, budget: 0, none: 0, taken: 0 };
+
   /** What the workers are doing, for the log. */
-  state(): { workers: number; waiting: number; current: number; activeMatches: number; matches: number; crowd: number } {
-    return { workers: this.workers, waiting: this.waiting.size, current: this.current.size, activeMatches: this.activeMatches, matches: this.matches?.size ?? 0, crowd: this.crowd?.size ?? 0 };
+  state(): { workers: number; waiting: number; current: number; activeMatches: number; matches: number; crowd: number; seen: { checks: number; normal: number; budget: number; none: number; taken: number } } {
+    return { workers: this.workers, waiting: this.waiting.size, current: this.current.size, activeMatches: this.activeMatches, matches: this.matches?.size ?? 0, crowd: this.crowd?.size ?? 0, seen: { ...this.seen } };
   }
 
   private matchesWaiting(): number {
@@ -466,8 +468,22 @@ export class PortraitQueue {
           continue;
         }
         // The players of a world boss upload (the upload waits for all of them) go before the matches; a profile somebody looks at still goes first.
+        if (this.crowd && this.crowd.size > 0) {
+          this.seen.checks++;
+        }
+        if (this.crowd && this.crowd.size > 0 && this.hasNormalJob()) {
+          this.seen.normal++;
+        }
+        if (this.crowd && this.crowd.size > 0 && this.opts.allow && !this.opts.allow(PRIORITY.upload)) {
+          this.seen.budget++;
+        }
         if (this.crowd && this.crowd.size > 0 && !this.hasNormalJob() && (!this.opts.allow || this.opts.allow(PRIORITY.upload))) {
           const unit = this.crowd.take();
+          if (unit === undefined) {
+            this.seen.none++;
+          } else {
+            this.seen.taken++;
+          }
           if (unit !== undefined) {
             this.activeMatches++;
             try {
