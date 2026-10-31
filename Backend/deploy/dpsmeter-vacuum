@@ -1,0 +1,21 @@
+#!/bin/bash
+# Naechtliches VACUUM der aiondps-Datenbank (frueher bei jedem Deploy, das hielt die Seite ~8 Minuten offline).
+# Haelt den Dienst an, gibt freie Seiten ans Dateisystem zurueck und startet ihn wieder.
+# Braucht freien Platz in Hoehe der doppelten DB; fehlt er, wird uebersprungen.
+set -u
+SERVICE_NAME="aion-dpsmeter-backend"
+SERVICE_USER="aion-dpsmeter"
+DB_FILE="/opt/dpsmeter/Backend/data/dpsmeter.sqlite"
+[[ -f "$DB_FILE" ]] || exit 0
+DB_BYTES=$(stat -c %s "$DB_FILE")
+FREE_BYTES=$(df --output=avail -B1 "$(dirname "$DB_FILE")" | tail -1 | tr -d ' ')
+if (( FREE_BYTES <= DB_BYTES * 2 )); then
+  echo "$(date -Is) zu wenig freier Platz fuer VACUUM, uebersprungen"
+  exit 0
+fi
+echo "$(date -Is) VACUUM ($((DB_BYTES / 1048576)) MB)..."
+systemctl stop "$SERVICE_NAME"
+su - "$SERVICE_USER" -s /bin/bash -c "sqlite3 '$DB_FILE' 'PRAGMA wal_checkpoint(TRUNCATE); VACUUM;'" \
+  || echo "$(date -Is) WARNUNG: VACUUM fehlgeschlagen"
+systemctl start "$SERVICE_NAME"
+echo "$(date -Is) fertig, jetzt $(( $(stat -c %s "$DB_FILE") / 1048576 )) MB"
