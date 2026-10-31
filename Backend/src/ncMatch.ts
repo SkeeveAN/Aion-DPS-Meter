@@ -2,11 +2,11 @@ import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { encounterParticipants, playerNcMatch, playerProfiles, players, servers } from "./db/schema.js";
 import { AION2_CLASS_BY_ID } from "./constants.js";
-import { canonicalServer } from "./content/aion2Servers.js";
+import { canonicalServer, koreaServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { plausibleServersOf } from "./crowdRule.js";
 import { normalizeName } from "./matching/roster.js";
-import { PortraitQueue, type MatchSource, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { PortraitQueue, type MatchSource, OTHER_SHARDS, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, isOtherShard, MAX_SEARCH_BYTES, searchUrlOf, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
 
@@ -51,12 +51,29 @@ export function shardOf(displayName: string | null | undefined): string | null {
   return id ? (BLOCK_SHARD[Math.floor(Number(id[1]) / 100) % 10] ?? null) : null;
 }
 
-export type Hit = { name: string; race: 1 | 2; serverId: number; level: number; classId: number | null; characterId: string | null };
+/**
+ * The regions NC's search has to be asked in for a server label: one for the global servers, Korea for a Korean one, Taiwan AND Korea for block 10/20 (both number their servers 1001-1018 / 2001-2018,
+ * and the label cannot tell which of the two a player is on, see aion2Servers), none when the label names no region NC's search covers.
+ */
+export function matchShardsOf(displayName: string | null | undefined): string[] {
+  const label = displayName ?? "";
+  if (label.startsWith("Korea - ")) {
+    return ["kr"]; // a character NC's Korean search found: he stays in Korea
+  }
+  if (label.startsWith("Taiwan - ") || /\[[12]0\d\d\]$/.test(label)) {
+    return [...OTHER_SHARDS];
+  }
+  const shard = shardOf(label);
+  return shard === null ? [] : [shard];
+}
+
+/** `shard`: the region the hit was found in; it tells Korea from Taiwan (same server ids) and where the character's pages are. */
+export type Hit = { name: string; race: 1 | 2; serverId: number; level: number; classId: number | null; characterId: string | null; shard?: string };
 
 const stripTags = (s: string) => s.replace(/<[^>]*>/g, "");
 
 /** The characters of a search answer's `list` (untrusted data): name, race, server, level and class id ((pcId - 1) / 4). */
-export function parseHits(list: unknown): Hit[] {
+export function parseHits(list: unknown, shard?: string): Hit[] {
   if (!Array.isArray(list)) {
     return [];
   }
@@ -75,6 +92,7 @@ export function parseHits(list: unknown): Hit[] {
       level: Number.isFinite(Number(e.level)) ? Number(e.level) : 0,
       classId: Number.isInteger(pc) && pc >= 1 ? Math.floor((pc - 1) / 4) : null,
       characterId: typeof e.characterId === "string" ? e.characterId : null,
+      ...(shard ? { shard } : {}),
     });
   }
   return hits;
@@ -163,7 +181,7 @@ export async function decideByLegion(fetchFn: FetchFn, remaining: Hit[], subject
     if (!characterId) {
       continue;
     }
-    const profile = await fetchCharacterProfile(fetchFn, { characterId, serverId: h.serverId }, shard);
+    const profile = await fetchCharacterProfile(fetchFn, { characterId, serverId: h.serverId }, h.shard ?? shard);
     if (profile && profile.guild.trim().toLowerCase() === wanted && (!subject.level || profile.level >= subject.level)) {
       fits.push(h);
     }
@@ -192,7 +210,7 @@ export async function decideByGear(fetchFn: FetchFn, remaining: Hit[], subject: 
     if (!characterId) {
       return null;
     }
-    const itemLevel = (await fetchCharacterLook(fetchFn, { characterId, serverId: h.serverId }, shard)).data?.itemLevel ?? null;
+    const itemLevel = (await fetchCharacterLook(fetchFn, { characterId, serverId: h.serverId }, h.shard ?? shard)).data?.itemLevel ?? null;
     if (!itemLevel) {
       return null;
     }
@@ -210,22 +228,9 @@ export async function decideByGear(fetchFn: FetchFn, remaining: Hit[], subject: 
 export async function searchHits(fetchFn: FetchFn, name: string, shard: string, filter: { race?: 1 | 2; serverId?: number } = {}): Promise<Hit[]> {
   const all: Hit[] = [];
   for (let page = 1; page <= 3; page++) {
-    const url = new URL(SEARCH_URL);
-    url.searchParams.set("keyword", name);
-    url.searchParams.set("region", shard);
-    // NC filters on its side (a common name is a substring of many others: "Pixie" has 136 hits, 77 of them Elyos).
-    if (filter.race) {
-      url.searchParams.set("race", String(filter.race));
-    }
-    if (filter.serverId) {
-      url.searchParams.set("serverId", String(filter.serverId));
-    }
-    url.searchParams.set("localeInfo", "en-US");
-    url.searchParams.set("page", String(page));
-    url.searchParams.set("size", "40");
-    const { body } = await getNc(fetchFn, url, MAX_SEARCH_BYTES);
+    const { body } = await getNc(fetchFn, searchUrlOf(shard, name, filter, page), MAX_SEARCH_BYTES);
     const answer = JSON.parse(body.toString("utf8")) as { list?: unknown; pagination?: { endPage?: number } };
-    all.push(...parseHits(answer.list));
+    all.push(...parseHits(answer.list, isOtherShard(shard) ? shard : undefined));
     if (page >= Number(answer.pagination?.endPage ?? 1)) {
       break;
     }
@@ -318,8 +323,9 @@ function subjectOf(player: PlayerRow): Subject {
 }
 
 /** The row of a server by its NC id, created when it is new (same naming as the upload path: "Europe - Kaisinel"). */
-export function serverRowOf(ncServerId: number): number {
-  const { fingerprint, displayName } = canonicalServer(`aion2:aion-2-server-${ncServerId}`, undefined);
+export function serverRowOf(ncServerId: number, region?: string | null): number {
+  // Korea shares its ids with Taiwan: a character NC's Korean search found is filed under the Korean server of that id, any other id of block 10/20 is Taiwan.
+  const { fingerprint, displayName } = (region === "kr" ? koreaServer(ncServerId) : null) ?? canonicalServer(`aion2:aion-2-server-${ncServerId}`, undefined);
   const found = db.select({ id: servers.id }).from(servers).where(and(eq(servers.fingerprint, fingerprint), eq(servers.displayName, displayName ?? ""))).get();
   if (found) {
     return found.id;
@@ -327,12 +333,13 @@ export function serverRowOf(ncServerId: number): number {
   return Number(db.insert(servers).values({ fingerprint, displayName }).run().lastInsertRowid);
 }
 
-function record(playerId: number, status: MatchStatus, extra: { ncServerId?: number | null; ncRace?: number | null; ncCharacterId?: string | null; via?: string | null; candidates?: number; nextTryAt?: number }, now: number) {
+function record(playerId: number, status: MatchStatus, extra: { ncServerId?: number | null; ncRace?: number | null; ncCharacterId?: string | null; ncRegion?: string | null; via?: string | null; candidates?: number; nextTryAt?: number }, now: number) {
   const values = {
     status,
     ncServerId: extra.ncServerId ?? null,
     ncRace: extra.ncRace ?? null,
     ncCharacterId: extra.ncCharacterId ?? null,
+    ncRegion: extra.ncRegion ?? null,
     via: extra.via ?? null,
     candidates: extra.candidates ?? 0,
     checkedAt: now,
@@ -378,7 +385,7 @@ export function mergePlayerRows(keepId: number, dropId: number): void {
  * another player of that server already carries the new name (his new fights were filed under a second row): that row is the same character and is merged into this one
  * (see mergePlayerRows). Returns the marker for `via`, or null.
  */
-function applyName(player: PlayerRow, ncName: string, serverId: number): string | null {
+function applyName(player: PlayerRow, ncName: string, serverId: number, region?: string | null): string | null {
   if (ncName === player.name) {
     return null;
   }
@@ -387,7 +394,7 @@ function applyName(player: PlayerRow, ncName: string, serverId: number): string 
     db.update(players).set({ name: ncName }).where(eq(players.id, player.id)).run();
     return null;
   }
-  const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, serverRowOf(serverId)), eq(players.nameNormalized, target), ne(players.id, player.id))).get();
+  const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, serverRowOf(serverId, region)), eq(players.nameNormalized, target), ne(players.id, player.id))).get();
   if (taken) {
     // NC says this character now carries the new name, and a name is unique per server: the row that already carries it is the same character filed again (his new fights came
     // in under the new name before the old row was asked). Its fights and profile move here.
@@ -408,7 +415,7 @@ function applyHit(player: PlayerRow, hit: Hit, viaElsewhere = false): "applied" 
   if (player.faction && player.faction !== faction) {
     return "conflict";
   }
-  const target = serverRowOf(hit.serverId);
+  const target = serverRowOf(hit.serverId, hit.shard);
   if (target !== player.serverId) {
     const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, target), eq(players.nameNormalized, player.nameNormalized), ne(players.id, player.id))).get();
     if (taken) {
@@ -442,10 +449,11 @@ function applyHit(player: PlayerRow, hit: Hit, viaElsewhere = false): "applied" 
  */
 export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch, now = Date.now()): Promise<MatchStatus | null> {
   const player = loadPlayer(playerId);
-  const shard = shardOf(player?.serverName);
-  if (!player || !shard) {
+  const shards = matchShardsOf(player?.serverName);
+  if (!player || shards.length === 0) {
     return null;
   }
+  const shard = shards[0];
   // A player whose own client named his server stays there: NC confirms or enriches him; it moves him only when NC knows nobody of that name there and exactly one character of his faction and class elsewhere (below).
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
   const clientServer = before?.status === "client" || before?.status === "unmatched" ? before.ncServerId : null;
@@ -455,19 +463,19 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   let disproved: string | null = null;
   if (before?.status === "verified" && before.ncCharacterId && before.ncServerId) {
     try {
-      const current = await fetchCharacterProfile(fetchFn, { characterId: before.ncCharacterId, serverId: before.ncServerId }, shard);
+      const current = await fetchCharacterProfile(fetchFn, { characterId: before.ncCharacterId, serverId: before.ncServerId }, before.ncRegion ?? shard);
       const shown = subjectOf(player).className;
       if (current && shown && current.classId !== null && AION2_CLASS_BY_ID[current.classId] !== shown) {
         // A character never changes class: the game shows another class than NC's page has for this id, so this id is not him.
         suspect = true;
         disproved = before.ncCharacterId;
       } else if (current) {
-        const via = applyName(player, current.name, before.ncServerId) ?? before.via;
-        record(playerId, "verified", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, via, candidates: before.candidates }, now);
+        const via = applyName(player, current.name, before.ncServerId, before.ncRegion) ?? before.via;
+        record(playerId, "verified", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, ncRegion: before.ncRegion, via, candidates: before.candidates }, now);
         return "verified";
       }
     } catch {
-      record(playerId, "error", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, via: before.via, candidates: before.candidates, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
+      record(playerId, "error", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, ncRegion: before.ncRegion, via: before.via, candidates: before.candidates, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
       return "error";
     }
     // NC does not know that id any more (character deleted or merged away), or it is not him: fall back to the name search below.
@@ -482,15 +490,23 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   const plausibleOnly = (list: Hit[]) => (plausible === null ? list : list.filter((h) => plausible.has(h.serverId)));
   // A common name has far more hits than the three pages read ("Pixie": 175 on five pages, 3 of them on the two servers he can be on): when his fights leave only a few servers, NC is
   // asked for those servers one by one, and the answer is exact.
-  const search = async (filter: { race?: 1 | 2; serverId?: number }): Promise<Hit[]> => {
+  const searchIn = async (region: string, filter: { race?: 1 | 2; serverId?: number }): Promise<Hit[]> => {
     if (filter.serverId === undefined && plausible !== null && plausible.size > 0 && plausible.size <= 3) {
       const found: Hit[] = [];
       for (const serverId of plausible) {
-        found.push(...(await searchHits(fetchFn, player.name, shard, { ...filter, serverId })).filter((h) => h.serverId === serverId));
+        found.push(...(await searchHits(fetchFn, player.name, region, { ...filter, serverId })).filter((h) => h.serverId === serverId));
       }
       return found;
     }
-    return plausibleOnly(await searchHits(fetchFn, player.name, shard, filter));
+    return plausibleOnly(await searchHits(fetchFn, player.name, region, filter));
+  };
+  // Block 10/20 is asked in Taiwan and in Korea (same server ids): a hit from either is a candidate, and a name found in both stays ambiguous unless class, level, legion or gear settle it.
+  const search = async (filter: { race?: 1 | 2; serverId?: number }): Promise<Hit[]> => {
+    const found: Hit[] = [];
+    for (const region of shards) {
+      found.push(...(await searchIn(region, filter)));
+    }
+    return found;
   };
   try {
     hits = await search({ race, serverId: clientServer ?? undefined });
@@ -541,7 +557,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     if (suspect && found !== before?.ncCharacterId) {
       dropNcData(playerId); // another character: the data of the old one must not stay
     }
-    record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, ncCharacterId: found, via: decision.via, candidates: decision.candidates }, now);
+    record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, ncCharacterId: found, ncRegion: decision.hit.shard ?? null, via: decision.via, candidates: decision.candidates }, now);
     // The same NC character under another row of ours: a rename. The older row has the history; it takes the new name and the fights of this one.
     const twin = found ? twinOf(playerId, found) : null;
     if (twin !== null) {
@@ -550,7 +566,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       mergePlayerRows(keepId, dropId);
       const kept = loadPlayer(keepId);
       if (kept) {
-        applyName(kept, decision.hit.name, decision.hit.serverId);
+        applyName(kept, decision.hit.name, decision.hit.serverId, decision.hit.shard);
       }
       enrichPlayer(keepId);
       return "verified";
@@ -608,7 +624,7 @@ export function dueOf(ids: number[], now = Date.now()): number[] {
     .leftJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
     .where(inArray(players.id, ids))
     .all();
-  return rows.filter((r) => shardOf(r.serverName) !== null && (r.nextTryAt === null || r.nextTryAt <= now)).map((r) => r.id);
+  return rows.filter((r) => matchShardsOf(r.serverName).length > 0 && (r.nextTryAt === null || r.nextTryAt <= now)).map((r) => r.id);
 }
 
 /**
@@ -749,7 +765,7 @@ export function duePlayers(limit: number, now = Date.now()): number[] {
     .where(sql`${servers.fingerprint} like 'aion2:%' and (${playerNcMatch.nextTryAt} is null or ${playerNcMatch.nextTryAt} <= ${now})`)
     .orderBy(sql`${playerNcMatch.status} in ('client', 'unmatched')`, sql`${playerNcMatch.nextTryAt} is not null`, sql`${players.lastSeenAt} desc`)
     .all();
-  return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
+  return rows.filter((r) => matchShardsOf(r.serverName).length > 0).slice(0, limit).map((r) => r.id);
 }
 
 /** Players whose retry is not due yet, the one NC looked at longest ago first (verified ones too: a rename or a transfer shows only when NC is asked again): work for an idle queue. */
@@ -768,7 +784,7 @@ export function waitingPlayers(limit: number, now = Date.now()): number[] {
       .offset(offset)
       .all();
     for (const r of rows) {
-      if (shardOf(r.serverName) !== null && out.length < limit) {
+      if (matchShardsOf(r.serverName).length > 0 && out.length < limit) {
         out.push(r.id);
       }
     }

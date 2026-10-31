@@ -13,7 +13,7 @@ migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta
 after(() => sqlite.close());
 
 const ncMatchModule = await import("./ncMatch.js");
-const { decide, parseHits, processMatch, noteClientServer, noteLevelHint, forgetLevelHint, dueOf, waitingPlayers, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
+const { decide, parseHits, processMatch, noteClientServer, noteLevelHint, forgetLevelHint, dueOf, waitingPlayers, MatchQueue, shardOf, matchShardsOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
 const { players, servers, playerProfiles, playerNcMatch } = await import("./db/schema.js");
 const { linkPlayerGuild } = await import("./guilds.js");
 const { eq } = await import("drizzle-orm");
@@ -603,4 +603,51 @@ test("an idle queue gets the players NC looked at longest ago, verified ones too
   assert.deepEqual(list.filter((id) => [newer, older, unclear].includes(id)), [older, unclear, newer]);
   assert.ok(!list.includes(due) && !list.includes(foreign));
   assert.equal(waitingPlayers(1, 2_000).length, 1);
+});
+
+// --- Korea and Taiwan: block 10/20 is asked in both regions ---
+test("a Taiwan or Korea server label is searched in both regions, a global one in its own", () => {
+  assert.deepEqual(matchShardsOf("Europe - Kaisinel"), ["eu"]);
+  assert.deepEqual(matchShardsOf("Taiwan - Azphel"), ["tw", "kr"]);
+  assert.deepEqual(matchShardsOf("Ishtar [1019]"), ["tw", "kr"]);
+  assert.deepEqual(matchShardsOf("Hogalum [1317]"), ["eu"]);
+  assert.deepEqual(matchShardsOf(null), []);
+});
+
+test("a Taiwan player is verified by the one character of his name in either region, and the region is kept", async () => {
+  const azphel = server("aion2:aion-2-server-2006", "Taiwan - Azphel");
+  const id = player("Taibei", azphel);
+  const seen: string[] = [];
+  const answers: Record<string, object[]> = { "tw.ncsoft.com": [], "aion2.plaync.com": [raw({ name: "<strong>Taibei</strong>", race: 2, serverId: 2006 })] };
+  const fetchFn = (async (input: unknown) => {
+    const url = new URL(String(input));
+    seen.push(url.hostname + url.pathname);
+    return new Response(JSON.stringify({ list: answers[url.hostname], pagination: { page: 1, size: 40, total: 1, endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.equal(await processMatch(id, fetchFn, 1_000_000), "verified");
+  assert.deepEqual(seen, ["tw.ncsoft.com/aion2/api/search/character", "aion2.plaync.com/ko-kr/api/search/aion2/search/v2/character"]);
+  const row = sqlite.prepare("select status, nc_region r, nc_server_id s from player_nc_match where player_id = ?").get(id) as { status: string; r: string | null; s: number };
+  assert.deepEqual(row, { status: "verified", r: "kr", s: 2006 });
+  assert.equal(serverOf(id).d, "Korea - Azphel", "a character NC's Korean search found is filed under the Korean server, not the Taiwan one of the same id");
+  assert.deepEqual(matchShardsOf("Korea - Azphel"), ["kr"], "and from then on only Korea is asked");
+});
+
+test("Korea has its own 21 servers per faction, named like the client's table", async () => {
+  const { koreaNameOf, koreaServer, serverOfName, nameOf } = await import("./content/aion2Servers.js");
+  assert.equal(koreaNameOf(1001), "Korea - Siel");
+  assert.equal(koreaNameOf(1021), "Korea - Poeta");
+  assert.equal(koreaNameOf(2004), "Korea - Lumiel");
+  assert.equal(koreaNameOf(2021), "Korea - Ishalgen");
+  assert.equal(koreaNameOf(1022), null);
+  assert.equal(koreaNameOf(1304), null, "not a Korean id");
+  assert.equal(koreaServer(2006)?.fingerprint, "aion2:korea-azphel");
+  assert.deepEqual(serverOfName("Korea - Kaisinel"), { id: 1004, faction: "Elyos" });
+  assert.equal(nameOf(2006), "Taiwan - Azphel", "an id on its own stays Taiwan");
+});
+
+test("the same name in Taiwan and in Korea stays ambiguous", async () => {
+  const azphel = Number((sqlite.prepare("select id from servers where display_name = 'Taiwan - Azphel'").get() as { id: number }).id);
+  const id = player("Doppelgast", azphel);
+  const fetchFn = (async (input: unknown) => new Response(JSON.stringify({ list: [raw({ name: "Doppelgast", race: 2, serverId: new URL(String(input)).hostname === "tw.ncsoft.com" ? 2006 : 2010 })], pagination: { endPage: 1 } }), { status: 200 })) as unknown as typeof fetch;
+  assert.equal(await processMatch(id, fetchFn, 1_000_000), "ambiguous");
 });

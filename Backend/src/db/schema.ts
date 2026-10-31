@@ -695,6 +695,8 @@ export const playerNcMatch = sqliteTable("player_nc_match", {
   ncRace: integer("nc_race"),
   // NC's id of the character the check matched (url-decoded base64url): with the server id it names the character for good, across renames.
   ncCharacterId: text("nc_character_id"),
+  // The region NC's search found the character in when it is not the global one ('tw' or 'kr': both number their servers 1001-1018, so the id alone does not say); null = the region of the player's server label.
+  ncRegion: text("nc_region"),
   // What settled an ambiguous name: 'name' (nothing else needed) 'legion' (the verified members of his legion) or 'legion-name' (only one of the candidates is in a legion of the name the game reported); later 'renamed' (NC named him differently by his character id, the row was renamed) or 'rename-conflict' (the new name already belongs to another row of that server: nothing merged).
   via: text("via"),
   candidates: integer("candidates").notNull().default(0),

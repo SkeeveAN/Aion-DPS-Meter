@@ -26,6 +26,8 @@ const BROWSER_HEADERS = {
   Origin: "https://aion2.plaync.com",
   Referer: "https://aion2.plaync.com/",
 };
+const TW_HOST = "tw.ncsoft.com";
+const TW_HEADERS = { ...BROWSER_HEADERS, Origin: `https://${TW_HOST}`, Referer: `https://${TW_HOST}/aion2/` };
 const INFO_URL = "https://aion2.plaync.com/api/character/info";
 const EQUIPMENT_URL = "https://aion2.plaync.com/api/character/equipment";
 const DAEVANION_URL = "https://aion2.plaync.com/api/character/daevanion/detail";
@@ -56,9 +58,56 @@ export type Character = { charKey: string; serverId: number; characterId: string
 /** What the character pages need: found by a search before, stored in player_nc_character. */
 export type KnownCharacter = { characterId: string; serverId: number };
 
+/**
+ * NC runs the game in three places with the same kind of answers: Global (the shards eu, as, nae, naw, la), Korea ("kr") and Taiwan ("tw"). Korea and Taiwan have their own
+ * search and character pages (found by trying them live, 31.10.2026: the Korean search lives under /ko-kr/, its character pages are the global ones; Taiwan has all four under tw.ncsoft.com).
+ * Both number their servers 1001-1018 / 2001-2018 (Korea beyond), so a name's hit says which of the two it is only through the region it was found in.
+ */
+export const OTHER_SHARDS = ["tw", "kr"] as const;
+export const isOtherShard = (shard: string): boolean => (OTHER_SHARDS as readonly string[]).includes(shard);
+const OTHER_ENDPOINTS: Record<string, { search: string; info: string; equipment: string; daevanion: string; lang: string }> = {
+  kr: {
+    search: "https://aion2.plaync.com/ko-kr/api/search/aion2/search/v2/character",
+    info: INFO_URL,
+    equipment: EQUIPMENT_URL,
+    daevanion: DAEVANION_URL,
+    lang: "ko-kr",
+  },
+  tw: {
+    search: `https://${TW_HOST}/aion2/api/search/character`,
+    info: `https://${TW_HOST}/aion2/api/character/info`,
+    equipment: `https://${TW_HOST}/aion2/api/character/equipment`,
+    daevanion: `https://${TW_HOST}/aion2/api/character/daevanion/detail`,
+    lang: "zh-TW",
+  },
+};
+
+/** The URL of a name search in a region, with the parameters that region understands (Global filters by `region`, Korea and Taiwan have one search each). */
+export function searchUrlOf(shard: string, name: string, filter: { race?: 1 | 2; serverId?: number }, page: number): URL {
+  const other = OTHER_ENDPOINTS[shard];
+  const url = new URL(other ? other.search : SEARCH_URL);
+  url.searchParams.set("keyword", name);
+  if (!other) {
+    url.searchParams.set("region", shard);
+  }
+  // NC filters on its side (a common name is a substring of many others: "Pixie" has 136 hits, 77 of them Elyos).
+  if (filter.race) {
+    url.searchParams.set("race", String(filter.race));
+  }
+  if (filter.serverId) {
+    url.searchParams.set("serverId", String(filter.serverId));
+  }
+  if (!other) {
+    url.searchParams.set("localeInfo", "en-US");
+  }
+  url.searchParams.set("page", String(page));
+  url.searchParams.set("size", "40");
+  return url;
+}
+
 const RACE_BY_FACTION = { Elyos: 1, Asmodian: 2 } as const;
 
-const hostAllowed = (url: URL) => url.protocol === "https:" && (url.hostname.endsWith(".plaync.com") || url.hostname.endsWith(".playnccdn.com"));
+const hostAllowed = (url: URL) => url.protocol === "https:" && (url.hostname.endsWith(".plaync.com") || url.hostname.endsWith(".playnccdn.com") || url.hostname === TW_HOST);
 
 /** Reads a response body with a size limit. */
 async function readLimited(res: Response, limit: number): Promise<Buffer> {
@@ -81,7 +130,7 @@ export async function getNc(fetchFn: FetchFn, start: URL, limit: number): Promis
     if (!hostAllowed(url)) {
       throw new Error(`host not allowed: ${url.hostname}`);
     }
-    const res = await fetchFn(url, { headers: BROWSER_HEADERS, redirect: "manual", signal: AbortSignal.timeout(TIMEOUT_MS) });
+    const res = await fetchFn(url, { headers: url.hostname === TW_HOST ? TW_HEADERS : BROWSER_HEADERS, redirect: "manual", signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (res.status >= 300 && res.status < 400) {
       const location = res.headers.get("location");
       if (!location) {
@@ -184,9 +233,13 @@ async function getNcJson(fetchFn: FetchFn, url: URL): Promise<unknown> {
 }
 
 function characterPageUrl(base: string, known: KnownCharacter, region = "eu"): URL {
-  const url = new URL(base);
-  url.searchParams.set("region", region);
-  url.searchParams.set("lang", "en-US");
+  const other = OTHER_ENDPOINTS[region];
+  const page = other ? (base === INFO_URL ? other.info : base === EQUIPMENT_URL ? other.equipment : other.daevanion) : base;
+  const url = new URL(page);
+  if (!other) {
+    url.searchParams.set("region", region);
+  }
+  url.searchParams.set("lang", other ? other.lang : "en-US");
   url.searchParams.set("characterId", known.characterId);
   url.searchParams.set("serverId", String(known.serverId));
   return url;

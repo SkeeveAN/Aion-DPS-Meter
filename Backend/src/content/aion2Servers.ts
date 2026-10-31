@@ -41,6 +41,27 @@ export function nameOf(serverId: number): string | null {
   return region && index < region.perFaction ? `${region.name} - ${name}` : `${name} [${serverId}]`;
 }
 
+/**
+ * Korea numbers its 21 servers per faction like Taiwan (1001-1021 / 2001-2021, the same names in the same order: NC's Korean search names 1001 시엘, 1004 카이시넬, 2004 루미엘, 1021 포에타,
+ * 2021 이스할겐, checked live 31.10.2026), so the id alone cannot tell the two apart. A Korean server is told only by the region NC's search found the character in; its rows are
+ * labelled "Korea - Name" and never made from an id on its own (an upload's id 10xx stays Taiwan).
+ */
+export const KOREA_PER_FACTION = 21;
+export function koreaNameOf(serverId: number): string | null {
+  const faction = Math.floor(serverId / 1000);
+  const index = (serverId % 1000) - 1;
+  if ((faction !== 1 && faction !== 2) || index < 0 || index >= KOREA_PER_FACTION) {
+    return null;
+  }
+  return `Korea - ${(faction === 1 ? ELYOS_10 : ASMO_20)[index]}`;
+}
+
+/** The fingerprint and display name of a Korean server (same shape as canonicalServer's). */
+export function koreaServer(serverId: number): { fingerprint: string; displayName: string } | null {
+  const label = koreaNameOf(serverId);
+  return label ? { fingerprint: `aion2:${slug(label)}`, displayName: label } : null;
+}
+
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export function canonicalServer(fingerprint: string, displayName: string | undefined): { fingerprint: string; displayName: string | undefined } {
@@ -61,6 +82,14 @@ const BLOCK_OF_REGION: Record<string, number> = Object.fromEntries(Object.entrie
  */
 export function serverOfName(displayName: string | null | undefined): { id: number; faction: "Elyos" | "Asmodian" } | null {
   const m = /^(.+?) - (.+)$/.exec((displayName ?? "").trim());
+  if (m?.[1] === "Korea") {
+    const elyos = ELYOS_10.indexOf(m[2]);
+    if (elyos >= 0 && elyos < KOREA_PER_FACTION) {
+      return { id: 1001 + elyos, faction: "Elyos" };
+    }
+    const asmo = ASMO_20.indexOf(m[2]);
+    return asmo >= 0 && asmo < KOREA_PER_FACTION ? { id: 2001 + asmo, faction: "Asmodian" } : null;
+  }
   const block = m ? BLOCK_OF_REGION[m[1]] : undefined;
   if (!m || block === undefined) {
     return null;

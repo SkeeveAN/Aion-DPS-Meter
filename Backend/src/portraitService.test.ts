@@ -11,7 +11,7 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
-const { pickCharacter, searchCharacter, downloadPortrait, fetchPortrait, isFresh, PortraitQueue, portraitUrlFor, RETRY_AFTER, CHARACTER_RETRY_AFTER, HOUR, DAY, fetchPlayer, pacedFetch, processPlayer, decodeCharacterId, isArenaEqualized } = await import("./portraitService.js");
+const { pickCharacter, searchCharacter, downloadPortrait, fetchPortrait, isFresh, PortraitQueue, portraitUrlFor, RETRY_AFTER, CHARACTER_RETRY_AFTER, HOUR, DAY, fetchPlayer, pacedFetch, processPlayer, decodeCharacterId, isArenaEqualized, searchUrlOf, fetchCharacterProfile } = await import("./portraitService.js");
 const { playerPortraits, playerNcCharacter, players, servers } = await import("./db/schema.js");
 const { europeServerOf } = await import("./content/aion2Servers.js");
 const { eq } = await import("drizzle-orm");
@@ -499,4 +499,26 @@ test("queue: a crowd lookup is not held back by the jobs of uploads (they are al
   await new Promise((r) => setTimeout(r, 40));
   assert.deepEqual(order.slice(0, 3), ["c0", "c1", "c2"], `the crowd goes before the upload jobs: ${order.join(" ")}`);
   assert.equal(order.length, 6);
+});
+
+test("Korea and Taiwan are searched at their own addresses with the parameters they understand", () => {
+  assert.equal(searchUrlOf("tw", "Aahz", { race: 1, serverId: 1004 }, 2).href, "https://tw.ncsoft.com/aion2/api/search/character?keyword=Aahz&race=1&serverId=1004&page=2&size=40");
+  assert.equal(searchUrlOf("kr", "가", {}, 1).href, "https://aion2.plaync.com/ko-kr/api/search/aion2/search/v2/character?keyword=%EA%B0%80&page=1&size=40");
+  assert.equal(searchUrlOf("eu", "Aahz", { race: 2 }, 1).searchParams.get("region"), "eu", "the global search keeps its region key");
+});
+
+test("the character page of a Taiwan or Korea character is asked at that region's address, with the Taiwan headers on tw.ncsoft.com", async () => {
+  const seen: { url: URL; origin: string }[] = [];
+  const fetchFn = (async (input: unknown, init?: { headers?: Record<string, string> }) => {
+    seen.push({ url: new URL(String(input)), origin: init?.headers?.Origin ?? "" });
+    return new Response(JSON.stringify({ profile: { characterName: "Taibei", regionName: "", characterLevel: 45, pcId: 22 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.equal((await fetchCharacterProfile(fetchFn, { characterId: "abc_DEF=", serverId: 2006 }, "tw"))?.name, "Taibei");
+  await fetchCharacterProfile(fetchFn, { characterId: "abc_DEF=", serverId: 1008 }, "kr");
+  assert.equal(seen[0].url.origin + seen[0].url.pathname, "https://tw.ncsoft.com/aion2/api/character/info");
+  assert.equal(seen[0].url.searchParams.get("lang"), "zh-TW");
+  assert.equal(seen[0].url.searchParams.has("region"), false);
+  assert.equal(seen[0].origin, "https://tw.ncsoft.com");
+  assert.equal(seen[1].url.origin + seen[1].url.pathname, "https://aion2.plaync.com/api/character/info");
+  assert.equal(seen[1].url.searchParams.get("lang"), "ko-kr");
 });

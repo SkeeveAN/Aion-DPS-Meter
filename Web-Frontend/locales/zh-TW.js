@@ -22,6 +22,7 @@ export default {
   "region.Europe": "歐洲",
   "region.Asia": "亞洲",
   "region.Taiwan": "台灣",
+  "region.Korea": "韓國",
   "region.NA East": "北美東部",
   "region.NA West": "北美西部",
   "region.North America": "北美",
