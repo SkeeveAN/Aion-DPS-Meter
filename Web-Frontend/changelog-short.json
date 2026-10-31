@@ -1,0 +1,94 @@
+{
+ "Protocol check: the meter now always watches whether the game keeps sending damage and cast data, and when a fight goes on but one of them stays silent for two minutes (a game update moved it) the status row says \"Missing: damage\" with a tooltip that explains it, instead of showing wrong numbers without a word; families seen in earlier sessions count from the first minute, hit points and effects are not reported because the game sends hit points only for a target you have (12 false alarms in 1,850 half-minute windows of real play before they were left out); idea from the break check of dr89mh/aion2-cube-radar": {
+  "en": "Protocol check: the status row warns \"Missing: damage\" when the game stops sending data",
+  "de": "Protokoll-Prüfung: Die Statuszeile warnt „Fehlt: Schaden“, wenn das Spiel Daten nicht mehr sendet"
+ },
+ "Stagger share: the tool credits every player with the part of a boss's stagger bar they brought down, by matching the bar's readings to the hits in the order the game sends them (the game's own drop per skill, 3,329 skills from the client's tables, checked against 109 skills seen in recordings, with the buff that raises a drop by half allowed for); on five recordings 97 % of the bar's fall is credited to a hit, a fall no hit explains stays unassigned instead of being guessed; the share and the bar's total go along with a boss fight upload; new test mode aion2-stagger-check": {
+  "en": "Stagger share: every player is credited with the part of the bar they brought down",
+  "de": "Stagger-Anteil: Jedem Spieler wird sein Teil des Balkens gutgeschrieben"
+ },
+ "Privacy dialog: the third point of the client's privacy text now says what the website's privacy page says about a boss-fight upload (the damage in steps of 5 seconds, the damage to other monsters, the damage taken, the times dead and the stagger share), in all ten languages; the privacy decision keeps its version Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>": {
+  "en": "Privacy dialog: names what a boss fight upload carries",
+  "de": "Datenschutz-Dialog: nennt, was ein Bosskampf-Upload enthält"
+ },
+ "Client: a world boss upload goes out zipped (80 KB instead of 600 KB), gets 60 s instead of 15 s, and one that failed for a reason that may pass (connection, timeout, busy server) is tried again after 90 s, up to three times": {
+  "en": "World boss upload goes out zipped and is tried again after a failure",
+  "de": "Weltboss-Upload geht gezippt raus und wird nach einem Fehler wiederholt"
+ },
+ "Stagger share: the boss's own start-of-fight hit (skill 1000007, 500 million on itself, which lowers the bar by 360 or by half of a smaller bar) is no longer counted as a fall to be shared out, so on five recordings 99.4 % of the bar's fall is credited to a hit (97.0 % before: that one fall made up four fifths of the gap); the test mode aion2-stagger-check can say why a fall stays unassigned (--why) Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>": {
+  "en": "Stagger share: the boss's own start hit is no longer counted",
+  "de": "Stagger-Anteil: Der Starttreffer des Bosses zählt nicht mehr mit"
+ },
+ "Client: clicking Expert in the stat calculator no longer crashes the tool (the note under \"Take from the fight\" and the two result figures were put into the rebuilt page while still sitting in the old one)": {
+  "en": "Fix: Expert in the stat calculator no longer crashes the tool",
+  "de": "Fix: „Experte“ im Stat-Rechner bringt das Tool nicht mehr zum Absturz"
+ },
+ "Checklist: the mandatory tasks count goes back to 0 (shown as ~0 / 5) after the daily reset at 09:00 German time, and the first login of a day no longer takes yesterday's count; after Stacy's fork": {
+  "en": "Checklist: the mandatory tasks count resets after the daily reset",
+  "de": "Checkliste: Der Pflichtaufgaben-Zähler wird nach dem täglichen Reset zurückgesetzt"
+ },
+ "Hidden Cubes: a cube that goes out of sight keeps being remembered and plays its own falling sound (so you hear you walk the wrong way), the approach sound now rises from 100 m (the game announces a cube at about 100 m, not 40 to 60 m) and its rhythm goes on for 8 s between two position reports, cubes carry their height and creation time, the open frame 3836 is read; findings from the open source project dr89mh/aion2-cube-radar (github.com/dr89mh/aion2-cube-radar), checked against our own recordings": {
+  "en": "Hidden Cubes: a cube out of sight is remembered and has its own sound",
+  "de": "Hidden Cubes: Ein Cube außer Sicht bleibt gemerkt und hat einen eigenen Ton"
+ },
+ "Dummy test: choose up to 4 runs to compare against a reference of your own, each run shows note, length, total damage, DPS (pauses left out) and iDPS (pauses count) and its target, only runs of the same length at a training dummy compare, a red waste bin deletes a run, the fields of the setup row are uniform; the dummy names are Stacy's, from her fork": {
+  "en": "Dummy test: compare up to 4 runs with a reference of your own",
+  "de": "Dummy-Test: Bis zu 4 Läufe mit eigener Referenz vergleichen"
+ },
+ "Dummy test: the comparison says whether a difference is real: the iDPS change against the noise of the hits, and per skill the plain hit (crit, double and perfect hits brought back to it) with a 95 % range and a verdict; the statistics and the approach are Stacy's, from her fork": {
+  "en": "Dummy test: the comparison says whether a difference is real",
+  "de": "Dummy-Test: Der Vergleich sagt, ob ein Unterschied echt ist"
+ },
+ "Timetable: the spacetime rift runs on the European clock (Europe/Berlin), so it stays at 14:00, 17:00, 20:00, 23:00 ... through the change to winter time instead of moving an hour with UTC; an event can now have its own time zone": {
+  "en": "Timetable: the spacetime rift runs on the European clock",
+  "de": "Timetable: Der Raumzeit-Riss läuft auf der europäischen Uhr"
+ },
+ "Dummy test: each run keeps the skill levels the game showed, the comparison names the skills whose level differs and shows what a level is worth (the plain hit per level, about how much iDPS); the game's skill entries are read so a changed level is known at once, and saved runs keep their hit kinds; after Stacy's fork": {
+  "en": "Dummy test: runs keep their skill levels, the comparison shows what a level is worth",
+  "de": "Dummy-Test: Läufe merken sich die Skill-Stufen, der Vergleich zeigt den Wert einer Stufe"
+ },
+ "Timetable: all events (battlefield, Shugo festival, air raid, Abyss raid, Abyss bosses, Nahma) run on the European clock like the spacetime rift, so they keep their hour through the change to winter time instead of moving an hour with UTC": {
+  "en": "Timetable: all events run on the European clock",
+  "de": "Timetable: Alle Events laufen auf der europäischen Uhr"
+ },
+ "Timetable: the Abyss raid (Artifact Siege) follows the game's weekly rule (Mon, Thu, Sat 21:00, from the client's event table) instead of a list of dates that ended on 31 December": {
+  "en": "Timetable: the Abyss raid follows the game's weekly rule",
+  "de": "Timetable: Der Abyss-Raid folgt der Wochenregel des Spiels"
+ },
+ "Assist: the time left of a cooldown is calculated from the speed each skill's own number falls at (measured from its last numbers, so stones, stats and Daevanion are included) instead of one fixed factor, which cuts the average error from about 24 to 16 percent; the \"~\" and its note stay because the speed still varies a little during a cooldown": {
+  "en": "Assist: cooldown times are calculated from each skill's own speed",
+  "de": "Assist: Abklingzeiten werden aus der Geschwindigkeit jedes Skills berechnet"
+ },
+ "Timetable: the event times come from aiondps.com (/api/schedule), so a changed time is changed there and the client needs no new release; the client keeps the last answer and falls back to the table it ships with": {
+  "en": "Timetable: the event times come from aiondps.com",
+  "de": "Timetable: Die Event-Zeiten kommen von aiondps.com"
+ },
+ "Timetable: the server gives the clock of the player's region (?region=, from the own server's id): the spacetime rift runs on New York time in NA East and Los Angeles time in NA West, everything else stays on the European clock until its region is verified": {
+  "en": "Timetable: the server gives the clock of your region",
+  "de": "Timetable: Der Server liefert die Uhr deiner Region"
+ },
+ "Website: the encounter page gets a damage curve (cumulative boss damage of the group with the damage of each 5 seconds and the boss's health), boss and add damage with the time each player was alive, damage taken by source and skill, and how much of each effect's time the player was dead or without action; the pull comparison explains two pulls by deaths, time alive, boss as target, effect time with action and both damage curves; every new figure carries a data-quality badge (reliable, derived, estimated, not available)": {
+  "en": "Website: the encounter page gets a damage curve and new analyses",
+  "de": "Webseite: Die Kampfseite bekommt eine Schadenskurve und neue Auswertungen"
+ },
+ "Upload: a boss fight also sends what the new analysis on the website needs for each player (the damage on the boss in 5-second slices, the damage on adds, the time spent dead and the damage taken by source and skill), nothing else about the player": {
+  "en": "Upload: a boss fight also sends the data of the new analysis",
+  "de": "Upload: Ein Bosskampf sendet auch die Daten der neuen Auswertung"
+ },
+ "Titles: the 18 achievement titles of the G_ rows (Journey's Path and others) get their names, they showed as Title 13051004 on profiles": {
+  "en": "Titles: 18 achievement titles get their names",
+  "de": "Titel: 18 Erfolgstitel bekommen ihre Namen"
+ },
+ "Windows: the X and the minimize line of the title bars are drawn with room for their stroke, so the cross is no longer cut off on some display scalings": {
+  "en": "Windows: the X and the minimize line are no longer cut off",
+  "de": "Fenster: X und Minimieren-Strich werden nicht mehr abgeschnitten"
+ },
+ "Windows: the tools window stays on its second monitor when another tool is chosen (it was pulled back to the first monitor); a saved place on a monitor that is not connected puts the window on monitor 1 and asks once whether to overwrite the saved places or keep them for the next start": {
+  "en": "Windows: the tools window stays on its second monitor",
+  "de": "Fenster: Das Tools-Fenster bleibt auf dem zweiten Monitor"
+ },
+ "Tools: pop out button right of the overlay switch shows a tool in a window of its own that can go anywhere, also on a second monitor; place and open state are kept and the windows come back at the next start": {
+  "en": "Tools: the pop out button shows a tool in a window of its own",
+  "de": "Tools: Der Pop-out-Knopf zeigt ein Tool in einem eigenen Fenster"
+ }
+}
