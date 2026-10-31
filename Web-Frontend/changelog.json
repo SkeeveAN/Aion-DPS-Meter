@@ -53,6 +53,13 @@
      "Website"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Privacy dialog: the third point of the client's privacy text now says what the website's privacy page says about a boss-fight upload (the damage in steps of 5 seconds, the damage to other monsters, the damage taken, the times dead and the stagger share), in all ten languages; the privacy decision keeps its version Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
