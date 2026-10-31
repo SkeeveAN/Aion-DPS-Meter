@@ -180,6 +180,16 @@ test("a profile merely seen on another player never replaces the player's own, a
   assert.equal(buildProfileView(playerId("Nobody")), null);
 });
 
+test("a seen profile without equipment keeps the pieces stored before", () => {
+  processUpload(aion2Upload([participant("Aahz"), participant("Wanderer")]));
+  const id = playerId("Wanderer");
+  upsertProfile(id, { source: "seen", classId: 5, classBits: 1, level: 40, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] });
+  upsertProfile(id, { source: "seen", classId: 5, classBits: 1, level: 45, gear: [] });
+  const view = buildProfileView(id)!;
+  assert.equal(view.level, 45);
+  assert.equal(view.gear.length, 1);
+});
+
 test("a newer own upload replaces the old one but keeps skills and boards when it carries none", () => {
   const id = playerId("Aahz");
   upsertProfile(id, profileSchema.parse({ source: "self", level: 35, classId: 1, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] }));

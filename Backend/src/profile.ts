@@ -252,7 +252,8 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     classId: profile.classId ?? existing?.classId ?? null,
     classBits: profile.classBits ?? profile.faction ?? existing?.classBits ?? null,
     gearScore: profile.gearScore ?? existing?.gearScore ?? null,
-    gearJson: JSON.stringify(profile.gear),
+    // An upload without equipment (a client that did not read it, or only the level and class of a stranger) keeps the stored pieces.
+    gearJson: profile.gear.length > 0 ? JSON.stringify(profile.gear) : (existing?.gearJson ?? "[]"),
     // The skill list, the Daevanion boards and the species knowledge only exist for "self"; a later upload from the same
     // person that lacks them (their client started mid-session) must not wipe what was stored.
     skillsJson: profile.skills.length > 0 ? JSON.stringify(profile.skills) : (existing?.skillsJson ?? "[]"),
