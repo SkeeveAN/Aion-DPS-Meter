@@ -60,6 +60,20 @@
      "Client"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Client: a world boss upload goes out zipped (80 KB instead of 600 KB), gets 60 s instead of 15 s, and one that failed for a reason that may pass (connection, timeout, busy server) is tried again after 90 s, up to three times",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Stagger share: the boss's own start-of-fight hit (skill 1000007, 500 million on itself, which lowers the bar by 360 or by half of a smaller bar) is no longer counted as a fall to be shared out, so on five recordings 99.4 % of the bar's fall is credited to a hit (97.0 % before: that one fall made up four fifths of the gap); the test mode aion2-stagger-check can say why a fall stays unassigned (--why) Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
