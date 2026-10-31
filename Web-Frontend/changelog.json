@@ -74,6 +74,20 @@
      "Client"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Client: clicking Expert in the stat calculator no longer crashes the tool (the note under \"Take from the fight\" and the two result figures were put into the rebuilt page while still sitting in the old one)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "World boss crowds: the players of a waiting upload are looked up by the four NC workers at the pace they have learned (before, one single lane did about 2 players a minute and an upload waited for hours), a player whose faction the client knows is placed by the pairing without asking NC (an Elyos of a Kaisinel kill is on Kaisinel, an Asmodian on Israphel), and the Abyss bosses use the Abyss pairs announced on 28 October",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
