@@ -80,10 +80,10 @@ export function displayName(row: { name: string; nameEn: string | null }): strin
   return conquest ? `${conquest.base} (Conquest ${conquest.stars.length}${conquest.hard ? ", Hard" : ""})` : name;
 }
 
-/** Each main page has its own preview picture (Web-Frontend/og/pages/<slug>.jpg, 1200x630) with the text in the middle,
- *  because WhatsApp cuts a square out of the middle of the picture. */
+/** Each main page has its own preview picture (drawn by seo/ogPage.ts, 1200x630, with the address it is asked for on) with the
+ *  text in the middle, because WhatsApp cuts a square out of the middle of the picture. */
 function pageCard(slug: string): Pick<PageMeta, "ogImage" | "ogImageSize" | "ogImageAlt"> {
-  return { ogImage: `/og/pages/${slug}.jpg?v=20261019`, ogImageSize: { width: 1200, height: 630 }, ogImageAlt: "Aion DPS" };
+  return { ogImage: `/og/pages/${slug}.png?v=20261031`, ogImageSize: { width: 1200, height: 630 }, ogImageAlt: "Aion DPS" };
 }
 
 export function homePage(): Page {
@@ -227,7 +227,7 @@ export function guidePage(): Page {
       description: g("metaDesc"),
       canonicalPath: "/aion-2-dps-meter",
       // WhatsApp cuts a square out of the middle of the preview picture, so this one keeps its text there.
-      ogImage: "/og/guide.png?v=20261019",
+      ogImage: "/og/pages/guide.png?v=20261031",
       ogImageAlt: "AION 2 DPS Meter – Features, Installation & Comparison",
       ogImageSize: { width: 1200, height: 630 },
       jsonLd: [

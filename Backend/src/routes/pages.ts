@@ -3,6 +3,7 @@ import { renderShell } from "../seo/shell.js";
 import { renderHead } from "../seo/meta.js";
 import { cached } from "../seo/cache.js";
 import { env } from "../env.js";
+import { siteHost } from "../seo/ogPage.js";
 import { DEFAULT_GAME, type Game } from "../constants.js";
 import {
   appOnlyPage,
@@ -62,8 +63,17 @@ function render(page: Page, ssrPath: string): Rendered {
   return { status: page.status, html: renderShell({ head: renderHead(page.meta), app }) };
 }
 
+/** og:url and the preview pictures carry the address the page was opened on (the website answers under three);
+ *  the canonical link stays on the main address, so search engines still list only that one. */
+const OG_ORIGIN_LINES = /(<meta (?:property="og:(?:url|image)"|name="twitter:image") content=")([^"]*)/g;
+
+function forHost(html: string, hostname: string): string {
+  const origin = `https://${siteHost(hostname)}`;
+  return origin === env.BASE_URL ? html : html.replace(OG_ORIGIN_LINES, (m, head: string, url: string) => (url.startsWith(env.BASE_URL) ? head + origin + url.slice(env.BASE_URL.length) : m));
+}
+
 function send(reply: FastifyReply, rendered: Rendered): FastifyReply {
-  return reply.status(rendered.status).type("text/html; charset=utf-8").header("Cache-Control", "no-cache").send(rendered.html);
+  return reply.status(rendered.status).type("text/html; charset=utf-8").header("Cache-Control", "no-cache").send(forHost(rendered.html, reply.request.hostname));
 }
 
 /** Renders through the page cache; a null page (unknown slug) is cached as a 404 (410 for players and legions) too, so a bot hammering a dead URL stays cheap. */
