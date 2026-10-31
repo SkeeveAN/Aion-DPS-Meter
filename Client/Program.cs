@@ -1278,6 +1278,7 @@ internal static class Program
 
         Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
+        app.MainWindow = new Ui.MainWindow(); // never shown: the dark control styles of the window frame come from its resources
         var loc = Ui.LocalizationManager.Instance;
         var changes = Update.ChangelogClient.Parse(File.ReadAllText(answerFile));
         string from = Environment.GetEnvironmentVariable("AIONDPS_RENDER_FROM") ?? "1.18.1";
