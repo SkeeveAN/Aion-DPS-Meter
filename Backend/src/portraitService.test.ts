@@ -482,3 +482,21 @@ test("queue: the workers also take the crowd lookups of a world boss upload (all
   assert.ok(most >= 2, `side by side (${most})`);
   assert.equal(order.indexOf("p1"), 0, "a viewed profile goes before the crowd");
 });
+
+test("queue: a crowd lookup is not held back by the jobs of uploads (they are always there), only by a viewed profile", async () => {
+  const order: string[] = [];
+  const q = new PortraitQueue(async (k) => { order.push(`p${k.playerId}`); }, { minGapMs: 0, maxLength: 20, now: () => 0, sleep: async () => {}, concurrency: 1 });
+  const left = [0, 1, 2];
+  const crowd = {
+    host: null as { wake(): void } | null,
+    get size() { return left.length; },
+    next: () => (left.length > 0 ? { background: false } : null),
+    take: () => left.shift(),
+    run: async (i: number) => { order.push(`c${i}`); },
+  };
+  q.attachCrowd(crowd);
+  for (const id of [1, 2, 3]) q.enqueue({ playerId: id, name: "n", faction: null, ownServerId: null }, { priority: 1 });
+  await new Promise((r) => setTimeout(r, 40));
+  assert.deepEqual(order.slice(0, 3), ["c0", "c1", "c2"], `the crowd goes before the upload jobs: ${order.join(" ")}`);
+  assert.equal(order.length, 6);
+});
