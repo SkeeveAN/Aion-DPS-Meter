@@ -16,6 +16,20 @@
      "Backend"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "README: name the extra domains daevasuite.com and daevaspowersuite.com in all ten languages and in the backend readme",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Protocol check: the meter now always watches whether the game keeps sending damage and cast data, and when a fight goes on but one of them stays silent for two minutes (a game update moved it) the status row says \"Missing: damage\" with a tooltip that explains it, instead of showing wrong numbers without a word; families seen in earlier sessions count from the first minute, hit points and effects are not reported because the game sends hit points only for a target you have (12 false alarms in 1,850 half-minute windows of real play before they were left out); idea from the break check of dr89mh/aion2-cube-radar",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
