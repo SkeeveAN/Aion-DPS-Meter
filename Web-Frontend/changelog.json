@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.4",
   "date": "2026-10-31",
   "items": [
    {
@@ -44,6 +44,21 @@
     "text": "Privacy: the privacy page and the client's dialog, in all ten languages, name the data the client takes from aiondps.com now and then (tables, names, texts, maps; no identifier), also when the upload consent is declined; the consent keeps its version 2",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Skill names: the table of the client and the one of the backend are one file again (the backend's texts, rebuilt from the client's text tables on 26 October, win; the two keys of Kromede's Wall of Fire and three new ones are kept), and a test keeps them equal",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "the meter runs from the data it ships and takes newer tables, names, texts, map tiles and protocol tables from aiondps.com into its data folder at the start and every two hours (a new map or instance needs no new release), the pet settings list every map of the data, the privacy dialog names this request (the consent stays at version 2), and the 10 vs 10 arena overlay shows all twenty players in the colours of the game's two teams",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-31"
    }

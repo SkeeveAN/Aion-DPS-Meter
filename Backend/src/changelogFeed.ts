@@ -34,7 +34,7 @@ export function shortenText(text: string): string {
 /**
  * What the client shows in its update window: the client changes of every release after `from` up to and including `to`, newest first, one short
  * line per change. A release's last client entry is the release line that sums the others up, so it is left out when there are others; a change
- * with no short text in changelog-short.json gets its first clause. German when `lang` is "de" (the German text of the full entry for the fallback).
+ * with no short text in changelog-short.json gets its first clause, one with an empty short text is left out. German when `lang` is "de" (the German text of the full entry for the fallback).
  */
 export function buildChangelogFeed(releases: Release[], german: Record<string, string>, shorts: ShortTexts, from: string, to: string | undefined, lang: string): ChangelogFeedVersion[] {
   const low = parseVersion(from);
@@ -56,12 +56,12 @@ export function buildChangelogFeed(releases: Release[], german: Record<string, s
       items = items.slice(0, -1);
     }
 
-    if (items.length > 0) {
-      feed.push({
-        version: release.version,
-        date: release.date,
-        items: items.map((item) => (de ? shorts[item.text]?.de : shorts[item.text]?.en) ?? shortenText(de ? (german[item.text] ?? item.text) : item.text)),
-      });
+    // an empty short text hides an entry from the list (a detail only a developer cares about)
+    const lines = items
+      .map((item) => (de ? shorts[item.text]?.de : shorts[item.text]?.en) ?? shortenText(de ? (german[item.text] ?? item.text) : item.text))
+      .filter((line) => line.length > 0);
+    if (lines.length > 0) {
+      feed.push({ version: release.version, date: release.date, items: lines });
     }
   }
 

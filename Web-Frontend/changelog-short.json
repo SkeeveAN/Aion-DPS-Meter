@@ -110,5 +110,13 @@
  "Data from the server: the client runs from the data set it ships and takes newer files (tables, names, texts, map tiles, protocol tables) from aiondps.com into its data folder at the start and every two hours, also without the upload consent; new maps (names, zones, groups of the pet settings) and instances need no code any more; selftest and the console mode data-refresh": {
   "en": "Data from the server: tables, names, texts and maps update without a release",
   "de": "Daten vom Server: Tabellen, Namen, Texte und Karten ohne Release aktualisieren"
+ },
+ "Picture mode render-updatewindow draws the window with the dark buttons of the real client (a hidden main window gives it the control styles)": {
+  "en": "",
+  "de": ""
+ },
+ "Skill names: the table of the client and the one of the backend are one file again (the backend's texts, rebuilt from the client's text tables on 26 October, win; the two keys of Kromede's Wall of Fire and three new ones are kept), and a test keeps them equal": {
+  "en": "Skill names: client and backend tables are one file again",
+  "de": "Skill-Namen: Tabellen von Client und Backend sind wieder eine Datei"
  }
 }

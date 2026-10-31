@@ -35,6 +35,11 @@ test("feed: German short text, German full text as the fallback", () => {
   assert.deepEqual(feed[0].items, ["Tools: ein neues Fenster", "Fix: Ein Absturz ist weg"]);
 });
 
+test("feed: an empty short text hides the entry", () => {
+  const hidden = { ...shorts, "Fix: a crash is gone": { en: "", de: "" } };
+  assert.deepEqual(buildChangelogFeed(releases, german, hidden, "1.1.0", undefined, "en")[0].items, ["Tools: a new window"]);
+});
+
 test("feed: a bad version gives an empty list, shortenText cuts at a clause or a word", () => {
   assert.deepEqual(buildChangelogFeed(releases, german, shorts, "x", undefined, "en"), []);
   assert.equal(isVersion("1.18.2"), true);
