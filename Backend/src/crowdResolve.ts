@@ -4,8 +4,9 @@ import { uploads } from "./db/schema.js";
 import { serverOfName } from "./content/aion2Servers.js";
 import { searchHits } from "./ncMatch.js";
 import { shardOf } from "./ncMatch.js";
-import { ncFetch } from "./portraitService.js";
-import { matchedServer } from "./serverMatchmakingDb.js";
+import { ncFetch, portraitQueue } from "./portraitService.js";
+import type { MatchSource } from "./portraitService.js";
+import { abyssMatchedServer, matchedServer } from "./serverMatchmakingDb.js";
 import { isCompletePlayer, uploadSchema, type UploadPayload } from "./uploadSchema.js";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -141,7 +142,8 @@ export function candidateServers(payload: UploadPayload): number[] {
     if (own) {
       ids.add(own.id);
     }
-    const partner = matchedServer(m[1], m[2]);
+    // The Abyss has pairs of its own (since 2026-10-28, often two servers of one faction); the field bosses of the home maps follow the rift pairing.
+    const partner = (bossGroup(payload.bossNpcId) === "abyss" ? abyssMatchedServer(m[1], m[2]) : null) ?? matchedServer(m[1], m[2]);
     const partnerId = partner ? serverOfName(`${m[1]} - ${partner}`) : null;
     if (partnerId) {
       ids.add(partnerId.id);
@@ -169,23 +171,51 @@ export async function resolveName(fetchFn: FetchFn, name: string, className: str
 const cache = new Map<string, { verdict: CrowdVerdict | null; until: number }>();
 const CACHE_FOR = 6 * 60 * 60_000;
 
+/**
+ * A player whose faction the client knows is placed by the pairing without asking NC: of the servers the crowd can be from (his own and the one it is paired with) exactly
+ * one has his faction - the rift pairs join an Elyos and an Asmodian server, so an Elyos of a Kaisinel kill is on Kaisinel and an Asmodian on Israphel. Where both servers
+ * have his faction (an Abyss pair of one faction) or none does, NC is asked as before. Returns how many were placed.
+ */
+export function placeByFaction(payload: UploadPayload): number {
+  const candidates = candidateServers(payload);
+  let placed = 0;
+  for (const p of crowdToLookUp(payload)) {
+    if (p.faction !== "Elyos" && p.faction !== "Asmodian") {
+      continue;
+    }
+    const side = p.faction === "Elyos" ? 1 : 2;
+    const fitting = candidates.filter((id) => Math.floor(id / 1000) === side);
+    if (fitting.length === 1) {
+      p.serverId = fitting[0];
+      placed++;
+    }
+  }
+  return placed;
+}
+
+/** One name at NC (cached for six hours): marks the player placed or CROWD_UNRESOLVED. Throws when NC cannot be reached. */
+async function lookUpPlayer(p: UploadPayload["participants"][number], payload: UploadPayload, candidates: number[], fetchFn: FetchFn, now: number): Promise<void> {
+  const key = `${p.name.toLowerCase()}|${p.className}|${candidates.join(",")}`;
+  let hit = cache.get(key);
+  if (!hit || hit.until < now) {
+    hit = { verdict: await resolveName(fetchFn, p.name, p.className, candidates, payload.serverName), until: now + CACHE_FOR };
+    cache.set(key, hit);
+  }
+  if (hit.verdict) {
+    p.serverId = hit.verdict.serverId;
+    p.faction = hit.verdict.faction;
+  } else {
+    p.faction = CROWD_UNRESOLVED;
+  }
+}
+
 /** Looks up up to `batch` of the players still open; returns how many are left. Progress is kept in the payload (a player not placed is marked CROWD_UNRESOLVED). */
 export async function lookUpCrowd(payload: UploadPayload, batch: number, fetchFn: FetchFn = ncFetch, now = Date.now()): Promise<number> {
+  placeByFaction(payload);
   const open = crowdToLookUp(payload);
   const candidates = candidateServers(payload);
   for (const p of open.slice(0, batch)) {
-    const key = `${p.name.toLowerCase()}|${p.className}|${candidates.join(",")}`;
-    let hit = cache.get(key);
-    if (!hit || hit.until < now) {
-      hit = { verdict: await resolveName(fetchFn, p.name, p.className, candidates, payload.serverName), until: now + CACHE_FOR };
-      cache.set(key, hit);
-    }
-    if (hit.verdict) {
-      p.serverId = hit.verdict.serverId;
-      p.faction = hit.verdict.faction;
-    } else {
-      p.faction = CROWD_UNRESOLVED;
-    }
+    await lookUpPlayer(p, payload, candidates, fetchFn, now);
   }
   return Math.max(0, open.length - batch);
 }
@@ -233,11 +263,152 @@ export async function settleCrowdPending(log: Parameters<typeof acceptUpload>[0]
   }
 }
 
-export function startCrowdSweep(log: Parameters<typeof acceptUpload>[0], intervalMs = 20_000): void {
+type Log = Parameters<typeof acceptUpload>[0];
+
+/**
+ * The crowd lookups as work for the workers of the PortraitQueue (the same four workers, the same learned pace as everything else asked of NC): one unit is one
+ * player of the oldest upload that waits for its crowd. The upload is held in memory while its players are worked off by all workers at once, saved every 25 players, and
+ * filed when the last one is placed. After a restart it is read from the database again (what was saved stays placed).
+ */
+export class CrowdSource implements MatchSource {
+  host: { wake(): void } | null = null;
+  private current: { rowId: number; ipHash: string; payload: UploadPayload; candidates: number[]; reserved: Set<number>; inFlight: number; sinceSave: number; closing: boolean } | null = null;
+  private pending = 0;
+  private cooldownUntil = 0;
+
+  constructor(
+    private readonly log: Log,
+    private readonly fetchFn: FetchFn = ncFetch,
+    private readonly now: () => number = Date.now,
+  ) {}
+
+  private openIndexes(): number[] {
+    const cur = this.current;
+    if (!cur) {
+      return [];
+    }
+    const open: number[] = [];
+    cur.payload.participants.forEach((p, i) => {
+      if (!cur.reserved.has(i) && !isCompletePlayer(p) && p.faction !== CROWD_UNRESOLVED) {
+        open.push(i);
+      }
+    });
+    return open;
+  }
+
+  /** Players that can be taken right now (a waiting upload that is not loaded yet counts as one). */
+  get size(): number {
+    if (this.now() < this.cooldownUntil) {
+      return 0;
+    }
+    return this.current ? (this.current.closing ? 0 : this.openIndexes().length) : this.pending;
+  }
+
+  next(): { background: boolean } | null {
+    return this.size > 0 ? { background: false } : null;
+  }
+
+  /** Counts the uploads that wait and wakes the workers: called by a timer, and when an upload has been filed. */
+  refresh(): void {
+    this.pending = db.select({ id: uploads.id }).from(uploads).where(and(eq(uploads.status, "pending"), like(uploads.reviewReason, `%${CROWD_PENDING}%`))).all().length;
+    if (this.size > 0) {
+      this.host?.wake();
+    }
+  }
+
+  /** Loads the oldest waiting upload; false when there is none or it needs nothing from NC any more (it is then filed). */
+  private load(): boolean {
+    for (;;) {
+      const row = db.select().from(uploads).where(and(eq(uploads.status, "pending"), like(uploads.reviewReason, `%${CROWD_PENDING}%`))).orderBy(uploads.id).limit(1).get();
+      if (!row) {
+        this.pending = 0;
+        return false;
+      }
+      const parsed = uploadSchema.safeParse(JSON.parse(row.rawPayloadJson));
+      if (!parsed.success) {
+        db.update(uploads).set({ status: "rejected", reviewedAt: new Date().toISOString() }).where(eq(uploads.id, row.id)).run();
+        continue;
+      }
+      const payload = parsed.data;
+      placeByFaction(payload);
+      this.current = { rowId: row.id, ipHash: row.ipHash, payload, candidates: candidateServers(payload), reserved: new Set(), inFlight: 0, sinceSave: 1, closing: false };
+      if (this.openIndexes().length === 0) {
+        void this.finish(this.current);
+        return false;
+      }
+      return true;
+    }
+  }
+
+  take(): number | undefined {
+    if (this.now() < this.cooldownUntil || (!this.current && !this.load())) {
+      return undefined;
+    }
+    const cur = this.current;
+    const index = cur && !cur.closing ? this.openIndexes()[0] : undefined;
+    if (cur === null || index === undefined) {
+      return undefined;
+    }
+    cur.reserved.add(index);
+    cur.inFlight++;
+    return index;
+  }
+
+  async run(index: number): Promise<void> {
+    const cur = this.current;
+    if (!cur) {
+      return;
+    }
+    try {
+      await lookUpPlayer(cur.payload.participants[index], cur.payload, cur.candidates, this.fetchFn, this.now());
+    } catch (err) {
+      // NC could not be reached: the player stays open, nothing is asked for half a minute
+      this.log.warn({ err: String(err), uploadId: cur.rowId }, "crowd lookup: NC not reachable, tries again");
+      this.cooldownUntil = this.now() + 30_000;
+    }
+    cur.reserved.delete(index);
+    cur.inFlight--;
+    cur.sinceSave++;
+    if (cur.sinceSave >= 25) {
+      this.save(cur);
+    }
+    if (cur.inFlight === 0 && !cur.closing && this.openIndexes().length === 0 && crowdToLookUp(cur.payload).length === 0) {
+      await this.finish(cur);
+    }
+  }
+
+  private save(cur: NonNullable<CrowdSource["current"]>): void {
+    cur.sinceSave = 0;
+    db.update(uploads).set({ rawPayloadJson: JSON.stringify(cur.payload) }).where(eq(uploads.id, cur.rowId)).run();
+  }
+
+  private async finish(cur: NonNullable<CrowdSource["current"]>): Promise<void> {
+    cur.closing = true;
+    try {
+      const placed = cur.payload.participants.filter((p) => isCompletePlayer(p)).length;
+      this.log.info({ uploadId: cur.rowId, bossNpcName: cur.payload.bossNpcName, players: cur.payload.participants.length, placed }, "crowd lookup done, the upload is filed");
+      const out = await acceptUpload(this.log, cur.payload, cur.ipHash, true);
+      // acceptUpload wrote its own row (merged, turned away or waiting); the waiting one is replaced by it
+      db.delete(uploads).where(eq(uploads.id, cur.rowId)).run();
+      this.log.info({ uploadId: cur.rowId, status: out.status }, "crowd upload settled");
+    } catch (err) {
+      this.log.error({ err: String(err), uploadId: cur.rowId }, "crowd upload could not be filed, tries again");
+      this.save(cur);
+      this.cooldownUntil = this.now() + 60_000;
+    }
+    this.current = null;
+    this.refresh();
+  }
+}
+
+export const crowdSource = { instance: null as CrowdSource | null };
+
+export function startCrowdSweep(log: Log, intervalMs = 20_000): void {
   if (!crowdLookupEnabled() || process.env.NODE_TEST_CONTEXT) {
     return;
   }
-  setInterval(() => {
-    settleCrowdPending(log).catch((err) => log.error({ err: String(err) }, "crowd sweep failed"));
-  }, intervalMs).unref();
+  const source = new CrowdSource(log);
+  crowdSource.instance = source;
+  portraitQueue.attachCrowd(source);
+  setInterval(() => source.refresh(), intervalMs).unref();
 }

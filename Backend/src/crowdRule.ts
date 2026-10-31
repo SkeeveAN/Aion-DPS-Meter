@@ -1,6 +1,6 @@
 import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { bosses, encounterParticipants, encounters, instances, players, serverMatchmaking, uploads } from "./db/schema.js";
+import { bosses, encounterParticipants, encounters, instances, players, serverMatchmaking, serverMatchmakingAbyss, uploads } from "./db/schema.js";
 import { nameOf, serverOfName } from "./content/aion2Servers.js";
 import { regionOfServerName, riftOpen } from "./riftHours.js";
 
@@ -25,6 +25,21 @@ export function partnerServerAt(ncServerId: number, at: number): number | null {
     return null;
   }
   return serverOfName(`${m[1]} - ${row.elyosServer === m[2] ? row.asmodianServer : row.elyosServer}`)?.id ?? null;
+}
+
+/** The server the Abyss pairing joined with `ncServerId` at `at` (epoch ms), as an NC server id; null when no Abyss pairing was on record then (those exist since 2026-10-28). */
+export function abyssPartnerServerAt(ncServerId: number, at: number): number | null {
+  const own = nameOf(ncServerId);
+  const m = own === null ? null : /^(.+?) - (.+)$/.exec(own);
+  if (!m) {
+    return null;
+  }
+  const rows = db.select().from(serverMatchmakingAbyss).where(eq(serverMatchmakingAbyss.region, m[1])).all();
+  const row = rows.find((r) => r.validFrom <= at && (r.validTo === null || at < r.validTo) && (r.server1 === m[2] || r.server2 === m[2]));
+  if (!row) {
+    return null;
+  }
+  return serverOfName(`${m[1]} - ${row.server1 === m[2] ? row.server2 : row.server1}`)?.id ?? null;
 }
 
 /**
@@ -63,7 +78,8 @@ export function allowedServersOfEncounter(encounterId: number): { servers: Set<n
     if (homeMap !== undefined && Math.floor(home / 1000) === homeMap && !rift) {
       continue;
     }
-    const partner = partnerServerAt(home, start);
+    // the Abyss has pairs of its own; before they were announced (2026-10-28) the rift pair stood in for them
+    const partner = homeMap === undefined ? (abyssPartnerServerAt(home, start) ?? partnerServerAt(home, start)) : partnerServerAt(home, start);
     if (partner === null) {
       pairKnown = false;
     } else {

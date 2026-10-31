@@ -348,7 +348,9 @@ export class PortraitQueue {
   private readonly current = new Set<number>();
   private lastStart = 0;
   private matches: MatchSource | null = null;
-  /** Workers that are busy with a player match (these are not in `current`). */
+  /** The crowd lookups of world boss uploads (crowdResolve.ts), taken by the same workers. */
+  private crowd: MatchSource | null = null;
+  /** Workers that are busy with a player match or a crowd lookup (these are not in `current`). */
   private activeMatches = 0;
   constructor(
     private readonly work: (key: PlayerKey, job: { force: boolean }) => Promise<void>,
@@ -371,8 +373,15 @@ export class PortraitQueue {
     this.kick();
   }
 
+  /** From now on the workers also take the crowd lookups of `source` (a world boss upload waits for them): same workers, same learned pace. */
+  attachCrowd(source: MatchSource): void {
+    this.crowd = source;
+    source.host = { wake: () => this.kick() };
+    this.kick();
+  }
+
   private matchesWaiting(): number {
-    return this.matches?.size ?? 0;
+    return (this.matches?.size ?? 0) + (this.crowd?.size ?? 0);
   }
 
   /** false when the player is already queued (his job only moves up if this one is more urgent) or the queue is full. */
@@ -450,6 +459,20 @@ export class PortraitQueue {
         if (paused > 0) {
           await this.opts.sleep(paused);
           continue;
+        }
+        // The players of a world boss upload (the upload waits for all of them) go before the matches; a profile somebody looks at still goes first.
+        if (this.crowd && this.crowd.size > 0 && !this.hasNormalJob() && (!this.opts.allow || this.opts.allow(PRIORITY.upload))) {
+          const unit = this.crowd.take();
+          if (unit !== undefined) {
+            this.activeMatches++;
+            try {
+              await jobContext.run({ background: false }, () => this.crowd?.run(unit));
+            } catch {
+              // the lookup keeps its own failures
+            }
+            this.activeMatches--;
+            continue;
+          }
         }
         // A player match goes before the sweep's backlog (it settles who the player is, his runs wait for it), but not before a profile somebody looks at.
         const match = this.matches?.next();

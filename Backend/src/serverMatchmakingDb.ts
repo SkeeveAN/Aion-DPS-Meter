@@ -129,6 +129,15 @@ export function matchedServer(region: string, server: string): string | null {
   return null;
 }
 
+/** The server a server shares the Abyss with right now (the Abyss pairs are listed once per pair and may join two servers of one faction), or null when no current pairing names it. */
+export function abyssMatchedServer(region: string, server: string): string | null {
+  for (const m of db.select().from(serverMatchmakingAbyss).where(and(isNull(serverMatchmakingAbyss.validTo), eq(serverMatchmakingAbyss.region, region))).all()) {
+    if (m.server1 === server) return m.server2;
+    if (m.server2 === server) return m.server1;
+  }
+  return null;
+}
+
 /** Off under tests and with NC_MATCH_OFF=1 (like the other NC jobs). Starts after the announcement store has had its first refresh. */
 export function startMatchmaking(intervalMs = 30 * 60_000): void {
   load();

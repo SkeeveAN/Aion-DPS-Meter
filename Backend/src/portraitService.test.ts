@@ -461,3 +461,24 @@ test("queue: the workers of the portrait queue also take the player matches, a p
   assert.ok(order.indexOf("p2") < order.indexOf("m10"), "a viewed profile goes before a bulk match");
   assert.equal(matches.size, 0);
 });
+
+test("queue: the workers also take the crowd lookups of a world boss upload (all of them in parallel), a viewed profile first", async () => {
+  const order: string[] = [];
+  const q = new PortraitQueue(async (k) => { order.push(`p${k.playerId}`); }, { minGapMs: 0, maxLength: 20, now: () => 0, sleep: async () => {}, concurrency: 3 });
+  let left = [0, 1, 2, 3, 4, 5];
+  let running = 0;
+  let most = 0;
+  const crowd = {
+    host: null as { wake(): void } | null,
+    get size() { return left.length; },
+    next: () => (left.length > 0 ? { background: false } : null),
+    take: () => left.shift(),
+    run: async (i: number) => { order.push(`c${i}`); running++; most = Math.max(most, running); await new Promise((r) => setTimeout(r, 5)); running--; },
+  };
+  q.enqueue({ playerId: 1, name: "n", faction: null, ownServerId: null }, { priority: 2 });
+  q.attachCrowd(crowd);
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(order.filter((o) => o.startsWith("c")).length, 6, "every player of the crowd was looked up");
+  assert.ok(most >= 2, `side by side (${most})`);
+  assert.equal(order.indexOf("p1"), 0, "a viewed profile goes before the crowd");
+});
