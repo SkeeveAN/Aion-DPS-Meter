@@ -5,6 +5,7 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import staticPlugin from "@fastify/static";
 import { env } from "./env.js";
+import { registerGzipBodies } from "./gzipBody.js";
 import { uploadRoutes } from "./routes/uploads.js";
 import { loginDumpRoutes, startLoginDumpPurge } from "./routes/loginDumps.js";
 import { statRecordingRoutes } from "./routes/statRecordings.js";
@@ -43,6 +44,7 @@ export async function buildServer() {
     trustProxy: true,
   });
 
+  registerGzipBodies(app);
   await app.register(cors, { origin: env.CORS_ORIGIN });
   await app.register(rateLimit, {
     // 30/min looked generous until a real client hit it: "Upload last run"/"Reload from
