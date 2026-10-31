@@ -120,13 +120,21 @@ export function pets(lang: Lang, category?: string) {
     .filter((p) => category === undefined || p.category.toLowerCase() === category.toLowerCase());
 }
 
-let spawnIndex: Map<number, Map<string, { name: Names; points: number[][] }>> | null = null;
-/** For every pet the named maps with the places of the monsters that drop it (maps the game gives no name are left out; the difficulties of one instance share their places). */
+type SpawnPlace = { name: Names; points: number[][]; monsters: Map<number, number[][]> };
+let spawnIndex: Map<number, Map<string, SpawnPlace>> | null = null;
+/** For every pet the named maps with the places of the monsters that drop it (maps the game gives no name are left out; the difficulties of one instance share their places). The open-world maps (Verteron, Altgard, Reshanta) take the names of the field boss table. */
 function spawnsOfPets() {
   if (spawnIndex) {
     return spawnIndex;
   }
-  const names = load<PetMapNames>(assetDir("pets", "instances.json")).maps;
+  const names = { ...load<PetMapNames>(assetDir("pets", "instances.json")).maps };
+  for (const m of load<FieldFile>(assetDir("bosses", "field_bosses.json")).maps) {
+    for (const table of Object.keys(load<SpawnsFile>(assetDir("pets", "spawns.json")).maps)) {
+      if (table.endsWith(`/${m.key}`) && Object.keys(names[table] ?? {}).length === 0) {
+        names[table] = m.names;
+      }
+    }
+  }
   const monsterPet = new Map(Object.entries(petFile().monsters).map(([npc, pet]) => [Number(npc), pet]));
   spawnIndex = new Map();
   for (const [table, npcs] of Object.entries(load<SpawnsFile>(assetDir("pets", "spawns.json")).maps)) {
@@ -141,18 +149,29 @@ function spawnsOfPets() {
       }
       const perMap = spawnIndex.get(pet) ?? spawnIndex.set(pet, new Map()).get(pet)!;
       const mapKey = mapNames.en ?? table;
-      const entry = perMap.get(mapKey) ?? perMap.set(mapKey, { name: mapNames, points: [] }).get(mapKey)!;
+      const entry = perMap.get(mapKey) ?? perMap.set(mapKey, { name: mapNames, points: [], monsters: new Map() }).get(mapKey)!;
+      const own = entry.monsters.get(Number(npc)) ?? entry.monsters.set(Number(npc), []).get(Number(npc))!;
       const seen = new Set(entry.points.map((p) => `${p[0]},${p[1]}`));
       for (const p of points) {
         if (!seen.has(`${p[0]},${p[1]}`)) {
           seen.add(`${p[0]},${p[1]}`);
           entry.points.push(p);
+          own.push(p);
         }
       }
     }
   }
   return spawnIndex;
 }
+
+let instanceBossSet: Set<number> | null = null;
+const instanceBossIds = () => (instanceBossSet ??= new Set(load<BossFile>(dataDir("bosses.json")).items.flatMap((b) => b.npcIds)));
+let worldBossSet: Set<number> | null = null;
+const worldBossIds = () =>
+  (worldBossSet ??= new Set([
+    ...load<FieldFile>(assetDir("bosses", "field_bosses.json")).maps.flatMap((m) => m.bosses.map((b) => b.npc)),
+    ...load<WorldBossFile>(dataDir("worldbosses.json")).items.map((b) => b.npcId),
+  ]));
 
 export function pet(id: number, lang: Lang) {
   const found = pets(lang).find((p) => p.id === id);
@@ -168,7 +187,12 @@ export function pet(id: number, lang: Lang) {
     monsters: idsOf(file.monsters).map((npcId) => ({ npcId, name: pick(npcNames[String(npcId)], lang) })),
     soulItemIds: idsOf(file.souls),
     shopItemIds: idsOf(file.shop),
-    spawns: [...(spawnsOfPets().get(id)?.values() ?? [])].map((s) => ({ map: pick(s.name, lang), points: s.points })),
+    // monsters: the same points by monster; boss = a boss of an instance, worldBoss = a field or world boss, neither = a normal mob that drops the soul
+    spawns: [...(spawnsOfPets().get(id)?.values() ?? [])].map((s) => ({
+      map: pick(s.name, lang),
+      points: s.points,
+      monsters: [...s.monsters].map(([npcId, points]) => ({ npcId, name: pick(npcNames[String(npcId)], lang), boss: instanceBossIds().has(npcId), worldBoss: worldBossIds().has(npcId), points })),
+    })),
   };
 }
 

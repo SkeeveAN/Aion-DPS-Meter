@@ -1095,7 +1095,8 @@
                   "type": "object",
                   "properties": {
                     "map": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Includes the open-world maps Verteron, Altgard and the Reshanta maps."
                     },
                     "points": {
                       "type": "array",
@@ -1107,6 +1108,39 @@
                         "minItems": 3,
                         "maxItems": 3,
                         "description": "[x, y, z]"
+                      }
+                    },
+                    "monsters": {
+                      "type": "array",
+                      "description": "The same points by monster. boss is true for the bosses of instances, worldBoss for field and world bosses; a monster with neither is a normal mob that drops the soul.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "npcId": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "boss": {
+                            "type": "boolean"
+                          },
+                          "worldBoss": {
+                            "type": "boolean"
+                          },
+                          "points": {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              },
+                              "minItems": 3,
+                              "maxItems": 3,
+                              "description": "[x, y, z]"
+                            }
+                          }
+                        }
                       }
                     }
                   }
