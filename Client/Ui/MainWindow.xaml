@@ -1000,7 +1000,12 @@
                                    Margin="8,0,8,0" Foreground="{DynamicResource Brush.TextMuted}"
                                    ToolTip="{local:Loc Main.HpCheck.Tooltip}"/>
 
-                        <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
+                        <!-- A game patch moved the opcode of a kind of fight data: the numbers above are incomplete (see ProtocolHealth). -->
+                        <TextBlock x:Name="ProtocolBreakText" Visibility="Collapsed" VerticalAlignment="Center"
+                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.Warning}" FontWeight="Bold"
+                                   ToolTip="{local:Loc Main.ProtocolBreak.Tooltip}"/>
+
+        <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
                                    Margin="8,0,8,0" Foreground="{DynamicResource Brush.TextMuted}"/>
 
                         <!-- Shown while a past fight from the history is loaded instead of the live

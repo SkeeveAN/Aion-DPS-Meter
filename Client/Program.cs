@@ -1129,6 +1129,14 @@ internal static class Program
         {
             // The normal window as it is without Hide UI: its whole content at a typical size.
             window.OverlayTargetText.Text = "Transcendent Bakarma";
+            if (Environment.GetEnvironmentVariable("AIONDPS_PROTOCOL_BREAK") is { Length: > 0 } brokenFamilies)
+            {
+                // The note of the protocol health monitor, for the picture (families as in ProtocolHealth.Watched: damage,hp,cast...).
+                var loc = Ui.LocalizationManager.Instance;
+                window.ProtocolBreakText.Text = string.Format(loc["Main.ProtocolBreak.Text"], string.Join(", ", brokenFamilies.Split(',').Select(f => loc["Main.ProtocolBreak." + f])));
+                window.ProtocolBreakText.Visibility = System.Windows.Visibility.Visible;
+            }
+
             panel = (System.Windows.FrameworkElement)window.Content;
             panel.Measure(new System.Windows.Size(520, 420));
             panel.Arrange(new System.Windows.Rect(0, 0, 520, 420));

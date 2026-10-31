@@ -13309,5 +13309,53 @@
     "en": ", about {0} iDPS",
     "de": ", etwa {0} iDPS",
     "fr": ", environ {0} iDPS"
+  },
+  "Main.ProtocolBreak.Text": {
+    "en": "⚠ Missing: {0}",
+    "de": "⚠ Fehlt: {0}",
+    "fr": "⚠ Absent : {0}",
+    "es": "⚠ Falta: {0}",
+    "ru": "⚠ Нет: {0}",
+    "zh": "⚠ 缺失：{0}",
+    "zh-TW": "⚠ 缺失：{0}",
+    "pt": "⚠ Ausente: {0}",
+    "ja": "⚠ 欠落：{0}",
+    "ko": "⚠ 누락: {0}"
+  },
+  "Main.ProtocolBreak.Tooltip": {
+    "en": "A fight is going on, but the game stopped sending this kind of data. After a game update the data can come under a new number and the tool no longer finds it. The numbers shown may be incomplete until the next version of the tool. Nothing is wrong with your installation.",
+    "de": "Es wird gekämpft, aber das Spiel sendet diese Art von Daten nicht mehr. Nach einem Spielupdate können die Daten unter einer neuen Nummer kommen, und das Tool findet sie nicht mehr. Die gezeigten Zahlen können bis zur nächsten Version des Tools unvollständig sein. An deiner Installation ist nichts kaputt.",
+    "fr": "Un combat est en cours, mais le jeu a cessé d'envoyer ce type de données. Après une mise à jour du jeu, les données peuvent arriver sous un nouveau numéro et l'outil ne les trouve plus. Les chiffres affichés peuvent être incomplets jusqu'à la prochaine version de l'outil. Votre installation n'est pas en cause.",
+    "es": "Hay un combate en curso, pero el juego dejó de enviar este tipo de datos. Tras una actualización del juego, los datos pueden llegar con un número nuevo y la herramienta ya no los encuentra. Las cifras mostradas pueden estar incompletas hasta la próxima versión de la herramienta. Tu instalación no tiene ningún fallo.",
+    "ru": "Идёт бой, но игра перестала присылать данные этого вида. После обновления игры данные могут приходить под новым номером, и программа их больше не находит. Показанные цифры могут быть неполными до выхода следующей версии программы. С вашей установкой всё в порядке.",
+    "zh": "战斗正在进行，但游戏不再发送这类数据。游戏更新后，数据可能换了新的编号，工具就找不到了。在工具发布下一个版本之前，显示的数字可能不完整。您的安装没有问题。",
+    "zh-TW": "戰鬥正在進行，但遊戲不再傳送這類資料。遊戲更新後，資料可能換了新的編號，工具就找不到了。在工具發佈下一個版本之前，顯示的數字可能不完整。您的安裝沒有問題。",
+    "pt": "Há um combate em andamento, mas o jogo parou de enviar este tipo de dados. Depois de uma atualização do jogo, os dados podem chegar com um número novo e a ferramenta não os encontra mais. Os números mostrados podem estar incompletos até a próxima versão da ferramenta. Não há nada errado com a sua instalação.",
+    "ja": "戦闘中ですが、ゲームがこの種類のデータを送らなくなりました。ゲームの更新後にデータが新しい番号で届くと、ツールが見つけられなくなります。ツールの次のバージョンまで、表示される数値が不完全な場合があります。お使いのインストールに問題はありません。",
+    "ko": "전투 중이지만 게임이 이 종류의 데이터를 보내지 않습니다. 게임 업데이트 후 데이터가 새 번호로 오면 도구가 찾지 못합니다. 도구의 다음 버전이 나올 때까지 표시되는 수치가 불완전할 수 있습니다. 설치에는 문제가 없습니다."
+  },
+  "Main.ProtocolBreak.damage": {
+    "en": "damage",
+    "de": "Schaden",
+    "fr": "dégâts",
+    "es": "daño",
+    "ru": "урон",
+    "zh": "伤害",
+    "zh-TW": "傷害",
+    "pt": "dano",
+    "ja": "ダメージ",
+    "ko": "피해"
+  },
+  "Main.ProtocolBreak.cast": {
+    "en": "casts",
+    "de": "Zauber",
+    "fr": "incantations",
+    "es": "lanzamientos",
+    "ru": "заклинания",
+    "zh": "施法",
+    "zh-TW": "施法",
+    "pt": "conjurações",
+    "ja": "詠唱",
+    "ko": "시전"
   }
 }

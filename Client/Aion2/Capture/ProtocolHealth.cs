@@ -3,9 +3,10 @@ using System.IO;
 namespace AionDPS.Aion2.Capture;
 
 /// <summary>
-/// The protocol health monitor, part of the debug output: while "Debug recording" is on, the frames the decoder sees are counted
-/// per half minute and written to <c>protocol-health.log</c> in the debug folder (never uploaded). A game patch shifts opcodes;
-/// without this the meter then shows zeros and nobody knows which feature broke. The log names it:
+/// The protocol health monitor: the frames the decoder sees are counted per half minute, always (a lock and two dictionary
+/// updates per frame). A game patch shifts opcodes; without this the meter then shows zeros and nobody knows which feature
+/// broke. A family that stays silent while a fight goes on is shown to the player (<see cref="Flagged"/>, a note in the main
+/// window) and, while "Debug recording" is on, written to <c>protocol-health.log</c> in the debug folder (never uploaded). The log names it:
 /// <list type="bullet">
 /// <item>a census line per window: how often each watched frame family came, and how many frames in all;</item>
 /// <item><c>PROTOCOL BREAK SUSPECTED</c> when a family that came regularly stays silent for <see cref="SilentWindows"/> windows
@@ -46,13 +47,36 @@ public static class ProtocolHealth
     private static readonly Dictionary<int, int> Silent = new();
     private static readonly HashSet<int> Reported = new();
     private static readonly HashSet<int> NewSeen = new();
+    private static readonly HashSet<int> FlaggedSet = new();
     private static DateTime _windowStart;
     private static int _frames;
+    private static bool _knownLoaded;
+
+    /// <summary>The families whose silence the player is told about: damage and casts, which every fight has, and only while the other
+    /// of the two keeps coming (so it is not just a quiet town). Hit points and effects are left out on purpose: the game sends hit
+    /// points only for a target you have, and in 1,850 half-minute windows of real play they were silent in 12 of them without any break.</summary>
+    private static readonly HashSet<int> CombatFamilies = new() { 0x0438, 0x0238 };
 
     /// <summary>A test writes to its own file instead of the real log.</summary>
     public static string? PathOverride { get; set; }
 
     public static string LogPath => PathOverride ?? Path.Combine(DebugRecording.FolderPath, "protocol-health.log");
+
+    /// <summary>The families that came regularly in earlier sessions, kept so a patch that breaks one right at the start is noticed
+    /// too (without it a family only counts as established after three windows of this session). Not kept in a test.</summary>
+    private static string? KnownPath => PathOverride is null ? Path.Combine(Ui.MeterSettings.DataDirectory, "protocol-families.json") : null;
+
+    /// <summary>What a family is called in <see cref="Watched"/> for each family the player is told about, in a stable order; empty while all is well.</summary>
+    public static IReadOnlyList<string> Flagged
+    {
+        get
+        {
+            lock (Gate)
+            {
+                return FlaggedSet.OrderBy(o => o).Select(o => Watched[o]).ToList();
+            }
+        }
+    }
 
     /// <summary>Every report this process wrote (what a test looks at).</summary>
     public static List<string> Reports { get; } = new();
@@ -62,6 +86,7 @@ public static class ProtocolHealth
     {
         lock (Gate)
         {
+            LoadKnown();
             if (_windowStart == default)
             {
                 _windowStart = at;
@@ -93,7 +118,9 @@ public static class ProtocolHealth
             ActiveWindows.Clear();
             Silent.Clear();
             Reported.Clear();
+            FlaggedSet.Clear();
             NewSeen.Clear();
+            _knownLoaded = false;
             Reports.Clear();
             _windowStart = default;
             _frames = 0;
@@ -115,7 +142,11 @@ public static class ProtocolHealth
             int count = Counts.GetValueOrDefault(opcode);
             if (count >= EstablishedFrames)
             {
-                ActiveWindows[opcode] = ActiveWindows.GetValueOrDefault(opcode) + 1;
+                int windows = ActiveWindows[opcode] = ActiveWindows.GetValueOrDefault(opcode) + 1;
+                if (windows == EstablishedWindows)
+                {
+                    SaveKnown();
+                }
             }
         }
 
@@ -134,6 +165,12 @@ public static class ProtocolHealth
             if (count == 0 && othersFlow)
             {
                 int silent = Silent[opcode] = Silent.GetValueOrDefault(opcode) + 1;
+                if (silent >= SilentWindows && CombatFamilies.Contains(opcode)
+                    && Watched.Keys.Any(o => o != opcode && CombatFamilies.Contains(o) && Counts.GetValueOrDefault(o) >= FlowingFrames))
+                {
+                    FlaggedSet.Add(opcode);
+                }
+
                 if (silent >= SilentWindows && Reported.Add(opcode))
                 {
                     string others = string.Join(", ", Watched.Where(w => w.Key != opcode && Counts.GetValueOrDefault(w.Key) > 0).Select(w => $"{w.Value}={Counts[w.Key]}"));
@@ -143,6 +180,7 @@ public static class ProtocolHealth
             }
             else if (count > 0)
             {
+                FlaggedSet.Remove(opcode);
                 if (Reported.Remove(opcode))
                 {
                     Report($"PROTOCOL RECOVERED: 0x{opcode:x4} ({Watched[opcode]}) is back ({count} frames)");
@@ -168,6 +206,11 @@ public static class ProtocolHealth
             }
         }
 
+        if (PathOverride is null && !DebugRecording.Enabled)
+        {
+            return; // the note for the player is Flagged; the log file belongs to the debug output
+        }
+
         try
         {
             string path = LogPath;
@@ -183,6 +226,53 @@ public static class ProtocolHealth
         {
         }
         catch (UnauthorizedAccessException)
+        {
+        }
+    }
+
+    /// <summary>Takes over what earlier sessions saw, once per process: those families count as established from the first window.</summary>
+    private static void LoadKnown()
+    {
+        if (_knownLoaded)
+        {
+            return;
+        }
+
+        _knownLoaded = true;
+        if (KnownPath is not { } path)
+        {
+            return;
+        }
+
+        try
+        {
+            if (File.Exists(path) && System.Text.Json.JsonSerializer.Deserialize<int[]>(File.ReadAllText(path)) is { } opcodes)
+            {
+                foreach (int opcode in opcodes.Where(Watched.ContainsKey))
+                {
+                    ActiveWindows[opcode] = Math.Max(ActiveWindows.GetValueOrDefault(opcode), EstablishedWindows);
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        {
+        }
+    }
+
+    private static void SaveKnown()
+    {
+        if (KnownPath is not { } path)
+        {
+            return;
+        }
+
+        try
+        {
+            var known = Watched.Keys.Where(o => ActiveWindows.GetValueOrDefault(o) >= EstablishedWindows).OrderBy(o => o).ToArray();
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(known));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
         }
     }

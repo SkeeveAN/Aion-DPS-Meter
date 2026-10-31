@@ -34,12 +34,13 @@ public static class SelfCheckProtocolHealth
 
             bool broken = ProtocolHealth.Reports.Count(r => r.StartsWith("PROTOCOL BREAK SUSPECTED: 0x0438")) == 1;
             bool newOpcode = ProtocolHealth.Reports.Count(r => r.StartsWith("NEW OPCODE 0x5a38")) == 1;
+            bool flagged = ProtocolHealth.Flagged.SequenceEqual(new[] { "damage" }); // what the player is told
 
             // Back again.
             int next = 6 + ProtocolHealth.SilentWindows + 1;
             Window(t, next, damage: 80, known);
             Window(t, next + 1, damage: 80, known);
-            bool recovered = ProtocolHealth.Reports.Any(r => r.StartsWith("PROTOCOL RECOVERED: 0x0438"));
+            bool recovered = ProtocolHealth.Reports.Any(r => r.StartsWith("PROTOCOL RECOVERED: 0x0438")) && ProtocolHealth.Flagged.Count == 0;
 
             // A quiet period in which everything is silent (the fight is over) is not a break.
             ProtocolHealth.Reset();
@@ -55,9 +56,46 @@ public static class SelfCheckProtocolHealth
 
             bool idleIsNoBreak = !ProtocolHealth.Reports.Any(r => r.StartsWith("PROTOCOL BREAK"));
 
+            // Hit points keep coming but no fight frame at all (a quiet town): the log may suspect, the player is not told.
+            ProtocolHealth.Reset();
+            for (int w = 0; w < 6; w++)
+            {
+                Window(t, w, damage: 80, known);
+            }
+
+            for (int w = 6; w < 14; w++)
+            {
+                for (int i = 0; i < 90; i++)
+                {
+                    ProtocolHealth.Note(0x008d, 20, t.AddSeconds(w * 30).AddMilliseconds(i * 12), known);
+                }
+            }
+
+            bool townIsNoAlert = ProtocolHealth.Flagged.Count == 0;
+
+            // Fights without a target of yours: the game sends no hit points then (12 of 1,850 real windows), which is no break the player is told about.
+            ProtocolHealth.Reset();
+            for (int w = 0; w < 6; w++)
+            {
+                Window(t, w, damage: 80, known);
+            }
+
+            for (int w = 6; w < 14; w++)
+            {
+                DateTime at = t.AddSeconds(w * 30);
+                for (int i = 0; i < 90; i++)
+                {
+                    ProtocolHealth.Note(0x0438, 30, at.AddMilliseconds(i * 10), known);
+                    ProtocolHealth.Note(0x0238, 30, at.AddMilliseconds(i * 11), known);
+                    ProtocolHealth.Note(0x2b38, 20, at.AddMilliseconds(i * 13), known);
+                }
+            }
+
+            bool noHitPointsIsNoAlert = ProtocolHealth.Flagged.Count == 0;
+
             bool logWritten = File.Exists(file) && File.ReadAllText(file).Contains("PROTOCOL CENSUS");
-            bool ok = quietWhileHealthy && broken && newOpcode && recovered && idleIsNoBreak && logWritten;
-            Console.WriteLine($"  -> healthy quiet={quietWhileHealthy}, break reported once={broken}, new opcode={newOpcode}, recovered={recovered}, idle is no break={idleIsNoBreak}, census in log={logWritten}: {(ok ? "OK" : "FAILED")}");
+            bool ok = quietWhileHealthy && broken && newOpcode && flagged && recovered && idleIsNoBreak && townIsNoAlert && noHitPointsIsNoAlert && logWritten;
+            Console.WriteLine($"  -> healthy quiet={quietWhileHealthy}, break reported once={broken}, new opcode={newOpcode}, player told={flagged}, recovered={recovered}, idle is no break={idleIsNoBreak}, town is no alert={townIsNoAlert}, no hit points is no alert={noHitPointsIsNoAlert}, census in log={logWritten}: {(ok ? "OK" : "FAILED")}");
             return ok;
         }
         finally

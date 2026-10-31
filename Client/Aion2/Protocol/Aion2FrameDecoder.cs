@@ -587,10 +587,7 @@ public sealed class Aion2FrameDecoder
             return DecodeBundle(frame, timestamp);
         }
 
-        if (Capture.DebugRecording.Enabled)
-        {
-            Capture.ProtocolHealth.Note(opcode, frame.Length, timestamp, _protocol.SyncOpcodes); // the health monitor: part of the debug output
-        }
+        Capture.ProtocolHealth.Note(opcode, frame.Length, timestamp, _protocol.SyncOpcodes); // the health monitor: tells the player when a patch silenced a family
 
         if (DebugFrameDump is not null)
         {

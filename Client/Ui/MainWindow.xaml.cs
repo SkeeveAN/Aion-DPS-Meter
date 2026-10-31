@@ -843,8 +843,33 @@ public partial class MainWindow : Window
         _petMapController.OnCubeArrived(settings);
     }
 
+    private string _protocolBreakShown = "";
+
+    /// <summary>The note in the status row when a game patch silenced a kind of fight data (see <see cref="Aion2.Capture.ProtocolHealth"/>).</summary>
+    private void UpdateProtocolBreak()
+    {
+        var flagged = Aion2.Capture.ProtocolHealth.Flagged;
+        string key = string.Join(",", flagged);
+        if (key == _protocolBreakShown)
+        {
+            return;
+        }
+
+        _protocolBreakShown = key;
+        if (flagged.Count == 0)
+        {
+            ProtocolBreakText.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        ProtocolBreakText.Text = string.Format(loc["Main.ProtocolBreak.Text"], string.Join(", ", flagged.Select(f => loc["Main.ProtocolBreak." + f])));
+        ProtocolBreakText.Visibility = Visibility.Visible;
+    }
+
     private void OnPollTimerTick(object? sender, EventArgs e)
     {
+        UpdateProtocolBreak();
         PollCubeMap();
         // The own server shows up when the character is seen: the timetable is asked again for its region (once per region and session; the timer retries).
         if (Aion2OwnServerId() is int ownServer && Aion2Servers.RegionCodeOf(ownServer) is { } ownRegion && ownRegion != _scheduleRegion)
