@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.2",
   "date": "2026-10-31",
   "items": [
    {
@@ -86,6 +86,27 @@
     "text": "World boss crowds: the players of a waiting upload are looked up by the four NC workers at the pace they have learned (before, one single lane did about 2 players a minute and an upload waited for hours), a player whose faction the client knows is placed by the pairing without asking NC (an Elyos of a Kaisinel kill is on Kaisinel, an Asmodian on Israphel), and the Abyss bosses use the Abyss pairs announced on 28 October",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Backend: the crowd lookups of a world boss upload yield only to a viewed profile, no longer to the jobs of uploads (those are always waiting, so the lookups had waited for hours behind them)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "Partner API: pets/:id also lists the spawns on Verteron, Altgard and Lower Reshanta, and gives every spawn the monsters with npcId, name and boss flag",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-31"
+   },
+   {
+    "text": "a world boss upload goes out zipped, waits up to 60 s and is tried again after a failure (a Soul Ruler Kashapa was lost to one timeout), clicking Expert in the stat calculator no longer crashes the tool, the stagger share is credited per player (97 % of the bar's fall assigned to a hit, the boss's own start hit no longer counted) and goes along with a boss fight upload, the status row warns \"Missing: damage\" when the game stops sending a kind of data, and the privacy dialog's third point lists what a boss fight upload carries, in all ten languages",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-31"
    }
