@@ -15,6 +15,7 @@ const COPIES: [string, string][] = [
   ["skills/skill_chains.json", "skill_chains.json"],
   ["skills/skill_icon_tokens.json", "skill_icon_tokens.json"],
   ["skills/skill_names.json", "skill_names.json"],
+  ["skills/skill_names_i18n.json", "skill_names_i18n.json"],
   ["skills/skill_types.json", "skill_types.json"],
   ["species/species_stats.json", "species_stats.json"],
   ["titles/titles.json", "titles.json"],
