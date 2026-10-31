@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-10-31"
+   },
+   {
+    "text": "Website: link previews follow the address a link was posted with (aiondps.com, daevasuite.com or daevaspowersuite.com) in og:url and the preview pictures, and the preview pictures of the main pages are drawn by the server with the new motto (more than a damage meter, the Daevas Power Suite) and that address on them",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-31"
    }
   ]
  },
