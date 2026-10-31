@@ -20,6 +20,7 @@ public static class SelfCheck
         bool ok = true;
         ok &= RunAppVersionScenario();
         ok &= RunEngagedTargetsScenario();
+        ok &= RunArenaTeamsScenario();
         ok &= RunEventScheduleScenario();
         ok &= RunAllInOneRowScenario();
         ok &= RunSkillIconByNameScenario();
@@ -68,6 +69,28 @@ public static class SelfCheck
             && stone is not null && Path.GetFileName(stone).Contains("Godstone", StringComparison.Ordinal) && names;
         Console.WriteLine($"[selftest] Skill icon by name: Keen Strike -> {(keen is null ? "none" : Path.GetFileName(keen))}, unknown -> none: {unknown is null}; Theostone icon: {stone is not null}; NPC names: {names}");
         return ok;
+    }
+
+    /// <summary>The 10 against 10 arena's two sides come from who hit whom: nobody hits a team mate, so a hit puts two players on opposite sides, and chained
+    /// hits place even players who never met.</summary>
+    private static bool RunArenaTeamsScenario()
+    {
+        Console.WriteLine("[selftest] The two sides of the 10 against 10 arena:");
+        var teams = new ArenaTeams();
+        teams.NoteHit(1, 10);   // own 1 hits enemy 10
+        teams.NoteHit(10, 2);   // enemy 10 hits 2: 2 is on the side of 1
+        teams.NoteHit(3, 11);   // a second pair, not yet linked to the first
+        bool chained = teams.IsOwnSide(2, new[] { 1 }) == true && teams.IsOwnSide(10, new[] { 1 }) == false;
+        bool unlinked = teams.IsOwnSide(3, new[] { 1 }) is null;
+        teams.NoteHit(11, 2);   // 11 hits 2: 11 is an enemy, so 3 (hit by... 3 hit 11) is an own player
+        bool joined = teams.IsOwnSide(3, new[] { 1 }) == true && teams.IsOwnSide(11, new[] { 1 }) == false;
+        teams.NoteHit(1, 2);    // a contradiction (a mind-control effect): the first answer stands
+        bool contradiction = teams.IsOwnSide(2, new[] { 1 }) == true;
+        teams.Clear();
+        bool cleared = teams.IsOwnSide(2, new[] { 1 }) is null;
+        Console.WriteLine($"  -> a hit chain tells the sides: {chained}; two pairs apart stay unknown: {unlinked}; joined by a later hit: {joined}");
+        Console.WriteLine($"  -> a contradicting hit changes nothing: {contradiction}; a new fight starts from nothing: {cleared}");
+        return chained && unlinked && joined && contradiction && cleared;
     }
 
     /// <summary>The All in One modes' row figures: in All the rate column shows the healing and the damage taken is always

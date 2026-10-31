@@ -29,6 +29,15 @@ public sealed class PlayerRow : INotifyPropertyChanged
     private string _faction = "";
     private bool _isEnemy;
 
+    private string _teamSide = "";
+
+    /// <summary>The side in the 10 against 10 arena: "Own", "Enemy", or empty when not there (or not told yet). Drives the row's team colour.</summary>
+    public string TeamSide
+    {
+        get => _teamSide;
+        set { if (_teamSide == value) { return; } _teamSide = value; OnPropertyChanged(); }
+    }
+
     public int ObjectId { get; }
 
     public string Name

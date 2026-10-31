@@ -1367,6 +1367,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void RefreshRows()
     {
+        UpdateArenaTeams();
         // The index takes in what is new in every view (a few events a second): the target list and the heals are read from it
         // everywhere, and the views that ask nothing of a picked target or the scope take their damage side from it too.
         if (!ForceFullRefresh)
@@ -1377,7 +1378,7 @@ public partial class MainWindow : Window
         // The index answers the damage side of every view that asks nothing of a picked target or of the compact overlay's Group/Corps
         // scope: Damage, PvP, Heal, Taken and All in One. The views of one target's fight and the scoped ones still rescan (a boss
         // fight's list follows rules that look at the whole stretch of events, and the scope at who fought what).
-        bool damageIndexed = !ForceFullRefresh && _selectedTargetId is null && !(ScopeActive && _scope != MeterScope.All)
+        bool damageIndexed = !ForceFullRefresh && _selectedTargetId is null && !ScopeNarrows
             && (!_pvpOnly || _index.TimeOrdered);
 
         RefreshMobBossFilterItems(!ForceFullRefresh);
@@ -1402,7 +1403,7 @@ public partial class MainWindow : Window
                 ? ShownFightHits(damageOnly, targetId)
                 // The own-fight restriction belongs with the compact overlay's Group / Corps view; everywhere else the
                 // players around one count too, whatever they are fighting.
-                : ScopeActive && _scope != MeterScope.All
+                : ScopeNarrows
                     ? RestrictToEngagedTargets(damageOnly.ToList())
                     : damageOnly.ToList();
 
@@ -1414,7 +1415,7 @@ public partial class MainWindow : Window
             }
         }
 
-        _corpsIds = ScopeActive && _scope != MeterScope.All ? ComputeCorps(filtered) : new HashSet<int>();
+        _corpsIds = ScopeNarrows ? ComputeCorps(filtered) : new HashSet<int>();
 
         // A pure healer never hit the selected target, so `filtered` holds none of their events, yet
         // they belong in the list (and in an upload's roster). Heals inside the shown window by
@@ -1472,6 +1473,7 @@ public partial class MainWindow : Window
         var sourceIds = (damageIndexed ? (_pvpOnly ? _index.PvpBySource.Keys : _index.BySource.Keys) : filtered.Select(ev => ev.SourceObjectId).Distinct())
             .Union(healSourceIds)
             .Union(hostileTakenById.Keys)
+            .Union(ArenaRosterIds())
             .Where(IsPlayerName)
             .ToList();
 
@@ -1637,6 +1639,76 @@ public partial class MainWindow : Window
     private IReadOnlyList<DamageEvent> OnSelectedTarget(IReadOnlyList<DamageEvent> shown) =>
         _selectedTargetId is int id ? shown.Where(ev => ev.TargetObjectId == id).ToList() : shown;
 
+    /// <summary>The compact overlay's Group/Corps scope is on. Not in the 10 against 10 arena: all twenty players are shown there, both teams.</summary>
+    private bool ScopeNarrows => ScopeActive && _scope != MeterScope.All && !InTenVsTen;
+
+    /// <summary>The local player is in the 10 against 10 arena (live; a stored session has no zone to tell).</summary>
+    private bool InTenVsTen => !_historyMode && Aion2.Protocol.Aion2Zones.IsEqualizedArena(_lastZoneSeen);
+
+    private readonly Combat.ArenaTeams _arenaTeams = new();
+    private int _arenaTeamsFed;
+    private List<int> _arenaOwnSeeds = new();
+
+    /// <summary>The players announced for the arena, so that all twenty have a row from the start, before they have hit anyone.</summary>
+    private IEnumerable<int> ArenaRosterIds()
+    {
+        if (!InTenVsTen || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return Enumerable.Empty<int>();
+        }
+
+        var ids = directory.EqualizedArenaPlayerIds().ToList();
+        if (directory.LocalPlayerId > 0)
+        {
+            ids.Add(directory.LocalPlayerId);
+        }
+
+        return ids;
+    }
+
+    /// <summary>Feeds the hits between players seen since the last refresh into the team split, and finds the players known to be on the own side
+    /// (the local player and the party roster).</summary>
+    private void UpdateArenaTeams()
+    {
+        if (!InTenVsTen || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return;
+        }
+
+        IReadOnlyList<DamageEvent> events = _aggregator.Events;
+        if (_arenaTeamsFed > events.Count)
+        {
+            _arenaTeamsFed = 0;
+        }
+
+        for (; _arenaTeamsFed < events.Count; _arenaTeamsFed++)
+        {
+            DamageEvent hit = events[_arenaTeamsFed];
+            if (!hit.IsHeal && IsPlayerName(hit.SourceObjectId) && IsPlayerName(hit.TargetObjectId))
+            {
+                _arenaTeams.NoteHit(hit.SourceObjectId, hit.TargetObjectId);
+            }
+        }
+
+        _arenaOwnSeeds = _arenaTeams.Ids.Concat(ArenaRosterIds()).Distinct().Where(id => IsGroupMember(id, directory)).ToList();
+    }
+
+    /// <summary>"Own" or "Enemy" for a player of the 10 against 10 arena, empty outside it or while nothing tells the side yet.</summary>
+    private string TeamSideOf(int id)
+    {
+        if (!InTenVsTen || _arenaOwnSeeds.Count == 0)
+        {
+            return "";
+        }
+
+        if (_arenaOwnSeeds.Contains(id))
+        {
+            return "Own";
+        }
+
+        return _arenaTeams.IsOwnSide(id, _arenaOwnSeeds) switch { true => "Own", false => "Enemy", null => "" };
+    }
+
     /// <summary>
     /// Whose rows the scope shows. Group: the local player and the players the party roster names,
     /// nobody else - no stranger around in the open world, named or not yet; before the first
@@ -1647,7 +1719,7 @@ public partial class MainWindow : Window
     /// </summary>
     private bool IsInScope(int sourceId)
     {
-        if (!ScopeActive || _scope == MeterScope.All || _pvpOnly || _source?.Entities is not Aion2.Aion2EntityDirectory directory
+        if (!ScopeNarrows || _pvpOnly || _source?.Entities is not Aion2.Aion2EntityDirectory directory
             || directory.IsLocalPlayer(sourceId) || directory.InferLocalPlayer() == sourceId)
         {
             return true;
@@ -1824,6 +1896,21 @@ public partial class MainWindow : Window
         HpCheckText.Visibility = Visibility.Visible;
     }
 
+    /// <summary>The compact overlay's foot line in the 10 against 10 arena: what each side did together.</summary>
+    private void UpdateTeamSums()
+    {
+        bool show = InTenVsTen && _rows.Any(r => r.TeamSide.Length > 0);
+        OverlayTeamSums.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        if (!show)
+        {
+            return;
+        }
+
+        var strings = LocalizationManager.Instance;
+        OverlayTeamOwnText.Text = $"\u25A0 {strings["Main.Team.Own"]} {_rows.Where(r => r.TeamSide == "Own").Sum(r => r.Damage):N0}";
+        OverlayTeamEnemyText.Text = $"\u25A0 {strings["Main.Team.Enemy"]} {_rows.Where(r => r.TeamSide == "Enemy").Sum(r => r.Damage):N0}";
+    }
+
     private void RankRows()
     {
         // Live sorting alone left the list in the previous mode's order after a switch (PVE -> PVP kept the
@@ -1841,6 +1928,8 @@ public partial class MainWindow : Window
             row.FillPercent = shownMax > 0 ? 100.0 * row.Damage / shownMax : 0;
             row.AbsorbedFillPercent = _takenMode && shownMax > 0 && row.Absorbed > 0 ? 100.0 * (row.Damage + row.Absorbed) / shownMax : 0;
         }
+
+        UpdateTeamSums();
     }
 
     /// <summary>
@@ -1996,6 +2085,7 @@ public partial class MainWindow : Window
     /// shown, else from the packet stream - the name and class the directory has learned for the id.</summary>
     private void ApplyIdentity(PlayerRow row, int sourceId)
     {
+        row.TeamSide = TeamSideOf(sourceId);
         if (_playerIdentities.TryGetValue(sourceId, out var identity))
         {
             row.Name = identity.Name;
@@ -3885,6 +3975,14 @@ public partial class MainWindow : Window
     {
         foreach (ZoneChange zone in batch.ZoneChanges)
         {
+            if (zone.ZoneId != _lastZoneSeen && (Aion2.Protocol.Aion2Zones.IsEqualizedArena(zone.ZoneId) || Aion2.Protocol.Aion2Zones.IsEqualizedArena(_lastZoneSeen)))
+            {
+                // a new 10 against 10 fight (or its end): the teams are told afresh, from the hits that come
+                _arenaTeams.Clear();
+                _arenaTeamsFed = _aggregator.Events.Count;
+                _arenaOwnSeeds = new List<int>();
+            }
+
             if (Aion2.Protocol.Aion2Zones.IsArena(_lastZoneSeen) && !Aion2.Protocol.Aion2Zones.IsArena(zone.ZoneId))
             {
                 ScheduleArenaUpload();
@@ -5336,6 +5434,8 @@ public partial class MainWindow : Window
     private void ClearDamageData()
     {
         _aggregator.Clear();
+        _arenaTeams.Clear();
+        _arenaTeamsFed = 0;
         _groupNames.Clear();
         _avoids.Clear();
         _kills.Clear();

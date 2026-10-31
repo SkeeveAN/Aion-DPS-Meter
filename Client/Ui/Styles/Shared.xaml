@@ -229,4 +229,41 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+    <!-- The two sides of the 10 against 10 arena (PlayerRow.TeamSide): the row takes a muted red (own team) or blue (opponents), the
+         class colour shrinks to a thin bar at the foot, a stripe at the left edge repeats the colour. Theme-independent. -->
+    <SolidColorBrush x:Key="Brush.TeamOwnRow" Color="#8C873232"/>
+    <SolidColorBrush x:Key="Brush.TeamEnemyRow" Color="#8C2D5096"/>
+    <SolidColorBrush x:Key="Brush.TeamOwnEdge" Color="#D9776D"/>
+    <SolidColorBrush x:Key="Brush.TeamEnemyEdge" Color="#6F9FE0"/>
+
+    <Style x:Key="TeamStripe" TargetType="Border">
+        <Setter Property="Visibility" Value="Collapsed"/>
+        <Setter Property="Width" Value="5"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                <Setter Property="Visibility" Value="Visible"/>
+                <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnEdge}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                <Setter Property="Visibility" Value="Visible"/>
+                <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyEdge}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="TeamFillBar" TargetType="ProgressBar" BasedOn="{StaticResource RowFillBar}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                <Setter Property="Height" Value="4"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                <Setter Property="Height" Value="4"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

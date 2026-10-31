@@ -1109,6 +1109,11 @@ internal static class Program
         {
             var row = new Ui.PlayerRow(++rank) { Name = x.Name, ClassName = x.Cls, Damage = x.Dmg, Dps = x.Dps, SharePercent = 100.0 * x.Dmg / total, FillPercent = 100.0 * x.Dmg / sample[0].Dmg,
                 Rank = rank, Faction = rank is 1 or 5 ? "Elyos" : rank is 3 ? "" : "Asmodian" }; // a sample of both factions and one unknown
+            if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_TEAMS") is { Length: > 0 })
+            {
+                row.TeamSide = rank % 2 == 1 ? "Own" : "Enemy"; // the 10 against 10 arena's two sides, for the picture
+            }
+
             if (all)
             {
                 row.AllMode = !allCompact;
@@ -1119,6 +1124,14 @@ internal static class Program
             }
 
             rows.Add(row);
+        }
+
+        if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_TEAMS") is { Length: > 0 })
+        {
+            var teamStrings = Ui.LocalizationManager.Instance;
+            window.OverlayTeamOwnText.Text = $"\u25A0 {teamStrings["Main.Team.Own"]} {rows.Where(r => r.TeamSide == "Own").Sum(r => r.Damage):N0}";
+            window.OverlayTeamEnemyText.Text = $"\u25A0 {teamStrings["Main.Team.Enemy"]} {rows.Where(r => r.TeamSide == "Enemy").Sum(r => r.Damage):N0}";
+            window.OverlayTeamSums.Visibility = System.Windows.Visibility.Visible;
         }
 
         window.OverlayTargetText.Text = "Transcendent Bakarma";

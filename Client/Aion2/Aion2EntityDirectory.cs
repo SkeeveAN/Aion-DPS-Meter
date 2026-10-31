@@ -2061,6 +2061,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            _equalizedArenaEnteredAt = at;
             foreach ((string name, DateTime met) in _lastMet)
             {
                 if (at - met >= TimeSpan.Zero && at - met <= EqualizedArenaLeadTime)
@@ -2068,6 +2069,28 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                     _metInEqualizedArena.Add(name);
                 }
             }
+        }
+    }
+
+    private DateTime? _equalizedArenaEnteredAt;
+
+    /// <summary>The ids of the players announced for the 10 against 10 arena the local player entered last (the teams come ahead of the zone frame),
+    /// those whose name the directory has an id for.</summary>
+    public IReadOnlyList<int> EqualizedArenaPlayerIds()
+    {
+        lock (_gate)
+        {
+            if (_equalizedArenaEnteredAt is not DateTime entered)
+            {
+                return Array.Empty<int>();
+            }
+
+            return _metInEqualizedArena
+                .Where(name => _lastMet.TryGetValue(name, out DateTime met) && met >= entered - EqualizedArenaLeadTime)
+                .Select(name => _idOfName.TryGetValue(name, out int id) ? id : 0)
+                .Where(id => id != 0)
+                .Distinct()
+                .ToList();
         }
     }
 

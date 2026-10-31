@@ -2424,6 +2424,30 @@
     "ja": "グループ",
     "ko": "그룹"
   },
+  "Main.Team.Own": {
+    "en": "Your team",
+    "de": "Dein Team",
+    "fr": "Votre équipe",
+    "es": "Tu equipo",
+    "ru": "Ваша команда",
+    "zh": "我方",
+    "zh-TW": "我方",
+    "pt": "Sua equipe",
+    "ja": "自チーム",
+    "ko": "아군"
+  },
+  "Main.Team.Enemy": {
+    "en": "Opponents",
+    "de": "Gegner",
+    "fr": "Adversaires",
+    "es": "Rivales",
+    "ru": "Противники",
+    "zh": "敌方",
+    "zh-TW": "敵方",
+    "pt": "Adversários",
+    "ja": "敵チーム",
+    "ko": "적군"
+  },
   "Main.Scope.Corps": {
     "en": "Corps",
     "de": "Korps",

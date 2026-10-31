@@ -1047,6 +1047,12 @@
                                 <DataTrigger Binding="{Binding IsEnemy}" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource Brush.RowEnemy}"/>
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                                    <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnRow}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                                    <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyRow}"/>
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </DataGrid.RowStyle>
@@ -1320,8 +1326,21 @@
                 <local:QuietItemsControl x:Name="CompactOverlayRows" Grid.IsSharedSizeScope="True">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid MinHeight="20" Margin="0,1" Background="Transparent" Cursor="Hand"
+                            <Grid MinHeight="20" Margin="0,1" Cursor="Hand"
                                   MouseLeftButtonUp="OnCompactOverlayRowClicked">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnRow}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                                                <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyRow}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
                                 <ProgressBar Template="{StaticResource ClassBar}" Minimum="0" Maximum="100"
                                              Value="{Binding FillPercent, Mode=OneWay}" Background="#26FFFFFF">
                                     <ProgressBar.Style>
@@ -1331,10 +1350,19 @@
                                                 <DataTrigger Binding="{Binding IsEnemy}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource Brush.OverlayEnemy}"/>
                                                 </DataTrigger>
+                                                <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                                                    <Setter Property="Height" Value="3"/>
+                                                    <Setter Property="VerticalAlignment" Value="Bottom"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                                                    <Setter Property="Height" Value="3"/>
+                                                    <Setter Property="VerticalAlignment" Value="Bottom"/>
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </ProgressBar.Style>
                                 </ProgressBar>
+                                <Border Style="{StaticResource TeamStripe}" Width="4"/>
                                 <Grid Margin="4,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -1361,6 +1389,11 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </local:QuietItemsControl>
+                <!-- The 10 against 10 arena: what each side did together. -->
+                <StackPanel x:Name="OverlayTeamSums" Orientation="Horizontal" Margin="4,3,0,0" Visibility="Collapsed">
+                    <TextBlock x:Name="OverlayTeamOwnText" FontSize="10" Foreground="#E8938A"/>
+                    <TextBlock x:Name="OverlayTeamEnemyText" FontSize="10" Foreground="#8FB4EE" Margin="10,0,0,0"/>
+                </StackPanel>
                 <!-- Corner grip: drag to scale the whole panel, text included (OnCompactOverlayResize). -->
                 <Thumb HorizontalAlignment="Right" Width="12" Height="12" Cursor="SizeNWSE" Margin="0,4,0,0"
                        DragDelta="OnCompactOverlayResize" DragCompleted="OnCompactOverlayResized">
@@ -1389,6 +1422,12 @@
                                     <DataTrigger Binding="{Binding IsEnemy}" Value="True">
                                         <Setter Property="Background" Value="{DynamicResource Brush.OverlayEnemy}"/>
                                     </DataTrigger>
+                                    <DataTrigger Binding="{Binding TeamSide}" Value="Own">
+                                        <Setter Property="Background" Value="{DynamicResource Brush.TeamOwnRow}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding TeamSide}" Value="Enemy">
+                                        <Setter Property="Background" Value="{DynamicResource Brush.TeamEnemyRow}"/>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
@@ -1396,7 +1435,8 @@
                         <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding AbsorbedFillPercent, Mode=OneWay}"
                                      Foreground="#993AA0FF"
                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
-                        <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
+                        <Border Style="{StaticResource TeamStripe}" Margin="-8,-3,0,-3"/>
+                        <ProgressBar Style="{StaticResource TeamFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
                                      Foreground="{Binding ClassBrush}"
                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                         <StackPanel VerticalAlignment="Center">
