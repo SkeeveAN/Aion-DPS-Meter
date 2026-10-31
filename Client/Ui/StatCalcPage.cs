@@ -352,6 +352,11 @@ public sealed class StatCalcPage : Grid
         take.Click += (_, _) => TakeFromFight();
         stack.Children.Add(take);
         _measured.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        if (_measured.Parent is Panel oldMeasured)
+        {
+            oldMeasured.Children.Remove(_measured);
+        }
+
         stack.Children.Add(_measured);
         return Card(stack, new Thickness(0, 0, 0, 12));
     }
@@ -477,6 +482,11 @@ public sealed class StatCalcPage : Grid
         {
             var inner = new StackPanel();
             inner.Children.Add(new TextBlock { Text = caption, FontSize = 11, Foreground = Res("Brush.TextMuted"), TextWrapping = TextWrapping.Wrap });
+            if (value.Parent is Panel oldTile)
+            {
+                oldTile.Children.Remove(value);
+            }
+
             value.FontSize = 24;
             value.FontWeight = FontWeights.Bold;
             value.Margin = new Thickness(0, 4, 0, 0);
