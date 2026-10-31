@@ -25,6 +25,7 @@ import { siteStatsRoutes } from "./routes/siteStats.js";
 import { serverStatusRoutes } from "./routes/serverStatus.js";
 import { announcementRoutes } from "./routes/announcements.js";
 import { changelogRoutes } from "./routes/changelog.js";
+import { dataPackRoutes } from "./routes/dataPack.js";
 import { scheduleRoutes } from "./routes/schedule.js";
 import { patchnoteRoutes } from "./routes/patchnotes.js";
 import { twitchDropsRoutes } from "./routes/twitchDrops.js";
@@ -80,6 +81,7 @@ export async function buildServer() {
   await app.register(serverStatusRoutes);
   await app.register(announcementRoutes);
   await app.register(changelogRoutes);
+  await app.register(dataPackRoutes);
   await app.register(scheduleRoutes);
   await app.register(patchnoteRoutes);
   await app.register(twitchDropsRoutes);
