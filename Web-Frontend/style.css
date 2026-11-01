@@ -3650,16 +3650,32 @@ button.cmp-mem { cursor: pointer; }
   mask-image: linear-gradient(#000 90%, transparent);
 }
 
-/* Lord ring (laid out like the in-game window): a dark panel in both themes, because the symbols are light grey line art.
-   The box scales with the card (600 px at most), everything inside is positioned in percent. */
+/* Lord ring (laid out like the in-game window): lies directly on the card and takes its colours from the theme.
+   The symbols are light grey line art, so in the light theme they are darkened. The box scales with the card (600 px at most),
+   everything inside is positioned in percent. */
+:root,
+:root[data-theme="dark"] {
+  --ring-line: #8196aa;
+  --ring-line-soft: #556b80;
+  --ring-name: #dee8f2;
+  --ring-main: #3ce1f0;
+  --ring-glow: #2e4559;
+  --ring-ico: brightness(1.7) contrast(1.1);
+}
+:root[data-theme="light"] {
+  --ring-line: #6d7f90;
+  --ring-line-soft: #8d9cab;
+  --ring-name: #17202a;
+  --ring-main: #076f7b;
+  --ring-glow: #e8edf2;
+  --ring-ico: brightness(0.3) contrast(1.4);
+}
 .pf-ring {
-  --ring-bg: #1d2a38;
   position: relative;
   width: min(600px, 100%);
   aspect-ratio: 1;
   margin: 0 auto;
-  border-radius: 12px;
-  background: radial-gradient(circle, #2e4559 0%, var(--ring-bg) 62%);
+  background: radial-gradient(circle, var(--ring-glow) 0%, transparent 62%);
 }
 .pf-ring-guides svg {
   position: absolute;
@@ -3669,24 +3685,26 @@ button.cmp-mem { cursor: pointer; }
 }
 .pf-ring-c1 {
   fill: none;
-  stroke: #8196aa;
+  stroke: var(--ring-line);
   stroke-width: 2;
 }
 .pf-ring-c3 {
   fill: none;
-  stroke: #6a8196;
+  stroke: var(--ring-line);
   stroke-width: 1.5;
+  opacity: 0.75;
 }
 .pf-ring-c2 {
   fill: none;
-  stroke: #556b80;
+  stroke: var(--ring-line-soft);
   stroke-width: 1;
   stroke-dasharray: 3 5;
 }
 .pf-ring-spokes {
   fill: none;
-  stroke: #46596b;
+  stroke: var(--ring-line-soft);
   stroke-width: 1;
+  opacity: 0.7;
 }
 .pf-ring-core {
   position: absolute;
@@ -3709,21 +3727,21 @@ button.cmp-mem { cursor: pointer; }
   width: 18%;
   font-size: clamp(9px, 1.9cqw, 11px);
   font-weight: 700;
-  color: #dee8f2;
-  text-shadow: 0 0 3px #141c26, 0 0 3px #141c26, 0 0 2px #141c26;
+  color: var(--ring-name);
+  text-shadow: 0 0 3px var(--color-surface), 0 0 3px var(--color-surface), 0 0 2px var(--color-surface);
 }
 .pf-lord-ib {
   position: relative;
-  width: 58%;
+  width: 70%;
   aspect-ratio: 1;
-  margin: 0 auto 2px;
+  margin: 0 auto 0;
   border-radius: 50%;
-  background: var(--ring-bg);
+  background: var(--color-surface);
 }
 .pf-ring .pf-attr-ico {
   background: none;
   border-radius: 0;
-  filter: brightness(1.7) contrast(1.1);
+  filter: var(--ring-ico);
 }
 .pf-lord-ib .pf-attr-ico {
   width: 100%;
@@ -3731,13 +3749,13 @@ button.cmp-mem { cursor: pointer; }
 }
 .pf-lord-ib strong {
   position: absolute;
-  right: -32%;
-  bottom: 22%;
+  right: -30%;
+  bottom: 14%;
   font-size: clamp(0.9rem, 3.4cqw, 1.15rem);
   line-height: 1;
-  color: #fff;
+  color: var(--ring-name);
   text-shadow: none;
-  -webkit-text-stroke: 3px #141c26;
+  -webkit-text-stroke: 3px var(--color-surface);
   paint-order: stroke fill;
 }
 .pf-hex-node {
@@ -3745,23 +3763,23 @@ button.cmp-mem { cursor: pointer; }
   transform: translate(-50%, -62%);
 }
 .pf-hex-node .pf-attr-ico {
-  width: 50%;
+  width: 62%;
   height: auto;
   aspect-ratio: 1;
-  margin: 0 auto 2px;
+  margin: 0 auto 0;
   padding: 0;
 }
 .pf-hex-node span {
   display: block;
   font-size: clamp(0.65rem, 2.6cqw, 0.85rem);
   font-weight: 700;
-  color: #3ce1f0;
-  text-shadow: 0 0 3px #141c26, 0 0 3px #141c26;
+  color: var(--ring-main);
+  text-shadow: 0 0 3px var(--color-surface), 0 0 3px var(--color-surface);
 }
 .pf-hex-node strong {
   display: block;
   font-size: clamp(0.6rem, 2.2cqw, 0.75rem);
-  color: #ebf0f5;
+  color: var(--ring-name);
 }
 .pf-char-ring {
   container-type: inline-size;
