@@ -16,6 +16,13 @@
      "Client"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "Pantheon decorations without a known grade get it from the same icon on another decoration or from their effect value, so the blue paintings (second ids such as Ellun River Midstream and Cantas Valley) no longer show a grey ring: 115 of the 155 decorations that had no grade are filled, 40 without any effect stay grey",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
