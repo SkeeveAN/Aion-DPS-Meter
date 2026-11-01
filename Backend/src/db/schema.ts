@@ -667,6 +667,8 @@ export const playerNcCharacter = sqliteTable("player_nc_character", {
   // The character's combat power and the website's item level (not the in-game gear score), the legion NC files him under, his level.
   combatPower: integer("combat_power"),
   itemLevel: integer("item_level"),
+  // When a client last reported the combat power / item level above (from its login's legion list): newer than NC's page, which lags. Null = the values are NC's.
+  clientStatsAt: integer("client_stats_at"),
   ncGuild: text("nc_guild"),
   ncLevel: integer("nc_level"),
   // Our class id of the character ((pcId - 1) / 4); a class that never changes, so another one in an upload means another character.

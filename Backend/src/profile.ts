@@ -36,6 +36,9 @@ export const profileSchema = z.object({
   faction: z.number().int().min(1).max(2).optional(),
   // The gear score ("Ausrüstungswert") the game shows in a character window (only when the uploader opened that window).
   gearScore: z.number().int().min(1).max(100_000_000).optional(),
+  // Combat power and item level from the legion list of the uploader's login (own character and legion members); newer than NC's page.
+  combatPower: z.number().int().min(1).max(100_000_000).optional(),
+  itemLevel: z.number().int().min(1).max(100_000_000).optional(),
   gear: z
     .array(
       z.object({
@@ -215,12 +218,34 @@ export function mergeRanks(storedJson: string | undefined, fresh: RankReading[])
   return [...byKey.values()].sort((a, b) => a.type - b.type || a.scope - b.scope);
 }
 
+/** The 10 against 10 arena evens everybody out to this combat power; never a real value (see portraitService.isArenaEqualized). */
+const ARENA_FIXED_COMBAT_POWER = 397228;
+
+/**
+ * Combat power and item level a client read from its login's legion list. They go into the NC character row (whose columns every page reads) because they are
+ * newer than NC's page; a later NC fetch keeps them while NC still shows what it showed before (see portraitService). Only a row that exists is touched: the
+ * NC fetch creates it, the next login brings the values again.
+ */
+export function applyClientStats(playerId: number, combatPower: number | undefined, itemLevel: number | undefined, now = Date.now()): void {
+  const power = combatPower !== undefined && combatPower !== ARENA_FIXED_COMBAT_POWER ? combatPower : undefined;
+  if (power === undefined && itemLevel === undefined) {
+    return;
+  }
+  const row = db.select({ combatPower: playerNcCharacter.combatPower, itemLevel: playerNcCharacter.itemLevel }).from(playerNcCharacter).where(eq(playerNcCharacter.playerId, playerId)).get();
+  if (!row) {
+    return;
+  }
+  const values = { combatPower: power ?? row.combatPower, itemLevel: itemLevel ?? row.itemLevel, clientStatsAt: now };
+  db.update(playerNcCharacter).set(values).where(eq(playerNcCharacter.playerId, playerId)).run();
+}
+
 /**
  * Stores a profile for a player. The newest data wins - except that a "seen" profile never replaces
  * a "self" one (the uploader's own record is the richer, authoritative one; a stranger's clients
  * only see part of it), and a "seen" profile that carries nothing (no gear, no class) is dropped.
  */
 export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & Pick<ProfileUpload, "source">): void {
+  applyClientStats(playerId, input.combatPower, input.itemLevel);
   // The upload route has already run profileSchema (which fills these defaults); callers that go
   // straight to the merge code may omit the lists.
   const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], presets: input.presets ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [], ranks: input.ranks ?? [] };

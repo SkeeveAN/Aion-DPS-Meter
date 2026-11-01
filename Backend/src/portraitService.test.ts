@@ -11,7 +11,7 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
-const { pickCharacter, searchCharacter, downloadPortrait, fetchPortrait, isFresh, PortraitQueue, portraitUrlFor, RETRY_AFTER, CHARACTER_RETRY_AFTER, HOUR, DAY, fetchPlayer, pacedFetch, processPlayer, decodeCharacterId, isArenaEqualized, searchUrlOf, fetchCharacterProfile } = await import("./portraitService.js");
+const { pickCharacter, searchCharacter, downloadPortrait, fetchPortrait, isFresh, PortraitQueue, portraitUrlFor, RETRY_AFTER, CHARACTER_RETRY_AFTER, HOUR, DAY, fetchPlayer, pacedFetch, processPlayer, decodeCharacterId, isArenaEqualized, keepClientStats, searchUrlOf, fetchCharacterProfile } = await import("./portraitService.js");
 const { playerPortraits, playerNcCharacter, players, servers } = await import("./db/schema.js");
 const { europeServerOf } = await import("./content/aion2Servers.js");
 const { eq } = await import("drizzle-orm");
@@ -521,4 +521,27 @@ test("the character page of a Taiwan or Korea character is asked at that region'
   assert.equal(seen[0].origin, "https://tw.ncsoft.com");
   assert.equal(seen[1].url.origin + seen[1].url.pathname, "https://aion2.plaync.com/api/character/info");
   assert.equal(seen[1].url.searchParams.get("lang"), "ko-kr");
+});
+
+test("keepClientStats: a client's value stays while NC still shows what it showed before, NC's change wins", () => {
+  const before = { combatPower: 163500, itemLevel: 2900, clientStatsAt: 1_000, probeJson: JSON.stringify([159770, 2877, 45]) };
+  assert.deepEqual(keepClientStats(before, { combatPower: 159770, itemLevel: 2877 }, 2_000), { combatPower: 163500, itemLevel: 2900, clientStatsAt: 1_000 });
+  assert.deepEqual(keepClientStats(before, { combatPower: 164000, itemLevel: 2877 }, 2_000), { combatPower: 164000, itemLevel: 2900, clientStatsAt: 1_000 });
+  assert.deepEqual(keepClientStats(before, { combatPower: 164000, itemLevel: 2950 }, 2_000), { combatPower: 164000, itemLevel: 2950, clientStatsAt: null });
+  assert.deepEqual(keepClientStats(before, { combatPower: 159770, itemLevel: 2877 }, 1_000 + 8 * 24 * 3600 * 1000), { combatPower: 159770, itemLevel: 2877, clientStatsAt: null });
+  assert.deepEqual(keepClientStats(null, { combatPower: 1, itemLevel: 2 }, 5), { combatPower: 1, itemLevel: 2, clientStatsAt: null });
+});
+
+test("applyClientStats writes a client's combat power and item level into an existing NC row, never the arena value", async () => {
+  const { applyClientStats } = await import("./profile.js");
+  const server = db.insert(servers).values({ fingerprint: "aion2:stats-test", displayName: "Stats test" }).returning().get();
+  const p = db.insert(players).values({ name: "Statty", nameNormalized: "statty", serverId: server.id }).returning().get();
+  applyClientStats(p.id, 163500, 2900, 5000);
+  assert.equal(db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, p.id)).get(), undefined, "no row, nothing made up");
+  db.insert(playerNcCharacter).values({ playerId: p.id, status: "ok", fetchedAt: 1000, nextTryAt: 1e12, combatPower: 159770, itemLevel: 2877 }).run();
+  applyClientStats(p.id, 397228, undefined, 5000);
+  assert.equal(db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, p.id)).get()?.combatPower, 159770);
+  applyClientStats(p.id, 163500, 2900, 5000);
+  const row = db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, p.id)).get();
+  assert.deepEqual([row?.combatPower, row?.itemLevel, row?.clientStatsAt], [163500, 2900, 5000]);
 });

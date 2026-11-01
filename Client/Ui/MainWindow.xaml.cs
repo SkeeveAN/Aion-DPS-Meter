@@ -4262,7 +4262,9 @@ public partial class MainWindow : Window
                         Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(member.ClassCode),
                         Array.Empty<ProfileGearUpload>(),
                         Array.Empty<ProfileSkillUpload>(),
-                        Array.Empty<ProfileBoardUpload>()),
+                        Array.Empty<ProfileBoardUpload>(),
+                        CombatPower: member.CombatPower is > 0 and not 397228 ? member.CombatPower : null,
+                        ItemLevel: member.ItemLevel > 0 ? member.ItemLevel : null),
                     member.ServerId,
                     member.CharacterId > 0 ? member.CharacterId : null));
             }
@@ -6331,6 +6333,8 @@ public partial class MainWindow : Window
 
             Aion2CharacterInfo character = live;
             int code = character.ClassCode;
+            // The own entry of the legion list (login): the game's own combat power and item level, newer than what NC's page shows.
+            Aion2.LegionMember? ownLegionStats = directory.LegionRoster().FirstOrDefault(m => string.Equals(m.Name, live.Name, StringComparison.OrdinalIgnoreCase));
             bool known = Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(code) is >= 1 and <= 8;
             return new ProfileUpload(
                 "self",
@@ -6359,7 +6363,9 @@ public partial class MainWindow : Window
                     ? new ProfilePantheonUpload(
                         pantheon.Presets.OrderBy(x => x.Key).Select(x => new ProfilePantheonPresetUpload(x.Key, x.Value.Select(k => new ProfilePantheonSlotUpload(k.Slot, k.Id)).ToList())).ToList(),
                         pantheon.Owned)
-                    : null);
+                    : null,
+                CombatPower: ownLegionStats?.CombatPower is > 0 and not 397228 ? ownLegionStats.CombatPower : null,
+                ItemLevel: ownLegionStats?.ItemLevel is > 0 ? ownLegionStats.ItemLevel : null);
         }
 
         // A character window the local player opened for this player: level and the full equipment with

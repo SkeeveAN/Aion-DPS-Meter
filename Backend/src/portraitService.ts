@@ -49,6 +49,27 @@ export type PortraitStatus = keyof typeof RETRY_AFTER;
 /** The combat power the 10 against 10 arena gives everybody (the game evens the players out there; NC's page shows it while they stand in it, and skills at level 20). */
 export const ARENA_FIXED_COMBAT_POWER = 397228;
 /** NC's page of a player that stands in the evened-out arena: nothing on it is his real state, so none of it is stored; the look is repeated soon. */
+/** How long a client's combat power / item level outranks an NC page that still shows what it showed at the fetch before. */
+const CLIENT_STATS_KEEP = 7 * 24 * 3600 * 1000;
+
+/**
+ * Combat power and item level for the NC row after a fetch. NC's page lags behind the game: while it shows the same value as at the fetch before (the signature
+ * holds it) and a client reported its own within a week, the client's value stays; a value NC changed is fresher news and wins.
+ */
+export function keepClientStats(
+  before: { combatPower: number | null; itemLevel: number | null; clientStatsAt: number | null; probeJson: string | null } | null | undefined,
+  nc: { combatPower: number | null; itemLevel: number | null },
+  now: number,
+): { combatPower: number | null; itemLevel: number | null; clientStatsAt: number | null } {
+  if (!before?.clientStatsAt || now - before.clientStatsAt > CLIENT_STATS_KEEP || !before.probeJson) {
+    return { combatPower: nc.combatPower, itemLevel: nc.itemLevel, clientStatsAt: null };
+  }
+  const probe = JSON.parse(before.probeJson) as unknown[];
+  const power = nc.combatPower === probe[0] && before.combatPower ? before.combatPower : nc.combatPower;
+  const level = nc.itemLevel === probe[1] && before.itemLevel ? before.itemLevel : nc.itemLevel;
+  return { combatPower: power, itemLevel: level, clientStatsAt: power !== nc.combatPower || level !== nc.itemLevel ? before.clientStatsAt : null };
+}
+
 export const isArenaEqualized = (data: { combatPower: number | null } | null | undefined): boolean => data?.combatPower === ARENA_FIXED_COMBAT_POWER;
 export const ARENA_RETRY_AFTER = 15 * 60_000;
 
@@ -728,8 +749,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           wingSkinId: c.data.wingSkinId,
           activePet: c.data.activePet,
           activePetLevel: c.data.activePetLevel,
-          combatPower: c.data.combatPower,
-          itemLevel: c.data.itemLevel,
+          ...keepClientStats(characterBefore, c.data, now),
           ncGuild: c.data.guild || null,
           ncLevel: c.data.level,
           ncClassId: c.data.classId,
@@ -751,6 +771,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           activePetLevel: characterBefore?.activePetLevel ?? null,
           combatPower: characterBefore?.combatPower ?? null,
           itemLevel: characterBefore?.itemLevel ?? null,
+          clientStatsAt: characterBefore?.clientStatsAt ?? null,
           ncGuild: characterBefore?.ncGuild ?? null,
           ncLevel: characterBefore?.ncLevel ?? null,
           ncClassId: characterBefore?.ncClassId ?? null,

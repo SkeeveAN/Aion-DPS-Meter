@@ -138,7 +138,11 @@ public sealed record ProfileUpload(
     // Own character only: the ranks the game showed in its ranking window (see ProfileRankUpload). Null when the window was not opened in this session.
     IReadOnlyList<ProfileRankUpload>? Ranks = null,
     // Own character only: the Pantheon (decorations set up per preset as the game sent them, and every registered decoration). Null before the game sent it.
-    ProfilePantheonUpload? Pantheon = null);
+    ProfilePantheonUpload? Pantheon = null,
+    // The combat power (the big number with the crossed swords) and the item level as the legion list of the login shows them; the own character and, with the
+    // setting for other players' profiles, the legion's members. Null when the list did not carry them (or the character was not in it).
+    int? CombatPower = null,
+    int? ItemLevel = null);
 
 /// <summary>The own Pantheon: the setups seen (preset 1..3) and the registered decorations by the game's decoration number.</summary>
 public sealed record ProfilePantheonUpload(IReadOnlyList<ProfilePantheonPresetUpload> Presets, IReadOnlyList<int> Owned);
