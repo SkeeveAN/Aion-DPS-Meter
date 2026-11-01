@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.5",
   "date": "2026-11-01",
   "items": [
    {
@@ -66,6 +66,13 @@
    },
    {
     "text": "The lord values in the character window of the client are drawn like in the game and on the website: lords on the double ring turned by half a step, big symbols for the six main attributes with spokes and a star in the middle, readable names, colours following the chosen theme",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-01"
+   },
+   {
+    "text": "a player with a two-letter name is recognised in the overlay instead of staying \"Player #id\", the own combat power and item level from the legion list go online with the profile, the character window draws the lord values like the game and the website, and the Arcana tab shows the second arcana set \"Magic Armor\"",
     "areas": [
      "Client"
     ],
