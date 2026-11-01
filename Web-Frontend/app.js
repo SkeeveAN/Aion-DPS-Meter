@@ -4571,7 +4571,8 @@ function visibleSkills(profile, skills = profile.skills) {
   const hasBar = skills.some((s) => s.equipped);
   return {
     // With a skill bar in the profile only the equipped actives are listed, as in the game's skill window.
-    active: skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)),
+    // five stone slots mark a stigma even where its flag is missing (the preset does not have it socketed)
+    active: skills.filter((s) => !s.passive && !s.stigma && s.stones?.length !== 5 && (!hasBar || s.equipped)),
     // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
     passive: skills.filter((s) => s.passive && s.id % 1000000 !== 0),
     // a stigma at level 0 is one the player has not learned: the game's list carries it, the page does not show it
