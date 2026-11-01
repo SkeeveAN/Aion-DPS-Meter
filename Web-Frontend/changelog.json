@@ -1,5 +1,21 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-01",
+  "items": [
+   {
+    "text": "The legion list shows each member's Odyle energy (energy now, the part from stones, and the energy still lying in Odyle energy items of the inventory and storages), uploaded with the own profile at every login, loot and pick-up; a warning triangle marks numbers from a client that started after the login. A change of the Pantheon now goes online at once",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-01"
+   }
+  ]
+ },
+ {
   "version": "1.18.6",
   "date": "2026-11-01",
   "items": [
