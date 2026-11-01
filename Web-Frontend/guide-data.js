@@ -1,10 +1,10 @@
 // The comparison tables of /aion-2-dps-meter. One source for the page in the app (app.js renderGuide) and for the
 // text the server sends to crawlers (Backend/src/seo/pages.ts guidePage). Facts come from each project's own README or
-// website, checked 2026-10-19; a cell says "Not stated" when its source says nothing, never "No".
+// website, checked 2026-11-02; a cell says "Not stated" when its source says nothing, never "No".
 //
 // A cell is either a literal ("GPL-3.0", "59") or "$name", which stands for the translated text guide.c.name.
 
-export const GUIDE_ASOF = "2026-10-19";
+export const GUIDE_ASOF = "2026-11-02";
 
 export const GUIDE_ROWS = [
   "license", "stars", "price", "platform", "reads", "driver", "regions", "overlay", "skills", "cooldown",
@@ -15,7 +15,7 @@ const OURS = {
   name: "Aion DPS Meter",
   ours: true,
   cells: {
-    license: "MIT", stars: "3", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcapSeparate",
+    license: "MIT", stars: "6", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcapSeparate",
     regions: "$regionsOurs", overlay: "$overlayClick", skills: "$skillsOurs", cooldown: "$cooldownOurs", history: "$historyOurs",
     rankings: "$rankOurs", obs: "$yes", update: "$updateNoAdmin", languages: "10", rdps: "$rdpsOurs", extras: "$extrasOurs",
   },
@@ -24,8 +24,8 @@ const OURS = {
 const NOIA2 = {
   name: "NOIA2", url: "https://github.com/ZDYoung0519/NOIA2",
   cells: {
-    license: "GPL-3.0", stars: "59", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
-    regions: "$regionsNoia", overlay: "$yes", skills: "$na", cooldown: "$na", history: "$yes", rankings: "$rankNoia",
+    license: "GPL-3.0", stars: "58", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
+    regions: "$regionsNoia", overlay: "$yes", skills: "$yes", cooldown: "$na", history: "$yes", rankings: "$rankNoia",
     obs: "$na", update: "$yes", languages: "$langNoia", rdps: "$na", extras: "$extrasNoia",
   },
 };
@@ -42,7 +42,7 @@ const ALETHEIA = {
 const RATMETER = {
   name: "RATmeter", url: "https://github.com/Kuroukihime/AIon2-Dps-Meter",
   cells: {
-    license: "GPL-3.0", stars: "22", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
+    license: "GPL-3.0", stars: "24", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
     regions: "$global", overlay: "$yes", skills: "$skillsStats", cooldown: "$yes", history: "$historyLocal",
     rankings: "$rankNone", obs: "$na", update: "$na", languages: "$na", rdps: "$na", extras: "$extrasRat",
   },
@@ -60,16 +60,16 @@ const AION2FLOW = {
 const A2TOOLS = {
   name: "A2Tools", url: "https://github.com/taengu/A2Tools-DPS-Meter",
   cells: {
-    license: "GPL-3.0", stars: "70", price: "$freeDonate", platform: "$windowsLinux", reads: "$passiveNpcap", driver: "$npcapCompat",
-    regions: "$regionsA2", overlay: "$yes", skills: "$skillsTimeline", cooldown: "$na", history: "$yes",
-    rankings: "$rankA2", obs: "$yes", update: "$na", languages: "10", rdps: "$na", extras: "$extrasA2",
+    license: "GPL-3.0", stars: "86", price: "$freeDonate", platform: "$windowsLinux", reads: "$passiveNpcap", driver: "$npcapCompat",
+    regions: "$regionsA2", overlay: "$yes", skills: "$skillsTimeline", cooldown: "$cooldownA2", history: "$yes",
+    rankings: "$rankA2", obs: "$yes", update: "$yes", languages: "10", rdps: "$na", extras: "$extrasA2",
   },
 };
 
 const DAEVALOG = {
   name: "Daevalog", url: "https://github.com/Seralth/Daevalog",
   cells: {
-    license: "AGPL-3.0", stars: "3", price: "$free", platform: "$linuxProton", reads: "$readsTraffic", driver: "$na",
+    license: "AGPL-3.0", stars: "4", price: "$free", platform: "$linuxProton", reads: "$readsTraffic", driver: "$na",
     regions: "$na", overlay: "$yes", skills: "$yes", cooldown: "$na", history: "$yes",
     rankings: "$rankDaeva", obs: "$na", update: "$updateNone", languages: "8", rdps: "$na", extras: "$extrasDaeva",
   },
@@ -78,9 +78,9 @@ const DAEVALOG = {
 const AIONFLEX = {
   name: "AionFlex", url: "https://aionflex.gg",
   cells: {
-    license: "$closed", stars: "–", price: "$priceFlex", platform: "$windows", reads: "$na", driver: "$na",
+    license: "$closed", stars: "–", price: "$priceFlex", platform: "$windows", reads: "$na", driver: "$npcap",
     regions: "$regionsFlex", overlay: "$overlayFlex", skills: "$skillsFlex", cooldown: "$na", history: "$historyFlex",
-    rankings: "$rankFlex", obs: "$na", update: "$yes", languages: "$na", rdps: "$na", extras: "$extrasFlex",
+    rankings: "$rankFlex", obs: "$na", update: "$yes", languages: "3", rdps: "$na", extras: "$extrasFlex",
   },
 };
 
@@ -110,7 +110,7 @@ export const GUIDE_TABLES = [
 ];
 
 export const GUIDE_WHAT = ["meter", "overlay", "analyzer", "bossfight", "assist", "character", "tools", "stream", "board"];
-export const GUIDE_WEAK = ["stars", "regions", "platform", "driver", "missing", "boards", "unreleased"];
+export const GUIDE_WEAK = ["stars", "regions", "platform", "driver", "missing", "boards", "estimates"];
 export const GUIDE_STRONG = ["analyzer", "oneTool", "boards", "update", "extras"];
 export const GUIDE_OSS = ["check", "lockin", "paywall", "fixes", "licenses"];
 export const GUIDE_FAQ = ["tracker", "choose", "rdps"];
