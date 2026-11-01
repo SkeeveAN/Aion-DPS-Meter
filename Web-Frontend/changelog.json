@@ -23,6 +23,21 @@
      "Backend"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "A skill with five stone slots counts as a stigma on the player page even where its flag is missing (a preset that does not have it socketed), so it no longer shows among the active skills",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-01"
+   },
+   {
+    "text": "The player page's tab title and the title in the search results say class, level, faction and server and not just the name (it is also the bookmark label)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
