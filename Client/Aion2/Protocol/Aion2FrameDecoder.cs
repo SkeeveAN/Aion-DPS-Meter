@@ -2865,6 +2865,10 @@ public sealed class Aion2FrameDecoder
                     else
                     {
                         arcana = TryReadArcana(frame, k);
+                        if (arcana is null)
+                        {
+                            ArcanaUnreadLog.Note(itemId, slot, frame, k);
+                        }
                     }
 
                     break;
@@ -2917,8 +2921,32 @@ public sealed class Aion2FrameDecoder
     {
         // some entries carry one more zero byte between the size field and the slot index (seen at login 2026-10-29: the
         // piece then read as having no arcana data at all), which shifts everything behind by one
-        int shift = sizePos + 5 < frame.Length && frame[sizePos + 4] == 0 ? 1 : 0;
+        int first = sizePos + 5 < frame.Length && frame[sizePos + 4] == 0 ? 1 : 0;
+        if (ReadArcanaAt(frame, sizePos, first, strict: false) is { } found)
+        {
+            return found;
+        }
+
+        // an entry that fits neither: try the other shifts, but only take one whose god id is a real Lord stat (7 to 17)
+        for (int shift = 0; shift <= 3; shift++)
+        {
+            if (shift != first && ReadArcanaAt(frame, sizePos, shift, strict: true) is { } other)
+            {
+                return other;
+            }
+        }
+
+        return null;
+    }
+
+    private static Aion2ArcanaDetails? ReadArcanaAt(ReadOnlySpan<byte> frame, int sizePos, int shift, bool strict)
+    {
         if (sizePos < 14 || sizePos + 38 + shift > frame.Length || frame[sizePos + 1] != 0 || frame[sizePos + 2] != 0 || frame[sizePos + 3] != 0 || frame[sizePos + 28 + shift] != 1)
+        {
+            return null;
+        }
+
+        if (strict && frame[sizePos + 29 + shift] is < 7 or > 17)
         {
             return null;
         }
