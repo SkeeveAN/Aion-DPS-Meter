@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "An arcana piece whose login entry is laid out differently is read again when the god id and the skill lists fit another shift of the entry, and an entry the meter still cannot read is written byte for byte to arcana-unread.log in the data folder (only on the computer, never uploaded) so its layout can be added (a Parchment of Magic of a player on 1.18.4 showed no experience, Lord or skills)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
