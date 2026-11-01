@@ -38,6 +38,13 @@
      "Backend"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "Each skill preset keeps its own skill bar, so a preset no longer shows the active skills and stigmas of the preset that was active while it was saved (preset 2 of a player showed 14 active skills, two of them stigmas of preset 1)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },

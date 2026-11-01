@@ -1194,4 +1194,6 @@
  "A skill with five stone slots counts as a stigma on the player page even where its flag is missing (a preset that does not have it socketed), so it no longer shows among the active skills": "Ein Skill mit fünf Steinplätzen zählt auf der Spielerseite als Stigma, auch wenn sein Merkmal fehlt (ein Preset, das es nicht eingesteckt hat), und taucht deshalb nicht mehr unter den aktiven Skills auf"
 ,
  "The player page's tab title and the title in the search results say class, level, faction and server and not just the name (it is also the bookmark label)": "Der Tab-Titel der Spielerseite und der Titel in den Suchergebnissen nennen Klasse, Stufe, Fraktion und Server und nicht nur den Namen (er ist auch die Lesezeichen-Bezeichnung)"
+,
+ "Each skill preset keeps its own skill bar, so a preset no longer shows the active skills and stigmas of the preset that was active while it was saved (preset 2 of a player showed 14 active skills, two of them stigmas of preset 1)": "Jedes Skill-Preset behält seine eigene Skillleiste, damit ein Preset nicht mehr die aktiven Skills und Stigmen des Presets zeigt, das beim Speichern aktiv war (Preset 2 eines Spielers zeigte 14 aktive Skills, zwei davon Stigmen von Preset 1)"
 }
