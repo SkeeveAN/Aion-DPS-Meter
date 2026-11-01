@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-01",
+  "items": [
+   {
+    "text": "Partner API: every boss comes with its portrait from the game, and a new route /bosses/{slug} gives the loot as the possible-reward window shows it (rolls with chance and times, items with single chances, Odyle cost, guaranteed items), in all languages the client has",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-01"
+   }
+  ]
+ },
+ {
   "version": "1.18.7",
   "date": "2026-11-01",
   "items": [
