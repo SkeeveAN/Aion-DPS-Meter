@@ -80,7 +80,7 @@ test("a boss comes with its portrait and the loot of the possible-reward window"
   assert.ok(list.some((b: { portrait: string | null }) => b.portrait?.endsWith(".webp")));
   const detail = (await get("/api/partner/v1/bosses/kromedes-desire?lang=de")).json();
   assert.ok(detail.portrait.includes("/bosses/portraits/"));
-  const easy = detail.loot.find((l: { mode: string; role: string }) => l.mode === "easy" && l.role === "final");
+  const easy = detail.loot.find((l: { mode: string; role: string }) => l.mode === "explore" && l.role === "final");
   assert.ok(easy);
   assert.deepEqual(easy.rolls.map((r: { chance: number; times: number }) => [r.chance, r.times]), [[7.5, 1], [100, 1], [100, 3], [60, 1]]);
   const unique = easy.rolls[0];
@@ -88,6 +88,17 @@ test("a boss comes with its portrait and the loot of the possible-reward window"
   assert.equal(unique.items.length, 8);
   assert.ok(unique.items.every((i: { chance: number }) => i.chance === 12.5));
   assert.equal(unique.items[0].name, "Kromedes Zweihandschwert");
+  // the three steps are three bosses of their own and drop different gear: exploration low level pieces, conquest the level 86 ones
+  const top = async (slug: string, mode: string) => {
+    const one = (await get(`/api/partner/v1/bosses/${slug}?lang=de`)).json();
+    assert.deepEqual(one.loot.map((l: { mode: string }) => l.mode), [mode]);
+    return { modeName: one.loot[0].modeName, level: Math.max(...one.loot[0].rolls.flatMap((r: { items: { itemLevel: number | null }[] }) => r.items.map((i) => i.itemLevel ?? 0))) };
+  };
+  const explore = await top("kromedes-desire", "explore");
+  assert.equal(explore.modeName, "Erkundung");
+  assert.ok(explore.level < 50);
+  assert.equal((await top("kromedes-desire-conquest", "conquest")).level, 86);
+  assert.equal((await top("kromedes-desire-conquest-hard", "conquest-hard")).level, 86);
   assert.equal((await get("/api/partner/v1/bosses/does-not-exist")).statusCode, 404);
 });
 

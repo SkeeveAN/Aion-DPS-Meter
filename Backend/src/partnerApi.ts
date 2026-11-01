@@ -55,7 +55,7 @@ export function instances(lang: Lang) {
 type BossFile = { items: { key: string; instanceKey: string; slug: string; name: Names; npcIds: number[]; level?: number }[] };
 type LootRoll = { chance: number; times: number; grade: string; items: { itemId: number; grade: string; chance: number; count: [number, number] }[] };
 type BossLoot = { dungeon: string; mode: string; role: string; npcId: number; odyleCost: number; rolls: LootRoll[]; ceiling: { after: number; rewards: number; items: { itemId: number }[] } | null };
-type LootFile = { grades: Record<string, Names>; items: Record<string, { grade: string; icon: string | null; names: Names }>; bosses: Record<string, { portrait: string | null; loot: BossLoot[] }> };
+type LootFile = { modes: Record<string, Names>; grades: Record<string, Names>; items: Record<string, { level: number | null; grade: string; icon: string | null; names: Names }>; bosses: Record<string, { portrait: string | null; loot: BossLoot[] }> };
 const lootFile = () => load<LootFile>(dataDir("boss_loot.json"));
 const portraitUrl = (file: string | null | undefined) => (file ? `${IMAGE_BASE}/bosses/portraits/${file}.webp` : null);
 
@@ -70,7 +70,8 @@ export function bosses(lang: Lang, instanceSlug?: string) {
 /**
  * One boss with its loot as the game's "possible reward" window shows it: per dungeon mode, the rolls ("random obtain 1..n": chance of the roll,
  * how many times it is made) with the items of each roll and their single chances (percent), plus the Odyle cost and the guaranteed items.
- * A slug can stand for several modes (easy, normal, hard, conquest); their loot lists are put together.
+ * Every mode of an expedition is a boss of its own (kromedes-desire = exploration, -conquest, -conquest-hard) with its own loot: exploration drops low level
+ * gear, conquest the level 86 pieces. itemLevel is set for equipment; mode/modeName say which step the loot is from.
  */
 export function boss(slug: string, lang: Lang) {
   const keys = new Set(load<BossFile>(dataDir("bosses.json")).items.filter((b) => b.slug === slug).map((b) => b.key));
@@ -85,12 +86,15 @@ export function boss(slug: string, lang: Lang) {
   };
   const line = (i: { itemId: number; chance: number; count: [number, number] }) => {
     const def = file.items[String(i.itemId)];
-    return { itemId: i.itemId, name: pick(def?.names, lang), grade: def?.grade ?? null, image: image(i.itemId), chance: i.chance, count: i.count };
+    return { itemId: i.itemId, name: pick(def?.names, lang), grade: def?.grade ?? null, itemLevel: def?.level ?? null, image: image(i.itemId), chance: i.chance, count: i.count };
   };
   const portrait = [...keys].map((k) => file.bosses[k]?.portrait).find(Boolean);
-  const loot = [...keys].flatMap((k) => file.bosses[k]?.loot ?? []).map((l) => ({
+  const order = Object.keys(file.modes);
+  const rank = (mode: string) => (order.includes(mode) ? order.indexOf(mode) : order.length);
+  const loot = [...keys].flatMap((k) => file.bosses[k]?.loot ?? []).sort((a, b) => rank(a.mode) - rank(b.mode) || a.mode.localeCompare(b.mode)).map((l) => ({
     dungeon: l.dungeon,
     mode: l.mode,
+    modeName: file.modes[l.mode] ? pick(file.modes[l.mode], lang) : null,
     role: l.role,
     npcId: l.npcId,
     odyleCost: l.odyleCost,

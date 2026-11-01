@@ -65,7 +65,7 @@ def item_entry(name, prob, lo, hi):
     iid = row["ID"]["Value"]
     if iid not in item_defs:
         icon = item_icons.get(str(iid))
-        item_defs[iid] = {"grade": row["ItemGrade"].split("::")[-1].lower(), "icon": icon if icon and os.path.exists(os.path.join(ICON_DIR, icon + ".webp")) else None, "names": text(row["Desc"]["Key"])}
+        item_defs[iid] = {"level": row["ItemLevel"] if row["ItemType"].endswith("Equip") else None, "grade": row["ItemGrade"].split("::")[-1].lower(), "icon": icon if icon and os.path.exists(os.path.join(ICON_DIR, icon + ".webp")) else None, "names": text(row["Desc"]["Key"])}
     return {"itemId": iid, "grade": item_defs[iid]["grade"], "chance": round(prob / 1e6, 6), "count": [lo, hi]}
 
 
@@ -97,7 +97,10 @@ def reward(name):
 def mode_of(cube):
     tail = cube["Name"].split("_", 2)[2] if cube["Name"].count("_") >= 2 else ""
     m = re.fullmatch(r"G_(\d+)", tail)
-    return f"grade{int(m.group(1))}" if m else tail.lower()
+    if m:
+        return f"grade{int(m.group(1))}"
+    # the game's own three steps of an expedition: Exploration (NPC 231...), Conquest (230...), Conquest hard (232...)
+    return {"easy": "explore", "normal": "conquest", "hard": "conquest-hard"}.get(tail.lower(), tail.lower())
 
 
 # --- cubes: only the ones that belong to their own dungeon (placeholder copies point at the Draupnir reward)
@@ -177,5 +180,5 @@ for boss in bosses:
         with_portrait += bool(portrait)
         with_loot += bool(loot)
 
-json.dump({"_meta": {"source": "client tables (RewardOdEnergyCube, RewardPackage, RewardPackageItem, NpcData.Portrait), EU client 2.0.7", "chance": "percent; count = [min, max]; times = how often the roll is made (chance 100)"}, "grades": grade_names, "items": {str(k): v for k, v in sorted(item_defs.items())}, "bosses": out}, open(OUT_JSON, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+json.dump({"_meta": {"source": "client tables (RewardOdEnergyCube, RewardPackage, RewardPackageItem, NpcData.Portrait), EU client 2.0.7", "chance": "percent; count = [min, max]; times = how often the roll is made (chance 100)"}, "modes": {"explore": text("UI_PARTYDUNGEON_DIFFICULTY_EXPLORER"), "conquest": text("UI_PARTYDUNGEON_DIFFICULTY_CONQUER"), "conquest-hard": {k: f"{text('UI_PARTYDUNGEON_DIFFICULTY_CONQUER').get(k, '')} - {v}" for k, v in text("UI_PARTYDUNGEON_CONQUER_DIFFICULTY_ADVANCED").items()}}, "grades": grade_names, "items": {str(k): v for k, v in sorted(item_defs.items())}, "bosses": out}, open(OUT_JSON, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 print(f"bosses {len(bosses)}, with portrait {with_portrait}, with loot {with_loot}, portraits written {sum(1 for v in made.values() if v)}")
