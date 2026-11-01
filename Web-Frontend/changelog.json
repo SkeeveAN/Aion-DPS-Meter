@@ -47,6 +47,15 @@
      "Website"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "The own combat power and item level from the legion list of the login go online with the profile (with the setting for other players' profiles also those of the legion's members), and the website shows them instead of NC's lagging page while NC still shows its old value",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
