@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.6",
   "date": "2026-11-01",
   "items": [
    {
@@ -41,6 +41,13 @@
    },
    {
     "text": "Each skill preset keeps its own skill bar, so a preset no longer shows the active skills and stigmas of the preset that was active while it was saved (preset 2 of a player showed 14 active skills, two of them stigmas of preset 1)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-01"
+   },
+   {
+    "text": "each skill preset keeps its own skill bar so a preset no longer shows the actives and stigmas of another one, an arcana piece with a differently laid out login entry is read again (an unreadable one is written to arcana-unread.log on the computer only), and the Lord values card of the Arcana tab looks like the character ring",
     "areas": [
      "Client"
     ],
