@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-01",
+  "items": [
+   {
+    "text": "The Lord values card of the Arcana tab uses the same look as the character ring: symbols without discs and bigger, the value at the lower right of the symbol, bold readable names, colours following the light and dark theme",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-01"
+   }
+  ]
+ },
+ {
   "version": "1.18.5",
   "date": "2026-11-01",
   "items": [
