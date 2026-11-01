@@ -308,13 +308,14 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _presets.Clear();
             foreach (var preset in saved.Presets.Where(x => x.Index != _activePreset && x.Index is >= 1 and <= 9))
             {
-                var list = preset.Skills.Select(k => new Aion2SkillEntry(k.Id, k.Level, k.BaseLevel, k.Stigma, false, k.Stones)).ToList();
+                var list = preset.Skills.Select(k => new Aion2SkillEntry(k.Id, k.Level, k.BaseLevel, k.Stigma, k.Equipped, k.Stones)).ToList();
                 _presets[preset.Index] = new PresetSlot
                 {
                     Skills = list,
                     Stigmas = list.Where(k => k.Stigma).Select(k => k.SkillId).ToHashSet(),
                     Stones = list.Where(k => k.Stones is not null).ToDictionary(k => k.SkillId, k => k.Stones!.ToArray()),
                     At = preset.SeenAt,
+                    Bar = list.Where(k => k.Equipped).Select(k => k.SkillId).ToHashSet(),
                 };
             }
 
@@ -1472,6 +1473,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         public HashSet<int> Stigmas = new();
         public Dictionary<int, int[]> Stones = new();
         public DateTime At;
+        public HashSet<int> Bar = new(); // the skill bar as it was when the preset was left (the bar belongs to the preset)
     }
 
     private int _activePreset = 1;
@@ -1543,6 +1545,13 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
                 _presetAt = known.At;
                 _pruneStigmas = true;
+                // until the game sends the bar of the new preset, the bar of that preset as last seen
+                if (known.Bar.Count > 0)
+                {
+                    _bar.Clear();
+                    _bar.UnionWith(known.Bar);
+                    _skills = _skills?.Select(k => k with { Equipped = _bar.Contains(k.SkillId) }).ToList();
+                }
             }
             else
             {
@@ -1561,7 +1570,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             return;
         }
 
-        _presets[_activePreset] = new PresetSlot { Skills = _skills, Stigmas = new HashSet<int>(_stigmas), Stones = new Dictionary<int, int[]>(_stones), At = _presetAt };
+        _presets[_activePreset] = new PresetSlot { Skills = _skills, Stigmas = new HashSet<int>(_stigmas), Stones = new Dictionary<int, int[]>(_stones), At = _presetAt, Bar = new HashSet<int>(_bar) };
     }
 
     private IReadOnlyList<Aion2PresetInfo> PresetsLocked()
@@ -1570,7 +1579,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         return _presets.OrderBy(kv => kv.Key)
             .Where(kv => kv.Value.Skills is { Count: > 0 })
             .Select(kv => new Aion2PresetInfo(kv.Key, kv.Key == _activePreset, kv.Value.At,
-                kv.Value.Skills!.Select(k => k with { Stigma = kv.Value.Stigmas.Contains(k.SkillId), Equipped = _bar.Contains(k.SkillId), Stones = kv.Value.Stones.TryGetValue(k.SkillId, out var v) ? v : null }).ToList()))
+                kv.Value.Skills!.Select(k => k with { Stigma = kv.Value.Stigmas.Contains(k.SkillId), Equipped = (kv.Key == _activePreset ? _bar : kv.Value.Bar).Contains(k.SkillId), Stones = kv.Value.Stones.TryGetValue(k.SkillId, out var v) ? v : null }).ToList()))
             .ToList();
     }
 
