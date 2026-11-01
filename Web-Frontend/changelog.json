@@ -1,7 +1,7 @@
 [
  {
-  "version": "Unreleased",
-  "date": "2026-11-01",
+  "version": "1.19.0",
+  "date": "2026-11-02",
   "items": [
    {
     "text": "Partner API: every boss comes with its portrait from the game, and a new route /bosses/{slug} gives the loot as the possible-reward window shows it (rolls with chance and times, items with single chances, Odyle cost, guaranteed items), in all languages the client has",
@@ -17,6 +17,23 @@
      "Backend"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "Skill bars: the player page shows the action bar of every skill preset (the game's twelve slots, with the skills that step in when the first one is not ready) in one row with Active, Passive and Stigma, all presets list their skills in the game's own order, and the client reads the bars at login and sends them with the profile",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-02"
+   },
+   {
+    "text": "the player page shows the action bar of each skill preset next to Active, Passive and Stigma (the client reads it at login and sends it with the profile), and the skills of every preset are listed in the game's own order",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-02"
    }
   ]
  },

@@ -134,5 +134,9 @@
  "The lord values in the character window of the client are drawn like in the game and on the website: lords on the double ring turned by half a step, big symbols for the six main attributes with spokes and a star in the middle, readable names, colours following the chosen theme": {
   "en": "Character window: the lord values look like in the game",
   "de": "Charakter-Fenster: Die Lord-Werte sehen aus wie im Spiel"
+ },
+ "Skill bars: the player page shows the action bar of every skill preset (the game's twelve slots, with the skills that step in when the first one is not ready) in one row with Active, Passive and Stigma, all presets list their skills in the game's own order, and the client reads the bars at login and sends them with the profile": {
+  "en": "Skill bars: the player page shows each preset's action bar",
+  "de": "Skill-Leisten: Die Spielerseite zeigt die Aktionsleiste jedes Presets"
  }
 }
