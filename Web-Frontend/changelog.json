@@ -10,6 +10,13 @@
      "Backend"
     ],
     "date": "2026-11-01"
+   },
+   {
+    "text": "Partner API: the loot of a boss says which step it is from (Exploration, Conquest, Conquest hard) with the game's own name, and every piece of equipment carries its item level",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-01"
    }
   ]
  },
