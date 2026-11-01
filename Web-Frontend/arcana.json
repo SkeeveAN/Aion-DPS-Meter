@@ -67,6 +67,46 @@
      }
     }
    ]
+  },
+  "002": {
+   "name": {
+    "de": "Magierüstung",
+    "en": "Magic Armor",
+    "es": "Armadura mágica",
+    "fr": "Armure magique",
+    "ja": "魔力鎧",
+    "ko": "마력 갑옷",
+    "pt": "Armadura Mágica",
+    "ru": "Магические доспехи"
+   },
+   "effects": [
+    {
+     "pieces": 2,
+     "text": {
+      "de": "Stellt 1.500 MP wieder her, wenn die MP 20 % oder weniger betragen [Abklingzeit 30 Sek.]",
+      "en": "Restores 1,500 MP when MP is 20% or less [Cooldown: 30s]",
+      "es": "Recupera 1500 Puntos de Maná cuando los Puntos de Maná están al 20 % o menos [Tiempo de Enfriamiento de 30 s]",
+      "fr": "Régénère 1 500 PM si les PM sont inférieurs à 20 % [Temps de recharge : 30 s]",
+      "ja": "MPが20%以下の時にMPを1,500回復[回復の再発動制限時間30秒]",
+      "ko": "정신력이 20% 이하일 때 정신력 1500 회복 [재발동 제한 시간 30초]",
+      "pt": "Recupera 1.500 PM quando o PM estiver em 20% ou menos [Tempo de Recarga: 30s]",
+      "ru": "Восстанавливает 1500 ОМ, когда ОМ достигает 20% или меньше [Время перезарядки 30 с]"
+     }
+    },
+    {
+     "pieces": 4,
+     "text": {
+      "de": "Verteidigung (PvE) +1000: Bei MP ≥ 50 %",
+      "en": "+1,000 PvE Defense when MP is 50% or more",
+      "es": "Aumento de Defensa JcE en 1000 cuando los Puntos de Maná están al 50% o más",
+      "fr": "Augmente la DÉF JcE de 1 000 si les PM sont à 50 % ou plus.",
+      "ja": "MPが50%以上の時にPvE防御力1,000増加",
+      "ko": "정신력이 50% 이상일 때 PVE 방어력 1000 증가",
+      "pt": "+1.000 de Defesa em JvA quando PM estiver em 50% ou mais",
+      "ru": "ЗЩТ в PvE +1000 при ОМ 50% и выше"
+     }
+    }
+   ]
   }
  }
 }

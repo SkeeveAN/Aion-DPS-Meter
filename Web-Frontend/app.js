@@ -4545,7 +4545,7 @@ function arcanaBlocks(profile, list) {
       ]),
     );
   const lords = list.filter((g) => g.arcana && LORD_KEYS[g.arcana.god]);
-  const top = el("div", { className: "pf-arc-top" }, [
+  const top = el("div", { className: `pf-arc-top${setCards.length > 1 ? " three" : ""}` }, [
     ...setCards,
     lords.length > 0
       ? el("div", { className: "pf-card pf-arc-lords" }, [
@@ -4889,23 +4889,23 @@ function renderCharacterTab(profile) {
     bars.classList.add("has-portrait");
   }
 
-  // Ring positions are percentages of the ring box (600 x 600 design size): 10 lords on r=238 clockwise from the top, the six
-  // main attributes as a hexagon on r=108, Might on top.
-  const pos = (index, count, radius) => {
-    const angle = (index / count) * Math.PI * 2;
+  // Ring positions are percentages of the ring box (600 x 600 design size), laid out like the in-game window: 10 lords on r=228
+  // clockwise, the first one half a step left of the top; the six main attributes as a hexagon on r=112, Might on top.
+  const pos = (index, count, radius, offset = 0) => {
+    const angle = ((index + offset) / count) * Math.PI * 2;
     return `left:${(50 + (Math.sin(angle) * radius) / 6).toFixed(2)}%;top:${(50 - (Math.cos(angle) * radius) / 6).toFixed(2)}%`;
   };
   const ring = el("div", { className: "pf-ring" }, [
     // Two guide circles: fixed SVG shapes, no data in them.
-    el("div", { className: "pf-ring-guides", innerHTML: '<svg viewBox="0 0 600 600" aria-hidden="true"><circle cx="300" cy="300" r="238" class="pf-ring-c1"/><circle cx="300" cy="300" r="165" class="pf-ring-c2"/></svg>' }),
+    el("div", { className: "pf-ring-guides", innerHTML: '<svg viewBox="0 0 600 600" aria-hidden="true"><circle cx="300" cy="300" r="235" class="pf-ring-c1"/><circle cx="300" cy="300" r="220" class="pf-ring-c3"/><circle cx="300" cy="300" r="160" class="pf-ring-c2"/><path class="pf-ring-spokes" d="M300 270V140M326 285L413 210M326 315L413 390M300 330V460M274 315L187 390M274 285L187 210"/></svg><i class="pf-ring-core"></i>' }),
     ...lords.map((a, i) =>
-      el("div", { className: "pf-lord-node", style: pos(i, lords.length, 238), title: lordName(a) }, [
+      el("div", { className: "pf-lord-node", style: pos(i, lords.length, 228, -0.5), title: lordName(a) }, [
         el("div", { className: "pf-lord-ib" }, [attrIcon(a.key, true), el("strong", { textContent: String(a.value) })]),
         el("span", { textContent: attrName(a) }),
       ]),
     ),
     ...main.map((a, i) =>
-      el("div", { className: "pf-hex-node", style: pos(i, main.length, 108), title: attrName(a) }, [attrIcon(a.key, false), el("span", { textContent: attrName(a) }), el("strong", { textContent: String(a.value) })]),
+      el("div", { className: "pf-hex-node", style: pos(i, main.length, 112), title: attrName(a) }, [attrIcon(a.key, false), el("span", { textContent: attrName(a) }), el("strong", { textContent: String(a.value) })]),
     ),
   ]);
 

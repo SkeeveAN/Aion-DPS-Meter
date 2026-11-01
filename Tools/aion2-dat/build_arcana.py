@@ -9,7 +9,8 @@ arcana, their names are String_STR_ARCANA_<CARD>_A_SET_<n>_B_body, matched by th
 ArcanaEnchant rows: [FString "Arcana_Enchant_<Grade>"][u8 level][i32 exp to the next level]...; a grade's last level carries 0
 (Unique: 3000 6000 12000 24000 48000 0 - the +2 and +3 caps 12.000 / 24.000 match the in-game window). Set effects: ItemSetEffect lists sets 001 and 002 with a 2 and a 4 piece effect each; the texts are
 SkillAbnormalString_<40001011 ...> (set 001 = 40001011 for 2 pieces, 40002011 for 4 pieces, checked against the in-game
-tooltip of a complete "Primal Vigor" set: +60 / +150 PvE Attack at HP >= 70 %). Only set 001 is taken: for the others the
+tooltip of a complete "Primal Vigor" set: +60 / +150 PvE Attack at HP >= 70 %). Set 002 ("Mage Armor", the "of Magic" pieces, ids ending
+0002) continues the numbering (40003011 / 40004011: MP restore, PvE defense at MP >= 50 %). Only 001 and 002 are taken: for the others the
 mapping is not verified.
 """
 import json
@@ -42,12 +43,12 @@ def name(code, key):
     return texts[code].get(key)
 
 sets = {}
-for number in ("001",):
+for number in ("001", "002"):
     sets[number] = {
         "name": {c: name(c, f"String_STR_ARCANA_A_SET_{number}_body") for c in locales},
         "effects": [
             {"pieces": pieces, "text": {c: name(c, f"SkillAbnormalString_SkillAbnormalString_{key}_desc_effect") for c in locales}}
-            for pieces, key in ((2, "40001011"), (4, "40002011"))
+            for pieces, key in ((2, f"4000{int(number) * 2 - 1}011"), (4, f"4000{int(number) * 2}011"))
         ],
     }
 

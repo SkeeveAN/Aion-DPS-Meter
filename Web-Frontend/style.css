@@ -3182,6 +3182,7 @@ button.cmp-mem { cursor: pointer; }
 /* Arcana tab of a character whose own client uploaded the details: set effect and lord values on top, the five pieces and the sum of their skill bonuses below. */
 .pf-arc { display: grid; gap: 14px; }
 .pf-arc-top { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+.pf-arc-top.three { grid-template-columns: repeat(3, 1fr); }
 .pf-arc-set {
   display: grid;
   gap: 9px;
@@ -3235,7 +3236,7 @@ button.cmp-mem { cursor: pointer; }
   .pf-arc-pieces { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 720px) {
-  .pf-arc-top, .pf-arc-pieces { grid-template-columns: 1fr; }
+  .pf-arc-top, .pf-arc-top.three, .pf-arc-pieces { grid-template-columns: 1fr; }
   .pf-arc-lordrow { grid-template-columns: repeat(3, 1fr); }
 }
 
@@ -3649,12 +3650,16 @@ button.cmp-mem { cursor: pointer; }
   mask-image: linear-gradient(#000 90%, transparent);
 }
 
-/* Lord ring: the box scales with the card (600 px at most), everything inside is positioned in percent. */
+/* Lord ring (laid out like the in-game window): a dark panel in both themes, because the symbols are light grey line art.
+   The box scales with the card (600 px at most), everything inside is positioned in percent. */
 .pf-ring {
+  --ring-bg: #1d2a38;
   position: relative;
   width: min(600px, 100%);
   aspect-ratio: 1;
   margin: 0 auto;
+  border-radius: 12px;
+  background: radial-gradient(circle, #2e4559 0%, var(--ring-bg) 62%);
 }
 .pf-ring-guides svg {
   position: absolute;
@@ -3664,68 +3669,99 @@ button.cmp-mem { cursor: pointer; }
 }
 .pf-ring-c1 {
   fill: none;
-  stroke: var(--color-border);
+  stroke: #8196aa;
   stroke-width: 2;
+}
+.pf-ring-c3 {
+  fill: none;
+  stroke: #6a8196;
+  stroke-width: 1.5;
 }
 .pf-ring-c2 {
   fill: none;
-  stroke: var(--color-border);
+  stroke: #556b80;
   stroke-width: 1;
   stroke-dasharray: 3 5;
+}
+.pf-ring-spokes {
+  fill: none;
+  stroke: #46596b;
+  stroke-width: 1;
+}
+.pf-ring-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4.5%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 18%, #6f9bd0 20% 100%);
+  box-shadow: 0 0 18px rgba(111, 155, 208, 0.7);
 }
 .pf-lord-node,
 .pf-hex-node {
   position: absolute;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: var(--color-text-muted);
 }
 .pf-lord-node {
-  width: 16%;
+  width: 18%;
   font-size: clamp(9px, 1.9cqw, 11px);
+  font-weight: 700;
+  color: #dee8f2;
+  text-shadow: 0 0 3px #141c26, 0 0 3px #141c26, 0 0 2px #141c26;
 }
 .pf-lord-ib {
   position: relative;
-  width: 66%;
+  width: 58%;
   aspect-ratio: 1;
-  margin: 0 auto 4px;
+  margin: 0 auto 2px;
   border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: radial-gradient(circle, var(--attr-disc-hi) 0%, var(--attr-disc-lo) 72%);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
-  display: grid;
-  place-items: center;
+  background: var(--ring-bg);
+}
+.pf-ring .pf-attr-ico {
+  background: none;
+  border-radius: 0;
+  filter: brightness(1.7) contrast(1.1);
 }
 .pf-lord-ib .pf-attr-ico {
-  width: 78%;
-  height: 78%;
-  background: none;
+  width: 100%;
+  height: 100%;
 }
 .pf-lord-ib strong {
   position: absolute;
-  right: -12%;
-  bottom: -6%;
-  font-size: 1.15rem;
+  right: -32%;
+  bottom: 22%;
+  font-size: clamp(0.9rem, 3.4cqw, 1.15rem);
   line-height: 1;
   color: #fff;
-  -webkit-text-stroke: 3px #0b1620;
+  text-shadow: none;
+  -webkit-text-stroke: 3px #141c26;
   paint-order: stroke fill;
 }
 .pf-hex-node {
-  width: 16%;
-  font-size: 0.8rem;
-  color: var(--color-text);
+  width: 22%;
+  transform: translate(-50%, -62%);
 }
 .pf-hex-node .pf-attr-ico {
-  width: 30px;
-  height: 30px;
+  width: 50%;
+  height: auto;
+  aspect-ratio: 1;
   margin: 0 auto 2px;
-  padding: 2px;
+  padding: 0;
+}
+.pf-hex-node span {
+  display: block;
+  font-size: clamp(0.65rem, 2.6cqw, 0.85rem);
+  font-weight: 700;
+  color: #3ce1f0;
+  text-shadow: 0 0 3px #141c26, 0 0 3px #141c26;
 }
 .pf-hex-node strong {
   display: block;
-  font-size: 1.35rem;
-  color: var(--color-primary);
+  font-size: clamp(0.6rem, 2.2cqw, 0.75rem);
+  color: #ebf0f5;
 }
 .pf-char-ring {
   container-type: inline-size;
