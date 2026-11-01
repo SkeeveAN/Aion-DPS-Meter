@@ -4,7 +4,10 @@ in every client language, the 17 slots (AgitDecoSlot) and the names of the stats
 Usage:  python3 -I build_pantheon.py <decoded Data/Table dir> <dir with l10n_<locale>.json> <out.json> [item_names.json]
 
 The icon is the IconRes of the row (texture Item/ETC/<icon>, converted by Tools/aion2-icons/convert_pantheon_icons.py); the grade is the one of the decoration's item
-(paintings 534310000 + id, statues 534320000 + id - 999, colossi 534330000 + id - 4999, bound or not) from item_names.json, 0 when none is known.
+(paintings 534310000 + id, statues 534320000 + id - 999, colossi 534330000 + id - 4999, bound or not) from item_names.json. Where the table has no item
+(about half of the decorations, among them second ids of paintings that share name and icon with a first one) the grade is taken from the other decoration with the
+same icon, else from the effect value, which the known decorations show to follow the grade exactly: paintings 2/3/4/5 = grade 2-5, statues 6/8/10/12/15 = grade 1-5,
+colossi 35/45/55 = grade 2/4/5; 0 when none of that applies.
 
 A decoration is the number the game sends in the Pantheon frames (0x8ce2 tail, 0xaf8a, 0x96e2): paintings 1.., statues 1000.., colossi 5000...
 Its effects are the SkillAbnormalEffect rows of the decoration's AbnormalId ("Values": [stat, value, ...]); the window adds them up.
@@ -61,6 +64,14 @@ for r in rows("AgitDecoItem"):
         "n": names(f"String_{r['Desc']['Key']}_body"),
         "e": eff,
     }
+
+# fill the grades the item table does not know: the same icon on a decoration that has one, then the effect value
+by_icon = {d["i"].lower(): d["g"] for d in decorations.values() if d["g"]}
+VALUE_GRADE = {"frame": {2: 2, 3: 3, 4: 4, 5: 5}, "statue": {6: 1, 8: 2, 10: 3, 12: 4, 15: 5}, "colossus": {35: 2, 45: 4, 55: 5}}
+for d in decorations.values():
+    if d["g"] == 0:
+        values = {v for _, v in d["e"]}
+        d["g"] = by_icon.get(d["i"].lower()) or (VALUE_GRADE[d["k"]].get(next(iter(values))) if len(values) == 1 else 0) or 0
 
 slots = [{"slot": r["ID"]["Value"], "k": kinds[r["DecoType"]]} for r in rows("AgitDecoSlot")]
 stat_names = {s: names(f"String_StatName_{s}_body") for s in sorted(stats)}
