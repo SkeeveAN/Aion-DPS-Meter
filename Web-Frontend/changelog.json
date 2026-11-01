@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.18.7",
   "date": "2026-11-01",
   "items": [
    {
@@ -10,6 +10,13 @@
      "Website",
      "Backend",
      "Database"
+    ],
+    "date": "2026-11-01"
+   },
+   {
+    "text": "the legion list shows the Odyle energy of each member (now, from stones, in items) with a warning triangle for numbers from a late started client, and a change of the Pantheon goes online at once",
+    "areas": [
+     "Client"
     ],
     "date": "2026-11-01"
    }
