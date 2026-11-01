@@ -661,6 +661,8 @@ public partial class MainWindow : Window
                 RefreshUploadAvailability();
                 ScheduleOwnProfileUpload();
             }));
+            // A change of the own Pantheon goes online at once (a few seconds later, so several changes travel together).
+            entities.PantheonChanged += () => Dispatcher.BeginInvoke(new Action(() => ScheduleOwnProfileUpload(2)));
             // A character window of another player was opened: it goes online by itself a few seconds later (see ScheduleInspectedUpload).
             entities.InspectedChanged += () => Dispatcher.BeginInvoke(new Action(ScheduleInspectedUpload));
         }
@@ -1280,6 +1282,8 @@ public partial class MainWindow : Window
             Aion2FieldBosses.EnablePersistence();
             Aion2Tickets.EnablePersistence();
             Aion2Tickets.Changed += () => Aion2Tickets.Flush();
+            Aion2Tickets.Changed += NoteOdyleChanged;
+            Aion2.Aion2Stock.Changed += NoteOdyleChanged;
             EnsureRestrictableControllers();
             _network ??= new NetworkOverlayController();
             Aion2Loot.EnablePersistence();
@@ -3439,7 +3443,7 @@ public partial class MainWindow : Window
     private string? _lastProfileUploadHash;
     private bool _profileUploadHintShown;
 
-    private void ScheduleOwnProfileUpload()
+    private void ScheduleOwnProfileUpload(int delaySeconds = 8)
     {
         // Always runs (but never in a headless mode): besides the upload it keeps the "legion member" flag of the settings up to date.
         if (Headless)
@@ -3465,6 +3469,7 @@ public partial class MainWindow : Window
         }
 
         _profileUploadTimer.Stop();
+        _profileUploadTimer.Interval = TimeSpan.FromSeconds(delaySeconds);
         _profileUploadTimer.Start();
     }
 
@@ -6306,6 +6311,41 @@ public partial class MainWindow : Window
     private static int? CharacterIdFor(Aion2.Aion2EntityDirectory? directory, string name, int? serverId) =>
         directory is not null && serverId is int server && directory.CharacterIdOf(name, server) is > 0 and int id ? id : null;
 
+    /// <summary>The Odyle energy of the logged-in character (from the ticket list) and the Odyle energy items of its inventory and storages as far as the meter knows them; null when it knows nothing.</summary>
+    private static ProfileOdyleUpload? BuildOdyleUpload(string name)
+    {
+        Aion2.TicketCharacter? ticketed = Aion2.Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase) && c.Tickets.Count > 0);
+        Aion2.TicketValue? energy = ticketed is not null && Aion2.Aion2Tickets.OdyleSeenThisRun(name) && ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.OdyleId, out Aion2.TicketValue value) ? value : null;
+        List<ProfileOdyleStackUpload> stacks = Aion2.Aion2Stock.OdyleStacks().Select(x => new ProfileOdyleStackUpload(x.Item, x.Quantity, (int)x.Place, x.ExpiresMs, Aion2.Aion2Stock.OdyleUnitOf(x.Item))).ToList();
+        if (energy is null && stacks.Count == 0 && !Aion2.Aion2Stock.HasData)
+        {
+            return null;
+        }
+
+        return new ProfileOdyleUpload(energy?.Count, energy?.Bonus, stacks, energy is not null && Aion2.Aion2Stock.HasData);
+    }
+
+    private string _odyleSignature = "";
+
+    /// <summary>The Odyle energy or an Odyle item changed (a login, loot, a pick-up, a use): the own profile goes online again a few seconds later.</summary>
+    private void NoteOdyleChanged()
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { } own })
+        {
+            return;
+        }
+
+        ProfileOdyleUpload? odyle = BuildOdyleUpload(own.Name);
+        string signature = odyle is null ? "" : $"{odyle.Count}/{odyle.Bonus}/{odyle.Complete}/" + string.Join(",", odyle.Stacks.Select(x => $"{x.Item}:{x.Quantity}:{x.Place}:{x.ExpiresMs}"));
+        if (signature == _odyleSignature)
+        {
+            return;
+        }
+
+        _odyleSignature = signature;
+        Dispatcher.BeginInvoke(new Action(() => ScheduleOwnProfileUpload(3)));
+    }
+
     private int ProfileIdOf(PlayerRow row) =>
         _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: { } own } && row.Name == own.Name
             ? own.CombatId
@@ -6365,7 +6405,8 @@ public partial class MainWindow : Window
                         pantheon.Owned)
                     : null,
                 CombatPower: ownLegionStats?.CombatPower is > 0 and not 397228 ? ownLegionStats.CombatPower : null,
-                ItemLevel: ownLegionStats?.ItemLevel is > 0 ? ownLegionStats.ItemLevel : null);
+                ItemLevel: ownLegionStats?.ItemLevel is > 0 ? ownLegionStats.ItemLevel : null,
+                Odyle: BuildOdyleUpload(live.Name));
         }
 
         // A character window the local player opened for this player: level and the full equipment with

@@ -4,7 +4,7 @@ import { db } from "./db/client.js";
 import { guilds, playerNcCharacter, playerNcMatch, playerProfiles, players, servers } from "./db/schema.js";
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { profileBadge, type ProfileBadge } from "./profileBadge.js";
-import { averageItemLevelOf } from "./profile.js";
+import { averageItemLevelOf, odyleOf } from "./profile.js";
 import { factionOfServerName } from "./factions.js";
 import { slugify, uniqueSlug } from "./seo/slug.js";
 
@@ -38,7 +38,14 @@ export interface GuildMember extends ProfileBadge {
   combatPower: number | null;
   /** Our own average item level of the worn gear. */
   avgItemLevel: number | null;
+  /** The Odyle energy now (count, bonus from stones) and the energy still lying in items; null when the member never uploaded it. complete false = not current. */
+  odyle: { count: number; bonus: number; items: number; complete: boolean; at: string } | null;
 }
+
+const odyleSummary = (json: string | null): GuildMember["odyle"] => {
+  const o = odyleOf(json);
+  return o ? { count: o.count, bonus: o.bonus, items: o.items, complete: o.complete, at: o.at } : null;
+};
 
 const normalizeGuild = (name: string) => name.trim().toLowerCase();
 
@@ -241,6 +248,7 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       ncAttributes: playerNcCharacter.attributesJson,
       ncItemLevel: playerNcCharacter.itemLevel,
       ncCombatPower: playerNcCharacter.combatPower,
+      odyleJson: playerProfiles.odyleJson,
     })
     .from(players)
     .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
@@ -258,6 +266,7 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       gearScore: r.ncItemLevel ?? r.gearScore,
       combatPower: r.ncCombatPower,
       avgItemLevel: r.gearJson ? averageItemLevelOf(r.gearJson) : null,
+      odyle: odyleSummary(r.odyleJson),
       ...profileBadge(r.profileSource, r.ncCharacterId, r.ncAttributes),
     }))
     .sort((a, b) => (b.level ?? 0) - (a.level ?? 0) || a.name.localeCompare(b.name));

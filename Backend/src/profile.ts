@@ -164,6 +164,28 @@ export const profileSchema = z.object({
       owned: z.array(z.number().int().min(1).max(100_000)).max(400).default([]),
     })
     .optional(),
+  // Own character only: the Odyle energy now (count = the daily part, bonus = the part from stones; absent = not read in that session, stored as 0) and the Odyle
+  // energy items lying in the inventory (place 1), the character storage (2) and the account storage (4). complete = the client saw the login and so knows everything;
+  // otherwise the numbers are what it could see and the website marks them as not current.
+  odyle: z
+    .object({
+      count: z.number().int().min(0).max(100_000).optional(),
+      bonus: z.number().int().min(0).max(1_000_000).optional(),
+      complete: z.boolean().default(false),
+      stacks: z
+        .array(
+          z.object({
+            item: z.number().int().min(1).max(2_000_000_000),
+            quantity: z.number().int().min(1).max(1_000_000),
+            place: z.number().int().min(1).max(4),
+            expiresMs: z.number().int().min(0).max(10_000_000_000_000).default(0),
+            unit: z.number().int().min(1).max(1000).default(40),
+          }),
+        )
+        .max(200)
+        .default([]),
+    })
+    .optional(),
   // Another player's activated node count per Daevanion board (their node lists are not sent).
   boardCounts: z
     .array(z.object({ board: z.number().int().min(1).max(10_000), count: z.number().int().min(0).max(1000) }))
@@ -183,6 +205,32 @@ export const profileSchema = z.object({
 export type ProfileUpload = z.infer<typeof profileSchema>;
 
 type RankReading = { type: number; scope: number; at: string; [key: string]: unknown };
+
+type OdyleStack = { item: number; quantity: number; place: number; expires: number; unit: number };
+export type OdyleData = { count: number; bonus: number; items: number; complete: boolean; at: string; stacks: OdyleStack[] };
+
+/** The Odyle reading as stored: unknown numbers are 0, items = the energy the stacks recharge. */
+export function storedOdyle(odyle: NonNullable<ProfileUpload["odyle"]>, now = Date.now()): OdyleData {
+  const stacks = odyle.stacks.map((s) => ({ item: s.item, quantity: s.quantity, place: s.place, expires: s.expiresMs, unit: s.unit }));
+  return {
+    count: odyle.count ?? 0,
+    bonus: odyle.bonus ?? 0,
+    items: stacks.reduce((sum, s) => sum + s.quantity * s.unit, 0),
+    complete: odyle.complete,
+    at: new Date(now).toISOString(),
+    stacks,
+  };
+}
+
+/** The stored Odyle reading for the views; null while nothing was uploaded. */
+export function odyleOf(json: string | undefined | null): OdyleData | null {
+  try {
+    const data = json ? (JSON.parse(json) as Partial<OdyleData>) : {};
+    return data.at ? (data as OdyleData) : null;
+  } catch {
+    return null;
+  }
+}
 
 type PantheonData = { presets: { preset: number; slots: { slot: number; id: number }[] }[]; owned: number[] };
 
@@ -295,6 +343,8 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     ranksJson: profile.source === "self" && profile.ranks.length > 0 ? JSON.stringify(mergeRanks(existing?.ranksJson, profile.ranks)) : (existing?.ranksJson ?? "[]"),
     // The Pantheon (own character): a setup replaces the stored one of its preset, the others stay; a list of owned decorations replaces the stored one.
     pantheonJson: profile.source === "self" && profile.pantheon ? JSON.stringify(mergePantheon(existing?.pantheonJson, profile.pantheon)) : (existing?.pantheonJson ?? "{}"),
+    // The Odyle energy (own character): the newest reading replaces the stored one.
+    odyleJson: profile.source === "self" && profile.odyle ? JSON.stringify(storedOdyle(profile.odyle)) : (existing?.odyleJson ?? "{}"),
     // Character window (own character): an upload without attributes, wing or pet (older client, window not read) keeps what is stored.
     attributesJson: profile.attributes && Object.keys(profile.attributes).length > 0 ? JSON.stringify(profile.attributes) : (existing?.attributesJson ?? "{}"),
     wingId: profile.wingId ? profile.wingId : (existing?.wingId ?? null),
@@ -574,6 +624,8 @@ export type ProfileView = {
   ranks: { type: number; scope: number; rank: number; points: number; change: number; grade: number; stats: Record<string, number> | null; at: string }[];
   /** The Pantheon (own character only): the setups seen per preset (slot 1-12 paintings, 13-16 statues, 17 colossus; id = the game's decoration number) and the owned decorations; null when never read. */
   pantheon: PantheonView | null;
+  /** The Odyle energy now and the Odyle energy items in the inventory and storages (own character only); null when never uploaded. complete false = not current. */
+  odyle: OdyleData | null;
   /** One circle per species: the quality of each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange). */
   pets: { species: number; key: string; names: Record<string, string>; level: number; kinds: number[] }[];
   /** Daevanion board progress: points (node grades) for the own character from the node lists; other players only have a node count. */
@@ -829,6 +881,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
       at: r.at,
     })),
     pantheon: pantheonOf(row.pantheonJson),
+    odyle: odyleOf(row.odyleJson),
     boards: boardSummary(row.boardCountsJson, boards),
     ...buildCharacterView(playerId),
     portraitUrl: null,

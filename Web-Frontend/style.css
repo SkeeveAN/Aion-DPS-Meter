@@ -3125,9 +3125,14 @@ button.cmp-mem { cursor: pointer; }
 
 /* Legions */
 .guild-filter { width: min(100%, 520px); padding: 9px 12px; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; font: inherit; }
-.guild-table { border-collapse: collapse; width: 100%; max-width: 760px; }
+.guild-table { border-collapse: collapse; width: 100%; max-width: 900px; }
 .guild-table th, .guild-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--color-border); }
 .guild-table th { color: var(--color-text-muted); font-size: 12px; }
+.guild-table .odyle-head-icon { width: 20px; height: 20px; vertical-align: -5px; }
+.guild-table td.odyle-cell { white-space: nowrap; }
+.guild-table .odyle-stones { color: var(--color-info); }
+.guild-table .odyle-items { color: var(--color-primary); }
+.guild-table .odyle-stale { color: var(--color-warning); margin-left: 5px; display: inline-flex; vertical-align: -3px; cursor: help; }
 .guild-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
 .guild-table th.sortable:hover { color: var(--color-text); }
 .guild-table th.sortable::after { content: " " attr(data-arrow); display: inline-block; min-width: 1em; }

@@ -1465,7 +1465,20 @@ async function renderGuild(slug) {
     { label: t("guild.gearScore"), title: t("guild.gearScoreHint"), value: (m) => m.gearScore },
     { label: t("profile.combatPowerShort"), value: (m) => m.combatPower },
     { label: t("guild.avgItemLevel"), title: t("guild.avgItemLevelHint"), value: (m) => m.avgItemLevel },
+    // Odyle energy: the energy now, the part from stones and the energy still lying in items; sorted by the sum.
+    { label: t("guild.odyle"), icon: "/images/aion2/odyle-energy.webp", title: t("guild.odyleHint"), value: (m) => (m.odyle ? m.odyle.count + m.odyle.bonus + m.odyle.items : null) },
   ];
+  const odyleCell = (o) => {
+    if (!o) {
+      return el("td", { textContent: "–" });
+    }
+    return el("td", { className: "odyle-cell" }, [
+      String(o.count),
+      o.bonus > 0 ? el("span", { className: "odyle-stones", textContent: ` (+${formatNumber(o.bonus)})` }) : null,
+      o.items > 0 ? el("span", { className: "odyle-items", textContent: ` (+${formatNumber(o.items)})` }) : null,
+      o.complete ? null : el("span", { className: "odyle-stale", title: t("guild.odyleStale"), innerHTML: '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2.5 22.5 21h-21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/></svg>' }),
+    ].filter((x) => x !== null));
+  };
   const cells = (m) => [
     el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`), profileIcon({ ...m, hasProfile: m.profileKind != null, playerId: m.id, playerSlug: m.slug })]),
     el("td", {}, [m.className ? iconLabel(classIcon(m.className), classLabel(m.className)) : ""]),
@@ -1473,15 +1486,21 @@ async function renderGuild(slug) {
     el("td", { textContent: m.gearScore ? formatNumber(m.gearScore) : "–" }),
     el("td", { textContent: m.combatPower ? formatNumber(m.combatPower) : "–" }),
     el("td", { textContent: m.avgItemLevel ? formatNumber(m.avgItemLevel) : "–" }),
+    odyleCell(m.odyle),
   ];
   let sortIndex = 2;
   let sortDesc = true;
   const tbody = el("tbody", {});
-  const headers = columns.map((c, i) => el("th", { className: "sortable", textContent: c.label, title: c.title ?? "", onclick: () => {
+  const headers = columns.map((c, i) => el("th", { className: "sortable", textContent: c.icon ? "" : c.label, title: c.title ?? "", onclick: () => {
     sortDesc = sortIndex === i ? !sortDesc : !c.text;
     sortIndex = i;
     draw();
   } }));
+  columns.forEach((c, i) => {
+    if (c.icon) {
+      headers[i].append(el("img", { className: "odyle-head-icon", src: c.icon, alt: "", width: 20, height: 20 }), ` ${c.label}`);
+    }
+  });
   function draw() {
     const { value, text } = columns[sortIndex];
     const dir = sortDesc ? -1 : 1;

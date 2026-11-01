@@ -640,3 +640,37 @@ test("an arcana piece of the own character keeps its experience, god stat and sk
   assert.throws(() => profileSchema.parse({ source: "self", gear: [{ slot: 43, itemId: 810330001, enchant: 2, arcana: { exp: -1, god: 8, godValue: 22, skillBonuses: [] } }] }));
   assert.throws(() => profileSchema.parse({ source: "self", gear: [{ slot: 43, itemId: 810330001, enchant: 2, arcana: { exp: 1, god: 8, godValue: 22, skillBonuses: Array.from({ length: 9 }, () => ({ skill: 1, level: 1 })) } }] }));
 });
+
+test("own Odyle energy: the newest reading replaces the stored one, unknown numbers are 0, the items add up, an unfinished reading is marked", () => {
+  const id = playerId("Aahz");
+  upsertProfile(id, profileSchema.parse({
+    source: "self",
+    level: 45,
+    classId: 1,
+    classBits: 2,
+    odyle: {
+      count: 15,
+      bonus: 1160,
+      complete: true,
+      stacks: [
+        { item: 503700032, quantity: 1, place: 1, expiresMs: 1797404400000, unit: 10 },
+        { item: 503700031, quantity: 1, place: 1, expiresMs: 1797404400000, unit: 40 },
+      ],
+    },
+  }));
+  let odyle = buildProfileView(id)!.odyle!;
+  assert.deepEqual([odyle.count, odyle.bonus, odyle.items, odyle.complete], [15, 1160, 50, true]);
+  // a client that started late: the energy is unknown (0), only what it saw arrive counts
+  upsertProfile(id, profileSchema.parse({
+    source: "self",
+    level: 45,
+    classId: 1,
+    classBits: 2,
+    odyle: { complete: false, stacks: [{ item: 503700031, quantity: 2, place: 1, unit: 40 }] },
+  }));
+  odyle = buildProfileView(id)!.odyle!;
+  assert.deepEqual([odyle.count, odyle.bonus, odyle.items, odyle.complete], [0, 0, 80, false]);
+  // an upload without the part keeps the stored reading
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2 }));
+  assert.equal(buildProfileView(id)!.odyle!.items, 80);
+});

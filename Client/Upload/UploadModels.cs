@@ -142,7 +142,17 @@ public sealed record ProfileUpload(
     // The combat power (the big number with the crossed swords) and the item level as the legion list of the login shows them; the own character and, with the
     // setting for other players' profiles, the legion's members. Null when the list did not carry them (or the character was not in it).
     int? CombatPower = null,
-    int? ItemLevel = null);
+    int? ItemLevel = null,
+    // Own character only: the Odyle energy (the account counter, count + bonus) and the Odyle energy items lying in the inventory and the storages. Null before the game sent them.
+    ProfileOdyleUpload? Odyle = null);
+
+/// <summary>The Odyle energy of the own character: the energy now (Count the daily part, Bonus the part from stones; null when the ticket list was not seen) and the items still to use;
+/// Stacks hold what the meter knows of the items (all of it when Complete). Complete = the ticket list and the login frame of the inventory were both seen in this session;
+/// without them (the meter started after the login) the website shows 0 for what is unknown and marks the numbers as not current.</summary>
+public sealed record ProfileOdyleUpload(int? Count, int? Bonus, IReadOnlyList<ProfileOdyleStackUpload> Stacks, bool Complete);
+
+/// <summary>A stack of an Odyle energy item: the item id, the quantity, where it lies (1 inventory, 2 character storage, 4 account storage) when it runs out (UTC ms, 0 = no term) and how much energy one piece recharges (10 the small, 40 the large one).</summary>
+public sealed record ProfileOdyleStackUpload(int Item, long Quantity, int Place, long ExpiresMs, int Unit);
 
 /// <summary>The own Pantheon: the setups seen (preset 1..3) and the registered decorations by the game's decoration number.</summary>
 public sealed record ProfilePantheonUpload(IReadOnlyList<ProfilePantheonPresetUpload> Presets, IReadOnlyList<int> Owned);

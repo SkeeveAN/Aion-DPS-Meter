@@ -1142,7 +1142,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _pantheon = new Aion2Pantheon(_pantheon?.Presets ?? new Dictionary<int, IReadOnlyList<Aion2PantheonSlot>>(), owned);
             _listsAt = DateTime.UtcNow;
         }
+
+        PantheonChanged?.Invoke();
     }
+
+    /// <summary>The own Pantheon changed (the login's list, a setup seen when a preset is shown or saved).</summary>
+    public event Action? PantheonChanged;
 
     /// <summary>The setup of one preset (empty = nothing set up) replaces the one seen before; the other presets stay.</summary>
     public void SetPantheonPreset(int preset, IReadOnlyList<Aion2PantheonSlot> slots)
@@ -1153,6 +1158,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _pantheon = new Aion2Pantheon(presets, _pantheon?.Owned ?? Array.Empty<int>());
             _listsAt = DateTime.UtcNow;
         }
+
+        PantheonChanged?.Invoke();
     }
 
     /// <summary>The titles the local player wears (slot 1..3); empty before the game sent them.</summary>

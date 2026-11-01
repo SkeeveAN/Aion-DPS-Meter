@@ -2243,6 +2243,12 @@ internal static class Program
                 Console.WriteLine($"aion2-upload-dryrun: the own Pantheon: {pantheon.Owned.Count} registered, setups " + string.Join(" | ",
                     pantheon.Presets.Select(x => $"preset {x.Preset}: " + string.Join(" ", x.Slots.Select(k => $"{k.Slot}:{k.Id}")))));
             }
+
+            if (profilesRequest.Participants.Select(pp => pp.Profile).FirstOrDefault(pr => pr.Odyle is not null) is { Odyle: { } odyle })
+            {
+                Console.WriteLine($"aion2-upload-dryrun: the own Odyle energy: {odyle.Count?.ToString() ?? "-"} (+{odyle.Bonus?.ToString() ?? "-"}), items " + ((odyle.Complete ? "" : "[not complete] ") + string.Join(", ",
+                    odyle.Stacks.Select(x => $"{Aion2.Protocol.Aion2ItemNames.NameOf(x.Item, "en")} x{x.Quantity} place {x.Place} until {(x.ExpiresMs > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(x.ExpiresMs).ToString("u") : "-")}"))));
+            }
         }
         else
         {
@@ -2832,6 +2838,11 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory ownedDirectory)
         {
             Console.WriteLine("aion2-stock-check: owned " + string.Join(", ", ownedDirectory.OwnedCounts().Select(o => $"{o.Key} {o.Value}")));
+        }
+
+        foreach (Aion2.Aion2Stock.OdyleStack stack in Aion2.Aion2Stock.OdyleStacks())
+        {
+            Console.WriteLine($"aion2-stock-check: Odyle {Aion2.Protocol.Aion2ItemNames.NameOf(stack.Item, "en")} #{stack.Item} x{stack.Quantity} in {stack.Place} until {(stack.ExpiresMs > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(stack.ExpiresMs).ToString("u") : "-")}");
         }
 
         foreach ((string label, Aion2.StockSources sources) in new[] { ("Inventory", Aion2.StockSources.Inventory), ("Character storage", Aion2.StockSources.CharacterStorage), ("Account storage", Aion2.StockSources.AccountStorage) })

@@ -156,6 +156,17 @@ public static class Aion2Tickets
     private static List<TicketDef>? _catalog;
     private static readonly Dictionary<string, TicketCharacter> Characters = new(StringComparer.Ordinal);
     private static string? _current;
+    // Characters whose Odyle energy the meter saw in this run (a login list or a change); the file of an earlier run does not count.
+    private static readonly HashSet<string> OdyleSeen = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>True when the Odyle energy of the character was read from the data stream in this run (not just restored from the file).</summary>
+    public static bool OdyleSeenThisRun(string name)
+    {
+        lock (Gate)
+        {
+            return OdyleSeen.Contains(name);
+        }
+    }
     private static string? _likely;
     private static bool _awaitingName;
     private static Dictionary<int, TicketValue>? _pending;
@@ -219,6 +230,7 @@ public static class Aion2Tickets
         lock (Gate)
         {
             Characters.Clear();
+            OdyleSeen.Clear();
             _current = null;
             _likely = null;
             _awaitingName = false;
@@ -680,11 +692,21 @@ public static class Aion2Tickets
                     }
 
                     var tickets = new Dictionary<int, TicketValue>(known.Tickets) { [reading.Id] = reading.Value };
+                    if (reading.Id == OdyleId)
+                    {
+                        OdyleSeen.Add(name);
+                    }
+
                     Characters[name] = known with { SavedAt = DateTime.UtcNow, Tickets = tickets };
                 }
                 else
                 {
                     // a character the meter has no login list for (it started while this one was already in game): what comes in is still its own, the rest stays unread
+                    if (reading.Id == OdyleId)
+                    {
+                        OdyleSeen.Add(name);
+                    }
+
                     Characters[name] = new TicketCharacter(name, _likelyServerId, DateTime.UtcNow, new Dictionary<int, TicketValue> { [reading.Id] = reading.Value });
                     Trim();
                 }
@@ -762,6 +784,11 @@ public static class Aion2Tickets
                     {
                         _pending.Remove(MissionsId);
                     }
+                }
+
+                if (_pending.ContainsKey(OdyleId))
+                {
+                    OdyleSeen.Add(name);
                 }
 
                 Characters[name] = Characters.TryGetValue(name, out TicketCharacter? listed)

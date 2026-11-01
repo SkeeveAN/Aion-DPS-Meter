@@ -35,6 +35,8 @@ public static class Aion2Stock
     private static readonly object Gate = new();
     private static readonly Dictionary<int, Dictionary<int, (int Item, long Quantity)>> Containers = new();
     private static int _synthetic = FirstSyntheticSlot;
+    // When an item with a term runs out (UTC ms), by container and slot; only what the game's records carried.
+    private static readonly Dictionary<(int Container, int Slot), long> Expiry = new();
 
     /// <summary>Raised after the stock changed (on the thread that decoded the frame).</summary>
     public static event Action? Changed;
@@ -54,6 +56,7 @@ public static class Aion2Stock
         lock (Gate)
         {
             Containers.Clear();
+            Expiry.Clear();
             _synthetic = FirstSyntheticSlot;
             SnapshotAt = null;
             ListedAt = null;
@@ -80,12 +83,14 @@ public static class Aion2Stock
         lock (Gate)
         {
             Containers.Clear();
+            Expiry.Clear();
             _synthetic = FirstSyntheticSlot;
             foreach (Record r in records)
             {
                 if (r.Kind != 2 && r.Quantity > 0)
                 {
                     SlotsOf(r.Container)[r.Slot] = (r.Item, r.Quantity);
+                    SetExpiry(r);
                 }
             }
 
@@ -109,7 +114,23 @@ public static class Aion2Stock
         {
             if (SnapshotAt is null)
             {
-                // Nothing to add to before the login frame: a recording that starts later has no stock to follow.
+                // Nothing to add to before the login frame: a recording that starts later has no stock to follow. Only the Odyle energy items are kept
+                // (what the meter saw arrive is a number the website may show, marked as not complete).
+                foreach (Record r in records.Where(r => IsOdyleItem(r.Item)))
+                {
+                    Dictionary<int, (int Item, long Quantity)> slots = SlotsOf(r.Container);
+                    if (r.Kind == 2 || r.Quantity == 0)
+                    {
+                        slots.Remove(r.Slot);
+                        Expiry.Remove((r.Container, r.Slot));
+                    }
+                    else
+                    {
+                        slots[r.Slot] = (r.Item, r.Quantity);
+                        SetExpiry(r);
+                    }
+                }
+
                 return;
             }
 
@@ -123,10 +144,12 @@ public static class Aion2Stock
                 if (r.Kind == 2 || r.Quantity == 0)
                 {
                     slots.Remove(r.Slot);
+                    Expiry.Remove((r.Container, r.Slot));
                 }
                 else
                 {
                     slots[r.Slot] = (r.Item, r.Quantity);
+                    SetExpiry(r);
                 }
             }
 
@@ -182,6 +205,53 @@ public static class Aion2Stock
         }
 
         return totals;
+    }
+
+    private static void SetExpiry(Record r)
+    {
+        if (r.Expires > 0)
+        {
+            Expiry[(r.Container, r.Slot)] = r.Expires;
+        }
+        else
+        {
+            Expiry.Remove((r.Container, r.Slot));
+        }
+    }
+
+    /// <summary>One stack of an Odyle energy item: where it lies and when it runs out (UTC ms, 0 = no term seen).</summary>
+    public sealed record OdyleStack(int Item, long Quantity, StockSources Place, long ExpiresMs);
+
+    /// <summary>True for the items that recharge Odyle energy (small and large, bound or not, with or without a term): the game's English name says "Odyle Energy".</summary>
+    public static bool IsOdyleItem(int item) => Aion2ItemNames.NameOf(item, "en") is { } name && name.Contains("Odyle Energy", StringComparison.Ordinal);
+
+    /// <summary>The energy one piece recharges: 10 for the small item, 40 for the large one (as the item texts of the game say).</summary>
+    public static int OdyleUnitOf(int item) => Aion2ItemNames.NameOf(item, "en") is { } name && name.Contains("Small", StringComparison.Ordinal) ? 10 : 40;
+
+    /// <summary>Every stack of Odyle energy items in the inventory and both storages.</summary>
+    public static List<OdyleStack> OdyleStacks()
+    {
+        var stacks = new List<OdyleStack>();
+        lock (Gate)
+        {
+            foreach ((int container, StockSources source) in Places)
+            {
+                if (!Containers.TryGetValue(container, out var slots))
+                {
+                    continue;
+                }
+
+                foreach ((int slot, (int item, long quantity)) in slots.OrderBy(x => x.Key))
+                {
+                    if (IsOdyleItem(item))
+                    {
+                        stacks.Add(new OdyleStack(item, quantity, source, Expiry.GetValueOrDefault((container, slot))));
+                    }
+                }
+            }
+        }
+
+        return stacks;
     }
 
     private static readonly (int Container, StockSources Source)[] Places =
@@ -269,7 +339,7 @@ public static class Aion2Stock
         return taken;
     }
 
-    private readonly record struct Record(int Kind, int Container, int Slot, int Item, long Quantity);
+    private readonly record struct Record(int Kind, int Container, int Slot, int Item, long Quantity, long Expires);
 
     /// <summary>The records of a frame (opcode, then the body), found by their anchor; see the class remarks.</summary>
     private static List<Record> Read(ReadOnlySpan<byte> frame)
@@ -291,7 +361,9 @@ public static class Aion2Stock
             int slot = body[i + 13];
             if (seen.Add((container, slot)))
             {
-                records.Add(new Record(body[i - 10], container, slot, item, quantity));
+                // four bytes after the slot, then the term as UTC ms (0 or absent for an item without one); only a date of the game's years counts
+                long expires = i + 26 <= body.Length ? unchecked((long)BinaryPrimitives.ReadUInt64LittleEndian(body[(i + 18)..])) : 0;
+                records.Add(new Record(body[i - 10], container, slot, item, quantity, expires is > 1_700_000_000_000 and < 2_300_000_000_000 ? expires : 0));
             }
 
             i += 13;

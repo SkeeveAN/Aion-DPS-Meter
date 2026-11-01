@@ -365,6 +365,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   ranksJson: text("ranks_json").notNull().default("[]"),
   // The own Pantheon as the login sent it ({presets: [{preset, slots: [{slot, id}]}], owned: [id]}); own character only.
   pantheonJson: text("pantheon_json").notNull().default("{}"),
+  // The own Odyle energy ({count, bonus, complete, at, stacks: [{item, quantity, place, expires, unit}]}); own character only, the newest upload replaces it.
+  odyleJson: text("odyle_json").notNull().default("{}"),
   // Character window of the uploader's own character: attribute id -> value (main attributes 1..6, lords 7..17), the worn
   // wing and wing skin (item ids) and the active pet (species id). Null/empty when the client did not send them.
   attributesJson: text("attributes_json").notNull().default("{}"),
