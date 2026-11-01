@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "伤害",
   "leaderboard.healShort": "治疗",
   "profile.skillsStigma": "烙印",
+  "profile.actionBar": "快捷栏",
+  "profile.actionBarHint": "在已学会的技能中，不在冷却中且（条件技能）满足条件的技能里，优先级最高的技能会显示在快捷栏中。\n\n优先级从 3 到 0 依次升高。",
   "profile.skillPreset": "技能预设",
   "profile.presetActive": "当前使用",
   "profile.presetSaved": "已保存",

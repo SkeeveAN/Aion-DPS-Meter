@@ -569,6 +569,114 @@ public sealed class Aion2FrameDecoder
         return true;
     }
 
+    private static readonly int[] ActionSlotNumbers = { 0, 1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23 };
+    private const int ActionPageCount = 3;
+
+    /// <summary>
+    /// The own action bars: <c>0x8ce2</c> (the login state) carries all three pages (= the three skill presets) after a list of its own. Each page has twelve slots, 0-7 and 20-23, in that
+    /// order, each as <c>kind | page | slot | ...</c>: kind 3 is a filled slot of 24 bytes (<c>skill u32 | 04 | skill u32 | priority 1 u32 | priority 2 u32 | priority 3 u32</c>, a skill that steps in
+    /// when the one before it is not ready, 0 = none), kind 2 an empty one of 20 bytes (<c>04</c> and zeros). The block is looked for by its strict shape (36 entries in order), so bytes of the
+    /// list before it, or of another frame, are never taken for it.
+    /// </summary>
+    private void NoteActionBars(int opcode, ReadOnlySpan<byte> frame)
+    {
+        if (opcode == 0x8ce2 && TryReadActionBars(frame[2..], out var pages))
+        {
+            _entities.SetActionBars(pages);
+        }
+    }
+
+    /// <summary>Looks for the action bars in the body of a login frame; false when no block of the exact shape is in it.</summary>
+    internal static bool TryReadActionBars(ReadOnlySpan<byte> body, out Dictionary<int, IReadOnlyList<Aion2ActionSlot>> pages)
+    {
+        pages = new Dictionary<int, IReadOnlyList<Aion2ActionSlot>>();
+        int least = ActionPageCount * ActionSlotNumbers.Length * 20;
+        for (int start = 0; start + least <= body.Length; start++)
+        {
+            if (body[start] is (2 or 3) && body[start + 1] == 1 && body[start + 2] == 0 && TryReadActionBarsAt(body, start, out pages))
+            {
+                return true;
+            }
+        }
+
+        pages = new Dictionary<int, IReadOnlyList<Aion2ActionSlot>>();
+        return false;
+    }
+
+    private static bool TryReadActionBarsAt(ReadOnlySpan<byte> body, int start, out Dictionary<int, IReadOnlyList<Aion2ActionSlot>> pages)
+    {
+        pages = new Dictionary<int, IReadOnlyList<Aion2ActionSlot>>();
+        int at = start;
+        for (int page = 1; page <= ActionPageCount; page++)
+        {
+            var slots = new List<Aion2ActionSlot>();
+            foreach (int slot in ActionSlotNumbers)
+            {
+                if (at + 20 > body.Length || body[at + 1] != page || body[at + 2] != slot)
+                {
+                    return false;
+                }
+
+                if (body[at] == 3)
+                {
+                    if (at + 24 > body.Length || body[at + 7] != 4)
+                    {
+                        return false;
+                    }
+
+                    uint skill = BinaryPrimitives.ReadUInt32LittleEndian(body[(at + 3)..]);
+                    if (skill is 0 or >= 1_000_000_000 || BinaryPrimitives.ReadUInt32LittleEndian(body[(at + 8)..]) != skill)
+                    {
+                        return false;
+                    }
+
+                    var fallbacks = new List<int>();
+                    for (int k = 0; k < 3; k++)
+                    {
+                        uint next = BinaryPrimitives.ReadUInt32LittleEndian(body[(at + 12 + 4 * k)..]);
+                        if (next >= 1_000_000_000)
+                        {
+                            return false;
+                        }
+
+                        if (next != 0)
+                        {
+                            fallbacks.Add((int)next);
+                        }
+                    }
+
+                    slots.Add(new Aion2ActionSlot(slot, (int)skill, fallbacks));
+                    at += 24;
+                }
+                else if (body[at] == 2)
+                {
+                    if (body[at + 3] != 4)
+                    {
+                        return false;
+                    }
+
+                    for (int k = 4; k < 20; k++)
+                    {
+                        if (body[at + k] != 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    at += 20;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            pages[page] = slots;
+        }
+
+        return true;
+    }
+
     private IEnumerable<DamageEvent> DecodeFrame(ReadOnlySpan<byte> frame, DateTime timestamp, bool nested)
     {
         FrameLayout layout = _protocol.FrameLayout;
@@ -582,6 +690,7 @@ public sealed class Aion2FrameDecoder
         FrameTap?.Invoke(opcode, frame, timestamp);
         NoteOwnedCounts(opcode, frame);
         NotePantheon(opcode, frame);
+        NoteActionBars(opcode, frame);
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);

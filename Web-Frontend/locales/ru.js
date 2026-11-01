@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "урон",
   "leaderboard.healShort": "лечение",
   "profile.skillsStigma": "Стигмы",
+  "profile.actionBar": "Быстрый доступ",
+  "profile.actionBarHint": "В ячейках быстрого доступа в первую очередь отображаются изученные умения, умения не в процессе перезарядки и (в случае условных умений) умения, удовлетворяющие условиям активации.\n\nПриоритет повышается по мере уменьшения значения — от 3 к 0.",
   "profile.skillPreset": "Пресеты умений",
   "profile.presetActive": "активен",
   "profile.presetSaved": "сохранён",

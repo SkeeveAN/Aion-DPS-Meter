@@ -95,6 +95,12 @@ public sealed record Aion2PantheonSlot(int Slot, int Id);
 /// <summary>The own Pantheon: the setups seen per preset (1..3; the login sends the active one, a tab change the others) and every registered decoration.</summary>
 public sealed record Aion2Pantheon(IReadOnlyDictionary<int, IReadOnlyList<Aion2PantheonSlot>> Presets, IReadOnlyList<int> Owned);
 
+/// <summary>One filled slot of the action bar: the slot number (0-7 and 20-23), the skill that is shown first (priority 0) and the skills that step in when it is not ready (priority 1-3, in that order).</summary>
+public sealed record Aion2ActionSlot(int Slot, int SkillId, IReadOnlyList<int> Fallbacks);
+
+/// <summary>The own action bars: page 1..3 (the skill presets) to the filled slots of that page. Empty slots are left out; a page without any slot is an unused preset.</summary>
+public sealed record Aion2ActionBars(IReadOnlyDictionary<int, IReadOnlyList<Aion2ActionSlot>> Pages);
+
 /// <summary>One pet circle of the growth overview: the species (2 Cognia .. 6 Specia), its level and the quality of
 /// each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange).</summary>
 public sealed record Aion2Pet(int SpeciesId, int Level, IReadOnlyList<int> Kinds);
@@ -222,6 +228,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _petStatesLive = false;
                 _titles = null;
                 _pantheon = null;
+                _actionBars = null;
                 _attributes = null;
                 _stats = null;
                 _wing = null;
@@ -326,12 +333,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _pantheon = saved.Pantheon is { } sp
                 ? new Aion2Pantheon(sp.Presets.ToDictionary(x => x.Preset, x => (IReadOnlyList<Aion2PantheonSlot>)x.Slots.Select(k => new Aion2PantheonSlot(k.Slot, k.Id)).ToList()), sp.Owned.ToList())
                 : null;
+            _actionBars = saved.ActionBars is { Count: > 0 } sab
+                ? new Aion2ActionBars(sab.ToDictionary(x => x.Page, x => (IReadOnlyList<Aion2ActionSlot>)x.Slots.Select(k => new Aion2ActionSlot(k.Slot, k.Skill, k.Fallbacks.ToList())).ToList()))
+                : null;
             _attributes = saved.Attributes is { Count: > 0 } ? new Dictionary<int, int>(saved.Attributes) : null;
             _wing = saved.WingId is int savedWing ? new Aion2Wing(savedWing, saved.WingSkinId ?? 0) : null;
             _activePet = saved.ActivePet;
             _petStates = saved.Pets.Select(p => new Aion2PetState(p.Id, p.Level, p.Progress)).ToList();
             _restoredOwner = saved.Name;
-            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet, _pantheon);
+            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet, _pantheon, _actionBars);
         }
     }
 
@@ -362,9 +372,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         if (Equals(_wing, was.Wing)) { _wing = null; }
         if (_activePet == was.ActivePet) { _activePet = null; }
         if (ReferenceEquals(_pantheon, was.Pantheon)) { _pantheon = null; }
+        if (ReferenceEquals(_actionBars, was.ActionBars)) { _actionBars = null; }
     }
 
-    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet, object? Pantheon)? _restoredLists;
+    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet, object? Pantheon, object? ActionBars)? _restoredLists;
 
     /// <summary>The local player's data as it should be kept on disk, or null before any is known.</summary>
     public Aion2SavedCharacter? ToSaved()
@@ -395,6 +406,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Pantheon = _pantheon is null ? null : new Aion2SavedCharacter.SavedPantheon(
                     _pantheon.Presets.OrderBy(x => x.Key).Select(x => new Aion2SavedCharacter.SavedPantheonPreset(x.Key, x.Value.Select(k => new Aion2SavedCharacter.SavedPantheonSlot(k.Slot, k.Id)).ToList())).ToList(),
                     _pantheon.Owned.ToList()),
+                ActionBars = _actionBars is null ? null : _actionBars.Pages.OrderBy(x => x.Key)
+                    .Select(x => new Aion2SavedCharacter.SavedActionPage(x.Key, x.Value.Select(k => new Aion2SavedCharacter.SavedActionSlot(k.Slot, k.SkillId, k.Fallbacks.ToList())).ToList())).ToList(),
                 Attributes = _attributes is null ? null : new Dictionary<int, int>(_attributes),
                 WingId = _wing?.WingId,
                 WingSkinId = _wing?.SkinId,
@@ -1121,6 +1134,34 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private IReadOnlyList<Aion2TitleSlot>? _titles;
     private Aion2Pantheon? _pantheon;
+    private Aion2ActionBars? _actionBars;
+
+    /// <summary>The own action bars (the three pages = the three skill presets) as the login sent them; null before it did.</summary>
+    public Aion2ActionBars? LocalActionBars
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _actionBars;
+            }
+        }
+    }
+
+    /// <summary>The login's action bars replace the stored ones (the login always carries all three pages).</summary>
+    public void SetActionBars(IReadOnlyDictionary<int, IReadOnlyList<Aion2ActionSlot>> pages)
+    {
+        lock (_gate)
+        {
+            _actionBars = new Aion2ActionBars(pages);
+            _listsAt = DateTime.UtcNow;
+        }
+
+        ActionBarsChanged?.Invoke();
+    }
+
+    /// <summary>The own action bars were read (the login).</summary>
+    public event Action? ActionBarsChanged;
 
     /// <summary>The own Pantheon as the game sent it (login: the active setup and the registered decorations; later each setup it shows); null before it did.</summary>
     public Aion2Pantheon? LocalPantheon

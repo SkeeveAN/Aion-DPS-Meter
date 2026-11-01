@@ -367,6 +367,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   pantheonJson: text("pantheon_json").notNull().default("{}"),
   // The own Odyle energy ({count, bonus, complete, at, stacks: [{item, quantity, place, expires, unit}]}); own character only, the newest upload replaces it.
   odyleJson: text("odyle_json").notNull().default("{}"),
+  // The own action bars as the login sent them ({pages: [{page: 1..3 = skill preset, slots: [{slot, skill, fallbacks}]}]}); own character only, replaced at every login.
+  actionBarsJson: text("action_bars_json").notNull().default("{}"),
   // Character window of the uploader's own character: attribute id -> value (main attributes 1..6, lords 7..17), the worn
   // wing and wing skin (item ids) and the active pet (species id). Null/empty when the client did not send them.
   attributesJson: text("attributes_json").notNull().default("{}"),

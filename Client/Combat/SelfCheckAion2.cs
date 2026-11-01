@@ -59,6 +59,7 @@ public static class SelfCheckAion2
         ok &= RunAion2ItemDetailsScenario();
         ok &= RunAion2ArcanaScenario();
         ok &= RunAion2PantheonScenario();
+        ok &= RunAion2ActionBarScenario();
         ok &= RunAion2SpeciesScenario();
         ok &= RunAion2CharacterStoreScenario();
         ok &= RunAion2PresetScenario();
@@ -1630,6 +1631,57 @@ public static class SelfCheckAion2
         bool upload = sent == "{\"presets\":[{\"preset\":1,\"slots\":[{\"slot\":1,\"id\":43}]}],\"owned\":[43,9]}";
         Console.WriteLine($"  -> the profile upload carries presets, slots and registered decorations: {upload}");
         return login && changes && foreign && disk && upload;
+    }
+
+    /// <summary>The action bars of the login (0x8ce2), cut out of the real frames of 2026-11-01: Aahz (Gladiator) has three filled pages, Nunzio (Ranger) two and an unused third.
+    /// Checked against the game's action bar window: slot 1 of Aahz page 2 is Furorausbruch with Abwaertsschlag and Zerreissender Schlag stepping in.</summary>
+    private static bool RunAion2ActionBarScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 action bars (three pages, priorities):");
+        const string aahz = "030100e026a80004e026a80000000000000000000000000003010130ccad000430ccad00605fa900d070aa00d0ffa700030102f0beaa0004f0beaa000057ad0000000000000000000301039045ac00049045ac000000000000000000000000000301047086a900047086a900000000000000000000000000020105040000000000000000000000000000000002010604000000000000000000000000000000000201070400000000000000000000000000000000030114109ca80004109ca80000000000000000000000000003011500e6aa000400e6aa00a06cac000000000000000000030116801eac0004801eac0000000000000000000000000003011740f3ad000440f3ad0050a9ab000000000000000000030200e026a80004e026a80000000000000000000000000003020130ccad000430ccad00d070aa00d0ffa70000000000030202f0beaa0004f0beaa000057ad0000000000000000000302039045ac00049045ac000000000000000000000000000302047086a900047086a90000000000000000000000000002020504000000000000000000000000000000000202060400000000000000000000000000000000030207605fa90004605fa900000000000000000000000000030214109ca80004109ca80000000000000000000000000003021500e6aa000400e6aa00a06cac000000000000000000030216801eac0004801eac0000000000000000000000000003021740f3ad000440f3ad0050a9ab000000000000000000030300e026a80004e026a800000000000000000000000000030301605fa90004605fa900d070aa00d0ffa70000000000030302f0beaa0004f0beaa000057ad0000000000000000000303039045ac00049045ac000000000000000000000000000303044011a900044011a900000000000000000000000000030305801eac0004801eac0000000000000000000000000002030604000000000000000000000000000000000203070400000000000000000000000000000000030314109ca80004109ca800000000000000000000000000030315a06cac0004a06cac0000e6aa00000000000000000003031620a5ad000420a5ad0000000000000000000000000003031740f3ad000440f3ad0050a9ab000000000000000000";
+        const string nunzio = "030100a0edd50004a0edd500000000000000000000000000030101304dd70004304dd700509bd700e089d60000d8d60003010210ffd6000410ffd60000000000000000000000000003010390c6d5000490c6d500000000000000000000000000030104705ada0004705ada00e06bdb00e0fad800000000000201050400000000000000000000000000000000030106d062d60004d062d600a0cfda00000000000000000003010790a8da000490a8da00000000000000000000000000020114040000000000000000000000000000000002011504000000000000000000000000000000000301169037d800049037d800000000000000000000000000030117f0b0d60004f0b0d600000000000000000000000000030200a0edd50004a0edd500000000000000000000000000030201304dd70004304dd700d062d600a0cfda000000000003020210ffd6000410ffd60000000000000000000000000003020390c6d5000490c6d500000000000000000000000000030204705ada0004705ada00e06bdb00e0fad80000000000020205040000000000000000000000000000000003020690a8da000490a8da00000000000000000000000000030207509bd70004509bd700c01ddb0000d8d60000000000020214040000000000000000000000000000000002021504000000000000000000000000000000000302169037d800049037d800000000000000000000000000030217f0b0d60004f0b0d600000000000000000000000000020300040000000000000000000000000000000002030104000000000000000000000000000000000203020400000000000000000000000000000000020303040000000000000000000000000000000002030404000000000000000000000000000000000203050400000000000000000000000000000000020306040000000000000000000000000000000002030704000000000000000000000000000000000203140400000000000000000000000000000000020315040000000000000000000000000000000002031604000000000000000000000000000000000203170400000000000000000000000000000000";
+        static byte[] Frame(string pages) => Convert.FromHexString("8ce2" + "010101140000000000000000" + pages + "0102030405060708");
+        bool aahzRead = Aion2FrameDecoder.TryReadActionBars(Frame(aahz)[2..], out var a);
+        string Slot(Dictionary<int, IReadOnlyList<Aion2ActionSlot>> pages, int page, int slot) =>
+            pages[page].FirstOrDefault(k => k.Slot == slot) is { } k ? $"{k.SkillId}>{string.Join(",", k.Fallbacks)}" : "-";
+        bool aahzOk = aahzRead && a.Count == 3 && a[1].Count == 9 && a[2].Count == 10 && a[3].Count == 10
+            && Slot(a, 1, 1) == "11390000>11100000,11170000,11010000" && Slot(a, 2, 1) == "11390000>11170000,11010000" && Slot(a, 2, 7) == "11100000>" && Slot(a, 1, 7) == "-" && Slot(a, 3, 21) == "11300000>11200000";
+        Console.WriteLine($"  -> three pages with nine, ten and ten filled slots, the priorities in order, an empty slot left out: {aahzOk}");
+        bool nunzioRead = Aion2FrameDecoder.TryReadActionBars(Frame(nunzio)[2..], out var n);
+        bool nunzioOk = nunzioRead && n[1].Count == 9 && n[2].Count == 9 && n[3].Count == 0;
+        Console.WriteLine($"  -> an unused third page comes out empty: {nunzioOk}");
+        byte[] broken = Frame(aahz);
+        broken[2 + 12 + 24 * 5 + 7] = 9; // an empty slot with a stray byte in its zeros: not the block
+        bool strict = !Aion2FrameDecoder.TryReadActionBars(broken[2..], out _) && !Aion2FrameDecoder.TryReadActionBars(new byte[2000], out _);
+        Console.WriteLine($"  -> bytes that are not exactly that block are ignored: {strict}");
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var wire = new List<byte>();
+        byte[] body = Frame(aahz);
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+        source.Ingest(Segment(900, wire.ToArray()));
+        var entities = (Aion2EntityDirectory)source.Entities;
+        bool live = entities.LocalActionBars is { } bars && bars.Pages.Count == 3 && bars.Pages[2].Count == 10;
+        Console.WriteLine($"  -> the login frame reaches the character's data: {live}");
+        var saved = JsonSerializer.Deserialize<Aion2SavedCharacter>(JsonSerializer.Serialize(new Aion2SavedCharacter
+        {
+            ActionBars = new() { new(1, new() { new(0, 11020000, new()), new(1, 11390000, new() { 11170000, 11010000 }) }) },
+        }));
+        var older = JsonSerializer.Deserialize<Aion2SavedCharacter>("""{"Name":"Aahz"}""");
+        bool disk = saved?.ActionBars is { Count: 1 } sb && sb[0].Slots[1].Fallbacks.Count == 2 && older is { ActionBars: null };
+        Console.WriteLine($"  -> saved with the character file and read back (an older file without it still loads): {disk}");
+        var uploadJson = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+        string sent = JsonSerializer.Serialize(new AionDPS.Upload.ProfileActionBarsUpload(new[] { new AionDPS.Upload.ProfileActionPageUpload(1, new[] { new AionDPS.Upload.ProfileActionSlotUpload(1, 11390000, new[] { 11170000 }) }) }), uploadJson);
+        bool upload = sent == "{\"pages\":[{\"page\":1,\"slots\":[{\"slot\":1,\"skill\":11390000,\"fallbacks\":[11170000]}]}]}";
+        Console.WriteLine($"  -> the profile upload carries pages, slots and priorities: {upload}");
+        return aahzOk && nunzioOk && strict && live && disk && upload;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

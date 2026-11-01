@@ -164,6 +164,28 @@ export const profileSchema = z.object({
       owned: z.array(z.number().int().min(1).max(100_000)).max(400).default([]),
     })
     .optional(),
+  // Own character only: the action bars of the three skill presets (page n = preset n) as the login sent them. Each page lists its filled slots: the skill shown
+  // first and the skills (priority 1-3, in that order) that step in when it is not ready. A page without slots is an unused preset. Replaces what is stored.
+  actionBars: z
+    .object({
+      pages: z
+        .array(
+          z.object({
+            page: z.number().int().min(1).max(3),
+            slots: z
+              .array(
+                z.object({
+                  slot: z.number().int().min(0).max(23),
+                  skill: z.number().int().min(1).max(999_999_999),
+                  fallbacks: z.array(z.number().int().min(1).max(999_999_999)).max(3).default([]),
+                }),
+              )
+              .max(12),
+          }),
+        )
+        .max(3),
+    })
+    .optional(),
   // Own character only: the Odyle energy now (count = the daily part, bonus = the part from stones; absent = not read in that session, stored as 0) and the Odyle
   // energy items lying in the inventory (place 1), the character storage (2) and the account storage (4). complete = the client saw the login and so knows everything;
   // otherwise the numbers are what it could see and the website marks them as not current.
@@ -249,6 +271,20 @@ export function mergePantheon(storedJson: string | undefined, fresh: Partial<Pan
   return {
     presets: [...presets.values()].sort((a, b) => a.preset - b.preset),
     owned: fresh.owned && fresh.owned.length > 0 ? [...fresh.owned].sort((a, b) => a - b) : (stored.owned ?? []),
+  };
+}
+
+type ActionBarsData = { pages: { page: number; slots: { slot: number; skill: number; fallbacks: number[] }[] }[] };
+
+/** The action bars as they are stored: always the three pages in order (an unused preset has no slots), the slots of a page in order. */
+export function storedActionBars(fresh: { pages: { page: number; slots: { slot: number; skill: number; fallbacks?: number[] }[] }[] }): ActionBarsData {
+  return {
+    pages: [1, 2, 3].map((page) => ({
+      page,
+      slots: (fresh.pages.find((p) => p.page === page)?.slots ?? [])
+        .map((k) => ({ slot: k.slot, skill: k.skill, fallbacks: k.fallbacks ?? [] }))
+        .sort((a, b) => a.slot - b.slot),
+    })),
   };
 }
 
@@ -343,6 +379,8 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     ranksJson: profile.source === "self" && profile.ranks.length > 0 ? JSON.stringify(mergeRanks(existing?.ranksJson, profile.ranks)) : (existing?.ranksJson ?? "[]"),
     // The Pantheon (own character): a setup replaces the stored one of its preset, the others stay; a list of owned decorations replaces the stored one.
     pantheonJson: profile.source === "self" && profile.pantheon ? JSON.stringify(mergePantheon(existing?.pantheonJson, profile.pantheon)) : (existing?.pantheonJson ?? "{}"),
+    // The action bars (own character): the login always carries all three pages, so the newest reading replaces the stored one.
+    actionBarsJson: profile.source === "self" && profile.actionBars ? JSON.stringify(storedActionBars(profile.actionBars)) : (existing?.actionBarsJson ?? "{}"),
     // The Odyle energy (own character): the newest reading replaces the stored one.
     odyleJson: profile.source === "self" && profile.odyle ? JSON.stringify(storedOdyle(profile.odyle)) : (existing?.odyleJson ?? "{}"),
     // Character window (own character): an upload without attributes, wing or pet (older client, window not read) keeps what is stored.
@@ -364,6 +402,21 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
   }
 }
 
+/** A skill on the action bar with what the page needs to draw it; level and baseLevel come from the preset's skill list (0 when the list does not carry it). */
+export interface ActionSkillView {
+  id: number;
+  name: string;
+  names?: Record<string, string>;
+  icon: string | null;
+  level: number;
+  baseLevel: number;
+}
+
+/** The action bars: page n is skill preset n; a slot holds the skill that is shown first and the skills that step in, in priority order 1-3, when it is not ready. */
+export interface ActionBarsView {
+  pages: { page: number; slots: { slot: number; skill: ActionSkillView; fallbacks: ActionSkillView[] }[] }[];
+}
+
 type ProfileSkill = {
   id: number;
   name: string;
@@ -376,16 +429,19 @@ type ProfileSkill = {
   baseLevel: number;
   /** The choice in each specialisation slot of an active skill (1-5 = the skill's five stones, 0 = empty); null when not read. */
   stones: number[] | null;
+  /** The skill's place in the game's own list (the order the client learns them in); every preset lists its skills in this one order. */
+  order: number;
 };
 type StoredSkill = { id: number; level: number; baseLevel: number; stigma?: boolean; equipped?: boolean; stones?: number[] };
 
 /** The skill rows as the skill window lists them: only the base entries (the list also carries each skill's specialisation
- *  variants, which would repeat the same name), highest level first. */
+ *  variants, which would repeat the same name), in the game's own order (the same in every preset; skill_order.json from the client's skill table). */
 function skillRows(list: StoredSkill[]): ProfileSkill[] {
+  const skillOrder = (skillOrderTable ??= loadJson<Record<string, number>>("skill_order.json", {}));
   return list
     .filter((s) => s.id % 10000 === 0)
-    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", stigma: s.stigma === true, equipped: s.equipped === true, level: s.level, baseLevel: s.baseLevel, stones: s.stones ?? null }))
-    .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
+    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", stigma: s.stigma === true, equipped: s.equipped === true, level: s.level, baseLevel: s.baseLevel, stones: s.stones ?? null, order: skillOrder[String(s.id)] ?? 1_000_000 + s.id }))
+    .sort((a, b) => a.order - b.order || a.id - b.id);
 }
 
 const NODE_GRADE: Record<string, number> = { Common: 1, Rare: 2, Legend: 3, Unique: 4 };
@@ -415,6 +471,8 @@ let itemIcons: Record<string, string> | null = null;
 let itemNamesI18n: Record<string, Record<string, string>> | null = null;
 let skillIcons: Record<string, string> | null = null;
 let skillTypes: Record<string, string> | null = null; // "a" active, "p" passive
+// Skill id -> place in the game's skill list (Tools/aion2-dat: first entry of the skill in the client's SkillAcquireData).
+let skillOrderTable: Record<string, number> | null = null;
 type SpeciesData = {
   species: Record<string, { key: string; names: Record<string, string> }>;
   stats: Record<string, { names: Record<string, string>; percent?: boolean }>;
@@ -622,6 +680,8 @@ export type ProfileView = {
   titles: { slot: number; titleId: number; name: string; names: Record<string, string>; grade: string | null }[];
   /** The own ranks the game's ranking window showed (own character only): type 1 Abyss, 3 Nightmare, 4 Transcendence, 5 Arena 1v1, 6 Arena 5v5, 21 Ascension rite; scope 0 overall, 2 within the class. */
   ranks: { type: number; scope: number; rank: number; points: number; change: number; grade: number; stats: Record<string, number> | null; at: string }[];
+  /** The own action bars (own character only): one page per skill preset, each with its filled slots; null when never read. */
+  actionBars: ActionBarsView | null;
   /** The Pantheon (own character only): the setups seen per preset (slot 1-12 paintings, 13-16 statues, 17 colossus; id = the game's decoration number) and the owned decorations; null when never read. */
   pantheon: PantheonView | null;
   /** The Odyle energy now and the Odyle energy items in the inventory and storages (own character only); null when never uploaded. complete false = not current. */
@@ -880,11 +940,47 @@ export function buildProfileView(playerId: number): ProfileView | null {
       stats: statsOf(r.stats),
       at: r.at,
     })),
+    actionBars: actionBarsOf(row.actionBarsJson, (page) => presets.find((x) => x.index === page)?.skills ?? skills),
     pantheon: pantheonOf(row.pantheonJson),
     odyle: odyleOf(row.odyleJson),
     boards: boardSummary(row.boardCountsJson, boards),
     ...buildCharacterView(playerId),
     portraitUrl: null,
+  };
+}
+
+/** The stored action bars as the view shows them, each skill with its name, icon and the level it has in that preset; null while nothing was read. */
+export function actionBarsOf(json: string | null | undefined, skillsOfPage: (page: number) => ProfileSkill[]): ActionBarsView | null {
+  let data: Partial<ActionBarsData> = {};
+  try {
+    data = json ? (JSON.parse(json) as Partial<ActionBarsData>) : {};
+  } catch {
+    return null;
+  }
+
+  if (!data.pages || data.pages.length === 0) {
+    return null;
+  }
+
+  skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
+  skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
+  skillIcons ??= loadJson<Record<string, string>>("skill_icons.json", {});
+  return {
+    pages: data.pages.map((p) => {
+      const byId = new Map(skillsOfPage(p.page).map((s) => [s.id, s]));
+      const view = (id: number): ActionSkillView => {
+        const known = byId.get(id);
+        return {
+          id,
+          name: skillNames![String(id)] ?? String(id),
+          names: skillNamesI18n![String(id)],
+          icon: skillIcons![String(id)] ?? null,
+          level: known?.level ?? 0,
+          baseLevel: known?.baseLevel ?? 0,
+        };
+      };
+      return { page: p.page, slots: p.slots.map((k) => ({ slot: k.slot, skill: view(k.skill), fallbacks: k.fallbacks.map(view) })) };
+    }),
   };
 }
 

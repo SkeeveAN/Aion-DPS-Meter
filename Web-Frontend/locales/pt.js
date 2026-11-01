@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "dano",
   "leaderboard.healShort": "cura",
   "profile.skillsStigma": "Estigma",
+  "profile.actionBar": "Espaço rápido",
+  "profile.actionBarHint": "Entre as habilidades aprendidas, as habilidades que não estão em tempo de recarga e, no caso de habilidades condicionais, aquelas cujas condições foram atendidas, a habilidade de maior prioridade será exibida no espaço rápido.\n\nA prioridade aumenta de 3 para 0.",
   "profile.skillPreset": "Predefinição de Habilidades",
   "profile.presetActive": "ativa agora",
   "profile.presetSaved": "guardada",

@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "daño",
   "leaderboard.healShort": "cura",
   "profile.skillsStigma": "Estigmas",
+  "profile.actionBar": "Acceso rápido",
+  "profile.actionBarHint": "Se mostrará en la ranura de acceso rápido la habilidad con más prioridad entre las habilidades adquiridas, las habilidades en Tiempo de Enfriamiento o (en el caso de habilidades condicionales) las habilidades que cumplan con las condiciones.\n\nLa prioridad aumenta de 3 a 0.",
   "profile.skillPreset": "Preajuste de habilidades",
   "profile.presetActive": "activo ahora",
   "profile.presetSaved": "guardado",

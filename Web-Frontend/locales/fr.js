@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "dégâts",
   "leaderboard.healShort": "soins",
   "profile.skillsStigma": "Stigmates",
+  "profile.actionBar": "Raccourci",
+  "profile.actionBarHint": "Les compétences acquises, dont le délai de recharge est écoulé et dont les conditions sont remplies (pour les compétences conditionnelles), s'affichent dans les raccourcis selon leur ordre de priorité croissant.\n\nLa priorité augmente en allant de 3 à 0.",
   "profile.skillPreset": "Préréglage de compétence",
   "profile.presetActive": "actif",
   "profile.presetSaved": "enregistré",

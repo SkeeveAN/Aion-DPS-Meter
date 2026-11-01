@@ -4770,25 +4770,99 @@ function skillBlocks(profile, skills) {
   return el("div", { className: "pf-skills", style: `--blocks:${blocks.length}` }, blocks);
 }
 
+// ---- Skills tab with the action bars: one row per skill preset - the action bar, then Active, Passive and Stigma, every block the same height.
+// The bar has the game's twelve slots (0-7, 20-23) in the order its window draws them; a slot shows the skill that is cast first (row 0) and, above it,
+// the skills that step in when it is not ready (rows 1-3: the game picks the one with the lowest row number that is ready).
+const BAR_SLOT_ORDER = [2, 3, 4, 5, 20, 21, 22, 23, 6, 7, 0, 1];
+const BAR_ROWS = 4;
+
+function rowIcon(skill, extra = {}) {
+  const name = localizedSkillName(skill);
+  const icon = iconTile("skill", skill.icon, name, { color: "#f0a030", badge: skill.level > 0 ? `${t("profile.levelShort")} ${skill.level}` : "" });
+  icon.classList.add("pr-ico");
+  const full = { passive: false, stigma: false, stones: null, ...skill, ...extra };
+  attachTooltip(icon, () => skillTip(full, name));
+  return icon;
+}
+
+function actionBarGrid(page) {
+  const slots = new Map((page?.slots ?? []).map((k) => [k.slot, k]));
+  const cells = [];
+  for (let row = BAR_ROWS - 1; row >= 0; row--) {
+    for (const slot of BAR_SLOT_ORDER) {
+      const entry = slots.get(slot);
+      const skill = entry ? [entry.skill, ...entry.fallbacks][row] : null;
+      // an empty slot shows as an empty place in the bottom row; above a shorter stack there is nothing to draw
+      cells.push(skill ? rowIcon(skill) : el("span", { className: `pr-ico pr-empty${row === 0 ? "" : " pr-hidden"}` }));
+    }
+    cells.push(el("span", { className: "pr-rown", textContent: String(row) }));
+  }
+  return el("div", { className: "pr-bar", title: t("profile.actionBarHint") }, cells);
+}
+
+function skillColumn(list, cls) {
+  return el("div", { className: "pr-grid" }, list.map((s) => {
+    const name = localizedSkillName(s);
+    const icon = rowIcon(s, { passive: cls === "passive", stigma: cls === "stigma" });
+    icon.style.setProperty("--ico-color", s.passive ? "#3fcf55" : "#f0a030");
+    return el("div", { className: "pr-skill" }, [icon, el("span", { className: "pr-name", textContent: name })]);
+  }));
+}
+
+function presetRow(profile, preset, page, skills) {
+  const v = visibleSkills(profile, skills);
+  const block = (title, cls, count, body) =>
+    el("div", { className: "pf-card pr-block" }, [el("h4", {}, [el("span", { className: `pf-dot ${cls}` }), `${title}${count == null ? "" : ` · ${count}`}`]), body]);
+  const blocks = [
+    page ? block(t("profile.actionBar"), "bar", null, actionBarGrid(page)) : null,
+    block(t("profile.skillsActive"), "active", v.active.length, skillColumn(v.active, "active")),
+    block(t("profile.skillsPassive"), "passive", v.passive.length, skillColumn(v.passive, "passive")),
+    v.stigma.length > 0 ? block(t("profile.skillsStigma"), "stigma", v.stigma.length, skillColumn(v.stigma, "stigma")) : null,
+  ].filter((x) => x != null);
+  return el("section", { className: "pf-preset" }, [
+    preset
+      ? el("div", { className: "pf-preset-head" }, [
+          el("h3", { textContent: `${t("profile.skillPreset")} ${preset.index}` }),
+          el("span", { className: `pf-preset-chip${preset.active ? " on" : ""}`, textContent: preset.active ? t("profile.presetActive") : t("profile.presetSaved") }),
+          preset.seenAt && !preset.active ? el("span", { className: "pf-preset-seen", textContent: t("profile.presetSeen", { when: formatDate(new Date(preset.seenAt)) }) }) : null,
+        ].filter((x) => x != null))
+      : null,
+    el("div", { className: `pr-row${page ? " with-bar" : ""}` }, blocks),
+  ].filter((x) => x != null));
+}
+
 function renderSkillsTab(profile) {
   loadSkillSpec();
   stoneClass = (profile.className ?? "").toLowerCase();
-  // A character with several skill presets gets the three blocks once per preset, headed with the preset's number (the game
-  // sends only the active one, so the others are as they were when last active).
-  const body =
-    profile.presets?.length > 1
-      ? el("div", { className: "pf-presets" }, profile.presets.map((preset) =>
-          el("section", { className: "pf-preset" }, [
-            el("div", { className: "pf-preset-head" }, [
-              el("h3", { textContent: `${t("profile.skillPreset")} ${preset.index}` }),
-              el("span", { className: `pf-preset-chip${preset.active ? " on" : ""}`, textContent: preset.active ? t("profile.presetActive") : t("profile.presetSaved") }),
-              preset.seenAt && !preset.active ? el("span", { className: "pf-preset-seen", textContent: t("profile.presetSeen", { when: formatDate(new Date(preset.seenAt)) }) }) : null,
-            ].filter((x) => x != null)),
-            skillBlocks(profile, preset.skills),
-          ]),
-        ))
-      : skillBlocks(profile, profile.skills);
-  return el("div", {}, [body, el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`])]);
+  const pages = (profile.actionBars?.pages ?? []).filter((p) => p.slots.length > 0);
+  let body;
+  if (pages.length > 0) {
+    // With action bars: a row per preset (the skills of a preset the game has not shown yet are missing, its bar is still drawn). Only presets with a bar or skills.
+    const presets = profile.presets?.length > 1 ? profile.presets : [];
+    const rows =
+      presets.length > 0
+        ? presets.map((preset) => presetRow(profile, preset, pages.find((p) => p.page === preset.index) ?? null, preset.skills))
+        : [presetRow(profile, null, pages[0], profile.skills)];
+    body = el("div", { className: "pf-presets" }, rows);
+  } else {
+    // A character with several skill presets gets the three blocks once per preset, headed with the preset's number (the game
+    // sends only the active one, so the others are as they were when last active).
+    body =
+      profile.presets?.length > 1
+        ? el("div", { className: "pf-presets" }, profile.presets.map((preset) =>
+            el("section", { className: "pf-preset" }, [
+              el("div", { className: "pf-preset-head" }, [
+                el("h3", { textContent: `${t("profile.skillPreset")} ${preset.index}` }),
+                el("span", { className: `pf-preset-chip${preset.active ? " on" : ""}`, textContent: preset.active ? t("profile.presetActive") : t("profile.presetSaved") }),
+                preset.seenAt && !preset.active ? el("span", { className: "pf-preset-seen", textContent: t("profile.presetSeen", { when: formatDate(new Date(preset.seenAt)) }) }) : null,
+              ].filter((x) => x != null)),
+              skillBlocks(profile, preset.skills),
+            ]),
+          ))
+        : skillBlocks(profile, profile.skills);
+  }
+  // the bonus colour of the level is only used in the cards below; the rows with action bars show every level alike (the bonus is in the tooltip)
+  return el("div", {}, [body, pages.length > 0 ? null : el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`])].filter((x) => x != null));
 }
 
 // Species knowledge (pet window): one card per species with its level and the analysed effects. Percent

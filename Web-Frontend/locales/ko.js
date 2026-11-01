@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "대미지",
   "leaderboard.healShort": "치유",
   "profile.skillsStigma": "스티그마",
+  "profile.actionBar": "퀵슬롯",
+  "profile.actionBarHint": "습득한 스킬 + 재시전 시간 중이 아닌 스킬 + (조건기의 경우) 조건을 만족 중인 스킬 중에서, 우선순위가 가장 높은 스킬이 퀵슬롯에 표시됩니다.\n\n우선순위는 3에서 0으로 갈수록 높습니다.",
   "profile.skillPreset": "스킬 프리셋",
   "profile.presetActive": "사용 중",
   "profile.presetSaved": "저장됨",

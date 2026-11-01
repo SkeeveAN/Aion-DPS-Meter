@@ -663,6 +663,8 @@ public partial class MainWindow : Window
             }));
             // A change of the own Pantheon goes online at once (a few seconds later, so several changes travel together).
             entities.PantheonChanged += () => Dispatcher.BeginInvoke(new Action(() => ScheduleOwnProfileUpload(2)));
+            // The action bars come with the login; they go online with the profile.
+            entities.ActionBarsChanged += () => Dispatcher.BeginInvoke(new Action(() => ScheduleOwnProfileUpload(2)));
             // A character window of another player was opened: it goes online by itself a few seconds later (see ScheduleInspectedUpload).
             entities.InspectedChanged += () => Dispatcher.BeginInvoke(new Action(ScheduleInspectedUpload));
         }
@@ -6406,7 +6408,10 @@ public partial class MainWindow : Window
                     : null,
                 CombatPower: ownLegionStats?.CombatPower is > 0 and not 397228 ? ownLegionStats.CombatPower : null,
                 ItemLevel: ownLegionStats?.ItemLevel is > 0 ? ownLegionStats.ItemLevel : null,
-                Odyle: BuildOdyleUpload(live.Name));
+                Odyle: BuildOdyleUpload(live.Name),
+                ActionBars: directory.LocalActionBars is { } bars
+                    ? new ProfileActionBarsUpload(bars.Pages.OrderBy(x => x.Key).Select(x => new ProfileActionPageUpload(x.Key, x.Value.Select(k => new ProfileActionSlotUpload(k.Slot, k.SkillId, k.Fallbacks)).ToList())).ToList())
+                    : null);
         }
 
         // A character window the local player opened for this player: level and the full equipment with

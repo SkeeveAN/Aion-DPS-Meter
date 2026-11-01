@@ -82,6 +82,8 @@ export default {
   "leaderboard.dmgShort": "傷害",
   "leaderboard.healShort": "治療",
   "profile.skillsStigma": "刻印",
+  "profile.actionBar": "快捷列",
+  "profile.actionBarHint": "在已學會的技能中，不在冷卻中且（條件技能）滿足條件的技能裡，優先順序最高的技能會顯示在快捷列中。\n\n優先順序從 3 到 0 依序升高。",
   "profile.skillPreset": "技能預設",
   "profile.presetActive": "目前使用",
   "profile.presetSaved": "已儲存",

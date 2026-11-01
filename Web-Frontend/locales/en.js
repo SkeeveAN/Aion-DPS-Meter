@@ -101,6 +101,8 @@ export default {
   "leaderboard.dmgShort": "dmg",
   "leaderboard.healShort": "heal",
   "profile.skillsStigma": "Stigma",
+  "profile.actionBar": "Quickslot",
+  "profile.actionBarHint": "Skills are shown in quickslots based on ascending priority if they have been acquired, are not on cooldown, and whose conditions have been met (for Conditional Skills).\n\nPriority is ascending from row 3 to 0.",
   "profile.skillPreset": "Skill Preset",
   "profile.presetActive": "active now",
   "profile.presetSaved": "saved",

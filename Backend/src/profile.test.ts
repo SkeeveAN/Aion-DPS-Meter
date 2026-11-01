@@ -616,6 +616,59 @@ test("own Pantheon: a setup replaces the stored one of its preset, an empty one 
   assert.equal(buildProfileView(playerId("Stranger"))?.pantheon ?? null, null);
 });
 
+test("own action bars: replaced at every login, a page without slots is an unused preset, the view names the skills and takes the levels of the preset", () => {
+  const id = playerId("Aahz");
+  // the login of 2026-11-01 (Aahz): page 2 has Furorausbruch with Abwaertsschlag and Zerreissender Schlag stepping in, Verheerender Schlag in its own slot 7
+  upsertProfile(id, profileSchema.parse({
+    source: "self", level: 45, classId: 1, classBits: 2,
+    skills: [{ id: 11390000, level: 15, baseLevel: 15 }, { id: 11170000, level: 19, baseLevel: 10 }, { id: 11010000, level: 17, baseLevel: 10 }],
+    actionBars: { pages: [
+      { page: 2, slots: [{ slot: 7, skill: 11100000, fallbacks: [] }, { slot: 1, skill: 11390000, fallbacks: [11170000, 11010000] }] },
+      { page: 1, slots: [{ slot: 0, skill: 11020000 }] },
+    ] },
+  }));
+  const bars = buildProfileView(id)!.actionBars;
+  assert.deepEqual(bars?.pages.map((p) => [p.page, p.slots.length]), [[1, 1], [2, 2], [3, 0]]); // always three pages, the slots in order
+  const furor = bars!.pages[1]!.slots[0]!;
+  assert.equal(furor.slot, 1);
+  assert.deepEqual(furor.fallbacks.map((f) => f.id), [11170000, 11010000]); // the priority order is kept
+  assert.equal(furor.skill.names?.de, "Furorausbruch");
+  assert.equal(furor.fallbacks[1]!.names?.de, "Zerreißender Schlag");
+  assert.equal(furor.fallbacks[0]!.level, 19);
+  assert.equal(furor.fallbacks[0]!.baseLevel, 10);
+  assert.ok(furor.skill.icon);
+  // a later login replaces all of it; an upload without bars (an older client) keeps them; nonsense is rejected
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2, actionBars: { pages: [{ page: 1, slots: [{ slot: 3, skill: 11290000, fallbacks: [] }] }] } }));
+  assert.deepEqual(buildProfileView(id)!.actionBars?.pages.map((p) => [p.page, p.slots.length]), [[1, 1], [2, 0], [3, 0]]);
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2 }));
+  assert.equal(buildProfileView(id)!.actionBars?.pages[0]!.slots[0]!.slot, 3);
+  assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 4, slots: [] }] } }));
+  assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [{ slot: 24, skill: 1 }] }] } }));
+  assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [{ slot: 1, skill: 1, fallbacks: [1, 2, 3, 4] }] }] } }));
+  // a character that never sent them has none, and another player's profile never takes them
+  assert.equal(buildProfileView(playerId("Stranger"))?.actionBars ?? null, null);
+  const other = playerId("Seen");
+  upsertProfile(other, profileSchema.parse({ source: "seen", level: 45, classId: 1, actionBars: { pages: [{ page: 1, slots: [{ slot: 0, skill: 11020000 }] }] } }));
+  assert.equal(buildProfileView(other)?.actionBars ?? null, null);
+});
+
+test("skills are listed in the game's own order, the same in every preset, not by level", () => {
+  const id = playerId("Aahz");
+  const low = { id: 11020000, level: 5, baseLevel: 5 }; // Scharfer Schlag
+  const high = { id: 11100000, level: 21, baseLevel: 10 }; // Verheerender Schlag, learned later in the game's list
+  upsertProfile(id, profileSchema.parse({
+    source: "self", level: 45, classId: 1, classBits: 2,
+    skills: [high, low],
+    presets: [
+      { index: 1, active: true, seenAt: "2026-11-01T10:00:00Z", skills: [high, low] },
+      { index: 2, active: false, seenAt: "2026-11-01T09:00:00Z", skills: [low, { ...high, level: 8 }] },
+    ],
+  }));
+  const view = buildProfileView(id)!;
+  assert.deepEqual(view.skills.map((s) => s.id), [11020000, 11100000]);
+  for (const preset of view.presets) assert.deepEqual(preset.skills.map((s) => s.id), [11020000, 11100000]);
+});
+
 test("an arcana piece of the own character keeps its experience, god stat and skill bonuses, named in the client's languages", () => {
   const id = playerId("Aahz");
   // Kompass of Vigor +2 as the in-game window showed it (2026-10-26): 600 experience, Vaizel 22, Klingenraserei +1, Schockaufhebung +2

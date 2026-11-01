@@ -2244,6 +2244,105 @@ header .wordmark {
   display: block;
   line-height: 1.2;
 }
+/* Skills tab with action bars: a row per preset - action bar, Active, Passive, Stigma - all four blocks as high as the bar (four icon rows). */
+.pr-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, 0.5fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.pr-row.with-bar {
+  grid-template-columns: auto minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, 0.5fr);
+}
+.pr-block {
+  padding: 10px 12px;
+  min-width: 0;
+}
+.pr-block h4 {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pf-dot.bar {
+  background: #5aa9e6;
+}
+.pr-ico {
+  width: 46px;
+  height: 46px;
+  box-sizing: border-box;
+  flex: 0 0 46px;
+  border-radius: 6px;
+  background: #0c141b;
+}
+.pr-ico .pf-badge-num {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-bottom: 1px;
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.6);
+  color: #f0c040;
+  text-shadow: none;
+}
+.pr-ico.pr-empty {
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface2) 40%, transparent);
+}
+.pr-ico.pr-hidden {
+  visibility: hidden;
+}
+.pr-bar {
+  display: grid;
+  grid-template-columns: repeat(12, 46px) 14px;
+  grid-template-rows: repeat(4, 46px);
+  gap: 6px 4px;
+  align-content: start;
+}
+.pr-rown {
+  align-self: center;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.pr-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, 46px);
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 6px 10px;
+}
+.pr-skill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.pr-name {
+  min-width: 0;
+  font-size: 0.68rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+@media (max-width: 1100px) {
+  .pr-row,
+  .pr-row.with-bar {
+    grid-template-columns: 1fr;
+  }
+  .pr-block:has(.pr-bar) {
+    overflow-x: auto;
+  }
+  .pr-grid {
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
 /* skill presets and specialisation stones (profile, skills tab) */
 .pf-presets {
   display: flex;

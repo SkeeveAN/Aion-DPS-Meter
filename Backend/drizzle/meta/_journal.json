@@ -547,6 +547,13 @@
       "when": 1794080000000,
       "tag": "0077_profile_odyle",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "6",
+      "when": 1794081000000,
+      "tag": "0078_profile_action_bars",
+      "breakpoints": true
     }
   ]
 }

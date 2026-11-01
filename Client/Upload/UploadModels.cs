@@ -144,7 +144,17 @@ public sealed record ProfileUpload(
     int? CombatPower = null,
     int? ItemLevel = null,
     // Own character only: the Odyle energy (the account counter, count + bonus) and the Odyle energy items lying in the inventory and the storages. Null before the game sent them.
-    ProfileOdyleUpload? Odyle = null);
+    ProfileOdyleUpload? Odyle = null,
+    // Own character only: the action bars of the three skill presets as the login sent them. Null before the game sent them.
+    ProfileActionBarsUpload? ActionBars = null);
+
+/// <summary>The own action bars: one page per skill preset (1..3), each with its filled slots (empty slots are left out; a page without slots is an unused preset).</summary>
+public sealed record ProfileActionBarsUpload(IReadOnlyList<ProfileActionPageUpload> Pages);
+
+/// <summary>One page: the slots with the skill shown first and the skills that step in when it is not ready (priority 1-3, in that order).</summary>
+public sealed record ProfileActionPageUpload(int Page, IReadOnlyList<ProfileActionSlotUpload> Slots);
+
+public sealed record ProfileActionSlotUpload(int Slot, int Skill, IReadOnlyList<int> Fallbacks);
 
 /// <summary>The Odyle energy of the own character: the energy now (Count the daily part, Bonus the part from stones; null when the ticket list was not seen) and the items still to use;
 /// Stacks hold what the meter knows of the items (all of it when Complete). Complete = the ticket list and the login frame of the inventory were both seen in this session;

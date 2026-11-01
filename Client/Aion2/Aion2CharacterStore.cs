@@ -21,6 +21,8 @@ public sealed class Aion2SavedCharacter
     public List<SavedPet> Pets { get; set; } = new();
     // The Pantheon (setups per preset and the registered decorations); null = never seen.
     public SavedPantheon? Pantheon { get; set; }
+    // The action bars (page 1..3 = skill preset 1..3, filled slots only); null = never seen.
+    public List<SavedActionPage>? ActionBars { get; set; }
     // Base attributes / Lord values (id 1..17), wing + skin and the summoned pet; null = never seen.
     public Dictionary<int, int>? Attributes { get; set; }
     public int? WingId { get; set; }
@@ -49,6 +51,10 @@ public sealed class Aion2SavedCharacter
     public sealed record SavedPantheonPreset(int Preset, List<SavedPantheonSlot> Slots);
 
     public sealed record SavedPantheon(List<SavedPantheonPreset> Presets, List<int> Owned);
+
+    public sealed record SavedActionSlot(int Slot, int Skill, List<int> Fallbacks);
+
+    public sealed record SavedActionPage(int Page, List<SavedActionSlot> Slots);
 }
 
 /// <summary>
