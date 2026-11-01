@@ -3212,9 +3212,19 @@ button.cmp-mem { cursor: pointer; }
 .pf-arc-eff.off { opacity: 0.5; }
 .pf-arc-lordrow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .pf-arc-lordrow > div { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
-.pf-arc-lordrow .pf-attr-ico { width: 40px; height: 40px; }
-.pf-arc-lordrow strong { font-size: 1.15rem; }
-.pf-arc-lordrow small { color: var(--color-text-muted); }
+.pf-arc-lordrow .pf-attr-ico { width: 56px; height: 56px; background: none; border-radius: 0; filter: var(--ring-ico); }
+.pf-arc-lord-ib { position: relative; }
+.pf-arc-lordrow strong {
+  position: absolute;
+  right: -16px;
+  bottom: 4px;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--ring-name);
+  -webkit-text-stroke: 3px var(--color-surface);
+  paint-order: stroke fill;
+}
+.pf-arc-lordrow small { color: var(--ring-name); font-weight: 700; }
 .pf-arc-grid { display: grid; grid-template-columns: 1fr 310px; gap: 14px; align-items: start; }
 .pf-arc-pieces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
 .pf-slot.pf-arc-card { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; }

@@ -4552,7 +4552,7 @@ function arcanaBlocks(profile, list) {
           el("h4", { textContent: t("profile.attrLords") }),
           el("div", { className: "pf-arc-lordrow" }, lords.map((g) => {
             const key = LORD_KEYS[g.arcana.god];
-            return el("div", { title: `${t(`attr.${key}`)} [${t(`lord.${key}`)}]` }, [attrIcon(key, true), el("strong", { textContent: String(g.arcana.godValue) }), el("small", { textContent: t(`attr.${key}`) })]);
+            return el("div", { title: `${t(`attr.${key}`)} [${t(`lord.${key}`)}]` }, [el("div", { className: "pf-arc-lord-ib" }, [attrIcon(key, true), el("strong", { textContent: String(g.arcana.godValue) })]), el("small", { textContent: t(`attr.${key}`) })]);
           })),
         ])
       : null,
