@@ -53,11 +53,51 @@ export function instances(lang: Lang) {
 }
 
 type BossFile = { items: { key: string; instanceKey: string; slug: string; name: Names; npcIds: number[]; level?: number }[] };
+type LootRoll = { chance: number; times: number; grade: string; items: { itemId: number; grade: string; chance: number; count: [number, number] }[] };
+type BossLoot = { dungeon: string; mode: string; role: string; npcId: number; odyleCost: number; rolls: LootRoll[]; ceiling: { after: number; rewards: number; items: { itemId: number }[] } | null };
+type LootFile = { grades: Record<string, Names>; items: Record<string, { grade: string; icon: string | null; names: Names }>; bosses: Record<string, { portrait: string | null; loot: BossLoot[] }> };
+const lootFile = () => load<LootFile>(dataDir("boss_loot.json"));
+const portraitUrl = (file: string | null | undefined) => (file ? `${IMAGE_BASE}/bosses/portraits/${file}.webp` : null);
+
 export function bosses(lang: Lang, instanceSlug?: string) {
   const instanceOfKey = new Map(load<InstanceFile>(dataDir("instances.json")).items.map((i) => [i.key, i.slug]));
+  const extra = lootFile().bosses;
   return load<BossFile>(dataDir("bosses.json"))
-    .items.map((b) => ({ slug: b.slug, instance: instanceOfKey.get(b.instanceKey) ?? null, name: pick(b.name, lang), level: b.level ?? null, npcIds: b.npcIds }))
+    .items.map((b) => ({ slug: b.slug, instance: instanceOfKey.get(b.instanceKey) ?? null, name: pick(b.name, lang), level: b.level ?? null, npcIds: b.npcIds, portrait: portraitUrl(extra[b.key]?.portrait), hasLoot: (extra[b.key]?.loot.length ?? 0) > 0 }))
     .filter((b) => instanceSlug === undefined || b.instance === instanceSlug);
+}
+
+/**
+ * One boss with its loot as the game's "possible reward" window shows it: per dungeon mode, the rolls ("random obtain 1..n": chance of the roll,
+ * how many times it is made) with the items of each roll and their single chances (percent), plus the Odyle cost and the guaranteed items.
+ * A slug can stand for several modes (easy, normal, hard, conquest); their loot lists are put together.
+ */
+export function boss(slug: string, lang: Lang) {
+  const keys = new Set(load<BossFile>(dataDir("bosses.json")).items.filter((b) => b.slug === slug).map((b) => b.key));
+  const found = bosses(lang).find((b) => b.slug === slug);
+  if (!found) {
+    return null;
+  }
+  const file = lootFile();
+  const image = (id: number) => {
+    const def = file.items[String(id)];
+    return def?.icon ? `${IMAGE_BASE}/icons/item/${def.icon}.webp` : null;
+  };
+  const line = (i: { itemId: number; chance: number; count: [number, number] }) => {
+    const def = file.items[String(i.itemId)];
+    return { itemId: i.itemId, name: pick(def?.names, lang), grade: def?.grade ?? null, image: image(i.itemId), chance: i.chance, count: i.count };
+  };
+  const portrait = [...keys].map((k) => file.bosses[k]?.portrait).find(Boolean);
+  const loot = [...keys].flatMap((k) => file.bosses[k]?.loot ?? []).map((l) => ({
+    dungeon: l.dungeon,
+    mode: l.mode,
+    role: l.role,
+    npcId: l.npcId,
+    odyleCost: l.odyleCost,
+    rolls: l.rolls.map((r) => ({ chance: r.chance, times: r.times, grade: r.grade, gradeName: pick(file.grades[r.grade], lang), items: r.items.map(line) })),
+    guaranteed: l.ceiling ? { after: l.ceiling.after, items: l.ceiling.items.map((i) => ({ itemId: i.itemId, name: pick(file.items[String(i.itemId)]?.names, lang), image: image(i.itemId) })) } : null,
+  }));
+  return { ...found, portrait: portraitUrl(portrait), loot };
 }
 
 // ---- world bosses and maps ----

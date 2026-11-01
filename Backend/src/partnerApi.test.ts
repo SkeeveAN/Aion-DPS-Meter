@@ -75,6 +75,22 @@ test("the static data lists answer", async () => {
   assert.ok(bosses.every((b: { instance: string }) => b.instance === instances[0].slug));
 });
 
+test("a boss comes with its portrait and the loot of the possible-reward window", async () => {
+  const list = (await get("/api/partner/v1/bosses?lang=de")).json().items;
+  assert.ok(list.some((b: { portrait: string | null }) => b.portrait?.endsWith(".webp")));
+  const detail = (await get("/api/partner/v1/bosses/kromedes-desire?lang=de")).json();
+  assert.ok(detail.portrait.includes("/bosses/portraits/"));
+  const easy = detail.loot.find((l: { mode: string; role: string }) => l.mode === "easy" && l.role === "final");
+  assert.ok(easy);
+  assert.deepEqual(easy.rolls.map((r: { chance: number; times: number }) => [r.chance, r.times]), [[7.5, 1], [100, 1], [100, 3], [60, 1]]);
+  const unique = easy.rolls[0];
+  assert.equal(unique.gradeName, "Einzigartig");
+  assert.equal(unique.items.length, 8);
+  assert.ok(unique.items.every((i: { chance: number }) => i.chance === 12.5));
+  assert.equal(unique.items[0].name, "Kromedes Zweihandschwert");
+  assert.equal((await get("/api/partner/v1/bosses/does-not-exist")).statusCode, 404);
+});
+
 test("a language falls back to English where the game has no name", () => {
   assert.equal(api.pick({ en: "A" }, "de"), "A");
   assert.equal(api.pick({ en: "A", de: "B" }, "de"), "B");
