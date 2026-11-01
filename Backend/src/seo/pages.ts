@@ -956,7 +956,7 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   return {
     status: 200,
     meta: {
-      title: `${player.name} – ${classLine || "Aion 2 Character"} | ${SITE}`,
+      title: `${player.name} – ${[classLine || "Aion 2 Character", serverShort].filter(Boolean).join(", ")} | ${SITE}`,
       description,
       canonicalPath: path,
       noindex: thin,

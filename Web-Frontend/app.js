@@ -5258,6 +5258,12 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   // Attributes, wing and pet from the player's client and/or NC; also there when the player has no profile at all.
   const character = data.character ?? profile;
   const strip = renderPlayerStrip(profile, data.player, character);
+  // The tab title says what the page's own head says (class, level, faction, server), not just the name: it is also the bookmark label.
+  const titleFacts = [
+    [profile?.level ? `${t("guild.level")} ${profile.level}` : "", profile?.className ?? "", profile?.faction ? `(${profile.faction})` : ""].filter(Boolean).join(" "),
+    data.player.serverName ? serverLabel(data.player.serverName) : "",
+  ].filter(Boolean);
+  document.title = titleFacts.length > 0 ? `${data.player.name} – ${titleFacts.join(", ")} – ${SITE_TITLE}` : document.title;
   const tabs = [["runs", t("profile.tabRuns"), data.history.length, () => renderRunsTab(data.history, data.party, data.player.id)]];
   if (profile?.gear.length > 0) {
     tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
