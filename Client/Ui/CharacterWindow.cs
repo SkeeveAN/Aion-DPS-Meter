@@ -977,7 +977,7 @@ public sealed class CharacterWindow : Window
     // ---------------------------------------------------------------- character (attributes)
 
     // Stat-frame ids (Aion2Attributes): the six main attributes in the order of the website's hexagon (Might on top,
-    // clockwise) and the ten Lord values in the order of its ring (Justice on top, clockwise).
+    // clockwise) and the ten Lord values in the order of its ring (Justice first, half a step left of the top, clockwise).
     private static readonly (string Key, int Id)[] MainAttributes =
     {
         ("str", 1), ("dex", 2), ("agi", 5), ("wis", 6), ("int", 3), ("con", 4),
@@ -1110,78 +1110,134 @@ public sealed class CharacterWindow : Window
         return page;
     }
 
-    /// <summary>The ring like the website's: ten Lords on a circle (clockwise from the top, the value at the lower
-    /// right of the symbol), the six main attributes as a hexagon inside it (Might on top). Positioned on a canvas
-    /// from the website's proportions (Lord radius 238 and hexagon radius 108 of 600).</summary>
+    /// <summary>True when the current theme has a light panel colour (the symbols are light grey line art and must be darkened there).</summary>
+    private bool LightTheme() => Res("Brush.Panel") is SolidColorBrush panel && (0.299 * panel.Color.R + 0.587 * panel.Color.G + 0.114 * panel.Color.B) > 140;
+
+    /// <summary>A symbol of the ring: the picture's shape filled with one colour (light grey, or the theme's text colour on light themes).</summary>
+    private UIElement RingIcon(string key, bool lord, double size, Brush fill)
+    {
+        string file = (lord ? "lords_" : "") + (key == "con" ? "constitution" : key) + ".png";
+        var rect = new System.Windows.Shapes.Rectangle { Width = size, Height = size, Fill = fill };
+        if (Picture(AssetStore.Path("aion2", "stats", file)) is { } image)
+        {
+            rect.OpacityMask = new ImageBrush(image) { Stretch = Stretch.Uniform };
+        }
+
+        return rect;
+    }
+
+    /// <summary>The ring like the website's and the game's: ten Lords on a double circle (the first half a step left of the top,
+    /// the value at the lower right of the symbol), the six main attributes as a hexagon inside it (Might on top) with big
+    /// symbols, spokes and a star in the middle. Positioned on a canvas from the website's proportions (Lord radius 228,
+    /// hexagon radius 112 of 600); the colours follow the theme.</summary>
     private UIElement BuildRing(Func<int, int> value)
     {
         const double Scale = RingSize / 600;
         double centre = RingSize / 2;
+        bool light = LightTheme();
+        Brush line = new SolidColorBrush(light ? Color.FromRgb(0x6D, 0x7F, 0x90) : Color.FromRgb(0x81, 0x96, 0xAA));
+        Brush lineSoft = new SolidColorBrush(light ? Color.FromRgb(0x8D, 0x9C, 0xAB) : Color.FromRgb(0x55, 0x6B, 0x80));
+        Brush iconFill = light ? Res("Brush.Text") : new SolidColorBrush(Color.FromRgb(0xB4, 0xBF, 0xCB));
+        Brush mainName = new SolidColorBrush(light ? Color.FromRgb(0x07, 0x6F, 0x7B) : Color.FromRgb(0x3C, 0xE1, 0xF0));
+        Brush panel = Res("Brush.Panel");
+        Brush text = Res("Brush.Text");
         var canvas = new Canvas { Width = RingSize, Height = RingSize };
-        canvas.Children.Add(new System.Windows.Shapes.Ellipse
-        {
-            Width = 2 * 238 * Scale, Height = 2 * 238 * Scale, Stroke = Res("Brush.Border"), StrokeThickness = 2,
-        });
-        Canvas.SetLeft(canvas.Children[0], centre - 238 * Scale);
-        Canvas.SetTop(canvas.Children[0], centre - 238 * Scale);
-        var inner = new System.Windows.Shapes.Ellipse
-        {
-            Width = 2 * 165 * Scale, Height = 2 * 165 * Scale, Stroke = Res("Brush.Border"), StrokeThickness = 1,
-            StrokeDashArray = new DoubleCollection { 3, 5 },
-        };
-        Canvas.SetLeft(inner, centre - 165 * Scale);
-        Canvas.SetTop(inner, centre - 165 * Scale);
-        canvas.Children.Add(inner);
 
-        void Place(UIElement node, double width, double height, int index, int count, double radius)
+        // Soft glow in the middle.
+        var glow = new System.Windows.Shapes.Ellipse
+        {
+            Width = RingSize, Height = RingSize,
+            Fill = new RadialGradientBrush(light ? Color.FromRgb(0xE8, 0xED, 0xF2) : Color.FromRgb(0x2E, 0x45, 0x59), Colors.Transparent) { RadiusX = 0.62, RadiusY = 0.62 },
+        };
+        canvas.Children.Add(glow);
+
+        void Circle(double radius, Brush stroke, double thickness, DoubleCollection? dash = null)
+        {
+            var circle = new System.Windows.Shapes.Ellipse { Width = 2 * radius * Scale, Height = 2 * radius * Scale, Stroke = stroke, StrokeThickness = thickness, StrokeDashArray = dash };
+            Canvas.SetLeft(circle, centre - radius * Scale);
+            Canvas.SetTop(circle, centre - radius * Scale);
+            canvas.Children.Add(circle);
+        }
+
+        Circle(235, line, 2);
+        Circle(220, line, 1.5);
+        Circle(160, lineSoft, 1, new DoubleCollection { 3, 5 });
+
+        // Spokes from the middle to the six main attributes.
+        for (int i = 0; i < 6; i++)
+        {
+            double angle = -Math.PI / 2 + i * Math.PI / 3;
+            canvas.Children.Add(new System.Windows.Shapes.Line
+            {
+                X1 = centre + Math.Cos(angle) * 30 * Scale, Y1 = centre + Math.Sin(angle) * 30 * Scale,
+                X2 = centre + Math.Cos(angle) * 160 * Scale, Y2 = centre + Math.Sin(angle) * 160 * Scale,
+                Stroke = lineSoft, StrokeThickness = 1, Opacity = 0.7,
+            });
+        }
+
+        // The star in the middle.
+        double core = 27 * Scale;
+        var star = new System.Windows.Shapes.Ellipse
+        {
+            Width = core, Height = core,
+            Fill = new RadialGradientBrush { GradientStops = { new GradientStop(Colors.White, 0.18), new GradientStop(Color.FromRgb(0x6F, 0x9B, 0xD0), 0.2) } },
+            Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Color.FromRgb(0x6F, 0x9B, 0xD0), BlurRadius = 14, ShadowDepth = 0, Opacity = 0.8 },
+        };
+        Canvas.SetLeft(star, centre - core / 2);
+        Canvas.SetTop(star, centre - core / 2);
+        canvas.Children.Add(star);
+
+        // Places a node so that the point (anchor = share of the height) sits on the circle.
+        void Place(UIElement node, double width, double height, double index, int count, double radius, double anchor = 0.5)
         {
             double angle = -Math.PI / 2 + index * 2 * Math.PI / count;
             Canvas.SetLeft(node, centre + Math.Cos(angle) * radius * Scale - width / 2);
-            Canvas.SetTop(node, centre + Math.Sin(angle) * radius * Scale - height / 2);
+            Canvas.SetTop(node, centre + Math.Sin(angle) * radius * Scale - height * anchor);
             canvas.Children.Add(node);
         }
 
-        const double LordIcon = 46;
+        const double LordIcon = 54;
         for (int i = 0; i < Lords.Length; i++)
         {
             (string key, int id) = Lords[i];
-            var stack = new Grid { Width = 74, Height = 66, ToolTip = $"{Loc("Character.Attr." + key)} [{Loc("Character.Lord." + key)}]" };
-            stack.RowDefinitions.Add(new RowDefinition { Height = new GridLength(LordIcon + 3) });
+            var stack = new Grid { Width = 84, Height = 76, ToolTip = $"{Loc("Character.Attr." + key)} [{Loc("Character.Lord." + key)}]" };
+            stack.RowDefinitions.Add(new RowDefinition { Height = new GridLength(LordIcon) });
             stack.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             var icon = new Grid { Width = LordIcon, Height = LordIcon, VerticalAlignment = VerticalAlignment.Top };
-            icon.Children.Add(AttrIcon(key, true, LordIcon));
+            icon.Children.Add(new System.Windows.Shapes.Ellipse { Fill = panel });
+            icon.Children.Add(RingIcon(key, true, LordIcon, iconFill));
             icon.Children.Add(new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(0xC0, 0x0B, 0x16, 0x20)),
-                CornerRadius = new CornerRadius(7),
-                Padding = new Thickness(4, 0, 4, 0),
-                Margin = new Thickness(0, 0, -12, -4),
+                Background = panel,
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(3, 0, 3, 0),
+                Margin = new Thickness(0, 0, -20, 4),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Bottom,
-                Child = new TextBlock { Text = value(id).ToString(CultureInfo.CurrentCulture), FontSize = 13, FontWeight = FontWeights.Bold, Foreground = Brushes.White },
+                Child = new TextBlock { Text = value(id).ToString(CultureInfo.CurrentCulture), FontSize = 15, FontWeight = FontWeights.Bold, Foreground = text },
             });
             stack.Children.Add(icon);
-            TextBlock label = Text(Loc("Character.Attr." + key), 10.5, brush: Res("Brush.TextMuted"));
+            TextBlock label = Text(Loc("Character.Attr." + key), 10.5, FontWeights.Bold, text);
             label.HorizontalAlignment = HorizontalAlignment.Center;
             Grid.SetRow(label, 1);
             stack.Children.Add(label);
-            Place(stack, 74, 66, i, Lords.Length, 238);
+            Place(stack, 84, 76, i - 0.5, Lords.Length, 228, LordIcon / 2 / 76);
         }
 
         for (int i = 0; i < MainAttributes.Length; i++)
         {
             (string key, int id) = MainAttributes[i];
-            var stack = new StackPanel { Width = 66, ToolTip = Loc("Character.Attr." + key) };
-            UIElement icon = AttrIcon(key, false, 26);
+            var stack = new StackPanel { Width = 96, ToolTip = Loc("Character.Attr." + key) };
+            UIElement icon = RingIcon(key, false, 60, iconFill);
             ((FrameworkElement)icon).HorizontalAlignment = HorizontalAlignment.Center;
             stack.Children.Add(icon);
-            TextBlock label = Text(Loc("Character.Attr." + key), 10.5);
+            TextBlock label = Text(Loc("Character.Attr." + key), 12, FontWeights.Bold, mainName);
             label.HorizontalAlignment = HorizontalAlignment.Center;
             stack.Children.Add(label);
-            TextBlock number = Text(value(id).ToString(CultureInfo.CurrentCulture), 15, FontWeights.Bold, Res("Brush.Accent"));
+            TextBlock number = Text(value(id).ToString(CultureInfo.CurrentCulture), 11, FontWeights.Bold, text);
             number.HorizontalAlignment = HorizontalAlignment.Center;
             stack.Children.Add(number);
-            Place(stack, 66, 60, i, MainAttributes.Length, 108);
+            Place(stack, 96, 92, i, MainAttributes.Length, 112, 0.62);
         }
 
         return canvas;
