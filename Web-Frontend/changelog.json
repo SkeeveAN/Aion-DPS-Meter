@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-02",
+  "items": [
+   {
+    "text": "Website: the comparison page is up to date - fixed aletheia's license (all rights reserved) and sponsor-only parts, A2Tools regions, cooldowns and updates, NOIA2 Steam servers and binary-only releases, AionFlex limits, the AION2 Hub sentence, new stars and extras; the weaknesses list names the cooldown estimates and the beta expert mode instead of the replay, the leaderboards say that every boss has data",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-02"
+   }
+  ]
+ },
+ {
   "version": "1.19.0",
   "date": "2026-11-02",
   "items": [
