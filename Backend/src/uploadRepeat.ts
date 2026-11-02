@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 /**
  * One uploader sending the same fight again and again.
  *
@@ -8,13 +10,17 @@
  * The fight is identified by what the client itself writes into it: the uploader, the boss and the exact start and end time. The first copies are taken
  * (a corrected second upload is legitimate); from the third on the answer is "duplicate" without any work, which also tells the client to stop.
  * Kept in memory only: a restart forgets it, then at most MAX_COPIES more are taken.
+ *
+ * The same identity is the RECEIPT the server hands back with every upload answer (a sha256 of it, not guessable without the uploader's hash): with it the
+ * client can ask how its fight stands (`GET /api/uploads/receipt/:receipt`) and does not have to send it a second time to find out.
  */
 
 export const MAX_COPIES = 2;
 const KEEP_MS = 24 * 3_600_000;
 const MAX_KEYS = 5_000;
 
-type Entry = { copies: number; lastAt: number };
+export type Outcome = { state: "filed" | "turned_away"; encounterId: number | null };
+type Entry = { copies: number; lastAt: number; outcome?: Outcome };
 
 export class RepeatGuard {
   private readonly seen = new Map<string, Entry>();
@@ -37,6 +43,24 @@ export class RepeatGuard {
     return true;
   }
 
+  /** What became of the fight: undefined while it is not decided (or not known to this process). */
+  outcomeOf(key: string): Outcome | undefined {
+    return this.seen.get(key)?.outcome;
+  }
+
+  /** Is the fight known here (taken before)? */
+  knows(key: string): boolean {
+    return this.seen.has(key);
+  }
+
+  /** Remembers the result of the work on the fight (a copy that waited for NC or review has none yet). */
+  record(key: string, outcome: Outcome, now: number): void {
+    const entry = this.seen.get(key) ?? { copies: 1, lastAt: now };
+    entry.outcome = outcome;
+    entry.lastAt = now;
+    this.seen.set(key, entry);
+  }
+
   get size(): number {
     return this.seen.size;
   }
@@ -56,4 +80,6 @@ export class RepeatGuard {
   }
 }
 
-export const repeatKey = (ipHash: string, boss: string | number | undefined, startedAt: string, endedAt: string): string => `${ipHash}|${boss ?? ""}|${startedAt}|${endedAt}`;
+/** The receipt of a fight: sha256 of uploader, boss and exact start and end time. */
+export const repeatKey = (ipHash: string, boss: string | number | undefined, startedAt: string, endedAt: string): string =>
+  createHash("sha256").update(`${ipHash}|${boss ?? ""}|${startedAt}|${endedAt}`).digest("hex");

@@ -42,21 +42,33 @@ type Log = FastifyInstance["log"];
 
 const repeatGuard = new RepeatGuard();
 
+export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: string, crowdChecked = false): Promise<UploadOutcome> {
+  // The receipt names the fight of this uploader (see uploadRepeat.ts). The same fight over and over: after a few copies it is answered as taken without any work.
+  const receipt = repeatKey(ipHash, payload.bossNpcId ?? payload.bossNpcName, payload.startedAt, payload.endedAt);
+  if (!crowdChecked && !repeatGuard.admit(receipt, Date.now())) {
+    log.info({ bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: the same fight from the same uploader again, answered as taken");
+    return { status: 200, body: { status: "duplicate", encounterId: repeatGuard.outcomeOf(receipt)?.encounterId ?? null, receipt } };
+  }
+  const out = await acceptUploadWork(log, payload, ipHash, crowdChecked);
+  const body = out.body as { status?: string; encounterId?: number } | null;
+  if (out.status === 200 && (body?.status === "merged" || body?.status === "created")) {
+    repeatGuard.record(receipt, { state: "filed", encounterId: body.encounterId ?? null }, Date.now());
+  } else if (out.status >= 400 && out.status < 500) {
+    repeatGuard.record(receipt, { state: "turned_away", encounterId: null }, Date.now());
+  }
+  return out.body && typeof out.body === "object" ? { status: out.status, body: { ...out.body, receipt } } : out;
+}
+
 /**
  * Judges and files one upload: the whole way from the "exactly one self" check to the merge. `crowdChecked` is set when the unknown players of a
  * world boss crowd have been looked up already (see crowdResolve.ts) - else such an upload waits for that first.
  */
-export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: string, crowdChecked = false): Promise<UploadOutcome> {
+async function acceptUploadWork(log: Log, payload: UploadPayload, ipHash: string, crowdChecked: boolean): Promise<UploadOutcome> {
     // Every upload starts with one turn of the loop, so work that was chained before it (and the native memory it left behind) gets cleaned up: see eventLoop.ts.
     await yieldToEventLoop();
     // The very same payload from the same uploader (a client that sends one fight again and again) adds nothing: it is answered as taken and not filed.
     // Only against merged uploads; a payload that waited or was turned away is judged anew.
     const payloadHash = createHash("sha256").update(JSON.stringify(payload)).digest("hex");
-    // The same fight of the same uploader over and over (a client that loops): after a few copies it is answered as taken without any work.
-    if (!crowdChecked && !repeatGuard.admit(repeatKey(ipHash, payload.bossNpcId ?? payload.bossNpcName, payload.startedAt, payload.endedAt), Date.now())) {
-      log.info({ bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: the same fight from the same uploader again, answered as taken");
-      return { status: 200, body: { status: "duplicate", encounterId: null } };
-    }
     if (!crowdChecked) {
       const same = db
         .select({ id: uploads.id, matchedEncounterId: uploads.matchedEncounterId })
@@ -254,6 +266,19 @@ export async function uploadRoutes(app: FastifyInstance) {
   // path stays under /api/uploads on purpose: the rate limiter in server.ts keys on that prefix.
   // What the client asks at start-up: which version may upload (see clientPolicy.ts).
   app.get<{ Querystring: { version?: string } }>("/api/client-policy", async (request) => clientPolicy(Date.now(), request.query.version));
+
+  // How the server stands with a fight: the client asks with the receipt from the answer instead of sending the fight again.
+  app.get<{ Params: { receipt: string } }>("/api/uploads/receipt/:receipt", async (request, reply) => {
+    const { receipt } = request.params;
+    if (!/^[a-f0-9]{64}$/.test(receipt)) {
+      return reply.status(400).send({ error: "invalid_receipt" });
+    }
+    const outcome = repeatGuard.outcomeOf(receipt);
+    if (outcome) {
+      return { state: outcome.state, encounterId: outcome.encounterId };
+    }
+    return { state: repeatGuard.knows(receipt) ? "queued" : "unknown", encounterId: null };
+  });
 
   app.post("/api/uploads/profiles", { preHandler: requireCurrentClient }, async (request, reply) => {
     const parseResult = profilesUploadSchema.safeParse(request.body);

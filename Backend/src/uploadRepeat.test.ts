@@ -29,3 +29,15 @@ test("the table stays bounded when it is flooded with distinct fights", () => {
   }
   assert.ok(guard.size <= 5_000);
 });
+
+test("a fight remembers what became of it; the receipt is a sha256 of the identity", () => {
+  const guard = new RepeatGuard();
+  const key = repeatKey("ip", 7, "s", "e");
+  assert.match(key, /^[a-f0-9]{64}$/);
+  assert.equal(guard.knows(key), false);
+  guard.admit(key, 1);
+  assert.equal(guard.knows(key), true);
+  assert.equal(guard.outcomeOf(key), undefined, "taken but not decided yet: queued");
+  guard.record(key, { state: "filed", encounterId: 15705 }, 2);
+  assert.deepEqual(guard.outcomeOf(key), { state: "filed", encounterId: 15705 });
+});
