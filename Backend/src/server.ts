@@ -52,10 +52,11 @@ export async function buildServer() {
     trustProxy: true,
   });
 
-  // One line for the requests that matter: everything that is not a plain GET (uploads), errors (status 400 and up) and slow answers (a second and more).
+  // One line for the requests that matter: everything that is not a plain GET (uploads), errors (status 400 and up, but not the 404s of the scanners that look for
+  // .env files all day) and slow answers (a second and more).
   app.addHook("onResponse", async (request, reply) => {
     const ms = reply.elapsedTime;
-    if (request.method !== "GET" || reply.statusCode >= 400 || ms >= 1000) {
+    if (request.method !== "GET" || (reply.statusCode >= 400 && reply.statusCode !== 404) || ms >= 1000) {
       request.log.info({ method: request.method, url: request.url.split("?")[0], statusCode: reply.statusCode, ms: Math.round(ms) }, "request");
     }
   });
