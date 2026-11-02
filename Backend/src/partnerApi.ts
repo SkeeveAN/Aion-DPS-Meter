@@ -39,6 +39,9 @@ function load<T>(path: string): T {
   return value as T;
 }
 
+/** The OpenAPI (Swagger) description of the partner API, docs/partner-api.openapi.json. */
+export const openapi = () => load<object>(fileURLToPath(new URL("../docs/partner-api.openapi.json", import.meta.url)));
+
 // ---- classes, instances, bosses ----
 
 export function classes() {

@@ -15,6 +15,8 @@ const RESOURCES = ["classes", "instances", "bosses", "bosses/:slug", "items/:id"
  * The site's own routes under /api stay open; this part is the one a partner is meant to call from its server.
  */
 export async function partnerRoutes(app: FastifyInstance) {
+  // The description of the API is open (no key), so a Swagger tool or a client generator can fetch it.
+  app.get("/api/partner/v1/openapi.json", async (_request, reply) => reply.header("Cache-Control", "public, max-age=300").send(api.openapi()));
   await app.register(async (scope) => {
     scope.addHook("onRequest", async (request: FastifyRequest, reply: FastifyReply) => {
       const given = request.headers[KEY_HEADER];

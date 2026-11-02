@@ -144,3 +144,9 @@ test("the bosses of an instance come with their loot in one request", async () =
   const first = withLoot.items.find((b: { hasLoot: boolean }) => b.hasLoot);
   assert.ok(first.loot.length > 0 && first.loot[0].rolls[0].items[0].itemId > 0);
 });
+
+test("the OpenAPI description is served without a key", async () => {
+  const res = await get("/api/partner/v1/openapi.json", null);
+  assert.equal(res.statusCode, 200);
+  assert.ok(res.json().paths["/api/partner/v1/items/{id}"]);
+});

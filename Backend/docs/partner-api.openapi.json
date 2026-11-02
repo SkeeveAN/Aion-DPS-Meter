@@ -3,7 +3,7 @@
   "info": {
     "title": "Aion DPS partner API",
     "version": "1.0.0",
-    "description": "Read-only static game data of AION 2 (names, places, times) and a few site feeds, for other community sites. No players, characters or fights.\n\nCall it from your server, not from a visitor's browser (the key would be public), and cache the answers for 5 to 60 minutes. Each key has its own requests-per-minute limit; over it the answer is 429 with Retry-After.\n\nGame names come from the AION 2 client; AION 2 and its names, texts and artwork belong to NCSOFT. Please name aiondps.com as the source and link it."
+    "description": "Read-only static game data of AION 2 (names, places, times) and a few site feeds, for other community sites. No players, characters or fights.\n\nCall it from your server, not from a visitor's browser (the key would be public), and cache the answers for 5 to 60 minutes. Each key has its own requests-per-minute limit; over it the answer is 429 with Retry-After.\n\nGame names come from the AION 2 client; AION 2 and its names, texts and artwork belong to NCSOFT. Please name aiondps.com as the source and link it.\n\nThis description itself is served without a key at /api/partner/v1/openapi.json."
   },
   "servers": [
     {
