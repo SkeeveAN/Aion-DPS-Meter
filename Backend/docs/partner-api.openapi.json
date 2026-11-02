@@ -167,7 +167,8 @@
           "429": {
             "$ref": "#/components/responses/RateLimited"
           }
-        }
+        },
+        "description": "Instances with their slug; pass the slug as ?instance= to /bosses."
       }
     },
     "/api/partner/v1/bosses": {
@@ -193,6 +194,19 @@
               "type": "string"
             },
             "description": "Only the bosses of this instance (its slug)."
+          },
+          {
+            "name": "loot",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "true"
+              ]
+            },
+            "description": "Add the loot lists (the answer of /bosses/{slug}) to every boss that has one."
           }
         ],
         "responses": {
@@ -212,7 +226,14 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Boss"
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Boss"
+                          },
+                          {
+                            "$ref": "#/components/schemas/BossDetail"
+                          }
+                        ]
                       }
                     }
                   }
@@ -229,7 +250,8 @@
           "429": {
             "$ref": "#/components/responses/RateLimited"
           }
-        }
+        },
+        "description": "How to get from an instance to the item ids that drop: /instances lists the instances (slug), /bosses?instance=<slug> their bosses, /bosses/{slug} one boss with its loot per dungeon mode (every drop has an itemId), /items/{id} the tooltip of an item. To get a whole instance in one request use /bosses?instance=<slug>&loot=1: every boss that has loot then comes in the shape of /bosses/{slug}. Every mode of an expedition is a boss of its own (exploration, conquest, conquest-hard), so the list holds one entry per mode."
       }
     },
     "/api/partner/v1/bosses/{slug}": {

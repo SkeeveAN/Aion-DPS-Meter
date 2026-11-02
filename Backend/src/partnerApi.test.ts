@@ -135,3 +135,12 @@ test("an item answers like its in-game tooltip, in the language asked for", asyn
   assert.equal((await get("/api/partner/v1/items/1")).statusCode, 404);
   assert.equal((await get("/api/partner/v1/items/110130033?lang=xx")).statusCode, 400);
 });
+
+test("the bosses of an instance come with their loot in one request", async () => {
+  const plain = (await get("/api/partner/v1/bosses?instance=ferocious-horn-den")).json();
+  const withLoot = (await get("/api/partner/v1/bosses?instance=ferocious-horn-den&loot=1")).json();
+  assert.equal(withLoot.count, plain.count);
+  assert.ok(plain.items.every((b: { loot?: unknown }) => b.loot === undefined));
+  const first = withLoot.items.find((b: { hasLoot: boolean }) => b.hasLoot);
+  assert.ok(first.loot.length > 0 && first.loot[0].rolls[0].items[0].itemId > 0);
+});

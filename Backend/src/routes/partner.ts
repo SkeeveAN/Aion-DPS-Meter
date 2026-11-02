@@ -50,7 +50,10 @@ export async function partnerRoutes(app: FastifyInstance) {
 
     listRoute("classes", () => api.classes());
     listRoute("instances", (lang) => api.instances(lang));
-    listRoute("bosses", (lang, q) => api.bosses(lang, q.instance));
+    listRoute("bosses", (lang, q) => {
+      const list = api.bosses(lang, q.instance);
+      return q.loot === "1" || q.loot === "true" ? list.map((b) => (b.hasLoot ? api.boss(b.slug, lang) ?? b : b)) : list;
+    });
     listRoute("worldbosses", (lang) => api.worldBosses(lang));
     listRoute("maps", (lang) => api.maps(lang));
     listRoute("events", (lang) => api.events(lang));
