@@ -41,6 +41,13 @@
      "Backend"
     ],
     "date": "2026-11-03"
+   },
+   {
+    "text": "Client: crafted pieces are read with plus level, mana stones and rolled stats again (the crafter's name in the login entry hid them)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-03"
    }
   ]
  },
