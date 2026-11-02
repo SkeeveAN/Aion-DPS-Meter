@@ -232,6 +232,65 @@
         }
       }
     },
+    "/api/partner/v1/bosses/{slug}": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "One boss with its portrait and loot per dungeon mode",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Boss slug from /bosses."
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BossDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "No such pet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/partner/v1/items/{id}": {
       "get": {
         "tags": [
@@ -279,14 +338,7 @@
             "$ref": "#/components/responses/RateLimited"
           },
           "404": {
-            "description": "No such pet",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
@@ -959,6 +1011,15 @@
             "items": {
               "type": "integer"
             }
+          },
+          "portrait": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL of the boss portrait (webp)."
+          },
+          "hasLoot": {
+            "type": "boolean",
+            "description": "The boss has a loot list; fetch it with /bosses/{slug}."
           }
         }
       },
@@ -1513,6 +1574,137 @@
             "description": "The client's own tooltip captions in the language asked for (requiredLevel, soulBindRate, soulBindFirst, manaStoneSlot ...)."
           }
         }
+      },
+      "BossDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Boss"
+          },
+          {
+            "type": "object",
+            "description": "One boss with the loot of the game's possible-reward window. Every mode of an expedition is a boss of its own (exploration, conquest, conquest-hard ...) with its own loot.",
+            "properties": {
+              "lang": {
+                "$ref": "#/components/schemas/Lang"
+              },
+              "loot": {
+                "type": "array",
+                "description": "One entry per dungeon mode.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "dungeon": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "type": "string"
+                    },
+                    "modeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "role": {
+                      "type": "string"
+                    },
+                    "npcId": {
+                      "type": "integer"
+                    },
+                    "odyleCost": {
+                      "type": "integer"
+                    },
+                    "rolls": {
+                      "type": "array",
+                      "description": "The rolls (\"random obtain 1..n\"): chance of the roll in percent, how many times it is made, and the items of the roll.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chance": {
+                            "type": "number"
+                          },
+                          "times": {
+                            "type": "integer"
+                          },
+                          "grade": {
+                            "type": "string"
+                          },
+                          "gradeName": {
+                            "type": "string"
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "itemId": {
+                                  "type": "integer",
+                                  "description": "Details at /items/{id}."
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "grade": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "itemLevel": {
+                                  "type": "integer",
+                                  "nullable": true
+                                },
+                                "image": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "chance": {
+                                  "type": "number",
+                                  "description": "Single chance of the item within its roll, in percent."
+                                },
+                                "count": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer"
+                                  },
+                                  "description": "[min, max] amount."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "guaranteed": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Guaranteed items after the given number of runs.",
+                      "properties": {
+                        "after": {
+                          "type": "integer"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "image": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "responses": {
@@ -1568,6 +1760,16 @@
                   "type": "integer"
                 }
               }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
             }
           }
         }
