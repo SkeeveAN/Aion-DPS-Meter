@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-03",
+  "items": [
+   {
+    "text": "Website: the damage curve on the encounter page gets a chart of its own for the damage per second (group as an area with the average of the fight, switched-on players as lines, one cursor for both charts) instead of unlabelled bars, and the players' lines no longer share a yellow with the group's",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-03"
+   }
+  ]
+ },
+ {
   "version": "1.19.2",
   "date": "2026-11-03",
   "items": [
