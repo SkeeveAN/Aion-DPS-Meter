@@ -27,6 +27,8 @@ function latestReleaseDate(): string | undefined {
   }
 }
 
+const SEO_TOOL_BOTS = ["SerpstatBot", "AhrefsBot", "SemrushBot", "MJ12bot", "DotBot", "BLEXBot", "PetalBot", "Bytespider", "DataForSeoBot"];
+
 // Crawler plumbing. Single encounters, comparisons and search are deliberately absent from the
 // sitemap and blocked in robots.txt: thousands of thin, near-duplicate pages would eat crawl budget
 // without ranking for anything. Player profiles are open to search engines (per the user) and listed
@@ -35,6 +37,10 @@ export async function seoRoutes(app: FastifyInstance) {
   app.get("/robots.txt", async (_request, reply) => {
     reply.type("text/plain; charset=utf-8").header("Cache-Control", "public, max-age=3600");
     return [
+      // SEO-tool crawlers (nginx also limits them to one request per second): no use for the site, plenty of load.
+      ...SEO_TOOL_BOTS.map((bot) => `User-agent: ${bot}`),
+      "Disallow: /",
+      "",
       "User-agent: *",
       "Allow: /",
       "Disallow: /download/latest",
