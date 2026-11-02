@@ -20,7 +20,8 @@ export type DataManifest = { version: string; files: DataFile[] };
 const ASSETS_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "Client", "assets");
 const ALLOWED = /^(aion2|i18n)\/[A-Za-z0-9_][A-Za-z0-9_.\-/]*\.(json|png|jpg|wav)$/;
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
-const MANIFEST_TTL_MS = 30_000;
+// The assets change only with a deploy (which restarts the process); walking thousands of files was a 20-second stall on a cold disk, so every 10 minutes at most.
+const MANIFEST_TTL_MS = 600_000;
 
 /** The layout number of files whose layout changed in a way an older client cannot read (default 1). Raise it together with the client change that reads the new layout. */
 export const DATA_FORMATS: Record<string, number> = {};
@@ -78,7 +79,7 @@ export function buildManifestOf(root: string): DataManifest {
 
 let cached: { at: number; manifest: DataManifest } | undefined;
 
-/** The manifest of the shipped assets, rebuilt at most every 30 seconds (a deploy replaces the files, the next request sees them). */
+/** The manifest of the shipped assets, rebuilt at most every 10 minutes (a deploy restarts the process and with it the list). */
 export function dataManifest(now = Date.now()): DataManifest {
   if (!cached || now - cached.at > MANIFEST_TTL_MS) {
     cached = { at: now, manifest: buildManifestOf(ASSETS_ROOT) };

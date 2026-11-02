@@ -9,6 +9,7 @@ import { startAnnouncements } from "./announcements.js";
 import { startPatchnotes } from "./patchnotes.js";
 import { startTwitchDrops } from "./twitchDrops.js";
 import { startMatchmaking } from "./serverMatchmakingDb.js";
+import { dataManifest } from "./dataPack.js";
 
 async function main() {
   const app = await buildServer();
@@ -23,6 +24,14 @@ async function main() {
   startPatchnotes();
   startTwitchDrops();
   startMatchmaking();
+  // The list of the data files is built (walking thousands of files) shortly after the start, not by the first client that asks.
+  setTimeout(() => {
+    try {
+      dataManifest();
+    } catch (err) {
+      app.log.warn({ err: String(err) }, "data manifest could not be built");
+    }
+  }, 15_000).unref();
 }
 
 main().catch((err) => {

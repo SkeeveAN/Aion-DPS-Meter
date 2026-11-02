@@ -12,6 +12,19 @@ function same(a: string, b: string): boolean {
 
 const hidden = (reply: FastifyReply) => reply.status(404).send({ error: "not_found" });
 
+/**
+ * The numbers are counted over the whole database (uploads, players, profiles: seconds on a cold disk, blocking the backend meanwhile). Prometheus asks every
+ * minute; two minutes old is fine for gauges and counters of this kind.
+ */
+const METRICS_TTL_MS = 120_000;
+let metricsCache: { at: number; text: string } | undefined;
+function metricsOf(now: number): string {
+  if (!metricsCache || now - metricsCache.at >= METRICS_TTL_MS) {
+    metricsCache = { at: now, text: metricsText() };
+  }
+  return metricsCache.text;
+}
+
 export async function siteStatsRoutes(app: FastifyInstance) {
   // Public: totals only.
   app.get("/api/stats/overview", async (_request, reply) => {
@@ -33,6 +46,6 @@ export async function siteStatsRoutes(app: FastifyInstance) {
     if (!env.METRICS_TOKEN || !same(given, env.METRICS_TOKEN)) {
       return hidden(reply);
     }
-    return reply.header("Cache-Control", "no-store").type("text/plain; version=0.0.4; charset=utf-8").send(metricsText());
+    return reply.header("Cache-Control", "no-store").type("text/plain; version=0.0.4; charset=utf-8").send(metricsOf(Date.now()));
   });
 }
