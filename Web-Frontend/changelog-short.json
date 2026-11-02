@@ -139,5 +139,8 @@
   "en": "Skill bars: the player page shows each preset's action bar",
   "de": "Skill-Leisten: Die Spielerseite zeigt die Aktionsleiste jedes Presets"
  },
- "The combat power of the party's members is read from the party list and shown behind the name in the overlay (switch in the settings), saved with character and server id in session files and sent with the fight; the privacy text names it": {"en": "Overlay: the party members' combat power behind the name (switch in the settings); character and server id in saved session files", "de": "Overlay: Die Kampfkraft der Gruppenmitglieder hinter dem Namen (Schalter in den Einstellungen); Charakter- und Server-ID in gespeicherten Sitzungsdateien"}
+ "The combat power of the party's members is read from the party list and shown behind the name in the overlay (switch in the settings), saved with character and server id in session files and sent with the fight; the privacy text names it": {
+  "en": "Overlay: the party members' combat power behind the name (switch in the settings); character and server id in saved session files",
+  "de": "Overlay: Die Kampfkraft der Gruppenmitglieder hinter dem Namen (Schalter in den Einstellungen); Charakter- und Server-ID in gespeicherten Sitzungsdateien"
+ }
 }

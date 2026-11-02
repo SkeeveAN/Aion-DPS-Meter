@@ -59,6 +59,7 @@ const versionAt = (hash) => {
   return null;
 };
 
+const PARTNER = /partner/i;
 const releases = [];
 const releasedAt = {}; // version -> exact time of its release commit (the website's statistics compare uploads against it)
 let current = null;
@@ -71,7 +72,9 @@ for (const c of commits) {
   const rel = /^Release (\d+\.\d+\.\d+)(?:: (.+))?$/.exec(c.subject);
   const noise = /^(Merge |Bump (the )?version|Version \d|Release workflow|Changelog)/.test(c.subject);
   const override = overrideFor(c.hash);
-  const text = override ? override[1] : rel ? rel[2] : noise ? null : c.subject.replace(/;? ?version \d+\.\d+\.\d+$/i, "");
+  let text = override ? override[1] : rel ? rel[2] : noise ? null : c.subject.replace(/;? ?version \d+\.\d+\.\d+$/i, "");
+  // The partner API is never public: not in the changelog, not in the update window, not in the release notes (a rule of the project owner).
+  if (text && PARTNER.test(text)) text = null;
   const areas = areasOf(c.files);
   if (text && areas.length) {
     (v ? pending : before).push({ text, areas, date: c.date });
@@ -103,6 +106,7 @@ for (const r of releases) {
   }
   r.items = [...seen.values()];
 }
+if (releases.some((r) => r.items.some((i) => PARTNER.test(i.text)))) throw new Error("A partner API entry is in the changelog: give its commit a null override in overrides.json.");
 const key = (v) => (v === "Unreleased" ? [1e9, 0, 0] : v === PRE ? [-1, 0, 0] : v.split(".").map(Number));
 releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2] || (a.date < b.date ? 1 : -1); });
 writeFileSync(out, JSON.stringify(releases, null, 1) + "\n");

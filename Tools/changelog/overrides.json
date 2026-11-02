@@ -198,5 +198,14 @@
  "9efb3881": null,
  "903b090f": null,
  "468ff315": "10 vs 10 arena: the overlay shows all twenty players and colours them by the game's own team colour, Team Red muted red and Team Blue muted blue (a stripe at the row's edge, the class colour as a thin bar at its foot), in the chips and the compact overlay and in the window's list, with the damage of each team under the compact overlay; the teams are read from the fight's start frame, so it is right whichever colour you are in",
- "4161e3fd": null
+ "4161e3fd": null,
+ "3074592": null,
+ "e48787b": null,
+ "8c2bd28": null,
+ "bb058c8": null,
+ "71f4a33": null,
+ "8f4240d": null,
+ "1d92940": null,
+ "6031956": "input field for the seconds the current boss stays shown after its death, privacy block in settings, NC matching never idles",
+ "51caffc": null
 }
