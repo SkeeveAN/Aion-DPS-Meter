@@ -17,6 +17,7 @@ import { env } from "../env.js";
 import { classifyFight, referenceOf } from "../bossHp.js";
 import { assessKill, referenceFor, structuralProblems, type ReviewFinding } from "../uploadReview.js";
 import type { UploadPayload } from "../uploadSchema.js";
+import { RepeatGuard, repeatKey } from "../uploadRepeat.js";
 
 /** The NC gate is off in tests (no NC there) unless a test sets NC_GATE=on. */
 const gateEnabled = () => (process.env.NC_GATE ?? (process.env.NODE_TEST_CONTEXT ? "off" : "on")).toLowerCase() !== "off";
@@ -38,6 +39,8 @@ function recordTurnedAway(payload: UploadPayload, ipHash: string, findings: Revi
 type UploadOutcome = { status: number; body: unknown };
 type Log = FastifyInstance["log"];
 
+const repeatGuard = new RepeatGuard();
+
 /**
  * Judges and files one upload: the whole way from the "exactly one self" check to the merge. `crowdChecked` is set when the unknown players of a
  * world boss crowd have been looked up already (see crowdResolve.ts) - else such an upload waits for that first.
@@ -46,6 +49,11 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
     // The very same payload from the same uploader (a client that sends one fight again and again) adds nothing: it is answered as taken and not filed.
     // Only against merged uploads; a payload that waited or was turned away is judged anew.
     const payloadHash = createHash("sha256").update(JSON.stringify(payload)).digest("hex");
+    // The same fight of the same uploader over and over (a client that loops): after a few copies it is answered as taken without any work.
+    if (!crowdChecked && !repeatGuard.admit(repeatKey(ipHash, payload.bossNpcId ?? payload.bossNpcName, payload.startedAt, payload.endedAt), Date.now())) {
+      log.info({ bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: the same fight from the same uploader again, answered as taken");
+      return { status: 200, body: { status: "duplicate", encounterId: null } };
+    }
     if (!crowdChecked) {
       const same = db
         .select({ id: uploads.id, matchedEncounterId: uploads.matchedEncounterId })
