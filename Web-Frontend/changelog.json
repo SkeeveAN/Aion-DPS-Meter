@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.19.1",
   "date": "2026-11-02",
   "items": [
    {
@@ -72,6 +72,16 @@
     "text": "Uploads: every answer carries a receipt (sha256 of uploader, boss and exact start and end of the fight); GET /api/uploads/receipt/:receipt tells whether the fight is queued, filed or turned away, and a repeated copy is answered with the stored result",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-11-02"
+   },
+   {
+    "text": "The combat power of the party's members is read from the party list and shown behind the name in the overlay (switch in the settings), saved with character and server id in session files and sent with the fight; the privacy text names it",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
     ],
     "date": "2026-11-02"
    }
