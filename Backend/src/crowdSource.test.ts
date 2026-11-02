@@ -141,7 +141,8 @@ test("two waiting uploads one after the other through the real worker queue: the
   const source = new CrowdSource(app.log, nc);
   q.attachCrowd(source);
   source.refresh();
-  for (let i = 0; i < 100 && db.select().from(encounters).all().length < before + 2; i++) {
+  // The encounter is written before the waiting row is replaced (the loop turns in between), so wait for both.
+  for (let i = 0; i < 100 && (db.select().from(encounters).all().length < before + 2 || db.select().from(uploads).where(eq(uploads.status, "pending")).all().length > 0); i++) {
     await new Promise((r) => setTimeout(r, 20));
   }
   assert.equal(db.select().from(encounters).all().length, before + 2, "both uploads were filed");

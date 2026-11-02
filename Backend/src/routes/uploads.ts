@@ -18,6 +18,7 @@ import { classifyFight, referenceOf } from "../bossHp.js";
 import { assessKill, referenceFor, structuralProblems, type ReviewFinding } from "../uploadReview.js";
 import type { UploadPayload } from "../uploadSchema.js";
 import { RepeatGuard, repeatKey } from "../uploadRepeat.js";
+import { yieldToEventLoop } from "../eventLoop.js";
 
 /** The NC gate is off in tests (no NC there) unless a test sets NC_GATE=on. */
 const gateEnabled = () => (process.env.NC_GATE ?? (process.env.NODE_TEST_CONTEXT ? "off" : "on")).toLowerCase() !== "off";
@@ -46,6 +47,8 @@ const repeatGuard = new RepeatGuard();
  * world boss crowd have been looked up already (see crowdResolve.ts) - else such an upload waits for that first.
  */
 export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: string, crowdChecked = false): Promise<UploadOutcome> {
+    // Every upload starts with one turn of the loop, so work that was chained before it (and the native memory it left behind) gets cleaned up: see eventLoop.ts.
+    await yieldToEventLoop();
     // The very same payload from the same uploader (a client that sends one fight again and again) adds nothing: it is answered as taken and not filed.
     // Only against merged uploads; a payload that waited or was turned away is judged anew.
     const payloadHash = createHash("sha256").update(JSON.stringify(payload)).digest("hex");
@@ -207,6 +210,8 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
 
     const uploaderReportedName = payload.participants.find((p) => p.isSelf)!.name;
     
+    // Let the loop turn before and after the (synchronous, for a crowded world boss seconds long) merge: see eventLoop.ts.
+    await yieldToEventLoop();
     let result;
     try {
       result = processUpload(payload);
@@ -223,6 +228,7 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
         .run();
       return { status: 500, body: { error: "processing_failed" } };
     }
+    await yieldToEventLoop();
 
     db.insert(uploads)
       .values({
