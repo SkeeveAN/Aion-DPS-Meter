@@ -84,6 +84,8 @@ export default {
   "profile.skillsStigma": "スティグマ",
   "profile.actionBar": "クイックスロット",
   "profile.actionBarHint": "習得スキル + 再使用時間中以外のスキル + (条件スキルの場合)条件を満たしているスキルのうち、優先順位が最も高いスキルがクイックスロットに表示されます。\n\n優先順位は3から0にいくほど高くなります。",
+  "profile.macro": "スキル マクロ",
+  "profile.macroHint": "マクロはこのクイックスロットを順に押し、間に表示の待ち時間を入れます。",
   "profile.skillPreset": "スキル プリセット",
   "profile.presetActive": "使用中",
   "profile.presetSaved": "保存済み",

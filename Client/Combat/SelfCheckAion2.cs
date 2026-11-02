@@ -1681,7 +1681,49 @@ public static class SelfCheckAion2
         string sent = JsonSerializer.Serialize(new AionDPS.Upload.ProfileActionBarsUpload(new[] { new AionDPS.Upload.ProfileActionPageUpload(1, new[] { new AionDPS.Upload.ProfileActionSlotUpload(1, 11390000, new[] { 11170000 }) }) }), uploadJson);
         bool upload = sent == "{\"pages\":[{\"page\":1,\"slots\":[{\"slot\":1,\"skill\":11390000,\"fallbacks\":[11170000]}]}]}";
         Console.WriteLine($"  -> the profile upload carries pages, slots and priorities: {upload}");
-        return aahzOk && nunzioOk && strict && live && disk && upload;
+        // The ability macros: the settings frame 0x2036 packs the character's settings JSON (the QuickSlotMacroPreset of Aahz, read from his login of 2026-11-02).
+        const string settings = "{\"KeySetting\":{},\"QuickSlotMacroPreset\":{\"1\":{\"MacroList\":[{\"QuickSlotId\":1,\"MacroDelayMS\":10},{\"QuickSlotId\":2,\"MacroDelayMS\":10}]},"
+            + "\"2\":{\"MacroList\":[{\"QuickSlotId\":1,\"MacroDelayMS\":10},{\"QuickSlotId\":7,\"MacroDelayMS\":25}]},\"3\":{\"MacroList\":[{\"QuickSlotId\":1,\"MacroDelayMS\":10},{\"QuickSlotId\":21,\"MacroDelayMS\":10}]}}}";
+        static byte[] SettingsFrame(string json)
+        {
+            using var packed = new MemoryStream();
+            using (var z = new System.IO.Compression.ZLibStream(packed, System.IO.Compression.CompressionLevel.Optimal, true))
+            {
+                z.Write(Encoding.Unicode.GetBytes(json + "\0"));
+            }
+
+            var frame = new List<byte>(Convert.FromHexString("2036" + "0000" + "f81a" + "00000000" + "353b030000001805" + "a46ebc111e360000"));
+            frame.AddRange(packed.ToArray());
+            frame.AddRange(new byte[361]);
+            return frame.ToArray();
+        }
+
+        bool macroRead = Aion2FrameDecoder.TryReadMacros(SettingsFrame(settings), out var m);
+        bool macroOk = macroRead && m.Count == 3 && m[1].Select(x => x.Slot).SequenceEqual(new[] { 1, 2 }) && m[2][1] is { Slot: 7, DelayMs: 25 } && m[3][1].Slot == 21;
+        Console.WriteLine($"  -> the ability macros of the three presets come out of the packed settings (slot and delay per step): {macroOk}");
+        bool macroNone = Aion2FrameDecoder.TryReadMacros(SettingsFrame("{\"KeySetting\":{}}"), out var none) && none.Count == 0 && !Aion2FrameDecoder.TryReadMacros(new byte[400], out _);
+        Console.WriteLine($"  -> settings without a macro give none, bytes that are no settings are ignored: {macroNone}");
+        byte[] settingsBody = SettingsFrame(settings);
+        var settingsWire = new List<byte>();
+        int settingsLength = settingsBody.Length + 4;
+        while (settingsLength >= 0x80)
+        {
+            settingsWire.Add((byte)(settingsLength & 0x7f | 0x80));
+            settingsLength >>= 7;
+        }
+
+        settingsWire.Add((byte)settingsLength);
+        settingsWire.AddRange(settingsBody);
+        using var macroSource = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        macroSource.Ingest(Segment(900, settingsWire.ToArray()));
+        bool macroLive = ((Aion2EntityDirectory)macroSource.Entities).LocalMacros is { } macros && macros.Count == 3 && macros[2][1].DelayMs == 25;
+        Console.WriteLine($"  -> the settings frame reaches the character's data: {macroLive}");
+        var savedMacro = JsonSerializer.Deserialize<Aion2SavedCharacter>(JsonSerializer.Serialize(new Aion2SavedCharacter { Macros = new() { new(2, new() { new(1, 10), new(7, 25) }) } }));
+        bool macroDisk = savedMacro?.Macros is { Count: 1 } sm && sm[0].Steps[1].DelayMs == 25 && older is { Macros: null };
+        string macroSent = JsonSerializer.Serialize(new AionDPS.Upload.ProfileActionPageUpload(2, Array.Empty<AionDPS.Upload.ProfileActionSlotUpload>(), new[] { new AionDPS.Upload.ProfileMacroStepUpload(7, 25) }), uploadJson);
+        bool macroUpload = macroSent == "{\"page\":2,\"slots\":[],\"macro\":[{\"slot\":7,\"delayMs\":25}]}";
+        Console.WriteLine($"  -> saved with the character file, sent with the page of its preset: {macroDisk && macroUpload}");
+        return aahzOk && nunzioOk && strict && live && disk && upload && macroOk && macroNone && macroLive && macroDisk && macroUpload;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

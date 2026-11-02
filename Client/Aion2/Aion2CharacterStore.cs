@@ -23,6 +23,8 @@ public sealed class Aion2SavedCharacter
     public SavedPantheon? Pantheon { get; set; }
     // The action bars (page 1..3 = skill preset 1..3, filled slots only); null = never seen.
     public List<SavedActionPage>? ActionBars { get; set; }
+    // The ability macros (page 1..3 = skill preset 1..3, steps in order); null = never seen.
+    public List<SavedMacroPage>? Macros { get; set; }
     // Base attributes / Lord values (id 1..17), wing + skin and the summoned pet; null = never seen.
     public Dictionary<int, int>? Attributes { get; set; }
     public int? WingId { get; set; }
@@ -55,6 +57,10 @@ public sealed class Aion2SavedCharacter
     public sealed record SavedActionSlot(int Slot, int Skill, List<int> Fallbacks);
 
     public sealed record SavedActionPage(int Page, List<SavedActionSlot> Slots);
+
+    public sealed record SavedMacroStep(int Slot, int DelayMs);
+
+    public sealed record SavedMacroPage(int Page, List<SavedMacroStep> Steps);
 }
 
 /// <summary>

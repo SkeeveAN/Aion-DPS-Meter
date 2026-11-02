@@ -103,6 +103,8 @@ export default {
   "profile.skillsStigma": "Stigma",
   "profile.actionBar": "Aktionsleiste",
   "profile.actionBarHint": "Unter den erlernten Fähigkeiten, die nicht in Abklingzeit sind und deren Bedingungen bei bedingten Fähigkeiten erfüllt sind, wird die Fähigkeit mit der höchsten Priorität in der Aktionsleiste angezeigt.\n\nDie Priorität steigt von 3 bis 0.",
+  "profile.macro": "Fäh.-Makros",
+  "profile.macroHint": "Das Makro drückt diese Plätze der Aktionsleiste nacheinander, mit der Verzögerung dazwischen.",
   "profile.skillPreset": "Fäh.-Preset",
   "profile.presetActive": "aktuell aktiv",
   "profile.presetSaved": "gespeichert",

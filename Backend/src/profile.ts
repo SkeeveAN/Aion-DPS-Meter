@@ -181,6 +181,11 @@ export const profileSchema = z.object({
                 }),
               )
               .max(12),
+            // The page's ability macro (the in-game "Fäh.-Makros" window): the quick slots it presses in order, with the delay before the next one. Absent = no macro.
+            macro: z
+              .array(z.object({ slot: z.number().int().min(0).max(23), delayMs: z.number().int().min(0).max(60_000) }))
+              .max(10)
+              .optional(),
           }),
         )
         .max(3),
@@ -274,17 +279,21 @@ export function mergePantheon(storedJson: string | undefined, fresh: Partial<Pan
   };
 }
 
-type ActionBarsData = { pages: { page: number; slots: { slot: number; skill: number; fallbacks: number[] }[] }[] };
+type ActionBarsData = { pages: { page: number; slots: { slot: number; skill: number; fallbacks: number[] }[]; macro?: { slot: number; delayMs: number }[] }[] };
 
 /** The action bars as they are stored: always the three pages in order (an unused preset has no slots), the slots of a page in order. */
-export function storedActionBars(fresh: { pages: { page: number; slots: { slot: number; skill: number; fallbacks?: number[] }[] }[] }): ActionBarsData {
+export function storedActionBars(fresh: { pages: { page: number; slots: { slot: number; skill: number; fallbacks?: number[] }[]; macro?: { slot: number; delayMs: number }[] }[] }): ActionBarsData {
   return {
-    pages: [1, 2, 3].map((page) => ({
-      page,
-      slots: (fresh.pages.find((p) => p.page === page)?.slots ?? [])
-        .map((k) => ({ slot: k.slot, skill: k.skill, fallbacks: k.fallbacks ?? [] }))
-        .sort((a, b) => a.slot - b.slot),
-    })),
+    pages: [1, 2, 3].map((page) => {
+      const fromClient = fresh.pages.find((p) => p.page === page);
+      const macro = fromClient?.macro?.map((m) => ({ slot: m.slot, delayMs: m.delayMs })) ?? [];
+      return {
+        page,
+        slots: (fromClient?.slots ?? []).map((k) => ({ slot: k.slot, skill: k.skill, fallbacks: k.fallbacks ?? [] })).sort((a, b) => a.slot - b.slot),
+        // the steps keep the order the player set (it is the order they are pressed in)
+        ...(macro.length > 0 ? { macro } : {}),
+      };
+    }),
   };
 }
 
@@ -414,7 +423,12 @@ export interface ActionSkillView {
 
 /** The action bars: page n is skill preset n; a slot holds the skill that is shown first and the skills that step in, in priority order 1-3, when it is not ready. */
 export interface ActionBarsView {
-  pages: { page: number; slots: { slot: number; skill: ActionSkillView; fallbacks: ActionSkillView[] }[] }[];
+  pages: {
+    page: number;
+    slots: { slot: number; skill: ActionSkillView; fallbacks: ActionSkillView[] }[];
+    /** The page's ability macro: the skill on each quick slot it presses (null when that slot is empty in this preset) and the delay in ms before the next step; empty = none. */
+    macro: { slot: number; delayMs: number; skill: ActionSkillView | null }[];
+  }[];
 }
 
 type ProfileSkill = {
@@ -979,7 +993,12 @@ export function actionBarsOf(json: string | null | undefined, skillsOfPage: (pag
           baseLevel: known?.baseLevel ?? 0,
         };
       };
-      return { page: p.page, slots: p.slots.map((k) => ({ slot: k.slot, skill: view(k.skill), fallbacks: k.fallbacks.map(view) })) };
+      const onSlot = new Map(p.slots.map((k) => [k.slot, k.skill]));
+      return {
+        page: p.page,
+        slots: p.slots.map((k) => ({ slot: k.slot, skill: view(k.skill), fallbacks: k.fallbacks.map(view) })),
+        macro: (p.macro ?? []).map((m) => ({ slot: m.slot, delayMs: m.delayMs, skill: onSlot.has(m.slot) ? view(onSlot.get(m.slot)!) : null })),
+      };
     }),
   };
 }

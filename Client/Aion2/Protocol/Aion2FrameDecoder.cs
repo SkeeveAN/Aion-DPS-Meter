@@ -586,6 +586,78 @@ public sealed class Aion2FrameDecoder
         }
     }
 
+    /// <summary>
+    /// The own ability macros: the login's settings frame (<c>0x2036</c>) carries the character's saved interface settings as a zlib-packed UTF-16 JSON; its
+    /// <c>QuickSlotMacroPreset</c> holds per skill preset (1-3) a <c>MacroList</c> of <c>QuickSlotId</c> (the slot of that preset's action bar) and <c>MacroDelayMS</c>.
+    /// </summary>
+    private void NoteMacros(int opcode, ReadOnlySpan<byte> frame)
+    {
+        if (opcode == 0x2036 && TryReadMacros(frame, out var macros))
+        {
+            _entities.SetMacros(macros);
+        }
+    }
+
+    /// <summary>Unpacks the settings of a 0x2036 frame and reads the ability macros; false when there is no settings JSON in it (a character without macros gives an empty result, still true).</summary>
+    internal static bool TryReadMacros(ReadOnlySpan<byte> frame, out Dictionary<int, IReadOnlyList<Aion2MacroStep>> macros)
+    {
+        macros = new Dictionary<int, IReadOnlyList<Aion2MacroStep>>();
+        for (int start = 10; start + 8 < frame.Length; start++)
+        {
+            if (frame[start] != 0x78 || frame[start + 1] != 0x9c)
+            {
+                continue;
+            }
+
+            try
+            {
+                using var packed = new MemoryStream(frame[start..].ToArray());
+                using var unpacked = new System.IO.Compression.ZLibStream(packed, System.IO.Compression.CompressionMode.Decompress);
+                using var text = new MemoryStream();
+                unpacked.CopyTo(text);
+                using var doc = System.Text.Json.JsonDocument.Parse(System.Text.Encoding.Unicode.GetString(text.ToArray()).TrimEnd('\0'));
+                if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object || !doc.RootElement.TryGetProperty("KeySetting", out _))
+                {
+                    continue;
+                }
+
+                if (doc.RootElement.TryGetProperty("QuickSlotMacroPreset", out var presets) && presets.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    foreach (var preset in presets.EnumerateObject())
+                    {
+                        if (!int.TryParse(preset.Name, out int page) || page is < 1 or > 3 || !preset.Value.TryGetProperty("MacroList", out var list) || list.ValueKind != System.Text.Json.JsonValueKind.Array)
+                        {
+                            continue;
+                        }
+
+                        var steps = new List<Aion2MacroStep>();
+                        foreach (var step in list.EnumerateArray())
+                        {
+                            if (step.TryGetProperty("QuickSlotId", out var slot) && slot.TryGetInt32(out int slotId) && slotId is >= 0 and <= 23)
+                            {
+                                int delay = step.TryGetProperty("MacroDelayMS", out var d) && d.TryGetInt32(out int ms) ? Math.Clamp(ms, 0, 60_000) : 0;
+                                steps.Add(new Aion2MacroStep(slotId, delay));
+                            }
+                        }
+
+                        if (steps.Count > 0)
+                        {
+                            macros[page] = steps;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception e) when (e is System.IO.InvalidDataException or System.Text.Json.JsonException or ArgumentException)
+            {
+                // not the start of the settings stream; look at the next candidate
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>Looks for the action bars in the body of a login frame; false when no block of the exact shape is in it.</summary>
     internal static bool TryReadActionBars(ReadOnlySpan<byte> body, out Dictionary<int, IReadOnlyList<Aion2ActionSlot>> pages)
     {
@@ -691,6 +763,7 @@ public sealed class Aion2FrameDecoder
         NoteOwnedCounts(opcode, frame);
         NotePantheon(opcode, frame);
         NoteActionBars(opcode, frame);
+        NoteMacros(opcode, frame);
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);

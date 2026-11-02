@@ -152,7 +152,10 @@ public sealed record ProfileUpload(
 public sealed record ProfileActionBarsUpload(IReadOnlyList<ProfileActionPageUpload> Pages);
 
 /// <summary>One page: the slots with the skill shown first and the skills that step in when it is not ready (priority 1-3, in that order).</summary>
-public sealed record ProfileActionPageUpload(int Page, IReadOnlyList<ProfileActionSlotUpload> Slots);
+public sealed record ProfileActionPageUpload(int Page, IReadOnlyList<ProfileActionSlotUpload> Slots, IReadOnlyList<ProfileMacroStepUpload>? Macro = null);
+
+/// <summary>One step of the preset's ability macro: the quick slot it presses and the delay (ms) before the next step.</summary>
+public sealed record ProfileMacroStepUpload(int Slot, int DelayMs);
 
 public sealed record ProfileActionSlotUpload(int Slot, int Skill, IReadOnlyList<int> Fallbacks);
 

@@ -652,6 +652,31 @@ test("own action bars: replaced at every login, a page without slots is an unuse
   assert.equal(buildProfileView(other)?.actionBars ?? null, null);
 });
 
+test("ability macro per preset: the quick slots in the order pressed, the view names the skill on each slot, an empty slot stays null, a page without one has none", () => {
+  const id = playerId("Aahz");
+  // Aahz, login of 2026-11-02: preset 2 presses slot 1 (Furorausbruch) then slot 7 (Verheerender Schlag), 10 ms apart; preset 3 slot 1 then slot 21
+  upsertProfile(id, profileSchema.parse({
+    source: "self", level: 45, classId: 1, classBits: 2,
+    skills: [{ id: 11390000, level: 15, baseLevel: 15 }, { id: 11100000, level: 21, baseLevel: 10 }],
+    actionBars: { pages: [
+      { page: 1, slots: [{ slot: 1, skill: 11390000 }] },
+      { page: 2, slots: [{ slot: 1, skill: 11390000 }, { slot: 7, skill: 11100000 }], macro: [{ slot: 1, delayMs: 10 }, { slot: 7, delayMs: 25 }] },
+      { page: 3, slots: [{ slot: 1, skill: 11100000 }], macro: [{ slot: 1, delayMs: 10 }, { slot: 21, delayMs: 10 }] },
+    ] },
+  }));
+  const pages = buildProfileView(id)!.actionBars!.pages;
+  assert.deepEqual(pages[0]!.macro, []); // preset 1 has none
+  assert.deepEqual(pages[1]!.macro.map((m) => [m.slot, m.delayMs, m.skill?.id]), [[1, 10, 11390000], [7, 25, 11100000]]);
+  assert.equal(pages[1]!.macro[1]!.skill?.level, 21); // the level comes from the preset's skill list
+  assert.equal(pages[1]!.macro[0]!.skill?.names?.de, "Furorausbruch");
+  assert.deepEqual(pages[2]!.macro.map((m) => [m.slot, m.skill?.id ?? null]), [[1, 11100000], [21, null]]); // slot 21 is empty in this preset's bar
+  // the next login replaces the macros together with the bars; nonsense is rejected
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2, actionBars: { pages: [{ page: 2, slots: [{ slot: 1, skill: 11390000 }] }] } }));
+  assert.deepEqual(buildProfileView(id)!.actionBars!.pages.map((p) => p.macro.length), [0, 0, 0]);
+  assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [], macro: [{ slot: 24, delayMs: 10 }] }] } }));
+  assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [], macro: [{ slot: 1, delayMs: -1 }] }] } }));
+});
+
 test("skills are listed in the game's own order, the same in every preset, not by level", () => {
   const id = playerId("Aahz");
   const low = { id: 11020000, level: 5, baseLevel: 5 }; // Scharfer Schlag

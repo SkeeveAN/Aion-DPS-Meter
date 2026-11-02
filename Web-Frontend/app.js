@@ -4800,6 +4800,18 @@ function actionBarGrid(page) {
   return el("div", { className: "pr-bar", title: t("profile.actionBarHint") }, cells);
 }
 
+// The ability macro of a preset (the game's "Fäh.-Makros" window): the skills on the quick slots it presses, in order, with the delay before the next step.
+function macroList(page) {
+  const steps = (page?.macro ?? []).map((m, i) => {
+    const icon = m.skill ? rowIcon(m.skill) : el("span", { className: "pr-ico pr-empty" });
+    return el("div", { className: "pr-macro-step" }, [
+      el("span", { className: "pr-macro-n", textContent: String(i + 1) }),
+      el("div", { className: "pr-macro-ico" }, [icon, el("span", { className: "pr-macro-delay", textContent: `${m.delayMs} ms` })]),
+    ]);
+  });
+  return el("div", { className: "pr-macro", title: t("profile.macroHint") }, steps);
+}
+
 function skillColumn(list, cls) {
   return el("div", { className: "pr-grid" }, list.map((s) => {
     const name = localizedSkillName(s);
@@ -4811,10 +4823,11 @@ function skillColumn(list, cls) {
 
 function presetRow(profile, preset, page, skills) {
   const v = visibleSkills(profile, skills);
-  const block = (title, cls, count, body) =>
-    el("div", { className: "pf-card pr-block" }, [el("h4", {}, [el("span", { className: `pf-dot ${cls}` }), `${title}${count == null ? "" : ` · ${count}`}`]), body]);
+  const block = (title, cls, count, body, extra = "") =>
+    el("div", { className: `pf-card pr-block${extra ? ` ${extra}` : ""}` }, [el("h4", {}, [el("span", { className: `pf-dot ${cls}` }), `${title}${count == null ? "" : ` · ${count}`}`]), body]);
   const blocks = [
     page ? block(t("profile.actionBar"), "bar", null, actionBarGrid(page)) : null,
+    page?.macro?.length > 0 ? block(t("profile.macro"), "macro", null, macroList(page), "pr-macro-block") : null,
     block(t("profile.skillsActive"), "active", v.active.length, skillColumn(v.active, "active")),
     block(t("profile.skillsPassive"), "passive", v.passive.length, skillColumn(v.passive, "passive")),
     v.stigma.length > 0 ? block(t("profile.skillsStigma"), "stigma", v.stigma.length, skillColumn(v.stigma, "stigma")) : null,
@@ -4827,7 +4840,7 @@ function presetRow(profile, preset, page, skills) {
           preset.seenAt && !preset.active ? el("span", { className: "pf-preset-seen", textContent: t("profile.presetSeen", { when: formatDate(new Date(preset.seenAt)) }) }) : null,
         ].filter((x) => x != null))
       : null,
-    el("div", { className: `pr-row${page ? " with-bar" : ""}` }, blocks),
+    el("div", { className: `pr-row${page ? " with-bar" : ""}${page?.macro?.length > 0 ? " with-macro" : ""}` }, blocks),
   ].filter((x) => x != null));
 }
 

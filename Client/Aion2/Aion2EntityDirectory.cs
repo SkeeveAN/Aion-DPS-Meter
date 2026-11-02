@@ -98,6 +98,9 @@ public sealed record Aion2Pantheon(IReadOnlyDictionary<int, IReadOnlyList<Aion2P
 /// <summary>One filled slot of the action bar: the slot number (0-7 and 20-23), the skill that is shown first (priority 0) and the skills that step in when it is not ready (priority 1-3, in that order).</summary>
 public sealed record Aion2ActionSlot(int Slot, int SkillId, IReadOnlyList<int> Fallbacks);
 
+/// <summary>One step of an ability macro: the quick slot it presses and the delay in milliseconds before the next step.</summary>
+public sealed record Aion2MacroStep(int Slot, int DelayMs);
+
 /// <summary>The own action bars: page 1..3 (the skill presets) to the filled slots of that page. Empty slots are left out; a page without any slot is an unused preset.</summary>
 public sealed record Aion2ActionBars(IReadOnlyDictionary<int, IReadOnlyList<Aion2ActionSlot>> Pages);
 
@@ -229,6 +232,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _titles = null;
                 _pantheon = null;
                 _actionBars = null;
+                _macros = null;
                 _attributes = null;
                 _stats = null;
                 _wing = null;
@@ -336,12 +340,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _actionBars = saved.ActionBars is { Count: > 0 } sab
                 ? new Aion2ActionBars(sab.ToDictionary(x => x.Page, x => (IReadOnlyList<Aion2ActionSlot>)x.Slots.Select(k => new Aion2ActionSlot(k.Slot, k.Skill, k.Fallbacks.ToList())).ToList()))
                 : null;
+            _macros = saved.Macros is { Count: > 0 } smc
+                ? smc.ToDictionary(x => x.Page, x => (IReadOnlyList<Aion2MacroStep>)x.Steps.Select(k => new Aion2MacroStep(k.Slot, k.DelayMs)).ToList())
+                : null;
             _attributes = saved.Attributes is { Count: > 0 } ? new Dictionary<int, int>(saved.Attributes) : null;
             _wing = saved.WingId is int savedWing ? new Aion2Wing(savedWing, saved.WingSkinId ?? 0) : null;
             _activePet = saved.ActivePet;
             _petStates = saved.Pets.Select(p => new Aion2PetState(p.Id, p.Level, p.Progress)).ToList();
             _restoredOwner = saved.Name;
-            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet, _pantheon, _actionBars);
+            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet, _pantheon, _actionBars, _macros);
         }
     }
 
@@ -373,9 +380,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         if (_activePet == was.ActivePet) { _activePet = null; }
         if (ReferenceEquals(_pantheon, was.Pantheon)) { _pantheon = null; }
         if (ReferenceEquals(_actionBars, was.ActionBars)) { _actionBars = null; }
+        if (ReferenceEquals(_macros, was.Macros)) { _macros = null; }
     }
 
-    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet, object? Pantheon, object? ActionBars)? _restoredLists;
+    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet, object? Pantheon, object? ActionBars, object? Macros)? _restoredLists;
 
     /// <summary>The local player's data as it should be kept on disk, or null before any is known.</summary>
     public Aion2SavedCharacter? ToSaved()
@@ -408,6 +416,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                     _pantheon.Owned.ToList()),
                 ActionBars = _actionBars is null ? null : _actionBars.Pages.OrderBy(x => x.Key)
                     .Select(x => new Aion2SavedCharacter.SavedActionPage(x.Key, x.Value.Select(k => new Aion2SavedCharacter.SavedActionSlot(k.Slot, k.SkillId, k.Fallbacks.ToList())).ToList())).ToList(),
+                Macros = _macros is null ? null : _macros.OrderBy(x => x.Key)
+                    .Select(x => new Aion2SavedCharacter.SavedMacroPage(x.Key, x.Value.Select(k => new Aion2SavedCharacter.SavedMacroStep(k.Slot, k.DelayMs)).ToList())).ToList(),
                 Attributes = _attributes is null ? null : new Dictionary<int, int>(_attributes),
                 WingId = _wing?.WingId,
                 WingSkinId = _wing?.SkinId,
@@ -1135,6 +1145,31 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private IReadOnlyList<Aion2TitleSlot>? _titles;
     private Aion2Pantheon? _pantheon;
     private Aion2ActionBars? _actionBars;
+    private Dictionary<int, IReadOnlyList<Aion2MacroStep>>? _macros;
+
+    /// <summary>The own ability macros per skill preset (page 1..3): the steps in order; null before the login sent them.</summary>
+    public IReadOnlyDictionary<int, IReadOnlyList<Aion2MacroStep>>? LocalMacros
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _macros;
+            }
+        }
+    }
+
+    /// <summary>The login's settings replace the stored macros (they always carry every preset that has one).</summary>
+    public void SetMacros(Dictionary<int, IReadOnlyList<Aion2MacroStep>> macros)
+    {
+        lock (_gate)
+        {
+            _macros = macros;
+            _listsAt = DateTime.UtcNow;
+        }
+
+        ActionBarsChanged?.Invoke();
+    }
 
     /// <summary>The own action bars (the three pages = the three skill presets) as the login sent them; null before it did.</summary>
     public Aion2ActionBars? LocalActionBars

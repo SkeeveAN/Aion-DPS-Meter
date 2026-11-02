@@ -84,6 +84,8 @@ export default {
   "profile.skillsStigma": "Stigmates",
   "profile.actionBar": "Raccourci",
   "profile.actionBarHint": "Les compétences acquises, dont le délai de recharge est écoulé et dont les conditions sont remplies (pour les compétences conditionnelles), s'affichent dans les raccourcis selon leur ordre de priorité croissant.\n\nLa priorité augmente en allant de 3 à 0.",
+  "profile.macro": "Macro de compétence",
+  "profile.macroHint": "La macro actionne ces raccourcis l'un après l'autre, avec le délai indiqué entre eux.",
   "profile.skillPreset": "Préréglage de compétence",
   "profile.presetActive": "actif",
   "profile.presetSaved": "enregistré",

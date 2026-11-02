@@ -84,6 +84,8 @@ export default {
   "profile.skillsStigma": "Estigma",
   "profile.actionBar": "Espaço rápido",
   "profile.actionBarHint": "Entre as habilidades aprendidas, as habilidades que não estão em tempo de recarga e, no caso de habilidades condicionais, aquelas cujas condições foram atendidas, a habilidade de maior prioridade será exibida no espaço rápido.\n\nA prioridade aumenta de 3 para 0.",
+  "profile.macro": "Macro de Habilidades",
+  "profile.macroHint": "O macro aciona estes espaços rápidos em sequência, com o atraso indicado entre eles.",
   "profile.skillPreset": "Predefinição de Habilidades",
   "profile.presetActive": "ativa agora",
   "profile.presetSaved": "guardada",

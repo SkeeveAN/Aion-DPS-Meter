@@ -2254,6 +2254,47 @@ header .wordmark {
 .pr-row.with-bar {
   grid-template-columns: auto minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, 0.5fr);
 }
+.pr-row.with-macro {
+  grid-template-columns: auto auto minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, 0.5fr);
+}
+.pf-dot.macro {
+  background: #b46cf0;
+}
+/* the macro block: the steps stand one below the other like in the game's macro window (a long macro continues in a second column) */
+.pr-macro-block {
+  min-width: 128px;
+  max-width: 170px;
+}
+.pr-macro {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(3, auto);
+  gap: 8px 10px;
+  justify-content: start;
+}
+.pr-macro-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pr-macro-n {
+  width: 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.pr-macro-ico {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.pr-macro-delay {
+  font-size: 0.62rem;
+  line-height: 1;
+  text-align: center;
+  color: var(--color-text-muted);
+}
 .pr-block {
   padding: 10px 12px;
   min-width: 0;
@@ -2330,7 +2371,8 @@ header .wordmark {
 }
 @media (max-width: 1100px) {
   .pr-row,
-  .pr-row.with-bar {
+  .pr-row.with-bar,
+  .pr-row.with-macro {
     grid-template-columns: 1fr;
   }
   .pr-block:has(.pr-bar) {

@@ -6410,7 +6410,8 @@ public partial class MainWindow : Window
                 ItemLevel: ownLegionStats?.ItemLevel is > 0 ? ownLegionStats.ItemLevel : null,
                 Odyle: BuildOdyleUpload(live.Name),
                 ActionBars: directory.LocalActionBars is { } bars
-                    ? new ProfileActionBarsUpload(bars.Pages.OrderBy(x => x.Key).Select(x => new ProfileActionPageUpload(x.Key, x.Value.Select(k => new ProfileActionSlotUpload(k.Slot, k.SkillId, k.Fallbacks)).ToList())).ToList())
+                    ? new ProfileActionBarsUpload(bars.Pages.OrderBy(x => x.Key).Select(x => new ProfileActionPageUpload(x.Key, x.Value.Select(k => new ProfileActionSlotUpload(k.Slot, k.SkillId, k.Fallbacks)).ToList(),
+                        directory.LocalMacros is { } macros && macros.TryGetValue(x.Key, out var steps) ? steps.Select(m => new ProfileMacroStepUpload(m.Slot, m.DelayMs)).ToList() : null)).ToList())
                     : null);
         }
 
