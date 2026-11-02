@@ -605,6 +605,7 @@ function insertParticipant(
       damageTaken: participant.damageTaken,
       damageAbsorbed: participant.damageAbsorbed,
       stagger: participant.stagger,
+      combatPower: participant.combatPower ?? null,
       shieldsGiven: participant.shieldsGiven,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
@@ -639,6 +640,8 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
       damageAbsorbed: participant.damageAbsorbed,
       // every upload reads the same bar: the larger value stays (an older client's 0 must not wipe what another upload credited)
       stagger: sql`max(${encounterParticipants.stagger}, ${participant.stagger})`,
+      // the newest report wins, but an upload that did not know it (null) leaves the known value
+      combatPower: participant.combatPower == null ? sql`${encounterParticipants.combatPower}` : participant.combatPower,
       shieldsGiven: participant.shieldsGiven,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
@@ -1003,6 +1006,7 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
       damageAbsorbed: group.reduce((sum, p) => sum + p.damageAbsorbed, 0),
       // every uploader read the same bar: the most one of them credited, not the sum
       stagger: Math.max(...group.map((p) => p.stagger)),
+      combatPower: primary.combatPower ?? group.find((p) => p.combatPower != null)?.combatPower ?? null,
       shieldsGiven: [...group.flatMap((p) => p.shieldsGiven).reduce((acc, g) => acc.set(g.playerName, (acc.get(g.playerName) ?? 0) + g.amount), new Map<string, number>())].map(([playerName, amount]) => ({ playerName, amount })),
       skills: group.reduce((acc, p) => mergeSkillLists(acc, p.skills), [] as ParticipantUpload["skills"]),
       healSkills: group.reduce((acc, p) => mergeSkillLists(acc, p.healSkills), [] as ParticipantUpload["healSkills"]),

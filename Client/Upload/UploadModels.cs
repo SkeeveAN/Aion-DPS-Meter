@@ -96,7 +96,10 @@ public sealed record ParticipantUpload(
     // When this player used which skill, and when they died (see TimelineUpload). Null where the client has no data for it.
     TimelineUpload? Timeline = null,
     // How much of the boss's stagger bar this player brought down (see Combat.StaggerShare); 0 where none was credited or the client does not read it.
-    int Stagger = 0);
+    int Stagger = 0,
+    // The combat power of this player during the fight, as the party roster gave it (the value of the active preset, not the brief drop on entering an instance). Sent for the own character,
+    // and for the others only with the setting that allows their profiles to be sent. Null where the capture did not know it.
+    int? CombatPower = null);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 

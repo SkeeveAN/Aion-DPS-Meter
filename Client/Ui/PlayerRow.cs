@@ -40,6 +40,26 @@ public sealed class PlayerRow : INotifyPropertyChanged
 
     public int ObjectId { get; }
 
+    private int? _combatPower;
+    private bool _showCombatPower;
+
+    /// <summary>The player's combat power as the party roster (or the "player appeared" frame) gave it; null when not read.</summary>
+    public int? CombatPower
+    {
+        get => _combatPower;
+        set { if (_combatPower == value) { return; } _combatPower = value; OnPropertyChanged(); OnPropertyChanged(nameof(CombatPowerSuffix)); }
+    }
+
+    /// <summary>Mirrors MeterSettings.ShowCombatPower, set on every refresh.</summary>
+    public bool ShowCombatPower
+    {
+        get => _showCombatPower;
+        set { if (_showCombatPower == value) { return; } _showCombatPower = value; OnPropertyChanged(); OnPropertyChanged(nameof(CombatPowerSuffix)); }
+    }
+
+    /// <summary>"  ⚔ 169.6K" behind the name; empty while the setting is off or the power is unknown.</summary>
+    public string CombatPowerSuffix => ShowCombatPower && CombatPower is > 0 and int power ? "  ⚔ " + Compact(power) : "";
+
     public string Name
     {
         get => _name;

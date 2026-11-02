@@ -108,6 +108,8 @@ export const participantSchema = z.object({
   damageAbsorbed: z.number().int().min(0).max(2_000_000_000).default(0),
   // How much of the boss's stagger bar this player brought down (the client matches the bar's readings to the hits; see the client's Combat/StaggerShare.cs). Defaulted for older clients.
   stagger: z.number().int().min(0).max(1_000_000).default(0),
+  // The combat power this player had in the fight (the party roster's value). Sent for the uploader and, with the profile setting, for the others; absent from older clients.
+  combatPower: z.number().int().min(1).max(10_000_000).nullish(),
   shieldsGiven: z.array(z.object({ playerName: z.string().trim().min(1).max(40), amount: z.number().int().min(0).max(2_000_000_000) })).max(40).default([]),
   // Real reinforcements this row RECEIVED (see buffUsageSchema) - what the web frontend's "Buffs"
   // column actually shows now, not a damage/heal skill. A Cleric/Chanter group buff lands on every

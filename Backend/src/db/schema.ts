@@ -481,6 +481,8 @@ export const encounterParticipants = sqliteTable(
     damageAbsorbed: integer("damage_absorbed").notNull().default(0),
     // How much of the boss's stagger bar this participant brought down (see migration 0074). 0 = none credited or an older client.
     stagger: integer("stagger").notNull().default(0),
+    /** The combat power this participant had in the fight (see migration 0079). Null = not reported. */
+    combatPower: integer("combat_power"),
     shieldsGiven: text("shields_given", { mode: "json" }).$type<{ playerName: string; amount: number }[]>().notNull().default(sql`'[]'`),
     critRatePercent: real("crit_rate_percent").notNull(),
     // True once this participant's own upload (isSelf) supplied the crit rate -

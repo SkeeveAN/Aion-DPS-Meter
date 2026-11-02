@@ -2842,6 +2842,78 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    // Party member name -> the combat power the roster gave last (see NotePartyPower).
+    private readonly Dictionary<string, PartyPower> _partyPower = new(StringComparer.Ordinal);
+
+    private sealed class PartyPower
+    {
+        public int Value;
+        public DateTime LowSince;
+        public bool Low;
+    }
+
+    /// <summary>How long a combat power that fell far below the last one has to stay there before it counts. The roster shows a drop to about 74 % for a few seconds
+    /// whenever an instance is entered (117,350 and 127,372 between two readings of 158,256, seen in every member of a party); a real change (another
+    /// preset) stays.</summary>
+    private static readonly TimeSpan PowerDropHold = TimeSpan.FromSeconds(20);
+
+    /// <summary>Notes the combat power the party roster gives for a member. A rise counts at once; a fall of more than 15 % only once it has held for
+    /// <see cref="PowerDropHold"/>, so the brief drop on entering an instance never replaces the real value.</summary>
+    public void NotePartyPower(string name, int power, DateTime at)
+    {
+        if (power is < 5_000 or > 4_000_000 || power == 397_228)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            if (!_partyPower.TryGetValue(name, out PartyPower? known) || known.Value == 0)
+            {
+                _partyPower[name] = new PartyPower { Value = power };
+                return;
+            }
+
+            if (power * 100L >= known.Value * 85L)
+            {
+                known.Value = power;
+                known.Low = false;
+                return;
+            }
+
+            if (!known.Low)
+            {
+                known.Low = true;
+                known.LowSince = at;
+            }
+            else if (at - known.LowSince >= PowerDropHold)
+            {
+                known.Value = power;
+                known.Low = false;
+            }
+        }
+    }
+
+    /// <summary>The combat power of a player of this name: the party roster's (the current value, also for members seen from afar), else what the
+    /// "player appeared" frame said (not the fixed value of the equalised arena). Null when neither was read.</summary>
+    public int? CombatPowerOfName(string name, int? objectId = null)
+    {
+        lock (_gate)
+        {
+            if (_partyPower.TryGetValue(name, out PartyPower? known) && known.Value > 0)
+            {
+                return known.Value;
+            }
+
+            if (objectId is int id && _seen.TryGetValue(id, out Aion2SeenProfile? seen) && seen.CombatPower is > 0 and not 397_228 && !MetInEqualizedArena(name))
+            {
+                return seen.CombatPower;
+            }
+
+            return null;
+        }
+    }
+
     /// <summary>Notes a player's hit on a monster, for <see cref="MatchPartyMembersByClass"/>.</summary>
     public void NoteMonsterHit(int playerId, int monsterId, int skillId)
     {

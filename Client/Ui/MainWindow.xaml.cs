@@ -190,6 +190,7 @@ public partial class MainWindow : Window
     // The span the taken rows cover, for a player's details in that mode.
     private (DateTime Start, DateTime End)? _takenSpan;
     private bool _showDamageTaken;
+    private bool _showCombatPower;
     /// <summary>Avoided attacks and kill announcements from the source, kept beside the
     /// aggregator's damage events (they are not DamageEvents - see Combat/Sources). Cleared with
     /// the damage data; scoped to the shown window at refresh time like everything else.</summary>
@@ -261,6 +262,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         AppMenu.Tag = _uploadFlags;
         _sessions.Identify = IdentifyForSession;
+        _sessions.IdentifyPlayer = IdentifyPlayerForSession;
         _sessions.HpSource = HitPointsOfTarget;
 
         // Captured now, before anything ever rebuilds MobBossFilter.Items, so
@@ -571,6 +573,7 @@ public partial class MainWindow : Window
     {
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
+        _showCombatPower = settings.ShowCombatPower;
         _showBossHp = settings.ShowBossHp;
         _autoBossView = settings.AutoBossView;
         _autoBossAfterDeath = TimeSpan.FromSeconds(Math.Clamp(settings.AutoBossSeconds, 0, 600));
@@ -1069,6 +1072,20 @@ public partial class MainWindow : Window
 
         IReadOnlyList<HpSample> samples = directory.HitPoints.SamplesAround(id, from, to);
         return samples.Count < 2 ? null : new TargetHp(directory.HitPoints.HighestSeen(id) ?? 0, samples, directory.HitPoints.ResetsOf(id));
+    }
+
+    /// <summary>The permanent character id, server and combat power the live capture knows for a player's object id right now; null for none of them.</summary>
+    private History.PlayerMeta? IdentifyPlayerForSession(int id)
+    {
+        if (_liveSource?.Entities is not Aion2EntityDirectory directory || directory.NameFor(id) is not { } name)
+        {
+            return null;
+        }
+
+        int? server = directory.ServerIdOf(id);
+        int? character = CharacterIdFor(directory, name, server);
+        int? power = directory.CombatPowerOfName(name, id);
+        return character is null && server is null && power is null ? null : new History.PlayerMeta(character, server, power);
     }
 
     /// <summary>The name and class the live capture knows for an object id right now.</summary>
@@ -2060,19 +2077,25 @@ public partial class MainWindow : Window
 
     /// <summary>Sets Name/ClassName/Level for one row: from the stored identity when a past fight is
     /// shown, else from the packet stream - the name and class the directory has learned for the id.</summary>
+    private int? CombatPowerOf(string name, int objectId) =>
+        (_source?.Entities as Aion2EntityDirectory)?.CombatPowerOfName(name, objectId);
+
     private void ApplyIdentity(PlayerRow row, int sourceId)
     {
         row.TeamSide = TeamSideOf(sourceId);
+        row.ShowCombatPower = _showCombatPower;
         if (_playerIdentities.TryGetValue(sourceId, out var identity))
         {
             row.Name = identity.Name;
             row.ClassName = identity.ClassName;
             row.Level = identity.Level;
+            row.CombatPower = CombatPowerOf(identity.Name, sourceId);
             return;
         }
 
         row.Name = ResolveDisplayName(sourceId);
         row.ClassName = ResolveClassName(sourceId);
+        row.CombatPower = CombatPowerOf(row.Name, sourceId);
     }
 
     /// <summary>The class an object has been seen casting a skill of (skill id prefix), keyed by the
@@ -3146,7 +3169,8 @@ public partial class MainWindow : Window
                 Timeline: buffExtras is not null && aion2Directory is not null
                     ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id), targetId, analysisByPlayer.GetValueOrDefault(row.ObjectId))
                     : null,
-                Stagger: stagger?.BySource.GetValueOrDefault(row.ObjectId) ?? 0));
+                Stagger: stagger?.BySource.GetValueOrDefault(row.ObjectId) ?? 0,
+                CombatPower: shareOthers || isSelf ? aion2Directory?.CombatPowerOfName(row.Name, ProfileIdOf(row)) : null));
         }
 
         // The backend takes at most 300 players of an instance fight: the biggest by damage, the own character always. A world boss has no cut.
@@ -4493,7 +4517,7 @@ public partial class MainWindow : Window
 
         try
         {
-            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names);
+            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names, players: CollectSessionPlayers(names.Keys));
             ShowUploadStatus($"Session saved to {Path.GetFileName(dialog.FileName)}.");
         }
         catch (IOException ex)
@@ -4501,6 +4525,21 @@ public partial class MainWindow : Window
             ThemedMessageBox.Show(this, $"Could not save the session.\n\n{ex.Message}", "Save Session",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    /// <summary>The character id, server and combat power the live capture knows of the players among these ids, for a saved session file.</summary>
+    private Dictionary<int, History.PlayerMeta> CollectSessionPlayers(IEnumerable<int> ids)
+    {
+        var players = new Dictionary<int, History.PlayerMeta>();
+        foreach (int id in ids)
+        {
+            if (IdentifyPlayerForSession(id) is { } meta)
+            {
+                players[id] = meta;
+            }
+        }
+
+        return players;
     }
 
     /// <summary>Every object id the events/avoids/kills can reference, resolved to a real name now while the
@@ -4553,8 +4592,9 @@ public partial class MainWindow : Window
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(RestartSnapshotPath)!);
-            SessionFile.Save(RestartSnapshotPath, _aggregator.Events, _avoids, _kills, CollectSessionNames(),
-                (_source?.Entities as Aion2EntityDirectory)?.Snapshot());
+            Dictionary<int, string> names = CollectSessionNames();
+            SessionFile.Save(RestartSnapshotPath, _aggregator.Events, _avoids, _kills, names,
+                (_source?.Entities as Aion2EntityDirectory)?.Snapshot(), CollectSessionPlayers(names.Keys));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

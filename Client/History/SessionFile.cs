@@ -40,6 +40,12 @@ public static class SessionFile
     private sealed record StayDto(int ZoneId, int Kind, long Start, long? End, List<EventDto> Shields, Dictionary<string, string> Classes,
         Dictionary<string, HpDto>? Hp = null, List<RageDto>? Rages = null, string? Extras = null);
 
+    /// <summary>A player's permanent character id (C), server id (S) and combat power (P); a field the capture did not know is left out.</summary>
+    private sealed record PlayerDto(
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? C,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? S,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? P);
+
     private sealed record Payload(
         int Version,
         DateTime SavedAt,
@@ -48,7 +54,13 @@ public static class SessionFile
         List<KillDto> Kills,
         Dictionary<string, string> Names,
         Aion2.Aion2DirectorySnapshot? Directory = null,
-        StayDto? Stay = null);
+        StayDto? Stay = null,
+        Dictionary<string, PlayerDto>? Players = null);
+
+    private static Dictionary<string, PlayerDto>? ToDto(IReadOnlyDictionary<int, PlayerMeta>? players) =>
+        players is { Count: > 0 }
+            ? players.ToDictionary(kv => kv.Key.ToString(), kv => new PlayerDto(kv.Value.CharacterId, kv.Value.ServerId, kv.Value.CombatPower))
+            : null;
 
     private static EventDto ToDto(DamageEvent e) => new(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical,
         e.Kinds is { } kinds ? (int)kinds : null, e.HitCount > 1 ? e.HitCount : null, e.ViaSummon ? 1 : null);
@@ -79,7 +91,8 @@ public static class SessionFile
                     kv => new HpDto(kv.Value.Highest, kv.Value.Samples.Select(x => x.At.Ticks).ToList(), kv.Value.Samples.Select(x => x.Hp).ToList(),
                         kv.Value.Resets.Select(r => r.Ticks).ToList())),
                 stay.Enrages.Select(m => new RageDto(m.Timestamp.Ticks, m.EntityId, m.EngagedAt.Ticks)).ToList(),
-                extras is { IsEmpty: false } ? Convert.ToBase64String(ExtrasBlob.Pack(extras)) : null));
+                extras is { IsEmpty: false } ? Convert.ToBase64String(ExtrasBlob.Pack(extras)) : null),
+            ToDto(stay.Players));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -97,7 +110,8 @@ public static class SessionFile
         IReadOnlyList<AvoidEvent> avoids,
         IReadOnlyList<KillEvent> kills,
         IReadOnlyDictionary<int, string> names,
-        Aion2.Aion2DirectorySnapshot? directory = null)
+        Aion2.Aion2DirectorySnapshot? directory = null,
+        IReadOnlyDictionary<int, PlayerMeta>? players = null)
     {
         var payload = new Payload(
             1,
@@ -106,7 +120,8 @@ public static class SessionFile
             avoids.Select(a => new AvoidDto(a.Timestamp.Ticks, (int)a.Timestamp.Kind, a.SourceObjectId, a.TargetObjectId, (int)a.Kind, a.Skill)).ToList(),
             kills.Select(k => new KillDto(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer)).ToList(),
             names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
-            directory);
+            directory,
+            Players: ToDto(players));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -121,7 +136,8 @@ public static class SessionFile
         Dictionary<int, string> Names,
         DateTime SavedAt,
         Aion2.Aion2DirectorySnapshot? Directory = null,
-        StoredStay? Stay = null);
+        StoredStay? Stay = null,
+        Dictionary<int, PlayerMeta>? Players = null);
 
     public static LoadedSession Load(string path)
     {
@@ -158,6 +174,7 @@ public static class SessionFile
                 (s.Rages ?? new List<RageDto>()).Select(r => new EnrageMark(new DateTime(r.At), r.Entity, new DateTime(r.Engaged))).ToList(),
                 s.Extras is { Length: > 0 } packed ? ExtrasBlob.Unpack(Convert.FromBase64String(packed)) : null)
             : null;
-        return new LoadedSession(events, avoids, kills, names, payload.SavedAt, payload.Directory, stay);
+        var players = payload.Players?.ToDictionary(kv => int.Parse(kv.Key), kv => new PlayerMeta(kv.Value.C, kv.Value.S, kv.Value.P));
+        return new LoadedSession(events, avoids, kills, names, payload.SavedAt, payload.Directory, stay, players);
     }
 }

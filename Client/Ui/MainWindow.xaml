@@ -1156,7 +1156,7 @@
                                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                                        Height="24" Width="24" Margin="4,0,8,0" ToolTip="{Binding Faction}"/>
                                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis"><Run Text="{Binding Name, Mode=OneWay}"/><Run Text="{Binding CombatPowerSuffix, Mode=OneWay}" FontWeight="Normal" FontSize="10"/></TextBlock>
                                                     <local:AllLine FontSize="10.5" TextElement.Foreground="{DynamicResource Brush.Text}" Opacity="0.85"/>
                                                 </StackPanel>
                                                 <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" ToolTip="Damage this player received in the shown window">
@@ -1374,8 +1374,8 @@
                                     <Image Grid.Column="0" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                            Height="20" Width="20" Margin="0,0,4,0" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding NameDisplay}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
-                                                   FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
+                                                   FontSize="11" TextTrimming="CharacterEllipsis"><Run Text="{Binding NameDisplay, Mode=OneWay}"/><Run Text="{Binding CombatPowerSuffix, Mode=OneWay}" FontWeight="Normal" FontSize="9.5"/></TextBlock>
                                         <local:AllLine FontSize="9.5" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{Binding RateOrDamageCompact}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
@@ -1469,8 +1469,8 @@
                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                        Height="24" Width="24" Margin="4,0,8,0"/>
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold"
-                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis"><Run Text="{Binding Name, Mode=OneWay}"/><Run Text="{Binding CombatPowerSuffix, Mode=OneWay}" FontWeight="Normal" FontSize="10"/></TextBlock>
                                     <local:AllLine FontSize="10" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
                                 </StackPanel>
                                 <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0">

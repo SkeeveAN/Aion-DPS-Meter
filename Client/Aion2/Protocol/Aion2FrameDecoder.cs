@@ -4096,6 +4096,11 @@ public sealed class Aion2FrameDecoder
                 _entities.NotePartyClass(name, className);
             }
 
+            if (frame[0] == 0x02 && frame[1] == 0x97 && ReadRosterCombatPower(frame, after) is int power)
+            {
+                _entities.NotePartyPower(name, power, timestamp);
+            }
+
             i = after + 7;
         }
 
@@ -4103,6 +4108,32 @@ public sealed class Aion2FrameDecoder
         {
             _entities.NoteParty(members, timestamp);
         }
+    }
+
+    /// <summary>
+    /// The combat power of a roster member: 16 bytes behind the end of the name (class u32 and level u32 come first) is a 04, then the number as a u32; one byte further
+    /// when the marker byte of <see cref="HomeServerBehindName"/> sits in between (Keraut of the Draupnir roster). Checked against the recordings of 2026-10-05 to 2026-11-01
+    /// (the values of one character rise from 86,137 to 170,097 with its gear, 14 players in a group), not yet against the number the game shows for each of them.
+    /// Null when the frame ends too early or the number is not plausible.
+    /// </summary>
+    private static int? ReadRosterCombatPower(ReadOnlySpan<byte> frame, int afterName)
+    {
+        foreach (int offset in stackalloc[] { 16, 17 })
+        {
+            int marker = afterName + offset;
+            if (marker + 5 > frame.Length || frame[marker] != 0x04)
+            {
+                continue;
+            }
+
+            uint value = BinaryPrimitives.ReadUInt32LittleEndian(frame[(marker + 1)..]);
+            if (value is >= 5_000 and <= 4_000_000)
+            {
+                return (int)value;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>

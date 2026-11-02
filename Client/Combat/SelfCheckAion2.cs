@@ -38,6 +38,7 @@ public static class SelfCheckAion2
         ok &= RunAion2RosterReplacesPartyScenario();
         ok &= RunAion2GuildScenario();
         ok &= RunAion2PartyByClassScenario();
+        ok &= RunAion2RosterCombatPowerScenario();
         ok &= RunAion2AccentAndLeftoverSummonScenario();
         ok &= RunAion2RosterHomeServerScenario();
         ok &= RunAion2RosterBogusServerScenario();
@@ -752,6 +753,52 @@ public static class SelfCheckAion2
         bool none = dir.NameFor(3999) == "Jungkook" && dir.GuildOf(3999) is null;
         Console.WriteLine($"  -> Jungkook without a guild gets none: {none}");
         return ok && none;
+    }
+
+    /// <summary>The roster of the Draupnir run (the real frame of the test above) carries each member's combat power behind the name; the brief drop on entering an instance
+    /// (158,256 read as 117,350 and 127,372 in every member of a party on 2026-11-01) must not replace it, a drop that stays must.</summary>
+    private static bool RunAion2RosterCombatPowerScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 party roster: combat power per member, the drop on entering an instance is not taken:");
+        const string roster = "0297B86E030009466C7574736368696505DF2709000003F1AC030000000009FF0203051E01F1AC0300000000090C42757474657266696E676572200000002D000000F30200000009D61004D396000000000000000F0000000000000001011E024CBE030000001505044C756D791A0000002D000000EA0300001505D61004D8CC00000000000000470000000000000001011E03627003000000000907417572756C696F1B0000002D000000E20300000009D61004E3AF000000000000004B0000000000000001011E04D730040000001505064B65726175740A0000002D00000083030000071505D6100417B100000000000000200000000000000001011E05068E0300000017050C426F756C656E626F75636865150000002D000000910400001705D6100423D70000000000000034000000000000000101000A";
+        byte[] body = Convert.FromHexString(roster);
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        source.Ingest(Segment(9900, wire.ToArray()));
+        source.Poll(false);
+        bool read = dir.CombatPowerOfName("Butterfinger") == 38611 && dir.CombatPowerOfName("Lumy") == 52440 && dir.CombatPowerOfName("Aurulio") == 45027
+            && dir.CombatPowerOfName("Keraut") == 45335 && dir.CombatPowerOfName("Boulenbouche") == 55075 && dir.CombatPowerOfName("Nobody") is null;
+
+        Console.WriteLine($"  -> read: {dir.CombatPowerOfName("Butterfinger")} {dir.CombatPowerOfName("Lumy")} {dir.CombatPowerOfName("Aurulio")} {dir.CombatPowerOfName("Keraut")} {dir.CombatPowerOfName("Boulenbouche")}");
+        var t = new DateTime(2026, 11, 1, 19, 9, 32, DateTimeKind.Utc);
+        dir.NotePartyPower("Pencilgon", 158_256, t);
+        dir.NotePartyPower("Pencilgon", 117_350, t.AddSeconds(1));
+        dir.NotePartyPower("Pencilgon", 127_372, t.AddSeconds(2));
+        bool dropIgnored = dir.CombatPowerOfName("Pencilgon") == 158_256;
+        dir.NotePartyPower("Pencilgon", 158_256, t.AddSeconds(7));
+        dir.NotePartyPower("Pencilgon", 158_296, t.AddSeconds(60));
+        bool rise = dir.CombatPowerOfName("Pencilgon") == 158_296;
+        // another preset: the lower value stays for good
+        dir.NotePartyPower("Pencilgon", 120_000, t.AddSeconds(100));
+        dir.NotePartyPower("Pencilgon", 120_000, t.AddSeconds(110));
+        bool heldTooShort = dir.CombatPowerOfName("Pencilgon") == 158_296;
+        dir.NotePartyPower("Pencilgon", 120_100, t.AddSeconds(125));
+        bool dropTaken = dir.CombatPowerOfName("Pencilgon") == 120_100;
+        dir.NotePartyPower("Arena", 397_228, t);
+        bool arenaIgnored = dir.CombatPowerOfName("Arena") is null;
+        Console.WriteLine($"  -> read from the roster: {read}; drop on entering ignored: {dropIgnored}; rise taken: {rise}; low value too short: {heldTooShort}; low value that holds: {dropTaken}; arena value left out: {arenaIgnored}");
+        return read && dropIgnored && rise && heldTooShort && dropTaken && arenaIgnored;
     }
 
     /// <summary>

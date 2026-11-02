@@ -144,7 +144,11 @@ public static class SelfCheckSessions
         string dir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "aiondps-selftest-" + Guid.NewGuid().ToString("N"));
         try
         {
-            var live = new SessionRecorder(_ => SessionKind.Instance) { Identify = id => id == 1 ? ("Aahz", "Gladiator") : (null, null) };
+            var live = new SessionRecorder(_ => SessionKind.Instance)
+            {
+                Identify = id => id == 1 ? ("Aahz", "Gladiator") : (null, null),
+                IdentifyPlayer = id => id == 1 ? new PlayerMeta(24_900_123, 1303, 169_620) : null,
+            };
             live.Enter(new ZoneChange(t0, Krao));
             live.Feed(CombatBatch.DamageOnly(new[] { new DamageEvent(t0.AddSeconds(5), 1, 100, 900, false, "Cleave", true) }));
             live.Enter(new ZoneChange(t0.AddMinutes(30), Verteron));
@@ -166,6 +170,8 @@ public static class SelfCheckSessions
                 && file.Events.Count == 1 && file.Events[0].IsCritical && file.Names.GetValueOrDefault(1) == "Aahz" && file.Stay.Classes.GetValueOrDefault(1) == "Gladiator";
             bool placed = other.Sessions.Count == 2 && other.Sessions[0] == imported && other.Current is { ZoneId: Verteron } && imported.IsSaved && imported.FromFile;
             bool outOfAll = other.AllEvents().Count == 0;
+            bool playerKept = file.Players is { } back0 && back0.GetValueOrDefault(1) == new PlayerMeta(24_900_123, 1303, 169_620) && back0.Count == 1;
+            Console.WriteLine($"  -> character id, server and combat power of the players come back with the file: {playerKept}");
             Console.WriteLine($"  -> a saved stay reads back whole (zone, times, hits, names, classes): {same}");
             Console.WriteLine($"  -> a loaded stay goes in before the open one, is kept, and stays out of \"all\": {placed && outOfAll}");
 
@@ -178,7 +184,7 @@ public static class SelfCheckSessions
             bool extrasKept = withFile.Stay!.Extras is { } back && back.Uses.Count == 1 && back.Uses[0].SkillId == 11800007 && back.Names[1] == "Aahz" && withoutFile.Stay!.Extras is null
                 && new System.IO.FileInfo(withPath).Length > new System.IO.FileInfo(withoutPath).Length;
             Console.WriteLine($"  -> saved with the extras they come back with the file; without them the file has none and is smaller: {extrasKept}");
-            return same && placed && outOfAll && extrasKept;
+            return same && playerKept && placed && outOfAll && extrasKept;
         }
         finally
         {

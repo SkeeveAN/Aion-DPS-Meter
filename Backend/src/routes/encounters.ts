@@ -236,6 +236,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         damageTaken: encounterParticipants.damageTaken,
         damageAbsorbed: encounterParticipants.damageAbsorbed,
         stagger: encounterParticipants.stagger,
+        combatPower: encounterParticipants.combatPower,
         shieldsGiven: encounterParticipants.shieldsGiven,
         critRatePercent: encounterParticipants.critRatePercent,
       })

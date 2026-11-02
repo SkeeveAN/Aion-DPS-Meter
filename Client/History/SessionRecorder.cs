@@ -7,6 +7,10 @@ namespace AionDPS.History;
 /// <summary>What the server said about one target's hit points during a stay: the highest value seen, the readings and the moments it came back to full health.</summary>
 public sealed record TargetHp(long Highest, IReadOnlyList<HpSample> Samples, IReadOnlyList<DateTime> Resets);
 
+/// <summary>What a saved log keeps of a player besides the name: the game's permanent character id (it survives a rename and a new session, unlike the combat id), the server and
+/// the combat power (the party roster's value). Null where the capture did not know it.</summary>
+public sealed record PlayerMeta(int? CharacterId, int? ServerId, int? CombatPower);
+
 public enum SessionKind
 {
     Map,
@@ -46,6 +50,9 @@ public sealed class SessionInfo
     public Dictionary<int, string> Names { get; } = new();
 
     public Dictionary<int, string> Classes { get; } = new();
+
+    /// <summary>Character id, server and combat power of the players, as they were while the session ran (see <see cref="PlayerMeta"/>).</summary>
+    public Dictionary<int, PlayerMeta> Players { get; } = new();
 
     /// <summary>The hit points of the stay's big targets (see <see cref="SessionRecorder.CaptureHp"/>); what the plausibility check holds the damage against.</summary>
     public Dictionary<int, TargetHp> Hp { get; } = new();
@@ -98,6 +105,9 @@ public sealed class SessionRecorder
     /// forgets or reuses ids later. A name that is still a placeholder ("Gladiator #331") is replaced when the real one arrives
     /// (<see cref="RefreshNames"/>) and a last time when the stay ends.</summary>
     public Func<int, (string? Name, string? Class)>? Identify { get; set; }
+
+    /// <summary>The permanent character id, server and combat power the capture knows for a player id; null for none of them or for a monster.</summary>
+    public Func<int, PlayerMeta?>? IdentifyPlayer { get; set; }
 
     /// <summary>Oldest first; the last one is <see cref="Current"/> once anything was recorded.</summary>
     public IReadOnlyList<SessionInfo> Sessions => _sessions;
@@ -297,7 +307,7 @@ public sealed class SessionRecorder
         return session;
     }
 
-    private static void Remember(SessionInfo session, int id, Func<int, (string? Name, string? Class)> identify, bool replace = false)
+    private void Remember(SessionInfo session, int id, Func<int, (string? Name, string? Class)> identify, bool replace = false)
     {
         if (!replace && session.Names.ContainsKey(id))
         {
@@ -311,6 +321,13 @@ public sealed class SessionRecorder
             if (cls is { Length: > 0 } and not "?")
             {
                 session.Classes[id] = cls;
+                if (IdentifyPlayer?.Invoke(id) is { } meta)
+                {
+                    // the newest reading wins, but a value the capture lost since is kept
+                    session.Players[id] = session.Players.TryGetValue(id, out PlayerMeta? old)
+                        ? new PlayerMeta(meta.CharacterId ?? old.CharacterId, meta.ServerId ?? old.ServerId, meta.CombatPower ?? old.CombatPower)
+                        : meta;
+                }
             }
         }
     }
@@ -329,6 +346,11 @@ public sealed class SessionRecorder
             if (session.Classes.Remove(from, out string? cls))
             {
                 session.Classes.TryAdd(to, cls);
+            }
+
+            if (session.Players.Remove(from, out PlayerMeta? meta))
+            {
+                session.Players.TryAdd(to, meta);
             }
         }
     }

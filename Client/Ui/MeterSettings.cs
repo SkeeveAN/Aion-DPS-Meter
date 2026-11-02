@@ -23,6 +23,9 @@ public sealed class MeterSettings
     /// stays at its narrower single-line height until someone opts in.</summary>
     public bool ShowDamageTaken { get; set; }
 
+    /// <summary>The combat power behind each player's name in the list, where the game told it (the party's members); nothing is shown for the others.</summary>
+    public bool ShowCombatPower { get; set; } = true;
+
 
 
     /// <summary>GUI display language, an ISO 639-1 code from LocalizationManager.SupportedLanguages

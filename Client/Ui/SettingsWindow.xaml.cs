@@ -145,6 +145,7 @@ public partial class SettingsWindow : Window
         StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
+        ShowCombatPowerBox.IsChecked = settings.ShowCombatPower;
         AutoBossViewBox.IsChecked = settings.AutoBossView;
         AutoBossSecondsBox.Text = Math.Clamp(settings.AutoBossSeconds, 0, 600).ToString();
         CompactClickThroughBox.IsChecked = settings.CompactClickThrough;
@@ -820,6 +821,7 @@ public partial class SettingsWindow : Window
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
+        _settings.ShowCombatPower = ShowCombatPowerBox.IsChecked ?? true;
         _settings.AutoBossView = AutoBossViewBox.IsChecked ?? false;
         _settings.AutoBossSeconds = int.TryParse(AutoBossSecondsBox.Text, out int bossSeconds) ? Math.Clamp(bossSeconds, 0, 600) : 10;
         _settings.CompactClickThrough = CompactClickThroughBox.IsChecked ?? false;

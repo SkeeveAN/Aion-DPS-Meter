@@ -1119,6 +1119,12 @@ internal static class Program
         {
             var row = new Ui.PlayerRow(++rank) { Name = x.Name, ClassName = x.Cls, Damage = x.Dmg, Dps = x.Dps, SharePercent = 100.0 * x.Dmg / total, FillPercent = 100.0 * x.Dmg / sample[0].Dmg,
                 Rank = rank, Faction = rank is 1 or 5 ? "Elyos" : rank is 3 ? "" : "Asmodian" }; // a sample of both factions and one unknown
+            if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_POWER") is { Length: > 0 })
+            {
+                row.ShowCombatPower = true;
+                row.CombatPower = rank == 3 ? null : 172_000 - rank * 9_300; // one player the game told nothing of
+            }
+
             if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_TEAMS") is { Length: > 0 })
             {
                 row.TeamSide = rank % 2 == 1 ? "Red" : "Blue"; // the 10 against 10 arena's two teams, for the picture
@@ -2208,7 +2214,7 @@ internal static class Program
 
             foreach (var p in request.Participants.OrderByDescending(x => x.TotalDamage))
             {
-                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} stagger {p.Stagger,5} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
+                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} stagger {p.Stagger,5} power {(p.CombatPower is int power ? power.ToString("N0") : "-"),8} char {(p.CharacterId is int cid ? cid.ToString() : "-")} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
                 if (p.Timeline?.Analysis is { } an)
                 {
                     Console.WriteLine($"          analysis: boss damage in slices {an.Damage.Sum():N0} of {p.TotalDamage:N0} ({an.Damage.Count} x 5 s), add damage {an.AddDamage:N0}, dead {an.Dead.Where((_, i) => i % 2 == 1).Sum() / 10.0 - an.Dead.Where((_, i) => i % 2 == 0).Sum() / 10.0:0.0} s in {an.Dead.Count / 2} span(s), taken by {string.Join(", ", an.Taken.Take(4).Select(t => $"{t.From}/{t.Skill} {t.Total:N0}"))}");

@@ -701,6 +701,11 @@ public partial class SessionManagerWindow : Window
             session.Names[id] = name;
         }
 
+        foreach ((int id, PlayerMeta meta) in file.Players ?? new Dictionary<int, PlayerMeta>())
+        {
+            session.Players[id] = meta;
+        }
+
         return session;
     }
 
