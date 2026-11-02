@@ -1214,4 +1214,6 @@
  "Ability macros: the player page shows the macro of each skill preset (the skills on the quick slots it presses, in order, with the delay) as its own block between the action bar and Active, and the client reads it from the login settings and sends it with the profile": "Fähigkeiten-Makros: Die Spielerseite zeigt das Makro jedes Skill-Presets (die Skills auf den Schnellleistenplätzen, die es der Reihe nach drückt, mit der Verzögerung) als eigenen Block zwischen Aktionsleiste und Aktiv; der Client liest es aus den Login-Einstellungen und sendet es mit dem Profil"
 ,
  "robots.txt asks the SEO-tool crawlers (Ahrefs, Semrush, Serpstat, MJ12, DotBot, BLEXBot, PetalBot, Bytespider, DataForSEO) to stay away": "Die robots.txt bittet die SEO-Werkzeug-Crawler (Ahrefs, Semrush, Serpstat, MJ12, DotBot, BLEXBot, PetalBot, Bytespider, DataForSEO), der Seite fernzubleiben"
+,
+ "Uploads: the same fight from the same uploader is taken twice and answered as a duplicate from the third copy on, so a client that loops can no longer stall the merge of a crowded world boss": "Uploads: Derselbe Kampf desselben Uploaders wird zweimal angenommen und ab der dritten Kopie als Duplikat beantwortet, damit ein Client, der in einer Schleife sendet, das Zusammenführen eines Weltboss-Massenkampfs nicht mehr lahmlegen kann"
 }

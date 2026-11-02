@@ -53,6 +53,13 @@
      "Backend"
     ],
     "date": "2026-11-02"
+   },
+   {
+    "text": "Uploads: the same fight from the same uploader is taken twice and answered as a duplicate from the third copy on, so a client that loops can no longer stall the merge of a crowded world boss",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-02"
    }
   ]
  },
