@@ -4,7 +4,8 @@
 //   2. buffs per skill: for each skill of one player, which effects were on the player at the moments it was used
 // Kept out of app.js; app.js hands in the helpers it already has.
 const SVG_NS = "http://www.w3.org/2000/svg";
-const PALETTE = ["#5aa9ff", "#f0b030", "#4cc38a", "#e8d27a", "#9b7bff", "#ff8a65", "#4dd0e1", "#f06292", "#aed581", "#ba68c8"];
+// Fallback for a player whose class is unknown; known classes use the colour the meter shows for them.
+const PALETTE = ["#9fb3c8"];
 const WIDTH = 1790;
 const LABEL = 150;
 const ROW = 42;
@@ -54,7 +55,7 @@ function mergeSpans(spans) {
 }
 
 export function buildGroupTimeline(timeline, deps) {
-  const { el, t, formatNumber, classIcon, iconLabel, getLocale } = deps;
+  const { el, t, formatNumber, classIcon, iconLabel, getLocale, classColor } = deps;
   const players = timeline.players;
   const last = Math.max(timeline.durationSeconds, ...players.flatMap((p) => p.uses.map((u) => u[0])));
   const duration = Math.max(1, last);
@@ -72,7 +73,7 @@ export function buildGroupTimeline(timeline, deps) {
 
   players.forEach((p, i) => {
     const y = rowsTop + i * ROW;
-    const color = PALETTE[i % PALETTE.length];
+    const color = (p.className && classColor?.(p.className)) || PALETTE[0];
     root.append(svg("rect", { x: LABEL, y: y + 4, width: WIDTH - LABEL - 20, height: ROW - 10, rx: 4, class: "tl-lane" }));
     root.append(svg("text", { x: 0, y: y + ROW / 2 + 4, class: "tl-name" }, p.name));
     for (const [s, e] of mergeSpans(groupSpans(p))) {

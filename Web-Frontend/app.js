@@ -3843,7 +3843,7 @@ async function renderEncounter(encounterId) {
   if (data.encounter.hasTimeline) {
     try {
       const timeline = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}/timeline`);
-      const deps = { el, t, formatNumber, classLabel, classIcon, iconLabel, getLocale };
+      const deps = { el, t, formatNumber, classLabel, classColor: (name) => classMeta(name).color, classIcon, iconLabel, getLocale };
       // The health curve is thousandths of the highest reading the recorder saw, so it starts at 100 % even when they joined late;
       // a partial fight draws it against the boss's real health instead (the seen share is where it starts).
       if (data.encounter.isPartial === true && typeof data.encounter.hpSeenShare === "number" && Array.isArray(timeline.bossHp)) {
@@ -4949,7 +4949,7 @@ function renderLookChips(profile) {
   const chip = (item, base, { badge, level } = {}) => {
     const holder = el("span", { className: `pf-chip${item.grade ? ` g-${item.grade}` : ""}` });
     if (item.icon) {
-      const img = el("img", { src: `${ICON_BASE}/${base}/${item.icon}.webp`, alt: "", width: 30, height: 30, loading: "lazy" });
+      const img = el("img", { src: `${base === "pet" ? "/images/aion2/pets" : `${ICON_BASE}/${base}`}/${item.icon}.webp`, alt: "", width: 30, height: 30, loading: "lazy" });
       img.addEventListener("error", () => img.remove());
       holder.append(img);
     }
