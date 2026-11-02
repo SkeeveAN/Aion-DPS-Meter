@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-02",
+  "date": "2026-11-03",
   "items": [
    {
     "text": "Encounter page: each player's row shows the combat power of the fight, and the comparison of two players and of two runs gets a combat power row (the best run and the average of a player, the group's average of a run)",
@@ -18,6 +18,13 @@
      "Backend"
     ],
     "date": "2026-11-02"
+   },
+   {
+    "text": "Website: the lines of the damage curve are visible again (their colour was set as a style attribute, which the page's content security policy blocks, so only the bars showed and the players could not be switched on)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-03"
    }
   ]
  },
