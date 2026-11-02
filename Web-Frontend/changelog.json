@@ -10,6 +10,14 @@
      "Backend"
     ],
     "date": "2026-11-02"
+   },
+   {
+    "text": "The client's update window keeps the last client line of a release when it has a short text of its own (the combat power line of 1.19.1 was hidden as the summing release line)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-02"
    }
   ]
  },
