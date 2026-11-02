@@ -54,7 +54,21 @@ export interface ProcessResult {
  * two genuinely different private-server operators - matching on displayName too, not overwriting
  * a differently-named row's name, is what keeps them apart instead of one silently hijacking the
  * other's row (and, with it, every one of its already-uploaded players/encounters). */
+/** Server ids found while one upload is stored (set by processUpload, which is synchronous): a crowd asked for the same few servers once per player. */
+let serversOfThisUpload: Map<string, number> | null = null;
+
 function upsertServer(rawFingerprint: string, rawDisplayName: string | undefined): number {
+  const memoKey = `${rawFingerprint}\u0000${rawDisplayName ?? ""}`;
+  const known = serversOfThisUpload?.get(memoKey);
+  if (known !== undefined) {
+    return known;
+  }
+  const id = upsertServerRow(rawFingerprint, rawDisplayName);
+  serversOfThisUpload?.set(memoKey, id);
+  return id;
+}
+
+function upsertServerRow(rawFingerprint: string, rawDisplayName: string | undefined): number {
   const { fingerprint, displayName } = canonicalServer(rawFingerprint, rawDisplayName);
   if (displayName) {
     const exact = db
@@ -699,8 +713,19 @@ function recomputeEncounterTotals(encounterId: number, startedAtIso: string, end
 /** The stored player an uploaded name stands for - by its current name or by an alias of a renamed character - without creating anything. */
 function knownPlayerId(name: string, serverId: number): number | undefined {
   const normalized = normalizeName(name);
-  const onServer = db.select().from(players).where(eq(players.serverId, serverId)).all();
-  return (onServer.find((p) => p.nameNormalized === normalized) ?? onServer.find((p) => p.aliasNamesNormalized.includes(normalized)))?.id;
+  // By the unique index (server, name) - this ran for every player of a crowd and used to read EVERY player of the server each time (1,400 players x thousands of rows).
+  const exact = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, serverId), eq(players.nameNormalized, normalized))).get();
+  if (exact) {
+    return exact.id;
+  }
+  // Else a player who once went by this name: the alias list is JSON text, `instr` narrows to rows that may hold it and the exact check is done on the list.
+  const withAlias = db
+    .select({ id: players.id, aliases: players.aliasNamesNormalized })
+    .from(players)
+    .where(and(eq(players.serverId, serverId), sql`instr(${players.aliasNamesNormalized}, ${JSON.stringify(normalized)}) > 0`))
+    .orderBy(players.id)
+    .all();
+  return withAlias.find((p) => p.aliases.includes(normalized))?.id;
 }
 
 /** Whole or partial fight for an upload (see bossHp.ts); a world boss is never partial. */
@@ -760,6 +785,26 @@ function mergeIntoEncounter(encounterId: number, serverId: number, bossId: numbe
     .where(eq(encounterParticipants.encounterId, encounterId))
     .all();
 
+  // The row of the fight that belongs to a name or to a known player id, the first in list order as before - looked up in a table instead of walking the whole list
+  // for every player of the upload (1,400 x 1,400 name normalisations for a crowd).
+  const firstByName = new Map<string, number>();
+  const firstById = new Map<number, number>();
+  existingParticipants.forEach((p, i) => {
+    const key = normalizeName(p.players.name);
+    if (!firstByName.has(key)) {
+      firstByName.set(key, i);
+    }
+    if (!firstById.has(p.players.id)) {
+      firstById.set(p.players.id, i);
+    }
+  });
+  const findExisting = (normalized: string, knownId: number | undefined) => {
+    const byName = firstByName.get(normalized);
+    const byId = knownId === undefined ? undefined : firstById.get(knownId);
+    const at = byName === undefined ? byId : byId === undefined ? byName : Math.min(byName, byId);
+    return at === undefined ? undefined : existingParticipants[at];
+  };
+
   for (const participant of payload.participants) {
     if (!participant.isSelf) {
       // A teammate's numbers are the same objective fact in every log that
@@ -768,9 +813,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, bossId: numbe
       const normalized = normalizeName(participant.name);
       // Also the old name of a renamed character: the row of that player is the same person.
       const knownId = knownPlayerId(participant.name, serverOfParticipant(participant, serverId));
-      const match = existingParticipants.find(
-        (p) => normalizeName(p.players.name) === normalized || p.players.id === knownId,
-      );
+      const match = findExisting(normalized, knownId);
       if (match && participant.estimated && !match.encounter_participants.estimated) {
         // An exact row stays: an estimate (hit counts x typical hit) never replaces real numbers.
         continue;
@@ -789,9 +832,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, bossId: numbe
     // The uploader's own row - the one that might carry a wrong self-name.
     const normalized = normalizeName(participant.name);
     const knownId = knownPlayerId(participant.name, serverOfParticipant(participant, serverId));
-    const sameNameMatch = existingParticipants.find(
-      (p) => normalizeName(p.players.name) === normalized || p.players.id === knownId,
-    );
+    const sameNameMatch = findExisting(normalized, knownId);
     if (sameNameMatch && participant.estimated && !sameNameMatch.encounter_participants.estimated) {
       continue;
     }
@@ -1025,7 +1066,13 @@ export function processUpload(payload: UploadPayload, receivedAt?: string): Proc
   // One transaction for the whole upload: the dozens of single inserts commit (and sync to disk) once instead of one by one, and a
   // failure half way leaves no half-written fight behind.
   return sqlite.transaction((): ProcessResult => {
-    const result = processUploadAt(payload);
+    serversOfThisUpload = new Map();
+    let result: ProcessResult;
+    try {
+      result = processUploadAt(payload);
+    } finally {
+      serversOfThisUpload = null;
+    }
     if (receivedAt) {
       db.update(encounters)
         .set({ createdAt: sql`min(${encounters.createdAt}, ${receivedAt})` })
