@@ -48,4 +48,9 @@ systemctl restart "$SERVICE_NAME"
 sleep 2
 systemctl status "$SERVICE_NAME" --no-pager -l | head -12
 
+# nginx keeps public pages for 60 s (see the aiondps cache); after a deploy they should show the new state at once.
+if [[ -d /var/cache/nginx/aiondps ]]; then
+  find /var/cache/nginx/aiondps -mindepth 1 -delete
+fi
+
 echo "==> Fertig."
