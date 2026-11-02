@@ -67,6 +67,13 @@
      "Backend"
     ],
     "date": "2026-11-02"
+   },
+   {
+    "text": "Uploads: every answer carries a receipt (sha256 of uploader, boss and exact start and end of the fight); GET /api/uploads/receipt/:receipt tells whether the fight is queued, filed or turned away, and a repeated copy is answered with the stored result",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-02"
    }
   ]
  },
