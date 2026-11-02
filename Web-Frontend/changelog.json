@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.19.2",
   "date": "2026-11-03",
   "items": [
    {
@@ -44,6 +44,13 @@
    },
    {
     "text": "Client: crafted pieces are read with plus level, mana stones and rolled stats again (the crafter's name in the login entry hid them)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-03"
+   },
+   {
+    "text": "Client: the legion list reads names with special characters (the length byte counts bytes, not characters), so those members no longer show level 0",
     "areas": [
      "Client"
     ],
