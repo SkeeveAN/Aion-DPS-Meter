@@ -33,7 +33,7 @@ export function shortenText(text: string): string {
 
 /**
  * What the client shows in its update window: the client changes of every release after `from` up to and including `to`, newest first, one short
- * line per change. A release's last client entry is the release line that sums the others up, so it is left out when there are others; a change
+ * line per change. A release's last client entry is the release line that sums the others up, so it is left out when there are others (unless it has a short text of its own); a change
  * with no short text in changelog-short.json gets its first clause, one with an empty short text is left out. German when `lang` is "de" (the German text of the full entry for the fallback).
  */
 export function buildChangelogFeed(releases: Release[], german: Record<string, string>, shorts: ShortTexts, from: string, to: string | undefined, lang: string): ChangelogFeedVersion[] {
@@ -52,7 +52,9 @@ export function buildChangelogFeed(releases: Release[], german: Record<string, s
     }
 
     let items = release.items.filter((item) => item.areas?.includes("Client"));
-    if (items.length > 1) {
+    // the last entry is the line that sums the release up, unless it has a short text of its own: that one was written for the list (a release made of one feature and a change
+    // another session had committed before it showed only that other change)
+    if (items.length > 1 && !shorts[items[items.length - 1].text]) {
       items = items.slice(0, -1);
     }
 

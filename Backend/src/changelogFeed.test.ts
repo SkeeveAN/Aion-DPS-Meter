@@ -30,6 +30,11 @@ test("feed: versions after from up to to, newest first, without the release line
   assert.deepEqual(buildChangelogFeed(releases, german, shorts, "1.2.0", undefined, "en"), []);
 });
 
+test("feed: a last entry with a short text of its own is kept, it is no summing line", () => {
+  const own = { ...shorts, "a new window and a crash fix, summed up": { en: "Window and crash fix", de: "Fenster und Absturz" } };
+  assert.deepEqual(buildChangelogFeed(releases, german, own, "1.1.0", undefined, "en")[0].items, ["Tools: a new window", "Fix: a crash is gone", "Window and crash fix"]);
+});
+
 test("feed: German short text, German full text as the fallback", () => {
   const feed = buildChangelogFeed(releases, german, shorts, "1.1.0", undefined, "de");
   assert.deepEqual(feed[0].items, ["Tools: ein neues Fenster", "Fix: Ein Absturz ist weg"]);
