@@ -138,11 +138,18 @@ function lineChart({ duration, curves, hpCurves = [], bars = null, tAxis, yMax }
   }
   for (const hp of hpCurves) {
     const points = hp.points.map(([s, permille]) => `${x(s).toFixed(1)},${(PAD.top + plotH - (permille / 1000) * plotH).toFixed(1)}`).join(" ");
-    root.append(svg("polyline", { points, class: "dc-hp", style: hp.color ? `stroke:${hp.color}` : "" }));
+    const line = svg("polyline", { points, class: "dc-hp" });
+    if (hp.color) {
+      line.style.stroke = hp.color;
+    }
+    root.append(line);
   }
   for (const curve of curves) {
     const points = curve.points.map(([s, v]) => `${x(s).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-    root.append(svg("polyline", { points, class: "dc-line", style: `stroke:${curve.color}` }));
+    // set through the CSSOM: the page's CSP (style-src 'self') blocks a style attribute
+    const line = svg("polyline", { points, class: "dc-line" });
+    line.style.stroke = curve.color;
+    root.append(line);
   }
   const cursor = svg("line", { y1: PAD.top, y2: PAD.top + plotH, class: "dc-cursor", visibility: "hidden" });
   root.append(cursor);
