@@ -1216,4 +1216,6 @@
  "robots.txt asks the SEO-tool crawlers (Ahrefs, Semrush, Serpstat, MJ12, DotBot, BLEXBot, PetalBot, Bytespider, DataForSEO) to stay away": "Die robots.txt bittet die SEO-Werkzeug-Crawler (Ahrefs, Semrush, Serpstat, MJ12, DotBot, BLEXBot, PetalBot, Bytespider, DataForSEO), der Seite fernzubleiben"
 ,
  "Uploads: the same fight from the same uploader is taken twice and answered as a duplicate from the third copy on, so a client that loops can no longer stall the merge of a crowded world boss": "Uploads: Derselbe Kampf desselben Uploaders wird zweimal angenommen und ab der dritten Kopie als Duplikat beantwortet, damit ein Client, der in einer Schleife sendet, das Zusammenführen eines Weltboss-Massenkampfs nicht mehr lahmlegen kann"
+,
+ "Uploads: the loop gets a turn before and after filing an upload; a crowded world boss no longer keeps about 85 MB of native memory per filing and the site no longer stalls while such uploads are worked off": "Uploads: Die Schleife kommt vor und nach dem Ablegen eines Uploads zum Zug; ein Weltboss-Massenkampf behält nicht mehr rund 85 MB nativen Speicher pro Ablage, und die Seite hängt nicht mehr, solange solche Uploads abgearbeitet werden"
 }

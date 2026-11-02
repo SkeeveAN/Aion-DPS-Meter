@@ -60,6 +60,13 @@
      "Backend"
     ],
     "date": "2026-11-02"
+   },
+   {
+    "text": "Uploads: the loop gets a turn before and after filing an upload; a crowded world boss no longer keeps about 85 MB of native memory per filing and the site no longer stalls while such uploads are worked off",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-02"
    }
   ]
  },
