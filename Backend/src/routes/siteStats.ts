@@ -14,9 +14,10 @@ const hidden = (reply: FastifyReply) => reply.status(404).send({ error: "not_fou
 
 /**
  * The numbers are counted over the whole database (uploads, players, profiles: seconds on a cold disk, blocking the backend meanwhile). Prometheus asks every
- * minute; two minutes old is fine for gauges and counters of this kind.
+ * minute; five minutes old is fine for gauges and counters of this kind (the scrape still answers every time, from the copy). The slow part is the scan of the
+ * uploads table (no index on the time); an index would need a long lock on the big table, so it waits for a calmer disk.
  */
-const METRICS_TTL_MS = 120_000;
+const METRICS_TTL_MS = 300_000;
 let metricsCache: { at: number; text: string } | undefined;
 function metricsOf(now: number): string {
   if (!metricsCache || now - metricsCache.at >= METRICS_TTL_MS) {
