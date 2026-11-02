@@ -3035,7 +3035,22 @@ public sealed class Aion2FrameDecoder
             int enchant = 0;
             Aion2ItemDetails? details = null;
             Aion2ArcanaDetails? arcana = null;
-            for (int k = p + 14 + 20; k < Math.Min(frame.Length, p + 14 + 31); k++)
+            // a crafted piece carries its crafter's name behind the slot index, which pushes the whole entry back
+            int nameEnd = slot < ArcanaSlotStart ? CrafterNameEnd(frame, p + 14) : -1;
+            if (nameEnd > 0)
+            {
+                // the size byte sits 22 bytes behind the name (23 with one more flag byte); only a block that reads as an item entry counts
+                for (int k = nameEnd + 14; k < Math.Min(frame.Length, nameEnd + 34); k++)
+                {
+                    if (frame[k] != 0 && TryReadItemDetails(frame, k, out details))
+                    {
+                        enchant = frame[k - 14] <= 30 ? frame[k - 14] : 0;
+                        break;
+                    }
+                }
+            }
+
+            for (int k = nameEnd > 0 ? int.MaxValue : p + 14 + 20; k < Math.Min(frame.Length, p + 14 + 31); k++)
             {
                 if (frame[k] != 0)
                 {
@@ -3064,6 +3079,36 @@ public sealed class Aion2FrameDecoder
         {
             _entities.SetLocalEquipment(items.OrderBy(i => i.SlotIndex).ToList());
         }
+    }
+
+    /// <summary>
+    /// The end of the crafter's name in an equipment entry, or -1 when there is none: crafted pieces (checked 2026-11-03 against 99
+    /// entries of the login dumps: Pencilgon's "Splendent White Dragon Lord Dagger", crafted earrings and rings) have, within eight bytes
+    /// behind the slot index, a length-prefixed name behind a zero byte. Plain entries are all zero there.
+    /// </summary>
+    private static int CrafterNameEnd(ReadOnlySpan<byte> frame, int from)
+    {
+        for (int o = 0; o < 8 && from + o < frame.Length; o++)
+        {
+            int length = frame[from + o];
+            if (length is < 2 or > 24 || from + o + 1 + length > frame.Length || (o > 0 && frame[from + o - 1] != 0))
+            {
+                continue;
+            }
+
+            bool text = true;
+            for (int i = 0; i < length && text; i++)
+            {
+                text = frame[from + o + 1 + i] >= 0x20;
+            }
+
+            if (text)
+            {
+                return from + o + 1 + length;
+            }
+        }
+
+        return -1;
     }
 
     /// <summary>Slots from here on are the arcana pieces, whose entries are laid out differently (no stones).</summary>
