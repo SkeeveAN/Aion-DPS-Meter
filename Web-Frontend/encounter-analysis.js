@@ -1,13 +1,14 @@
 // The analysis panels of the encounter page and the pull comparison, for fights whose uploads carry `analysis` (clients from the combat-analysis release on):
 //   - the data-quality badge (reliable / derived / estimated / not available) and its legend
-//   - the damage curve: cumulative boss damage of the group over the fight, the damage per 5 seconds under it, the boss's health as a second line
+//   - the damage curve: cumulative boss damage of the group over the fight, the damage per second in a chart of its own under it, the boss's health as a second line
 //   - the players table: boss damage and damage to adds, how long each player was alive, deaths
 //   - damage taken by source (boss / adds / other) and skill, a breakdown without any rating
 //   - how long each effect ran on a player, and how much of that time the player was dead or without action
 //   - the pull comparison chart: two cumulative curves on one time axis
 // Kept out of app.js; app.js hands in the helpers it already has. Everything here is drawn only from what the server sends; a missing value is "not available", never 0.
 const SVG_NS = "http://www.w3.org/2000/svg";
-const PALETTE = ["#5aa9ff", "#f0b030", "#4cc38a", "#e8d27a", "#9b7bff", "#ff8a65", "#4dd0e1", "#f06292", "#aed581", "#ba68c8"];
+// no yellow: the group's curve and the page's accent are light or golden, a player's line must not be mistaken for them
+const PALETTE = ["#5aa9ff", "#ff8a65", "#4cc38a", "#9b7bff", "#4dd0e1", "#f06292", "#aed581", "#ba68c8", "#90a4ae", "#ef5350"];
 const WIDTH = 1790;
 const HEIGHT = 340;
 const PAD = { left: 78, right: 54, top: 14, bottom: 30 };
@@ -56,6 +57,13 @@ function shortNumber(v) {
   return String(Math.round(v));
 }
 
+/** The top of an axis that is cut into four equal steps of a round size (25, 50, 75, 100 ...) and holds `value`. */
+function niceMax(value) {
+  const raw = Math.max(value, 1) / 4;
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  return 4 * ([1, 2, 2.5, 5, 10].map((m) => m * magnitude).find((step) => step >= raw) ?? 10 * magnitude);
+}
+
 /** The small badge saying how sure a figure is. `level` is certain, derived, estimated or unavailable. */
 export function qualityBadge(level, deps) {
   const { el, t } = deps;
@@ -101,10 +109,14 @@ function valueAt(points, seconds) {
   return value;
 }
 
-function lineChart({ duration, curves, hpCurves = [], bars = null, tAxis, yMax }) {
-  const root = svg("svg", { viewBox: `0 0 ${WIDTH} ${HEIGHT}`, class: "tl-svg dc-svg", role: "img" });
+/**
+ * A time chart. `curves` are lines in the unit of the left axis (`yMax`, written by `yFormat`); `rightPercent` adds a 0 to 100 % axis on the right.
+ * `area` fills the space under one more series, `refLine` is a dashed horizontal line ({ value, label }).
+ */
+function lineChart({ duration, curves, hpCurves = [], area = null, refLine = null, yMax, yFormat = shortNumber, rightPercent = true, height = HEIGHT }) {
+  const root = svg("svg", { viewBox: `0 0 ${WIDTH} ${height}`, class: "tl-svg dc-svg", role: "img" });
   const plotW = WIDTH - PAD.left - PAD.right;
-  const plotH = HEIGHT - PAD.top - PAD.bottom;
+  const plotH = height - PAD.top - PAD.bottom;
   const x = (seconds) => PAD.left + (Math.min(Math.max(seconds, 0), duration) / duration) * plotW;
   const y = (value) => PAD.top + plotH - (Math.min(value, yMax) / yMax) * plotH;
 
@@ -112,29 +124,20 @@ function lineChart({ duration, curves, hpCurves = [], bars = null, tAxis, yMax }
   const step = axisStep(duration);
   for (let s = 0; s <= duration; s += step) {
     root.append(svg("line", { x1: x(s), x2: x(s), y1: PAD.top, y2: PAD.top + plotH, class: "tl-grid" }));
-    root.append(svg("text", { x: x(s) - 10, y: HEIGHT - 8, class: "tl-tick" }, clock(s)));
+    root.append(svg("text", { x: x(s) - 10, y: height - 8, class: "tl-tick" }, clock(s)));
   }
   for (let i = 0; i <= 4; i++) {
     const v = (yMax / 4) * i;
     root.append(svg("line", { x1: PAD.left, x2: PAD.left + plotW, y1: y(v), y2: y(v), class: "tl-grid" }));
-    root.append(svg("text", { x: PAD.left - 8, y: y(v) + 4, class: "tl-tick dc-ytick", "text-anchor": "end" }, shortNumber(v)));
-    root.append(svg("text", { x: PAD.left + plotW + 8, y: y(v) + 4, class: "tl-tick dc-ytick" }, `${i * 25} %`));
+    root.append(svg("text", { x: PAD.left - 8, y: y(v) + 4, class: "tl-tick dc-ytick", "text-anchor": "end" }, v === 0 ? "0" : yFormat(v)));
+    if (rightPercent) {
+      root.append(svg("text", { x: PAD.left + plotW + 8, y: y(v) + 4, class: "tl-tick dc-ytick" }, `${i * 25} %`));
+    }
   }
 
-  // the damage per bucket as bars at the foot of the plot: a dip is a short bar
-  if (bars) {
-    const maxRate = Math.max(...bars.values, 1);
-    bars.values.forEach((value, i) => {
-      const from = i * bars.seconds;
-      const to = Math.min((i + 1) * bars.seconds, duration);
-      if (to <= from) {
-        return;
-      }
-      const h = (value / maxRate) * plotH * 0.3;
-      const bar = svg("rect", { x: x(from) + 0.5, y: PAD.top + plotH - h, width: Math.max(1, x(to) - x(from) - 1), height: h, class: "dc-bar" });
-      bar.append(svg("title", {}, `${clock(from)} – ${clock(to)}`));
-      root.append(bar);
-    });
+  if (area && area.length > 0) {
+    const edge = area.map(([s, v]) => `${x(s).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    root.append(svg("polygon", { points: `${x(area[0][0]).toFixed(1)},${y(0)} ${edge} ${x(area[area.length - 1][0]).toFixed(1)},${y(0)}`, class: "dc-area" }));
   }
   for (const hp of hpCurves) {
     const points = hp.points.map(([s, permille]) => `${x(s).toFixed(1)},${(PAD.top + plotH - (permille / 1000) * plotH).toFixed(1)}`).join(" ");
@@ -144,10 +147,14 @@ function lineChart({ duration, curves, hpCurves = [], bars = null, tAxis, yMax }
     }
     root.append(line);
   }
+  if (refLine) {
+    root.append(svg("line", { x1: PAD.left, x2: PAD.left + plotW, y1: y(refLine.value), y2: y(refLine.value), class: "dc-avg" }));
+    root.append(svg("text", { x: PAD.left + plotW - 6, y: y(refLine.value) - 6, class: "tl-tick dc-avg-label", "text-anchor": "end" }, refLine.label));
+  }
   for (const curve of curves) {
     const points = curve.points.map(([s, v]) => `${x(s).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
     // set through the CSSOM: the page's CSP (style-src 'self') blocks a style attribute
-    const line = svg("polyline", { points, class: "dc-line" });
+    const line = svg("polyline", { points, class: curve.group ? "dc-line dc-line-group" : "dc-line" });
     line.style.stroke = curve.color;
     root.append(line);
   }
@@ -188,24 +195,48 @@ export function buildDamageCurve(timeline, deps, estimated = false) {
   const summary = el("p", { className: "tl-summary", textContent: t("analysis.curve.hint") });
   const chips = el("div", { className: "skill-tabs dc-players", role: "group" });
 
+  // damage per second of each bucket (the last one may be shorter), set at the middle of its bucket
+  const rates = (buckets) => buckets.map((v, i) => v / Math.max(1, Math.min(bucket, duration - i * bucket)));
+  const atMiddle = (list) => list.map((r, i) => [Math.min(i * bucket + Math.min(bucket, duration - i * bucket) / 2, duration), r]);
+  const smoothed = (list) => list.map((_, i) => {
+    const near = list.slice(Math.max(0, i - 1), i + 2);
+    return near.reduce((a, b) => a + b, 0) / near.length;
+  });
+  const groupRates = rates(analysis.groupDamage);
+  const average = group[group.length - 1][1] / duration;
+  const rateMax = niceMax(Math.max(...groupRates, average) * 1.05);
+
   const draw = () => {
-    const playerCurves = players
-      .filter((p) => shown.has(p.participantId))
-      .map((p) => ({ color: PALETTE[players.indexOf(p) % PALETTE.length], points: cumulativePoints(p.damage, bucket, duration), name: p.name }));
+    const shownPlayers = players.filter((p) => shown.has(p.participantId));
+    const colorOf = (p) => PALETTE[players.indexOf(p) % PALETTE.length];
     const total = group[group.length - 1][1];
-    const chart = lineChart({
+    const cumulativeChart = lineChart({
       duration,
+      height: 300,
       yMax: Math.max(total, 1),
-      curves: [{ color: "var(--color-primary)", points: group }, ...playerCurves],
+      curves: [...shownPlayers.map((p) => ({ color: colorOf(p), points: cumulativePoints(p.damage, bucket, duration) })), { color: "var(--color-text)", group: true, points: group }],
       hpCurves: timeline.bossHp.length >= 2 ? [{ points: timeline.bossHp }] : [],
-      bars: { values: analysis.groupDamage, seconds: bucket },
     });
+    const rateChart = lineChart({
+      duration,
+      height: 250,
+      yMax: rateMax,
+      yFormat: (v) => `${shortNumber(v)}/s`,
+      rightPercent: false,
+      area: atMiddle(groupRates),
+      refLine: { value: average, label: `Ø ${shortNumber(average)}/s` },
+      curves: [...shownPlayers.map((p) => ({ color: colorOf(p), points: atMiddle(smoothed(rates(p.damage))) })), { color: "var(--color-text)", group: true, points: atMiddle(groupRates) }],
+    });
+    const charts = [cumulativeChart, rateChart];
     const describe = (seconds) => {
       const i = Math.min(Math.floor(seconds / bucket), analysis.groupDamage.length - 1);
       const from = i * bucket;
       const to = Math.min(from + bucket, duration);
       const rate = analysis.groupDamage[i] / Math.max(1, to - from);
       const parts = [t("analysis.curve.at", { from: clock(from), to: clock(to), rate: formatNumber(Math.round(rate)), total: formatNumber(valueAt(group, to)) })];
+      for (const p of shownPlayers) {
+        parts.push(`${p.name} ${formatNumber(Math.round((p.damage[i] ?? 0) / Math.max(1, to - from)))}`);
+      }
       const hpPoint = [...timeline.bossHp].reverse().find(([s]) => s <= to);
       if (hpPoint) {
         parts.push(t("analysis.curve.hpAt", { pct: (hpPoint[1] / 10).toFixed(1) }));
@@ -213,34 +244,37 @@ export function buildDamageCurve(timeline, deps, estimated = false) {
       return parts.join(" · ");
     };
     let pinned = null;
-    chart.root.addEventListener("pointermove", (event) => {
-      if (pinned !== null) {
-        return;
-      }
-      const s = chart.secondsOf(event);
-      chart.showCursor(s);
-      summary.textContent = describe(s);
-    });
-    chart.root.addEventListener("pointerleave", () => {
-      if (pinned === null) {
-        chart.hideCursor();
-        summary.textContent = t("analysis.curve.hint");
-      }
-    });
-    chart.root.addEventListener("click", (event) => {
-      const s = chart.secondsOf(event);
-      if (pinned !== null && Math.abs(pinned - s) < 2) {
-        pinned = null;
-        return;
-      }
-      pinned = s;
-      chart.showCursor(s);
-      summary.textContent = describe(s);
-    });
-    chart.root.setAttribute("aria-label", t("analysis.curve.heading"));
+    const showAt = (seconds) => {
+      charts.forEach((c) => c.showCursor(seconds));
+      summary.textContent = describe(seconds);
+    };
+    for (const chart of charts) {
+      chart.root.addEventListener("pointermove", (event) => {
+        if (pinned === null) {
+          showAt(chart.secondsOf(event));
+        }
+      });
+      chart.root.addEventListener("pointerleave", () => {
+        if (pinned === null) {
+          charts.forEach((c) => c.hideCursor());
+          summary.textContent = t("analysis.curve.hint");
+        }
+      });
+      chart.root.addEventListener("click", (event) => {
+        const s = chart.secondsOf(event);
+        if (pinned !== null && Math.abs(pinned - s) < 2) {
+          pinned = null;
+          return;
+        }
+        pinned = s;
+        showAt(s);
+      });
+      chart.root.setAttribute("aria-label", t("analysis.curve.heading"));
+    }
     const legend = el("div", { className: "tl-legend" }, [
       el("span", {}, [el("i", { className: "tl-key dc-key-line" }), t("analysis.curve.cumulative")]),
       el("span", {}, [el("i", { className: "tl-key dc-key-bar" }), t("analysis.curve.rate")]),
+      el("span", {}, [el("i", { className: "tl-key dc-key-avg" }), t("analysis.curve.average")]),
       timeline.bossHp.length >= 2 ? el("span", {}, [el("i", { className: "tl-key dc-key-hp" }), t("analysis.curve.bossHp")]) : null,
     ].filter((x) => x !== null));
     const coverage = analysis.coverage && analysis.coverage.withAnalysis < analysis.coverage.players
@@ -255,7 +289,10 @@ export function buildDamageCurve(timeline, deps, estimated = false) {
         qualityBadge(estimated ? "estimated" : QUALITY.curve, deps),
       ]),
       chips,
-      chart.root,
+      el("div", { className: "dc-subheading", textContent: t("analysis.curve.cumulative") }),
+      cumulativeChart.root,
+      el("div", { className: "dc-subheading", textContent: t("analysis.curve.rateHeading") }),
+      rateChart.root,
       summary,
       legend,
       ...(coverage ? [coverage] : []),

@@ -4570,13 +4570,18 @@ button.cmp-mem { cursor: pointer; }
 .q-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 18px 0 0; font-size: 0.8rem; color: var(--color-text-muted); }
 .dc-panel .meter-panel-header { align-items: flex-start; }
 .dc-svg { cursor: crosshair; }
-.dc-line { fill: none; stroke-width: 2.5; stroke-linejoin: round; }
+.dc-line { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.dc-line-group { stroke-width: 3.5; }
 .dc-hp { fill: none; stroke: #ff7b7b; stroke-width: 2; stroke-dasharray: 6 4; opacity: 0.9; }
-.dc-bar { fill: var(--color-primary); opacity: 0.35; }
+.dc-area { fill: var(--color-text); opacity: 0.14; }
+.dc-avg { stroke: var(--color-text); stroke-width: 1.2; stroke-dasharray: 7 5; opacity: 0.7; }
+.dc-avg-label { fill: var(--color-text); }
+.dc-subheading { font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted); margin: 14px 0 0 78px; }
 .dc-cursor { stroke: var(--color-text); stroke-width: 1; opacity: 0.55; pointer-events: none; }
 .dc-ytick { font-size: 12px; }
-.dc-key-line { width: 18px; height: 4px; background: var(--color-primary); }
-.dc-key-bar { width: 12px; height: 10px; background: var(--color-primary); opacity: 0.4; }
+.dc-key-line { width: 18px; height: 4px; background: var(--color-text); }
+.dc-key-bar { width: 12px; height: 10px; background: var(--color-text); opacity: 0.3; }
+.dc-key-avg { width: 18px; height: 0; border-top: 2px dashed var(--color-text); opacity: 0.7; }
 .dc-key-hp { width: 18px; height: 0; border-top: 2px dashed #ff7b7b; }
 .dc-players { align-items: center; }
 .dc-chips-label { font-size: 0.8rem; color: var(--color-text-muted); }
