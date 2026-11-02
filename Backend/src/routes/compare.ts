@@ -44,6 +44,8 @@ function playerOnBoss(playerId: number, bossId: number) {
       avgDamage: avg(encounterParticipants.totalDamage),
       avgCrit: avg(encounterParticipants.critRatePercent),
       avgHps: avg(encounterParticipants.hps),
+      // null where no run of this player carries a combat power (older clients)
+      avgCombatPower: avg(encounterParticipants.combatPower),
     })
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
@@ -68,6 +70,7 @@ function playerOnBoss(playerId: number, bossId: number) {
       totalHealing: encounterParticipants.totalHealing,
       hps: encounterParticipants.hps,
       critRatePercent: encounterParticipants.critRatePercent,
+      combatPower: encounterParticipants.combatPower,
     })
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
@@ -104,6 +107,7 @@ function playerOnBoss(playerId: number, bossId: number) {
       totalDamage: Number(totals.avgDamage ?? 0),
       critRatePercent: Number(totals.avgCrit ?? 0),
       hps: Number(totals.avgHps ?? 0),
+      combatPower: totals.avgCombatPower == null ? null : Math.round(Number(totals.avgCombatPower)),
     },
     best,
     skills,

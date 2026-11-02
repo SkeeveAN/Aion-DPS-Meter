@@ -1489,6 +1489,15 @@ h3 .icon-label {
   white-space: nowrap;
 }
 
+.meter-power {
+  padding-left: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .meter-sub + .meter-value {
   margin-left: 0;
   min-width: 5.5em;

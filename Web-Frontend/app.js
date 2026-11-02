@@ -3443,6 +3443,8 @@ function meterRow(rank, p, metric, max, opts = {}) {
         el("span", { className: "meter-name", textContent: p.playerName }),
         meterProfileLink(p),
         serverTag,
+        // The combat power the player had in this fight (the party list's value; empty where the uploader did not know it).
+        p.combatPower > 0 ? el("span", { className: "meter-power", title: t("encounter.combatPower"), textContent: `\u2694 ${formatNumber(p.combatPower)}` }) : null,
         (p.role ?? meta.role)
           ? el("span", { className: "meter-role-badge", style: `color: ${meta.color}; background: ${hexToRgba(meta.color, 0.16)};`, textContent: roleLabel(p.role ?? meta.role) })
           : null,
@@ -5686,6 +5688,11 @@ async function renderCompareRuns(params) {
   const ra = real(first.roster);
   const rb = real(second.roster);
   const sum = (roster, key) => roster.reduce((acc, p) => acc + p[key], 0);
+  // The average combat power of the players who have one (0 where nobody's upload carried it).
+  const groupPower = (roster) => {
+    const known = roster.filter((p) => p.combatPower > 0);
+    return known.length > 0 ? Math.round(known.reduce((acc, p) => acc + p.combatPower, 0) / known.length) : 0;
+  };
 
   const heading = (label, encounter) =>
     el("div", { className: "cmp-head" }, [
@@ -5698,6 +5705,7 @@ async function renderCompareRuns(params) {
     compareRow(t("encounter.duration"), ea.durationSeconds, eb.durationSeconds, formatDuration, false),
     compareRow(t("stats.totalDamage"), sum(ra, "totalDamage"), sum(rb, "totalDamage"), formatNumber),
     compareRow(t("participant.totalHealing"), sum(ra, "totalHealing"), sum(rb, "totalHealing"), formatNumber),
+    ...(groupPower(ra) > 0 && groupPower(rb) > 0 ? [compareRow(t("compare.groupCombatPower"), groupPower(ra), groupPower(rb), formatNumber)] : []),
     compareRow(t("stats.participants"), ra.length, rb.length, (n) => String(n), false),
   ]);
 
@@ -5857,6 +5865,9 @@ async function renderComparePlayers(params) {
     compareRow(t("compare.avgIdps"), A.averages.idps, B.averages.idps, formatNumber),
     compareRow(t("compare.bestDamage"), A.best.totalDamage, B.best.totalDamage, formatNumber),
     compareRow(t("compare.avgDamage"), A.averages.totalDamage, B.averages.totalDamage, formatNumber),
+    // Only when both players have a combat power (older uploads carry none).
+    ...(A.best.combatPower > 0 && B.best.combatPower > 0 ? [compareRow(t("compare.bestCombatPower"), A.best.combatPower, B.best.combatPower, formatNumber)] : []),
+    ...(A.averages.combatPower > 0 && B.averages.combatPower > 0 ? [compareRow(t("compare.avgCombatPower"), A.averages.combatPower, B.averages.combatPower, formatNumber)] : []),
     compareRow(t("compare.avgCrit"), A.averages.critRatePercent, B.averages.critRatePercent, pct),
     compareRow(t("compare.avgHps"), A.averages.hps, B.averages.hps, formatNumber),
     compareRow(t("compare.runs"), A.runs, B.runs, (n) => String(n)),
