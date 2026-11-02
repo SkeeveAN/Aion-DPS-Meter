@@ -232,6 +232,65 @@
         }
       }
     },
+    "/api/partner/v1/items/{id}": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "One item as the in-game tooltip shows it (base stats, soul binding, sockets, required level)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Item id, as in the loot lists of /bosses/{slug}."
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "No such pet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/partner/v1/worldbosses": {
       "get": {
         "tags": [
@@ -1233,6 +1292,225 @@
           "url": {
             "type": "string",
             "format": "uri"
+          }
+        }
+      },
+      "ItemDetail": {
+        "type": "object",
+        "description": "One item as the in-game tooltip shows it. Equipment carries the stat blocks and sockets; other items only the general fields.",
+        "properties": {
+          "lang": {
+            "$ref": "#/components/schemas/Lang"
+          },
+          "itemId": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "equip",
+              "usable",
+              "misc"
+            ]
+          },
+          "category": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "grade": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "itemLevel": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "requiredLevel": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "race": {
+            "type": "string",
+            "enum": [
+              "all",
+              "light",
+              "dark"
+            ]
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "boundOnPickup": {
+            "type": "boolean",
+            "description": "Bound to the looting character at once (all dungeon loot). Crafted equipment is not: it can be sold and traded in the server storage until a character equips it and it binds to the soul."
+          },
+          "stackSize": {
+            "type": "integer"
+          },
+          "sellPrice": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Vendor price in Kinah."
+          },
+          "mainStats": {
+            "type": "array",
+            "description": "Base stats of the piece (equipment only).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stat": {
+                  "type": "string",
+                  "description": "The client's stat token (HPMax, WeaponFixingDamage ...)."
+                },
+                "name": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "flat",
+                    "percent",
+                    "hundredths"
+                  ],
+                  "description": "percent = the value is a percentage (8.2 = 8.2 %)."
+                },
+                "value": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "maxBlock": {
+            "type": "array",
+            "description": "The block caps the client keeps apart from the base stats (equipment only).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stat": {
+                  "type": "string",
+                  "description": "The client's stat token (HPMax, WeaponFixingDamage ...)."
+                },
+                "name": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "flat",
+                    "percent",
+                    "hundredths"
+                  ],
+                  "description": "percent = the value is a percentage (8.2 = 8.2 %)."
+                },
+                "value": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "soulBind": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "What the first soul binding rolls: firstBindStats of the possibleStats (each within min..max) and firstBindSkills skills.",
+            "properties": {
+              "firstBindStats": {
+                "type": "integer"
+              },
+              "firstBindSkills": {
+                "type": "integer"
+              },
+              "possibleStats": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "stat": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "flat",
+                        "percent",
+                        "hundredths"
+                      ]
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "soulFuse": {
+            "type": "boolean",
+            "description": "Soul Fuse (Seelenbindung in the German client) is possible."
+          },
+          "manaStoneSlots": {
+            "type": "integer"
+          },
+          "godStoneSlots": {
+            "type": "integer"
+          },
+          "enchantable": {
+            "type": "boolean"
+          },
+          "surpassable": {
+            "type": "boolean"
+          },
+          "inheritable": {
+            "type": "boolean"
+          },
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The client's own tooltip captions in the language asked for (requiredLevel, soulBindRate, soulBindFirst, manaStoneSlot ...)."
           }
         }
       }

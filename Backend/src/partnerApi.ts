@@ -104,6 +104,70 @@ export function boss(slug: string, lang: Lang) {
   return { ...found, portrait: portraitUrl(portrait), loot };
 }
 
+type DetailStat = { names: Names; unit: "flat" | "percent" | "hundredths" };
+type DetailItem = {
+  names: Names; description?: Names; type: string; grade: string; tier?: string; itemLevel?: number; race: string; requiredLevel?: number; trade?: string; stack: number; sellPrice?: number; icon?: string;
+  category?: string; mainStats?: [string, number][]; maxBlock?: [string, number][]; soulBind?: { firstBindStats: number; firstBindSkills: number; pool: [string, number, number][] };
+  soulFuse?: boolean; manaStoneSlots?: number; godStoneSlots?: number; enchantable?: boolean; surpassable?: boolean; succession?: boolean; set?: string[];
+};
+type DetailFile = { labels: Record<string, Names>; grades: Record<string, Names>; categories: Record<string, Names>; stats: Record<string, DetailStat>; items: Record<string, DetailItem> };
+const detailFile = () => load<DetailFile>(dataDir("item_details.json"));
+
+/** The client stores percentages in hundredths (820 = 8.2 %) and flight power the same; the answer gives the number as the game shows it. */
+const shown = (unit: DetailStat["unit"], value: number) => (unit === "percent" ? value / 100 : unit === "hundredths" ? Math.round(value / 100) : value);
+
+/**
+ * One item as the in-game tooltip shows it (the client's Item table): base stats, the stats the first soul binding rolls from (with the number of them),
+ * required level, mana and god stone sockets, soul fuse, the long description. Items are those the dungeon loot lists name; unknown ids are null.
+ * "labels" are the client's own tooltip captions in the language asked for.
+ */
+export function item(id: number, lang: Lang) {
+  const file = detailFile();
+  const d = file.items[String(id)];
+  if (!d) {
+    return null;
+  }
+  const stat = (token: string, value: number) => {
+    const s = file.stats[token];
+    return { stat: token, name: pick(s?.names, lang), unit: s?.unit ?? "flat", value: shown(s?.unit ?? "flat", value) };
+  };
+  const range = (token: string, lo: number, hi: number) => {
+    const s = file.stats[token];
+    return { stat: token, name: pick(s?.names, lang), unit: s?.unit ?? "flat", min: shown(s?.unit ?? "flat", lo), max: shown(s?.unit ?? "flat", hi) };
+  };
+  const icon = lootFile().items[String(id)]?.icon ?? d.icon;
+  const equip = d.type === "equip";
+  return {
+    itemId: id,
+    name: pick(d.names, lang),
+    description: d.description ? pick(d.description, lang) : null,
+    type: d.type,
+    category: d.category ? { key: d.category, name: pick(file.categories[d.category], lang) } : null,
+    grade: { key: d.grade, name: pick(file.grades[d.grade], lang) },
+    itemLevel: d.itemLevel ?? null,
+    requiredLevel: d.requiredLevel ?? null,
+    race: d.race,
+    image: icon ? `${IMAGE_BASE}/icons/item/${icon}.webp` : null,
+    boundOnPickup: d.trade === "SoulBind_Acquire",
+    stackSize: d.stack,
+    sellPrice: d.sellPrice ?? null,
+    ...(equip
+      ? {
+          mainStats: (d.mainStats ?? []).map(([t, v]) => stat(t, v)),
+          maxBlock: (d.maxBlock ?? []).map(([t, v]) => stat(t, v)),
+          soulBind: d.soulBind ? { firstBindStats: d.soulBind.firstBindStats, firstBindSkills: d.soulBind.firstBindSkills, possibleStats: d.soulBind.pool.map(([t, lo, hi]) => range(t, lo, hi)) } : null,
+          soulFuse: d.soulFuse ?? false,
+          manaStoneSlots: d.manaStoneSlots ?? 0,
+          godStoneSlots: d.godStoneSlots ?? 0,
+          enchantable: d.enchantable ?? false,
+          surpassable: d.surpassable ?? false,
+          inheritable: d.succession ?? false,
+        }
+      : {}),
+    labels: Object.fromEntries(Object.entries(file.labels).map(([k, v]) => [k, pick(v, lang)])),
+  };
+}
+
 // ---- world bosses and maps ----
 
 type FieldFile = { maps: { key: string; id: number; names: Names; bosses: { npc: number; x: number; y: number; names: Names }[] }[] };

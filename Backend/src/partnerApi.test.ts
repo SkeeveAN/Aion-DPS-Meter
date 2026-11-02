@@ -119,3 +119,19 @@ test("a key over its limit gets 429 with the time to wait", async () => {
   assert.equal(third.statusCode, 429);
   assert.ok(Number(third.headers["retry-after"]) >= 1);
 });
+
+test("an item answers like its in-game tooltip, in the language asked for", async () => {
+  const res = await get("/api/partner/v1/items/110130033?lang=de");
+  assert.equal(res.statusCode, 200);
+  const body = res.json();
+  assert.equal(body.name, "Kromedes Zweihandschwert");
+  assert.equal(body.requiredLevel, 37);
+  assert.equal(body.manaStoneSlots, 4);
+  assert.equal(body.soulBind.firstBindStats, 3);
+  const speed = body.soulBind.possibleStats.find((s: { stat: string }) => s.stat === "CombatSpeed");
+  assert.deepEqual([speed.unit, speed.min, speed.max], ["percent", 8.2, 9.5]);
+  assert.ok(body.mainStats.some((s: { stat: string; value: number }) => s.stat === "WeaponDamage" && s.value === 251));
+  assert.equal(body.labels.soulBindRate, "Seelenbindungsrate");
+  assert.equal((await get("/api/partner/v1/items/1")).statusCode, 404);
+  assert.equal((await get("/api/partner/v1/items/110130033?lang=xx")).statusCode, 400);
+});

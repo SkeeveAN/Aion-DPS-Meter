@@ -7,7 +7,7 @@ import { cached } from "../seo/cache.js";
 import * as api from "../partnerApi.js";
 import { KEY_HEADER, findKey, rateCheck, touchKey } from "../partnerKeys.js";
 
-const RESOURCES = ["classes", "instances", "bosses", "bosses/:slug", "worldbosses", "maps", "events", "pets", "pets/:id", "titles", "wings", "stats", "announcements", "patchnotes", "twitch-drops"];
+const RESOURCES = ["classes", "instances", "bosses", "bosses/:slug", "items/:id", "worldbosses", "maps", "events", "pets", "pets/:id", "titles", "wings", "stats", "announcements", "patchnotes", "twitch-drops"];
 
 /**
  * The partner API: static game data (and the site's statistics, announcements, patch notes and Twitch drops) for other community sites, read-only,
@@ -64,6 +64,15 @@ export async function partnerRoutes(app: FastifyInstance) {
         return reply.status(400).send({ error: "unsupported_lang", languages: api.LANGUAGES });
       }
       const found = api.boss(request.params.slug, lang);
+      return found ? { lang, ...found } : reply.status(404).send({ error: "not_found" });
+    });
+
+    scope.get<{ Params: { id: string }; Querystring: { lang?: string } }>("/api/partner/v1/items/:id", async (request, reply) => {
+      const lang = api.parseLang(request.query.lang);
+      if (lang === null) {
+        return reply.status(400).send({ error: "unsupported_lang", languages: api.LANGUAGES });
+      }
+      const found = /^\d+$/.test(request.params.id) ? api.item(Number(request.params.id), lang) : null;
       return found ? { lang, ...found } : reply.status(404).send({ error: "not_found" });
     });
 
