@@ -41,12 +41,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export async function buildServer() {
   const app = Fastify({
     logger: true,
+    // The two default lines per request (with the whole request object) came to about 3 GB a day in the journal on a server with
+    // 200 IOPS; requests are logged by the hook below only when they say something (see there).
+    disableRequestLogging: true,
     // nginx puts a request id on every call (X-Request-ID, also in its access log as rid=); using it as the log's
     // reqId lets a 502 or a slow call be followed from the nginx line to the backend lines.
     requestIdHeader: "x-request-id",
     // Listens on 127.0.0.1 behind nginx only, which overwrites X-Forwarded-For with the real peer
     // address; without this every visitor shows up as 127.0.0.1 and shares one rate-limit bucket.
     trustProxy: true,
+  });
+
+  // One line for the requests that matter: everything that is not a plain GET (uploads), errors (status 400 and up) and slow answers (a second and more).
+  app.addHook("onResponse", async (request, reply) => {
+    const ms = reply.elapsedTime;
+    if (request.method !== "GET" || reply.statusCode >= 400 || ms >= 1000) {
+      request.log.info({ method: request.method, url: request.url.split("?")[0], statusCode: reply.statusCode, ms: Math.round(ms) }, "request");
+    }
   });
 
   registerGzipBodies(app);

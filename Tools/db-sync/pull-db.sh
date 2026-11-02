@@ -13,9 +13,12 @@ remote=/tmp/dpsmeter-pull-$$.sqlite
 tmp=$(mktemp ./dpsmeter-pull-XXXXXX.sqlite)
 trap 'rm -f "$tmp"; ssh alfahosting "rm -f $remote" 2>/dev/null || true' EXIT
 
-ssh alfahosting "sqlite3 /opt/dpsmeter/Backend/data/dpsmeter.sqlite \".backup $remote\" && sqlite3 $remote 'pragma integrity_check;'" | grep -qx ok
-scp -q "alfahosting:$remote" "$tmp"
-[ "$(sqlite3 "$tmp" 'pragma integrity_check;' 2>/dev/null || echo ok)" = ok ]
+# The server has a limit on disk operations (about 200 IOPS): every read of the 1.2 GB database competes with the live backend. So this does the
+# least possible: one .backup (read once, written once), the copy over the wire, nothing else - no integrity_check of the copy on the server (that
+# read the whole file again). The backup API reports failure by its exit code; the header is checked here.
+ssh alfahosting "ionice -c3 nice -n 19 sqlite3 /opt/dpsmeter/Backend/data/dpsmeter.sqlite \".backup $remote\""
+scp -q -C "alfahosting:$remote" "$tmp"
+[ "$(head -c 15 "$tmp")" = "SQLite format 3" ] && [ "$(stat -c %s "$tmp")" -gt 1000000 ]
 
 gzip -c "$tmp" > "backups/dpsmeter-$day.sqlite.gz"
 rm -f dpsmeter.sqlite-wal dpsmeter.sqlite-shm

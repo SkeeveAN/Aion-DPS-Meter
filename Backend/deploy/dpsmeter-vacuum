@@ -1,7 +1,9 @@
 #!/bin/bash
-# Naechtliches VACUUM der aiondps-Datenbank (frueher bei jedem Deploy, das hielt die Seite ~8 Minuten offline).
+# VACUUM der aiondps-Datenbank (frueher bei jedem Deploy, das hielt die Seite ~8 Minuten offline).
 # Haelt den Dienst an, gibt freie Seiten ans Dateisystem zurueck und startet ihn wieder.
 # Braucht freien Platz in Hoehe der doppelten DB; fehlt er, wird uebersprungen.
+# Laeuft nur noch sonntags (Cron) und nur, wenn mindestens 20 % der Seiten frei sind: VACUUM liest und schreibt die ganze Datei, und der Server hat nur
+# etwa 200 IOPS - am 2.11.2026 stand die Seite dadurch nachts lange still. Freier Platz auf der Platte ist kein Problem, VACUUM bringt keine Geschwindigkeit.
 set -u
 SERVICE_NAME="aion-dpsmeter-backend"
 SERVICE_USER="aion-dpsmeter"
@@ -13,7 +15,13 @@ if (( FREE_BYTES <= DB_BYTES * 2 )); then
   echo "$(date -Is) zu wenig freier Platz fuer VACUUM, uebersprungen"
   exit 0
 fi
-echo "$(date -Is) VACUUM ($((DB_BYTES / 1048576)) MB)..."
+FREE_PAGES=$(su - "$SERVICE_USER" -s /bin/bash -c "sqlite3 -readonly '$DB_FILE' 'PRAGMA freelist_count;'" 2>/dev/null || echo 0)
+TOTAL_PAGES=$(su - "$SERVICE_USER" -s /bin/bash -c "sqlite3 -readonly '$DB_FILE' 'PRAGMA page_count;'" 2>/dev/null || echo 1)
+if (( TOTAL_PAGES == 0 || FREE_PAGES * 5 < TOTAL_PAGES )); then
+  echo "$(date -Is) nur ${FREE_PAGES} von ${TOTAL_PAGES} Seiten frei (unter 20 %), VACUUM uebersprungen"
+  exit 0
+fi
+echo "$(date -Is) VACUUM ($((DB_BYTES / 1048576)) MB, ${FREE_PAGES} von ${TOTAL_PAGES} Seiten frei)..."
 systemctl stop "$SERVICE_NAME"
 su - "$SERVICE_USER" -s /bin/bash -c "sqlite3 '$DB_FILE' 'PRAGMA wal_checkpoint(TRUNCATE); VACUUM;'" \
   || echo "$(date -Is) WARNUNG: VACUUM fehlgeschlagen"

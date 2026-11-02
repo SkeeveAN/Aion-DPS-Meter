@@ -37,11 +37,18 @@ cp "$REPO_DIR/Backend/deploy/aion-dpsmeter-backend.service" "/etc/systemd/system
 systemctl daemon-reload
 systemctl enable "$SERVICE_NAME" >/dev/null
 
-# VACUUM laeuft nicht mehr im Deploy (hielt die Seite ~8 Minuten offline), sondern nachts per Cron.
+# VACUUM laeuft nicht im Deploy (hielt die Seite ~8 Minuten offline), sondern sonntags nachts per Cron, und das Skript tut nur etwas bei vielen freien Seiten.
 install -m 0755 "$REPO_DIR/Backend/deploy/dpsmeter-vacuum" /usr/local/sbin/dpsmeter-vacuum
-echo '40 4 * * * root /usr/local/sbin/dpsmeter-vacuum >> /var/log/dpsmeter-vacuum.log 2>&1' > /etc/cron.d/dpsmeter-vacuum
+echo '40 4 * * 0 root /usr/local/sbin/dpsmeter-vacuum >> /var/log/dpsmeter-vacuum.log 2>&1' > /etc/cron.d/dpsmeter-vacuum
 
 install -m 0755 "$REPO_DIR/Backend/deploy/dpsmeter_keys" /usr/local/bin/dpsmeter_keys
+
+# Size limit of the journal (the disk operations of this server are scarce); journald is only restarted when the file changed.
+mkdir -p /etc/systemd/journald.conf.d
+if ! cmp -s "$REPO_DIR/Backend/deploy/journald-aiondps.conf" /etc/systemd/journald.conf.d/aiondps.conf; then
+  install -m 0644 "$REPO_DIR/Backend/deploy/journald-aiondps.conf" /etc/systemd/journald.conf.d/aiondps.conf
+  systemctl restart systemd-journald || true
+fi
 
 echo "==> Starte Service neu..."
 systemctl restart "$SERVICE_NAME"
