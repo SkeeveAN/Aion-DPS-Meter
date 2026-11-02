@@ -16,7 +16,7 @@ Ergänzt [login-und-fenster-frames.md](login-und-fenster-frames.md), [skill-fram
 
 `Charakter-ID u32 | 00 00 | Server u16 | Klassencode u32 | Name | Stufe u8 | 00 00 00 | Rang u8 | [Kommentar] | Zeit u64 (ms) | Zone u32 | Gegenstandsstufe u32 | Kampfkraft u32 | 0 u32 | Flag u8 | E u32 | 0 u32`
 
-- **Name:** Längenbyte = Anzahl **Zeichen** (UTF-8), nicht Bytes (`ö` zählt als eins).
+- **Name:** Längenbyte = Anzahl **Bytes** (UTF-8), nicht Zeichen (`í` zählt als 2; "PaíN" hat Länge 5). Korrigiert 2.11.2026, vorher stand hier Zeichen und Namen mit Sonderzeichen lasen Stufe 0.
 - **Kommentar:** nur wenn vorhanden, **ohne Kennzeichen**: Längenbyte (hier in **Bytes**: 0x20 = 32 Byte für 31 Zeichen mit `ö`), der Text, dann **ein weiteres Byte**. Der Client sucht deshalb nach dem Rang die Zeit (eine Epoch-Zahl zwischen 2020 und 2030) und überspringt alles dazwischen.
 - Rang: 0 Legionsmeister, 1 Eliteoffizier, 2 Legionsrekrut. Wert E weiter unbekannt.
 - Aufnahme 11.10. 20:03: 19 Mitglieder gelesen (Kopfbyte nennt 0x14 = 20, ein Eintrag fehlte der Aufnahme).
