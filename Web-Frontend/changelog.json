@@ -32,6 +32,15 @@
      "Website"
     ],
     "date": "2026-11-03"
+   },
+   {
+    "text": "Profiles: the pets Azure Flame Kumiho, Glossy Pink Puppy, Little Ghost and Pumpkin Carriage and the Spider Wings now show their name and picture instead of an id",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-03"
    }
   ]
  },
