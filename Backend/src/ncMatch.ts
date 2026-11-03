@@ -6,7 +6,7 @@ import { canonicalServer, koreaServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { plausibleServersOf } from "./crowdRule.js";
 import { normalizeName } from "./matching/roster.js";
-import { PortraitQueue, type MatchSource, OTHER_SHARDS, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, isOtherShard, MAX_SEARCH_BYTES, searchUrlOf, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { PortraitQueue, type MatchSource, OTHER_SHARDS, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, isOtherShard, type NcProfile, MAX_SEARCH_BYTES, searchUrlOf, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
 
@@ -119,7 +119,7 @@ export type Subject = {
   gearScore?: number | null;
 };
 
-export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "name-elsewhere" | "legion" | "legion-name" | "gear" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
+export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "name-elsewhere" | "legion" | "legion-name" | "gear" | "id-scan" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
 
 const RACE_OF = { Elyos: 1, Asmodian: 2 } as const;
 
@@ -443,6 +443,28 @@ function applyHit(player: PlayerRow, hit: Hit, viaElsewhere = false): "applied" 
   return "applied";
 }
 
+/** How long a deleted character is left alone before NC is asked again (a fight he is seen in clears the mark at once, see merge.ts). */
+const DELETED_RETRY_AFTER = 90 * DAY;
+
+/**
+ * Looks for a character id on every server of its region. A transfer keeps the id and only changes the server, so a hit on another server is the same character;
+ * no hit anywhere means NC does not hold him any more. Throws on network problems (the caller records an error).
+ */
+async function findCharacterOnServers(fetchFn: FetchFn, characterId: string, knownServerId: number, region: string): Promise<{ serverId: number; profile: NcProfile } | null> {
+  const base = Math.floor(knownServerId / 100) * 100;
+  for (let n = 0; n <= 60; n++) {
+    const serverId = n === 0 ? knownServerId : base + n;
+    if (n > 0 && serverId === knownServerId) {
+      continue;
+    }
+    const profile = await fetchCharacterProfile(fetchFn, { characterId, serverId }, region);
+    if (profile) {
+      return { serverId, profile };
+    }
+  }
+  return null;
+}
+
 /**
  * Checks one player now: searches his name in the region of his server, decides, applies a single match and records the outcome.
  * Never throws; a network problem becomes status 'error' and is tried again in an hour. Fetch and clock are injectable for tests.
@@ -540,6 +562,34 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   } catch {
     record(playerId, "error", clientServer === null ? {} : { ncServerId: clientServer, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
     return "error";
+  }
+  // NC knows nobody of his name and class, and he held a character id once: look for the id on every server of the region. Found = he moved (transfer), found nowhere = the character
+  // is deleted; he is marked (fights refer to the row, so it stays) and left alone for a long time.
+  if (decision.status === "none") {
+    const held = db.select({ id: playerNcCharacter.characterId, serverId: playerNcCharacter.ncServerId }).from(playerNcCharacter).where(eq(playerNcCharacter.playerId, playerId)).get();
+    const heldId = before?.ncCharacterId ?? held?.id ?? null;
+    const heldServer = before?.ncServerId ?? held?.serverId ?? null;
+    const heldRegion = heldServer === null ? undefined : BLOCK_SHARD[Math.floor(heldServer / 100) % 10];
+    if (heldId && heldServer !== null && heldRegion) {
+      let moved: Awaited<ReturnType<typeof findCharacterOnServers>>;
+      try {
+        moved = await findCharacterOnServers(fetchFn, heldId, heldServer, heldRegion);
+      } catch {
+        record(playerId, "error", { nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
+        return "error";
+      }
+      if (moved === null) {
+        db.update(players).set({ deletedAt: sql`(current_timestamp)` }).where(eq(players.id, playerId)).run();
+        dropNcData(playerId);
+        record(playerId, "none", { candidates: 0, nextTryAt: now + DELETED_RETRY_AFTER }, now);
+        return "none";
+      }
+      // The id is alive but is of another class than the game shows him in: not him (see the disproved check above), and nobody of his class is left either.
+      const wrongClass = moved.profile.classId !== null && subject.className && AION2_CLASS_BY_ID[moved.profile.classId] !== subject.className && AION2_CLASS_BY_ID[moved.profile.classId] !== subject.profileClassName;
+      if (!wrongClass) {
+        decision = { status: "verified", hit: { name: moved.profile.name, race: Math.floor(moved.serverId / 1000) === 2 ? 2 : 1, serverId: moved.serverId, level: moved.profile.level, classId: moved.profile.classId, characterId: heldId, shard: heldRegion }, via: "id-scan", candidates: 1 };
+      }
+    }
   }
   if (decision.status === "verified" && decision.hit) {
     const outcome = applyHit(player, decision.hit, decision.via === "name-elsewhere");
@@ -762,7 +812,7 @@ export function duePlayers(limit: number, now = Date.now()): number[] {
     .from(players)
     .innerJoin(servers, eq(players.serverId, servers.id))
     .leftJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
-    .where(sql`${servers.fingerprint} like 'aion2:%' and (${playerNcMatch.nextTryAt} is null or ${playerNcMatch.nextTryAt} <= ${now})`)
+    .where(sql`${servers.fingerprint} like 'aion2:%' and ${players.deletedAt} is null and (${playerNcMatch.nextTryAt} is null or ${playerNcMatch.nextTryAt} <= ${now})`)
     .orderBy(sql`${playerNcMatch.status} in ('client', 'unmatched')`, sql`${playerNcMatch.nextTryAt} is not null`, sql`${players.lastSeenAt} desc`)
     .all();
   return rows.filter((r) => matchShardsOf(r.serverName).length > 0).slice(0, limit).map((r) => r.id);
@@ -778,7 +828,7 @@ export function waitingPlayers(limit: number, now = Date.now()): number[] {
       .from(players)
       .innerJoin(servers, eq(players.serverId, servers.id))
       .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
-      .where(sql`${servers.fingerprint} like 'aion2:%' and ${playerNcMatch.nextTryAt} > ${now}`)
+      .where(sql`${servers.fingerprint} like 'aion2:%' and ${players.deletedAt} is null and ${playerNcMatch.nextTryAt} > ${now}`)
       .orderBy(playerNcMatch.checkedAt)
       .limit(page)
       .offset(offset)

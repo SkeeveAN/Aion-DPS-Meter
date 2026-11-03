@@ -316,7 +316,7 @@ const confirmed = (name: string, characterId: string) => {
   sqlite.prepare("insert into player_nc_match (player_id, status, nc_server_id, nc_race, nc_character_id, candidates, checked_at, next_try_at) values (?, 'verified', 1304, 1, ?, 1, 1, 1)").run(id, characterId);
   return id;
 };
-const nameOf = (id: number) => sqlite.prepare("select name, name_normalized n, alias_names_normalized a, slug from players where id = ?").get(id) as { name: string; n: string; a: string; slug: string };
+const nameOf = (id: number) => sqlite.prepare("select name, name_normalized n, alias_names_normalized a, slug, deleted_at deletedAt from players where id = ?").get(id) as { name: string; n: string; a: string; slug: string; deletedAt: string | null };
 
 test("a confirmed player is looked up by his character id and renamed in place when NC names him differently", async () => {
   const id = confirmed("Altname", "idRename1");
@@ -355,7 +355,25 @@ test("an unchanged name only fixes the spelling, and an id NC no longer knows fa
       : new Response(JSON.stringify({ list: [], pagination: { endPage: 1 } }), { status: 200 });
   }) as unknown as typeof fetch;
   assert.equal(await processMatch(gone, answer, 2_000_000), "none");
-  assert.equal(seen.length, 2);
+  assert.equal(seen.length, 62, "the name search, the id on his server and on the other 60 of the region");
+  assert.notEqual(nameOf(gone).deletedAt, null, "found nowhere: the character is deleted");
+  assert.ok((sqlite.prepare("select next_try_at n from player_nc_match where player_id = ?").get(gone) as { n: number }).n > 2_000_000 + 30 * 24 * 3_600_000, "and left alone for a long time");
+});
+
+test("an id NC knows on another server of the region is a transfer: the player moves there and stays alive", async () => {
+  const id = confirmed("Umzug", "idUmzug1");
+  const answer = (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("/character/info")) {
+      return url.includes("serverId=1309")
+        ? new Response(JSON.stringify({ profile: { characterName: "Umzug", regionName: "", characterLevel: 45, pcId: 6 } }), { status: 200 })
+        : new Response("{}", { status: 404 });
+    }
+    return new Response(JSON.stringify({ list: [], pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.equal(await processMatch(id, answer, 2_000_000), "verified");
+  assert.equal(nameOf(id).deletedAt, null);
+  assert.equal((sqlite.prepare("select nc_server_id s from player_nc_match where player_id = ?").get(id) as { s: number }).s, 1309);
 });
 
 test("an ambiguous name is settled by the legion NC's character page names for each candidate", async () => {

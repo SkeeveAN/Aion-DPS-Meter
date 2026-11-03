@@ -277,7 +277,13 @@ export function classIdOfPc(pcId: unknown): number | null {
 
 /** The name, legion and level NC holds for a character id right now (one request); null when NC has no such character or the answer is unusable. Throws on network/HTTP problems. */
 export async function fetchCharacterProfile(fetchFn: FetchFn, known: KnownCharacter, region = "eu"): Promise<NcProfile | null> {
-  const info = (await getNcJson(fetchFn, characterPageUrl(INFO_URL, known, region))) as { profile?: Record<string, unknown> } | null;
+  // NC answers an id it does not hold (deleted character, or the wrong server for it) with HTTP 404: that is "no such character", not a network problem.
+  const info = (await getNcJson(fetchFn, characterPageUrl(INFO_URL, known, region)).catch((error: unknown) => {
+    if (error instanceof Error && error.message === "HTTP 404") {
+      return null;
+    }
+    throw error;
+  })) as { profile?: Record<string, unknown> } | null;
   const p = info?.profile;
   if (!p || typeof p.characterName !== "string" || p.characterName === "") {
     return null;
