@@ -9,6 +9,15 @@
      "Website"
     ],
     "date": "2026-11-03"
+   },
+   {
+    "text": "Players whose character is deleted in the game are marked instead of removed: no profile page, search hit or legion entry, and the fight roster shows no profile icon for them",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-03"
    }
   ]
  },
