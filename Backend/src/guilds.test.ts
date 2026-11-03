@@ -120,3 +120,12 @@ test("NC's legion beats a client's report for a verified player, and a legion NC
   sqlite.prepare("update player_nc_match set status = 'ambiguous' where player_id = ?").run(id);
   assert.equal(reconcileGuildWithNc(id), false);
 });
+
+test("a player whose character is deleted is in no legion's list or count", () => {
+  player("Gerolf", kaisinel, "Loeschtest");
+  const gone = player("Hannelore", kaisinel, "Loeschtest");
+  assert.equal(legions().find((g) => g.name === "Loeschtest")!.memberCount, 2);
+  db.update(players).set({ deletedAt: "2026-11-03 12:00:00" }).where(eq(players.id, gone)).run();
+  assert.equal(legions().find((g) => g.name === "Loeschtest")!.memberCount, 1);
+  assert.deepEqual(findGuild("loeschtest-europe-kaisinel")!.members.map((m) => m.name), ["Gerolf"]);
+});

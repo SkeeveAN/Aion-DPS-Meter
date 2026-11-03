@@ -340,9 +340,13 @@ function upsertPlayerRow(name: string, serverId: number, guild?: string, faction
     .get();
   if (existing) {
     db.update(players)
-      .set({ name, lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) })
+      .set({ name, lastSeenAt: sql`(current_timestamp)`, deletedAt: null, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) })
       .where(eq(players.id, existing.id))
       .run();
+    if (existing.deletedAt !== null) {
+      // Seen in a fight again after the mark: a new character took the name. NC is asked again at once.
+      db.run(sql`update player_nc_match set next_try_at = 0 where player_id = ${existing.id}`);
+    }
     if (guild) {
       linkPlayerGuild(existing.id);
       reconcileGuildWithNc(existing.id);

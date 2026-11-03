@@ -27,12 +27,12 @@ function parseId(raw: unknown): number | null {
 /** One player's own results on one boss: how many fights, their best/average, and the best fight itself. */
 function playerOnBoss(playerId: number, bossId: number) {
   const player = db
-    .select({ id: players.id, name: players.name, guild: players.guild, serverName: servers.displayName })
+    .select({ id: players.id, name: players.name, guild: players.guild, serverName: servers.displayName, deletedAt: players.deletedAt })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where(eq(players.id, playerId))
     .get();
-  if (!player) {
+  if (!player || player.deletedAt !== null) {
     return null;
   }
 

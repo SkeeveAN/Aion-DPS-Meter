@@ -126,6 +126,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
         ncCharacterId: playerNcCharacter.characterId,
         ncAttributes: playerNcCharacter.attributesJson,
         playerName: players.name,
+        playerDeletedAt: players.deletedAt,
         serverName: servers.displayName,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
@@ -141,7 +142,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
       .where(eq(encounterParticipants.encounterId, group.encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
       .all()
-      .map(({ profileId, profileSource, ncCharacterId, ncAttributes, ...member }) => ({ ...withServerFaction(member), hasProfile: profileId != null, ...profileBadge(profileSource, ncCharacterId, ncAttributes) }));
+      .map(({ profileId, profileSource, ncCharacterId, ncAttributes, playerDeletedAt, ...member }) => ({ ...withServerFaction(member), hasProfile: profileId != null && playerDeletedAt == null, ...profileBadge(profileSource, ncCharacterId, ncAttributes) }));
 
     return {
       ...group,

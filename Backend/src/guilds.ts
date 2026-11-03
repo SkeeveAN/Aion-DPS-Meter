@@ -197,7 +197,7 @@ export function listGuilds(options: { stats?: boolean } = {}): GuildInfo[] {
     .innerJoin(guilds, eq(players.guildId, guilds.id))
     .innerJoin(servers, eq(guilds.serverId, servers.id))
     .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
-    .where(like(servers.fingerprint, "aion2:%"))
+    .where(and(like(servers.fingerprint, "aion2:%"), isNull(players.deletedAt)))
     .all();
 
   const counts = new Map<number, { slug: string; name: string; serverId: number; serverName: string; count: number; classes: Record<string, number>; levels: number[] }>();
@@ -254,7 +254,7 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
     .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
     .leftJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
     .innerJoin(guilds, eq(players.guildId, guilds.id))
-    .where(and(eq(guilds.serverId, guild.serverId), eq(guilds.nameNormalized, normalizeGuild(guild.name))))
+    .where(and(eq(guilds.serverId, guild.serverId), eq(guilds.nameNormalized, normalizeGuild(guild.name)), isNull(players.deletedAt)))
     .all();
   const members = rows
     .map((r) => ({

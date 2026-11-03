@@ -894,13 +894,13 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
     return null;
   }
   const player = db
-    .select({ id: players.id, slug: players.slug, name: players.name, guild: players.guild, serverName: servers.displayName, fingerprint: servers.fingerprint })
+    .select({ id: players.id, slug: players.slug, name: players.name, guild: players.guild, serverName: servers.displayName, fingerprint: servers.fingerprint, deletedAt: players.deletedAt })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where("id" in key ? eq(players.id, key.id) : eq(players.slug, key.slug))
     .get();
-  // Only Aion 2 characters are served (clients file them under "aion2:<server>").
-  if (!player || !(player.fingerprint ?? "").startsWith("aion2:")) {
+  // Only Aion 2 characters are served (clients file them under "aion2:<server>"), and none whose character is deleted.
+  if (!player || player.deletedAt !== null || !(player.fingerprint ?? "").startsWith("aion2:")) {
     return null;
   }
 

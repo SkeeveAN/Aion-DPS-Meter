@@ -1,6 +1,6 @@
 import { listGuilds } from "../guilds.js";
 import { factionOfServerName, withServerFaction } from "../factions.js";
-import { and, desc, eq, inArray, like, max } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
@@ -117,7 +117,8 @@ export async function playerRoutes(app: FastifyInstance) {
     // ("<ip>:<port>") are never returned. Matches players found through a profile upload as much as
     // through a boss fight.
     const gameFilter = like(servers.fingerprint, "aion2:%");
-    const scope = Number.isInteger(serverId) ? and(nameFilter, eq(players.serverId, serverId), gameFilter) : and(nameFilter, gameFilter);
+    const alive = isNull(players.deletedAt);
+    const scope = Number.isInteger(serverId) ? and(nameFilter, eq(players.serverId, serverId), gameFilter, alive) : and(nameFilter, gameFilter, alive);
 
     const rows = db
       .select({
@@ -153,12 +154,13 @@ export async function playerRoutes(app: FastifyInstance) {
         serverId: players.serverId,
         serverName: servers.displayName,
         serverFingerprint: servers.fingerprint,
+        deletedAt: players.deletedAt,
       })
       .from(players)
       .leftJoin(servers, eq(players.serverId, servers.id))
       .where("id" in key ? eq(players.id, key.id) : eq(players.slug, key.slug))
       .get();
-    if (!player) {
+    if (!player || player.deletedAt !== null) {
       return reply.status(404).send({ error: "player_not_found" });
     }
     const playerId = player.id;
@@ -191,18 +193,18 @@ export async function playerRoutes(app: FastifyInstance) {
       .map((run) => withServerFaction({ ...run, playerSlug: player.slug, serverName: player.serverName }));
 
     // The group of every fight on the list (the other players in it, strongest first), keyed by encounter: the runs tab shows it per run.
-    const party: Record<number, { id: number; name: string; slug: string | null; className: string | null }[]> = {};
+    const party: Record<number, { id: number; name: string; slug: string | null; className: string | null; deleted: boolean }[]> = {};
     const encounterIds = history.map((h) => h.encounterId);
     for (let i = 0; i < encounterIds.length; i += 500) {
       const rows = db
-        .select({ encounterId: encounterParticipants.encounterId, id: players.id, name: players.name, slug: players.slug, className: encounterParticipants.className })
+        .select({ encounterId: encounterParticipants.encounterId, id: players.id, name: players.name, slug: players.slug, className: encounterParticipants.className, deletedAt: players.deletedAt })
         .from(encounterParticipants)
         .innerJoin(players, eq(encounterParticipants.playerId, players.id))
         .where(inArray(encounterParticipants.encounterId, encounterIds.slice(i, i + 500)))
         .orderBy(desc(encounterParticipants.idps))
         .all();
-      for (const { encounterId, ...member } of rows) {
-        (party[encounterId] ??= []).push(member);
+      for (const { encounterId, deletedAt, ...member } of rows) {
+        (party[encounterId] ??= []).push({ ...member, deleted: deletedAt !== null });
       }
     }
 
@@ -222,7 +224,7 @@ export async function playerRoutes(app: FastifyInstance) {
     // portrait). Also there for players without any profile; the profile carries the same fields when it exists.
     const character = buildCharacterView(playerId);
     return reply.send({
-      player: { ...player, guildSlug, portraitUrl },
+      player: { id: player.id, slug: player.slug, name: player.name, guild: player.guild, faction: player.faction, serverId: player.serverId, serverName: player.serverName, serverFingerprint: player.serverFingerprint, guildSlug, portraitUrl },
       character,
       history,
       party,

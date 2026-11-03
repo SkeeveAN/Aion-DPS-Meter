@@ -224,6 +224,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         ncAttributes: playerNcCharacter.attributesJson,
         playerSlug: players.slug,
         playerName: players.name,
+        playerDeletedAt: players.deletedAt,
         serverName: servers.displayName,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
@@ -252,8 +253,8 @@ export async function encounterRoutes(app: FastifyInstance) {
     const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
     // The buffs that ran on each player (uptime, who gave them), sorted into own / group / consumable for the page's buff columns.
     const buffDetails = encounterBuffDetails(roster);
-    // hasProfile: true when the player has a character profile page (see /api/players/:id).
-    const rosterWithBuffs = roster.map(({ profileSource, ncCharacterId, ncAttributes, ...r }) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, ...profileBadge(profileSource, ncCharacterId, ncAttributes), topBuffs: topBuffs.get(r.participantId) ?? [], buffs: buffDetails.get(r.participantId) ?? [] }));
+    // hasProfile: true when the player has a character profile page (see /api/players/:id); a deleted character has none.
+    const rosterWithBuffs = roster.map(({ profileSource, ncCharacterId, ncAttributes, playerDeletedAt, ...r }) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null && playerDeletedAt == null, ...profileBadge(profileSource, ncCharacterId, ncAttributes), topBuffs: topBuffs.get(r.participantId) ?? [], buffs: buffDetails.get(r.participantId) ?? [] }));
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null, hasTimeline: hasTimeline(encounterId) },
@@ -279,6 +280,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         playerId: encounterParticipants.playerId,
         playerSlug: players.slug,
         playerName: players.name,
+        playerDeletedAt: players.deletedAt,
         serverName: servers.displayName,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
@@ -303,8 +305,9 @@ export async function encounterRoutes(app: FastifyInstance) {
     if (!participantRow) {
       return reply.status(404).send({ error: "participant_not_found" });
     }
-    const { profileSource, ncCharacterId, ncAttributes, ...participantFields } = participantRow;
-    const participant = { ...withServerFaction(participantFields), ...profileBadge(profileSource, ncCharacterId, ncAttributes) };
+    const { profileSource, ncCharacterId, ncAttributes, playerDeletedAt, ...participantFields } = participantRow;
+    // playerDeleted: his character is deleted in the game, so the page does not link to a profile.
+    const participant = { ...withServerFaction(participantFields), playerDeleted: playerDeletedAt !== null, ...profileBadge(profileSource, ncCharacterId, ncAttributes) };
 
     const encounter = db
       .select({

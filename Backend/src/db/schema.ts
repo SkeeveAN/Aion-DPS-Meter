@@ -293,6 +293,9 @@ export const players = sqliteTable(
     // URL segment ("aahz-kaisinel"): name plus server, since a name is only unique per server.
     // Assigned once and then stable, even if the character is renamed (links must not rot).
     slug: text("slug"),
+    // When NC no longer knows the character (deleted in the game; see ncCleanup.ts): the row stays because fights refer to it, but no page, search or list shows him
+    // and a fight roster does not link to a profile. Null = alive. A fight he is seen in after that date clears it again (a new character took the name).
+    deletedAt: text("deleted_at"),
     // The guild the player was last seen in, as the uploader's client reported it (Aion 2's
     // frames name a player's guild next to their name). Latest-seen wins, like `name`; null until
     // an upload carries one, and an upload WITHOUT one never clears it.

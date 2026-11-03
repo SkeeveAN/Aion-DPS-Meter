@@ -3953,7 +3953,7 @@ async function renderParticipant(param) {
   const stat = (label, value, cls) => el("div", { className: "pt-sk" }, [el("span", { textContent: label }), el("b", { className: cls ?? "", textContent: value })]);
   const side = el("aside", { className: "pt-side" }, [
     el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
-    el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
+    el("h2", {}, [p.playerName, profileIcon({ hasProfile: !p.playerDeleted, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
     el("div", { className: "pt-tags" }, tags),
     el("div", { className: "pt-sub" }, [translateGameName(e.bossName), " ", diffPill(e.instanceCategory, e.mode, e.instanceName), ` · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}`].filter((x) => x != null)),
     stat(t("participant.dps"), formatNumber(p.dps), "accent"),
@@ -5223,7 +5223,7 @@ function renderRunsTab(history, party = {}, selfId = null) {
     }
     const entries = [...seen.values()].sort((a, b) => (b.m.id === selfId) - (a.m.id === selfId) || b.n - a.n);
     const members = entries.map(({ m }) =>
-      el("a", { className: `run-member${m.id === selfId ? " self" : ""}`, href: gp(`/players/${m.slug ?? m.id}`) }, [classIcon(m.className), m.name]),
+      el(m.deleted ? "span" : "a", { className: `run-member${m.id === selfId ? " self" : ""}`, ...(m.deleted ? {} : { href: gp(`/players/${m.slug ?? m.id}`) }) }, [classIcon(m.className), m.name]),
     );
     return el("div", { className: "run-group" }, [el("span", { className: "run-group-label", textContent: t("runs.group") }), ...members]);
   };

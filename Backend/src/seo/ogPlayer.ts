@@ -76,13 +76,13 @@ export interface PlayerCard {
 
 function loadPlayer(key: { id: number } | { slug: string }): PlayerCard | null {
   const player = db
-    .select({ id: players.id, name: players.name, guild: players.guild, serverName: servers.displayName, fingerprint: servers.fingerprint })
+    .select({ id: players.id, name: players.name, guild: players.guild, serverName: servers.displayName, fingerprint: servers.fingerprint, deletedAt: players.deletedAt })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where("id" in key ? eq(players.id, key.id) : eq(players.slug, key.slug))
     .get();
-  // Same rule as the profile page: only Aion 2 characters are served.
-  if (!player || !(player.fingerprint ?? "").startsWith("aion2:")) return null;
+  // Same rule as the profile page: only Aion 2 characters are served, none whose character is deleted.
+  if (!player || player.deletedAt !== null || !(player.fingerprint ?? "").startsWith("aion2:")) return null;
   const runs = db
     .select({ idps: encounterParticipants.idps, estimated: encounterParticipants.estimated, isPartial: encounters.isPartial, className: encounterParticipants.className, faction: encounterParticipants.faction, bossName: bosses.nameEn, bossLocal: bosses.name })
     .from(encounterParticipants)

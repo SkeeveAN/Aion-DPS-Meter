@@ -39,7 +39,7 @@ import {
   termsPage,
   type Page,
 } from "../seo/pages.js";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { players } from "../db/schema.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
@@ -267,7 +267,7 @@ export async function pageRoutes(app: FastifyInstance) {
       const id = (request.params as { id: string }).id;
       // Old numeric links move to the name slug for good.
       if (/^\d+$/.test(id)) {
-        const row = db.select({ id: players.id }).from(players).where(eq(players.id, Number(id))).get();
+        const row = db.select({ id: players.id }).from(players).where(and(eq(players.id, Number(id)), isNull(players.deletedAt))).get();
         const slug = row ? ensurePlayerSlug(row.id) : null;
         return slug ? reply.redirect(`/players/${slug}`, 301) : sendNotFound(request, reply);
       }
