@@ -18,6 +18,13 @@
      "Database"
     ],
     "date": "2026-11-03"
+   },
+   {
+    "text": "Character check: an id NC answers with 404 means no such character instead of a network error, and a character found on no server of the region is marked deleted while one found on another server has moved there",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-03"
    }
   ]
  },
