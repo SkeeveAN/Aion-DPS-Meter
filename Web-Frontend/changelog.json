@@ -48,6 +48,13 @@
      "Backend"
     ],
     "date": "2026-11-04"
+   },
+   {
+    "text": "Client: the boss tables are read again once the data delivery has taken a newer file, so the bosses of a new instance are recognised without restarting the meter",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
    }
   ]
  },
