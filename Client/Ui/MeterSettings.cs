@@ -313,6 +313,9 @@ public sealed class MeterSettings
     /// <summary>Every stay is written to a file in the Sessions folder (subfolder Auto) when it ends, with the data of <see cref="SessionSaveExtras"/>. Off until the player asks for it.</summary>
     public bool SessionAutoSave { get; set; }
 
+    /// <summary>The folder the automatically saved sessions go to; empty = the subfolder Auto of the Sessions folder.</summary>
+    public string SessionAutoSaveFolder { get; set; } = "";
+
     /// <summary>Where the session manager (with the combat analyzer) was left: place, size and the width of its left half.</summary>
     public double? SessionWindowLeft { get; set; }
     public double? SessionWindowTop { get; set; }

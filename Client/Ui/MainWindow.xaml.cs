@@ -1098,7 +1098,8 @@ public partial class MainWindow : Window
         try
         {
             string name = string.Concat($"{SessionLabels.NameOf(stay)} {stay.Start:yyyy-MM-dd HH-mm}".Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
-            SessionFile.SaveStay(Path.Combine(SessionFile.DefaultDirectory, "Auto", name + SessionFile.Extension), stay, settings.SessionSaveExtras ? stay.Extras ?? ExtrasForSession(stay) : null);
+            string folder = settings.SessionAutoSaveFolder is { Length: > 0 } chosen ? chosen : Path.Combine(SessionFile.DefaultDirectory, "Auto");
+            SessionFile.SaveStay(Path.Combine(folder, name + SessionFile.Extension), stay, settings.SessionSaveExtras ? stay.Extras ?? ExtrasForSession(stay) : null);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

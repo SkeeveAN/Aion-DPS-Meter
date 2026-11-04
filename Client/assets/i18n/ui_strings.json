@@ -13753,5 +13753,41 @@
     "pt": "Os usos são os avisos de lançamento do jogo. Um aviso nem sempre é uma ativação (efeitos repetidos, habilidades de vários golpes), então o dano por uso é uma referência, não uma contagem exata. Clique em uma habilidade para ver sua linha do tempo.",
     "ja": "「使用」はゲームの発動通知です。1 つの通知が必ずしも 1 回の発動とは限らない（繰り返し効果、多段スキル）ため、1 回あたりのダメージは目安であり正確な回数ではありません。スキルをクリックするとタイムラインが表示されます。",
     "ko": "‘사용’은 게임의 시전 알림입니다. 알림 하나가 항상 한 번의 발동은 아니므로(반복 효과, 다단 히트 스킬) 사용당 대미지는 정확한 횟수가 아닌 참고치입니다. 스킬을 클릭하면 타임라인을 볼 수 있습니다."
+  },
+  "Sessions.AutoSave.Folder": {
+    "en": "Folder ...",
+    "de": "Ordner ...",
+    "fr": "Dossier ...",
+    "es": "Carpeta ...",
+    "ru": "Папка ...",
+    "zh": "文件夹 ...",
+    "zh-TW": "資料夾 ...",
+    "pt": "Pasta ...",
+    "ja": "フォルダー ...",
+    "ko": "폴더 ..."
+  },
+  "Sessions.AutoSave.Folder.Title": {
+    "en": "Folder for automatically saved sessions",
+    "de": "Ordner für automatisch gesicherte Sitzungen",
+    "fr": "Dossier des sessions enregistrées automatiquement",
+    "es": "Carpeta de las sesiones guardadas automáticamente",
+    "ru": "Папка для автоматически сохранённых сессий",
+    "zh": "自动保存会话的文件夹",
+    "zh-TW": "自動儲存戰鬥記錄的資料夾",
+    "pt": "Pasta das sessões salvas automaticamente",
+    "ja": "自動保存されるセッションのフォルダー",
+    "ko": "자동 저장된 세션 폴더"
+  },
+  "Sessions.AutoSave.Folder.Tip": {
+    "en": "Where automatically saved sessions go. Now: {0}",
+    "de": "Wohin automatisch gesicherte Sitzungen geschrieben werden. Jetzt: {0}",
+    "fr": "Où sont écrites les sessions enregistrées automatiquement. Actuellement : {0}",
+    "es": "Dónde se escriben las sesiones guardadas automáticamente. Ahora: {0}",
+    "ru": "Куда записываются автоматически сохранённые сессии. Сейчас: {0}",
+    "zh": "自动保存的会话写入的位置。当前：{0}",
+    "zh-TW": "自動儲存的戰鬥記錄寫入的位置。目前：{0}",
+    "pt": "Onde as sessões salvas automaticamente são gravadas. Agora: {0}",
+    "ja": "自動保存されたセッションの保存先。現在: {0}",
+    "ko": "자동 저장된 세션이 기록되는 위치. 현재: {0}"
   }
 }

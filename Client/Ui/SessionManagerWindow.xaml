@@ -260,6 +260,7 @@
                       Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
             <CheckBox x:Name="AutoSaveBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.AutoSave}" ToolTip="{local:Loc Sessions.AutoSave.Tip}" VerticalAlignment="Center" Margin="16,0,0,0"
                       Checked="OnAutoSaveChanged" Unchecked="OnAutoSaveChanged"/>
+            <Button x:Name="AutoSaveFolderButton" Content="{local:Loc Sessions.AutoSave.Folder}" Click="OnAutoSaveFolderClicked" Margin="8,0,0,0"/>
         </WrapPanel>
         </Grid>
 

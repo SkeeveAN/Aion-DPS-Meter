@@ -55,6 +55,7 @@ public partial class SessionManagerWindow : Window
         _loading = true;
         SaveExtrasBox.IsChecked = MeterSettings.Load().SessionSaveExtras;
         AutoSaveBox.IsChecked = MeterSettings.Load().SessionAutoSave;
+        ShowAutoSaveFolder();
         string[] kinds = { "Sessions.FilterAll", "Sessions.FilterMaps", "Sessions.FilterInstances", "Sessions.FilterSaved" };
         for (int i = 0; i < kinds.Length; i++)
         {
@@ -657,6 +658,32 @@ public partial class SessionManagerWindow : Window
         var settings = MeterSettings.Load();
         settings.SessionAutoSave = AutoSaveBox.IsChecked == true;
         settings.Save();
+    }
+
+    private static string AutoSaveFolderOf(MeterSettings settings) =>
+        settings.SessionAutoSaveFolder is { Length: > 0 } chosen ? chosen : Path.Combine(SessionFile.DefaultDirectory, "Auto");
+
+    private void ShowAutoSaveFolder() =>
+        AutoSaveFolderButton.ToolTip = string.Format(LocalizationManager.Instance["Sessions.AutoSave.Folder.Tip"], AutoSaveFolderOf(MeterSettings.Load()));
+
+    /// <summary>The player picks where the automatically saved sessions go; the choice is kept.</summary>
+    private void OnAutoSaveFolderClicked(object sender, RoutedEventArgs e)
+    {
+        var settings = MeterSettings.Load();
+        string current = AutoSaveFolderOf(settings);
+        var dialog = new OpenFolderDialog
+        {
+            Title = LocalizationManager.Instance["Sessions.AutoSave.Folder.Title"],
+            InitialDirectory = Directory.Exists(current) ? current : SessionFile.DefaultDirectory,
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        settings.SessionAutoSaveFolder = dialog.FolderName;
+        settings.Save();
+        ShowAutoSaveFolder();
     }
 
     /// <summary>Opens the comparison with the session picked in the list (when one is); more are added there, also from files and from aiondps.com.</summary>
