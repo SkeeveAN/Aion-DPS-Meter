@@ -105,6 +105,10 @@ test("classification: the examples of the rule", () => {
   assert.equal(late.isPartial, true);
   assert.equal(late.bossRealMaxHp, 307_500);
   assert.equal(classifyFight({ bossMaxHp: 123_000 }, 2, harcon, false).isPartial, false);
+  // the spawn frame already carries the group value (5 x 61,500): whole at 307,500, not a fifth of 1,537,500
+  const scaledSpawn = classifyFight({ bossMaxHp: 306_000, bossSpawnMaxHp: 307_500 }, 5, harcon, false);
+  assert.equal(scaledSpawn.isPartial, false);
+  assert.equal(scaledSpawn.bossRealMaxHp, 307_500);
   // the spawn value of the upload wins over the reference, and a spawn value alone is enough
   assert.equal(classifyFight({ bossMaxHp: 1_000_000, bossSpawnMaxHp: 5_220_000 }, 3, null, false).isPartial, true);
   assert.equal(classifyFight({ bossMaxHp: 1_000_000, bossSpawnMaxHp: 1_000_000 }, 3, null, false).hpSeenShare, 1);

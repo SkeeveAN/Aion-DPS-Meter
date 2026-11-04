@@ -4,6 +4,8 @@
  * (sqlite3 <db> ".backup '<file>'"; the live database runs in WAL mode, never a plain copy).
  *
  *   tsx scripts/backfill-partial-fights.ts <sqlite file> [--apply]
+ *   tsx scripts/backfill-partial-fights.ts <sqlite file> --unmark [--apply]   (the other way round: encounters marked partial that the current rule
+ *   calls whole - after a fix of the rule - lose the mark and get the numbers the rule gives now)
  *
  * Reads the reference per boss NPC id from the table boss_hp_reference (seeded by db:migrate) and the judged numbers from the raw payloads
  * of the uploads merged into each encounter; an encounter is marked only when EVERY one of its uploads is partial (the merge rule). Only
@@ -16,6 +18,7 @@ import { classifyFight, type BossHpRef } from "../src/bossHpRules.js";
 
 const args = process.argv.slice(2);
 const apply = args.includes("--apply");
+const unmark = args.includes("--unmark");
 const dbPath = args.find((a) => !a.startsWith("--"));
 if (!dbPath) {
   console.error("usage: tsx scripts/backfill-partial-fights.ts <sqlite file> [--apply]");
@@ -98,15 +101,15 @@ for (const row of rows) {
   byEncounter.set(row.eid, fight);
 }
 
-const targets = [...byEncounter.values()].filter((f) => f.uploads > 0 && f.partialUploads === f.uploads && !f.already).sort((a, b) => (b.share ?? 0) - (a.share ?? 0));
-console.error(`${byEncounter.size} encounters with a readable upload (${unreadable} uploads unreadable); ${targets.length} to mark as partial${apply ? "" : " (dry run, nothing written)"}`);
+const targets = [...byEncounter.values()].filter((f) => f.uploads > 0 && (unmark ? f.already && f.partialUploads < f.uploads : f.partialUploads === f.uploads && !f.already)).sort((a, b) => (b.share ?? 0) - (a.share ?? 0));
+console.error(`${byEncounter.size} encounters with a readable upload (${unreadable} uploads unreadable); ${targets.length} to ${unmark ? "unmark" : "mark as partial"}${apply ? "" : " (dry run, nothing written)"}`);
 console.log("encounter\tshare\trealMaxHp\tstarted\tboss");
 for (const f of targets) {
   console.log([f.eid, ((f.share ?? 0) * 100).toFixed(1) + "%", f.realMaxHp, f.started, f.boss].join("\t"));
 }
 
 if (apply) {
-  const update = db.prepare("update encounters set is_partial = 1, hp_seen_share = ?, boss_real_max_hp = ?, boss_spawn_max_hp = ? where id = ? and is_partial = 0");
+  const update = db.prepare(`update encounters set is_partial = ${unmark ? 0 : 1}, hp_seen_share = ?, boss_real_max_hp = ?, boss_spawn_max_hp = ? where id = ? and is_partial = ${unmark ? 1 : 0}`);
   const run = db.transaction(() => {
     let changed = 0;
     for (const f of targets) {
@@ -114,6 +117,6 @@ if (apply) {
     }
     return changed;
   });
-  console.error(`marked ${run()} encounters as partial`);
+  console.error(`${unmark ? "unmarked" : "marked"} ${run()} encounters${unmark ? "" : " as partial"}`);
 }
 db.close();

@@ -77,7 +77,10 @@ export function classifyFight(
   }
   const seen = payload.bossMaxHp;
   let realMax: number;
-  if (ref?.partyScaled) {
+  if (ref?.partyScaled && spawn !== null && base === spawn && !near(spawn, ref.baseHp) && near(spawn, ref.baseHp * Math.round(spawn / ref.baseHp))) {
+    // The spawn frame already carries the group's value (a multiple of the one-player reference): do not multiply it again.
+    realMax = Math.max(spawn, seen);
+  } else if (ref?.partyScaled) {
     const scale = Math.min(MAX_PARTY_SCALE, Math.max(1, Math.max(Math.min(MAX_PARTY_SCALE, participants), Math.round(seen / base))));
     realMax = base * scale;
   } else {

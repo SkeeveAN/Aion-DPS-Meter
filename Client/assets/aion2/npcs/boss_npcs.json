@@ -1577,19 +1577,27 @@
 },
 "2310172": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 123000,
+"hpScale": "party"
 },
 "2310173": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 123000,
+"hpScale": "party"
 },
 "2310174": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 123000,
+"hpScale": "party"
 },
 "2310178": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave",
+"maxHp": 123000,
+"hpScale": "party"
 },
 "2320171": {
 "name": "Ultimate Berk",
@@ -1716,7 +1724,9 @@
 },
 "2310470": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir"
+"instance": "Draupnir",
+"maxHp": 600000,
+"hpScale": "party"
 },
 "2310471": {
 "name": "Transcendent Bakarma",

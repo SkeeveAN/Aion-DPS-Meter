@@ -23,6 +23,12 @@ public static class Aion2BossHp
         {
             real = reportedOrHighest;
         }
+        else if (partyScaled && spawnMax is > 0 && catalogMax > 0 && ScaledMultiple(spawnMax.Value, catalogMax) is > 1)
+        {
+            // The spawn frame of a group that was already in the instance carries the scaled value (5 players: five times the table's
+            // one-player value); multiplying it again by the group size drew the bar at a fifth.
+            real = spawnMax.Value;
+        }
         else if (partyScaled)
         {
             long seen = (long)Math.Round(highestSeen / (double)baseHp);
@@ -35,6 +41,14 @@ public static class Aion2BossHp
         }
 
         return Math.Max(real, Math.Max(highestSeen, reportedOrHighest));
+    }
+
+    /// <summary>The group multiple (1..5) the spawn value is of the one-player value, or 0 when it is none (within 2 %).</summary>
+    private static int ScaledMultiple(long spawn, long onePlayer)
+    {
+        double ratio = spawn / (double)onePlayer;
+        int k = (int)Math.Round(ratio);
+        return k is >= 1 and <= MaxGroup && Math.Abs(ratio - k) <= 0.02 * k ? k : 0;
     }
 
     /// <summary>The boss's real maximum for an entity; null when no hit points of it are known at all.</summary>

@@ -2045,6 +2045,7 @@ public static class SelfCheckAion2
         Check("party-scaled 61,500, group of 3, readings show 3x", Aion2BossHp.Compute(61_500, 61_500, true, 3, 184_500, 184_500), 184_500);
         Check("party-scaled 61,500, group of 3, first reading 40 %", Aion2BossHp.Compute(61_500, 61_500, true, 3, 73_800, 73_800), 184_500);
         Check("party-scaled, group size unknown (1), readings already show 2x", Aion2BossHp.Compute(null, 61_500, true, 1, 123_000, 123_000), 123_000);
+        Check("party-scaled, spawn already the group value (5 x 61,500), group of 5", Aion2BossHp.Compute(307_500, 61_500, true, 5, 306_000, 306_000), 307_500);
         Check("party-scaled, group of 6 clamps to 5", Aion2BossHp.Compute(61_500, 61_500, true, 6, 61_500, 61_500), 307_500);
         // No spawn, no table: the old rule.
         Check("no spawn, no table", Aion2BossHp.Compute(null, 0, false, 1, 1_000_000, 1_200_000), 1_200_000);
