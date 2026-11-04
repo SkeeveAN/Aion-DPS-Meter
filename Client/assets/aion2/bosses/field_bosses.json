@@ -327,7 +327,8 @@
       "pt": "Gartua da Eternidade",
       "ja": "永遠のガルトゥア",
       "ko": "영원의 가르투아"
-     }
+     },
+     "respawnHours": 11
     },
     {
      "npc": 2101120,
@@ -372,7 +373,8 @@
       "pt": "Brigadeiro Lagta",
       "ja": "軍団長ラグタ",
       "ko": "군단장 라그타"
-     }
+     },
+     "respawnHours": 11
     }
    ]
   },
@@ -899,7 +901,8 @@
       "pt": "Gartua Imortal",
       "ja": "不滅のガルトゥア",
       "ko": "불멸의 가르투아"
-     }
+     },
+     "respawnHours": 11
     },
     {
      "npc": 2400853,
@@ -914,7 +917,8 @@
       "pt": "Brigadeiro Lagta",
       "ja": "軍団長ラグタ",
       "ko": "군단장 라그타"
-     }
+     },
+     "respawnHours": 11
     },
     {
      "npc": 2400854,
@@ -1171,6 +1175,12 @@
       "pt": "Rei dos Espíritos Argo",
       "ja": "精霊王アグロ",
       "ko": "정령왕 아그로"
+     },
+     "fixed": {
+      "kind": "cycle",
+      "base": "10:30",
+      "everyMinutes": 720,
+      "openMinutes": 20
      }
     },
     {
@@ -1283,7 +1293,6 @@
      "fixed": {
       "kind": "weekly",
       "days": [
-       1,
        4,
        6
       ],
@@ -1308,7 +1317,6 @@
      "fixed": {
       "kind": "weekly",
       "days": [
-       1,
        4,
        6
       ],
@@ -1333,7 +1341,6 @@
      "fixed": {
       "kind": "weekly",
       "days": [
-       1,
        4,
        6
       ],
