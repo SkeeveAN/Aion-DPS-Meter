@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-04",
+  "items": [
+   {
+    "text": "Twitch Drops page: the Battle Support, Customization and Soul Codex chests, the Pixel Glasses and the Black Conical Hat show their pictures and the game's own names in every language, a chest lists what it holds, and the Ludra campaign lists its drops as Twitch shows them (10 rewards with their watch times)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-04"
+   }
+  ]
+ },
+ {
   "version": "1.19.8",
   "date": "2026-11-04",
   "items": [

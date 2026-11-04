@@ -221,5 +221,6 @@
  "0a7bdf2d": "Privacy policy: the comparison downloads a public fight from aiondps.com when asked (only the fight's number is sent), and saved session files stay on the computer (implemented at the community's request)",
  "60688ee0": "Client: the comparison shows, for the picked skill, how its hits landed (crit, perfect, double, back, front, parried, multi), hit sizes, damage per use and the pauses between uses, the damage of summons, and the stretches an effect was on each player on the timeline; the privacy text names the download of an online fight and the local session files; the auto-save is tested (implemented at the community's request)",
  "f16396ea": "Client: a session keeps its own copy of the skill uses, effects and positions when it ends (the capture's log drops the oldest quarter past 200,000 entries, so sessions saved later lost them), the log records when the own skills went on cooldown and came off it, the comparison shows activations by cooldown, cooldown length, waiting time and time ready but unused (marked approximate), and the log file counts the cast notices, effect frames and cooldown lists the capture read (implemented at the community's request)",
- "a25a36ba": null
+ "a25a36ba": null,
+ "511bc293": "Twitch Drops page: the Battle Support, Customization and Soul Codex chests, the Pixel Glasses and the Black Conical Hat show their pictures and the game's own names in every language, a chest lists what it holds, and the Ludra campaign lists its drops as Twitch shows them (10 rewards with their watch times)"
 }
