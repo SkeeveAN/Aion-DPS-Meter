@@ -16,6 +16,7 @@ dist/
 node_modules/
 Backend/data/*.sqlite
 Backend/data/*.sqlite-*
+Backend/data/*.sqlite.prev
 Backend/.env
 Backend/.env.*
 !Backend/.env.example
