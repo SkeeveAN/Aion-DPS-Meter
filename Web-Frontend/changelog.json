@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-04",
+  "items": [
+   {
+    "text": "Database: narrow indexes on the uploads and player tables so counting them no longer reads the wide rows, and the backend reads its database file once in big blocks before it starts (a cold start at 200 disk operations per second took a quarter of an hour)",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-04"
+   }
+  ]
+ },
+ {
   "version": "1.19.3",
   "date": "2026-11-04",
   "items": [
