@@ -381,7 +381,10 @@ export const playerProfiles = sqliteTable("player_profiles", {
   activePetLevel: integer("active_pet_level"),
   // A hash of the account key of the login's character list (own character only): the same on every character of one account. Internal, never shown or sent out.
   accountKey: text("account_key"),
-});
+}, (table) => ({
+  // The statistics count the profiles per source and read the pieces of the 440 own ones: without this they walked all 62,000 pages of the table.
+  sourceIdx: index("player_profiles_source_idx").on(table.source),
+}));
 
 export const encounters = sqliteTable(
   "encounters",
@@ -621,6 +624,12 @@ export const uploads = sqliteTable(
   (table) => ({
     matchedEncounterIdIdx: index("uploads_matched_encounter_id_idx").on(table.matchedEncounterId),
     payloadHashIdx: index("uploads_payload_hash_idx").on(table.payloadHash),
+    // The statistics (stats/collect.ts) group and count these columns. Without the narrow indexes every run walked the wide rows of the table
+    // (the payloads make up 500 of its 563 MB), which on a cold start of the 200-IOPS server took most of a minute.
+    receivedAtIdx: index("uploads_received_at_ip_idx").on(table.receivedAt, table.ipHash),
+    statusIdx: index("uploads_status_idx").on(table.status),
+    serverStatusIdx: index("uploads_server_status_ip_idx").on(table.serverId, table.status, table.ipHash),
+    gameServerIdx: index("uploads_game_server_idx").on(table.gameServer, table.clientServerId).where(sql`game_server is not null`),
   }),
 );
 

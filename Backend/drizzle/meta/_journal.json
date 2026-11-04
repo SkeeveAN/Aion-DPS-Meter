@@ -568,6 +568,13 @@
       "when": 1794260000000,
       "tag": "0080_player_deleted",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "6",
+      "when": 1794350000000,
+      "tag": "0081_stats_indexes",
+      "breakpoints": true
     }
   ]
 }

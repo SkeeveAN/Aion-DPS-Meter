@@ -34,6 +34,9 @@ su - "$SERVICE_USER" -s /bin/bash -c "
 
 echo "==> Installiere/aktualisiere systemd-Unit..."
 cp "$REPO_DIR/Backend/deploy/aion-dpsmeter-backend.service" "/etc/systemd/system/$SERVICE_NAME.service"
+# Reads the database file once in big blocks before the start (a cold start in 4 KB pieces took a quarter of an hour at 200 IOPS).
+mkdir -p "/etc/systemd/system/$SERVICE_NAME.service.d"
+install -m 0644 "$REPO_DIR/Backend/deploy/aion-dpsmeter-backend.prewarm.conf" "/etc/systemd/system/$SERVICE_NAME.service.d/prewarm.conf"
 systemctl daemon-reload
 systemctl enable "$SERVICE_NAME" >/dev/null
 
