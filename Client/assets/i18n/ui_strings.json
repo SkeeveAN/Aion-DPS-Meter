@@ -13789,5 +13789,65 @@
     "pt": "Onde as sessões salvas automaticamente são gravadas. Agora: {0}",
     "ja": "自動保存されたセッションの保存先。現在: {0}",
     "ko": "자동 저장된 세션이 기록되는 위치. 현재: {0}"
+  },
+  "Compare.BossDamage": {
+    "en": "Boss damage",
+    "de": "Schaden am Boss",
+    "fr": "Dégâts au boss",
+    "es": "Daño al jefe",
+    "ru": "Урон по боссу",
+    "zh": "对首领伤害",
+    "zh-TW": "對首領傷害",
+    "pt": "Dano ao chefe",
+    "ja": "ボスへのダメージ",
+    "ko": "보스 대미지"
+  },
+  "Compare.AddDamage": {
+    "en": "Add damage",
+    "de": "Schaden an Adds",
+    "fr": "Dégâts aux adds",
+    "es": "Daño a los adds",
+    "ru": "Урон по помощникам",
+    "zh": "对小怪伤害",
+    "zh-TW": "對小怪傷害",
+    "pt": "Dano aos adds",
+    "ja": "取り巻きへのダメージ",
+    "ko": "쫄 대미지"
+  },
+  "Compare.Buffs": {
+    "en": "Effects on the player (share of the fight they were on)",
+    "de": "Effekte auf dem Spieler (Anteil des Kampfes, in dem sie aktiv waren)",
+    "fr": "Effets sur le joueur (part du combat où ils étaient actifs)",
+    "es": "Efectos sobre el jugador (parte del combate en que estuvieron activos)",
+    "ru": "Эффекты на игроке (доля боя, в которую они действовали)",
+    "zh": "玩家身上的效果（在战斗中生效的比例）",
+    "zh-TW": "玩家身上的效果（在戰鬥中生效的比例）",
+    "pt": "Efeitos no jogador (parte do combate em que estiveram ativos)",
+    "ja": "プレイヤーにかかった効果（戦闘中に有効だった割合）",
+    "ko": "플레이어에게 걸린 효과(전투 중 유지된 비율)"
+  },
+  "Compare.Uptime": {
+    "en": "Uptime",
+    "de": "Aktiv",
+    "fr": "Aktivité",
+    "es": "Activo",
+    "ru": "Время",
+    "zh": "覆盖",
+    "zh-TW": "覆蓋",
+    "pt": "Ativo",
+    "ja": "稼働",
+    "ko": "유지"
+  },
+  "Compare.Applied": {
+    "en": "Applied",
+    "de": "Angelegt",
+    "fr": "Appliqué",
+    "es": "Aplicado",
+    "ru": "Наложен",
+    "zh": "施加",
+    "zh-TW": "施加",
+    "pt": "Aplicado",
+    "ja": "付与",
+    "ko": "적용"
   }
 }

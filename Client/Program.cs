@@ -990,7 +990,20 @@ internal static class Program
         }
 
         recorder.Enter(new Combat.Sources.ZoneChange(start.AddHours(2), 1010));
-        var extras = new Combat.FightExtras(uses, Array.Empty<Combat.BuffEvent>(), Array.Empty<Combat.StaggerEvent>(), new Dictionary<int, string>());
+        var buffs = new List<Combat.BuffEvent>();
+        for (int run = 0; run < 2; run++)
+        {
+            DateTime at = start.AddMinutes(run * 30);
+            int player = run + 1;
+            // Courage Scroll on the whole fight for the first, for a third of it for the second; a short effect renewed every 20 s by the first only
+            buffs.Add(new Combat.BuffEvent(at.AddSeconds(-30), Combat.BuffKind.On, player, 10 + run, 2210105, player, run == 0 ? 600_000 : 48_000));
+            for (int k = 0; run == 0 && k < 7; k++)
+            {
+                buffs.Add(new Combat.BuffEvent(at.AddSeconds(k * 20), Combat.BuffKind.On, player, 20 + k, 2210106, player, 12_000));
+            }
+        }
+
+        var extras = new Combat.FightExtras(uses, buffs, Array.Empty<Combat.StaggerEvent>(), new Dictionary<int, string>());
         var window = new Ui.CompareWindow(recorder, _ => extras, _ => recorder.Sessions[0], recorder.Sessions.Where(s => s.Data.Events.Count > 0).Take(2));
         const double width = 1500, height = 1040;
         var content = (System.Windows.UIElement)window.Content;

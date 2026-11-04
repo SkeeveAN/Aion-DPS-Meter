@@ -172,19 +172,50 @@ public static class SelfCheckSessions
         // Meteor only the baseline has (gap -20000/9), Firestorm both (gap -4000/9): the skill that makes up most of the gap is first, the baseline's own gap is 0
         bool sorted = table.Count == 2 && table[0].Skill == "Meteor" && table[0].Gaps[1] < table[1].Gaps[1] && table[0].Gaps[0] == 0 && table[0].PerEntry[1] is null;
 
-        string fightJson = "{\"encounter\":{\"id\":17717,\"bossName\":\"Gelcos\",\"durationSeconds\":117.15},\"roster\":[{\"participantId\":196188,\"playerName\":\"Ponce\",\"className\":\"Gladiator\",\"totalDamage\":2092842,\"combatPower\":117663}]}";
+        string fightJson = "{\"encounter\":{\"id\":17717,\"bossName\":\"Gelcos\",\"durationSeconds\":117.15},\"roster\":[{\"participantId\":196188,\"playerName\":\"Ponce\",\"className\":\"Gladiator\",\"totalDamage\":2092842,\"combatPower\":117663,\"buffs\":[{\"name\":\"Courage Scroll\",\"names\":{\"en\":\"Courage Scroll\"},\"uptimePermille\":1000,\"casts\":2}]}]}";
         string partJson = "{\"damageSkills\":[{\"skillName\":\"Overhead Slam\",\"hits\":189,\"critHits\":189,\"totalDamage\":1110642,\"minHit\":3724,\"maxHit\":16133}]}";
         CompareModel.OnlineFight fight = CompareModel.ParseFight(fightJson);
         CompareEntry online = CompareModel.ParseParticipant(partJson, fight, fight.Players[0]);
         bool read = fight.EncounterId == 17717 && fight.Players.Count == 1 && online.Online && online.Marks is null && online.CombatPower == 117_663
-            && online.Skills[0].Total == 1_110_642 && online.Skills[0].Uses == -1 && Math.Abs(online.Dps - 1_110_642 / 117.15) < 0.01;
+            && online.Skills[0].Total == 1_110_642 && online.Skills[0].Uses == -1 && online.Buffs is { Count: 1 } && online.Buffs[0] is { Name: "Courage Scroll", UptimePercent: 100, Applications: 2 } && Math.Abs(online.Dps - 1_110_642 / 117.15) < 0.01;
         bool urls = CompareModel.EncounterIdOf("https://aiondps.com/encounters/17717") == 17717 && CompareModel.EncounterIdOf("17717") == 17717
             && CompareModel.EncounterIdOf("https://aiondps.com/de/encounters/17717?x=1") == 17717 && CompareModel.EncounterIdOf("https://evil.example/encounters/5") is null
             && CompareModel.EncounterIdOf("hello") is null;
+        // boss against adds, and the effects on the player over a fight of ten seconds
+        var rec2 = new SessionRecorder(_ => SessionKind.Instance) { Identify = id => id == 1 ? ("Aahz", "Sorcerer") : (id == 100 ? ("Boss", null) : (null, null)) };
+        rec2.Enter(new ZoneChange(t0, Krao));
+        rec2.Feed(CombatBatch.DamageOnly(new[]
+        {
+            new DamageEvent(t0.AddSeconds(1), 1, 100, 1000, false, "Firestorm"),
+            new DamageEvent(t0.AddSeconds(3), 1, 101, 777, false, "Firestorm"),
+            new DamageEvent(t0.AddSeconds(9), 1, 100, 500, false, "Firestorm"),
+            new DamageEvent(t0.AddSeconds(5), 100, 1, 50, false, "Smash"),
+        }));
+        rec2.Enter(new ZoneChange(t0.AddMinutes(5), Verteron));
+        var attempt = new BossAttempt(100, "Boss", t0, t0.AddSeconds(10), 1500, true, null, null);
+        var buffLog = new[]
+        {
+            new BuffEvent(t0.AddSeconds(2), BuffKind.On, 1, 1, 2210105, 1, 4000),
+            new BuffEvent(t0.AddSeconds(-5), BuffKind.On, 1, 2, 2210106, 1, -1),
+            new BuffEvent(t0.AddSeconds(5), BuffKind.End, 1, 2, 0, 0, 0),
+            new BuffEvent(t0.AddSeconds(2), BuffKind.On, 2, 3, 2210105, 1, 4000),
+        };
+        var extras2 = new FightExtras(Array.Empty<SkillUse>(), buffLog, Array.Empty<StaggerEvent>(), new Dictionary<int, string>());
+        CompareEntry bossFight = CompareModel.FromSession(rec2.Sessions[0], attempt, 1, extras2, "c");
+        CompareBuff? shortBuff = bossFight.Buffs?.FirstOrDefault(x => x.Name == Aion2.Protocol.Aion2SkillNames.NameOf(2210105));
+        CompareBuff? longBuff = bossFight.Buffs?.FirstOrDefault(x => x.Name == Aion2.Protocol.Aion2SkillNames.NameOf(2210106));
+        bool bossAdd = bossFight.BossDamage == 1500 && bossFight.AddDamage == 777 && bossFight.TotalDamage == 1500;
+        bool uptimes = bossFight.Buffs is { Count: 2 } && shortBuff is { Applications: 1 } && Math.Abs(shortBuff.UptimePercent - 40) < 0.01
+            && longBuff is { Applications: 0 } && Math.Abs(longBuff.UptimePercent - 50) < 0.01;
+        CompareEntry plain = bossFight with { Buffs = new[] { new CompareBuff(shortBuff!.Name, 10, 2) } };
+        var buffRows = CompareModel.BuffTable(new[] { bossFight, plain }, 0);
+        bool buffTable = buffRows.Count == 2 && buffRows[0].Name == longBuff!.Name && buffRows[0].Gaps[1] == -50 && buffRows[1].Gaps[1] == -30 && buffRows[0].PerEntry[1] is null;
+        Console.WriteLine($"  -> the damage to the boss and to adds, and how long each effect was on the player, are read from the session: {bossAdd && uptimes}");
+        Console.WriteLine($"  -> the effects table puts the biggest differences to the baseline first: {buffTable}");
         Console.WriteLine($"  -> a player's skills, damage, combat power and cast notices come from a session: {local}");
         Console.WriteLine($"  -> the table puts the skills that make up the gap to the baseline first: {sorted}");
         Console.WriteLine($"  -> an online fight and player are read from the site's answers, and only our own addresses are taken: {read && urls}");
-        return local && sorted && read && urls;
+        return local && sorted && read && urls && bossAdd && uptimes && buffTable;
     }
 
     private static bool RunFileRoundTrip(DateTime t0)

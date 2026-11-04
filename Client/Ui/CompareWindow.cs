@@ -383,6 +383,13 @@ public sealed class CompareWindow : Window
         List<CompareRow> table = CompareModel.Table(entries, baseline);
         _timelineSkill = table.Any(r => r.Skill == _timelineSkill) ? _timelineSkill : table.FirstOrDefault()?.Skill;
         _results.Children.Add(SkillTable(entries, table, baseline));
+        List<CompareBuffRow> buffs = CompareModel.BuffTable(entries, baseline);
+        if (buffs.Count > 0)
+        {
+            _results.Children.Add(Text(loc["Compare.Buffs"], bold: true));
+            _results.Children.Add(BuffGrid(entries, buffs, baseline));
+        }
+
         _results.Children.Add(Text(loc["Compare.UsesNote"], muted: true));
         _results.Children.Add(Timelines(entries));
     }
@@ -430,6 +437,8 @@ public sealed class CompareWindow : Window
         Row(loc["Compare.Duration"], e => $"{e.Seconds:0.0} s");
         Row(loc["Compare.Damage"], e => e.TotalDamage.ToString("N0"), e => Delta(e.TotalDamage, entries[baseline].TotalDamage));
         Row(loc["Compare.Dps"], e => e.Dps.ToString("N0"), e => Delta(e.Dps, entries[baseline].Dps), bold: true);
+        Row(loc["Compare.BossDamage"], e => e.BossDamage is long b ? b.ToString("N0") : "–", e => e.BossDamage is long b && entries[baseline].BossDamage is long r ? Delta(b, r) : "");
+        Row(loc["Compare.AddDamage"], e => e.AddDamage is long a ? a.ToString("N0") : "–");
         Row(loc["Compare.Hits"], e => e.Hits.ToString("N0"), e => Delta(e.Hits, entries[baseline].Hits));
         Row(loc["Compare.Crit"], e => e.CritRate.ToString("0.0", CultureInfo.CurrentCulture) + " %");
         Row(loc["Compare.Deaths"], e => e.Online ? "–" : e.Deaths.ToString());
@@ -520,6 +529,80 @@ public sealed class CompareWindow : Window
                     var cell = Text(cells[c], align: TextAlignment.Right, brush: brush);
                     Grid.SetRow(cell, r);
                     Grid.SetColumn(cell, first + c);
+                    grid.Children.Add(cell);
+                }
+            }
+        }
+
+        return grid;
+    }
+
+    /// <summary>The effects that were on the players, the ones with the biggest difference to the baseline first: the share of the fight each was on, how often it was put on, and the difference.</summary>
+    private Grid BuffGrid(List<CompareEntry> entries, List<CompareBuffRow> rows, int baseline)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var grid = new Grid { Margin = new Thickness(0, 4, 0, 10) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
+        string[] heads = { loc["Compare.Uptime"], loc["Compare.Applied"], loc["Compare.Gap"] };
+        double[] widths = { 70, 70, 76 };
+        for (int e = 0; e < entries.Count; e++)
+        {
+            for (int c = 0; c < heads.Length; c++)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(c == heads.Length - 1 && e == baseline ? 8 : widths[c]) });
+            }
+        }
+
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        for (int e = 0; e < entries.Count; e++)
+        {
+            var who = Text(entries[e].Player + (e == baseline ? " ◆" : ""), bold: true);
+            Grid.SetRow(who, 0);
+            Grid.SetColumn(who, 1 + e * heads.Length);
+            Grid.SetColumnSpan(who, heads.Length);
+            grid.Children.Add(who);
+            for (int c = 0; c < heads.Length; c++)
+            {
+                if (c == heads.Length - 1 && e == baseline)
+                {
+                    continue;
+                }
+
+                var head = Text(heads[c], muted: true, align: TextAlignment.Right);
+                Grid.SetRow(head, 1);
+                Grid.SetColumn(head, 1 + e * heads.Length + c);
+                grid.Children.Add(head);
+            }
+        }
+
+        foreach (CompareBuffRow row in rows)
+        {
+            int r = grid.RowDefinitions.Count;
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var name = Text(Aion2.Protocol.Aion2SkillNames.Display(row.Name));
+            Grid.SetRow(name, r);
+            grid.Children.Add(name);
+            for (int e = 0; e < entries.Count; e++)
+            {
+                CompareBuff? b = row.PerEntry[e];
+                string[] cells =
+                {
+                    b is null ? "0 %" : b.UptimePercent.ToString("0", CultureInfo.CurrentCulture) + " %",
+                    b is null || b.Applications < 0 ? "" : b.Applications.ToString("N0"),
+                    e == baseline ? "" : (row.Gaps[e] >= 0 ? "+" : "") + row.Gaps[e].ToString("0", CultureInfo.CurrentCulture) + " %",
+                };
+                for (int c = 0; c < heads.Length; c++)
+                {
+                    if (c == heads.Length - 1 && e == baseline)
+                    {
+                        continue;
+                    }
+
+                    Brush? brush = c == heads.Length - 1 && cells[c].Length > 0 ? (row.Gaps[e] >= 0 ? Good : Bad) : null;
+                    var cell = Text(cells[c], align: TextAlignment.Right, brush: brush);
+                    Grid.SetRow(cell, r);
+                    Grid.SetColumn(cell, 1 + e * heads.Length + c);
                     grid.Children.Add(cell);
                 }
             }
