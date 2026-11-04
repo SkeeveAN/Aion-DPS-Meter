@@ -169,7 +169,7 @@ public static class SelfCheckCraft
             m.AddRange(new byte[] { 0, 0 });
             m.AddRange(BitConverter.GetBytes((ushort)server));
             m.AddRange(BitConverter.GetBytes(classCode));
-            m.Add((byte)name.Length);
+            m.Add((byte)System.Text.Encoding.UTF8.GetByteCount(name)); // the game's length byte counts bytes, not characters
             m.AddRange(System.Text.Encoding.UTF8.GetBytes(name));
             m.AddRange(new byte[] { (byte)level, 0, 0, 0, (byte)rank });
             if (comment is not null)
