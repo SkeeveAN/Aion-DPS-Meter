@@ -7,7 +7,7 @@ import { cached } from "../seo/cache.js";
 import * as api from "../partnerApi.js";
 import { KEY_HEADER, findKey, rateCheck, touchKey } from "../partnerKeys.js";
 
-const RESOURCES = ["classes", "instances", "bosses", "bosses/:slug", "items/:id", "worldbosses", "maps", "events", "pets", "pets/:id", "titles", "wings", "stats", "announcements", "patchnotes", "twitch-drops"];
+const RESOURCES = ["classes", "instances", "bosses", "bosses/:slug", "items/:id", "worldbosses", "maps", "exchanges", "events", "pets", "pets/:id", "titles", "wings", "stats", "announcements", "patchnotes", "twitch-drops"];
 
 /**
  * The partner API: static game data (and the site's statistics, announcements, patch notes and Twitch drops) for other community sites, read-only,
@@ -58,6 +58,7 @@ export async function partnerRoutes(app: FastifyInstance) {
     });
     listRoute("worldbosses", (lang) => api.worldBosses(lang));
     listRoute("maps", (lang) => api.maps(lang));
+    listRoute("exchanges", (lang) => api.exchanges(lang));
     listRoute("events", (lang) => api.events(lang));
     listRoute("pets", (lang, q) => api.pets(lang, q.category));
     listRoute("titles", (lang) => api.titles(lang));

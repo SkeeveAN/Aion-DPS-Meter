@@ -1,0 +1,320 @@
+{
+ "_meta": {
+  "source": "client tables (ConversionRecipe, BoxReward, Item), EU client, patch of 2026-11-04",
+  "note": "Exchanges of the Ludra gear change vouchers; kina is the Kina cost; weaponChoice lists what the Ludra weapon box offers"
+ },
+ "exchanges": [
+  {
+   "product": {
+    "itemId": 310420003,
+    "names": {
+     "en": "Ludra's Bracelet",
+     "de": "Ludras Armband",
+     "fr": "Bracelet de Ludra",
+     "es": "Brazalete de Ludra",
+     "ru": "Браслет Рудры",
+     "pt": "Bracelete de Ludra",
+     "ja": "ルドラのブレスレット",
+     "ko": "루드라의 팔찌"
+    },
+    "count": 1
+   },
+   "cost": [
+    {
+     "itemId": 602500002,
+     "names": {
+      "en": "Gear Change Voucher: Ludra [Hard] (Bound)",
+      "de": "Ticket: Ausrüstungswechsel – Ludra [Schwer] (Gebunden)",
+      "fr": "Ticket de changement d'équipement : Ludra [Difficile] (lié)",
+      "es": "Tique de cambio de armamento: Ludra [Difícil] (vinculado)",
+      "ru": "Купон на смену снаряжения: Рудра [сложн.] (привяз.)",
+      "pt": "Bilhete de Troca de Equipamento: Ludra [Difícil] (Vinculado)",
+      "ja": "装備変更券：ルドラ[難しい](刻印)",
+      "ko": "장비 변경권: 루드라 [어려움] (각인)"
+     },
+     "count": 3
+    }
+   ],
+   "kina": 5000000
+  },
+  {
+   "product": {
+    "itemId": 310420003,
+    "names": {
+     "en": "Ludra's Bracelet",
+     "de": "Ludras Armband",
+     "fr": "Bracelet de Ludra",
+     "es": "Brazalete de Ludra",
+     "ru": "Браслет Рудры",
+     "pt": "Bracelete de Ludra",
+     "ja": "ルドラのブレスレット",
+     "ko": "루드라의 팔찌"
+    },
+    "count": 1
+   },
+   "cost": [
+    {
+     "itemId": 602500001,
+     "names": {
+      "en": "Gear Change Voucher: Ludra (Bound)",
+      "de": "Ticket: Ausrüstungswechsel – Ludra (Gebunden)",
+      "fr": "Ticket de changement d'équipement : Ludra (lié)",
+      "es": "Tique de cambio de armamento: Ludra (vinculado)",
+      "ru": "Купон на смену снаряжения: Рудра (привяз.)",
+      "pt": "Bilhete de Troca de Equipamento: Ludra (Vinculado)",
+      "ja": "装備変更券：ルドラ(刻印)",
+      "ko": "장비 변경권: 루드라 (각인)"
+     },
+     "count": 6
+    }
+   ],
+   "kina": 5000000
+  },
+  {
+   "product": {
+    "itemId": 533700175,
+    "names": {
+     "en": "Abyssal Forge: Weapon Selection Chest (Bound)",
+     "de": "Waffen-Auswahltruhe: Abgrundsveredelung (Gebunden)",
+     "fr": "Forge abyssale : Coffre de sélection d'arme (lié)",
+     "es": "Forja Abismal: Cofre de selección de arma (vinculado)",
+     "ru": "Плавильня Бездны: сундук выбора оружия (привяз.)",
+     "pt": "Reforja Abissal: Baú de Seleção de Arma (Vinculado)",
+     "ja": "深淵の再錬：武器選択箱(刻印)",
+     "ko": "심연의 재련: 무기 선택 상자 (각인)"
+    },
+    "count": 1
+   },
+   "cost": [
+    {
+     "itemId": 110120003,
+     "names": {
+      "en": "Ludra's Blade of Extinction",
+      "de": "Ludras Vernichtungsklinge",
+      "fr": "Sabre d'extermination de Ludra",
+      "es": "Cuchilla aniquiladora de Ludra",
+      "ru": "Истребляющий клинок Рудры",
+      "pt": "Lâmina da Extinção de Ludra",
+      "ja": "ルドラの絶滅刀",
+      "ko": "루드라의 절멸도"
+     },
+     "count": 1
+    },
+    {
+     "itemId": 602500002,
+     "names": {
+      "en": "Gear Change Voucher: Ludra [Hard] (Bound)",
+      "de": "Ticket: Ausrüstungswechsel – Ludra [Schwer] (Gebunden)",
+      "fr": "Ticket de changement d'équipement : Ludra [Difficile] (lié)",
+      "es": "Tique de cambio de armamento: Ludra [Difícil] (vinculado)",
+      "ru": "Купон на смену снаряжения: Рудра [сложн.] (привяз.)",
+      "pt": "Bilhete de Troca de Equipamento: Ludra [Difícil] (Vinculado)",
+      "ja": "装備変更券：ルドラ[難しい](刻印)",
+      "ko": "장비 변경권: 루드라 [어려움] (각인)"
+     },
+     "count": 2
+    }
+   ],
+   "kina": 10000000
+  },
+  {
+   "product": {
+    "itemId": 533700175,
+    "names": {
+     "en": "Abyssal Forge: Weapon Selection Chest (Bound)",
+     "de": "Waffen-Auswahltruhe: Abgrundsveredelung (Gebunden)",
+     "fr": "Forge abyssale : Coffre de sélection d'arme (lié)",
+     "es": "Forja Abismal: Cofre de selección de arma (vinculado)",
+     "ru": "Плавильня Бездны: сундук выбора оружия (привяз.)",
+     "pt": "Reforja Abissal: Baú de Seleção de Arma (Vinculado)",
+     "ja": "深淵の再錬：武器選択箱(刻印)",
+     "ko": "심연의 재련: 무기 선택 상자 (각인)"
+    },
+    "count": 1
+   },
+   "cost": [
+    {
+     "itemId": 110120003,
+     "names": {
+      "en": "Ludra's Blade of Extinction",
+      "de": "Ludras Vernichtungsklinge",
+      "fr": "Sabre d'extermination de Ludra",
+      "es": "Cuchilla aniquiladora de Ludra",
+      "ru": "Истребляющий клинок Рудры",
+      "pt": "Lâmina da Extinção de Ludra",
+      "ja": "ルドラの絶滅刀",
+      "ko": "루드라의 절멸도"
+     },
+     "count": 1
+    },
+    {
+     "itemId": 602500001,
+     "names": {
+      "en": "Gear Change Voucher: Ludra (Bound)",
+      "de": "Ticket: Ausrüstungswechsel – Ludra (Gebunden)",
+      "fr": "Ticket de changement d'équipement : Ludra (lié)",
+      "es": "Tique de cambio de armamento: Ludra (vinculado)",
+      "ru": "Купон на смену снаряжения: Рудра (привяз.)",
+      "pt": "Bilhete de Troca de Equipamento: Ludra (Vinculado)",
+      "ja": "装備変更券：ルドラ(刻印)",
+      "ko": "장비 변경권: 루드라 (각인)"
+     },
+     "count": 4
+    }
+   ],
+   "kina": 10000000
+  },
+  {
+   "product": {
+    "itemId": 602500002,
+    "names": {
+     "en": "Gear Change Voucher: Ludra [Hard] (Bound)",
+     "de": "Ticket: Ausrüstungswechsel – Ludra [Schwer] (Gebunden)",
+     "fr": "Ticket de changement d'équipement : Ludra [Difficile] (lié)",
+     "es": "Tique de cambio de armamento: Ludra [Difícil] (vinculado)",
+     "ru": "Купон на смену снаряжения: Рудра [сложн.] (привяз.)",
+     "pt": "Bilhete de Troca de Equipamento: Ludra [Difícil] (Vinculado)",
+     "ja": "装備変更券：ルドラ[難しい](刻印)",
+     "ko": "장비 변경권: 루드라 [어려움] (각인)"
+    },
+    "count": 1
+   },
+   "cost": [
+    {
+     "itemId": 602500001,
+     "names": {
+      "en": "Gear Change Voucher: Ludra (Bound)",
+      "de": "Ticket: Ausrüstungswechsel – Ludra (Gebunden)",
+      "fr": "Ticket de changement d'équipement : Ludra (lié)",
+      "es": "Tique de cambio de armamento: Ludra (vinculado)",
+      "ru": "Купон на смену снаряжения: Рудра (привяз.)",
+      "pt": "Bilhete de Troca de Equipamento: Ludra (Vinculado)",
+      "ja": "装備変更券：ルドラ(刻印)",
+      "ko": "장비 변경권: 루드라 (각인)"
+     },
+     "count": 2
+    }
+   ],
+   "kina": 0
+  }
+ ],
+ "weaponChoice": [
+  {
+   "itemId": 110120003,
+   "names": {
+    "en": "Ludra's Blade of Extinction",
+    "de": "Ludras Vernichtungsklinge",
+    "fr": "Sabre d'extermination de Ludra",
+    "es": "Cuchilla aniquiladora de Ludra",
+    "ru": "Истребляющий клинок Рудры",
+    "pt": "Lâmina da Extinção de Ludra",
+    "ja": "ルドラの絶滅刀",
+    "ko": "루드라의 절멸도"
+   }
+  },
+  {
+   "itemId": 110220003,
+   "names": {
+    "en": "Ludra's Scale Sword",
+    "de": "Ludras Schuppenschwert",
+    "fr": "Épée d'écailles de Ludra",
+    "es": "Espada escamada de Ludra",
+    "ru": "Чешуйчатый меч Рудры",
+    "pt": "Espada de Escama de Ludra",
+    "ja": "ルドラのスケイルソード",
+    "ko": "루드라의 비늘검"
+   }
+  },
+  {
+   "itemId": 110320003,
+   "names": {
+    "en": "Ludra's Claw",
+    "de": "Ludras Klaue",
+    "fr": "Griffe de Ludra",
+    "es": "Garra de Ludra",
+    "ru": "Когти Рудры",
+    "pt": "Garra de Ludra",
+    "ja": "ルドラの爪",
+    "ko": "루드라의 발톱"
+   }
+  },
+  {
+   "itemId": 110420003,
+   "names": {
+    "en": "Ludra's Fatal Bow",
+    "de": "Ludras Vernichtungsbogen",
+    "fr": "Arc fatal de Ludra",
+    "es": "Arco fatal de Ludra",
+    "ru": "Смертоносный лук Рудры",
+    "pt": "Arco da Extinção de Ludra",
+    "ja": "ルドラの絶命弓",
+    "ko": "루드라의 절명궁"
+   }
+  },
+  {
+   "itemId": 110520003,
+   "names": {
+    "en": "Ludra's Grimoire",
+    "de": "Ludras Bannbuch",
+    "fr": "Livre interdit de Ludra",
+    "es": "Tomo prohibido de Ludra",
+    "ru": "Запретный гримуар Рудры",
+    "pt": "Livro Proibido de Ludra",
+    "ja": "ルドラの禁書",
+    "ko": "루드라의 금서"
+   }
+  },
+  {
+   "itemId": 110620003,
+   "names": {
+    "en": "Ludra's Abyssal Jade",
+    "de": "Ludras Abgrundsjade",
+    "fr": "Orbe de l'Abîme de Ludra",
+    "es": "Joya abismal de Ludra",
+    "ru": "Нефрит Бездны Рудры",
+    "pt": "Jade Abissal de Ludra",
+    "ja": "ルドラの深淵玉",
+    "ko": "루드라의 심연옥"
+   }
+  },
+  {
+   "itemId": 110720003,
+   "names": {
+    "en": "Ludra's Fatal Mace",
+    "de": "Ludras Vernichtungskeule",
+    "fr": "Masse destructrice de Ludra",
+    "es": "Maza aniquiladora de Ludra",
+    "ru": "Смертоносная булава Рудры",
+    "pt": "Maça da Extinção de Ludra",
+    "ja": "ルドラのルインメイス",
+    "ko": "루드라의 멸곤"
+   }
+  },
+  {
+   "itemId": 110820003,
+   "names": {
+    "en": "Ludra's Heavenbound Staff",
+    "de": "Ludras Schicksalszepter",
+    "fr": "Bâton du destin céleste de Ludra",
+    "es": "Lanza de destino de Ludra",
+    "ru": "Посох небесного обета Рудры",
+    "pt": "Cajado do Mandato do Céu de Ludra",
+    "ja": "ルドラのデスティニースタッフ",
+    "ko": "루드라의 천명장"
+   }
+  },
+  {
+   "itemId": 115020003,
+   "names": {
+    "en": "Ludra's Heart",
+    "de": "Ludras Herz",
+    "fr": "Cœur de Ludra",
+    "es": "Corazón de Ludra",
+    "ru": "Сердце Рудры",
+    "pt": "Coração de Ludra",
+    "ja": "ルドラの心臓",
+    "ko": "루드라의 심장"
+   }
+  }
+ ]
+}

@@ -473,6 +473,64 @@
         }
       }
     },
+    "/api/partner/v1/exchanges": {
+      "get": {
+        "tags": [
+          "Game data"
+        ],
+        "summary": "Item exchanges (Substance Morph) of the Abyssal Forge: Ludra: vouchers, Ludra's Bracelet, the weapon choice box",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the names. English is the default; a name the game has not in that language comes in English.",
+            "schema": {
+              "$ref": "#/components/schemas/Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": {
+                      "$ref": "#/components/schemas/Lang"
+                    },
+                    "exchanges": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Exchange"
+                      }
+                    },
+                    "weaponChoice": {
+                      "type": "array",
+                      "description": "What the Ludra weapon choice box offers.",
+                      "items": {
+                        "$ref": "#/components/schemas/ExchangeItem"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLang"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/api/partner/v1/events": {
       "get": {
         "tags": [
@@ -1068,6 +1126,15 @@
           "y": {
             "type": "number",
             "nullable": true
+          },
+          "respawnHours": {
+            "type": "number",
+            "nullable": true,
+            "description": "Hours until the boss is back after a kill; null when the game gives no fixed value.",
+            "example": 11
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/BossSchedule"
           }
         }
       },
@@ -1099,6 +1166,15 @@
                 },
                 "y": {
                   "type": "number"
+                },
+                "respawnHours": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Hours until the boss is back after a kill; null when the game gives no fixed value.",
+                  "example": 11
+                },
+                "schedule": {
+                  "$ref": "#/components/schemas/BossSchedule"
                 }
               }
             }
@@ -1727,6 +1803,94 @@
             }
           }
         ]
+      },
+      "BossSchedule": {
+        "type": "object",
+        "nullable": true,
+        "description": "When the boss appears on a fixed time (European clock). kind weekly: on the days (0 = Sunday ... 6 = Saturday) at the time `at`; kind cycle: every `everyMinutes` from `base`. openMinutes is how long it stays reachable.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "cycle"
+            ]
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "at": {
+            "type": "string",
+            "example": "21:30"
+          },
+          "base": {
+            "type": "string",
+            "example": "10:30"
+          },
+          "everyMinutes": {
+            "type": "integer",
+            "example": 720
+          },
+          "openMinutes": {
+            "type": "integer"
+          }
+        }
+      },
+      "ExchangeItem": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Exchange": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExchangeItem"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "integer"
+                  }
+                }
+              }
+            ]
+          },
+          "cost": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ExchangeItem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "kina": {
+            "type": "integer",
+            "description": "Kina the exchange costs besides the items."
+          }
+        }
       }
     },
     "responses": {

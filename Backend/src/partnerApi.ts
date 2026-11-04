@@ -173,18 +173,21 @@ export function item(id: number, lang: Lang) {
 
 // ---- world bosses and maps ----
 
-type FieldFile = { maps: { key: string; id: number; names: Names; bosses: { npc: number; x: number; y: number; names: Names }[] }[] };
+type FixedRule = { kind: "weekly" | "cycle"; days?: number[]; at?: string; base?: string; everyMinutes?: number; openMinutes: number };
+type FieldFile = { maps: { key: string; id: number; names: Names; bosses: { npc: number; x: number; y: number; names: Names; respawnHours?: number; fixed?: FixedRule }[] }[] };
+/** What the game fixes about when a boss comes: hours until it is back after a kill (field bosses) and/or the times it appears at (Abyss bosses; days 0 = Sunday, European clock). */
+const timing = (b: { respawnHours?: number; fixed?: FixedRule }) => ({ respawnHours: b.respawnHours ?? null, schedule: b.fixed ?? null });
 type WorldBossFile = { _meta: { groups: Record<string, string> }; items: { group: string; npcId: number; names: Names }[] };
 
 export function worldBosses(lang: Lang) {
   const file = load<WorldBossFile>(dataDir("worldbosses.json"));
-  const where = new Map<number, { map: string; x: number; y: number }>();
+  const where = new Map<number, { map: string; x: number; y: number; respawnHours: number | null; schedule: FixedRule | null }>();
   for (const m of load<FieldFile>(assetDir("bosses", "field_bosses.json")).maps) {
     for (const b of m.bosses) {
-      where.set(b.npc, { map: m.key, x: b.x, y: b.y });
+      where.set(b.npc, { map: m.key, x: b.x, y: b.y, ...timing(b) });
     }
   }
-  return file.items.map((b) => ({ npcId: b.npcId, group: b.group, name: pick(b.names, lang), ...(where.get(b.npcId) ?? { map: null, x: null, y: null }) }));
+  return file.items.map((b) => ({ npcId: b.npcId, group: b.group, name: pick(b.names, lang), ...(where.get(b.npcId) ?? { map: null, x: null, y: null, respawnHours: null, schedule: null }) }));
 }
 
 export function maps(lang: Lang) {
@@ -192,8 +195,23 @@ export function maps(lang: Lang) {
     key: m.key,
     id: m.id,
     name: pick(m.names, lang),
-    bosses: m.bosses.map((b) => ({ npcId: b.npc, name: pick(b.names, lang), x: b.x, y: b.y })),
+    bosses: m.bosses.map((b) => ({ npcId: b.npc, name: pick(b.names, lang), x: b.x, y: b.y, ...timing(b) })),
   }));
+}
+
+// ---- item exchanges ----
+
+type ExchangeItem = { itemId: number; names: Names };
+type ExchangeFile = { exchanges: { product: ExchangeItem & { count: number }; cost: (ExchangeItem & { count: number })[]; kina: number }[]; weaponChoice: ExchangeItem[] };
+
+/** The Substance Morph recipes of the Abyssal Forge: Ludra (gear change vouchers -> Ludra's Bracelet, the weapon choice box, Normal -> Hard voucher), with the items the weapon box offers. */
+export function exchanges(lang: Lang) {
+  const file = load<ExchangeFile>(dataDir("exchanges.json"));
+  const item = (i: ExchangeItem) => ({ itemId: i.itemId, name: pick(i.names, lang) });
+  return {
+    exchanges: file.exchanges.map((e) => ({ product: { ...item(e.product), count: e.product.count }, cost: e.cost.map((c) => ({ ...item(c), count: c.count })), kina: e.kina })),
+    weaponChoice: file.weaponChoice.map(item),
+  };
 }
 
 // ---- events ----
