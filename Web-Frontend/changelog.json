@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.19.6",
+  "date": "2026-11-04",
+  "items": [
+   {
+    "text": "Client: saved logs keep what the first version lost - the numeric skill id and the tick and estimate flags of every hit, the dodge rolls, the cast notices' own bytes (counter, aim, target), the capture's loss counters, which streams were recorded, the boss attempts and the setup (skills, stigmas, presets, gear, boards) at the start and end of a stay - and a player whose combat id changes stays one player in the skill uses, effects and positions",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   }
+  ]
+ },
+ {
   "version": "1.19.5",
   "date": "2026-11-04",
   "items": [
