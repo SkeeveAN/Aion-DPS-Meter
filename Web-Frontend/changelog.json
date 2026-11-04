@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.19.7",
+  "date": "2026-11-04",
+  "items": [
+   {
+    "text": "Client: players can be compared side by side - from sessions, from loaded files or from a public fight of aiondps.com by its address, against a baseline, with the skills that make up the gap first, the combat power, and the hits and cast notices of a skill on a common time axis; and every finished session can be saved to a file automatically (off by default)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Client: the folder for automatically saved sessions can be picked (button next to the switch, which stays off by default)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   }
+  ]
+ },
+ {
   "version": "1.19.6",
   "date": "2026-11-04",
   "items": [
