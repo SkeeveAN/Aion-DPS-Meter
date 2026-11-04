@@ -4,6 +4,20 @@
   "date": "2026-11-04",
   "items": [
    {
+    "text": "Database: the gzipped raw upload payloads move to a second database file next to the main one (uploads-archive.sqlite), so the main file gets a third smaller and a backup, a cold start and the daily copy have less to read; the payloads stay readable and unchanged",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-04"
+   }
+  ]
+ },
+ {
+  "version": "1.19.4",
+  "date": "2026-11-04",
+  "items": [
+   {
     "text": "Database: narrow indexes on the uploads and player tables so counting them no longer reads the wide rows, and the backend reads its database file once in big blocks before it starts (a cold start at 200 disk operations per second took a quarter of an hour)",
     "areas": [
      "Backend",
@@ -15,15 +29,7 @@
     "text": "Client: the boss health bar of exploration bosses shows the real 100 % when the spawn data already holds the whole group's health (it was multiplied by the group size a second time and the bar hung at a fifth), and the boss table knows five more exploration bosses",
     "areas": [
      "Client",
-     "Boss health"
-    ],
-    "date": "2026-11-04"
-   },
-   {
-    "text": "Backend: exploration kills are no longer marked as partial fights when the spawn data already holds the group's health, and 434 fights marked that way are corrected",
-    "areas": [
-     "Backend",
-     "Boss health"
+     "Backend"
     ],
     "date": "2026-11-04"
    }
