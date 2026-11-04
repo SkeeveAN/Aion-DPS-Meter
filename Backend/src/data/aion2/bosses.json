@@ -1737,8 +1737,30 @@
       "npcIds": [
         2301007
       ],
-      "level": 76,
+      "level": 75,
       "internalName": "M_PD_ReforgedAbyss_Kashapa_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/abyssal-wings-ketu:hard",
+      "instanceKey": "ReforgedAbyss:hard",
+      "slug": "abyssal-wings-ketu-hard",
+      "name": {
+        "en": "Abyssal Wings Ketu",
+        "ko": "심연의 날개 케투",
+        "zh": "深淵翅膀凱圖",
+        "de": "Abgrundsflügel Ketu",
+        "es": "Alas abismales Ketu",
+        "fr": "Ketu aux ailes d'Abîme",
+        "ja": "深淵の翼ケトゥ",
+        "pt": "Asas Abissais Ketu",
+        "ru": "Крылья пропасти Кету"
+      },
+      "npcIds": [
+        2300283
+      ],
+      "level": 75,
+      "internalName": "M_PD_ReforgedAbyss_Hard_Kashapa_01_001",
       "hasMechanics": false
     },
     {
@@ -1759,8 +1781,30 @@
       "npcIds": [
         2301008
       ],
-      "level": 76,
+      "level": 75,
       "internalName": "M_PD_ReforgedAbyss_OrcusGem_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/central-abyss-fusion-reactor:hard",
+      "instanceKey": "ReforgedAbyss:hard",
+      "slug": "central-abyss-fusion-reactor-hard",
+      "name": {
+        "en": "Central Abyss Fusion Reactor",
+        "ko": "중앙 심연 융합로",
+        "zh": "中央深淵融合爐",
+        "de": "Zentraler Fusionsreaktor (Abgrund)",
+        "es": "Reactor de fusión abismal central",
+        "fr": "Réacteur à fusion central d'Abîme",
+        "ja": "中央の深淵融合炉",
+        "pt": "Reator de Fusão Central Abissal",
+        "ru": "Центральное ядро синтеза пропасти"
+      },
+      "npcIds": [
+        2300284
+      ],
+      "level": 75,
+      "internalName": "M_PD_ReforgedAbyss_Hard_OrcusGem_01_001",
       "hasMechanics": false
     },
     {
@@ -1781,8 +1825,30 @@
       "npcIds": [
         2301014
       ],
-      "level": 76,
+      "level": 75,
       "internalName": "M_PD_ReforgedAbyss_Durbati_01_V01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/eternal-ludra:hard",
+      "instanceKey": "ReforgedAbyss:hard",
+      "slug": "eternal-ludra-hard",
+      "name": {
+        "en": "Eternal Ludra",
+        "ko": "영겁의 루드라",
+        "zh": "永劫盧德萊",
+        "de": "Ludra der Ewigkeit",
+        "es": "Ludra de la eternidad",
+        "fr": "Ludra de perpétuité",
+        "ja": "永劫のルドラ",
+        "pt": "Ludra da Eternidade",
+        "ru": "Рудра веков"
+      },
+      "npcIds": [
+        2300290
+      ],
+      "level": 75,
+      "internalName": "M_PD_ReforgedAbyss_Hard_Durbati_01_V01_001",
       "hasMechanics": false
     },
     {
@@ -1803,8 +1869,30 @@
       "npcIds": [
         2301006
       ],
-      "level": 76,
+      "level": 75,
       "internalName": "M_PD_ReforgedAbyss_Lagta_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/isolation-specialist-rahu:hard",
+      "instanceKey": "ReforgedAbyss:hard",
+      "slug": "isolation-specialist-rahu-hard",
+      "name": {
+        "en": "Isolation Specialist Rahu",
+        "ko": "이격의 라후",
+        "zh": "隔絕者拉胡",
+        "de": "Rahu der Isolation",
+        "es": "Rahu aislado",
+        "fr": "Rahu de la disjonction",
+        "ja": "離隔のラフ",
+        "pt": "Rahu da Disjunção",
+        "ru": "Раху разрыва"
+      },
+      "npcIds": [
+        2300282
+      ],
+      "level": 75,
+      "internalName": "M_PD_ReforgedAbyss_Hard_Lagta_01_001",
       "hasMechanics": false
     },
     {

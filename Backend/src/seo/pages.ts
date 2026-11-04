@@ -634,7 +634,7 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
   const label = GAME_LABEL[game];
   const items = bossRows.map((b) => ({ name: displayName(b), path: `/bosses/${b.slug}` }));
   const category = CATEGORY_LABEL[instance.category ?? ""] ?? "";
-  const mode = instance.variant === "advanced" ? "Conquest, Hard" : instance.variant === "conquest" ? "Conquest" : instance.variant === "explore" ? "Exploration" : "";
+  const mode = instance.category !== "expedition" ? (instance.variant === "advanced" ? "Hard" : "") : instance.variant === "advanced" ? "Conquest, Hard" : instance.variant === "conquest" ? "Conquest" : instance.variant === "explore" ? "Exploration" : "";
   const facts = INSTANCE_FACTS[instance.name] ?? {};
   const level = INSTANCE_MIN_LEVEL[instance.name];
   const factText = [

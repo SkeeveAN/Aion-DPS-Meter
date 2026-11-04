@@ -2424,6 +2424,22 @@
 "name": "Silent Dartan",
 "instance": "Altgard",
 "maxHp": 275998243
+},
+"2300283": {
+"name": "Abyssal Wings Ketu",
+"instance": "Abyssal Forge: Ludra (Hard)"
+},
+"2300284": {
+"name": "Central Abyss Fusion Reactor",
+"instance": "Abyssal Forge: Ludra (Hard)"
+},
+"2300290": {
+"name": "Eternal Ludra",
+"instance": "Abyssal Forge: Ludra (Hard)"
+},
+"2300282": {
+"name": "Isolation Specialist Rahu",
+"instance": "Abyssal Forge: Ludra (Hard)"
 }
 }
 }

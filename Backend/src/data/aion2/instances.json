@@ -220,9 +220,46 @@
         "pt": "Reforja Abissal: Ludra",
         "ru": "Закалка пропасти: Рудра"
       },
-      "category": null,
-      "sortOrder": 109,
-      "hidden": true
+      "category": "sanctuary",
+      "sortOrder": 1,
+      "hidden": false,
+      "modes": {
+        "normal": {
+          "minLevel": 45,
+          "itemLevel": 2800,
+          "players": "10",
+          "timeLimitMinutes": 60,
+          "weeklyTries": 4
+        }
+      }
+    },
+    {
+      "key": "ReforgedAbyss:hard",
+      "slug": "abyssal-forge-ludra-hard",
+      "name": {
+        "en": "Abyssal Forge: Ludra (Hard)",
+        "ko": "심연의 재련 : 루드라 (어려움)",
+        "zh": "深淵重鑄：盧德萊 (困難)",
+        "de": "Abgrundsveredelung: Ludra (Schwer)",
+        "es": "Forja Abismal: Ludra (Difícil)",
+        "fr": "Creuset de l'Abîme : Ludra (Difficile)",
+        "ja": "深淵の再錬：ルドラ (難しい)",
+        "pt": "Reforja Abissal: Ludra (Difícil)",
+        "ru": "Закалка пропасти: Рудра (Сложный)"
+      },
+      "category": "sanctuary",
+      "sortOrder": 101,
+      "hidden": false,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "itemLevel": 3000,
+          "players": "10",
+          "timeLimitMinutes": 60,
+          "weeklyTries": 4
+        }
+      },
+      "variant": "advanced"
     },
     {
       "key": "DraconicCrisis",

@@ -18,8 +18,8 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA = os.path.expanduser("~/aion2-data")
-TABLES = os.path.join(DATA, "decoded", "AION2", "Content", "Data", "Table")
-L10N = os.path.join(DATA, "dec", "l10n")
+TABLES = os.environ.get("AION2_TABLES") or os.path.join(DATA, "decoded", "AION2", "Content", "Data", "Table")
+L10N = os.environ.get("AION2_L10N") or os.path.join(DATA, "dec", "l10n")  # AION2_TABLES / AION2_L10N point at a newer client dump
 OUT = os.path.join(ROOT, "Backend", "src", "data", "aion2", "item_details.json")
 LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 

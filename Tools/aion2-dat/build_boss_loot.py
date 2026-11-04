@@ -22,8 +22,8 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA = os.path.expanduser("~/aion2-data")
-TABLES = os.path.join(DATA, "decoded", "AION2", "Content", "Data", "Table")
-L10N = os.path.join(DATA, "dec", "l10n")
+TABLES = os.environ.get("AION2_TABLES") or os.path.join(DATA, "decoded", "AION2", "Content", "Data", "Table")
+L10N = os.environ.get("AION2_L10N") or os.path.join(DATA, "dec", "l10n")  # AION2_TABLES / AION2_L10N point at a newer client dump
 RAW = sys.argv[1]
 OUT_JSON = os.path.join(ROOT, "Backend", "src", "data", "aion2", "boss_loot.json")
 OUT_IMG = os.path.join(ROOT, "Web-Frontend", "images", "aion2", "bosses", "portraits")
@@ -100,6 +100,8 @@ def mode_of(cube):
     if m:
         return f"grade{int(m.group(1))}"
     # the game's own three steps of an expedition: Exploration (NPC 231...), Conquest (230...), Conquest hard (232...)
+    if cube["Name"].startswith("reward_ReforgedAbyss_"):  # the Sanctuary raid has its own two steps (Normal / Hard), not the expedition ones
+        return tail.lower()
     return {"easy": "explore", "normal": "conquest", "hard": "conquest-hard"}.get(tail.lower(), tail.lower())
 
 
@@ -141,7 +143,11 @@ def portrait_file(token):
         return made[stem]
     path = os.path.join(RAW, stem + ".uasset")
     made[stem] = None
+    name = m.group(1)[4:].lower().replace("_", "-")
     if not os.path.exists(path):
+        if os.path.exists(os.path.join(OUT_IMG, name + ".webp")):  # a picture made by an earlier run stays
+            made[stem] = name
+            return name
         return None
     d = open(path, "rb").read()
     i = d.rfind(b"PF_")
@@ -180,5 +186,5 @@ for boss in bosses:
         with_portrait += bool(portrait)
         with_loot += bool(loot)
 
-json.dump({"_meta": {"source": "client tables (RewardOdEnergyCube, RewardPackage, RewardPackageItem, NpcData.Portrait), EU client 2.0.7", "chance": "percent; count = [min, max]; times = how often the roll is made (chance 100)"}, "modes": {"explore": text("UI_PARTYDUNGEON_DIFFICULTY_EXPLORER"), "conquest": text("UI_PARTYDUNGEON_DIFFICULTY_CONQUER"), "conquest-hard": {k: f"{text('UI_PARTYDUNGEON_DIFFICULTY_CONQUER').get(k, '')} - {v}" for k, v in text("UI_PARTYDUNGEON_CONQUER_DIFFICULTY_ADVANCED").items()}}, "grades": grade_names, "items": {str(k): v for k, v in sorted(item_defs.items())}, "bosses": out}, open(OUT_JSON, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+json.dump({"_meta": {"source": "client tables (RewardOdEnergyCube, RewardPackage, RewardPackageItem, NpcData.Portrait), EU client, patch of 2026-11-04", "chance": "percent; count = [min, max]; times = how often the roll is made (chance 100)"}, "modes": {"explore": text("UI_PARTYDUNGEON_DIFFICULTY_EXPLORER"), "conquest": text("UI_PARTYDUNGEON_DIFFICULTY_CONQUER"), "conquest-hard": {k: f"{text('UI_PARTYDUNGEON_DIFFICULTY_CONQUER').get(k, '')} - {v}" for k, v in text("UI_PARTYDUNGEON_CONQUER_DIFFICULTY_ADVANCED").items()}, "normal": text("UI_PARTYDUNGEON_RAID_DIFFICULTY_NORMAL"), "hard": text("UI_PARTYDUNGEON_RAID_DIFFICULTY_ADVANCED")}, "grades": grade_names, "items": {str(k): v for k, v in sorted(item_defs.items())}, "bosses": out}, open(OUT_JSON, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 print(f"bosses {len(bosses)}, with portrait {with_portrait}, with loot {with_loot}, portraits written {sum(1 for v in made.values() if v)}")
