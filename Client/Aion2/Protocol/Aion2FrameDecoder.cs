@@ -2079,7 +2079,18 @@ public sealed class Aion2FrameDecoder
             _entities.Combat.NoteAim(actor, target, timestamp);
             if (!_entities.IsKnownMonster(actor))
             {
-                _entities.Combat.NoteSkillUse(timestamp, actor, skillId); // the rotation view
+                // What the notice says besides the skill is kept as it came (the counter byte after the caster, the aim flags, the target): the notice is sent for a repeated
+                // effect or a multi-hit as well, and a reader who wants the real activations has to tell them apart afterwards.
+                int q = 2;
+                int seq = -1;
+                int aim = -1;
+                if (TryReadVarint(frame, ref q, out _) && q + 6 < frame.Length)
+                {
+                    seq = frame[q];
+                    aim = frame[q + 6];
+                }
+
+                _entities.Combat.NoteSkillUse(timestamp, actor, skillId, target, seq, aim); // the rotation view
             }
         }
     }

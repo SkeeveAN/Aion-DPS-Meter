@@ -263,6 +263,9 @@ public partial class MainWindow : Window
         AppMenu.Tag = _uploadFlags;
         _sessions.Identify = IdentifyForSession;
         _sessions.IdentifyPlayer = IdentifyPlayerForSession;
+        _sessions.CountersSource = () => (_liveSource as Aion2PacketCombatSource)?.Counters();
+        _sessions.BuildSource = BuildSnapshotForSession;
+        _sessions.SeenProfileSource = id => (_liveSource?.Entities as Aion2EntityDirectory)?.SeenProfileOf(id);
         _sessions.HpSource = HitPointsOfTarget;
 
         // Captured now, before anything ever rebuilds MobBossFilter.Items, so
@@ -638,6 +641,7 @@ public partial class MainWindow : Window
             entities.LocalIdChanged += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
             {
                 _sessions.MergeIds(oldId, newId);
+                entities.Combat.MergeIds(oldId, newId);
                 int merged = ViewingLive ? _aggregator.MergeIds(oldId, newId) : 0;
                 if (ViewingLive && _selectedTargetId == oldId)
                 {
@@ -650,6 +654,7 @@ public partial class MainWindow : Window
             entities.IdentityMoved += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
             {
                 _sessions.MergeIds(oldId, newId);
+                entities.Combat.MergeIds(oldId, newId);
                 if (ViewingLive)
                 {
                     _aggregator.MergeIds(oldId, newId);
@@ -1073,6 +1078,24 @@ public partial class MainWindow : Window
         IReadOnlyList<HpSample> samples = directory.HitPoints.SamplesAround(id, from, to);
         return samples.Count < 2 ? null : new TargetHp(directory.HitPoints.HighestSeen(id) ?? 0, samples, directory.HitPoints.ResetsOf(id));
     }
+
+    /// <summary>The own character's setup as the live capture knows it right now (null before anything of it came); saved with a log, see <see cref="History.BuildSnapshot"/>.</summary>
+    private History.BuildSnapshot? BuildSnapshotForSession()
+    {
+        if (_liveSource?.Entities is not Aion2EntityDirectory directory)
+        {
+            return null;
+        }
+
+        IReadOnlyList<Aion2PresetInfo> presets = directory.LocalPresets;
+        IReadOnlyList<Aion2EquippedItem> gear = directory.LocalEquipment;
+        return presets.Count == 0 && gear.Count == 0
+            ? null
+            : new History.BuildSnapshot(DateTime.Now, directory.LocalListsAt, directory.ActivePreset, presets, gear, directory.LocalDaevanion, directory.LocalPantheon, directory.LocalActionBars);
+    }
+
+    private History.SessionMeta SessionMetaNow() =>
+        new(BuildSnapshotForSession(), (_liveSource as Aion2PacketCombatSource)?.Counters());
 
     /// <summary>The permanent character id, server and combat power the live capture knows for a player's object id right now; null for none of them.</summary>
     private History.PlayerMeta? IdentifyPlayerForSession(int id)
@@ -4517,7 +4540,7 @@ public partial class MainWindow : Window
 
         try
         {
-            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names, players: CollectSessionPlayers(names.Keys));
+            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names, players: CollectSessionPlayers(names.Keys), meta: SessionMetaNow());
             ShowUploadStatus($"Session saved to {Path.GetFileName(dialog.FileName)}.");
         }
         catch (IOException ex)
@@ -4594,7 +4617,7 @@ public partial class MainWindow : Window
             Directory.CreateDirectory(Path.GetDirectoryName(RestartSnapshotPath)!);
             Dictionary<int, string> names = CollectSessionNames();
             SessionFile.Save(RestartSnapshotPath, _aggregator.Events, _avoids, _kills, names,
-                (_source?.Entities as Aion2EntityDirectory)?.Snapshot(), CollectSessionPlayers(names.Keys));
+                (_source?.Entities as Aion2EntityDirectory)?.Snapshot(), CollectSessionPlayers(names.Keys), SessionMetaNow());
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

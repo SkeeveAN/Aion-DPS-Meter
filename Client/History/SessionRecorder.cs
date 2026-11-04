@@ -60,6 +60,22 @@ public sealed class SessionInfo
     /// <summary>The boss rages the server announced during the stay (see <see cref="EnrageMark"/>).</summary>
     public List<EnrageMark> Enrages { get; } = new();
 
+    /// <summary>The attacks that were avoided during the stay (the Aion 2 stream only shows the dodge roll).</summary>
+    public List<AvoidEvent> Avoids { get; } = new();
+
+    /// <summary>The capture's counters when the stay began and when it ended (or last was left); null for a stay loaded from a file or without a live capture.</summary>
+    public CaptureCounters? CaptureStart { get; internal set; }
+
+    public CaptureCounters? CaptureEnd { get; internal set; }
+
+    /// <summary>The own character's setup when the stay began and when it ended, see <see cref="BuildSnapshot"/>.</summary>
+    public BuildSnapshot? BuildStart { get; internal set; }
+
+    public BuildSnapshot? BuildEnd { get; internal set; }
+
+    /// <summary>What the capture knew of the other players' look and gear (the "player appeared" frame) when the stay ended, by combat id.</summary>
+    public Dictionary<int, Aion2SeenProfile> SeenProfiles { get; } = new();
+
     /// <summary>The finished analysis, kept while the session has not changed (see SessionAnalyzer).</summary>
     internal (int EventCount, SessionAnalysis Result)? CachedAnalysis { get; set; }
 
@@ -109,6 +125,21 @@ public sealed class SessionRecorder
     /// <summary>The permanent character id, server and combat power the capture knows for a player id; null for none of them or for a monster.</summary>
     public Func<int, PlayerMeta?>? IdentifyPlayer { get; set; }
 
+    /// <summary>The capture's counters right now; what a stay's loss indicators are the change of (see <see cref="CaptureCounters"/>).</summary>
+    public Func<CaptureCounters?>? CountersSource { get; set; }
+
+    /// <summary>The own character's setup right now (see <see cref="BuildSnapshot"/>).</summary>
+    public Func<BuildSnapshot?>? BuildSource { get; set; }
+
+    /// <summary>What the capture knows of another player's equipment right now.</summary>
+    public Func<int, Aion2SeenProfile?>? SeenProfileSource { get; set; }
+
+    private void NoteStart(SessionInfo session)
+    {
+        session.CaptureStart ??= CountersSource?.Invoke();
+        session.BuildStart ??= BuildSource?.Invoke();
+    }
+
     /// <summary>Oldest first; the last one is <see cref="Current"/> once anything was recorded.</summary>
     public IReadOnlyList<SessionInfo> Sessions => _sessions;
 
@@ -126,6 +157,12 @@ public sealed class SessionRecorder
         foreach (EnrageMark mark in batch.EnrageMarks)
         {
             _sessions.Where(s => s.Start <= mark.Timestamp && (s.End is null || s.End >= mark.Timestamp)).MaxBy(s => s.Start)?.Enrages.Add(mark);
+        }
+
+        // An avoided attack belongs to the stay it came in as well.
+        foreach (AvoidEvent avoid in batch.Avoids)
+        {
+            (_sessions.Where(s => s.Start <= avoid.Timestamp && (s.End is null || s.End >= avoid.Timestamp)).MaxBy(s => s.Start) ?? Current)?.Avoids.Add(avoid);
         }
 
         IReadOnlyList<DamageEvent> events = batch.Damage;
@@ -171,7 +208,9 @@ public sealed class SessionRecorder
             return;
         }
 
-        _sessions.Add(new SessionInfo(_nextNumber++, zone.ZoneId, kind, zone.Timestamp));
+        var stay = new SessionInfo(_nextNumber++, zone.ZoneId, kind, zone.Timestamp);
+        NoteStart(stay);
+        _sessions.Add(stay);
         Prune(zone.Timestamp);
         Changed?.Invoke();
     }
@@ -247,6 +286,19 @@ public sealed class SessionRecorder
         RefreshNames(session);
         session.End = end;
         CaptureHp(session);
+        session.CaptureEnd = CountersSource?.Invoke() ?? session.CaptureEnd;
+        session.BuildEnd = BuildSource?.Invoke() ?? session.BuildEnd;
+        if (SeenProfileSource is { } seen)
+        {
+            foreach (int id in session.Players.Keys)
+            {
+                if (seen(id) is { } profile)
+                {
+                    session.SeenProfiles[id] = profile;
+                }
+            }
+        }
+
         if (session.Data.Events.Count == 0 && end - session.Start < TrivialStay)
         {
             _sessions.Remove(session);
@@ -302,6 +354,7 @@ public sealed class SessionRecorder
     private SessionInfo Open(DateTime start)
     {
         var session = new SessionInfo(_nextNumber++, 0, SessionKind.Map, start);
+        NoteStart(session);
         _sessions.Add(session);
         Changed?.Invoke();
         return session;
@@ -351,6 +404,24 @@ public sealed class SessionRecorder
             if (session.Players.Remove(from, out PlayerMeta? meta))
             {
                 session.Players.TryAdd(to, meta);
+            }
+
+            if (session.SeenProfiles.Remove(from, out Aion2SeenProfile? seen))
+            {
+                session.SeenProfiles.TryAdd(to, seen);
+            }
+
+            for (int i = 0; i < session.Avoids.Count; i++)
+            {
+                AvoidEvent avoid = session.Avoids[i];
+                if (avoid.SourceObjectId == from || avoid.TargetObjectId == from)
+                {
+                    session.Avoids[i] = avoid with
+                    {
+                        SourceObjectId = avoid.SourceObjectId == from ? to : avoid.SourceObjectId,
+                        TargetObjectId = avoid.TargetObjectId == from ? to : avoid.TargetObjectId,
+                    };
+                }
             }
         }
     }

@@ -26,7 +26,11 @@ public static class SessionFile
     private sealed record EventDto(long T, int K, int S, int G, long A, bool H, string? Sk, bool C,
         [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? F = null,
         [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? N = null,
-        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? M = null);
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? M = null,
+        // I the game's numeric skill id (Sk is only its name), D 1 = a damage-over-time tick, E 1 = the amount is a guess (the skill's average hit), not the game's number
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? I = null,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? D = null,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? E = null);
 
     private sealed record AvoidDto(long T, int K, int S, int G, int Kind, string? Sk);
 
@@ -46,6 +50,24 @@ public static class SessionFile
         [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? S,
         [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? P);
 
+    private sealed record EncounterDto(int Target, string Name, long Start, long End, long Damage, bool Killed);
+
+    /// <summary>
+    /// What a reader needs to tell a gap in the data from a stretch without activity (see the notes), and the setup the fight was played with. Streams = how many entries each
+    /// kind of record holds (a kind that is missing here or 0 was not recorded or did not happen); Capture = the change of the capture's loss counters over the stay.
+    /// </summary>
+    private sealed record MetaDto(
+        int Format,
+        string Client,
+        string Decoder,
+        Dictionary<string, int> Streams,
+        List<string> Notes,
+        CaptureCounters? Capture = null,
+        List<EncounterDto>? Encounters = null,
+        BuildSnapshot? BuildStart = null,
+        BuildSnapshot? BuildEnd = null,
+        Dictionary<string, Aion2.Aion2SeenProfile>? SeenProfiles = null);
+
     private sealed record Payload(
         int Version,
         DateTime SavedAt,
@@ -55,7 +77,40 @@ public static class SessionFile
         Dictionary<string, string> Names,
         Aion2.Aion2DirectorySnapshot? Directory = null,
         StayDto? Stay = null,
-        Dictionary<string, PlayerDto>? Players = null);
+        Dictionary<string, PlayerDto>? Players = null,
+        MetaDto? Meta = null);
+
+    /// <summary>What the file cannot say for sure, written into every file so a reader does not have to know the client's history.</summary>
+    private static readonly string[] Notes =
+    {
+        "skill uses (extras.U) are the game's cast notices: a repeated effect, a multi-hit or a channelled skill also sends one, so a notice is not always one activation. Each keeps the notice's counter byte (Q), aim flags (M) and target (G) as sent; the number of real activations is uncertain",
+        "events: I = the game's numeric skill id, D = 1 a damage-over-time tick (no hit, no crit), E = 1 the amount is an estimate (the skill's average hit) because the server sent no figure for that player; M = 1 a summon's hit counted for its owner",
+        "avoids: only dodge rolls are observable in the Aion 2 stream; parry, block and resist events are not sent as separate records",
+        "kills: the Aion 2 stream has no kill record; a death is in extras.D (deaths)",
+        "ids: damage events, avoids and extras of one player are put under one id when the game changes it during a stay; the permanent id is Players.C / Players.S (character and server)",
+        "build: BuildStart/BuildEnd are the own character's setup read at the start and end of the stay (TakenAt), ListsAt = when the game last sent one of the lists; they differ when the setup was changed during the stay. Other players: SeenProfiles holds what their 'player appeared' frame showed (look, visible gear)",
+    };
+
+    private static MetaDto MakeMeta(Dictionary<string, int> streams, CaptureCounters? capture, BuildSnapshot? buildStart, BuildSnapshot? buildEnd,
+        List<EncounterDto>? encounters = null, IReadOnlyDictionary<int, Aion2.Aion2SeenProfile>? seen = null) =>
+        new(3, Update.AppVersion.Text, "aion2", streams, Notes.ToList(), capture, encounters is { Count: > 0 } ? encounters : null, buildStart, buildEnd,
+            seen is { Count: > 0 } ? seen.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value) : null);
+
+    private static Dictionary<string, int> StreamCounts(int events, int shields, int avoids, int kills, Combat.FightExtras? extras) => new()
+    {
+        ["events"] = events,
+        ["shields"] = shields,
+        ["avoids"] = avoids,
+        ["kills"] = kills,
+        ["skillUses"] = extras?.Uses.Count ?? 0,
+        ["buffs"] = extras?.Buffs.Count ?? 0,
+        ["staggers"] = extras?.Staggers.Count ?? 0,
+        ["positionTracks"] = extras?.Tracks?.Count ?? 0,
+        ["windups"] = extras?.Windups?.Count ?? 0,
+        ["deaths"] = extras?.Deaths?.Count ?? 0,
+        ["hpSeries"] = extras?.Hp?.Count ?? 0,
+        ["targetChanges"] = extras?.Targets?.Count ?? 0,
+    };
 
     private static Dictionary<string, PlayerDto>? ToDto(IReadOnlyDictionary<int, PlayerMeta>? players) =>
         players is { Count: > 0 }
@@ -63,19 +118,35 @@ public static class SessionFile
             : null;
 
     private static EventDto ToDto(DamageEvent e) => new(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical,
-        e.Kinds is { } kinds ? (int)kinds : null, e.HitCount > 1 ? e.HitCount : null, e.ViaSummon ? 1 : null);
+        e.Kinds is { } kinds ? (int)kinds : null, e.HitCount > 1 ? e.HitCount : null, e.ViaSummon ? 1 : null,
+        e.SkillId != 0 ? e.SkillId : null, e.IsTick ? 1 : null, e.Estimated ? 1 : null);
 
     private static DamageEvent FromDto(EventDto d) => new(new DateTime(d.T, (DateTimeKind)d.K), d.S, d.G, d.A, d.H, d.Sk, d.C,
-        Kinds: d.F is int f ? (HitKinds)f : null, HitCount: d.N ?? 1, ViaSummon: d.M == 1);
+        IsTick: d.D == 1, SkillId: d.I ?? 0, Kinds: d.F is int f ? (HitKinds)f : null, HitCount: d.N ?? 1, Estimated: d.E == 1, ViaSummon: d.M == 1);
+
+    private static AvoidDto ToDto(AvoidEvent a) => new(a.Timestamp.Ticks, (int)a.Timestamp.Kind, a.SourceObjectId, a.TargetObjectId, (int)a.Kind, a.Skill);
 
     /// <summary>Writes one stay (from the session manager) as a file the same Load can read back; the extra part is what a stay needs.</summary>
     public static void SaveStay(string path, SessionInfo stay, Combat.FightExtras? extras = null)
     {
+        // the boss attempts of the stay (where one fight ends and the next begins) are what a reader would otherwise have to guess from the events
+        List<EncounterDto>? encounters = null;
+        try
+        {
+            encounters = SessionAnalyzer.Analyze(stay).Attempts
+                .Select(a => new EncounterDto(a.TargetId, a.Name, a.Start.Ticks, a.End.Ticks, a.Counted, a.Killed)).ToList();
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException or KeyNotFoundException)
+        {
+            // an analysis that cannot be made leaves the list out; the events are what matters
+        }
+
+        CaptureCounters? capture = stay.CaptureStart is { } from && stay.CaptureEnd is { } to ? to.Since(from) : null;
         var payload = new Payload(
             2,
             DateTime.Now,
             stay.Data.Events.Select(ToDto).ToList(),
-            new List<AvoidDto>(),
+            stay.Avoids.Select(ToDto).ToList(),
             new List<KillDto>(),
             stay.Names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
             null,
@@ -92,7 +163,8 @@ public static class SessionFile
                         kv.Value.Resets.Select(r => r.Ticks).ToList())),
                 stay.Enrages.Select(m => new RageDto(m.Timestamp.Ticks, m.EntityId, m.EngagedAt.Ticks)).ToList(),
                 extras is { IsEmpty: false } ? Convert.ToBase64String(ExtrasBlob.Pack(extras)) : null),
-            ToDto(stay.Players));
+            ToDto(stay.Players),
+            MakeMeta(StreamCounts(stay.Data.Events.Count, stay.Data.Shields.Count, stay.Avoids.Count, 0, extras), capture, stay.BuildStart, stay.BuildEnd, encounters, stay.SeenProfiles));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -111,17 +183,20 @@ public static class SessionFile
         IReadOnlyList<KillEvent> kills,
         IReadOnlyDictionary<int, string> names,
         Aion2.Aion2DirectorySnapshot? directory = null,
-        IReadOnlyDictionary<int, PlayerMeta>? players = null)
+        IReadOnlyDictionary<int, PlayerMeta>? players = null,
+        SessionMeta? meta = null,
+        Combat.FightExtras? extras = null)
     {
         var payload = new Payload(
             1,
             DateTime.Now,
             events.Select(ToDto).ToList(),
-            avoids.Select(a => new AvoidDto(a.Timestamp.Ticks, (int)a.Timestamp.Kind, a.SourceObjectId, a.TargetObjectId, (int)a.Kind, a.Skill)).ToList(),
+            avoids.Select(ToDto).ToList(),
             kills.Select(k => new KillDto(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer)).ToList(),
             names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
             directory,
-            Players: ToDto(players));
+            Players: ToDto(players),
+            Meta: MakeMeta(StreamCounts(events.Count, 0, avoids.Count, kills.Count, extras), meta?.Capture, meta?.Build, meta?.Build));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);

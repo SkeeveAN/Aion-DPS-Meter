@@ -428,6 +428,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     private DateTime _listsAt = DateTime.MinValue;
+
+    /// <summary>When the game last sent one of the setup lists (skills, stigmas, presets, gear, action bars) in this run; null when none came yet.</summary>
+    public DateTime? LocalListsAt
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _listsAt == DateTime.MinValue ? null : _listsAt.ToLocalTime();
+            }
+        }
+    }
     private IReadOnlyList<Aion2EquippedItem>? _fullEquipment;
     private IReadOnlyList<Aion2SkillEntry>? _skills;
 

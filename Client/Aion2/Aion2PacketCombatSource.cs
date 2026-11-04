@@ -23,6 +23,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     public IReadOnlyDictionary<int, SortedSet<string>> ServerIdsSeen => _decoder.ServerIdsSeen;
     private readonly Aion2EntityDirectory _entities = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<DamageEvent> _pending = new();
+    private readonly System.Collections.Concurrent.ConcurrentQueue<AvoidEvent> _pendingAvoids = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<ZoneChange> _zones = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<EnrageMark> _enrages = new();
     private readonly string? _adapterId;
@@ -193,13 +194,19 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             drained.Add(ev);
         }
 
-        if (drained.Count == 0 && zones is null && enrages is null)
+        var avoids = new List<AvoidEvent>();
+        while (_pendingAvoids.TryDequeue(out AvoidEvent avoid))
+        {
+            avoids.Add(avoid);
+        }
+
+        if (drained.Count == 0 && avoids.Count == 0 && zones is null && enrages is null)
         {
             return CombatBatch.Empty;
         }
 
         // Paused time is discarded, not deferred - tape-recorder rule.
-        return new CombatBatch(paused ? Array.Empty<DamageEvent>() : drained, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), zones, enrages);
+        return new CombatBatch(paused ? Array.Empty<DamageEvent>() : drained, paused ? Array.Empty<AvoidEvent>() : avoids, Array.Empty<KillEvent>(), zones, enrages);
     }
 
     public void Dispose()
@@ -218,6 +225,20 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     /// stay at 0 points at capture/alignment; frames growing with events at 0 points at the layout.
     /// Throttled, since the status line repaints on every change.
     /// </summary>
+    /// <summary>The running totals of the capture (what a saved log keeps the change of over a stay, see <see cref="History.CaptureCounters"/>).</summary>
+    public History.CaptureCounters Counters()
+    {
+        long frames;
+        long desyncs;
+        lock (_reassembler)
+        {
+            frames = _reassembler.Frames;
+            desyncs = _reassembler.Desyncs;
+        }
+
+        return new History.CaptureCounters(frames, _capture?.Dropped ?? 0, desyncs, _decoder.SkippedShortFrames, _capture?.CallbackErrors ?? 0);
+    }
+
     private void ReportLiveCounters()
     {
         if (_capture?.ServerEndpoint is not string endpoint || DateTime.UtcNow - _lastStatusAt < TimeSpan.FromSeconds(2))
@@ -260,6 +281,11 @@ public sealed class Aion2PacketCombatSource : ICombatSource
                     _pending.Enqueue(ev);
                     _eventsDecoded++;
                 }
+            }
+
+            foreach (AvoidEvent avoid in _decoder.DrainAvoids())
+            {
+                _pendingAvoids.Enqueue(avoid);
             }
 
             foreach (ZoneChange zone in _decoder.DrainZoneChanges())

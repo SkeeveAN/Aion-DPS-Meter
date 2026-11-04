@@ -184,7 +184,61 @@ public static class SelfCheckSessions
             bool extrasKept = withFile.Stay!.Extras is { } back && back.Uses.Count == 1 && back.Uses[0].SkillId == 11800007 && back.Names[1] == "Aahz" && withoutFile.Stay!.Extras is null
                 && new System.IO.FileInfo(withPath).Length > new System.IO.FileInfo(withoutPath).Length;
             Console.WriteLine($"  -> saved with the extras they come back with the file; without them the file has none and is smaller: {extrasKept}");
-            return same && playerKept && placed && outOfAll && extrasKept;
+
+            // what the first version of the file lost: the skill id, the tick and estimate flags, the avoids, the cast notice's own bytes, the meta block
+            var rich = new SessionRecorder(_ => SessionKind.Instance)
+            {
+                Identify = id => id == 1 ? ("Aahz", "Gladiator") : (null, null),
+                CountersSource = () => new CaptureCounters(1000, 3, 1, 0, 0),
+                BuildSource = () => new BuildSnapshot(t0, t0.AddMinutes(-1), 2, Array.Empty<Aion2.Aion2PresetInfo>(), new[] { new Aion2.Aion2EquippedItem(1, 100001, 5) }, Array.Empty<Aion2.Aion2DaevanionBoard>(), null, null),
+            };
+            rich.Enter(new ZoneChange(t0, Krao));
+            rich.Feed(new CombatBatch(
+                new[]
+                {
+                    new DamageEvent(t0.AddSeconds(5), 1, 100, 900, false, "Cleave", false, IsTick: false, SkillId: 15040047, Estimated: true),
+                    new DamageEvent(t0.AddSeconds(6), 1, 100, 40, false, "Burn", false, IsTick: true, SkillId: 15040048),
+                },
+                new[] { new AionDPS.Combat.Sources.AvoidEvent(t0.AddSeconds(7), 100, 1, AionDPS.Combat.Sources.AvoidKind.Dodge) },
+                Array.Empty<AionDPS.Combat.Sources.KillEvent>()));
+            rich.Enter(new ZoneChange(t0.AddMinutes(10), Verteron));
+            var richExtras = new FightExtras(new[] { new SkillUse(t0.AddSeconds(5), 1, 15040047, Target: 100, Seq: 11, Aim: 3) }, Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string> { [1] = "Aahz" });
+            string richPath = System.IO.Path.Combine(dir, "rich" + SessionFile.Extension);
+            SessionFile.SaveStay(richPath, rich.Sessions[0], richExtras);
+            SessionFile.LoadedSession richFile = SessionFile.Load(richPath);
+            bool fieldsKept = richFile.Events.Count == 2
+                && richFile.Events[0].SkillId == 15040047 && richFile.Events[0].Estimated && !richFile.Events[0].IsTick
+                && richFile.Events[1].SkillId == 15040048 && richFile.Events[1].IsTick && !richFile.Events[1].Estimated
+                && richFile.Avoids.Count == 1 && richFile.Avoids[0].TargetObjectId == 1
+                && richFile.Stay!.Extras!.Uses[0] is { Target: 100, Seq: 11, Aim: 3 };
+            string json;
+            using (var input = System.IO.File.OpenRead(richPath))
+            using (var gzip = new System.IO.Compression.GZipStream(input, System.IO.Compression.CompressionMode.Decompress))
+            using (var reader = new System.IO.StreamReader(gzip))
+            {
+                json = reader.ReadToEnd();
+            }
+
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            System.Text.Json.JsonElement meta = doc.RootElement.GetProperty("Meta");
+            bool metaKept = meta.GetProperty("Client").GetString() is { Length: > 0 }
+                && meta.GetProperty("Streams").GetProperty("skillUses").GetInt32() == 1
+                && meta.GetProperty("Streams").GetProperty("avoids").GetInt32() == 1
+                && meta.GetProperty("Capture").GetProperty("Dropped").GetInt64() == 0
+                && meta.GetProperty("BuildStart").GetProperty("Preset").GetInt32() == 2
+                && meta.GetProperty("BuildEnd").GetProperty("Gear")[0].GetProperty("ItemId").GetInt32() == 100001
+                && meta.GetProperty("Notes").GetArrayLength() > 0;
+            Console.WriteLine($"  -> skill id, tick and estimate flags, avoids and the cast notice's own bytes come back with the file: {fieldsKept}");
+            Console.WriteLine($"  -> the file says which streams it holds, the capture's losses and the setup at start and end: {metaKept}");
+
+            // one player under two combat ids: the log of the fight follows the merge
+            var state = new Aion2.Aion2CombatState();
+            state.NoteSkillUse(t0, 77, 11010340, 100, 5, 3);
+            state.MergeIds(77, 88);
+            FightExtras slice = state.Slice(t0.AddSeconds(-1), t0.AddSeconds(1), id => "Aahz");
+            bool merged = slice.Uses.Count == 1 && slice.Uses[0].Actor == 88 && slice.Uses[0].Seq == 5;
+            Console.WriteLine($"  -> after the game changes a player's combat id the skill uses are under the new id as well: {merged}");
+            return same && playerKept && placed && outOfAll && extrasKept && fieldsKept && metaKept && merged;
         }
         finally
         {

@@ -585,11 +585,96 @@ public sealed class Aion2CombatState
     // ---- the log of a fight: what the rotation and buff views read -----------------------------------------------
 
     /// <summary>A skill a player used (the cast notice).</summary>
-    public void NoteSkillUse(DateTime at, int actor, int skillId)
+    public void NoteSkillUse(DateTime at, int actor, int skillId, int target = 0, int seq = -1, int aim = -1)
     {
         lock (_gate)
         {
-            Append(_uses, new SkillUse(at, actor, skillId));
+            Append(_uses, new SkillUse(at, actor, skillId, target, seq, aim));
+        }
+    }
+
+    /// <summary>
+    /// The player got a new combat id (a map change, or the same name on the same server under a new id): the damage events were already put under the new id
+    /// (<see cref="History.SessionRecorder.MergeIds"/>), so the skills used, the effects, the places and everything else the log holds are put under it too. Without this a
+    /// saved fight listed the same player twice: once in the damage, once in the rotation and the buffs.
+    /// </summary>
+    public void MergeIds(int from, int to)
+    {
+        if (from == to)
+        {
+            return;
+        }
+
+        int Map(int id) => id == from ? to : id;
+        lock (_gate)
+        {
+            for (int i = 0; i < _uses.Count; i++)
+            {
+                if (_uses[i].Actor == from) { _uses[i] = _uses[i] with { Actor = to }; }
+            }
+
+            for (int i = 0; i < _buffLog.Count; i++)
+            {
+                if (_buffLog[i].Target == from || _buffLog[i].Caster == from) { _buffLog[i] = _buffLog[i] with { Target = Map(_buffLog[i].Target), Caster = Map(_buffLog[i].Caster) }; }
+            }
+
+            for (int i = 0; i < _staggerLog.Count; i++)
+            {
+                if (_staggerLog[i].Entity == from) { _staggerLog[i] = _staggerLog[i] with { Entity = to }; }
+            }
+
+            for (int i = 0; i < _windupLog.Count; i++)
+            {
+                if (_windupLog[i].Actor == from || _windupLog[i].Target == from) { _windupLog[i] = _windupLog[i] with { Actor = Map(_windupLog[i].Actor), Target = Map(_windupLog[i].Target) }; }
+            }
+
+            for (int i = 0; i < _deathLog.Count; i++)
+            {
+                if (_deathLog[i].Entity == from) { _deathLog[i] = _deathLog[i] with { Entity = to }; }
+            }
+
+            for (int i = 0; i < _reviveLog.Count; i++)
+            {
+                if (_reviveLog[i].Entity == from) { _reviveLog[i] = (to, _reviveLog[i].At); }
+            }
+
+            for (int i = 0; i < _targetLog.Count; i++)
+            {
+                if (_targetLog[i].Actor == from || _targetLog[i].Target == from) { _targetLog[i] = _targetLog[i] with { Actor = Map(_targetLog[i].Actor), Target = Map(_targetLog[i].Target) }; }
+            }
+
+            if (_targetNow.Remove(from, out int now))
+            {
+                _targetNow.TryAdd(to, now);
+            }
+
+            foreach (int key in _targetNow.Where(kv => kv.Value == from).Select(kv => kv.Key).ToList())
+            {
+                _targetNow[key] = to;
+            }
+
+            if (_tracks.Remove(from, out TrackBuffer? track))
+            {
+                if (_tracks.TryGetValue(to, out TrackBuffer? other))
+                {
+                    other.Points.AddRange(track.Points);
+                    other.Points.Sort((a, b) => a.At.CompareTo(b.At));
+                }
+                else
+                {
+                    _tracks[to] = track;
+                }
+            }
+
+            if (_buffs.Remove(from, out var buffsOf) && !_buffs.ContainsKey(to))
+            {
+                _buffs[to] = buffsOf;
+            }
+
+            if (_lastAim.Remove(from, out var aim) && !_lastAim.ContainsKey(to))
+            {
+                _lastAim[to] = aim;
+            }
         }
     }
 

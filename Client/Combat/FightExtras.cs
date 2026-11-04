@@ -1,7 +1,11 @@
 namespace AionDPS.Combat;
 
-/// <summary>A skill an entity used (the game's cast notice), for the rotation view.</summary>
-public readonly record struct SkillUse(DateTime At, int Actor, int SkillId);
+/// <summary>
+/// A skill an entity used (the game's cast notice), for the rotation view. The notice is sent for a repeated effect or a multi-hit skill as well, so it is not always one
+/// activation: <see cref="Seq"/> (the counter byte of the notice, -1 when not read), <see cref="Aim"/> (its aim flags, -1 when not read) and <see cref="Target"/> are kept as the
+/// notice carried them, so a later reading can tell the kinds apart.
+/// </summary>
+public readonly record struct SkillUse(DateTime At, int Actor, int SkillId, int Target = 0, int Seq = -1, int Aim = -1);
 
 public enum BuffKind
 {

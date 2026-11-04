@@ -683,6 +683,7 @@ public partial class SessionManagerWindow : Window
             session = _recorder.Import(stay.ZoneId, stay.Kind, stay.Start, stay.End);
             session.Data.IngestEvents(file.Events.Concat(stay.Shields));
             session.Extras = stay.Extras;
+            session.Avoids.AddRange(file.Avoids);
             foreach ((int id, string cls) in stay.Classes)
             {
                 session.Classes[id] = cls;
