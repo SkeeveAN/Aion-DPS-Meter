@@ -10,6 +10,22 @@
      "Database"
     ],
     "date": "2026-11-04"
+   },
+   {
+    "text": "Client: the boss health bar of exploration bosses shows the real 100 % when the spawn data already holds the whole group's health (it was multiplied by the group size a second time and the bar hung at a fifth), and the boss table knows five more exploration bosses",
+    "areas": [
+     "Client",
+     "Boss health"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Backend: exploration kills are no longer marked as partial fights when the spawn data already holds the group's health, and 434 fights marked that way are corrected",
+    "areas": [
+     "Backend",
+     "Boss health"
+    ],
+    "date": "2026-11-04"
    }
   ]
  },
