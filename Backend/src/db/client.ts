@@ -24,4 +24,13 @@ sqlite.pragma("cache_size = -262144");
 sqlite.pragma("wal_autocheckpoint = 4000");
 sqlite.pragma("journal_size_limit = 67108864");
 
+// The second file with the gzipped raw payloads of settled uploads (uploadArchive.ts): attached to this one connection as "arch", so one statement can read both.
+// A commit that touches both files is not atomic across them, so the archive code writes the archive first and empties the main table only afterwards.
+// It is read rarely, so its cache stays small.
+sqlite.prepare("attach database ? as arch").run(env.ARCHIVE_DATABASE_PATH);
+sqlite.pragma("arch.journal_mode = WAL");
+sqlite.pragma("arch.synchronous = NORMAL");
+sqlite.pragma("arch.cache_size = -8192");
+sqlite.exec("create table if not exists arch.payloads (upload_id integer primary key, gz blob not null)");
+
 export const db = drizzle(sqlite, { schema });

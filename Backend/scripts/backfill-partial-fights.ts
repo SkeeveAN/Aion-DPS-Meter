@@ -12,6 +12,8 @@
  * those encounters are touched: is_partial, hp_seen_share, boss_real_max_hp and boss_spawn_max_hp are set on them, nothing else, and
  * encounters that are already marked are left alone. World bosses are never partial. No player names are printed.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { gunzipSync } from "node:zlib";
 import Database from "better-sqlite3";
 import { classifyFight, type BossHpRef } from "../src/bossHpRules.js";
@@ -26,6 +28,13 @@ if (!dbPath) {
 }
 
 const db = new Database(dbPath, { fileMustExist: true });
+// The gzipped payloads of settled uploads live in uploads-archive.sqlite next to the database (see src/uploadArchive.ts); without that file the table stays empty.
+{
+  const archivePath = path.join(path.dirname(dbPath), "uploads-archive.sqlite");
+  db.prepare("attach database ? as arch").run(fs.existsSync(archivePath) ? archivePath : ":memory:");
+  db.exec("create table if not exists arch.payloads (upload_id integer primary key, gz blob not null)");
+}
+
 if (db.prepare("select 1 from sqlite_master where type = 'table' and name = 'boss_hp_reference'").get() === undefined) {
   console.error("boss_hp_reference is missing: run db:migrate first");
   process.exit(1);
@@ -47,9 +56,10 @@ interface Payload {
 }
 const rows = db
   .prepare(
-    `select u.matched_encounter_id eid, u.raw_payload_json raw, u.raw_payload_gz gz, e.is_partial already, i.category cat,
+    `select u.matched_encounter_id eid, u.raw_payload_json raw, coalesce(u.raw_payload_gz, a.gz) gz, e.is_partial already, i.category cat,
             coalesce(b.name_en, b.name) boss, e.started_at started
      from uploads u
+     left join arch.payloads a on a.upload_id = u.id
      join encounters e on e.id = u.matched_encounter_id
      join bosses b on b.id = e.boss_id
      join instances i on i.id = b.instance_id

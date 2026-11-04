@@ -33,6 +33,13 @@ const limit = limitArg ? Number(limitArg[1]) : Infinity;
 const seedFile = seedArg ? seedArg[1]! : path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "content", "bossHpSeed.json");
 
 const db = new Database(dbPath, { readonly: true, fileMustExist: true });
+// The gzipped payloads of settled uploads live in uploads-archive.sqlite next to the database (see src/uploadArchive.ts); without that file the table stays empty.
+{
+  const archivePath = path.join(path.dirname(dbPath), "uploads-archive.sqlite");
+  db.prepare("attach database ? as arch").run(fs.existsSync(archivePath) ? archivePath : ":memory:");
+  db.exec("create table if not exists arch.payloads (upload_id integer primary key, gz blob not null)");
+}
+
 
 const refs = new Map<number, BossHpRef>();
 const hasTable = db.prepare("select 1 from sqlite_master where type = 'table' and name = 'boss_hp_reference'").get() !== undefined;
@@ -59,10 +66,11 @@ interface Payload {
 }
 const rows = db
   .prepare(
-    `select u.id uid, u.matched_encounter_id eid, u.raw_payload_json raw, u.raw_payload_gz gz,
+    `select u.id uid, u.matched_encounter_id eid, u.raw_payload_json raw, coalesce(u.raw_payload_gz, a.gz) gz,
             e.started_at started, e.mode mode, e.boss_max_hp enc_max, e.merged_upload_count merged,
             coalesce(b.name_en, b.name) boss, i.category cat
      from uploads u
+     left join arch.payloads a on a.upload_id = u.id
      join encounters e on e.id = u.matched_encounter_id
      join bosses b on b.id = e.boss_id
      join instances i on i.id = b.instance_id

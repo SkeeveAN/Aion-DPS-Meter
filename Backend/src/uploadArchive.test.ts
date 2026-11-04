@@ -12,7 +12,8 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
-const { compressSettledUploads, dropOldProfilePayloads, rawPayloadOf } = await import("./uploadArchive.js");
+const { compressSettledUploads, dropOldProfilePayloads, moveGzipPayloadsToArchive, rawPayloadOf } = await import("./uploadArchive.js");
+const { gzipSync } = await import("node:zlib");
 const { uploads } = await import("./db/schema.js");
 const { eq } = await import("drizzle-orm");
 
@@ -29,7 +30,9 @@ test("settled uploads older than a day are packed, everything else keeps its pla
   const fresh = add("merged", new Date().toISOString().replace("T", " ").slice(0, 19), text);
   assert.equal(compressSettledUploads(24), 1);
   assert.equal(row(merged).rawPayloadJson, "");
-  assert.ok(row(merged).rawPayloadGz && row(merged).rawPayloadGz!.length < text.length / 5);
+  assert.equal(row(merged).rawPayloadGz, null); // the main table keeps nothing of it
+  const archived = sqlite.prepare("select gz from arch.payloads where upload_id = ?").get(merged) as { gz: Buffer };
+  assert.ok(archived.gz.length < text.length / 5);
   assert.equal(rawPayloadOf(row(merged)), text);
   assert.equal(rawPayloadOf(row(pending)), text);
   assert.equal(row(pending).rawPayloadGz, null);
@@ -44,4 +47,26 @@ test("the payload of an old profile-only upload is dropped, that of a fight uplo
   assert.ok(dropOldProfilePayloads(90) >= 1);
   assert.equal(rawPayloadOf(row(profileOnly)), null);
   assert.equal(row(profileOnly).status, "merged"); // the row stays for the statistics
+});
+
+test("gzips that still sit in the table move to the archive file, unchanged and only once they are safely there", () => {
+  const text = JSON.stringify({ bossNpcId: 7, filler: "y".repeat(3000) });
+  const id = add("merged", old, "");
+  db.update(uploads).set({ rawPayloadGz: gzipSync(Buffer.from(text, "utf8")) }).where(eq(uploads.id, id)).run();
+  assert.equal(rawPayloadOf(row(id)), text); // readable from the row itself
+  assert.ok(moveGzipPayloadsToArchive(100) >= 1);
+  assert.equal(row(id).rawPayloadGz, null);
+  assert.equal(rawPayloadOf(row(id)), text); // now from the archive file
+  assert.equal(moveGzipPayloadsToArchive(100), 0); // nothing left
+});
+
+test("a row without an id cannot ask the archive, and a dropped profile payload leaves nothing in the archive", () => {
+  const text = JSON.stringify({ x: 1 });
+  const id = add("merged", old, text);
+  compressSettledUploads(24);
+  assert.equal(rawPayloadOf({ rawPayloadJson: "", rawPayloadGz: null }), null);
+  assert.equal(rawPayloadOf(row(id)), text);
+  assert.ok(dropOldProfilePayloads(90) >= 1);
+  assert.equal((sqlite.prepare("select count(*) n from arch.payloads where upload_id = ?").get(id) as { n: number }).n, 0);
+  assert.equal(rawPayloadOf(row(id)), null);
 });

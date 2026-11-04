@@ -1,9 +1,12 @@
+import path from "node:path";
 import "dotenv/config";
 
 export const env = {
   PORT: Number(process.env.PORT ?? 4000),
   HOST: process.env.HOST ?? "127.0.0.1",
   DATABASE_PATH: process.env.DATABASE_PATH ?? "./data/dpsmeter.sqlite",
+  // The gzipped raw payloads of settled uploads live in a second file next to the main database (see uploadArchive.ts): it only grows and is almost never read.
+  ARCHIVE_DATABASE_PATH: process.env.ARCHIVE_DATABASE_PATH ?? path.join(path.dirname(process.env.DATABASE_PATH ?? "./data/dpsmeter.sqlite"), "uploads-archive.sqlite"),
   // The desktop client is not a browser and the web frontend is same-origin, so nothing needs a
   // wildcard here; only ever widen this for a deliberate third-party integration.
   CORS_ORIGIN: process.env.CORS_ORIGIN ?? "https://aiondps.com",
