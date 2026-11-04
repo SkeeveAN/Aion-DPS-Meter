@@ -58,6 +58,43 @@ public static class Aion2PetRare
 
     private static Catalog Data => _catalog ??= Build();
 
+    /// <summary>The instances the pet souls drop in (by their English name key): Krao Cave, Urugugu Canyon, Fire Temple, Draupnir, Vakron Sky Island, Ferocious Horn Den, and the two transcendence instances the game has so far (Shattered Arkanis, Deus Research Base).</summary>
+    private static readonly HashSet<string> PetInstances = new()
+    {
+        "Krao Cave (Conquest)", "Urugugu Canyon", "Fire Temple", "Draupnir", "Vakron Sky Island", "Ferocious Horn Den",
+        "Shattered Arkanis", "Deus Research Base",
+    };
+
+    /// <summary>
+    /// The pet instances (by their name key, the difficulties of a dungeon counted as one) with all pets whose mobs stand in them: the "Instances" group of the Region tab.
+    /// Not limited to rare pets.
+    /// </summary>
+    public static IReadOnlyList<PetRegion> InstanceRegions()
+    {
+        var data = Data;
+        var pets = new Dictionary<string, List<int>>();
+        foreach (int petId in Aion2Pets.AllPetIds)
+        {
+            foreach (var mob in (data.Pets.GetValueOrDefault(petId) ?? new Dictionary<int, Mob>()).Values.Where(m => !m.IsBoss))
+            {
+                foreach (string place in mob.Places.Keys)
+                {
+                    if (!pets.TryGetValue(place, out var list))
+                    {
+                        pets[place] = list = new List<int>();
+                    }
+
+                    if (!list.Contains(petId))
+                    {
+                        list.Add(petId);
+                    }
+                }
+            }
+        }
+
+        return pets.Where(kv => PetInstances.Contains(kv.Key)).Select(kv => new PetRegion(kv.Key, data.PlaceNames[kv.Key], kv.Value)).ToList();
+    }
+
     public static IReadOnlyDictionary<string, List<PetRareEntry>> Compute(int rareMax, int instanceMin)
     {
         var data = Data;
@@ -81,19 +118,7 @@ public static class Aion2PetRare
                 continue;
             }
 
-            // the maps are not added up: a pet is rare on a map when it has few spawn points on that very map
-            if (instancePoints > 0 && onMap.Values.Max() <= rareMax)
-            {
-                foreach ((int npc, Mob mob) in mobs)
-                {
-                    var places = mob.Places.Select(p => new PetRarePlace(data.PlaceNames[p.Key], p.Value)).OrderByDescending(p => p.Count).ToList();
-                    foreach ((string place, int count) in mob.Places)
-                    {
-                        result[Instances].Add(new PetRareEntry($"i{npc}.{petId}.{place}", Instances, petId, npc, count, null, Array.Empty<(float, float)>(), Array.Empty<(float, float)>(),
-                            0, onMap.Where(kv => kv.Value > 0).ToDictionary(kv => kv.Key, kv => kv.Value), instancePoints, places, place, data.PlaceNames[place]));
-                    }
-                }
-            }
+            // the instances are not listed here any more: they are a group of the Region tab (InstanceRegions)
 
             if (instancePoints >= instanceMin)
             {

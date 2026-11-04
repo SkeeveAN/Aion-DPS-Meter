@@ -53,6 +53,13 @@ public static class Aion2PetRegions
             // an unreadable file leaves the tab empty
         }
 
+        // the instances: every instance with all pets that can drop there
+        var instances = Aion2PetRare.InstanceRegions();
+        if (instances.Count > 0)
+        {
+            groups.Add(new PetRegionGroup("instances", instances));
+        }
+
         return groups;
     }
 }

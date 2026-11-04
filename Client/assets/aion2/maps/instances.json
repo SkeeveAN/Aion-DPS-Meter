@@ -393,6 +393,26 @@
    ],
    "masked": true
   },
+  "KraoCave": {
+   "title": "Krao Cave",
+   "table": "Dungeon/Party/KraoCave/KraoCave_Normal",
+   "tables": [
+    "Dungeon/Party/KraoCave/KraoCave_Normal",
+    "Dungeon/Party/KraoCave/KraoCave_Hard",
+    "Dungeon/Party/KraoCave/KraoCave_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1547.6086784,
+   "offsetY": 684.20333568,
+   "zones": [
+    600001,
+    600002,
+    600004
+   ],
+   "masked": true
+  },
   "MirrorHeart": {
    "title": "Mirror of Scarlet Desire",
    "table": "Dungeon/Party/MirrorHeart/MirrorHeart_G_04",

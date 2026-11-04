@@ -1967,6 +1967,11 @@ public partial class SettingsWindow : Window
     private static string RegionGroupName(string id)
     {
         var loc = LocalizationManager.Instance;
+        if (id == "instances")
+        {
+            return loc["Settings.PetRare.Group.instances"];
+        }
+
         string key = "Settings.PetRegion.Group." + id;
         string text = loc[key];
         return text != key ? text : Aion2Maps.All.FirstOrDefault(m => m.Key == id)?.NameIn(loc.Language) ?? id;

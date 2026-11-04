@@ -16,7 +16,7 @@ namespace AionDPS.Ui;
 public partial class SettingsWindow
 {
     /// <summary>The maps of maps.json (a map the server added is a group of its own), then the instances, the world bosses and the pets with no known place.</summary>
-    private static string[] RareGroups => Aion2Maps.All.Select(m => m.Key).Concat(new[] { Aion2PetRare.Instances, Aion2PetRare.WorldBosses, Aion2PetRare.Unknown }).ToArray();
+    private static string[] RareGroups => Aion2Maps.All.Select(m => m.Key).Concat(new[] { Aion2PetRare.WorldBosses, Aion2PetRare.Unknown }).ToArray();
     private readonly HashSet<string> _rareClosed = new();
     private IReadOnlyDictionary<string, List<PetRareEntry>> _rare = new Dictionary<string, List<PetRareEntry>>();
     private string? _rareKey;
