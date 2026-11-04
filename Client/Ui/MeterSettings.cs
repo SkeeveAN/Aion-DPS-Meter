@@ -310,6 +310,9 @@ public sealed class MeterSettings
     /// <summary>Saving a session to a file also writes the rotation, effect, stagger and replay data (a few times the size of the damage alone).</summary>
     public bool SessionSaveExtras { get; set; } = true;
 
+    /// <summary>Every stay is written to a file in the Sessions folder (subfolder Auto) when it ends, with the data of <see cref="SessionSaveExtras"/>. Off until the player asks for it.</summary>
+    public bool SessionAutoSave { get; set; }
+
     /// <summary>Where the session manager (with the combat analyzer) was left: place, size and the width of its left half.</summary>
     public double? SessionWindowLeft { get; set; }
     public double? SessionWindowTop { get; set; }

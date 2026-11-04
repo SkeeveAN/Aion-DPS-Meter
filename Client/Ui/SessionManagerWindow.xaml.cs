@@ -54,6 +54,7 @@ public partial class SessionManagerWindow : Window
         LocalizationManager loc = LocalizationManager.Instance;
         _loading = true;
         SaveExtrasBox.IsChecked = MeterSettings.Load().SessionSaveExtras;
+        AutoSaveBox.IsChecked = MeterSettings.Load().SessionAutoSave;
         string[] kinds = { "Sessions.FilterAll", "Sessions.FilterMaps", "Sessions.FilterInstances", "Sessions.FilterSaved" };
         for (int i = 0; i < kinds.Length; i++)
         {
@@ -644,6 +645,25 @@ public partial class SessionManagerWindow : Window
         var settings = MeterSettings.Load();
         settings.SessionSaveExtras = SaveExtrasBox.IsChecked == true;
         settings.Save();
+    }
+
+    private void OnAutoSaveChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loading || !IsLoaded)
+        {
+            return;
+        }
+
+        var settings = MeterSettings.Load();
+        settings.SessionAutoSave = AutoSaveBox.IsChecked == true;
+        settings.Save();
+    }
+
+    /// <summary>Opens the comparison with the session picked in the list (when one is); more are added there, also from files and from aiondps.com.</summary>
+    private void OnCompareClicked(object sender, RoutedEventArgs e)
+    {
+        SessionInfo? picked = (SessionList.SelectedItem as Item)?.Session;
+        new CompareWindow(_recorder, session => session.Extras ?? ExtrasFor?.Invoke(session), Import, picked is { Data.Events.Count: > 0 } ? new[] { picked } : null) { Owner = this }.Show();
     }
 
     private static string SafeFileName(string name) =>

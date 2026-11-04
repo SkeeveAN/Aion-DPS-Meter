@@ -250,14 +250,17 @@
         </Grid>
 
         <!-- Everything for a session file in one place. -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+        <WrapPanel Grid.Row="2" Margin="0,10,0,0">
             <Button x:Name="DeleteButton" Content="&#x1F5D1;" FontSize="16" Padding="8,0" Margin="0" ToolTip="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
             <Button Content="{local:Loc Sessions.Load}" Click="OnLoadFileClicked"/>
             <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
             <Button x:Name="SaveAllButton" Content="{local:Loc Sessions.SaveAll}" ToolTip="{local:Loc Sessions.SaveAll.Tip}" Click="OnSaveAllClicked"/>
+            <Button Content="{local:Loc Sessions.Compare}" ToolTip="{local:Loc Sessions.Compare.Tip}" Click="OnCompareClicked"/>
             <CheckBox x:Name="SaveExtrasBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.SaveExtras}" ToolTip="{local:Loc Sessions.SaveExtras.Tip}" VerticalAlignment="Center" Margin="16,0,0,0"
                       Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
-        </StackPanel>
+            <CheckBox x:Name="AutoSaveBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.AutoSave}" ToolTip="{local:Loc Sessions.AutoSave.Tip}" VerticalAlignment="Center" Margin="16,0,0,0"
+                      Checked="OnAutoSaveChanged" Unchecked="OnAutoSaveChanged"/>
+        </WrapPanel>
         </Grid>
 
         <!-- The splitter between the two halves: the session manager on the left, the combat analyzer on the right. -->

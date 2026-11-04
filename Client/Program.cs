@@ -321,6 +321,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-compare")
+        {
+            RunRenderCompareMode(args.Length > 1 ? args[1] : "compare.png");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-details")
         {
             if (args.Length < 2)
@@ -932,6 +938,80 @@ internal static class Program
         }
 
         Console.WriteLine("render-sessions: wrote " + path);
+        Environment.Exit(0);
+    }
+
+    /// <summary>Draws the comparison window with two invented Sorcerers (one of them with a different skill mix) into a picture; no window is shown.</summary>
+    private static void RunRenderCompareMode(string path)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+
+        var recorder = new History.SessionRecorder(zone => Aion2.Protocol.Aion2Zones.IsInstance(zone) ? History.SessionKind.Instance : History.SessionKind.Map);
+        recorder.Identify = id => id switch { 1 => ("Skeeve", "Sorcerer"), 2 => ("Aahz", "Sorcerer"), 100 => ("Ruthilis of Pain", null), _ => (null, null) };
+        recorder.IdentifyPlayer = id => id == 1 ? new History.PlayerMeta(24_900_123, 1303, 169_620) : id == 2 ? new History.PlayerMeta(24_900_456, 1303, 151_300) : null;
+        var random = new Random(5);
+        DateTime start = DateTime.Today.AddHours(20);
+        (int Id, string Name, int Weight)[] skills = { (15040047, "Firestorm", 40), (15040051, "Meteor", 25), (15040022, "Flame Bolt", 25), (15040030, "Frost Chain", 10) };
+        var uses = new List<Combat.SkillUse>();
+        for (int run = 0; run < 2; run++)
+        {
+            DateTime at = start.AddMinutes(run * 30);
+            recorder.Enter(new Combat.Sources.ZoneChange(at, run == 0 ? 600001 : 600092));
+            var batch = new List<Combat.DamageEvent>();
+            for (int i = 0; i < 160; i++)
+            {
+                (int id, string name, int weight) = skills[random.Next(skills.Length)];
+                int player = run + 1;
+                // the second player casts Meteor less often and Flame Bolt more
+                if (run == 1 && name == "Meteor" && random.Next(3) > 0)
+                {
+                    (id, name) = (15040022, "Flame Bolt");
+                }
+
+                DateTime t = at.AddSeconds(i * 0.9);
+                batch.Add(new Combat.DamageEvent(t, player, 100, (long)(weight * (run == 0 ? 140 : 120) * (0.8 + random.NextDouble() * 0.4)), false, name, random.Next(3) == 0, SkillId: id));
+                if (i % 2 == 0)
+                {
+                    uses.Add(new Combat.SkillUse(t.AddSeconds(-0.1), player, id));
+                }
+            }
+
+            recorder.Feed(Combat.Sources.CombatBatch.DamageOnly(batch));
+        }
+
+        recorder.Enter(new Combat.Sources.ZoneChange(start.AddHours(2), 1010));
+        var extras = new Combat.FightExtras(uses, Array.Empty<Combat.BuffEvent>(), Array.Empty<Combat.StaggerEvent>(), new Dictionary<int, string>());
+        var window = new Ui.CompareWindow(recorder, _ => extras, _ => recorder.Sessions[0], recorder.Sessions.Where(s => s.Data.Events.Count > 0).Take(2));
+        const double width = 1500, height = 1040;
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        var back = new System.Windows.Shapes.Rectangle { Width = width, Height = height, Fill = (System.Windows.Media.Brush)app.Resources["Brush.Window"] };
+        back.Measure(new System.Windows.Size(width, height));
+        back.Arrange(new System.Windows.Rect(0, 0, width, height));
+        bitmap.Render(back);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-compare: wrote " + path);
         Environment.Exit(0);
     }
 

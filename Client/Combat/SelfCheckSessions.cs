@@ -139,6 +139,54 @@ public static class SelfCheckSessions
         return early && found && reset && analysed;
     }
 
+    /// <summary>The comparison of players: the skills sorted by how far they are from the baseline, a local player from a session, and an online fight read from the site's answers.</summary>
+    private static bool RunCompare(DateTime t0)
+    {
+        var rec = new SessionRecorder(_ => SessionKind.Instance)
+        {
+            Identify = id => id switch { 1 => ("Aahz", "Sorcerer"), 2 => ("Bob", "Sorcerer"), _ => (null, null) },
+            IdentifyPlayer = id => id == 1 ? new PlayerMeta(1, 1303, 150_000) : id == 2 ? new PlayerMeta(2, 1303, 120_000) : null,
+        };
+        rec.Enter(new ZoneChange(t0, Krao));
+        var events = new List<DamageEvent>();
+        for (int i = 0; i < 10; i++)
+        {
+            events.Add(new DamageEvent(t0.AddSeconds(i), 1, 100, 1000, false, "Firestorm", i % 2 == 0, SkillId: 15040047));
+            events.Add(new DamageEvent(t0.AddSeconds(i), 2, 100, 600, false, "Firestorm", false, SkillId: 15040047));
+            if (i % 3 == 0)
+            {
+                events.Add(new DamageEvent(t0.AddSeconds(i), 1, 100, 5000, false, "Meteor", true, SkillId: 15040051));
+            }
+        }
+
+        rec.Feed(CombatBatch.DamageOnly(events));
+        rec.Enter(new ZoneChange(t0.AddMinutes(5), Verteron));
+        SessionInfo stay = rec.Sessions[0];
+        var extras = new FightExtras(new[] { new SkillUse(t0.AddSeconds(1), 1, 15040047), new SkillUse(t0.AddSeconds(2), 1, 15040047), new SkillUse(t0.AddSeconds(2), 2, 15040047) },
+            Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string>());
+        CompareEntry first = CompareModel.FromSession(stay, null, 1, extras, "a");
+        CompareEntry second = CompareModel.FromSession(stay, null, 2, extras, "b");
+        List<CompareRow> table = CompareModel.Table(new[] { first, second }, 0);
+        bool local = first.TotalDamage == 10_000 + 20_000 && first.CombatPower == 150_000 && first.ClassName == "Sorcerer" && second.TotalDamage == 6_000
+            && first.Skills.Single(s => s.Skill == "Firestorm").Uses == 2 && second.Skills.Single(s => s.Skill == "Firestorm").Uses == 1 && first.Marks!.Any(m => m.IsUse);
+        // Meteor only the baseline has (gap -20000/9), Firestorm both (gap -4000/9): the skill that makes up most of the gap is first, the baseline's own gap is 0
+        bool sorted = table.Count == 2 && table[0].Skill == "Meteor" && table[0].Gaps[1] < table[1].Gaps[1] && table[0].Gaps[0] == 0 && table[0].PerEntry[1] is null;
+
+        string fightJson = "{\"encounter\":{\"id\":17717,\"bossName\":\"Gelcos\",\"durationSeconds\":117.15},\"roster\":[{\"participantId\":196188,\"playerName\":\"Ponce\",\"className\":\"Gladiator\",\"totalDamage\":2092842,\"combatPower\":117663}]}";
+        string partJson = "{\"damageSkills\":[{\"skillName\":\"Overhead Slam\",\"hits\":189,\"critHits\":189,\"totalDamage\":1110642,\"minHit\":3724,\"maxHit\":16133}]}";
+        CompareModel.OnlineFight fight = CompareModel.ParseFight(fightJson);
+        CompareEntry online = CompareModel.ParseParticipant(partJson, fight, fight.Players[0]);
+        bool read = fight.EncounterId == 17717 && fight.Players.Count == 1 && online.Online && online.Marks is null && online.CombatPower == 117_663
+            && online.Skills[0].Total == 1_110_642 && online.Skills[0].Uses == -1 && Math.Abs(online.Dps - 1_110_642 / 117.15) < 0.01;
+        bool urls = CompareModel.EncounterIdOf("https://aiondps.com/encounters/17717") == 17717 && CompareModel.EncounterIdOf("17717") == 17717
+            && CompareModel.EncounterIdOf("https://aiondps.com/de/encounters/17717?x=1") == 17717 && CompareModel.EncounterIdOf("https://evil.example/encounters/5") is null
+            && CompareModel.EncounterIdOf("hello") is null;
+        Console.WriteLine($"  -> a player's skills, damage, combat power and cast notices come from a session: {local}");
+        Console.WriteLine($"  -> the table puts the skills that make up the gap to the baseline first: {sorted}");
+        Console.WriteLine($"  -> an online fight and player are read from the site's answers, and only our own addresses are taken: {read && urls}");
+        return local && sorted && read && urls;
+    }
+
     private static bool RunFileRoundTrip(DateTime t0)
     {
         string dir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "aiondps-selftest-" + Guid.NewGuid().ToString("N"));
@@ -344,11 +392,12 @@ public static class SelfCheckSessions
 
         // Save one stay to a file and read it back: events, shields, names, classes, zone and times survive; the file is not part of "all".
         bool roundTrip = RunFileRoundTrip(t0);
+        bool compare = RunCompare(t0);
         bool plausibility = RunPlausibility(t0);
         bool rageSignal = RunRageSignal(t0);
         bool instance = Aion2Zones.IsInstance(Krao) && !Aion2Zones.IsInstance(Verteron);
         Console.WriteLine($"  -> 600001 is an instance, 1010 is not: {instance}");
 
-        return restarted && two && kinds && twoRuns && apart && split && ends && hallGone && oneStay && unknown && merged && renamed && capped && roundTrip && plausibility && rageSignal && instance;
+        return restarted && two && kinds && twoRuns && apart && split && ends && hallGone && oneStay && unknown && merged && renamed && capped && roundTrip && compare && plausibility && rageSignal && instance;
     }
 }

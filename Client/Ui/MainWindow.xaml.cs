@@ -267,6 +267,7 @@ public partial class MainWindow : Window
         _sessions.BuildSource = BuildSnapshotForSession;
         _sessions.SeenProfileSource = id => (_liveSource?.Entities as Aion2EntityDirectory)?.SeenProfileOf(id);
         _sessions.HpSource = HitPointsOfTarget;
+        _sessions.Ended += AutoSaveStay;
 
         // Captured now, before anything ever rebuilds MobBossFilter.Items, so
         // ApplyMobBossSearchFilter can keep re-inserting this exact instance rather than a plain
@@ -1077,6 +1078,32 @@ public partial class MainWindow : Window
 
         IReadOnlyList<HpSample> samples = directory.HitPoints.SamplesAround(id, from, to);
         return samples.Count < 2 ? null : new TargetHp(directory.HitPoints.HighestSeen(id) ?? 0, samples, directory.HitPoints.ResetsOf(id));
+    }
+
+    /// <summary>"Save every finished stay automatically" (session manager): the stay that has just ended goes to the Sessions folder (subfolder Auto), the same file again when the
+    /// stay is taken up and ended once more. A failure to write is not worth interrupting anything for.</summary>
+    private void AutoSaveStay(SessionInfo stay)
+    {
+        if (Headless || stay.FromFile)
+        {
+            return;
+        }
+
+        MeterSettings settings = MeterSettings.Load();
+        if (!settings.SessionAutoSave)
+        {
+            return;
+        }
+
+        try
+        {
+            string name = string.Concat($"{SessionLabels.NameOf(stay)} {stay.Start:yyyy-MM-dd HH-mm}".Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+            SessionFile.SaveStay(Path.Combine(SessionFile.DefaultDirectory, "Auto", name + SessionFile.Extension), stay, settings.SessionSaveExtras ? stay.Extras ?? ExtrasForSession(stay) : null);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // the disk is full or the folder is locked: the stay stays in the session list all the same
+        }
     }
 
     /// <summary>The own character's setup as the live capture knows it right now (null before anything of it came); saved with a log, see <see cref="History.BuildSnapshot"/>.</summary>

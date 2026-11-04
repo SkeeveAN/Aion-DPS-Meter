@@ -148,6 +148,9 @@ public sealed class SessionRecorder
     /// <summary>Raised when a session starts or ends (not for every event).</summary>
     public event Action? Changed;
 
+    /// <summary>Raised once a stay has ended and is kept (a stay too short and empty to keep is dropped without it): the moment to write it to a file.</summary>
+    public event Action<SessionInfo>? Ended;
+
     /// <summary>
     /// Takes one poll's worth: the events before a zone change belong to the stay it ended, the ones after to the new stay.
     /// </summary>
@@ -302,6 +305,10 @@ public sealed class SessionRecorder
         if (session.Data.Events.Count == 0 && end - session.Start < TrivialStay)
         {
             _sessions.Remove(session);
+        }
+        else if (session.Data.Events.Count > 0)
+        {
+            Ended?.Invoke(session);
         }
     }
 
