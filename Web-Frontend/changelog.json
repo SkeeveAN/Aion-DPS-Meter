@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-03",
+  "date": "2026-11-04",
   "items": [
    {
     "text": "Website: the damage curve on the encounter page gets a chart of its own for the damage per second (group as an area with the average of the fight, switched-on players as lines, one cursor for both charts) instead of unlabelled bars, and the players' lines no longer share a yellow with the group's",
@@ -25,6 +25,29 @@
      "Backend"
     ],
     "date": "2026-11-03"
+   },
+   {
+    "text": "Timetable: the Artifact Siege and the Abyss executor bosses (Kaira, Argo, Tamasa) run only on Thursday and Saturday, and Argo the Spirit King comes at 10:30 and 22:30 (patch of 4 November)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Client: the Spider Wings show their picture in the character window (the client's wing table was missing them)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Abyssal Forge: Ludra is listed in Normal and Hard with its bosses, their loot and item pictures, and the client recognises the Hard bosses; the loot lists of the other expeditions follow the new patch",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-04"
    }
   ]
  },
