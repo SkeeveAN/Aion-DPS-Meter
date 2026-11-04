@@ -9,13 +9,21 @@ namespace AionDPS.History;
 
 /// <summary>One skill of one player in one fight, as the comparison reads it. <see cref="Uses"/> is the number of the game's cast notices of the skill (-1 = not known: an online fight
 /// has none); a notice is not always one activation (see <see cref="SkillUse"/>), so the damage per use is a guide, not a count of casts.</summary>
-public sealed record CompareSkill(string Skill, int SkillId, int Hits, int CritHits, long Total, long Min, long Max, int Uses, HitKindCounts? Kinds = null, long SummonTotal = 0)
+public sealed record CompareSkill(string Skill, int SkillId, int Hits, int CritHits, long Total, long Min, long Max, int Uses, HitKindCounts? Kinds = null, long SummonTotal = 0, CooldownStats? Cooldown = null)
 {
     public long Average => Hits > 0 ? Total / Hits : 0;
 
     /// <summary>Damage over the cast notices; a guide only, since a notice is not always one activation. 0 when the uses are not known.</summary>
     public long PerUse => Uses > 0 ? Total / Uses : 0;
 }
+
+/// <summary>
+/// What the cooldown list of the local player says about one skill in a fight. All of it is approximate: the list comes about every 0.6 s, so every moment is right to about that,
+/// and a skill that was ready only for a moment between two uses is not told from one that never was. <see cref="Starts"/> = how often it went on cooldown (a use; more reliable than
+/// the cast notices), <see cref="CooldownSeconds"/> = the middle time from use to ready again (what the player's cooldown reduction made of it), <see cref="IdleMedian"/> = the middle wait from
+/// ready to the next use, <see cref="ReadyPercent"/> = the share of the fight it stood ready and unused.
+/// </summary>
+public sealed record CooldownStats(int Starts, double? CooldownSeconds, double? IdleMedian, double ReadyPercent);
 
 /// <summary>When a skill was used, from its cast notices: how many, the middle and the longest pause between two of them (seconds). Notices of the same moment (a multi-hit sends several) are one use here.</summary>
 public sealed record UseTiming(int Uses, double MedianGap, double LongestGap);
@@ -101,9 +109,10 @@ public static class CompareModel
         List<SkillUse> uses = extras?.Uses.Where(u => u.Actor == playerId && u.At >= from && u.At <= to).ToList() ?? new List<SkillUse>();
         var usesByName = uses.GroupBy(u => Aion2.Protocol.Aion2SkillNames.NameOf(u.SkillId)).ToDictionary(g => g.Key, g => g.Count());
 
+        var cooldownBy = CooldownsOf(extras?.Cooldowns, playerId, from, to);
         var summonBy = mine.Where(e => e.ViaSummon).GroupBy(e => e.Skill ?? "(auto attack)").ToDictionary(g => g.Key, g => g.Sum(e => e.Amount));
         List<CompareSkill> skills = SkillBreakdown.For(mine)
-            .Select(s => new CompareSkill(s.Skill, s.SkillId, s.Hits, s.CritHits, s.Total, s.Min, s.Max, extras is null ? -1 : usesByName.GetValueOrDefault(s.Skill), s.Kinds, summonBy.GetValueOrDefault(s.Skill)))
+            .Select(s => new CompareSkill(s.Skill, s.SkillId, s.Hits, s.CritHits, s.Total, s.Min, s.Max, extras is null ? -1 : usesByName.GetValueOrDefault(s.Skill), s.Kinds, summonBy.GetValueOrDefault(s.Skill), cooldownBy.GetValueOrDefault(s.Skill)))
             .ToList();
 
         var marks = new List<CompareMark>();
@@ -145,6 +154,76 @@ public static class CompareModel
             bossDamage,
             addDamage,
             skills.Sum(s => s.SummonTotal));
+    }
+
+    /// <summary>The cooldown figures of every skill of the player's list in the fight, by skill name (empty when the log has no cooldown list: only the local player's is sent).</summary>
+    public static Dictionary<string, CooldownStats> CooldownsOf(IReadOnlyList<CooldownMark>? marks, int playerId, DateTime from, DateTime to)
+    {
+        var result = new Dictionary<string, CooldownStats>();
+        double seconds = (to - from).TotalSeconds;
+        if (marks is null || seconds <= 0)
+        {
+            return result;
+        }
+
+        foreach (var bySkill in marks.Where(m => m.Actor == playerId && m.At >= from && m.At <= to).GroupBy(m => Aion2.Protocol.Aion2SkillNames.NameOf(m.SkillId)))
+        {
+            var ordered = bySkill.OrderBy(m => m.At).ToList();
+            var cooldowns = new List<double>();
+            var idles = new List<double>();
+            double idleTotal = 0;
+            int starts = 0;
+            DateTime? usedAt = null, readyAt = null;
+            foreach (CooldownMark m in ordered)
+            {
+                if (!m.Ready)
+                {
+                    starts++;
+                    if (readyAt is { } ready)
+                    {
+                        double wait = (m.At - ready).TotalSeconds;
+                        idles.Add(wait);
+                        idleTotal += wait;
+                    }
+
+                    usedAt = m.At;
+                    readyAt = null;
+                }
+                else
+                {
+                    if (usedAt is { } used)
+                    {
+                        cooldowns.Add((m.At - used).TotalSeconds);
+                    }
+
+                    readyAt = m.At;
+                    usedAt = null;
+                }
+            }
+
+            if (readyAt is { } last)
+            {
+                idleTotal += (to - last).TotalSeconds; // ready at the end and not used again
+            }
+
+            if (starts > 0 || cooldowns.Count > 0)
+            {
+                result[bySkill.Key] = new CooldownStats(starts, Median(cooldowns), Median(idles), Math.Min(100, 100 * idleTotal / seconds));
+            }
+        }
+
+        return result;
+    }
+
+    private static double? Median(List<double> values)
+    {
+        if (values.Count == 0)
+        {
+            return null;
+        }
+
+        values.Sort();
+        return values.Count % 2 == 1 ? values[values.Count / 2] : (values[values.Count / 2 - 1] + values[values.Count / 2]) / 2;
     }
 
     /// <summary>The pauses between the uses of one skill (null when fewer than two are known, as for an online fight).</summary>

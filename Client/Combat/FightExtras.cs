@@ -7,6 +7,13 @@ namespace AionDPS.Combat;
 /// </summary>
 public readonly record struct SkillUse(DateTime At, int Actor, int SkillId, int Target = 0, int Seq = -1, int Aim = -1);
 
+/// <summary>
+/// The local player's skill went on cooldown (<see cref="Ready"/> false: it was used) or came off it (<see cref="Ready"/> true), read from the game's cooldown list. The list
+/// comes about every 0.6 s, so a time is right to about that; the game's own count of what is left is not in seconds (see docs/protocol/cooldown-frames.md), which is why only
+/// the moments are kept, not the numbers.
+/// </summary>
+public readonly record struct CooldownMark(DateTime At, int Actor, int SkillId, bool Ready);
+
 public enum BuffKind
 {
     On,
@@ -49,7 +56,8 @@ public sealed record FightExtras(
     IReadOnlyList<WindupRecord>? Windups = null,
     IReadOnlyList<DeathRecord>? Deaths = null,
     IReadOnlyList<HpSeries>? Hp = null,
-    IReadOnlyList<TargetChange>? Targets = null)
+    IReadOnlyList<TargetChange>? Targets = null,
+    IReadOnlyList<CooldownMark>? Cooldowns = null)
 {
     public static FightExtras Empty { get; } = new(Array.Empty<SkillUse>(), Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string>());
 
@@ -65,5 +73,6 @@ public sealed record FightExtras(
         Windups?.Select(w => w with { Actor = map(w.Actor), Target = map(w.Target) }).ToList(),
         Deaths?.Select(d => d with { Entity = map(d.Entity) }).ToList(),
         Hp?.Select(h => h with { Entity = map(h.Entity) }).ToList(),
-        Targets?.Select(t => t with { Actor = map(t.Actor), Target = t.Target == 0 ? 0 : map(t.Target) }).ToList());
+        Targets?.Select(t => t with { Actor = map(t.Actor), Target = t.Target == 0 ? 0 : map(t.Target) }).ToList(),
+        Cooldowns?.Select(c => c with { Actor = map(c.Actor) }).ToList());
 }

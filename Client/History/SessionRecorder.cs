@@ -398,6 +398,11 @@ public sealed class SessionRecorder
         foreach (SessionInfo session in _sessions.Where(s => !s.FromFile))
         {
             session.Data.MergeIds(from, to);
+            if (session.Extras is { } kept)
+            {
+                session.Extras = kept.Remap(id => id == from ? to : id); // the copy a stay made of the capture's log when it ended
+            }
+
             if (session.Names.Remove(from, out string? name))
             {
                 session.Names.TryAdd(to, name);

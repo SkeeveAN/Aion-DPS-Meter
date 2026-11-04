@@ -120,6 +120,8 @@ public sealed class Aion2CombatState
     private readonly List<(int Entity, DateTime At)> _reviveLog = new();
     private readonly List<BuffEvent> _buffLog = new();
     private readonly List<StaggerEvent> _staggerLog = new();
+    private readonly List<CooldownMark> _cooldownLog = new();
+    private readonly Dictionary<int, int> _cooldownLeft = new();
     private const int MaxLog = 200_000;
 
     /// <summary>Where the learnt skills are kept between sessions; null keeps them in memory only (replays, pictures, tests).</summary>
@@ -638,6 +640,11 @@ public sealed class Aion2CombatState
                 if (_reviveLog[i].Entity == from) { _reviveLog[i] = (to, _reviveLog[i].At); }
             }
 
+            for (int i = 0; i < _cooldownLog.Count; i++)
+            {
+                if (_cooldownLog[i].Actor == from) { _cooldownLog[i] = _cooldownLog[i] with { Actor = to }; }
+            }
+
             for (int i = 0; i < _targetLog.Count; i++)
             {
                 if (_targetLog[i].Actor == from || _targetLog[i].Target == from) { _targetLog[i] = _targetLog[i] with { Actor = Map(_targetLog[i].Actor), Target = Map(_targetLog[i].Target) }; }
@@ -674,6 +681,45 @@ public sealed class Aion2CombatState
             if (_lastAim.Remove(from, out var aim) && !_lastAim.ContainsKey(to))
             {
                 _lastAim[to] = aim;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A cooldown list of the local player arrived (<see cref="Aion2Cooldowns"/>): a skill that was ready and now has time left was used, one that had time left and now has
+    /// none is ready again, one whose count jumped up before it ran out was used again. A skill met for the first time with time left is not a use (the cooldown began before we looked).
+    /// Only skills (ids from 10,000,000) are kept, not the shared groups.
+    /// </summary>
+    public void NoteCooldowns(IReadOnlyList<CooldownEntry> entries, DateTime at, int actor)
+    {
+        lock (_gate)
+        {
+            foreach (CooldownEntry e in entries)
+            {
+                if (e.Id < 10_000_000)
+                {
+                    continue;
+                }
+
+                bool known = _cooldownLeft.TryGetValue(e.Id, out int before);
+                _cooldownLeft[e.Id] = e.Remaining;
+                if (!known)
+                {
+                    continue;
+                }
+
+                if (before <= 0 && e.Remaining > 0)
+                {
+                    Append(_cooldownLog, new CooldownMark(at, actor, e.Id, false));
+                }
+                else if (before > 0 && e.Remaining <= 0)
+                {
+                    Append(_cooldownLog, new CooldownMark(at, actor, e.Id, true));
+                }
+                else if (before > 0 && e.Remaining > before + 200)
+                {
+                    Append(_cooldownLog, new CooldownMark(at, actor, e.Id, false)); // used again before it ran out
+                }
             }
         }
     }
@@ -782,7 +828,8 @@ public sealed class Aion2CombatState
             }
 
             List<TargetChange> targets = TargetsIn(from, to);
-            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp, targets.Count > 0 ? targets : null);
+            var cooldowns = _cooldownLog.Where(c => c.At >= from && c.At <= to).ToList();
+            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp, targets.Count > 0 ? targets : null, cooldowns.Count > 0 ? cooldowns : null);
         }
     }
 

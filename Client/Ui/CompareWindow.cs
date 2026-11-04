@@ -78,6 +78,13 @@ public sealed class CompareWindow : Window
         Render();
     }
 
+    /// <summary>Picks the skill whose details and timeline are shown (what a click on its name does).</summary>
+    public void PickSkill(string skill)
+    {
+        _timelineSkill = skill;
+        Render();
+    }
+
     private static Button Button(string text, RoutedEventHandler click)
     {
         var button = new Button { Content = text, Padding = new Thickness(12, 3, 12, 3), Margin = new Thickness(0, 0, 8, 0) };
@@ -399,6 +406,10 @@ public sealed class CompareWindow : Window
         }
 
         _results.Children.Add(Text(loc["Compare.UsesNote"], muted: true));
+        if (entries.Any(e => e.Skills.Any(s => s.Cooldown is not null)))
+        {
+            _results.Children.Add(Text(loc["Compare.CdNote"], muted: true));
+        }
         _results.Children.Add(Timelines(entries));
     }
 
@@ -409,7 +420,7 @@ public sealed class CompareWindow : Window
     private Grid MetricGrid(List<CompareEntry> entries, int baseline, IEnumerable<(string Label, Func<CompareEntry, string> Value, Func<CompareEntry, string>? Delta, bool Bold)> rows)
     {
         var grid = new Grid { Margin = new Thickness(0, 4, 0, 14) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(250) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(340) });
         foreach (CompareEntry _ in entries)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(230) });
@@ -498,6 +509,16 @@ public sealed class CompareWindow : Window
         if (entries.Any(e => Of(e)?.SummonTotal > 0))
         {
             rows.Add((loc["Compare.Summon"], e => Num(Of(e)?.SummonTotal), null, false));
+        }
+
+        // from the cooldown list of the own character: approximate, and only there for some skills
+        if (entries.Any(e => Of(e)?.Cooldown is not null))
+        {
+            string Approx(string text) => text == "–" ? text : "~ " + text;
+            rows.Add((loc["Compare.CdStarts"], e => Of(e)?.Cooldown is { } c ? Approx(c.Starts.ToString("N0")) : "–", null, false));
+            rows.Add((loc["Compare.CdLength"], e => Of(e)?.Cooldown?.CooldownSeconds is double v ? Approx(Secs(v)) : "–", null, false));
+            rows.Add((loc["Compare.CdWait"], e => Of(e)?.Cooldown?.IdleMedian is double v ? Approx(Secs(v)) : "–", null, false));
+            rows.Add((loc["Compare.CdReady"], e => Of(e)?.Cooldown is { } c ? Approx(c.ReadyPercent.ToString("0", CultureInfo.CurrentCulture) + " %") : "–", null, false));
         }
 
         return MetricGrid(entries, baseline, rows);

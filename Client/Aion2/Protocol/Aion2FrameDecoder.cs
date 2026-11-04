@@ -273,6 +273,15 @@ public sealed class Aion2FrameDecoder
     private const uint ZoneKindMove = 2;
 
     public int SkippedShortFrames { get; private set; }
+
+    /// <summary>How many cast notices (from players, from monsters), effect frames and cooldown lists the decoder has read; a log that has hits but none of these tells the capture never saw them.</summary>
+    public long CastNoticesPlayers { get; private set; }
+
+    public long CastNoticesMonsters { get; private set; }
+
+    public long BuffFramesSeen { get; private set; }
+
+    public long CooldownFramesSeen { get; private set; }
     public int UnknownOpcodes { get; private set; }
 
     /// <summary>Damage-opcode frames without a damage block (see <see cref="DecodeVarintDamage"/>).</summary>
@@ -850,7 +859,12 @@ public sealed class Aion2FrameDecoder
         {
             if (Aion2Cooldowns.TryParse(frame, out List<CooldownEntry> cooldowns))
             {
+                CooldownFramesSeen++;
                 Aion2Cooldowns.Receive(cooldowns, timestamp);
+                if (_entities.LocalPlayerId is >= 0 and int local)
+                {
+                    _entities.Combat.NoteCooldowns(cooldowns, timestamp, local);
+                }
             }
 
             return Array.Empty<DamageEvent>();
@@ -1009,6 +1023,7 @@ public sealed class Aion2FrameDecoder
                 return Array.Empty<DamageEvent>();
             case BuffOnOpcode:
             case BuffRenewedOpcode:
+                BuffFramesSeen++;
                 DecodeBuff(frame, timestamp, renewed: opcode == BuffRenewedOpcode);
                 return Array.Empty<DamageEvent>();
             case BuffEndOpcode:
@@ -2077,8 +2092,13 @@ public sealed class Aion2FrameDecoder
         if (TryReadAim(frame, out int actor, out int skillId, out int target, out _, out _, out _, out _, out _, out _))
         {
             _entities.Combat.NoteAim(actor, target, timestamp);
-            if (!_entities.IsKnownMonster(actor))
+            if (_entities.IsKnownMonster(actor))
             {
+                CastNoticesMonsters++;
+            }
+            else
+            {
+                CastNoticesPlayers++;
                 // What the notice says besides the skill is kept as it came (the counter byte after the caster, the aim flags, the target): the notice is sent for a repeated
                 // effect or a multi-hit as well, and a reader who wants the real activations has to tell them apart afterwards.
                 int q = 2;

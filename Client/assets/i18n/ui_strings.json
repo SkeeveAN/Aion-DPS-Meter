@@ -13957,5 +13957,65 @@
     "pt": "Verde: {0} esteve no jogador (clique em um efeito da tabela para trocar)",
     "ja": "緑: {0} がプレイヤーにかかっていた時間（表の効果をクリックで切り替え）",
     "ko": "녹색: {0}이(가) 플레이어에게 걸려 있던 시간(표에서 효과를 클릭하면 바뀝니다)"
+  },
+  "Compare.CdStarts": {
+    "en": "Activations by cooldown (approx.)",
+    "de": "Aktivierungen laut Abklingzeit (ungefähr)",
+    "fr": "Activations selon le délai de recharge (approx.)",
+    "es": "Activaciones según el enfriamiento (aprox.)",
+    "ru": "Активации по перезарядке (примерно)",
+    "zh": "按冷却计的发动次数（大致）",
+    "zh-TW": "依冷卻計的發動次數（大致）",
+    "pt": "Ativações pelo tempo de recarga (aprox.)",
+    "ja": "クールタイムによる発動回数（概算）",
+    "ko": "재사용 대기시간 기준 발동 횟수(대략)"
+  },
+  "Compare.CdLength": {
+    "en": "Cooldown length (approx.)",
+    "de": "Dauer der Abklingzeit (ungefähr)",
+    "fr": "Durée de recharge (approx.)",
+    "es": "Duración del enfriamiento (aprox.)",
+    "ru": "Длительность перезарядки (примерно)",
+    "zh": "冷却时长（大致）",
+    "zh-TW": "冷卻時長（大致）",
+    "pt": "Duração da recarga (aprox.)",
+    "ja": "クールタイムの長さ（概算）",
+    "ko": "재사용 대기시간 길이(대략)"
+  },
+  "Compare.CdWait": {
+    "en": "Wait from ready to next use (approx.)",
+    "de": "Wartezeit von bereit bis zum nächsten Einsatz (ungefähr)",
+    "fr": "Attente entre prêt et prochain usage (approx.)",
+    "es": "Espera desde listo hasta el siguiente uso (aprox.)",
+    "ru": "Ожидание от готовности до следующего применения (примерно)",
+    "zh": "就绪到下次使用的等待（大致）",
+    "zh-TW": "就緒到下次使用的等待（大致）",
+    "pt": "Espera entre pronto e o próximo uso (aprox.)",
+    "ja": "準備完了から次の使用までの待ち（概算）",
+    "ko": "준비 후 다음 사용까지 대기(대략)"
+  },
+  "Compare.CdReady": {
+    "en": "Time ready but unused (approx.)",
+    "de": "Zeit bereit, aber ungenutzt (ungefähr)",
+    "fr": "Temps prêt mais inutilisé (approx.)",
+    "es": "Tiempo listo pero sin usar (aprox.)",
+    "ru": "Время готовности без применения (примерно)",
+    "zh": "就绪但未使用的时间（大致）",
+    "zh-TW": "就緒但未使用的時間（大致）",
+    "pt": "Tempo pronto mas sem uso (aprox.)",
+    "ja": "準備完了だが未使用の時間（概算）",
+    "ko": "준비됐지만 사용하지 않은 시간(대략)"
+  },
+  "Compare.CdNote": {
+    "en": "Cooldown figures (marked ~) are approximate: the game sends its cooldown list about every 0.6 s, only for your own character and only for skills that have a cooldown. Cooldown reductions of gear and stones are already in the measured time.",
+    "de": "Angaben zur Abklingzeit (mit ~) sind ungefähr: Das Spiel schickt seine Abklingzeit-Liste etwa alle 0,6 s, nur für deinen eigenen Charakter und nur für Skills mit Abklingzeit. Verkürzungen durch Ausrüstung und Steine stecken schon in der gemessenen Zeit.",
+    "fr": "Les valeurs de recharge (avec ~) sont approximatives : le jeu envoie sa liste de recharges environ toutes les 0,6 s, seulement pour votre propre personnage et seulement pour les compétences avec recharge. Les réductions de l'équipement et des pierres sont déjà dans le temps mesuré.",
+    "es": "Los datos de enfriamiento (con ~) son aproximados: el juego envía su lista de enfriamientos cada 0,6 s, solo para tu propio personaje y solo para habilidades con enfriamiento. Las reducciones del equipo y las piedras ya están en el tiempo medido.",
+    "ru": "Данные о перезарядке (со знаком ~) приблизительны: игра присылает список перезарядок примерно раз в 0,6 с, только для вашего персонажа и только для умений с перезарядкой. Сокращения от снаряжения и камней уже учтены в измеренном времени.",
+    "zh": "冷却数据（带 ~）为大致值：游戏约每 0.6 秒发送一次冷却列表，仅限你自己的角色，且只含有冷却的技能。装备和宝石带来的冷却缩减已包含在测得的时间中。",
+    "zh-TW": "冷卻資料（帶 ~）為大致值：遊戲約每 0.6 秒傳送一次冷卻清單，僅限你自己的角色，且只含有冷卻的技能。裝備和寶石帶來的冷卻縮減已包含在測得的時間中。",
+    "pt": "Os dados de recarga (com ~) são aproximados: o jogo envia sua lista de recargas a cada 0,6 s, só para o seu personagem e só para habilidades com recarga. As reduções de equipamento e pedras já estão no tempo medido.",
+    "ja": "クールタイムの値（~付き）は概算です。ゲームはクールタイム一覧を約 0.6 秒ごとに、自分のキャラクターについて、クールタイムのあるスキルだけ送ってきます。装備や石による短縮は測定時間にすでに含まれています。",
+    "ko": "재사용 대기시간 수치(~ 표시)는 대략적인 값입니다. 게임은 약 0.6초마다 자신의 캐릭터에 대해, 재사용 대기시간이 있는 스킬만 목록으로 보냅니다. 장비와 석의 단축 효과는 측정된 시간에 이미 포함돼 있습니다."
   }
 }

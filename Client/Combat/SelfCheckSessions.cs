@@ -258,13 +258,49 @@ public static class SelfCheckSessions
             try { System.IO.Directory.Delete(autoDir, true); } catch (System.IO.IOException) { }
         }
 
+        // the cooldown list: a skill used at 1 s, ready again at 6 s, used at 9 s, ready at 14 s and left unused until the fight's end at 20 s
+        const int Slash = 11010340;
+        var cd = new[]
+        {
+            new CooldownMark(t0.AddSeconds(1), 1, Slash, false), new CooldownMark(t0.AddSeconds(6), 1, Slash, true),
+            new CooldownMark(t0.AddSeconds(9), 1, Slash, false), new CooldownMark(t0.AddSeconds(14), 1, Slash, true),
+            new CooldownMark(t0.AddSeconds(3), 2, Slash, false), // another player's id: not his list
+        };
+        var perSkill = CompareModel.CooldownsOf(cd, 1, t0, t0.AddSeconds(20));
+        string slashName = Aion2.Protocol.Aion2SkillNames.NameOf(Slash);
+        bool cooldowns = perSkill.Count == 1 && perSkill[slashName] is { Starts: 2 } c1 && c1.CooldownSeconds == 5 && c1.IdleMedian == 3 && Math.Abs(c1.ReadyPercent - 45) < 0.01
+            && CompareModel.CooldownsOf(null, 1, t0, t0.AddSeconds(20)).Count == 0;
+        // the log of the capture: a skill met ready and then with time left is a use, with none left it is ready, and the marks follow a changed combat id and the file
+        var state = new Aion2.Aion2CombatState();
+        state.NoteCooldowns(new[] { new Aion2.CooldownEntry(Slash, 0), new Aion2.CooldownEntry(1101, 0) }, t0, 77);
+        state.NoteCooldowns(new[] { new Aion2.CooldownEntry(Slash, 40_000), new Aion2.CooldownEntry(1101, 900) }, t0.AddSeconds(1), 77);
+        state.NoteCooldowns(new[] { new Aion2.CooldownEntry(Slash, 20_000) }, t0.AddSeconds(5), 77);
+        state.NoteCooldowns(new[] { new Aion2.CooldownEntry(Slash, 0) }, t0.AddSeconds(9), 77);
+        state.NoteCooldowns(new[] { new Aion2.CooldownEntry(11020000, 5_000) }, t0.AddSeconds(10), 77); // first met with time left: not a use
+        state.MergeIds(77, 88);
+        FightExtras cut = state.Slice(t0.AddSeconds(-1), t0.AddSeconds(20), id => "x");
+        FightExtras packedBack = ExtrasBlob.Unpack(ExtrasBlob.Pack(cut));
+        bool marks = cut.Cooldowns is { Count: 2 } m && m[0] == new CooldownMark(t0.AddSeconds(1), 88, Slash, false) && m[1] == new CooldownMark(t0.AddSeconds(9), 88, Slash, true)
+            && packedBack.Cooldowns is { Count: 2 } p && p[1].Ready && p[0].Actor == 88;
+        // a stay's own copy of the capture's log follows a changed combat id too
+        var rec4 = new SessionRecorder(_ => SessionKind.Instance);
+        rec4.Enter(new ZoneChange(t0, Krao));
+        rec4.Feed(CombatBatch.DamageOnly(new[] { new DamageEvent(t0.AddSeconds(1), 5, 100, 100, false, "Firestorm") }));
+        rec4.Enter(new ZoneChange(t0.AddMinutes(1), Verteron));
+        rec4.Sessions[0].Extras = new FightExtras(new[] { new SkillUse(t0.AddSeconds(1), 5, 15040047) }, Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string>());
+        rec4.MergeIds(5, 6);
+        bool kept = rec4.Sessions[0].Extras!.Uses[0].Actor == 6;
+
+        Console.WriteLine($"  -> cooldown figures (activations, length, waiting, time ready unused) are read from the list's marks of the own character: {cooldowns}");
+        Console.WriteLine($"  -> the cooldown list gives uses and ready moments (not a skill met mid-cooldown), follows a changed id and the file: {marks}");
+        Console.WriteLine($"  -> a stay's own copy of the log follows a changed combat id: {kept}");
         Console.WriteLine($"  -> the stretches an effect was on the player come with it: {spans}");
         Console.WriteLine($"  -> how hits landed, the summon's damage, damage per use and the pauses between uses are read: {kinds && pauses}");
         Console.WriteLine($"  -> an ended session is announced once (not an empty stay) and is written to the chosen folder, again to the same file: {announced && autoSaved}");
         Console.WriteLine($"  -> a player's skills, damage, combat power and cast notices come from a session: {local}");
         Console.WriteLine($"  -> the table puts the skills that make up the gap to the baseline first: {sorted}");
         Console.WriteLine($"  -> an online fight and player are read from the site's answers, and only our own addresses are taken: {read && urls}");
-        return local && sorted && read && urls && bossAdd && uptimes && buffTable && spans && kinds && pauses && announced && autoSaved;
+        return local && sorted && read && urls && bossAdd && uptimes && buffTable && spans && kinds && pauses && announced && autoSaved && cooldowns && marks && kept;
     }
 
     private static bool RunFileRoundTrip(DateTime t0)

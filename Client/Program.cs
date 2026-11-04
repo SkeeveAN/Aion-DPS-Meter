@@ -323,7 +323,7 @@ internal static class Program
 
         if (args.Length > 0 && args[0] == "render-compare")
         {
-            RunRenderCompareMode(args.Length > 1 ? args[1] : "compare.png");
+            RunRenderCompareMode(args.Length > 1 ? args[1] : "compare.png", args.Length > 2 ? args[2] : null);
             return;
         }
 
@@ -356,6 +356,12 @@ internal static class Program
             string[] positional = sendAt >= 0 ? args[..sendAt] : args;
             RunAion2UploadDryRun(args[1], positional.Length > 2 ? positional[2] : "Europe - Kaisinel", positional.Length > 3 ? int.Parse(positional[3]) : 13328,
                 sendAt >= 0 ? args[(sendAt + 1)..] : Array.Empty<string>());
+            return;
+        }
+
+        if (args.Length > 1 && args[0] == "aion2-log-check")
+        {
+            RunAion2LogCheck(args[1], args.Length > 2 ? int.Parse(args[2]) : 13328);
             return;
         }
 
@@ -942,7 +948,7 @@ internal static class Program
     }
 
     /// <summary>Draws the comparison window with two invented Sorcerers (one of them with a different skill mix) into a picture; no window is shown.</summary>
-    private static void RunRenderCompareMode(string path)
+    private static void RunRenderCompareMode(string path, string? skill = null)
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
@@ -1004,8 +1010,25 @@ internal static class Program
             }
         }
 
-        var extras = new Combat.FightExtras(uses, buffs, Array.Empty<Combat.StaggerEvent>(), new Dictionary<int, string>());
+        var cooldowns = new List<Combat.CooldownMark>();
+        for (int run = 0; run < 2; run++)
+        {
+            DateTime at = start.AddMinutes(run * 30);
+            // Firestorm: the first player uses it as soon as it is ready, the second waits a few seconds each time
+            for (double t = 2; t < 135; t += run == 0 ? 19 : 25)
+            {
+                cooldowns.Add(new Combat.CooldownMark(at.AddSeconds(t), run + 1, 15040047, false));
+                cooldowns.Add(new Combat.CooldownMark(at.AddSeconds(t + 17.5), run + 1, 15040047, true));
+            }
+        }
+
+        var extras = new Combat.FightExtras(uses, buffs, Array.Empty<Combat.StaggerEvent>(), new Dictionary<int, string>(), Cooldowns: cooldowns);
         var window = new Ui.CompareWindow(recorder, _ => extras, _ => recorder.Sessions[0], recorder.Sessions.Where(s => s.Data.Events.Count > 0).Take(2));
+        if (skill is not null)
+        {
+            window.PickSkill(skill);
+        }
+
         const double width = 1500, height = 1400;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
@@ -2224,6 +2247,86 @@ internal static class Program
         }
 
         string Summarise() => string.Join(", ", directory.LocalSkills.Where(k => k.Stigma && k.SkillId % 10000 == 0).Select(k => $"{names.GetValueOrDefault(k.SkillId)} {k.Level}")) + $" | {directory.LocalSkills.Count} skills, presets known {directory.LocalPresets.Count}";
+    }
+
+    /// <summary>
+    /// Plays a recording through the meter's own window logic (no window is shown) and says, for every stay it recorded, how much each stream of the log holds: once at the moment
+    /// the stay ended (what the automatic saving writes) and once at the end of the recording (what saving it by hand writes). Nothing is written to disk and no setting is changed.
+    /// </summary>
+    private static void RunAion2LogCheck(string path, int serverPort)
+    {
+        var app = new System.Windows.Application();
+        Ui.ThemeManager.Apply(app, Ui.MeterSettings.Load());
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.MainWindow();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var type = typeof(Ui.MainWindow);
+        var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+        type.GetField("_source", flags)!.SetValue(window, source);
+        type.GetField("_liveSource", flags)!.SetValue(window, source);
+        var recorder = (History.SessionRecorder)type.GetField("_sessions", flags)!.GetValue(window)!;
+        var extrasFor = type.GetMethod("ExtrasForSession", flags)!;
+        var tick = type.GetMethod("OnPollTimerTick", flags)!;
+        var atEnd = new Dictionary<int, string>();
+        string Describe(Combat.FightExtras? x) => x is null ? "no extras" : $"uses {x.Uses.Count}, effects {x.Buffs.Count}, stagger {x.Staggers.Count}, tracks {x.Tracks?.Count ?? 0}, windups {x.Windups?.Count ?? 0}, deaths {x.Deaths?.Count ?? 0}, cooldown marks {x.Cooldowns?.Count ?? 0}";
+        string saveDir = Path.Combine(Path.GetTempPath(), "aiondps-logcheck-" + Guid.NewGuid().ToString("N"));
+        // the automatic saving as the meter does it when a stay ends, into a folder of this run (the player's settings are not read or changed)
+        recorder.Ended += stay =>
+        {
+            var x = extrasFor.Invoke(window, new object?[] { stay }) as Combat.FightExtras;
+            string text = Describe(x);
+            try
+            {
+                string file = History.SessionFile.AutoSave(stay, saveDir, x);
+                History.SessionFile.LoadedSession back = History.SessionFile.Load(file);
+                text += $" | file {new FileInfo(file).Length / 1024} KB reads back with {back.Events.Count} events, {back.Stay?.Extras?.Uses.Count ?? 0} uses, {back.Stay?.Extras?.Buffs.Count ?? 0} effects, {back.Avoids.Count} avoids";
+            }
+            catch (Exception ex)
+            {
+                text += " | SAVE FAILED: " + ex.Message;
+            }
+
+            atEnd[stay.Number] = text;
+        };
+
+        var segments = Aion2.Capture.SegmentRecording.Read(path)
+            .Where(s => s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) || s.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+            .Select(s => s with { FromServer = s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) })
+            .ToList();
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        int chunk = Math.Max(1, segments.Count / 400);
+        for (int i = 0; i < segments.Count; i += chunk)
+        {
+            foreach (var segment in segments.Skip(i).Take(chunk))
+            {
+                source.Ingest(segment);
+            }
+
+            tick.Invoke(window, new object?[] { null, EventArgs.Empty });
+        }
+
+        Console.WriteLine($"aion2-log-check: {segments.Count} segments played, {recorder.Sessions.Count} stays");
+        foreach (History.SessionInfo stay in recorder.Sessions)
+        {
+            string now = Describe(extrasFor.Invoke(window, new object?[] { stay }) as Combat.FightExtras);
+            Console.WriteLine($"  #{stay.Number} zone {stay.ZoneId} {stay.Kind} {stay.Start:HH:mm:ss}-{stay.End?.ToString("HH:mm:ss") ?? "open"} events {stay.Data.Events.Count} avoids {stay.Avoids.Count}");
+            Console.WriteLine($"      when it ended: {(atEnd.TryGetValue(stay.Number, out string? at) ? at : "still open")}");
+            Console.WriteLine($"      at the end of the recording: {now}");
+            Console.WriteLine($"      capture: {(stay.CaptureStart is { } a && stay.CaptureEnd is { } b ? b.Since(a).ToString() : "-")}");
+            if (extrasFor.Invoke(window, new object?[] { stay }) is Combat.FightExtras { Cooldowns: { Count: > 0 } marks })
+            {
+                var usedSkills = marks.Where(m => !m.Ready).GroupBy(m => Aion2.Protocol.Aion2SkillNames.NameOf(m.SkillId)).OrderByDescending(g => g.Count()).Take(6).Select(g => $"{g.Key} x{g.Count()}");
+                Console.WriteLine($"      cooldown starts: {string.Join(", ", usedSkills)}");
+                int me = marks[0].Actor;
+                var rows = Combat.SkillBreakdown.For(stay.Data.Events.Where(e => e.SourceObjectId == me && !e.IsHeal).ToList()).Select(x => x.Skill).ToHashSet();
+                var names = marks.Select(m => Aion2.Protocol.Aion2SkillNames.NameOf(m.SkillId)).Distinct().ToList();
+                Console.WriteLine($"      of {names.Count} skills on the list, {names.Count(n => rows.Contains(n))} have the name of a damage skill of the player ({rows.Count} damage skills)");
+            }
+        }
+
+        try { Directory.Delete(saveDir, true); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+
+        Environment.Exit(0);
     }
 
     private static void RunAion2UploadDryRun(string path, string serverName, int serverPort, string[] sendOnly)

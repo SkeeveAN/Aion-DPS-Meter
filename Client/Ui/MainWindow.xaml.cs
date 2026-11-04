@@ -1089,6 +1089,14 @@ public partial class MainWindow : Window
             return;
         }
 
+        // The capture's log of skill uses and effects holds the newest 200,000 entries and drops the oldest quarter beyond that (a boss run adds about 19,000), so a stay
+        // saved by hand an hour or two later would find its uses and effects gone while its positions are still there. The stay keeps its own copy from the moment it ends.
+        FightExtras? kept = ExtrasForSession(stay);
+        if (kept is not null && (stay.Extras is null || kept.Uses.Count + kept.Buffs.Count >= stay.Extras.Uses.Count + stay.Extras.Buffs.Count))
+        {
+            stay.Extras = kept;
+        }
+
         MeterSettings settings = MeterSettings.Load();
         if (!settings.SessionAutoSave)
         {
@@ -1097,7 +1105,7 @@ public partial class MainWindow : Window
 
         try
         {
-            SessionFile.AutoSave(stay, settings.SessionAutoSaveFolder, settings.SessionSaveExtras ? stay.Extras ?? ExtrasForSession(stay) : null);
+            SessionFile.AutoSave(stay, settings.SessionAutoSaveFolder, settings.SessionSaveExtras ? stay.Extras : null);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

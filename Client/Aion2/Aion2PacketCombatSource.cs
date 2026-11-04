@@ -236,7 +236,8 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             desyncs = _reassembler.Desyncs;
         }
 
-        return new History.CaptureCounters(frames, _capture?.Dropped ?? 0, desyncs, _decoder.SkippedShortFrames, _capture?.CallbackErrors ?? 0);
+        return new History.CaptureCounters(frames, _capture?.Dropped ?? 0, desyncs, _decoder.SkippedShortFrames, _capture?.CallbackErrors ?? 0,
+            _decoder.CastNoticesPlayers, _decoder.CastNoticesMonsters, _decoder.BuffFramesSeen, _decoder.CooldownFramesSeen);
     }
 
     private void ReportLiveCounters()

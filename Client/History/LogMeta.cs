@@ -6,13 +6,15 @@ namespace AionDPS.History;
 /// The capture's own counters at one moment (running totals since the capture started). A saved log keeps the change over a stay, so a reader can tell a gap in the data
 /// (packets the capture could not keep, frames that lost their place) from a stretch in which nothing happened.
 /// </summary>
-public sealed record CaptureCounters(long Frames, long Dropped, long Desyncs, long SkippedFrames, long CallbackErrors)
+public sealed record CaptureCounters(long Frames, long Dropped, long Desyncs, long SkippedFrames, long CallbackErrors,
+    long CastNoticesPlayers = 0, long CastNoticesMonsters = 0, long BuffFrames = 0, long CooldownFrames = 0)
 {
     /// <summary>The change since <paramref name="start"/>; when the capture was restarted in between (the totals went back) this is the end reading itself.</summary>
     public CaptureCounters Since(CaptureCounters start) =>
         Frames < start.Frames
             ? this
-            : new CaptureCounters(Frames - start.Frames, Dropped - start.Dropped, Desyncs - start.Desyncs, SkippedFrames - start.SkippedFrames, CallbackErrors - start.CallbackErrors);
+            : new CaptureCounters(Frames - start.Frames, Dropped - start.Dropped, Desyncs - start.Desyncs, SkippedFrames - start.SkippedFrames, CallbackErrors - start.CallbackErrors,
+                CastNoticesPlayers - start.CastNoticesPlayers, CastNoticesMonsters - start.CastNoticesMonsters, BuffFrames - start.BuffFrames, CooldownFrames - start.CooldownFrames);
 }
 
 /// <summary>

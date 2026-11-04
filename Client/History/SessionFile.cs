@@ -85,9 +85,11 @@ public static class SessionFile
     {
         "skill uses (extras.U) are the game's cast notices: a repeated effect, a multi-hit or a channelled skill also sends one, so a notice is not always one activation. Each keeps the notice's counter byte (Q), aim flags (M) and target (G) as sent; the number of real activations is uncertain",
         "events: I = the game's numeric skill id, D = 1 a damage-over-time tick (no hit, no crit), E = 1 the amount is an estimate (the skill's average hit) because the server sent no figure for that player; M = 1 a summon's hit counted for its owner",
-        "avoids: only dodge rolls are observable in the Aion 2 stream; parry, block and resist events are not sent as separate records",
+        "avoids (Avoids): the Aion 2 stream has no record of an attack that was avoided; none was found in the recordings checked (no hit frame without damage). A parried hit is a hit with the Parry flag (F bit 1), not a separate event. The list is empty unless a dodge was seen",
         "kills: the Aion 2 stream has no kill record; a death is in extras.D (deaths)",
         "ids: damage events, avoids and extras of one player are put under one id when the game changes it during a stay; the permanent id is Players.C / Players.S (character and server)",
+        "cooldowns (extras.L): the local player's skills going on cooldown (R false = used) and coming off it (R true), read from the game's cooldown list, which comes about every 0.6 s: every moment is only right to about that, and only the own character's list is sent. The game's own count of the time left is not in seconds, so only the moments are kept. Figures made from it (activations by cooldown, cooldown length, waiting time) are approximate",
+        "capture: Capture holds, over the stay, how many cast notices of players and of monsters, effect frames and cooldown lists the decoder read next to the loss counters; a log with hits but none of these was recorded without them (the capture never saw those frames), not from a stay without activity",
         "build: BuildStart/BuildEnd are the own character's setup read at the start and end of the stay (TakenAt), ListsAt = when the game last sent one of the lists; they differ when the setup was changed during the stay. Other players: SeenProfiles holds what their 'player appeared' frame showed (look, visible gear)",
     };
 
@@ -110,6 +112,7 @@ public static class SessionFile
         ["deaths"] = extras?.Deaths?.Count ?? 0,
         ["hpSeries"] = extras?.Hp?.Count ?? 0,
         ["targetChanges"] = extras?.Targets?.Count ?? 0,
+        ["cooldownMarks"] = extras?.Cooldowns?.Count ?? 0,
     };
 
     private static Dictionary<string, PlayerDto>? ToDto(IReadOnlyDictionary<int, PlayerMeta>? players) =>
