@@ -661,7 +661,7 @@ public partial class SessionManagerWindow : Window
     }
 
     private static string AutoSaveFolderOf(MeterSettings settings) =>
-        settings.SessionAutoSaveFolder is { Length: > 0 } chosen ? chosen : Path.Combine(SessionFile.DefaultDirectory, "Auto");
+        settings.SessionAutoSaveFolder is { Length: > 0 } chosen ? chosen : SessionFile.DefaultAutoFolder;
 
     private void ShowAutoSaveFolder() =>
         AutoSaveFolderButton.ToolTip = string.Format(LocalizationManager.Instance["Sessions.AutoSave.Folder.Tip"], AutoSaveFolderOf(MeterSettings.Load()));

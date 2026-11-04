@@ -979,7 +979,8 @@ internal static class Program
                 }
 
                 DateTime t = at.AddSeconds(i * 0.9);
-                batch.Add(new Combat.DamageEvent(t, player, 100, (long)(weight * (run == 0 ? 140 : 120) * (0.8 + random.NextDouble() * 0.4)), false, name, random.Next(3) == 0, SkillId: id));
+                batch.Add(new Combat.DamageEvent(t, player, 100, (long)(weight * (run == 0 ? 140 : 120) * (0.8 + random.NextDouble() * 0.4)), false, name, random.Next(3) == 0, SkillId: id,
+                    Kinds: (Combat.HitKinds)((random.Next(4) == 0 ? 2 : 0) | (random.Next(5) == 0 ? 4 : 0) | (random.Next(2) == 0 ? 8 : 16)), ViaSummon: name == "Frost Chain"));
                 if (i % 2 == 0)
                 {
                     uses.Add(new Combat.SkillUse(t.AddSeconds(-0.1), player, id));
@@ -1005,7 +1006,7 @@ internal static class Program
 
         var extras = new Combat.FightExtras(uses, buffs, Array.Empty<Combat.StaggerEvent>(), new Dictionary<int, string>());
         var window = new Ui.CompareWindow(recorder, _ => extras, _ => recorder.Sessions[0], recorder.Sessions.Where(s => s.Data.Events.Count > 0).Take(2));
-        const double width = 1500, height = 1040;
+        const double width = 1500, height = 1400;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));

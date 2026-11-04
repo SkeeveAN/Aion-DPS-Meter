@@ -183,6 +183,8 @@ public static class SelfCheckSessions
             && CompareModel.EncounterIdOf("hello") is null;
         // boss against adds, and the effects on the player over a fight of ten seconds
         var rec2 = new SessionRecorder(_ => SessionKind.Instance) { Identify = id => id == 1 ? ("Aahz", "Sorcerer") : (id == 100 ? ("Boss", null) : (null, null)) };
+        int ended = 0;
+        rec2.Ended += _ => ended++;
         rec2.Enter(new ZoneChange(t0, Krao));
         rec2.Feed(CombatBatch.DamageOnly(new[]
         {
@@ -192,6 +194,10 @@ public static class SelfCheckSessions
             new DamageEvent(t0.AddSeconds(5), 100, 1, 50, false, "Smash"),
         }));
         rec2.Enter(new ZoneChange(t0.AddMinutes(5), Verteron));
+        int endedAfterFight = ended;
+        rec2.Enter(new ZoneChange(t0.AddMinutes(6), Krao));
+        rec2.Enter(new ZoneChange(t0.AddMinutes(6.5), Verteron)); // a stay without a hit is dropped and is not announced
+        bool announced = endedAfterFight == 1 && ended == 1;
         var attempt = new BossAttempt(100, "Boss", t0, t0.AddSeconds(10), 1500, true, null, null);
         var buffLog = new[]
         {
@@ -212,10 +218,53 @@ public static class SelfCheckSessions
         bool buffTable = buffRows.Count == 2 && buffRows[0].Name == longBuff!.Name && buffRows[0].Gaps[1] == -50 && buffRows[1].Gaps[1] == -30 && buffRows[0].PerEntry[1] is null;
         Console.WriteLine($"  -> the damage to the boss and to adds, and how long each effect was on the player, are read from the session: {bossAdd && uptimes}");
         Console.WriteLine($"  -> the effects table puts the biggest differences to the baseline first: {buffTable}");
+
+        // the stretches an effect was on, how the hits of a skill landed, the summon's share and the pauses between uses
+        bool spans = shortBuff!.Spans is { Count: 1 } w1 && Math.Abs(w1[0].From - 2) < 0.01 && Math.Abs(w1[0].To - 6) < 0.01
+            && longBuff!.Spans is { Count: 1 } w2 && Math.Abs(w2[0].From - 0) < 0.01 && Math.Abs(w2[0].To - 5) < 0.01;
+        var rec3 = new SessionRecorder(_ => SessionKind.Instance) { Identify = id => id == 1 ? ("Aahz", "Sorcerer") : (null, null) };
+        rec3.Enter(new ZoneChange(t0, Krao));
+        rec3.Feed(CombatBatch.DamageOnly(new[]
+        {
+            new DamageEvent(t0.AddSeconds(1), 1, 100, 900, false, "Firestorm", Kinds: HitKinds.Perfect),
+            new DamageEvent(t0.AddSeconds(2), 1, 100, 900, false, "Firestorm", Kinds: HitKinds.Perfect | HitKinds.Back),
+            new DamageEvent(t0.AddSeconds(3), 1, 100, 900, false, "Firestorm", Kinds: HitKinds.Front),
+            new DamageEvent(t0.AddSeconds(4), 1, 100, 200, false, "Firestorm", Kinds: HitKinds.None, ViaSummon: true),
+        }));
+        rec3.Enter(new ZoneChange(t0.AddMinutes(5), Verteron));
+        var useLog = new FightExtras(new[]
+        {
+            new SkillUse(t0.AddSeconds(1), 1, 15040047), new SkillUse(t0.AddSeconds(1), 1, 15040047), new SkillUse(t0.AddSeconds(3), 1, 15040047), new SkillUse(t0.AddSeconds(4), 1, 15040047),
+        }, Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string>());
+        CompareEntry rich = CompareModel.FromSession(rec3.Sessions[0], null, 1, useLog, "d");
+        CompareSkill fire = rich.Skills.Single();
+        UseTiming? timing = CompareModel.UseTimingOf(rich, fire.Skill);
+        bool kinds = fire.Kinds is { Known: 4, Perfect: 2, Back: 1, Front: 1 } && fire.SummonTotal == 200 && rich.SummonDamage == 200 && fire.Uses == 4 && fire.PerUse == 725;
+        // uses at 1 (twice, one moment), 3 and 4: gaps 2 and 1, so the middle is 1.5 and the longest 2
+        bool pauses = timing is { Uses: 3 } t && Math.Abs(t.MedianGap - 1.5) < 0.01 && Math.Abs(t.LongestGap - 2) < 0.01 && CompareModel.UseTimingOf(online, "Overhead Slam") is null;
+        // a stay that ended is written to the chosen folder, again to the same file, and reads back
+        string autoDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "aiondps-selftest-auto-" + Guid.NewGuid().ToString("N"));
+        bool autoSaved;
+        try
+        {
+            string first1 = SessionFile.AutoSave(rec3.Sessions[0], autoDir, useLog);
+            string again = SessionFile.AutoSave(rec3.Sessions[0], autoDir, useLog);
+            SessionFile.LoadedSession back = SessionFile.Load(first1);
+            autoSaved = first1 == again && System.IO.Directory.GetFiles(autoDir).Length == 1 && back.Events.Count == 4 && back.Stay!.Extras!.Uses.Count == 4
+                && System.IO.Path.GetFileName(first1).EndsWith(SessionFile.Extension);
+        }
+        finally
+        {
+            try { System.IO.Directory.Delete(autoDir, true); } catch (System.IO.IOException) { }
+        }
+
+        Console.WriteLine($"  -> the stretches an effect was on the player come with it: {spans}");
+        Console.WriteLine($"  -> how hits landed, the summon's damage, damage per use and the pauses between uses are read: {kinds && pauses}");
+        Console.WriteLine($"  -> an ended session is announced once (not an empty stay) and is written to the chosen folder, again to the same file: {announced && autoSaved}");
         Console.WriteLine($"  -> a player's skills, damage, combat power and cast notices come from a session: {local}");
         Console.WriteLine($"  -> the table puts the skills that make up the gap to the baseline first: {sorted}");
         Console.WriteLine($"  -> an online fight and player are read from the site's answers, and only our own addresses are taken: {read && urls}");
-        return local && sorted && read && urls && bossAdd && uptimes && buffTable;
+        return local && sorted && read && urls && bossAdd && uptimes && buffTable && spans && kinds && pauses && announced && autoSaved;
     }
 
     private static bool RunFileRoundTrip(DateTime t0)

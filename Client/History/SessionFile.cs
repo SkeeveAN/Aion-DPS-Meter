@@ -172,6 +172,21 @@ public static class SessionFile
         JsonSerializer.Serialize(gzip, payload);
     }
 
+    /// <summary>The folder the automatically saved sessions go to when the player has picked none: the subfolder Auto of the Sessions folder.</summary>
+    public static string DefaultAutoFolder => Path.Combine(DefaultDirectory, "Auto");
+
+    /// <summary>
+    /// Writes a stay that has just ended to <paramref name="folder"/> (empty = <see cref="DefaultAutoFolder"/>): the file name says the map and the start, so a stay that is
+    /// taken up and ended once more is written to the same file again. Returns the path written.
+    /// </summary>
+    public static string AutoSave(SessionInfo stay, string folder, Combat.FightExtras? extras)
+    {
+        string name = string.Concat($"{Ui.SessionLabels.NameOf(stay)} {stay.Start:yyyy-MM-dd HH-mm}".Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+        string path = Path.Combine(folder.Length > 0 ? folder : DefaultAutoFolder, name + Extension);
+        SaveStay(path, stay, extras);
+        return path;
+    }
+
     /// <summary>The stay part of a file written by <see cref="SaveStay"/>.</summary>
     public sealed record StoredStay(int ZoneId, SessionKind Kind, DateTime Start, DateTime? End, List<DamageEvent> Shields, Dictionary<int, string> Classes,
         Dictionary<int, TargetHp> Hp, List<EnrageMark> Enrages, Combat.FightExtras? Extras = null);

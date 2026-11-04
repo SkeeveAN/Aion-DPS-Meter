@@ -28,6 +28,7 @@ public sealed class CompareWindow : Window
     private readonly StackPanel _results = new();
     private int _baseline;
     private string? _timelineSkill;
+    private string? _timelineBuff;
 
     /// <summary>One column of the comparison: a player of a local session, or of an online fight.</summary>
     private sealed class Source
@@ -384,10 +385,17 @@ public sealed class CompareWindow : Window
         _timelineSkill = table.Any(r => r.Skill == _timelineSkill) ? _timelineSkill : table.FirstOrDefault()?.Skill;
         _results.Children.Add(SkillTable(entries, table, baseline));
         List<CompareBuffRow> buffs = CompareModel.BuffTable(entries, baseline);
+        _timelineBuff = buffs.Any(r => r.Name == _timelineBuff) ? _timelineBuff : buffs.FirstOrDefault()?.Name;
         if (buffs.Count > 0)
         {
             _results.Children.Add(Text(loc["Compare.Buffs"], bold: true));
             _results.Children.Add(BuffGrid(entries, buffs, baseline));
+        }
+
+        if (_timelineSkill is not null)
+        {
+            _results.Children.Add(Text(string.Format(loc["Compare.SkillDetail"], Aion2.Protocol.Aion2SkillNames.Display(_timelineSkill)), bold: true));
+            _results.Children.Add(SkillDetail(entries, baseline));
         }
 
         _results.Children.Add(Text(loc["Compare.UsesNote"], muted: true));
@@ -397,17 +405,17 @@ public sealed class CompareWindow : Window
     private static string Delta(double value, double baseline) =>
         baseline > 0 && Math.Abs(value - baseline) / baseline * 100 >= 0.05 ? (value >= baseline ? "+" : "") + ((value - baseline) / baseline * 100).ToString("0.0", CultureInfo.CurrentCulture) + " %" : "";
 
-    private Grid Overview(List<CompareEntry> entries, int baseline)
+    /// <summary>A grid of metrics: one row for each, one column for each player; where a delta is given the non-baseline players show it beside the value, coloured.</summary>
+    private Grid MetricGrid(List<CompareEntry> entries, int baseline, IEnumerable<(string Label, Func<CompareEntry, string> Value, Func<CompareEntry, string>? Delta, bool Bold)> rows)
     {
-        LocalizationManager loc = LocalizationManager.Instance;
         var grid = new Grid { Margin = new Thickness(0, 4, 0, 14) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(250) });
         foreach (CompareEntry _ in entries)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(230) });
         }
 
-        void Row(string label, Func<CompareEntry, string> value, Func<CompareEntry, string>? delta = null, bool bold = false)
+        foreach ((string label, Func<CompareEntry, string> value, Func<CompareEntry, string>? delta, bool bold) in rows)
         {
             int row = grid.RowDefinitions.Count;
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -416,10 +424,9 @@ public sealed class CompareWindow : Window
             grid.Children.Add(name);
             for (int i = 0; i < entries.Count; i++)
             {
-                string text = value(entries[i]);
                 string d = i != baseline && delta is not null ? delta(entries[i]) : "";
                 var cell = new StackPanel { Orientation = Orientation.Horizontal };
-                cell.Children.Add(Text(text, bold: bold));
+                cell.Children.Add(Text(value(entries[i]), bold: bold));
                 if (d.Length > 0)
                 {
                     cell.Children.Add(Text(d, brush: d.StartsWith('+') ? Good : Bad));
@@ -431,18 +438,69 @@ public sealed class CompareWindow : Window
             }
         }
 
-        Row("", e => $"{e.Player} ({e.ClassName})", bold: true);
-        Row("", e => e.Label);
-        Row(loc["Compare.Power"], e => e.CombatPower is int p ? p.ToString("N0") : "–", e => e.CombatPower is int p && entries[baseline].CombatPower is int b ? Delta(p, b) : "");
-        Row(loc["Compare.Duration"], e => $"{e.Seconds:0.0} s");
-        Row(loc["Compare.Damage"], e => e.TotalDamage.ToString("N0"), e => Delta(e.TotalDamage, entries[baseline].TotalDamage));
-        Row(loc["Compare.Dps"], e => e.Dps.ToString("N0"), e => Delta(e.Dps, entries[baseline].Dps), bold: true);
-        Row(loc["Compare.BossDamage"], e => e.BossDamage is long b ? b.ToString("N0") : "–", e => e.BossDamage is long b && entries[baseline].BossDamage is long r ? Delta(b, r) : "");
-        Row(loc["Compare.AddDamage"], e => e.AddDamage is long a ? a.ToString("N0") : "–");
-        Row(loc["Compare.Hits"], e => e.Hits.ToString("N0"), e => Delta(e.Hits, entries[baseline].Hits));
-        Row(loc["Compare.Crit"], e => e.CritRate.ToString("0.0", CultureInfo.CurrentCulture) + " %");
-        Row(loc["Compare.Deaths"], e => e.Online ? "–" : e.Deaths.ToString());
         return grid;
+    }
+
+    private Grid Overview(List<CompareEntry> entries, int baseline)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        CompareEntry b = entries[baseline];
+        var rows = new List<(string, Func<CompareEntry, string>, Func<CompareEntry, string>?, bool)>
+        {
+            ("", e => $"{e.Player} ({e.ClassName})", null, true),
+            ("", e => e.Label, null, false),
+            (loc["Compare.Power"], e => e.CombatPower is int p ? p.ToString("N0") : "–", e => e.CombatPower is int p && b.CombatPower is int r ? Delta(p, r) : "", false),
+            (loc["Compare.Duration"], e => $"{e.Seconds:0.0} s", null, false),
+            (loc["Compare.Damage"], e => e.TotalDamage.ToString("N0"), e => Delta(e.TotalDamage, b.TotalDamage), false),
+            (loc["Compare.Dps"], e => e.Dps.ToString("N0"), e => Delta(e.Dps, b.Dps), true),
+            (loc["Compare.BossDamage"], e => e.BossDamage is long x ? x.ToString("N0") : "–", e => e.BossDamage is long x && b.BossDamage is long r ? Delta(x, r) : "", false),
+            (loc["Compare.AddDamage"], e => e.AddDamage is long x ? x.ToString("N0") : "–", null, false),
+        };
+        if (entries.Any(e => e.SummonDamage is > 0))
+        {
+            rows.Add((loc["Compare.Summon"], e => e.SummonDamage is long x ? x.ToString("N0") : "–", null, false));
+        }
+
+        rows.Add((loc["Compare.Hits"], e => e.Hits.ToString("N0"), e => Delta(e.Hits, b.Hits), false));
+        rows.Add((loc["Compare.Crit"], e => e.CritRate.ToString("0.0", CultureInfo.CurrentCulture) + " %", null, false));
+        rows.Add((loc["Compare.Deaths"], e => e.Online ? "–" : e.Deaths.ToString(), null, false));
+        return MetricGrid(entries, baseline, rows);
+    }
+
+    /// <summary>What is known of the picked skill for each player: how its hits landed, the hit sizes, and how often and how regularly it was used.</summary>
+    private Grid SkillDetail(List<CompareEntry> entries, int baseline)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        string skill = _timelineSkill!;
+        CompareSkill? Of(CompareEntry e) => e.Skills.FirstOrDefault(s => s.Skill == skill);
+        string Pct(CompareEntry e, Func<HitKindCounts, int> pick) => Of(e)?.Kinds is { Known: > 0 } k ? k.Rate(pick(k)).ToString("0.0", CultureInfo.CurrentCulture) + " %" : "–";
+        string Num(long? value) => value is long v and > 0 ? v.ToString("N0") : "–";
+        string Secs(double? value) => value is double v ? v.ToString("0.0", CultureInfo.CurrentCulture) + " s" : "–";
+        var rows = new List<(string, Func<CompareEntry, string>, Func<CompareEntry, string>?, bool)>
+        {
+            ("", e => e.Player, null, true),
+            (loc["Compare.Hits"], e => Num(Of(e)?.Hits), null, false),
+            (loc["Compare.Crit"], e => Of(e) is { Hits: > 0 } s ? (100.0 * s.CritHits / s.Hits).ToString("0.0", CultureInfo.CurrentCulture) + " %" : "–", null, false),
+            (loc["Details.Col.Perfect"], e => Pct(e, k => k.Perfect), null, false),
+            (loc["Details.Col.Double"], e => Pct(e, k => k.Double), null, false),
+            (loc["Details.Col.Back"], e => Pct(e, k => k.Back), null, false),
+            (loc["Details.Col.Front"], e => Pct(e, k => k.Front), null, false),
+            (loc["Compare.Parry"], e => Pct(e, k => k.Parry), null, false),
+            (loc["Details.Col.Multi"], e => Pct(e, k => k.Multi), null, false),
+            (loc["Compare.Lowest"], e => Num(Of(e)?.Min), null, false),
+            (loc["Compare.Highest"], e => Num(Of(e)?.Max), null, false),
+            (loc["Compare.Avg"], e => Num(Of(e)?.Average), e => Of(e) is { } s && Of(entries[baseline]) is { } r ? Delta(s.Average, r.Average) : "", false),
+            (loc["Compare.Uses"], e => Of(e) is { Uses: >= 0 } s ? s.Uses.ToString("N0") : "–", null, false),
+            (loc["Compare.PerUse"], e => Num(Of(e)?.PerUse), e => Of(e) is { PerUse: > 0 } s && Of(entries[baseline]) is { PerUse: > 0 } r ? Delta(s.PerUse, r.PerUse) : "", false),
+            (loc["Compare.Interval"], e => Secs(CompareModel.UseTimingOf(e, skill)?.MedianGap), null, false),
+            (loc["Compare.LongestGap"], e => Secs(CompareModel.UseTimingOf(e, skill)?.LongestGap), null, false),
+        };
+        if (entries.Any(e => Of(e)?.SummonTotal > 0))
+        {
+            rows.Add((loc["Compare.Summon"], e => Num(Of(e)?.SummonTotal), null, false));
+        }
+
+        return MetricGrid(entries, baseline, rows);
     }
 
     private Grid SkillTable(List<CompareEntry> entries, List<CompareRow> table, int baseline)
@@ -580,7 +638,14 @@ public sealed class CompareWindow : Window
         {
             int r = grid.RowDefinitions.Count;
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            var name = Text(Aion2.Protocol.Aion2SkillNames.Display(row.Name));
+            var name = Text(Aion2.Protocol.Aion2SkillNames.Display(row.Name), bold: row.Name == _timelineBuff);
+            name.Cursor = System.Windows.Input.Cursors.Hand;
+            string effect = row.Name;
+            name.MouseLeftButtonUp += (_, _) =>
+            {
+                _timelineBuff = effect;
+                Render();
+            };
             Grid.SetRow(name, r);
             grid.Children.Add(name);
             for (int e = 0; e < entries.Count; e++)
@@ -622,6 +687,11 @@ public sealed class CompareWindow : Window
         }
 
         panel.Children.Add(Text(string.Format(loc["Compare.Timeline"], Aion2.Protocol.Aion2SkillNames.Display(_timelineSkill)), bold: true));
+        if (_timelineBuff is not null && entries.Any(e => e.Buffs?.Any(b => b.Name == _timelineBuff) == true))
+        {
+            panel.Children.Add(Text(string.Format(loc["Compare.BuffShade"], Aion2.Protocol.Aion2SkillNames.Display(_timelineBuff)), muted: true));
+        }
+
         double span = Math.Max(1, entries.Max(e => e.Seconds));
         foreach (CompareEntry entry in entries)
         {
@@ -649,6 +719,18 @@ public sealed class CompareWindow : Window
         if (width <= 0 || _timelineSkill is null)
         {
             return;
+        }
+
+        // the picked effect: the stretches it was on the player are shaded behind the marks
+        if (_timelineBuff is not null && entry.Buffs?.FirstOrDefault(b => b.Name == _timelineBuff)?.Spans is { } spans)
+        {
+            foreach ((double from, double to) in spans)
+            {
+                var band = new Rectangle { Width = Math.Max(1, (to - from) / span * width), Height = 30, Opacity = 0.28 };
+                band.SetResourceReference(Shape.FillProperty, "Brush.Heal");
+                Canvas.SetLeft(band, from / span * width);
+                canvas.Children.Add(band);
+            }
         }
 
         foreach (CompareMark mark in entry.Marks!.Where(m => m.Skill == _timelineSkill))

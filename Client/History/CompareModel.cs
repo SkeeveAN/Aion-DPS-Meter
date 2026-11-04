@@ -9,13 +9,19 @@ namespace AionDPS.History;
 
 /// <summary>One skill of one player in one fight, as the comparison reads it. <see cref="Uses"/> is the number of the game's cast notices of the skill (-1 = not known: an online fight
 /// has none); a notice is not always one activation (see <see cref="SkillUse"/>), so the damage per use is a guide, not a count of casts.</summary>
-public sealed record CompareSkill(string Skill, int SkillId, int Hits, int CritHits, long Total, long Min, long Max, int Uses)
+public sealed record CompareSkill(string Skill, int SkillId, int Hits, int CritHits, long Total, long Min, long Max, int Uses, HitKindCounts? Kinds = null, long SummonTotal = 0)
 {
     public long Average => Hits > 0 ? Total / Hits : 0;
+
+    /// <summary>Damage over the cast notices; a guide only, since a notice is not always one activation. 0 when the uses are not known.</summary>
+    public long PerUse => Uses > 0 ? Total / Uses : 0;
 }
 
+/// <summary>When a skill was used, from its cast notices: how many, the middle and the longest pause between two of them (seconds). Notices of the same moment (a multi-hit sends several) are one use here.</summary>
+public sealed record UseTiming(int Uses, double MedianGap, double LongestGap);
+
 /// <summary>An effect on the player during the fight: the share of the fight it was on (<see cref="UptimePercent"/>) and how many times it was put on (-1 = not known).</summary>
-public sealed record CompareBuff(string Name, double UptimePercent, int Applications);
+public sealed record CompareBuff(string Name, double UptimePercent, int Applications, IReadOnlyList<(double From, double To)>? Spans = null);
 
 /// <summary>One mark on a rotation timeline: seconds from the fight's start, the skill, and whether it is a cast notice (true) or a hit (false).</summary>
 public readonly record struct CompareMark(double Seconds, string Skill, bool IsUse);
@@ -39,7 +45,8 @@ public sealed record CompareEntry(
     int Deaths = 0,
     IReadOnlyList<CompareBuff>? Buffs = null,
     long? BossDamage = null,
-    long? AddDamage = null)
+    long? AddDamage = null,
+    long? SummonDamage = null)
 {
     /// <summary>Damage over the fight's length, pauses included (the iDPS rule: first to last moment of the fight).</summary>
     public double Dps => Seconds > 0 ? TotalDamage / Seconds : 0;
@@ -94,8 +101,9 @@ public static class CompareModel
         List<SkillUse> uses = extras?.Uses.Where(u => u.Actor == playerId && u.At >= from && u.At <= to).ToList() ?? new List<SkillUse>();
         var usesByName = uses.GroupBy(u => Aion2.Protocol.Aion2SkillNames.NameOf(u.SkillId)).ToDictionary(g => g.Key, g => g.Count());
 
+        var summonBy = mine.Where(e => e.ViaSummon).GroupBy(e => e.Skill ?? "(auto attack)").ToDictionary(g => g.Key, g => g.Sum(e => e.Amount));
         List<CompareSkill> skills = SkillBreakdown.For(mine)
-            .Select(s => new CompareSkill(s.Skill, s.SkillId, s.Hits, s.CritHits, s.Total, s.Min, s.Max, extras is null ? -1 : usesByName.GetValueOrDefault(s.Skill)))
+            .Select(s => new CompareSkill(s.Skill, s.SkillId, s.Hits, s.CritHits, s.Total, s.Min, s.Max, extras is null ? -1 : usesByName.GetValueOrDefault(s.Skill), s.Kinds, summonBy.GetValueOrDefault(s.Skill)))
             .ToList();
 
         var marks = new List<CompareMark>();
@@ -135,7 +143,36 @@ public static class CompareModel
             deaths,
             extras is null ? null : BuffUptimes(extras.Buffs, playerId, from, to),
             bossDamage,
-            addDamage);
+            addDamage,
+            skills.Sum(s => s.SummonTotal));
+    }
+
+    /// <summary>The pauses between the uses of one skill (null when fewer than two are known, as for an online fight).</summary>
+    public static UseTiming? UseTimingOf(CompareEntry entry, string skill)
+    {
+        if (entry.Marks is null)
+        {
+            return null;
+        }
+
+        var times = entry.Marks.Where(m => m.IsUse && m.Skill == skill).Select(m => m.Seconds).OrderBy(t => t).ToList();
+        var gaps = new List<double>();
+        for (int i = 1; i < times.Count; i++)
+        {
+            if (times[i] - times[i - 1] >= 0.05)
+            {
+                gaps.Add(times[i] - times[i - 1]);
+            }
+        }
+
+        if (gaps.Count == 0)
+        {
+            return null;
+        }
+
+        gaps.Sort();
+        double median = gaps.Count % 2 == 1 ? gaps[gaps.Count / 2] : (gaps[gaps.Count / 2 - 1] + gaps[gaps.Count / 2]) / 2;
+        return new UseTiming(gaps.Count + 1, median, gaps[^1]);
     }
 
     /// <summary>
@@ -212,6 +249,7 @@ public static class CompareModel
             // clip to the fight and join the overlaps of the instances
             double covered = 0;
             DateTime reach = from;
+            var windows = new List<(double From, double To)>();
             foreach ((DateTime s, DateTime e) in spans.Select(x => (Max(x.Start, from), Min(x.End, to))).Where(x => x.Item2 > x.Item1).OrderBy(x => x.Item1))
             {
                 DateTime begin = Max(s, reach);
@@ -219,16 +257,17 @@ public static class CompareModel
                 {
                     covered += (e - begin).TotalSeconds;
                     reach = e;
+                    windows.Add(((begin - from).TotalSeconds, (e - from).TotalSeconds));
                 }
             }
 
             if (covered > 0 || applications > 0)
             {
-                result.Add(new CompareBuff(Aion2.Protocol.Aion2SkillNames.NameOf(skillId), Math.Min(100, 100 * covered / seconds), applications));
+                result.Add(new CompareBuff(Aion2.Protocol.Aion2SkillNames.NameOf(skillId), Math.Min(100, 100 * covered / seconds), applications, windows));
             }
         }
 
-        return result.GroupBy(b => b.Name).Select(g => g.Count() == 1 ? g.First() : new CompareBuff(g.Key, g.Max(b => b.UptimePercent), g.Sum(b => b.Applications))).OrderByDescending(b => b.UptimePercent).ToList();
+        return result.GroupBy(b => b.Name).Select(g => g.Count() == 1 ? g.First() : new CompareBuff(g.Key, g.Max(b => b.UptimePercent), g.Sum(b => b.Applications), g.OrderByDescending(b => b.UptimePercent).First().Spans)).OrderByDescending(b => b.UptimePercent).ToList();
     }
 
     private static DateTime Min(DateTime a, DateTime b) => a < b ? a : b;
