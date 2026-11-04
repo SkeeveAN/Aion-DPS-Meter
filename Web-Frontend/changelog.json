@@ -4,28 +4,28 @@
   "date": "2026-11-04",
   "items": [
    {
-    "text": "Client: the comparison also shows the damage to the boss and to adds, and the effects on each player (share of the fight they were on, how often they were put on, the difference to the baseline), for online fights too",
+    "text": "Client: the comparison also shows the damage to the boss and to adds, and the effects on each player (share of the fight they were on, how often they were put on, the difference to the baseline), for online fights too (implemented at the community's request)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-04"
    },
    {
-    "text": "Privacy policy: the comparison downloads a public fight from aiondps.com when asked (only the fight's number is sent), and saved session files stay on the computer",
+    "text": "Privacy policy: the comparison downloads a public fight from aiondps.com when asked (only the fight's number is sent), and saved session files stay on the computer (implemented at the community's request)",
     "areas": [
      "Website"
     ],
     "date": "2026-11-04"
    },
    {
-    "text": "Client: the comparison shows, for the picked skill, how its hits landed (crit, perfect, double, back, front, parried, multi), hit sizes, damage per use and the pauses between uses, the damage of summons, and the stretches an effect was on each player on the timeline; the privacy text names the download of an online fight and the local session files; the auto-save is tested",
+    "text": "Client: the comparison shows, for the picked skill, how its hits landed (crit, perfect, double, back, front, parried, multi), hit sizes, damage per use and the pauses between uses, the damage of summons, and the stretches an effect was on each player on the timeline; the privacy text names the download of an online fight and the local session files; the auto-save is tested (implemented at the community's request)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-04"
    },
    {
-    "text": "Client: a session keeps its own copy of the skill uses, effects and positions when it ends (the capture's log drops the oldest quarter past 200,000 entries, so sessions saved later lost them), the log records when the own skills went on cooldown and came off it, the comparison shows activations by cooldown, cooldown length, waiting time and time ready but unused (marked approximate), and the log file counts the cast notices, effect frames and cooldown lists the capture read",
+    "text": "Client: a session keeps its own copy of the skill uses, effects and positions when it ends (the capture's log drops the oldest quarter past 200,000 entries, so sessions saved later lost them), the log records when the own skills went on cooldown and came off it, the comparison shows activations by cooldown, cooldown length, waiting time and time ready but unused (marked approximate), and the log file counts the cast notices, effect frames and cooldown lists the capture read (implemented at the community's request)",
     "areas": [
      "Client"
     ],
@@ -38,14 +38,14 @@
   "date": "2026-11-04",
   "items": [
    {
-    "text": "Client: players can be compared side by side - from sessions, from loaded files or from a public fight of aiondps.com by its address, against a baseline, with the skills that make up the gap first, the combat power, and the hits and cast notices of a skill on a common time axis; and every finished session can be saved to a file automatically (off by default)",
+    "text": "Client: players can be compared side by side - from sessions, from loaded files or from a public fight of aiondps.com by its address, against a baseline, with the skills that make up the gap first, the combat power, and the hits and cast notices of a skill on a common time axis; and every finished session can be saved to a file automatically (off by default) (implemented at the community's request)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-04"
    },
    {
-    "text": "Client: the folder for automatically saved sessions can be picked (button next to the switch, which stays off by default)",
+    "text": "Client: the folder for automatically saved sessions can be picked (button next to the switch, which stays off by default) (implemented at the community's request)",
     "areas": [
      "Client"
     ],
@@ -58,7 +58,7 @@
   "date": "2026-11-04",
   "items": [
    {
-    "text": "Client: saved logs keep what the first version lost - the numeric skill id and the tick and estimate flags of every hit, the dodge rolls, the cast notices' own bytes (counter, aim, target), the capture's loss counters, which streams were recorded, the boss attempts and the setup (skills, stigmas, presets, gear, boards) at the start and end of a stay - and a player whose combat id changes stays one player in the skill uses, effects and positions",
+    "text": "Client: saved logs keep what the first version lost - the numeric skill id and the tick and estimate flags of every hit, the dodge rolls, the cast notices' own bytes (counter, aim, target), the capture's loss counters, which streams were recorded, the boss attempts and the setup (skills, stigmas, presets, gear, boards) at the start and end of a stay - and a player whose combat id changes stays one player in the skill uses, effects and positions (implemented at the community's request)",
     "areas": [
      "Client"
     ],
