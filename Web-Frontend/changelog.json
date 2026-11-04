@@ -1,5 +1,39 @@
 [
  {
+  "version": "1.19.8",
+  "date": "2026-11-04",
+  "items": [
+   {
+    "text": "Client: the comparison also shows the damage to the boss and to adds, and the effects on each player (share of the fight they were on, how often they were put on, the difference to the baseline), for online fights too",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Privacy policy: the comparison downloads a public fight from aiondps.com when asked (only the fight's number is sent), and saved session files stay on the computer",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Client: the comparison shows, for the picked skill, how its hits landed (crit, perfect, double, back, front, parried, multi), hit sizes, damage per use and the pauses between uses, the damage of summons, and the stretches an effect was on each player on the timeline; the privacy text names the download of an online fight and the local session files; the auto-save is tested",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Client: a session keeps its own copy of the skill uses, effects and positions when it ends (the capture's log drops the oldest quarter past 200,000 entries, so sessions saved later lost them), the log records when the own skills went on cooldown and came off it, the comparison shows activations by cooldown, cooldown length, waiting time and time ready but unused (marked approximate), and the log file counts the cast notices, effect frames and cooldown lists the capture read",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-04"
+   }
+  ]
+ },
+ {
   "version": "1.19.7",
   "date": "2026-11-04",
   "items": [
