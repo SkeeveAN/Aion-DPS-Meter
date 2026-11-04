@@ -1,7 +1,7 @@
 /**
  * Marks the stored boss fights that the partial-fight rule (src/bossHpRules.ts) classifies as partial, after migration 0064 added the columns.
  * Dry run by default: it only prints what it would change; `--apply` writes, in ONE transaction. Take a backup first
- * (sqlite3 <db> ".backup '<file>'"; the live database runs in WAL mode, never a plain copy).
+ * (sqlite3 <db> "VACUUM INTO '<file>'"; the live database runs in WAL mode, never a plain copy, and ".backup" starts over whenever the backend writes).
  *
  *   tsx scripts/backfill-partial-fights.ts <sqlite file> [--apply]
  *   tsx scripts/backfill-partial-fights.ts <sqlite file> --unmark [--apply]   (the other way round: encounters marked partial that the current rule

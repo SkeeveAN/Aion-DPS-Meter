@@ -51,6 +51,9 @@ def main():
         end = starts[n + 1][1] if n + 1 < len(starts) else len(ss)
         row = [s for _, s, _ in ss[k:end]]
         name = next((s for s in row if s.startswith("STR_Map_")), row[0]).replace("STR_Map_", "")
+        # a few text keys differ from the map folder's name (STR_Map_Krao_Cave -> KraoCave): match them without the underscores
+        if not os.path.isdir(os.path.join(png, name)):
+            name = next((d for d in os.listdir(png) if d.replace("_", "") == name.replace("_", "")), name)
         zone_map.setdefault(name, set()).add(zid)
 
     maps = {}

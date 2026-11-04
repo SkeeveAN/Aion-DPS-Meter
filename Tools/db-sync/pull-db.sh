@@ -20,7 +20,7 @@ trap 'rm -f "$tmp" "$tmp_archive"; ssh alfahosting "rm -f $remote $remote_archiv
 
 if [ "${1:-}" != "--archive-only" ]; then
   # The server has a limit on disk operations (about 200 IOPS): every read of the 1.2 GB database competes with the live backend. So this does the
-  # least possible: one .backup (read once, written once), the copy over the wire, nothing else - no integrity_check of the copy on the server (that
+  # least possible: one VACUUM INTO (read once, written once), the copy over the wire, nothing else - no integrity_check of the copy on the server (that
   # read the whole file again). The backup API reports failure by its exit code; the header is checked here.
   ssh alfahosting "ionice -c3 nice -n 19 sqlite3 /opt/dpsmeter/Backend/data/dpsmeter.sqlite \"VACUUM INTO '$remote'\""
   scp -q -C "alfahosting:$remote" "$tmp"
@@ -33,7 +33,7 @@ if [ "${1:-}" != "--archive-only" ]; then
   echo "$day: $(du -h dpsmeter.sqlite | cut -f1) pulled, $(ls backups | wc -l) daily copies kept"
 fi
 
-# The second file (see Backend/src/uploadArchive.ts). Same way as above, one .backup that is read once; no -C because the content is gzip already. A copy that is
+# The second file (see Backend/src/uploadArchive.ts). Same way as above, one VACUUM INTO that is read once; no -C because the content is gzip already. A copy that is
 # clearly smaller than the one we have is not taken over (the file only grows, so that would be a damaged or cut off transfer).
 archive_remote_file=/opt/dpsmeter/Backend/data/uploads-archive.sqlite
 if ssh alfahosting "test -f $archive_remote_file"; then
