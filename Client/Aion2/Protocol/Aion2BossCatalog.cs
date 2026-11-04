@@ -16,8 +16,12 @@ public static class Aion2BossCatalog
 {
     public sealed record BossInfo(int NpcId, string Name, string Instance, long MaxHp = 0, bool PartyScaled = false);
 
-    private static readonly string FilePath = AssetStore.Path("aion2", "npcs", "boss_npcs.json");
+    // Asked again at every load: a file the data delivery took while the meter runs changes where it lives.
+    private static string FilePath => AssetStore.Path("aion2", "npcs", "boss_npcs.json");
     private static IReadOnlyDictionary<int, BossInfo>? _cache;
+
+    /// <summary>Forgets the table read so far, so the next lookup reads the file again (after the data delivery took a newer one).</summary>
+    public static void Reload() => _cache = null;
 
     public static BossInfo? Find(int npcId) => Load().GetValueOrDefault(npcId);
 

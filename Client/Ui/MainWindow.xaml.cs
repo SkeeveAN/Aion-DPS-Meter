@@ -5031,7 +5031,8 @@ public partial class MainWindow : Window
     private DateTime _dataRefreshedAt = DateTime.MinValue;
 
     /// <summary>The data the server has newer than the shipped set (tables, names, texts, maps; see DataUpdateClient) is taken into the data folder: at the start and then every two hours, off the
-    /// window's thread. It belongs to the update function, so it runs whenever "check for updates" is on, also without the upload consent. A file taken now is used from the next start.</summary>
+    /// window's thread. It belongs to the update function, so it runs whenever "check for updates" is on, also without the upload consent. The boss tables (which monster is a boss, how long it takes to rage)
+    /// are read again at once, so a new instance's bosses are recognised without a restart; the other tables are used from the next start.</summary>
     private async Task RefreshDataAsync()
     {
         if (Headless || DateTime.UtcNow - _dataRefreshedAt < TimeSpan.FromHours(2) || !MeterSettings.Load().CheckForUpdates)
@@ -5040,7 +5041,12 @@ public partial class MainWindow : Window
         }
 
         _dataRefreshedAt = DateTime.UtcNow;
-        await Task.Run(() => DataUpdateClient.RefreshAsync());
+        DataUpdateResult result = await Task.Run(() => DataUpdateClient.RefreshAsync());
+        if (result.Taken > 0 || result.Removed > 0)
+        {
+            Aion2BossCatalog.Reload();
+            Aion2BossRage.Reload();
+        }
     }
 
     /// <summary>The region the timetable was last asked for (only once the own server is known).</summary>

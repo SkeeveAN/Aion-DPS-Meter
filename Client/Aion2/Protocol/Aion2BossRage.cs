@@ -12,8 +12,12 @@ public static class Aion2BossRage
 {
     public const int DefaultSeconds = 300;
 
-    private static readonly string FilePath = AssetStore.Path("aion2", "npcs", "boss_rage.json");
+    // Asked again at every load: a file the data delivery took while the meter runs changes where it lives.
+    private static string FilePath => AssetStore.Path("aion2", "npcs", "boss_rage.json");
     private static IReadOnlyDictionary<int, int>? _cache;
+
+    /// <summary>Forgets the table read so far, so the next lookup reads the file again (after the data delivery took a newer one).</summary>
+    public static void Reload() => _cache = null;
 
     public static int SecondsFor(int? npcId) => npcId is int id && Load().TryGetValue(id, out int seconds) ? seconds : DefaultSeconds;
 
