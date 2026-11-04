@@ -1,0 +1,3369 @@
+{
+ "_meta": {
+  "source": "client table RewardItem, NpcData (EU client, patch of 2026-11-04)",
+  "note": "Monsters of instances and the Abyss whose reward lists a pet soul; since the patch of 2026-11-04 (before: bosses only). The chance in the table is 100, the real drop is decided by the server.",
+  "mode": "explore | conquest | advanced for the expeditions with these steps, else null"
+ },
+ "drops": [
+  {
+   "npcId": 2600001,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600002,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600003,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600004,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600011,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600012,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600013,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600014,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600021,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600023,
+   "petId": 1062,
+   "soulItemId": 534660063,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600024,
+   "petId": 1089,
+   "soulItemId": 534660090,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600026,
+   "petId": 1027,
+   "soulItemId": 534660026,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600027,
+   "petId": 1207,
+   "soulItemId": 534660199,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600028,
+   "petId": 1209,
+   "soulItemId": 534660113,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600029,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600036,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600041,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600042,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600045,
+   "petId": 1117,
+   "soulItemId": 534660086,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600046,
+   "petId": 1083,
+   "soulItemId": 534660084,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600047,
+   "petId": 1121,
+   "soulItemId": 534660155,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600048,
+   "petId": 1016,
+   "soulItemId": 534660015,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600049,
+   "petId": 1073,
+   "soulItemId": 534660074,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600050,
+   "petId": 1219,
+   "soulItemId": 534660117,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600051,
+   "petId": 1110,
+   "soulItemId": 534660111,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600056,
+   "petId": 1069,
+   "soulItemId": 534660070,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600061,
+   "petId": 1134,
+   "soulItemId": 534660168,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600066,
+   "petId": 1178,
+   "soulItemId": 534660146,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600069,
+   "petId": 1214,
+   "soulItemId": 534660115,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600070,
+   "petId": 1084,
+   "soulItemId": 534660085,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600071,
+   "petId": 1207,
+   "soulItemId": 534660199,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600102,
+   "petId": 1189,
+   "soulItemId": 534660226,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600105,
+   "petId": 1018,
+   "soulItemId": 534660017,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600113,
+   "petId": 1210,
+   "soulItemId": 534660225,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600118,
+   "petId": 1069,
+   "soulItemId": 534660070,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600119,
+   "petId": 1157,
+   "soulItemId": 534660191,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600128,
+   "petId": 1069,
+   "soulItemId": 534660070,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600132,
+   "petId": 1189,
+   "soulItemId": 534660226,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600135,
+   "petId": 1018,
+   "soulItemId": 534660017,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600143,
+   "petId": 1210,
+   "soulItemId": 534660225,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600148,
+   "petId": 1069,
+   "soulItemId": 534660070,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600401,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600402,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600403,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600404,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600411,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600412,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600413,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600414,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600421,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600423,
+   "petId": 1062,
+   "soulItemId": 534660063,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600424,
+   "petId": 1089,
+   "soulItemId": 534660090,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600426,
+   "petId": 1141,
+   "soulItemId": 534660175,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600427,
+   "petId": 1207,
+   "soulItemId": 534660199,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600428,
+   "petId": 1209,
+   "soulItemId": 534660113,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600429,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600430,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600432,
+   "petId": 1154,
+   "soulItemId": 534660205,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600436,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600441,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600442,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600446,
+   "petId": 1083,
+   "soulItemId": 534660084,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600447,
+   "petId": 1121,
+   "soulItemId": 534660155,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600448,
+   "petId": 1016,
+   "soulItemId": 534660015,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600449,
+   "petId": 1073,
+   "soulItemId": 534660074,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600450,
+   "petId": 1219,
+   "soulItemId": 534660117,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600451,
+   "petId": 1110,
+   "soulItemId": 534660111,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600452,
+   "petId": 1189,
+   "soulItemId": 534660226,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600455,
+   "petId": 1018,
+   "soulItemId": 534660017,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600461,
+   "petId": 1134,
+   "soulItemId": 534660168,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600466,
+   "petId": 1178,
+   "soulItemId": 534660146,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600469,
+   "petId": 1214,
+   "soulItemId": 534660115,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600470,
+   "petId": 1084,
+   "soulItemId": 534660085,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600471,
+   "petId": 1207,
+   "soulItemId": 534660199,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600481,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600482,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600483,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600491,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600492,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600493,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600502,
+   "petId": 1141,
+   "soulItemId": 534660175,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600503,
+   "petId": 1209,
+   "soulItemId": 534660113,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600504,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600505,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600511,
+   "petId": 1073,
+   "soulItemId": 534660074,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600512,
+   "petId": 1219,
+   "soulItemId": 534660117,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600513,
+   "petId": 1110,
+   "soulItemId": 534660111,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600515,
+   "petId": 1018,
+   "soulItemId": 534660017,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600531,
+   "petId": 1209,
+   "soulItemId": 534660113,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600532,
+   "petId": 1141,
+   "soulItemId": 534660175,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600534,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600535,
+   "petId": 1089,
+   "soulItemId": 534660090,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600536,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600537,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600538,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600539,
+   "petId": 1062,
+   "soulItemId": 534660063,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600540,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600541,
+   "petId": 1154,
+   "soulItemId": 534660205,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600551,
+   "petId": 1209,
+   "soulItemId": 534660113,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600552,
+   "petId": 1141,
+   "soulItemId": 534660175,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600554,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600555,
+   "petId": 1089,
+   "soulItemId": 534660090,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600556,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600557,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600558,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600559,
+   "petId": 1062,
+   "soulItemId": 534660063,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600560,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600561,
+   "petId": 1154,
+   "soulItemId": 534660205,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600571,
+   "petId": 1207,
+   "soulItemId": 534660199,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600574,
+   "petId": 1219,
+   "soulItemId": 534660117,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600575,
+   "petId": 1110,
+   "soulItemId": 534660111,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600576,
+   "petId": 1016,
+   "soulItemId": 534660015,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600578,
+   "petId": 1083,
+   "soulItemId": 534660084,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600579,
+   "petId": 1189,
+   "soulItemId": 534660226,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600580,
+   "petId": 1018,
+   "soulItemId": 534660017,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600581,
+   "petId": 1207,
+   "soulItemId": 534660199,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600584,
+   "petId": 1219,
+   "soulItemId": 534660117,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600585,
+   "petId": 1110,
+   "soulItemId": 534660111,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600586,
+   "petId": 1016,
+   "soulItemId": 534660015,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600588,
+   "petId": 1083,
+   "soulItemId": 534660084,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600589,
+   "petId": 1189,
+   "soulItemId": 534660226,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600590,
+   "petId": 1018,
+   "soulItemId": 534660017,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600601,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600602,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600603,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600604,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600605,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600606,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600607,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600621,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600622,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600623,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600624,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600625,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600626,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600627,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600641,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600642,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600643,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600644,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600645,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600646,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600647,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600661,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600662,
+   "petId": 1029,
+   "soulItemId": 534660029,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600663,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600664,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600665,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600666,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600667,
+   "petId": 1098,
+   "soulItemId": 534660099,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600681,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600683,
+   "petId": 1062,
+   "soulItemId": 534660063,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600684,
+   "petId": 1089,
+   "soulItemId": 534660090,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600686,
+   "petId": 1141,
+   "soulItemId": 534660175,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600687,
+   "petId": 1209,
+   "soulItemId": 534660113,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600688,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600689,
+   "petId": 1180,
+   "soulItemId": 534660204,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600691,
+   "petId": 1154,
+   "soulItemId": 534660205,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2600692,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "abyss",
+   "instanceKey": null,
+   "mode": null
+  },
+  {
+   "npcId": 2330701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2330702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2330703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2330704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2330705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2340701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2340702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2340703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2340704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2340705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2350701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2350702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2350703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2350704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2350705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2351701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2351702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2351703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2351704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2351705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2352701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2352702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2352703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2352704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2352705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2353701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2353702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2353703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2353704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2353705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2354701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2354702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2354703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2354704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2354705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2355701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2355702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2355703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2355704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2355705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2356701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2356702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2356703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2356704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2356705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2357701,
+   "petId": 1168,
+   "soulItemId": 534660122,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2357702,
+   "petId": 1169,
+   "soulItemId": 534660123,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2357703,
+   "petId": 1155,
+   "soulItemId": 534660124,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2357704,
+   "petId": 1090,
+   "soulItemId": 534660091,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2357705,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Arkanis",
+   "mode": null
+  },
+  {
+   "npcId": 2310801,
+   "petId": 1164,
+   "soulItemId": 534660125,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310802,
+   "petId": 1165,
+   "soulItemId": 534660126,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310803,
+   "petId": 1166,
+   "soulItemId": 534660127,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310804,
+   "petId": 1100,
+   "soulItemId": 534660101,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310807,
+   "petId": 1127,
+   "soulItemId": 534660161,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310808,
+   "petId": 1134,
+   "soulItemId": 534660168,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310815,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310816,
+   "petId": 1118,
+   "soulItemId": 534660152,
+   "scope": "instance",
+   "instanceKey": "Bakron",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2300801,
+   "petId": 1164,
+   "soulItemId": 534660125,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300802,
+   "petId": 1165,
+   "soulItemId": 534660126,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300803,
+   "petId": 1166,
+   "soulItemId": 534660127,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300804,
+   "petId": 1100,
+   "soulItemId": 534660101,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300807,
+   "petId": 1127,
+   "soulItemId": 534660161,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300808,
+   "petId": 1134,
+   "soulItemId": 534660168,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300815,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300816,
+   "petId": 1118,
+   "soulItemId": 534660152,
+   "scope": "instance",
+   "instanceKey": "Bakron:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2320801,
+   "petId": 1164,
+   "soulItemId": 534660125,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320802,
+   "petId": 1165,
+   "soulItemId": 534660126,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320803,
+   "petId": 1166,
+   "soulItemId": 534660127,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320804,
+   "petId": 1100,
+   "soulItemId": 534660101,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320807,
+   "petId": 1127,
+   "soulItemId": 534660161,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320808,
+   "petId": 1134,
+   "soulItemId": 534660168,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320815,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320816,
+   "petId": 1118,
+   "soulItemId": 534660152,
+   "scope": "instance",
+   "instanceKey": "Bakron:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2300191,
+   "petId": 1043,
+   "soulItemId": 534660044,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300192,
+   "petId": 1043,
+   "soulItemId": 534660044,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300193,
+   "petId": 1039,
+   "soulItemId": 534660040,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300194,
+   "petId": 1124,
+   "soulItemId": 534660121,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300196,
+   "petId": 1043,
+   "soulItemId": 534660044,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300198,
+   "petId": 1086,
+   "soulItemId": 534660087,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300233,
+   "petId": 1039,
+   "soulItemId": 534660040,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300234,
+   "petId": 1124,
+   "soulItemId": 534660121,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300238,
+   "petId": 1086,
+   "soulItemId": 534660087,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300248,
+   "petId": 1039,
+   "soulItemId": 534660040,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300249,
+   "petId": 1124,
+   "soulItemId": 534660121,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300253,
+   "petId": 1086,
+   "soulItemId": 534660087,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300265,
+   "petId": 1009,
+   "soulItemId": 534660008,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300266,
+   "petId": 1006,
+   "soulItemId": 534660005,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300269,
+   "petId": 1009,
+   "soulItemId": 534660008,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300270,
+   "petId": 1006,
+   "soulItemId": 534660005,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300273,
+   "petId": 1009,
+   "soulItemId": 534660008,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300274,
+   "petId": 1006,
+   "soulItemId": 534660005,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300356,
+   "petId": 1125,
+   "soulItemId": 534660159,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300357,
+   "petId": 1125,
+   "soulItemId": 534660159,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300358,
+   "petId": 1125,
+   "soulItemId": 534660159,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300359,
+   "petId": 1060,
+   "soulItemId": 534660061,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300360,
+   "petId": 1060,
+   "soulItemId": 534660061,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2300361,
+   "petId": 1060,
+   "soulItemId": 534660061,
+   "scope": "instance",
+   "instanceKey": "BlueBreathIsle",
+   "mode": null
+  },
+  {
+   "npcId": 2301304,
+   "petId": 1159,
+   "soulItemId": 534660112,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2301306,
+   "petId": 1217,
+   "soulItemId": 534660190,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2301307,
+   "petId": 1174,
+   "soulItemId": 534660202,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2301309,
+   "petId": 1080,
+   "soulItemId": 534660081,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2301321,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2301323,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2311304,
+   "petId": 1159,
+   "soulItemId": 534660112,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2311306,
+   "petId": 1217,
+   "soulItemId": 534660190,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2311307,
+   "petId": 1174,
+   "soulItemId": 534660202,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2311309,
+   "petId": 1080,
+   "soulItemId": 534660081,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2311321,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2311323,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2321304,
+   "petId": 1159,
+   "soulItemId": 534660112,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2321306,
+   "petId": 1217,
+   "soulItemId": 534660190,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2321307,
+   "petId": 1174,
+   "soulItemId": 534660202,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2321309,
+   "petId": 1080,
+   "soulItemId": 534660081,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2321321,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2321323,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "instance",
+   "instanceKey": "CradleNihility",
+   "mode": null
+  },
+  {
+   "npcId": 2300146,
+   "petId": 1147,
+   "soulItemId": 534660135,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2300156,
+   "petId": 1066,
+   "soulItemId": 534660067,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2300157,
+   "petId": 1011,
+   "soulItemId": 534660010,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2300500,
+   "petId": 1147,
+   "soulItemId": 534660135,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2300510,
+   "petId": 1066,
+   "soulItemId": 534660067,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2300511,
+   "petId": 1011,
+   "soulItemId": 534660010,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2310500,
+   "petId": 1147,
+   "soulItemId": 534660135,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2310510,
+   "petId": 1066,
+   "soulItemId": 534660067,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2310511,
+   "petId": 1011,
+   "soulItemId": 534660010,
+   "scope": "instance",
+   "instanceKey": "DDN",
+   "mode": null
+  },
+  {
+   "npcId": 2300612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2300613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2310612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2310613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2320612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2320613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2330612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2330613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2340612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2340613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2341612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2341613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2342612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2342613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2343612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2343613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2344612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2344613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2345612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2345613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2346612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2346613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2347612,
+   "petId": 1017,
+   "soulItemId": 534660016,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2347613,
+   "petId": 1026,
+   "soulItemId": 534660025,
+   "scope": "instance",
+   "instanceKey": "DeusCenter",
+   "mode": null
+  },
+  {
+   "npcId": 2310401,
+   "petId": 1093,
+   "soulItemId": 534660094,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310403,
+   "petId": 1215,
+   "soulItemId": 534660118,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310404,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310405,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310421,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310422,
+   "petId": 1159,
+   "soulItemId": 534660112,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310425,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "instance",
+   "instanceKey": "Draupnir",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2300401,
+   "petId": 1093,
+   "soulItemId": 534660094,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300403,
+   "petId": 1215,
+   "soulItemId": 534660118,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300404,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300405,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300421,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300422,
+   "petId": 1159,
+   "soulItemId": 534660112,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300425,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "instance",
+   "instanceKey": "Draupnir:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2320401,
+   "petId": 1093,
+   "soulItemId": 534660094,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320403,
+   "petId": 1215,
+   "soulItemId": 534660118,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320404,
+   "petId": 1200,
+   "soulItemId": 534660119,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320405,
+   "petId": 1030,
+   "soulItemId": 534660030,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320421,
+   "petId": 1013,
+   "soulItemId": 534660012,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320422,
+   "petId": 1159,
+   "soulItemId": 534660112,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320425,
+   "petId": 1005,
+   "soulItemId": 534660004,
+   "scope": "instance",
+   "instanceKey": "Draupnir:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2310304,
+   "petId": 1114,
+   "soulItemId": 534660019,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310305,
+   "petId": 1213,
+   "soulItemId": 534660128,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310306,
+   "petId": 1187,
+   "soulItemId": 534660129,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310307,
+   "petId": 1096,
+   "soulItemId": 534660097,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310308,
+   "petId": 1082,
+   "soulItemId": 534660083,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310309,
+   "petId": 1199,
+   "soulItemId": 534660131,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310310,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310311,
+   "petId": 1091,
+   "soulItemId": 534660092,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310312,
+   "petId": 1058,
+   "soulItemId": 534660059,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310313,
+   "petId": 1167,
+   "soulItemId": 534660132,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310315,
+   "petId": 1213,
+   "soulItemId": 534660128,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310316,
+   "petId": 1187,
+   "soulItemId": 534660129,
+   "scope": "instance",
+   "instanceKey": "FT",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2300304,
+   "petId": 1114,
+   "soulItemId": 534660019,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300305,
+   "petId": 1213,
+   "soulItemId": 534660128,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300306,
+   "petId": 1187,
+   "soulItemId": 534660129,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300307,
+   "petId": 1096,
+   "soulItemId": 534660097,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300308,
+   "petId": 1082,
+   "soulItemId": 534660083,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300309,
+   "petId": 1199,
+   "soulItemId": 534660131,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300310,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300311,
+   "petId": 1091,
+   "soulItemId": 534660092,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300312,
+   "petId": 1058,
+   "soulItemId": 534660059,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300313,
+   "petId": 1167,
+   "soulItemId": 534660132,
+   "scope": "instance",
+   "instanceKey": "FT:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2320304,
+   "petId": 1114,
+   "soulItemId": 534660019,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320305,
+   "petId": 1213,
+   "soulItemId": 534660128,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320306,
+   "petId": 1187,
+   "soulItemId": 534660129,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320307,
+   "petId": 1096,
+   "soulItemId": 534660097,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320308,
+   "petId": 1082,
+   "soulItemId": 534660083,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320309,
+   "petId": 1199,
+   "soulItemId": 534660131,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320310,
+   "petId": 1192,
+   "soulItemId": 534660130,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320311,
+   "petId": 1091,
+   "soulItemId": 534660092,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320312,
+   "petId": 1058,
+   "soulItemId": 534660059,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320313,
+   "petId": 1167,
+   "soulItemId": 534660132,
+   "scope": "instance",
+   "instanceKey": "FT:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2310102,
+   "petId": 1068,
+   "soulItemId": 534660069,
+   "scope": "instance",
+   "instanceKey": "Krao",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310104,
+   "petId": 1077,
+   "soulItemId": 534660078,
+   "scope": "instance",
+   "instanceKey": "Krao",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310106,
+   "petId": 1107,
+   "soulItemId": 534660108,
+   "scope": "instance",
+   "instanceKey": "Krao",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310107,
+   "petId": 1028,
+   "soulItemId": 534660027,
+   "scope": "instance",
+   "instanceKey": "Krao",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2300102,
+   "petId": 1068,
+   "soulItemId": 534660069,
+   "scope": "instance",
+   "instanceKey": "Krao:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300104,
+   "petId": 1077,
+   "soulItemId": 534660078,
+   "scope": "instance",
+   "instanceKey": "Krao:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300106,
+   "petId": 1107,
+   "soulItemId": 534660108,
+   "scope": "instance",
+   "instanceKey": "Krao:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300107,
+   "petId": 1028,
+   "soulItemId": 534660027,
+   "scope": "instance",
+   "instanceKey": "Krao:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2320102,
+   "petId": 1068,
+   "soulItemId": 534660069,
+   "scope": "instance",
+   "instanceKey": "Krao:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320104,
+   "petId": 1077,
+   "soulItemId": 534660078,
+   "scope": "instance",
+   "instanceKey": "Krao:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320106,
+   "petId": 1107,
+   "soulItemId": 534660108,
+   "scope": "instance",
+   "instanceKey": "Krao:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320107,
+   "petId": 1028,
+   "soulItemId": 534660027,
+   "scope": "instance",
+   "instanceKey": "Krao:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2310915,
+   "petId": 1193,
+   "soulItemId": 534660209,
+   "scope": "instance",
+   "instanceKey": "MauCave",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310917,
+   "petId": 1172,
+   "soulItemId": 534660139,
+   "scope": "instance",
+   "instanceKey": "MauCave",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310918,
+   "petId": 1173,
+   "soulItemId": 534660140,
+   "scope": "instance",
+   "instanceKey": "MauCave",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310920,
+   "petId": 1007,
+   "soulItemId": 534660006,
+   "scope": "instance",
+   "instanceKey": "MauCave",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310921,
+   "petId": 1202,
+   "soulItemId": 534660214,
+   "scope": "instance",
+   "instanceKey": "MauCave",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2300900,
+   "petId": 1172,
+   "soulItemId": 534660139,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300901,
+   "petId": 1173,
+   "soulItemId": 534660140,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300915,
+   "petId": 1193,
+   "soulItemId": 534660209,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300917,
+   "petId": 1172,
+   "soulItemId": 534660139,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300918,
+   "petId": 1173,
+   "soulItemId": 534660140,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300920,
+   "petId": 1007,
+   "soulItemId": 534660006,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300921,
+   "petId": 1202,
+   "soulItemId": 534660214,
+   "scope": "instance",
+   "instanceKey": "MauCave:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2320900,
+   "petId": 1172,
+   "soulItemId": 534660139,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320901,
+   "petId": 1173,
+   "soulItemId": 534660140,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320915,
+   "petId": 1193,
+   "soulItemId": 534660209,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320917,
+   "petId": 1172,
+   "soulItemId": 534660139,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320918,
+   "petId": 1173,
+   "soulItemId": 534660140,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320920,
+   "petId": 1007,
+   "soulItemId": 534660006,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320921,
+   "petId": 1202,
+   "soulItemId": 534660214,
+   "scope": "instance",
+   "instanceKey": "MauCave:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2300169,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300185,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300242,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300246,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300326,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300327,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300345,
+   "petId": 1136,
+   "soulItemId": 534660170,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300346,
+   "petId": 1059,
+   "soulItemId": 534660060,
+   "scope": "instance",
+   "instanceKey": "MirrorHeart",
+   "mode": null
+  },
+  {
+   "npcId": 2300003,
+   "petId": 1061,
+   "soulItemId": 534660062,
+   "scope": "instance",
+   "instanceKey": "SunkenTemple",
+   "mode": null
+  },
+  {
+   "npcId": 2300018,
+   "petId": 1061,
+   "soulItemId": 534660062,
+   "scope": "instance",
+   "instanceKey": "SunkenTemple",
+   "mode": null
+  },
+  {
+   "npcId": 2300033,
+   "petId": 1061,
+   "soulItemId": 534660062,
+   "scope": "instance",
+   "instanceKey": "SunkenTemple",
+   "mode": null
+  },
+  {
+   "npcId": 2301504,
+   "petId": 1061,
+   "soulItemId": 534660062,
+   "scope": "instance",
+   "instanceKey": "SunkenTemple",
+   "mode": null
+  },
+  {
+   "npcId": 2310202,
+   "petId": 1040,
+   "soulItemId": 534660041,
+   "scope": "instance",
+   "instanceKey": "UC",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310212,
+   "petId": 1031,
+   "soulItemId": 534660031,
+   "scope": "instance",
+   "instanceKey": "UC",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2310216,
+   "petId": 1087,
+   "soulItemId": 534660088,
+   "scope": "instance",
+   "instanceKey": "UC",
+   "mode": "explore"
+  },
+  {
+   "npcId": 2300202,
+   "petId": 1040,
+   "soulItemId": 534660041,
+   "scope": "instance",
+   "instanceKey": "UC:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300212,
+   "petId": 1031,
+   "soulItemId": 534660031,
+   "scope": "instance",
+   "instanceKey": "UC:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300213,
+   "petId": 1078,
+   "soulItemId": 534660079,
+   "scope": "instance",
+   "instanceKey": "UC:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300216,
+   "petId": 1087,
+   "soulItemId": 534660088,
+   "scope": "instance",
+   "instanceKey": "UC:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2300217,
+   "petId": 1088,
+   "soulItemId": 534660089,
+   "scope": "instance",
+   "instanceKey": "UC:conquest",
+   "mode": "conquest"
+  },
+  {
+   "npcId": 2320202,
+   "petId": 1040,
+   "soulItemId": 534660041,
+   "scope": "instance",
+   "instanceKey": "UC:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320212,
+   "petId": 1031,
+   "soulItemId": 534660031,
+   "scope": "instance",
+   "instanceKey": "UC:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320213,
+   "petId": 1078,
+   "soulItemId": 534660079,
+   "scope": "instance",
+   "instanceKey": "UC:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320216,
+   "petId": 1087,
+   "soulItemId": 534660088,
+   "scope": "instance",
+   "instanceKey": "UC:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2320217,
+   "petId": 1088,
+   "soulItemId": 534660089,
+   "scope": "instance",
+   "instanceKey": "UC:hard",
+   "mode": "advanced"
+  },
+  {
+   "npcId": 2301203,
+   "petId": 1176,
+   "soulItemId": 534660216,
+   "scope": "raid",
+   "instanceKey": "ErosionPurifier",
+   "mode": null
+  },
+  {
+   "npcId": 2301052,
+   "petId": 1199,
+   "soulItemId": 534660131,
+   "scope": "raid",
+   "instanceKey": "MusphelHolyGrail",
+   "mode": null
+  },
+  {
+   "npcId": 2301064,
+   "petId": 1186,
+   "soulItemId": 534660188,
+   "scope": "raid",
+   "instanceKey": "MusphelHolyGrail",
+   "mode": null
+  }
+ ]
+}

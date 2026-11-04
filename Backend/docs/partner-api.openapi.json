@@ -1265,6 +1265,10 @@
             "items": {
               "$ref": "#/components/schemas/PetRegion"
             }
+          },
+          "instanceDropCount": {
+            "type": "integer",
+            "description": "Number of monsters of instances, sanctuary raids and the Abyss that drop this pet's soul (see instanceDrops of the pet's detail)."
           }
         }
       },
@@ -1360,6 +1364,48 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              },
+              "instanceDrops": {
+                "type": "array",
+                "description": "Monsters of expeditions, transcendence dungeons, sanctuary raids and the Abyss whose loot has this pet's soul. Since the patch of 2026-11-04 normal monsters of the instances drop souls too (before only bosses). The soul is bound; the drop chance is decided by the game server.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "npcId": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string",
+                      "enum": [
+                        "instance",
+                        "abyss",
+                        "raid"
+                      ]
+                    },
+                    "instance": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Slug of the instance (see /instances); null for the Abyss."
+                    },
+                    "mode": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "explore",
+                        "conquest",
+                        "advanced",
+                        null
+                      ],
+                      "description": "Expedition step; null where there are no steps."
+                    },
+                    "soulItemId": {
+                      "type": "integer"
                     }
                   }
                 }

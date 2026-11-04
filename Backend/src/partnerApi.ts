@@ -235,6 +235,9 @@ const IMAGE_BASE = "https://aiondps.com/images/aion2";
 
 const petFile = () => load<PetsFile>(assetDir("pets", "pets.json"));
 
+type PetDrop = { npcId: number; petId: number; soulItemId: number; scope: "instance" | "abyss" | "raid"; instanceKey: string | null; mode: string | null };
+const petDrops = () => load<{ drops: PetDrop[] }>(dataDir("pet_instance_drops.json")).drops;
+
 export function pets(lang: Lang, category?: string) {
   const regionsOf = new Map<number, { group: string; key: string; name: string }[]>();
   for (const g of load<RegionsFile>(assetDir("pets", "regions.json")).groups) {
@@ -245,7 +248,7 @@ export function pets(lang: Lang, category?: string) {
     }
   }
   return Object.entries(petFile().pets)
-    .map(([id, p]) => ({ id: Number(id), key: p.key, category: p.category, name: pick(p.names, lang), image: `${IMAGE_BASE}/pets/${p.key}.webp`, regions: regionsOf.get(Number(id)) ?? [] }))
+    .map(([id, p]) => ({ id: Number(id), key: p.key, category: p.category, name: pick(p.names, lang), image: `${IMAGE_BASE}/pets/${p.key}.webp`, regions: regionsOf.get(Number(id)) ?? [], instanceDropCount: new Set(petDrops().filter((d) => d.petId === Number(id)).map((d) => d.npcId)).size }))
     .filter((p) => category === undefined || p.category.toLowerCase() === category.toLowerCase());
 }
 
@@ -302,6 +305,8 @@ const worldBossIds = () =>
     ...load<WorldBossFile>(dataDir("worldbosses.json")).items.map((b) => b.npcId),
   ]));
 
+const instanceByKey = () => new Map(load<InstanceFile>(dataDir("instances.json")).items.map((i) => [i.key, i.slug]));
+
 export function pet(id: number, lang: Lang) {
   const found = pets(lang).find((p) => p.id === id);
   if (!found) {
@@ -315,6 +320,8 @@ export function pet(id: number, lang: Lang) {
     // x and y (and z) are the game's own coordinates
     monsters: idsOf(file.monsters).map((npcId) => ({ npcId, name: pick(npcNames[String(npcId)], lang) })),
     soulItemIds: idsOf(file.souls),
+    // The monsters of instances (expeditions by step, transcendence dungeons, sanctuary raids) and of the Abyss whose loot has this pet's soul; since the patch of 4 November 2026 also normal monsters, before only bosses.
+    instanceDrops: petDrops().filter((d) => d.petId === id).map((d) => ({ npcId: d.npcId, name: pick(npcNames[String(d.npcId)], lang), scope: d.scope, instance: d.instanceKey ? instanceByKey().get(d.instanceKey) ?? null : null, mode: d.mode, soulItemId: d.soulItemId })),
     shopItemIds: idsOf(file.shop),
     // monsters: the same points by monster; boss = a boss of an instance, worldBoss = a field or world boss, neither = a normal mob that drops the soul
     spawns: [...(spawnsOfPets().get(id)?.values() ?? [])].map((s) => ({
