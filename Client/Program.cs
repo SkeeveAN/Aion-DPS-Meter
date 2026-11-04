@@ -359,6 +359,29 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "compare-online")
+        {
+            // Loads a public fight of aiondps.com the way the comparison window does and prints what it read (one GET each for the fight and every player).
+            long id = History.CompareModel.EncounterIdOf(args[1]) ?? throw new ArgumentException("not an aiondps.com fight address");
+            var fight = History.CompareModel.FetchFightAsync(id).GetAwaiter().GetResult();
+            if (fight is null)
+            {
+                Console.WriteLine("compare-online: the fight could not be loaded");
+                return;
+            }
+
+            Console.WriteLine($"compare-online: #{fight.EncounterId} {fight.BossName}, {fight.DurationSeconds:0.0} s, {fight.Players.Count} players");
+            foreach (var player in fight.Players)
+            {
+                var entry = History.CompareModel.FetchEntryAsync(fight, player).GetAwaiter().GetResult();
+                Console.WriteLine(entry is null
+                    ? $"  {player.Name}: not loaded"
+                    : $"  {entry.Player} ({entry.ClassName}) CP {entry.CombatPower}: {entry.TotalDamage:N0} dmg, {entry.Dps:N0} DPS, {entry.Skills.Count} skills, top {entry.Skills.FirstOrDefault()?.Skill} {entry.Skills.FirstOrDefault()?.Total:N0}, {entry.Buffs?.Count ?? 0} effects");
+            }
+
+            return;
+        }
+
         if (args.Length > 1 && args[0] == "aion2-log-check")
         {
             RunAion2LogCheck(args[1], args.Length > 2 ? int.Parse(args[2]) : 13328);
