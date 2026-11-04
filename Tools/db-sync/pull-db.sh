@@ -5,8 +5,8 @@
 #   Backend/data/uploads-archive.sqlite       the second file: the gzipped raw payloads of settled uploads (it only grows and the content is gzip already, so
 #                                             one current copy and the one before it as .prev, no daily gz); fetched in the same run as the main file
 # "--archive-only" fetches just the second file.
-# The server makes the copy with sqlite's own .backup (the database runs in WAL mode, a plain
-# file copy could be torn). Both folders are git-ignored: the dump holds hashed IPs and raw
+# The server makes the copy with VACUUM INTO (the database runs in WAL mode, a plain file copy could be torn; sqlite's ".backup" starts over every time the live
+# backend writes in between, and on the running server it never finished: 4.11.2026 it had read 700 GB for a 1.3 GB file). The copy has no free pages. Both folders are git-ignored: the dump holds hashed IPs and raw
 # upload payloads, and this repository is public.
 set -euo pipefail
 cd "$(dirname "$0")/../../Backend/data"
@@ -22,7 +22,7 @@ if [ "${1:-}" != "--archive-only" ]; then
   # The server has a limit on disk operations (about 200 IOPS): every read of the 1.2 GB database competes with the live backend. So this does the
   # least possible: one .backup (read once, written once), the copy over the wire, nothing else - no integrity_check of the copy on the server (that
   # read the whole file again). The backup API reports failure by its exit code; the header is checked here.
-  ssh alfahosting "ionice -c3 nice -n 19 sqlite3 /opt/dpsmeter/Backend/data/dpsmeter.sqlite \".backup $remote\""
+  ssh alfahosting "ionice -c3 nice -n 19 sqlite3 /opt/dpsmeter/Backend/data/dpsmeter.sqlite \"VACUUM INTO '$remote'\""
   scp -q -C "alfahosting:$remote" "$tmp"
   [ "$(head -c 15 "$tmp")" = "SQLite format 3" ] && [ "$(stat -c %s "$tmp")" -gt 1000000 ]
 
@@ -37,7 +37,7 @@ fi
 # clearly smaller than the one we have is not taken over (the file only grows, so that would be a damaged or cut off transfer).
 archive_remote_file=/opt/dpsmeter/Backend/data/uploads-archive.sqlite
 if ssh alfahosting "test -f $archive_remote_file"; then
-  ssh alfahosting "ionice -c3 nice -n 19 sqlite3 $archive_remote_file \".backup $remote_archive\""
+  ssh alfahosting "ionice -c3 nice -n 19 sqlite3 $archive_remote_file \"VACUUM INTO '$remote_archive'\""
   scp -q "alfahosting:$remote_archive" "$tmp_archive"
   [ "$(head -c 15 "$tmp_archive")" = "SQLite format 3" ]
   new_size=$(stat -c %s "$tmp_archive")
