@@ -1933,6 +1933,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "AION 2 on Twitch", inventoryLink: "Drops Inventory", linkAccount: "Link accounts",
     pastTitle: "Earlier campaigns", empty: "No campaigns found yet.",
     footer: "The campaigns are read from NC's announcements, the live channels from Twitch. Last checked:",
+    contains: "Contains",
   },
   de: {
     loading: "Twitch Drops werden geladen…", title: "Twitch Drops",
@@ -1949,6 +1950,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "AION 2 auf Twitch", inventoryLink: "Drops-Inventar", linkAccount: "Accounts verknüpfen",
     pastTitle: "Frühere Kampagnen", empty: "Noch keine Kampagnen gefunden.",
     footer: "Die Kampagnen werden aus den Ankündigungen von NC gelesen, die Live-Kanäle von Twitch. Zuletzt geprüft:",
+    contains: "Enthält",
   },
   fr: {
     loading: "Chargement des Twitch Drops…", title: "Twitch Drops",
@@ -1965,6 +1967,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "AION 2 sur Twitch", inventoryLink: "Inventaire des Drops", linkAccount: "Lier les comptes",
     pastTitle: "Campagnes précédentes", empty: "Aucune campagne trouvée pour le moment.",
     footer: "Les campagnes sont lues dans les annonces de NC, les chaînes en direct sur Twitch. Dernière vérification :",
+    contains: "Contient",
   },
   es: {
     loading: "Cargando Twitch Drops…", title: "Twitch Drops",
@@ -1981,6 +1984,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "AION 2 en Twitch", inventoryLink: "Inventario de Drops", linkAccount: "Vincular cuentas",
     pastTitle: "Campañas anteriores", empty: "Todavía no se han encontrado campañas.",
     footer: "Las campañas se leen de los anuncios de NC y los canales en directo, de Twitch. Última comprobación:",
+    contains: "Contiene",
   },
   pt: {
     loading: "Carregando Twitch Drops…", title: "Twitch Drops",
@@ -1997,6 +2001,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "AION 2 na Twitch", inventoryLink: "Inventário de Drops", linkAccount: "Vincular contas",
     pastTitle: "Campanhas anteriores", empty: "Nenhuma campanha encontrada ainda.",
     footer: "As campanhas são lidas dos anúncios da NC e os canais ao vivo, da Twitch. Última verificação:",
+    contains: "Contém",
   },
   ru: {
     loading: "Загрузка Twitch Drops…", title: "Twitch Drops",
@@ -2013,6 +2018,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "AION 2 на Twitch", inventoryLink: "Инвентарь дропсов", linkAccount: "Привязать аккаунты",
     pastTitle: "Прошлые кампании", empty: "Кампании пока не найдены.",
     footer: "Кампании берутся из объявлений NC, прямые эфиры — с Twitch. Последняя проверка:",
+    contains: "Содержит",
   },
   ja: {
     loading: "Twitchドロップを読み込み中…", title: "Twitchドロップ",
@@ -2029,6 +2035,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "TwitchでAION 2", inventoryLink: "ドロップのインベントリ", linkAccount: "アカウント連携",
     pastTitle: "過去のキャンペーン", empty: "キャンペーンはまだ見つかっていません。",
     footer: "キャンペーンはNCのお知らせから、配信中のチャンネルはTwitchから取得しています。最終確認:",
+    contains: "中身",
   },
   ko: {
     loading: "트위치 드롭 불러오는 중…", title: "트위치 드롭",
@@ -2045,6 +2052,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "트위치에서 AION 2", inventoryLink: "드롭 인벤토리", linkAccount: "계정 연동",
     pastTitle: "지난 캠페인", empty: "아직 캠페인을 찾지 못했습니다.",
     footer: "캠페인은 NC 공지에서, 방송 중인 채널은 트위치에서 가져옵니다. 마지막 확인:",
+    contains: "내용물",
   },
   zh: {
     loading: "正在加载 Twitch 掉落…", title: "Twitch 掉落",
@@ -2061,6 +2069,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "Twitch 上的 AION 2", inventoryLink: "掉落库存", linkAccount: "绑定账号",
     pastTitle: "往期活动", empty: "暂未找到活动。",
     footer: "活动内容来自 NC 公告，直播频道来自 Twitch。上次检查：",
+    contains: "内含",
   },
   "zh-TW": {
     loading: "正在載入 Twitch 掉落…", title: "Twitch 掉落",
@@ -2077,6 +2086,7 @@ const TWITCH_DROPS_TEXT = {
     watchLink: "Twitch 上的 AION 2", inventoryLink: "掉落庫存", linkAccount: "綁定帳號",
     pastTitle: "過往活動", empty: "尚未找到活動。",
     footer: "活動內容來自 NC 公告，直播頻道來自 Twitch。上次檢查：",
+    contains: "內含",
   },
 };
 const DROP_ITEM_LOCALES = ["en", "de", "es", "fr", "ja", "ko", "pt", "ru"];
@@ -2086,7 +2096,13 @@ function dropReward(items, reward) {
   const entry = items[dropKey(reward.name)];
   const code = getLocale();
   const name = entry?.names?.[DROP_ITEM_LOCALES.includes(code) ? code : "en"] ?? entry?.names?.en ?? reward.name.replace(/\s*\(Bound\)\s*$/i, "");
-  return { name: reward.qty > 1 ? `${name} ×${reward.qty.toLocaleString(code === "de" ? "de-DE" : "en-US")}` : name, icon: entry?.icon ?? null };
+  // a chest lists what it holds (from the game's files): "Resurrection Spiritstone ×15, Battle Enhance Scroll ×10, ..."
+  const contents = (entry?.contains ?? []).map(([key, qty]) => {
+    const inner = items[key];
+    const innerName = inner?.names?.[DROP_ITEM_LOCALES.includes(code) ? code : "en"] ?? inner?.names?.en ?? key;
+    return qty > 1 ? `${innerName} ×${qty.toLocaleString(code === "de" ? "de-DE" : "en-US")}` : innerName;
+  });
+  return { name: reward.qty > 1 ? `${name} ×${reward.qty.toLocaleString(code === "de" ? "de-DE" : "en-US")}` : name, icon: entry?.icon ?? null, contents };
 }
 async function renderTwitchDrops() {
   const code = getLocale();
@@ -2120,10 +2136,11 @@ async function renderTwitchDrops() {
         ]),
       ]),
       el("ul", { className: "td-drops" }, c.rewards.map((r) => {
-        const { name, icon } = dropReward(items, r);
+        const { name, icon, contents } = dropReward(items, r);
         return el("li", { className: "td-drop" }, [
           icon ? el("img", { className: "td-drop-icon", src: `/${icon}`, alt: "", width: 64, height: 64, loading: "lazy" }) : el("span", { className: "td-drop-icon td-drop-icon--blank", "aria-hidden": "true" }),
           el("span", { className: "td-drop-name", textContent: name }),
+          ...(contents.length ? [el("span", { className: "td-drop-contains", textContent: `${L.contains}: ${contents.join(", ")}` })] : []),
           el("span", { className: "td-drop-time", textContent: hours(r.minutes) }),
         ]);
       })),

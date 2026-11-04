@@ -273,7 +273,8 @@
    "ko": "검은 살 삿갓 (투구)",
    "pt": "Chapéu Cônico Preto (Elmo)",
    "ru": "Черная остроконечная шляпа (шлем)"
-  }
+  },
+  "icon": "images/twitch-drops/black-conical-hat.png"
  },
  "chubby panda": {
   "names": {
@@ -287,5 +288,117 @@
    "ru": "Кругленькая панда (шлем)"
   },
   "icon": "images/twitch-drops/chubby-panda.png"
+ },
+ "battle support chest": {
+  "names": {
+   "en": "Battle Support Chest",
+   "de": "Unterstützungstruhe: Kampf",
+   "es": "Cofre de apoyo de combate",
+   "fr": "Coffre de soutien au combat",
+   "ja": "戦闘支援箱",
+   "ko": "전투 지원 상자",
+   "pt": "Baú de Suporte do Combate",
+   "ru": "Сундук боевой поддержки"
+  },
+  "icon": "images/twitch-drops/battle-support-chest.png",
+  "contains": [
+   [
+    "resurrection spiritstone",
+    15
+   ],
+   [
+    "battle enhance scroll",
+    10
+   ],
+   [
+    "artisan's roasted fogus",
+    20
+   ]
+  ]
+ },
+ "customization chest": {
+  "names": {
+   "en": "Customization Chest",
+   "de": "Unterstützungstruhe: Skin-Gestaltung",
+   "es": "Cofre de apoyo para personalización de apariencia",
+   "fr": "Coffre de soutien à l'apparence",
+   "ja": "外形調整支援箱",
+   "ko": "외형 꾸밈 지원 상자",
+   "pt": "Baú de Suporte do Visual Customizado",
+   "ru": "Сундук для украшения внешности"
+  },
+  "icon": "images/twitch-drops/customization-chest.png",
+  "contains": [
+   [
+    "customization voucher",
+    3
+   ],
+   [
+    "appearance change voucher",
+    1
+   ]
+  ]
+ },
+ "soul codex chest": {
+  "names": {
+   "en": "Soul Codex Chest",
+   "de": "Unterstützungstruhe: Buch der Seele",
+   "es": "Cofre de apoyo del Códice de alma",
+   "fr": "Coffre de soutien du Livre d'âme",
+   "ja": "魂の書支援箱",
+   "ko": "영혼의 서 지원 상자",
+   "pt": "Baú de Suporte do Códice da Alma",
+   "ru": "Сундук Книг души"
+  },
+  "icon": "images/twitch-drops/soul-codex-chest.png",
+  "contains": [
+   [
+    "soul codex",
+    15
+   ],
+   [
+    "soul codex: reset",
+    6
+   ]
+  ]
+ },
+ "dotted glasses": {
+  "names": {
+   "en": "Pixel Glasses",
+   "de": "Pixelbrille",
+   "es": "Gafas de píxeles",
+   "fr": "Lunettes pixel",
+   "ja": "ドット眼鏡",
+   "ko": "도트 안경",
+   "pt": "Óculos Pixelados",
+   "ru": "Пиксельные очки"
+  },
+  "icon": "images/twitch-drops/pixel-glasses.png"
+ },
+ "pixel glasses": {
+  "names": {
+   "en": "Pixel Glasses",
+   "de": "Pixelbrille",
+   "es": "Gafas de píxeles",
+   "fr": "Lunettes pixel",
+   "ja": "ドット眼鏡",
+   "ko": "도트 안경",
+   "pt": "Óculos Pixelados",
+   "ru": "Пиксельные очки"
+  },
+  "icon": "images/twitch-drops/pixel-glasses.png"
+ },
+ "content usage ticket": {
+  "names": {
+   "en": "Content Usage Ticket Selection Chest",
+   "de": "Auswahltruhe: Aufladeticket für Inhaltsnutzung",
+   "es": "Cofre de selección de tique de recarga de contenido",
+   "fr": "Coffre de sélection de ticket d'accès aux contenus",
+   "ja": "コンテンツ利用チャージ券選択箱",
+   "ko": "콘텐츠 이용 충전권 선택 상자",
+   "pt": "Baú de Seleção de Bilhete de Recarga de Uso de Conteúdo",
+   "ru": "Сундук выбора контента"
+  },
+  "icon": "images/twitch-drops/content-usage-ticket-selection-chest.png"
  }
 }
