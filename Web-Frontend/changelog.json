@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.19.5",
   "date": "2026-11-04",
   "items": [
    {
@@ -8,6 +8,13 @@
     "areas": [
      "Backend",
      "Database"
+    ],
+    "date": "2026-11-04"
+   },
+   {
+    "text": "Client: the pet map and its list work in the Krao Cave (its map is added), and the Region tab of the pet settings has a group with the pet instances and every pet that can drop there instead of listing them among the rare pets",
+    "areas": [
+     "Client"
     ],
     "date": "2026-11-04"
    },
