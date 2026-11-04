@@ -10,6 +10,14 @@
      "Database"
     ],
     "date": "2026-11-04"
+   },
+   {
+    "text": "Backend: exploration kills are no longer marked as partial fights when the spawn data already holds the group's health, and 434 fights marked that way are corrected",
+    "areas": [
+     "Backend",
+     "Boss health"
+    ],
+    "date": "2026-11-04"
    }
   ]
  },
