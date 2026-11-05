@@ -24,6 +24,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private readonly Aion2EntityDirectory _entities = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<DamageEvent> _pending = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<AvoidEvent> _pendingAvoids = new();
+    private readonly System.Collections.Concurrent.ConcurrentQueue<KillEvent> _pendingKills = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<ZoneChange> _zones = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<EnrageMark> _enrages = new();
     private readonly string? _adapterId;
@@ -200,13 +201,19 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             avoids.Add(avoid);
         }
 
-        if (drained.Count == 0 && avoids.Count == 0 && zones is null && enrages is null)
+        var kills = new List<KillEvent>();
+        while (_pendingKills.TryDequeue(out KillEvent kill))
+        {
+            kills.Add(kill);
+        }
+
+        if (drained.Count == 0 && avoids.Count == 0 && kills.Count == 0 && zones is null && enrages is null)
         {
             return CombatBatch.Empty;
         }
 
         // Paused time is discarded, not deferred - tape-recorder rule.
-        return new CombatBatch(paused ? Array.Empty<DamageEvent>() : drained, paused ? Array.Empty<AvoidEvent>() : avoids, Array.Empty<KillEvent>(), zones, enrages);
+        return new CombatBatch(paused ? Array.Empty<DamageEvent>() : drained, paused ? Array.Empty<AvoidEvent>() : avoids, paused ? Array.Empty<KillEvent>() : kills, zones, enrages);
     }
 
     public void Dispose()
@@ -287,6 +294,11 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             foreach (AvoidEvent avoid in _decoder.DrainAvoids())
             {
                 _pendingAvoids.Enqueue(avoid);
+            }
+
+            foreach (KillEvent kill in _decoder.DrainKills())
+            {
+                _pendingKills.Enqueue(kill);
             }
 
             foreach (ZoneChange zone in _decoder.DrainZoneChanges())

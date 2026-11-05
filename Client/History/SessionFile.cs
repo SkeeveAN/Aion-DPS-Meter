@@ -34,7 +34,10 @@ public static class SessionFile
 
     private sealed record AvoidDto(long T, int K, int S, int G, int Kind, string? Sk);
 
-    private sealed record KillDto(long T, int K, int? Killer, int Victim, bool VictimIsPlayer);
+    private sealed record KillDto(long T, int K, int? Killer, int Victim, bool VictimIsPlayer,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? S = null);
+
+    private static KillDto ToDto(KillEvent k) => new(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer, k.SkillId != 0 ? k.SkillId : null);
 
     /// <summary>What makes a file one stay (a SessionInfo) and not a whole meter session: where and when, the shields, who was which class.</summary>
     private sealed record HpDto(long Highest, List<long> At, List<long> Hp, List<long> Resets);
@@ -85,8 +88,8 @@ public static class SessionFile
     {
         "skill uses (extras.U) are the game's cast notices: a repeated effect, a multi-hit or a channelled skill also sends one, so a notice is not always one activation. Each keeps the notice's counter byte (Q), aim flags (M) and target (G) as sent; the number of real activations is uncertain",
         "events: I = the game's numeric skill id, D = 1 a damage-over-time tick (no hit, no crit), E = 1 the amount is an estimate (the skill's average hit) because the server sent no figure for that player; M = 1 a summon's hit counted for its owner",
-        "avoids (Avoids): the Aion 2 stream has no record of an attack that was avoided; none was found in the recordings checked (no hit frame without damage). A parried hit is a hit with the Parry flag (F bit 1), not a separate event. The list is empty unless a dodge was seen",
-        "kills: the Aion 2 stream has no kill record; a death is in extras.D (deaths)",
+        "avoids (Avoids): a hit that missed (Kind 4) or whose effect was resisted (Kind 3), read from the hit frames that carry no damage; S = the attacker, G = the one it missed or who resisted, Sk = the skill. A resisted skill most often still did its damage in its own frame. Hits that were parried or blocked are hits with flags in F (bit 1 parry, 5 shield block, 6 iron wall, 7 perfect block), not separate events",
+        "kills (Kills): who died (Victim), who the game names as the killer (Killer, null when nobody took the kill; a summon's kill is named to its owner), the killing skill (S) and whether the victim was a player; read from the death notice that follows a hit-point reading of 0. Deaths of monsters and bosses are in it as well as those of players; extras.D has the deaths of the fight with the time of the revive",
         "ids: damage events, avoids and extras of one player are put under one id when the game changes it during a stay; the permanent id is Players.C / Players.S (character and server)",
         "cooldowns (extras.L): the local player's skills going on cooldown (R false = used) and coming off it (R true), read from the game's cooldown list, which comes about every 0.6 s: every moment is only right to about that, and only the own character's list is sent. The game's own count of the time left is not in seconds, so only the moments are kept. Figures made from it (activations by cooldown, cooldown length, waiting time) are approximate",
         "capture: Capture holds, over the stay, how many cast notices of players and of monsters, effect frames and cooldown lists the decoder read next to the loss counters; a log with hits but none of these was recorded without them (the capture never saw those frames), not from a stay without activity",
@@ -150,7 +153,7 @@ public static class SessionFile
             DateTime.Now,
             stay.Data.Events.Select(ToDto).ToList(),
             stay.Avoids.Select(ToDto).ToList(),
-            new List<KillDto>(),
+            stay.Kills.Select(ToDto).ToList(),
             stay.Names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
             null,
             new StayDto(
@@ -167,7 +170,7 @@ public static class SessionFile
                 stay.Enrages.Select(m => new RageDto(m.Timestamp.Ticks, m.EntityId, m.EngagedAt.Ticks)).ToList(),
                 extras is { IsEmpty: false } ? Convert.ToBase64String(ExtrasBlob.Pack(extras)) : null),
             ToDto(stay.Players),
-            MakeMeta(StreamCounts(stay.Data.Events.Count, stay.Data.Shields.Count, stay.Avoids.Count, 0, extras), capture, stay.BuildStart, stay.BuildEnd, encounters, stay.SeenProfiles));
+            MakeMeta(StreamCounts(stay.Data.Events.Count, stay.Data.Shields.Count, stay.Avoids.Count, stay.Kills.Count, extras), capture, stay.BuildStart, stay.BuildEnd, encounters, stay.SeenProfiles));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -210,7 +213,7 @@ public static class SessionFile
             DateTime.Now,
             events.Select(ToDto).ToList(),
             avoids.Select(ToDto).ToList(),
-            kills.Select(k => new KillDto(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer)).ToList(),
+            kills.Select(ToDto).ToList(),
             names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
             directory,
             Players: ToDto(players),
@@ -246,7 +249,7 @@ public static class SessionFile
             .Select(d => new AvoidEvent(new DateTime(d.T, (DateTimeKind)d.K), d.S, d.G, (AvoidKind)d.Kind, d.Sk))
             .ToList();
         var kills = payload.Kills
-            .Select(d => new KillEvent(new DateTime(d.T, (DateTimeKind)d.K), d.Killer, d.Victim, d.VictimIsPlayer))
+            .Select(d => new KillEvent(new DateTime(d.T, (DateTimeKind)d.K), d.Killer, d.Victim, d.VictimIsPlayer, d.S ?? 0))
             .ToList();
         var names = payload.Names.ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
 

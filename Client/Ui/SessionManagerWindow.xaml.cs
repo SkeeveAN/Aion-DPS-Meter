@@ -731,6 +731,7 @@ public partial class SessionManagerWindow : Window
             session.Data.IngestEvents(file.Events.Concat(stay.Shields));
             session.Extras = stay.Extras;
             session.Avoids.AddRange(file.Avoids);
+            session.Kills.AddRange(file.Kills);
             foreach ((int id, string cls) in stay.Classes)
             {
                 session.Classes[id] = cls;

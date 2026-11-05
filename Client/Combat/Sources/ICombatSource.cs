@@ -117,6 +117,9 @@ public enum AvoidKind
     Parry,
     Block,
     Resist,
+
+    /// <summary>The hit missed (hit type 1 of a hit frame without damage); the target is the one it missed.</summary>
+    Miss,
 }
 
 /// <summary>An attack that landed no damage because the target avoided it - the defensive
@@ -134,4 +137,5 @@ public readonly record struct KillEvent(
     DateTime Timestamp,
     int? KillerObjectId,
     int VictimObjectId,
-    bool VictimIsPlayer);
+    bool VictimIsPlayer,
+    int SkillId = 0);

@@ -363,8 +363,8 @@ public static class SelfCheckSessions
                     new DamageEvent(t0.AddSeconds(5), 1, 100, 900, false, "Cleave", false, IsTick: false, SkillId: 15040047, Estimated: true),
                     new DamageEvent(t0.AddSeconds(6), 1, 100, 40, false, "Burn", false, IsTick: true, SkillId: 15040048),
                 },
-                new[] { new AionDPS.Combat.Sources.AvoidEvent(t0.AddSeconds(7), 100, 1, AionDPS.Combat.Sources.AvoidKind.Dodge) },
-                Array.Empty<AionDPS.Combat.Sources.KillEvent>()));
+                new[] { new AionDPS.Combat.Sources.AvoidEvent(t0.AddSeconds(7), 100, 1, AionDPS.Combat.Sources.AvoidKind.Miss, "Smash") },
+                new[] { new AionDPS.Combat.Sources.KillEvent(t0.AddSeconds(8), 1, 100, false, 15040047) }));
             rich.Enter(new ZoneChange(t0.AddMinutes(10), Verteron));
             var richExtras = new FightExtras(new[] { new SkillUse(t0.AddSeconds(5), 1, 15040047, Target: 100, Seq: 11, Aim: 3) }, Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string> { [1] = "Aahz" });
             string richPath = System.IO.Path.Combine(dir, "rich" + SessionFile.Extension);
@@ -373,7 +373,8 @@ public static class SelfCheckSessions
             bool fieldsKept = richFile.Events.Count == 2
                 && richFile.Events[0].SkillId == 15040047 && richFile.Events[0].Estimated && !richFile.Events[0].IsTick
                 && richFile.Events[1].SkillId == 15040048 && richFile.Events[1].IsTick && !richFile.Events[1].Estimated
-                && richFile.Avoids.Count == 1 && richFile.Avoids[0].TargetObjectId == 1
+                && richFile.Avoids.Count == 1 && richFile.Avoids[0].TargetObjectId == 1 && richFile.Avoids[0].Kind == AionDPS.Combat.Sources.AvoidKind.Miss && richFile.Avoids[0].Skill == "Smash"
+                && richFile.Kills.Count == 1 && richFile.Kills[0] is { KillerObjectId: 1, VictimObjectId: 100, SkillId: 15040047 }
                 && richFile.Stay!.Extras!.Uses[0] is { Target: 100, Seq: 11, Aim: 3 };
             string json;
             using (var input = System.IO.File.OpenRead(richPath))

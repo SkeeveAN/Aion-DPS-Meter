@@ -2336,6 +2336,20 @@ internal static class Program
             Console.WriteLine($"      when it ended: {(atEnd.TryGetValue(stay.Number, out string? at) ? at : "still open")}");
             Console.WriteLine($"      at the end of the recording: {now}");
             Console.WriteLine($"      capture: {(stay.CaptureStart is { } a && stay.CaptureEnd is { } b ? b.Since(a).ToString() : "-")}");
+            if (stay.Kills.Count > 0 || stay.Avoids.Count > 0 || stay.Data.Events.Any(e => e.Kinds is { } k && (k & (Combat.HitKinds.ShieldBlock | Combat.HitKinds.IronWall | Combat.HitKinds.PerfectBlock)) != 0))
+            {
+                int withKiller = stay.Kills.Count(k => k.KillerObjectId is not null);
+                int playerKills = stay.Kills.Count(k => k.VictimIsPlayer);
+                string avoids = string.Join(", ", stay.Avoids.GroupBy(x => x.Kind).Select(g => $"{g.Key} {g.Count()}"));
+                int shield = stay.Data.Events.Count(e => e.Kinds is { } k && (k & Combat.HitKinds.ShieldBlock) != 0);
+                int iron = stay.Data.Events.Count(e => e.Kinds is { } k && (k & Combat.HitKinds.IronWall) != 0);
+                int perfectBlock = stay.Data.Events.Count(e => e.Kinds is { } k && (k & Combat.HitKinds.PerfectBlock) != 0);
+                Console.WriteLine($"      kills {stay.Kills.Count} (named killer {withKiller}, players {playerKills}); avoids: {(avoids.Length > 0 ? avoids : "none")}; hit flags shield block {shield}, iron wall {iron}, perfect block {perfectBlock}");
+                foreach (var kill in stay.Kills.Where(k => k.KillerObjectId is not null).Take(2))
+                {
+                    Console.WriteLine($"        kill example: victim {stay.Names.GetValueOrDefault(kill.VictimObjectId) ?? "#" + kill.VictimObjectId} by {stay.Names.GetValueOrDefault(kill.KillerObjectId!.Value) ?? "#" + kill.KillerObjectId} with {Aion2.Protocol.Aion2SkillNames.NameOf(kill.SkillId)}");
+                }
+            }
             if (extrasFor.Invoke(window, new object?[] { stay }) is Combat.FightExtras { Cooldowns: { Count: > 0 } marks })
             {
                 var usedSkills = marks.Where(m => !m.Ready).GroupBy(m => Aion2.Protocol.Aion2SkillNames.NameOf(m.SkillId)).OrderByDescending(g => g.Count()).Take(6).Select(g => $"{g.Key} x{g.Count()}");

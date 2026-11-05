@@ -60,8 +60,11 @@ public sealed class SessionInfo
     /// <summary>The boss rages the server announced during the stay (see <see cref="EnrageMark"/>).</summary>
     public List<EnrageMark> Enrages { get; } = new();
 
-    /// <summary>The attacks that were avoided during the stay (the Aion 2 stream only shows the dodge roll).</summary>
+    /// <summary>The attacks that missed or were resisted during the stay (see <see cref="AvoidKind"/>).</summary>
     public List<AvoidEvent> Avoids { get; } = new();
+
+    /// <summary>The deaths of the stay (monsters, bosses, players) with the skill that did it and who the game names as the killer.</summary>
+    public List<KillEvent> Kills { get; } = new();
 
     /// <summary>The capture's counters when the stay began and when it ended (or last was left); null for a stay loaded from a file or without a live capture.</summary>
     public CaptureCounters? CaptureStart { get; internal set; }
@@ -162,10 +165,15 @@ public sealed class SessionRecorder
             _sessions.Where(s => s.Start <= mark.Timestamp && (s.End is null || s.End >= mark.Timestamp)).MaxBy(s => s.Start)?.Enrages.Add(mark);
         }
 
-        // An avoided attack belongs to the stay it came in as well.
+        // An avoided attack and a kill belong to the stay they came in as well.
         foreach (AvoidEvent avoid in batch.Avoids)
         {
             (_sessions.Where(s => s.Start <= avoid.Timestamp && (s.End is null || s.End >= avoid.Timestamp)).MaxBy(s => s.Start) ?? Current)?.Avoids.Add(avoid);
+        }
+
+        foreach (KillEvent kill in batch.Kills)
+        {
+            (_sessions.Where(s => s.Start <= kill.Timestamp && (s.End is null || s.End >= kill.Timestamp)).MaxBy(s => s.Start) ?? Current)?.Kills.Add(kill);
         }
 
         IReadOnlyList<DamageEvent> events = batch.Damage;
@@ -421,6 +429,19 @@ public sealed class SessionRecorder
             if (session.SeenProfiles.Remove(from, out Aion2SeenProfile? seen))
             {
                 session.SeenProfiles.TryAdd(to, seen);
+            }
+
+            for (int i = 0; i < session.Kills.Count; i++)
+            {
+                KillEvent kill = session.Kills[i];
+                if (kill.KillerObjectId == from || kill.VictimObjectId == from)
+                {
+                    session.Kills[i] = kill with
+                    {
+                        KillerObjectId = kill.KillerObjectId == from ? to : kill.KillerObjectId,
+                        VictimObjectId = kill.VictimObjectId == from ? to : kill.VictimObjectId,
+                    };
+                }
             }
 
             for (int i = 0; i < session.Avoids.Count; i++)

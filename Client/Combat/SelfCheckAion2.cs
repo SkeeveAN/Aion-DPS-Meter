@@ -53,6 +53,7 @@ public static class SelfCheckAion2
         ok &= RunAion2DebuffHitsScenario();
         ok &= RunAion2SoloLocalNameScenario();
         ok &= RunAion2NamesScenario();
+        ok &= RunAion2KillsAvoidsScenario();
         ok &= RunAion2MidStreamScenario();
         ok &= RunAion2CharacterScenario();
         ok &= RunAion2LoginListsScenario();
@@ -1137,6 +1138,62 @@ public static class SelfCheckAion2
         bool taunt = Decodes("0438C5CE011600A829C0EFB8006A038000010BA73D4801000000D859C2170100", 5288, 26437, "Taunt", 3_010);
         Console.WriteLine($"  -> Chain of Torment 21,818 counted: {chain}; Taunt 3,010 counted: {taunt}");
         return chain && taunt;
+    }
+
+    /// <summary>
+    /// Kills, missed and resisted hits and the block bits of a hit, from real frames of the dungeon recording of 2026-11-03 (character Nunzio). The kill notice names the victim, the
+    /// skill that did it and the killer; most notices name no killer (nobody took the kill). A hit frame without a damage block that carries hit type 6 is a resisted effect, type 1 a miss.
+    /// </summary>
+    private static bool RunAion2KillsAvoidsScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 kills, misses, resists and block bits (real frames):");
+        static byte[] Record(string hex)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            return wire.ToArray();
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var wireBytes = new List<byte>();
+        foreach (string hex in new[]
+        {
+            "048DF00FCA791B00FDC503000000000000C29EB201000000000102",                                   // a player (2032) killed by monster 58109 with its skill 1800650
+            "048DD5E403000000000000000000000000A40600000000",                                           // a monster (62037) that died: nobody took the kill
+            "043898640001F2E602F68D1200010624743F0701000000904E01971BB7000100",                         // resist: monster 45938 hit 12824, hit type 6
+            "0438C34E0000BED602B89912000301EB0B440701000000904E0100",                                   // miss: monster 43838 missed 10051, hit type 1
+            "04388E0C0600BED6029099120004021000024BFC430701000000904EF2020100",                         // monster 43838 hit 1550, bit 0x10 (iron wall)
+            "0438FC720600F4F301829812000302420000D392430701000000904E010100",                           // monster 31220 hit 14716, bits 0x42 (parry and perfect block)
+        })
+        {
+            wireBytes.AddRange(Record(hex));
+        }
+
+        source.Ingest(Segment(9000, wireBytes.ToArray()));
+        CombatBatch batch = source.Poll(false);
+        KillEvent withKiller = batch.Kills.FirstOrDefault(k => k.VictimObjectId == 2032);
+        KillEvent without = batch.Kills.FirstOrDefault(k => k.VictimObjectId == 62037);
+        bool kills = batch.Kills.Count == 2 && withKiller.KillerObjectId == 58109 && withKiller.SkillId == 1_800_650 && without.KillerObjectId is null && without.SkillId == 0;
+        AvoidEvent resist = batch.Avoids.FirstOrDefault(a => a.Kind == AvoidKind.Resist);
+        AvoidEvent miss = batch.Avoids.FirstOrDefault(a => a.Kind == AvoidKind.Miss);
+        bool avoids = batch.Avoids.Count == 2 && resist.SourceObjectId == 45938 && resist.TargetObjectId == 12824 && miss.SourceObjectId == 43838 && miss.TargetObjectId == 10051;
+        DamageEvent iron = batch.Damage.FirstOrDefault(e => e.TargetObjectId == 1550);
+        DamageEvent block = batch.Damage.FirstOrDefault(e => e.TargetObjectId == 14716);
+        bool bits = iron.Kinds is { } k1 && (k1 & HitKinds.IronWall) != 0 && (k1 & HitKinds.PerfectBlock) == 0
+            && block.Kinds is { } k2 && (k2 & HitKinds.PerfectBlock) != 0 && (k2 & HitKinds.Parry) != 0 && (k2 & HitKinds.IronWall) == 0;
+        Console.WriteLine($"  -> a kill notice gives victim, killing skill and killer (none when nobody took it): {kills}");
+        Console.WriteLine($"  -> a resisted effect and a missed hit are avoid events of the attacker against its target: {avoids}");
+        Console.WriteLine($"  -> iron wall and perfect block are read from the bit set of a hit: {bits}");
+        return kills && avoids && bits;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame

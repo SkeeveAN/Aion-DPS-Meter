@@ -1644,6 +1644,9 @@ public sealed class Aion2FrameDecoder
         if ((bits & 2) != 0) { kinds |= HitKinds.Parry; }
         if ((bits & 4) != 0) { kinds |= HitKinds.Perfect; }
         if ((bits & 8) != 0) { kinds |= HitKinds.Double; }
+        if ((bits & 1) != 0) { kinds |= HitKinds.ShieldBlock; }
+        if ((bits & 0x10) != 0) { kinds |= HitKinds.IronWall; }
+        if ((bits & 0x40) != 0) { kinds |= HitKinds.PerfectBlock; }
         if (direction == 1) { kinds |= HitKinds.Back; }
         else if (direction == 2) { kinds |= HitKinds.Front; }
         return kinds;
@@ -1845,6 +1848,15 @@ public sealed class Aion2FrameDecoder
             NoDamageFrames++;
             if (TryReadVarint(frame, ref p, out long caster) && frame.Length >= p + 4)
             {
+                // Hit type 1 (the hit missed) and 6 (the effect was resisted) come in this shape, after the skill id and one byte: 177 resists and 2 misses in one dungeon recording
+                // (2026-11-03). A resisted skill most often still does its damage in its own frame; what was resisted is its effect.
+                int skillOfHit = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+                int typeAt = p + 4 + 1;
+                if (skillOfHit > 0 && caster > 0 && caster != target && TryReadVarint(frame, ref typeAt, out long hitType) && hitType is 1 or 6)
+                {
+                    _avoids.Add(new AvoidEvent(timestamp, (int)caster, (int)target, hitType == 1 ? AvoidKind.Miss : AvoidKind.Resist, Aion2SkillNames.NameOf(skillOfHit)));
+                }
+
                 NoteCast(unchecked((int)caster), unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..])), timestamp);
                 NoteFriendlyEffect(unchecked((int)caster), unchecked((int)target));
             }
@@ -2857,6 +2869,14 @@ public sealed class Aion2FrameDecoder
         if (killingSkill != 0 && victim > 0)
         {
             _entities.HitPoints.NoteKillCredit(unchecked((int)victim), killingSkill, timestamp);
+        }
+
+        // The kill itself, for the log: who died, with which skill, and who the notice names as the killer (a player, or a summon's owner; none when nobody took the kill).
+        if (victim is > 0 and <= 10_000_000)
+        {
+            int killerAt = p + 4;
+            int? killer = killingSkill != 0 && TryReadVarint(frame, ref killerAt, out long killerId) && killerId is > 0 and <= 10_000_000 ? (int)killerId : null;
+            _kills.Add(new KillEvent(timestamp, killer, (int)victim, _entities.IsKnownPlayer((int)victim), killingSkill));
         }
 
         p += 4;

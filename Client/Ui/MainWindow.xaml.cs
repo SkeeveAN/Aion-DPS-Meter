@@ -1032,7 +1032,8 @@ public partial class MainWindow : Window
     {
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
-        NoteBossKills(batch.Kills);
+        // The automatic boss upload follows the boss's hit points (NoteDefeatedBosses), as it always did: the kills the stream now delivers are for the log, and
+        // queueing a boss from them would move the moment of the upload.
         IReadOnlyList<DamageEvent> events = batch.Damage;
         NoteBossActivity(events);
         NoteDefeatedBosses();
@@ -3655,16 +3656,11 @@ public partial class MainWindow : Window
     private readonly HashSet<string> _sentBossPayloads = new();
     private System.Windows.Threading.DispatcherTimer? _bossUploadTimer;
 
-    private void NoteBossKills(IReadOnlyList<KillEvent> kills)
-    {
-        NoteBossesToUpload(kills.Where(kill => !kill.VictimIsPlayer && BossNpcIdOf(kill.VictimObjectId) is not null).Select(kill => kill.VictimObjectId));
-    }
-
     /// <summary>Bosses already queued after a defeat; a boss that is back above zero (a new attempt) may be queued again.</summary>
     private readonly HashSet<int> _defeatNoted = new();
 
     /// <summary>
-    /// Aion 2 sends no kill frame, but the boss's hit points reach 0 when it dies (checked on a
+    /// The upload of a defeated boss follows its hit points, not the kill notices of the stream (those go to the log): the hit points reach 0 when it dies (checked on a
     /// Fire Temple run, 2026-10-05: every boss's last reading is 0). A boss at 0 is queued for the
     /// automatic upload; one that wiped the group (back at full health) never is.
     /// </summary>

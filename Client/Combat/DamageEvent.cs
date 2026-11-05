@@ -47,4 +47,13 @@ public enum HitKinds
     Double = 1 << 2,
     Back = 1 << 3,
     Front = 1 << 4,
+
+    /// <summary>The hit was blocked with a shield (bit 0x01 of the hit's bit set; a hit the player took).</summary>
+    ShieldBlock = 1 << 5,
+
+    /// <summary>The target stood firm against the hit (bit 0x10, "Iron Wall").</summary>
+    IronWall = 1 << 6,
+
+    /// <summary>The hit was blocked perfectly (bit 0x40).</summary>
+    PerfectBlock = 1 << 7,
 }
