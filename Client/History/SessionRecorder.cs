@@ -408,7 +408,14 @@ public sealed class SessionRecorder
             session.Data.MergeIds(from, to);
             if (session.Extras is { } kept)
             {
-                session.Extras = kept.Remap(id => id == from ? to : id); // the copy a stay made of the capture's log when it ended
+                try
+                {
+                    session.Extras = kept.Remap(id => id == from ? to : id); // the copy a stay made of the capture's log when it ended
+                }
+                catch (Exception ex)
+                {
+                    CrashLog.Write("merging the ids of a stay's log failed (the log keeps its old ids)", ex);
+                }
             }
 
             if (session.Names.Remove(from, out string? name))

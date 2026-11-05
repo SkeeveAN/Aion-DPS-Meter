@@ -63,12 +63,24 @@ public sealed record FightExtras(
 
     public bool IsEmpty => Uses.Count == 0 && Buffs.Count == 0 && Staggers.Count == 0 && (Tracks is null || Tracks.Count == 0) && (Windups is null || Windups.Count == 0);
 
+    /// <summary>Two ids that become one (a player's old and new combat id) both keep a name: the later one wins instead of the second add throwing.</summary>
+    private Dictionary<int, string> RemapNames(Func<int, int> map)
+    {
+        var names = new Dictionary<int, string>(Names.Count);
+        foreach (KeyValuePair<int, string> kv in Names)
+        {
+            names[map(kv.Key)] = kv.Value;
+        }
+
+        return names;
+    }
+
     /// <summary>The same data under other ids (a stored fight is shown under the ids of the session that shows it).</summary>
     public FightExtras Remap(Func<int, int> map) => new(
         Uses.Select(u => u with { Actor = map(u.Actor) }).ToList(),
         Buffs.Select(b => b with { Target = map(b.Target), Caster = map(b.Caster) }).ToList(),
         Staggers.Select(s => s with { Entity = map(s.Entity) }).ToList(),
-        Names.ToDictionary(kv => map(kv.Key), kv => kv.Value),
+        RemapNames(map),
         Tracks?.Select(t => t with { Entity = map(t.Entity) }).ToList(),
         Windups?.Select(w => w with { Actor = map(w.Actor), Target = map(w.Target) }).ToList(),
         Deaths?.Select(d => d with { Entity = map(d.Entity) }).ToList(),
