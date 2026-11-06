@@ -678,7 +678,7 @@ internal static class Program
         TimeSpan loginBurst = TimeSpan.FromSeconds(60);
         if (points)
         {
-            var watch = new Aion2.Capture.UnknownFrameWatch(Aion2.Capture.UnknownFrameWatch.LoadKnown());
+            var watch = new Aion2.Capture.UnknownFrameWatch(Aion2.Capture.UnknownFrameWatch.LoadKnown(), Aion2.Capture.UnknownFrameWatch.LoadHints());
             Aion2.Protocol.Aion2FrameDecoder.FrameTap = (opcode, frame, at) =>
             {
                 if (watch.Note(opcode, frame, at) is { } point)
@@ -686,7 +686,7 @@ internal static class Program
                     pointLog!.Point(point);
                     lastPoint = point.At;
                     bool loginPhase = DateTime.UtcNow - recordingStart < loginBurst;
-                    Console.WriteLine($"aion2-record: DEBUG POINT {point.At:HH:mm:ss}  unknown frame 0x{point.Opcode:x4} ({point.Length} bytes, seen {point.Seen}x){(loginPhase ? " (first minute: no tone)" : " - tell me what you just did")}");
+                    Console.WriteLine($"aion2-record: DEBUG POINT {point.At:HH:mm:ss}  unknown frame 0x{point.Opcode:x4} ({point.Length} bytes, seen {point.Seen}x){(point.Hint is null ? "" : $" - another meter calls it {point.Hint} (name only, unverified)")}{(loginPhase ? " (first minute: no tone)" : " - tell me what you just did")}");
                     if (!loginPhase && DateTime.UtcNow - lastBeep > TimeSpan.FromSeconds(2))
                     {
                         lastBeep = DateTime.UtcNow;
@@ -3098,7 +3098,8 @@ internal static class Program
 
     private static void RunAion2OpcodeCensus(string[] paths, int serverPort)
     {
-        var watch = new Aion2.Capture.UnknownFrameWatch(Aion2.Capture.UnknownFrameWatch.LoadKnown());
+        var hints = Aion2.Capture.UnknownFrameWatch.LoadHints();
+        var watch = new Aion2.Capture.UnknownFrameWatch(Aion2.Capture.UnknownFrameWatch.LoadKnown(), hints);
         int points = 0, frames = 0;
         var examples = new Dictionary<int, string>();
         foreach (string path in paths)
@@ -3130,7 +3131,7 @@ internal static class Program
         Console.WriteLine($"aion2-opcode-census: {frames:N0} frames, {watch.UnknownOpcodes} unknown opcodes, {points} debug points (each would give a tone)");
         foreach (var u in watch.Unknown.OrderByDescending(u => u.Value.Count).Take(40))
         {
-            Console.WriteLine($"  0x{u.Key:x4}  {u.Value.Count,7}x  {examples.GetValueOrDefault(u.Key)}");
+            Console.WriteLine($"  0x{u.Key:x4}  {u.Value.Count,7}x  {examples.GetValueOrDefault(u.Key)}{(hints.TryGetValue(u.Key, out string? hint) ? "  [" + hint + ", name from another meter]" : "")}");
         }
     }
 

@@ -230,6 +230,12 @@ public static class SelfCheckCraft
         bool pointAgain = watchSet.Note(5, probe, w0.AddSeconds(200)) is { Seen: 3 };
         bool pointCapped = watchSet.Note(5, probe, w0.AddSeconds(500)) is null && watchSet.UnknownOpcodes == 1;
         Console.WriteLine($"  -> an unknown frame is a debug point once, again after two quiet minutes, never more than twice, a known one never: {pointFirst && pointQuiet && pointAgain && pointCapped}");
+        // a point of an opcode another meter has a name for carries that name (only a hint), one without a name carries none; the shipped file loads and names the raid frames
+        var hintWatch = new Aion2.Capture.UnknownFrameWatch(new[] { 1 }, new Dictionary<int, string> { [7] = "SomeName_NT" });
+        var shippedHints = Aion2.Capture.UnknownFrameWatch.LoadHints();
+        bool pointHint = hintWatch.Note(7, probe, w0) is { Hint: "SomeName_NT" } && hintWatch.Note(8, probe, w0) is { Hint: null }
+            && shippedHints.GetValueOrDefault(0x2b96) == "ForceUpdateMemberHPMP_NT" && shippedHints.Count >= 30;
+        Console.WriteLine($"  -> a debug point carries the name another meter uses for it, none when it has no name, and the shipped hints load: {pointHint}");
 
         // the privacy answer: only an accepted current version allows uploads, never asked or an older version is asked, declined is the restricted mode and is not asked again
         var fresh = new Ui.MeterSettings();
@@ -242,6 +248,6 @@ public static class SelfCheckCraft
         Console.WriteLine($"  -> the privacy answer: uploads only with the current version accepted, older or never asked is asked, declined is not asked again, eight tools stay: {consent}");
 
         Aion2Stock.Reset();
-        return consent && pointFirst && pointQuiet && pointAgain && pointCapped && ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
+        return consent && pointFirst && pointQuiet && pointAgain && pointCapped && pointHint && ranked && points && legion && chain && login && one && gone && loot && sort && oreAsked && plain && used && first && faction && known;
     }
 }

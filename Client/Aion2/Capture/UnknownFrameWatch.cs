@@ -5,7 +5,7 @@ using AionDPS.Update;
 namespace AionDPS.Aion2.Capture;
 
 /// <summary>A frame of an opcode nobody has described yet, seen by the recorder with debug points.</summary>
-public sealed record DebugPoint(DateTime At, int Opcode, int Length, string Hex, int Seen);
+public sealed record DebugPoint(DateTime At, int Opcode, int Length, string Hex, int Seen, string? Hint = null);
 
 /// <summary>
 /// The recorder's debug points: a server frame whose opcode is not in <c>assets/aion2/protocol/known_opcodes.json</c> (every opcode the protocol documents, the decoder or the
@@ -27,7 +27,46 @@ public sealed class UnknownFrameWatch
     private readonly HashSet<int> _known;
     private readonly Dictionary<int, (DateTime Last, int Count)> _seen = new();
 
-    public UnknownFrameWatch(IEnumerable<int> known) => _known = new HashSet<int>(known);
+    private readonly IReadOnlyDictionary<int, string> _hints;
+
+    public UnknownFrameWatch(IEnumerable<int> known, IReadOnlyDictionary<int, string>? hints = null)
+    {
+        _known = new HashSet<int>(known);
+        _hints = hints ?? new Dictionary<int, string>();
+    }
+
+    /// <summary>
+    /// Names another meter uses for opcodes this project has not described (<c>assets/aion2/protocol/opcode_hints.json</c>): only a hint for the person at the recorder, the layout
+    /// and the meaning are not verified. Empty when the file is missing or broken.
+    /// </summary>
+    public static IReadOnlyDictionary<int, string> LoadHints()
+    {
+        var hints = new Dictionary<int, string>();
+        try
+        {
+            string path = AssetStore.Path("aion2", "protocol", "opcode_hints.json");
+            if (File.Exists(path))
+            {
+                using var doc = JsonDocument.Parse(File.ReadAllText(path));
+                if (doc.RootElement.TryGetProperty("names", out var names))
+                {
+                    foreach (var entry in names.EnumerateObject())
+                    {
+                        if (int.TryParse(entry.Name, System.Globalization.NumberStyles.HexNumber, null, out int opcode) && entry.Value.GetString() is { Length: > 0 } name)
+                        {
+                            hints[opcode] = name;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException)
+        {
+            hints.Clear();
+        }
+
+        return hints;
+    }
 
     /// <summary>The opcodes the project knows, from the shipped file (empty when it is missing: then everything is "unknown").</summary>
     public static IReadOnlyCollection<int> LoadKnown()
@@ -66,7 +105,7 @@ public sealed class UnknownFrameWatch
             _points[opcode] = _points.GetValueOrDefault(opcode) + 1;
         }
 
-        return point ? new DebugPoint(at, opcode, frame.Length, Convert.ToHexString(frame[..Math.Min(frame.Length, MaxHexBytes)]), before.Count + 1) : null;
+        return point ? new DebugPoint(at, opcode, frame.Length, Convert.ToHexString(frame[..Math.Min(frame.Length, MaxHexBytes)]), before.Count + 1, _hints.GetValueOrDefault(opcode)) : null;
     }
 
     /// <summary>How often an unknown opcode was seen so far (0 = never).</summary>
@@ -93,7 +132,7 @@ public sealed class DebugPointLog : IDisposable
 
     public void Point(DebugPoint p)
     {
-        Write(new { t = p.At, kind = "point", opcode = "0x" + p.Opcode.ToString("x4"), len = p.Length, seen = p.Seen, hex = p.Hex });
+        Write(new { t = p.At, kind = "point", opcode = "0x" + p.Opcode.ToString("x4"), len = p.Length, seen = p.Seen, hint = p.Hint, hex = p.Hex });
         Count++;
     }
 
