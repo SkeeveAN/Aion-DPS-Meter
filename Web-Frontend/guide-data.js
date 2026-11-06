@@ -123,10 +123,21 @@ const SHUGO = {
   },
 };
 
+// Abyss Logs (abysslogs.com): facts from its website and its GitHub README, checked 2026-11-06. The repository holds only the README and images,
+// no source code, and names no license, so "Not published". It states no usage figure; 8 GitHub stars. Its position is the project's own estimate.
+const ABYSS = {
+  name: "Abyss Logs", url: "https://abysslogs.com",
+  cells: {
+    license: "$closedAbyss", stars: "8", price: "$priceAbyss", platform: "$windows", reads: "$passiveNpcap", driver: "$npcapCompat",
+    regions: "$regionsAbyss", overlay: "$overlayAbyss", skills: "$skillsAbyss", cooldown: "$cooldownAbyss", history: "$historyAbyss",
+    rankings: "$rankAbyss", obs: "$na", update: "$yes", languages: "9", rdps: "$na", extras: "$extrasAbyss",
+  },
+};
+
 // Questlog and AionFlex state a usage figure themselves (their own pages, checked 2026-11-06); every other column has none, so "Not stated".
 QUESTLOG.cells.usage = "$usageQuestlog";
 AIONFLEX.cells.usage = "$usageFlex";
-for (const column of [NOIA2, ALETHEIA, RATMETER, AION2FLOW, A2TOOLS, DAEVALOG, AION2T, LAGOFAST, SHUGO]) {
+for (const column of [NOIA2, ALETHEIA, RATMETER, AION2FLOW, A2TOOLS, DAEVALOG, AION2T, LAGOFAST, SHUGO, ABYSS]) {
   column.cells.usage = "$na";
 }
 
@@ -137,7 +148,7 @@ export const GUIDE_TABLES = [
   { id: "rank1", columns: [OURS, QUESTLOG, SHUGO, AIONFLEX] },
   { id: "rank2", columns: [OURS, A2TOOLS, NOIA2, ALETHEIA] },
   { id: "rank3", columns: [OURS, RATMETER, AION2FLOW, DAEVALOG] },
-  { id: "rank4", columns: [OURS, AION2T, LAGOFAST] },
+  { id: "rank4", columns: [OURS, ABYSS, AION2T, LAGOFAST] },
 ];
 
 export const GUIDE_WHAT = ["meter", "overlay", "analyzer", "bossfight", "assist", "character", "tools", "stream", "board"];
