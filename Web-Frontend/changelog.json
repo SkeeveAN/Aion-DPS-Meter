@@ -24,6 +24,14 @@
      "Website"
     ],
     "date": "2026-11-06"
+   },
+   {
+    "text": "Website: the texts about administrator rights say what is true - the installer and the updates need none, the meter itself asks for them at every start (UAC prompt) because the packet capture and the overlays over the game need them; the download page, its FAQ, the comparison and the README in all 10 languages",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-06"
    }
   ]
  },
