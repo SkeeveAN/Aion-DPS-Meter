@@ -54,7 +54,7 @@ release exists and can be switched off; see [Updates](#updates).
 1. Install the [Npcap](https://npcap.com) driver (the meter needs it to see the game's traffic; it is
    not part of the installer).
 2. Download `AionDpsMeter-win-Setup.exe` from the [latest release](../../releases/latest) and run it.
-   It installs into your user profile and starts the meter — no administrator rights, no .NET needed.
+   It installs into your user profile and starts the meter — the installer needs no administrator rights and no .NET. The meter itself asks for administrator rights at every start (UAC prompt), because the packet capture and the overlays over the game need them.
 3. Start the meter, then log in with your character. The meter reads your character, gear, skills and
    Daevanion boards from the game itself; the server you play on is detected automatically.
 
