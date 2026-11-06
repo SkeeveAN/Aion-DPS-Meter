@@ -9,6 +9,14 @@
      "Website"
     ],
     "date": "2026-11-06"
+   },
+   {
+    "text": "Comparison page: the meters are ordered by how widely they are used (Questlog, Shugo.GG, AionFlex, A2Tools, NOIA2, aletheia, RATmeter, Aion2Flow, Daevalog, aion2t, LagoFast) instead of by license, with a row for the public usage figure and a note on how the order was made",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-06"
    }
   ]
  },
