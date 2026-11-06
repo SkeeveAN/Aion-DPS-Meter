@@ -7,7 +7,7 @@
 export const GUIDE_ASOF = "2026-11-02";
 
 export const GUIDE_ROWS = [
-  "license", "stars", "price", "platform", "reads", "driver", "regions", "overlay", "skills", "cooldown",
+  "license", "stars", "usage", "price", "platform", "reads", "driver", "regions", "overlay", "skills", "cooldown",
   "history", "rankings", "obs", "update", "languages", "rdps", "extras",
 ];
 
@@ -15,7 +15,7 @@ const OURS = {
   name: "Aion DPS Meter",
   ours: true,
   cells: {
-    license: "MIT", stars: "6", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcapSeparate",
+    license: "MIT", stars: "6", usage: "$usageOurs", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcapSeparate",
     regions: "$regionsOurs", overlay: "$overlayClick", skills: "$skillsOurs", cooldown: "$cooldownOurs", history: "$historyOurs",
     rankings: "$rankOurs", obs: "$yes", update: "$updateNoAdmin", languages: "10", rdps: "$rdpsOurs", extras: "$extrasOurs",
   },
@@ -60,7 +60,7 @@ const AION2FLOW = {
 const A2TOOLS = {
   name: "A2Tools", url: "https://github.com/taengu/A2Tools-DPS-Meter",
   cells: {
-    license: "GPL-3.0", stars: "86", price: "$freeDonate", platform: "$windowsLinux", reads: "$passiveNpcap", driver: "$npcapCompat",
+    license: "GPL-3.0", stars: "91", price: "$freeDonate", platform: "$windowsLinux", reads: "$passiveNpcap", driver: "$npcapCompat",
     regions: "$regionsA2", overlay: "$yes", skills: "$skillsTimeline", cooldown: "$cooldownA2", history: "$yes",
     rankings: "$rankA2", obs: "$yes", update: "$yes", languages: "10", rdps: "$na", extras: "$extrasA2",
   },
@@ -123,12 +123,21 @@ const SHUGO = {
   },
 };
 
-// Every table carries our column first, so each one compares the others with us.
+// Questlog and AionFlex state a usage figure themselves (their own pages, checked 2026-11-06); every other column has none, so "Not stated".
+QUESTLOG.cells.usage = "$usageQuestlog";
+AIONFLEX.cells.usage = "$usageFlex";
+for (const column of [NOIA2, ALETHEIA, RATMETER, AION2FLOW, A2TOOLS, DAEVALOG, AION2T, LAGOFAST, SHUGO]) {
+  column.cells.usage = "$na";
+}
+
+// The meters are ordered by how widely they are used, as far as public figures show (GitHub stars and forks, the makers' own numbers) - not by license.
+// Shugo.GG sits right below Questlog although it states no figure: that position is the project's own estimate (the page says so), as are the
+// last two. GitHub release downloads are not used: they count the automatic updates. Every table carries our column first.
 export const GUIDE_TABLES = [
-  { id: "open1", columns: [OURS, NOIA2, ALETHEIA, RATMETER] },
-  { id: "open2", columns: [OURS, AION2FLOW, A2TOOLS, DAEVALOG] },
-  { id: "closed", columns: [OURS, AIONFLEX, AION2T, LAGOFAST] },
-  { id: "closed2", columns: [OURS, QUESTLOG, SHUGO] },
+  { id: "rank1", columns: [OURS, QUESTLOG, SHUGO, AIONFLEX] },
+  { id: "rank2", columns: [OURS, A2TOOLS, NOIA2, ALETHEIA] },
+  { id: "rank3", columns: [OURS, RATMETER, AION2FLOW, DAEVALOG] },
+  { id: "rank4", columns: [OURS, AION2T, LAGOFAST] },
 ];
 
 export const GUIDE_WHAT = ["meter", "overlay", "analyzer", "bossfight", "assist", "character", "tools", "stream", "board"];

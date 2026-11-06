@@ -904,6 +904,7 @@ function renderGuide() {
     ...["p1", "p2", "p3"].map((k) => el("p", { textContent: t(`guide.measure.${k}`) })),
     el("h2", { textContent: t("guide.h.compare") }),
     el("p", { className: "guide-intro", textContent: t("guide.compare.intro", { date: GUIDE_ASOF }) }),
+    el("p", { className: "guide-intro", textContent: t("guide.compare.order") }),
     ...GUIDE_TABLES.map(table),
     el("p", { textContent: t("guide.lago") }),
     el("p", { textContent: t("guide.rdpsWhy") }),

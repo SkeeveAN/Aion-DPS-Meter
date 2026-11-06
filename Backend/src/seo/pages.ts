@@ -249,6 +249,7 @@ export function guidePage(): Page {
       <p>${g("measure.p1")}</p><p>${g("measure.p2")}</p><p>${g("measure.p3")}</p>
       <h2>${g("h.compare")}</h2>
       <p>${g("compare.intro", { date: GUIDE_ASOF })}</p>
+      <p>${g("compare.order")}</p>
       ${GUIDE_TABLES.map(table)}
       <p>${g("lago")}</p><p>${g("rdpsWhy")}</p><p>${g("also")}</p>
       <h2>${g("h.weak")}</h2>
