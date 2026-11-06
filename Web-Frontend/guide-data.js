@@ -1,10 +1,10 @@
 // The comparison tables of /aion-2-dps-meter. One source for the page in the app (app.js renderGuide) and for the
 // text the server sends to crawlers (Backend/src/seo/pages.ts guidePage). Facts come from each project's own README or
-// website, checked 2026-11-02; a cell says "Not stated" when its source says nothing, never "No".
+// website, checked 2026-11-06; a cell says "Not stated" when its source says nothing, never "No".
 //
 // A cell is either a literal ("GPL-3.0", "59") or "$name", which stands for the translated text guide.c.name.
 
-export const GUIDE_ASOF = "2026-11-02";
+export const GUIDE_ASOF = "2026-11-06";
 
 export const GUIDE_ROWS = [
   "license", "stars", "usage", "price", "platform", "reads", "driver", "regions", "overlay", "skills", "cooldown",
@@ -119,7 +119,7 @@ const SHUGO = {
     license: "$closed", stars: "–", price: "$priceShugo", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
     regions: "$na", overlay: "$overlayShugo", skills: "$skillsShugo", cooldown: "$cooldownShugo", history: "$historyShugo",
     // update: the installed program (Tauri) carries an update check against shugo.gg, 2026-11-06; its app page does not mention it.
-    rankings: "$na", obs: "$yes", update: "$yes", languages: "8", rdps: "$na", extras: "$extrasShugo",
+    rankings: "$rankShugo", obs: "$yes", update: "$yes", languages: "8", rdps: "$na", extras: "$extrasShugo",
   },
 };
 
