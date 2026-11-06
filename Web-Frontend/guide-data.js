@@ -102,15 +102,37 @@ const LAGOFAST = {
   },
 };
 
+// Questlog Desktop and the Shugo.GG app: facts from their own app pages (questlog.gg/aion-2/en/app, shugo.gg/app), checked
+// 2026-11-06. Neither names a license or links a repository, so "Not published" like the other closed programs.
+const QUESTLOG = {
+  name: "Questlog", url: "https://questlog.gg/aion-2/en/app",
+  cells: {
+    license: "$closed", stars: "–", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
+    regions: "$na", overlay: "$overlayQuest", skills: "$skillsQuest", cooldown: "$cooldownQuest", history: "$historyQuest",
+    rankings: "$rankQuest", obs: "$yes", update: "$yes", languages: "$na", rdps: "$yes", extras: "$extrasQuest",
+  },
+};
+
+const SHUGO = {
+  name: "Shugo.GG", url: "https://shugo.gg/app",
+  cells: {
+    license: "$closed", stars: "–", price: "$priceShugo", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
+    regions: "$na", overlay: "$overlayShugo", skills: "$skillsShugo", cooldown: "$cooldownShugo", history: "$historyShugo",
+    // update: the installed program (Tauri) carries an update check against shugo.gg, 2026-11-06; its app page does not mention it.
+    rankings: "$na", obs: "$yes", update: "$yes", languages: "8", rdps: "$na", extras: "$extrasShugo",
+  },
+};
+
 // Every table carries our column first, so each one compares the others with us.
 export const GUIDE_TABLES = [
   { id: "open1", columns: [OURS, NOIA2, ALETHEIA, RATMETER] },
   { id: "open2", columns: [OURS, AION2FLOW, A2TOOLS, DAEVALOG] },
   { id: "closed", columns: [OURS, AIONFLEX, AION2T, LAGOFAST] },
+  { id: "closed2", columns: [OURS, QUESTLOG, SHUGO] },
 ];
 
 export const GUIDE_WHAT = ["meter", "overlay", "analyzer", "bossfight", "assist", "character", "tools", "stream", "board"];
 export const GUIDE_WEAK = ["stars", "regions", "platform", "driver", "missing", "boards", "estimates"];
-export const GUIDE_STRONG = ["analyzer", "oneTool", "boards", "update", "extras"];
+export const GUIDE_STRONG = ["analyzer", "oneTool", "boards", "update"];
 export const GUIDE_OSS = ["check", "lockin", "paywall", "fixes", "licenses"];
 export const GUIDE_FAQ = ["tracker", "choose", "rdps"];
