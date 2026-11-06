@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-06",
+  "items": [
+   {
+    "text": "Comparison page: Questlog and the Shugo.GG app are in the comparison now (a second table of closed-source meters), Questlog's upload default is stated, and the list of strengths no longer claims voice announcements, a design editor or an OBS source",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-06"
+   }
+  ]
+ },
+ {
   "version": "1.19.9",
   "date": "2026-11-05",
   "items": [
