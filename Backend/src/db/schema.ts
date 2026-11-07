@@ -852,3 +852,59 @@ export const apiKeys = sqliteTable("api_keys", {
   lastUsedAt: text("last_used_at"),
   revokedAt: text("revoked_at"),
 });
+
+/**
+ * One state of a character's Daevanion boards ("board") or of the active skill build ("skills") that can be rated with thumbs (setups.ts).
+ * The profile row is replaced by newer data, so a state that got a thumb is kept here while the character changes: the thumbs stay on the
+ * state they were given to. A state without a thumb is overwritten in place, so only rated states pile up. `supersededAt` is null for the
+ * state that is current.
+ */
+export const profileSetups = sqliteTable(
+  "profile_setups",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    playerId: integer("player_id")
+      .notNull()
+      .references(() => players.id),
+    kind: text("kind", { enum: ["board", "skills"] }).notNull(),
+    /** SHA-256 of the normalised content: equal hash = same state. */
+    hash: text("hash").notNull(),
+    /** The stored list as the profile keeps it (daevanion_json or skills_json at the time). */
+    dataJson: text("data_json").notNull(),
+    /** The class the state belongs to, for the later search by class. */
+    classId: integer("class_id"),
+    /** Thumbs on this state (a copy of the number of rows in setup_votes). */
+    thumbs: integer("thumbs").notNull().default(0),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+    supersededAt: text("superseded_at"),
+  },
+  (t) => ({
+    /** One row per state of a character: a state that comes back (the player returns to an earlier build) finds its old row, with its thumbs. */
+    byHash: uniqueIndex("profile_setups_hash_idx").on(t.playerId, t.kind, t.hash),
+    byPlayer: index("profile_setups_player_idx").on(t.playerId, t.kind, t.supersededAt),
+    byClass: index("profile_setups_class_idx").on(t.kind, t.classId, t.supersededAt, t.thumbs),
+  }),
+);
+
+/**
+ * A thumb. Stored are two keyed SHA-256 hashes and nothing else about the voter: the one of the random id the voter's browser keeps in its local storage (one
+ * thumb per browser and state) and the one of the address the thumb came from (at most a few thumbs per address and state, so that clearing the browser's storage
+ * does not give an unlimited number of thumbs; a few, because a household or a legion's house shares one address). Neither the id nor the address is stored.
+ */
+export const setupVotes = sqliteTable(
+  "setup_votes",
+  {
+    setupId: integer("setup_id")
+      .notNull()
+      .references(() => profileSetups.id),
+    voterHash: text("voter_hash").notNull(),
+    ipHash: text("ip_hash").notNull(),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    pk: uniqueIndex("setup_votes_pk").on(t.setupId, t.voterHash),
+    byIp: index("setup_votes_ip_idx").on(t.setupId, t.ipHash),
+    byVoter: index("setup_votes_voter_idx").on(t.voterHash),
+  }),
+);

@@ -575,6 +575,13 @@
       "when": 1794350000000,
       "tag": "0081_stats_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1794440000000,
+      "tag": "0082_setup_ratings",
+      "breakpoints": true
     }
   ]
 }

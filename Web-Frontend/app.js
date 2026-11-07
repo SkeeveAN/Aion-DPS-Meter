@@ -5148,6 +5148,132 @@ function renderBoardTab(profile) {
   return el("div", {}, [el("div", { className: "pf-pills" }, buttons), el("div", { className: "pf-card" }, [holder])]);
 }
 
+// ---- Thumbs on a character's Daevanion boards and skill build (the API is routes/setups.ts on the server).
+// The reader is recognised by a random number the page keeps in the browser's local storage (next to the theme and the language) and sends in a header;
+// the server keeps only a hash of it. Without that storage (a private window that blocks it) the thumbs can be seen but not given.
+const VOTER_KEY = "dpsmeter.voter";
+
+function voterId() {
+  try {
+    let id = localStorage.getItem(VOTER_KEY);
+    if (!/^[0-9a-f]{32}$/.test(id ?? "")) {
+      id = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+      localStorage.setItem(VOTER_KEY, id);
+    }
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+async function setupApi(method, url) {
+  const id = voterId();
+  const response = await fetch(url, { method, headers: id ? { "X-Voter": id } : {} });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw Object.assign(new Error(body.error ?? "error"), { code: body.error ?? "error" });
+  }
+  return body;
+}
+
+// Wraps the board tab or the skills tab: a bar with the thumb on top, and the notes about earlier states of this character that kept their thumbs
+// (with a button to look at them and, when the reader had given a thumb to one, to move it to the current state).
+function withThumbs(kind, render, profile, playerId) {
+  const holder = el("div", { className: "pf-setup" });
+  const bar = el("div", { className: "pf-thumbs" });
+  const body = el("div", {}, [render(profile)]);
+  holder.append(bar, body);
+  let state = null;
+  let viewing = null;
+  const canVote = voterId() !== null;
+
+  const showCurrent = () => {
+    viewing = null;
+    body.replaceChildren(render(profile));
+    draw();
+  };
+  const showEarlier = async (earlier) => {
+    const detail = await setupApi("GET", `/api/setups/${earlier.id}`);
+    viewing = earlier.id;
+    const view = kind === "board" ? { ...profile, daevanion: detail.daevanion } : { ...profile, skills: detail.skills, presets: [], actionBars: null };
+    body.replaceChildren(el("p", { className: "pf-sub pf-setup-earlier", textContent: t("setups.viewing") }), render(view));
+    draw();
+  };
+  const fail = (error) => {
+    bar.querySelector(".pf-thumbs-error")?.remove();
+    bar.append(el("span", { className: "pf-thumbs-error", textContent: error.code === "address_limit" ? t("setups.errLimit") : t("setups.err") }));
+  };
+  const reload = async () => {
+    state = (await setupApi("GET", `/api/players/${playerId}/setups`))[kind];
+    draw();
+  };
+
+  const draw = () => {
+    if (!state) {
+      return;
+    }
+    const nodes = [];
+    const current = state.current;
+    if (current) {
+      const button = el("button", {
+        type: "button",
+        className: `pf-thumb${current.voted ? " on" : ""}`,
+        disabled: !canVote,
+        title: t(current.voted ? "setups.take" : "setups.give"),
+        "aria-pressed": String(current.voted),
+      }, [el("span", { className: "pf-thumb-icon", textContent: "👍" }), el("b", { textContent: String(current.thumbs) }), el("span", { className: "pf-thumb-label", textContent: t(kind === "board" ? "setups.labelBoard" : "setups.labelSkills") })]);
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try {
+          const result = await setupApi(current.voted ? "DELETE" : "POST", `/api/setups/${current.id}/thumb`);
+          current.thumbs = result.thumbs;
+          current.voted = result.voted;
+          draw();
+        } catch (error) {
+          draw();
+          fail(error);
+        }
+      });
+      nodes.push(button, el("span", { className: "pf-sub small", textContent: canVote ? t("setups.hint") : t("setups.noStorage") }));
+    }
+    for (const earlier of state.earlier) {
+      const row = el("div", { className: "pf-thumbs-earlier" }, [
+        el("span", { className: "pf-sub", textContent: t(kind === "board" ? "setups.earlierBoard" : "setups.earlierSkills", { n: earlier.thumbs, when: formatDate(new Date(`${earlier.supersededAt.replace(" ", "T")}Z`)) }) }),
+      ]);
+      if (viewing === earlier.id) {
+        const back = el("button", { type: "button", className: "pf-pill", textContent: t("setups.back") });
+        back.addEventListener("click", showCurrent);
+        row.append(back);
+      } else {
+        const show = el("button", { type: "button", className: "pf-pill", textContent: t("setups.show") });
+        show.addEventListener("click", () => showEarlier(earlier).catch(fail));
+        row.append(show);
+      }
+      if (earlier.voted && current && canVote) {
+        const move = el("button", { type: "button", className: "pf-pill", textContent: t("setups.move") });
+        move.addEventListener("click", async () => {
+          move.disabled = true;
+          try {
+            await setupApi("POST", `/api/setups/${earlier.id}/transfer`);
+            viewing = null;
+            body.replaceChildren(render(profile));
+            await reload();
+          } catch (error) {
+            move.disabled = false;
+            fail(error);
+          }
+        });
+        row.append(move);
+      }
+      nodes.push(row);
+    }
+    bar.replaceChildren(...nodes);
+  };
+
+  reload().catch(() => {});
+  return holder;
+}
+
 // The runs tab: the fights grouped into runs (same instance and step, at most 40 minutes between two fights, no boss twice), newest
 // first, only the newest one open. Each fight is a tile with its iDPS measured against the player's best for that boss.
 const RUN_SESSION_GAP_MS = 40 * 60 * 1000;
@@ -5395,10 +5521,10 @@ async function renderPlayerProfile(playerId, attempt = 0) {
     tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
   }
   if (profile && visibleSkillCount(profile) > 0) {
-    tabs.push(["skills", t("profile.tabSkills"), visibleSkillCount(profile), () => renderSkillsTab(profile)]);
+    tabs.push(["skills", t("profile.tabSkills"), visibleSkillCount(profile), () => withThumbs("skills", renderSkillsTab, profile, data.player.id)]);
   }
   if (profile?.daevanion.length > 0) {
-    tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activePoints, 0), () => renderBoardTab(profile)]);
+    tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activePoints, 0), () => withThumbs("board", renderBoardTab, profile, data.player.id)]);
   }
   if (!(profile?.daevanion.length > 0) && profile?.boards?.length > 0) {
     tabs.push(["daevanion", t("profile.tabBoard"), profile.boards.reduce((s, b) => s + b.count, 0), () => renderBoardSummary(profile)]);

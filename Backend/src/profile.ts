@@ -5,6 +5,7 @@ import { AION2_CLASS_BY_ID } from "./constants.js";
 import { db } from "./db/client.js";
 import { encounterParticipants, playerNcCharacter, playerProfiles } from "./db/schema.js";
 import type { NcCharacterData } from "./ncCharacter.js";
+import { syncSetups } from "./setups.js";
 
 /**
  * Character profile of an Aion 2 player, as an uploading client read it from the game's traffic.
@@ -409,6 +410,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
   } else {
     db.insert(playerProfiles).values({ playerId, ...values }).run();
   }
+  syncSetups(playerId);
 }
 
 /** A skill on the action bar with what the page needs to draw it; level and baseLevel come from the preset's skill list (0 when the list does not carry it). */
@@ -785,11 +787,13 @@ export function buildCharacterView(playerId: number): CharacterView {
 }
 
 /** The stored profile of a player with every id resolved to a name; null when none was uploaded. */
-export function buildProfileView(playerId: number): ProfileView | null {
-  const row = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
-  if (!row) {
+export function buildProfileView(playerId: number, override?: { daevanionJson?: string; skillsJson?: string }): ProfileView | null {
+  const stored = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
+  if (!stored) {
     return null;
   }
+  // An earlier state that was rated (setups.ts) is shown with the same code: the profile as it is, with that state's boards or skills in place of the current ones.
+  const row = override ? { ...stored, ...override } : stored;
   itemInfo ??= loadJson<Record<string, ItemInfo>>("item_info.json", {});
   skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
   skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
@@ -1174,6 +1178,7 @@ export function upsertNcProfile(
         })
         .where(eq(playerProfiles.playerId, playerId))
         .run();
+      syncSetups(playerId);
       return;
     }
     if (row.source === "seen" && age > SEEN_OVERWRITE_AFTER && data.gear.length > 0) {
@@ -1195,6 +1200,7 @@ export function upsertNcProfile(
       }
       if (Object.keys(fill).length > 0) {
         db.update(playerProfiles).set(fill).where(eq(playerProfiles.playerId, playerId)).run();
+        syncSetups(playerId);
       }
       return;
     }
@@ -1224,4 +1230,5 @@ export function upsertNcProfile(
   } else {
     db.insert(playerProfiles).values({ playerId, ...values }).run();
   }
+  syncSetups(playerId);
 }

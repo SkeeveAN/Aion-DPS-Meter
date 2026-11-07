@@ -17,6 +17,7 @@ import { instanceRoutes } from "./routes/instances.js";
 import { bossRoutes } from "./routes/bosses.js";
 import { encounterRoutes } from "./routes/encounters.js";
 import { playerRoutes } from "./routes/players.js";
+import { setupRoutes } from "./routes/setups.js";
 import { compareRoutes } from "./routes/compare.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
@@ -73,7 +74,12 @@ export async function buildServer() {
     timeWindow: "1 minute",
     // Only the upload endpoint needs protecting - the read-only leaderboard
     // routes are cheap, indexed lookups with no reason to throttle browsing.
-    allowList: (request) => !request.url.startsWith("/api/uploads") && !request.url.startsWith("/api/feedback") && !request.url.startsWith("/api/diagnostics"),
+    allowList: (request) =>
+      !request.url.startsWith("/api/uploads") &&
+      !request.url.startsWith("/api/feedback") &&
+      !request.url.startsWith("/api/diagnostics") &&
+      // thumbs (routes/setups.ts): the writes are limited, reading the thumbs is not
+      !(request.method !== "GET" && request.url.startsWith("/api/setups")),
   });
 
   await app.register(uploadRoutes);
@@ -88,6 +94,7 @@ export async function buildServer() {
   await app.register(bossRoutes);
   await app.register(encounterRoutes);
   await app.register(playerRoutes);
+  await app.register(setupRoutes);
   await app.register(compareRoutes);
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);

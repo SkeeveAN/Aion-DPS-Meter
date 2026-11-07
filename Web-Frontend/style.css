@@ -5034,3 +5034,61 @@ button.cmp-mem { cursor: pointer; }
     grid-template-columns: 1fr;
   }
 }
+
+/* Thumbs on a character's boards and skill build (withThumbs in app.js). */
+.pf-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+.pf-thumbs:empty {
+  display: none;
+}
+.pf-thumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.pf-thumb:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.pf-thumb.on {
+  border-color: var(--color-info);
+  color: var(--color-info);
+  background: color-mix(in srgb, var(--color-info) 10%, var(--color-surface));
+}
+.pf-thumb-icon {
+  filter: grayscale(1);
+}
+.pf-thumb.on .pf-thumb-icon {
+  filter: none;
+}
+.pf-thumb-label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.pf-thumbs-earlier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  flex-basis: 100%;
+}
+.pf-thumbs-error {
+  color: var(--color-danger, #e0654f);
+  font-size: 0.85rem;
+}
+.pf-setup-earlier {
+  margin: 0 0 10px;
+}
