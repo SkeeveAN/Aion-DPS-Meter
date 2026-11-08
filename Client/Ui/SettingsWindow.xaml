@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionDPS.Ui"
-        Title="{local:Loc Settings.WindowTitle}" Height="725" Width="641"
+        Title="{local:Loc Settings.WindowTitle}" Height="780" Width="1040" MinWidth="760"
         Background="{DynamicResource Brush.Window}" WindowStartupLocation="CenterOwner"
         FontSize="{DynamicResource FontSize.Base}"
         WindowStyle="None" ResizeMode="CanResizeWithGrip">
@@ -348,6 +348,26 @@
              navy/orange; the reused inner controls (ComboBox/CheckBox/TextBox above) keep their
              existing {DynamicResource Brush.*} bindings untouched. -->
         <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!-- The left navigation (2.0): search, "Program" (its pages are tabs), "Tools" (the tiles) and every tool below it. Built in SettingsWindow.Nav.cs. -->
+            <Border Grid.Column="0" Background="#0e1a24" BorderBrush="#294557" BorderThickness="0,0,1,0">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="10,10,10,6">
+                        <TextBox x:Name="SearchBox" Height="28" VerticalContentAlignment="Center" Padding="8,0,24,0"
+                                 Background="{DynamicResource Brush.Control}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"
+                                 TextChanged="OnSearchChanged" PreviewKeyDown="OnSearchKeyDown"/>
+                        <TextBlock x:Name="SearchHint" Text="{local:Loc Settings.Search.Placeholder}" IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0,0,0"
+                                   Foreground="{DynamicResource Brush.TextMuted}"/>
+                    </Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="SideNav" Margin="8,2,8,10"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -406,21 +426,56 @@
               <StackPanel>
                 <!-- The frame of a tool's window (shown only for a tool, not for the settings proper): its name, the main switch of its overlay and its hotkey.
                      The switch is the tool's own "show overlay" box (the panel's copy of it is hidden), the hotkey button opens the hotkeys page. -->
-                <Border x:Name="ModuleHeader" Visibility="Collapsed" Margin="16,14,16,0" Padding="0,0,0,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource Brush.Border}">
-                    <DockPanel>
-                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ModuleMasterText" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource Brush.TextSubtle}"/>
-                            <CheckBox x:Name="ModuleMasterBox" Margin="0" VerticalAlignment="Center" Click="OnModuleMasterClicked"/>
-                            <Button x:Name="ModuleKeyButton" Margin="12,0,0,0" Padding="10,2" MinHeight="26" Click="OnModuleKeyClicked" ToolTip="{local:Loc Settings.Hotkey.ChipTip}"/>
-                        </StackPanel>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="ModuleTitleText" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"/>
-                            <!-- Shown only while the main switch is off: the switches below do nothing then. -->
-                            <TextBlock x:Name="ModuleMasterHint" Visibility="Collapsed" FontSize="11" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextMuted}"/>
-                        </StackPanel>
-                    </DockPanel>
+                <Border x:Name="ModuleHeader" Visibility="Collapsed" Margin="16,14,16,0">
+                    <StackPanel>
+                        <TextBlock x:Name="ModuleTitleText" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"/>
+                        <TextBlock x:Name="ModuleDescText" Margin="0,2,0,10" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                        <!-- The main switch of the tool: off = not in the Tools menu, overlays off, hotkey does nothing; the settings stay. -->
+                        <Border Style="{StaticResource SettingsCard}" Margin="0,0,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock x:Name="ModuleActiveText" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Brush.Text}"/>
+                                    <TextBlock x:Name="ModuleActiveHint" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextMuted}"/>
+                                </StackPanel>
+                                <CheckBox x:Name="ModuleActiveBox" Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" Click="OnModuleActiveClicked"/>
+                            </Grid>
+                        </Border>
+                        <Border x:Name="ToolTabBar" Visibility="Collapsed" Margin="0,12,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource Brush.Border}">
+                            <StackPanel x:Name="ToolTabs" Orientation="Horizontal"/>
+                        </Border>
+                    </StackPanel>
                 </Border>
                 <StackPanel Margin="16,14,16,6">
+                    <StackPanel x:Name="PanelTools" Visibility="Collapsed">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{local:Loc Main.MenuTools}" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"/>
+                                <TextBlock x:Name="ToolsCount" Margin="0,2,0,0" Foreground="{DynamicResource Brush.TextMuted}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Tools.Hint}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                <Button Content="{local:Loc Settings.Tools.EnableAll}" Padding="10,2" Click="OnEnableAllToolsClicked"/>
+                                <Button Content="{local:Loc Settings.Tools.DisableAll}" Padding="10,2" Margin="8,0,0,0" Click="OnDisableAllToolsClicked"/>
+                            </StackPanel>
+                        </Grid>
+                        <WrapPanel x:Name="ToolTiles"/>
+                    </StackPanel>
+                    <StackPanel x:Name="PanelToolInfo" Visibility="Collapsed">
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock x:Name="ToolInfoText" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button x:Name="ToolOpenButton" Content="{local:Loc Settings.Tools.Open}" Padding="12,3" Click="OnToolOpenClicked"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel x:Name="PanelSearch" Visibility="Collapsed">
+                        <TextBlock x:Name="SearchTitle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,8"/>
+                        <StackPanel x:Name="SearchResults"/>
+                    </StackPanel>
                                         <StackPanel x:Name="PanelGeneral" Visibility="Collapsed">
 <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
@@ -1268,6 +1323,7 @@
                 </StackPanel>
               </StackPanel>
             </ScrollViewer>
+        </Grid>
         </Grid>
     </DockPanel>
     </Border>

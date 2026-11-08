@@ -64,7 +64,7 @@ public sealed class ToolsWindow : Window
     public static ToolEntry[][] Groups()
     {
         var loc = LocalizationManager.Instance;
-        return new[]
+        var groups = new[]
         {
             new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]) },
             new[] { new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("craft", loc["Main.MenuTools.Craft"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
@@ -73,6 +73,8 @@ public sealed class ToolsWindow : Window
             new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
             new[] { new ToolEntry("theme", loc["Main.MenuTools.ThemeEditor"]), new ToolEntry("stream", loc["Main.MenuTools.Stream"]), new ToolEntry("network", loc["Settings.Nav.Network"]) },
         };
+        var settings = MeterSettings.Load();
+        return groups.Select(g => g.Where(t => ToolSwitch.IsOn(settings, t.Id)).ToArray()).Where(g => g.Length > 0).ToArray();
     }
 
     public ToolsWindow(IReadOnlyList<IReadOnlyList<ToolEntry>> groups, Func<string, ToolPage?> build, Action<string> openOwn)

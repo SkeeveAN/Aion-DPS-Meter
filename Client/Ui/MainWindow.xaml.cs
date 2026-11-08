@@ -727,6 +727,11 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnHotkeyPressed(HotkeyAction action)
     {
+        if (ToolSwitch.OfHotkey(action) is { } hotkeyTool && !ToolSwitch.IsOn(MeterSettings.Load(), hotkeyTool))
+        {
+            return; // the tool is switched off
+        }
+
         switch (action)
         {
             case HotkeyAction.ToggleHideUi:
@@ -1348,6 +1353,8 @@ public partial class MainWindow : Window
         CreateTrayIcon();
         _hotkeys = new GlobalHotkeys(this);
         _hotkeys.Pressed += action => Dispatcher.Invoke(() => OnHotkeyPressed(action), System.Windows.Threading.DispatcherPriority.Input);
+        ToolSwitch.Enforce(MeterSettings.Load());
+        ApplyToolMenu(MeterSettings.Load());
         ApplyHotkeys(MeterSettings.Load());
         ApplyTimetable(MeterSettings.Load());
         _timetableReminder ??= new TimetableReminder();
@@ -5852,6 +5859,39 @@ public partial class MainWindow : Window
     private ToolsWindow? _toolsWindow;
 
     /// <summary>A tool of the Tools menu: all tools share one window, the tools in the order of the menu on the left, the page of the chosen one on the right.</summary>
+    /// <summary>Hides the switched-off tools in the Tools menu (and the separators left with nothing beside them).</summary>
+    private void ApplyToolMenu(MeterSettings settings)
+    {
+        Control? previous = null;
+        var items = ToolsMenu.Items.OfType<Control>().ToList();
+        foreach (Control item in items)
+        {
+            if (item is MenuItem { Tag: string id })
+            {
+                item.Visibility = ToolSwitch.IsOn(settings, id) ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        bool anyBefore = false;
+        foreach (Control item in items)
+        {
+            if (item is Separator)
+            {
+                // a separator shows only between two groups that both have a visible tool
+                int index = items.IndexOf(item);
+                bool after = items.Skip(index + 1).TakeWhile(i => i is not Separator).Any(i => i.Visibility == Visibility.Visible);
+                item.Visibility = anyBefore && after ? Visibility.Visible : Visibility.Collapsed;
+                anyBefore = false;
+            }
+            else if (item.Visibility == Visibility.Visible)
+            {
+                anyBefore = true;
+            }
+
+            previous = item;
+        }
+    }
+
     private void OnOpenModuleClicked(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { Tag: string id })
@@ -6228,6 +6268,7 @@ public partial class MainWindow : Window
             }
             ReopenSettings(null);
         };
+        _settingsWindow.OpenToolRequested += OpenTool;
         _settingsWindow.CopyStreamLinkRequested += CopyStreamLink;
         _settingsWindow.NewStreamKeyRequested += () =>
         {
@@ -6267,6 +6308,8 @@ public partial class MainWindow : Window
         {
             row.RefreshClassBrush(); // the own bar colour may have changed
         }
+        ToolSwitch.Enforce(settings);
+        ApplyToolMenu(settings);
         ApplyHotkeys(settings); // possibly changed keys
         ApplyTimetable(settings);
         ApplyPetFarm(settings);

@@ -24,6 +24,7 @@ public partial class SettingsWindow : Window
             nav.Checked += OnNavChecked;
         }
 
+        InitNav(settings);
         ApplyView();
         ShowUndo(undoUntil);
 
@@ -833,6 +834,8 @@ public partial class SettingsWindow : Window
         _settings.StreamOverlayKey = MeterSettings.Load().StreamOverlayKey; // made and renewed by MainWindow, never by this copy
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
+        _settings.DisabledTools = _disabled.ToList();
+        ToolSwitch.Enforce(_settings);
         Saved?.Invoke(); // the window stays open: Save applies, the ✕ / Cancel button closes
     }
 
@@ -965,158 +968,6 @@ public partial class SettingsWindow : Window
 
             test.IsEnabled = on && hasSound();
             test.Opacity = test.IsEnabled ? 1.0 : 0.4;
-        }
-    }
-
-    private static readonly string[] AllPanels =
-    {
-        "PanelGeneral", "PanelMeter", "PanelCapture", "PanelHotkeys", "PanelSystem",
-        "PanelNetwork", "PanelLoot", "PanelCombat", "PanelTimetable", "PanelBoss", "PanelPetMap", "PanelPets", "PanelGather", "PanelStream",
-    };
-
-    /// <summary>The page each button of the sidebar shows (the settings proper: only what belongs to no module).</summary>
-    private static readonly Dictionary<string, string> PageOfNav = new()
-    {
-        ["NavGeneral"] = "PanelGeneral", ["NavMeter"] = "PanelMeter", ["NavInstall"] = "PanelCapture", ["NavHotkeys"] = "PanelHotkeys", ["NavUpdates"] = "PanelSystem",
-    };
-
-    /// <summary>The tools that live in this window for now (the module's own settings, without the sidebar): title and the panels they show.</summary>
-    private static readonly Dictionary<string, (string TitleKey, string[] Panels)> Modules = new()
-    {
-        ["network"] = ("Settings.Nav.Network", new[] { "PanelNetwork" }),
-        ["loot"] = ("Main.MenuTools.Loot", new[] { "PanelLoot" }),
-        ["combat"] = ("Settings.Nav.Combat", new[] { "PanelCombat" }),
-        ["timetable"] = ("Settings.Nav.Timetable", new[] { "PanelTimetable" }),
-        ["boss"] = ("Settings.Nav.Boss", new[] { "PanelBoss" }),
-        ["petmap"] = ("Settings.Nav.PetMap", new[] { "PanelPetMap" }),
-        ["stream"] = ("Settings.Nav.Stream", new[] { "PanelStream" }),
-    };
-
-    private string? _module;
-    private string _page = "NavGeneral";
-
-    private CheckBox? _masterSource;
-
-    /// <summary>The tool's own "show overlay" box (shown as the main switch in the header), its hotkey field, per tool.</summary>
-    private (CheckBox Master, TextBox? Hotkey) MasterOf(string module) => module switch
-    {
-        "network" => (ShowNetworkOverlayBox, HotkeyNetworkBox),
-        "loot" => (ShowLootOverlayBox, HotkeyLootBox),
-        "combat" => (ShowCombatOverlayBox, HotkeyCombatBox),
-        "timetable" => (ShowTimetableBox, HotkeyTimetableBox),
-        "boss" => (ShowBossOverlayBox, HotkeyWorldBossBox),
-        "petmap" => (ShowPetMapBox, HotkeyPetMapBox),
-        _ => (StreamOverlayOnBox, null),
-    };
-
-    private void OnModuleMasterClicked(object sender, RoutedEventArgs e)
-    {
-        if (_masterSource is not null)
-        {
-            _masterSource.IsChecked = ModuleMasterBox.IsChecked == true;
-        }
-
-        UpdateMasterHint();
-    }
-
-    private void OnMasterSourceChanged(object sender, RoutedEventArgs e)
-    {
-        ModuleMasterBox.IsChecked = _masterSource?.IsChecked == true;
-        UpdateMasterHint();
-    }
-
-    /// <summary>The note under the tool's name appears only while the main switch is off (the switches below need it on).</summary>
-    private void UpdateMasterHint()
-    {
-        ModuleMasterHint.Text = LocalizationManager.Instance["Settings.Overlay.MasterHint"];
-        ModuleMasterHint.Visibility = ModuleMasterBox.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
-    }
-
-    private void OnModuleKeyClicked(object sender, RoutedEventArgs e) => ShowHotkeysPage();
-
-    /// <summary>The hotkey page of the settings proper.</summary>
-    public void ShowHotkeysPage()
-    {
-        _module = null;
-        NavHotkeys.IsChecked = true;
-        ApplyView();
-    }
-
-    private void ShowModuleHeader(string? module)
-    {
-        if (_masterSource is not null)
-        {
-            _masterSource.Checked -= OnMasterSourceChanged;
-            _masterSource.Unchecked -= OnMasterSourceChanged;
-            _masterSource = null;
-        }
-
-        ModuleHeader.Visibility = module is null ? Visibility.Collapsed : Visibility.Visible;
-        if (module is null)
-        {
-            return;
-        }
-
-        LocalizationManager loc = LocalizationManager.Instance;
-        var (master, hotkey) = MasterOf(module);
-        ModuleTitleText.Text = loc[Modules[module].TitleKey];
-        ModuleMasterText.Text = loc["Settings.Overlay.Master"];
-        _masterSource = master;
-        master.Visibility = Visibility.Collapsed; // the header's switch is this box
-        ModuleMasterBox.IsChecked = master.IsChecked == true;
-        UpdateMasterHint();
-        master.Checked += OnMasterSourceChanged;
-        master.Unchecked += OnMasterSourceChanged;
-        string key = hotkey?.Text ?? "";
-        ModuleKeyButton.Visibility = hotkey is null ? Visibility.Collapsed : Visibility.Visible;
-        ModuleKeyButton.Content = key.Length > 0 ? key : loc["Settings.Hotkey.NoKey"];
-    }
-
-    private void OnNavChecked(object sender, RoutedEventArgs e)
-    {
-        if (sender is RadioButton { Name: { Length: > 0 } name })
-        {
-            _page = name;
-            ApplyView();
-        }
-    }
-
-    /// <summary>Shows one tool's own settings (null: the settings proper with the sidebar). The window keeps what was typed, so switching does not lose changes.</summary>
-    public void ShowModule(string? module)
-    {
-        _module = module;
-        ApplyView();
-    }
-
-    private void ApplyView()
-    {
-        LocalizationManager loc = LocalizationManager.Instance;
-        string[] visible;
-        if (_module is not null && Modules.TryGetValue(_module, out var module))
-        {
-            NavBar.Visibility = Visibility.Collapsed;
-            visible = module.Panels;
-            Title = loc[module.TitleKey];
-        }
-        else
-        {
-            NavBar.Visibility = Visibility.Visible;
-            visible = new[] { PageOfNav.GetValueOrDefault(_page, "PanelGeneral") };
-            Title = loc["Settings.WindowTitle"];
-        }
-
-        ShowModuleHeader(_module is not null && Modules.ContainsKey(_module) ? _module : null);
-        foreach (string name in AllPanels)
-        {
-            if (FindName(name) is UIElement panel)
-            {
-                panel.Visibility = visible.Contains(name) ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        if (visible.Contains("PanelBoss"))
-        {
-            RefreshBossTimes(force: true);
         }
     }
 

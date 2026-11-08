@@ -187,6 +187,9 @@ public sealed class MeterSettings
 
     public double? ToolsWindowHeight { get; set; }
 
+    /// <summary>The tools the user switched off ("Tool inactive" in the settings), by the tool's id. A switched-off tool is not in the Tools menu, its overlays are off and its hotkey does nothing; its settings are kept.</summary>
+    public List<string> DisabledTools { get; set; } = new();
+
     /// <summary>The tools shown in a window of their own ("pop out"), by the tool's id: where each was left and whether it was open when the meter closed (a pop-out
     /// closed with its X is not open any more; its place is kept for the next time).</summary>
     public Dictionary<string, PopOutPlace> PopOuts { get; set; } = new();
