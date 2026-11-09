@@ -29,7 +29,10 @@ public static class OverlayDocking
     private static readonly Dictionary<string, Entry> Windows = new();
     private static readonly HashSet<string> Dirty = new();
     private static readonly DispatcherTimer SaveTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
-    private static bool _applying, _dragging, _docksDirty;
+    private static bool _applying, _dragging, _docksDirty, _groupMoved;
+
+    /// <summary>The line along the edge two overlays are pulled together at while one is dragged (null: none). The overlay designer draws it.</summary>
+    public static event Action<System.Windows.Rect?>? GuideChanged;
     private static MeterSettings? _cache;
     private static DateTime _cacheAt = DateTime.MinValue;
 
@@ -98,6 +101,7 @@ public static class OverlayDocking
                 else if (msg == WM_EXITSIZEMOVE)
                 {
                     _dragging = false;
+                    GuideChanged?.Invoke(null);
                     Dropped(window);
                 }
 
@@ -146,6 +150,8 @@ public static class OverlayDocking
         var br = toDip.Transform(new Point(rect.Right, rect.Bottom));
         double x = tl.X, y = tl.Y, w = br.X - tl.X, h = br.Y - tl.Y;
         bool snappedX = false, snappedY = false;
+        Rect2? guideX = null, guideY = null; // the neighbour an edge was pulled to, and the x or y of that edge
+        double edgeX = 0, edgeY = 0;
 
         if (s.OverlayDocking)
         {
@@ -161,14 +167,14 @@ public static class OverlayDocking
                 bool overlapsY = y < o.Bottom && y + h > o.Y, overlapsX = x < o.Right && x + w > o.X;
                 if (!snappedX && overlapsY)
                 {
-                    if (Math.Abs(x - o.Right) <= Reach) { x = o.Right; snappedX = true; }
-                    else if (Math.Abs(x + w - o.X) <= Reach) { x = o.X - w; snappedX = true; }
+                    if (Math.Abs(x - o.Right) <= Reach) { x = o.Right; snappedX = true; guideX = o; edgeX = o.Right; }
+                    else if (Math.Abs(x + w - o.X) <= Reach) { x = o.X - w; snappedX = true; guideX = o; edgeX = o.X; }
                 }
 
                 if (!snappedY && overlapsX)
                 {
-                    if (Math.Abs(y - o.Bottom) <= Reach) { y = o.Bottom; snappedY = true; }
-                    else if (Math.Abs(y + h - o.Y) <= Reach) { y = o.Y - h; snappedY = true; }
+                    if (Math.Abs(y - o.Bottom) <= Reach) { y = o.Bottom; snappedY = true; guideY = o; edgeY = o.Bottom; }
+                    else if (Math.Abs(y + h - o.Y) <= Reach) { y = o.Y - h; snappedY = true; guideY = o; edgeY = o.Y; }
                 }
 
                 // touching on one side: the other axis may line up with the neighbour's start or end
@@ -192,6 +198,34 @@ public static class OverlayDocking
             if (!snappedY) { y = Math.Round(y / cell) * cell; }
         }
 
+        // the glowing line of the overlay designer: along the shared edge (a vertical one wins over a horizontal one)
+        System.Windows.Rect? guide = null;
+        if (guideX is { } gx)
+        {
+            double y1 = Math.Max(y, gx.Y), y2 = Math.Min(y + h, gx.Bottom);
+            guide = new System.Windows.Rect(edgeX - 3, y1, 6, Math.Max(6, y2 - y1));
+        }
+        else if (guideY is { } gy)
+        {
+            double x1 = Math.Max(x, gy.X), x2 = Math.Min(x + w, gy.Right);
+            guide = new System.Windows.Rect(x1, edgeY - 3, Math.Max(6, x2 - x1), 6);
+        }
+
+        GuideChanged?.Invoke(guide);
+
+        // the designer moves a whole group when any member is dragged (Shift: only this one): the root of the group goes by the same distance,
+        // the others follow it as docked ones always do
+        if (OverlayDesigner.Active && (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Shift) == 0)
+        {
+            string root = RootOf(window.Title);
+            if (root != window.Title && Windows.TryGetValue(root, out Entry? rootEntry))
+            {
+                _groupMoved = true;
+                rootEntry.Window.Left += x - window.Left;
+                rootEntry.Window.Top += y - window.Top;
+            }
+        }
+
         var ntl = toDevice.Transform(new Point(x, y));
         var nbr = toDevice.Transform(new Point(x + w, y + h));
         rect.Left = (int)Math.Round(ntl.X);
@@ -207,6 +241,16 @@ public static class OverlayDocking
     {
         var s = MeterSettings.Load();
         string title = window.Title;
+        if (_groupMoved)
+        {
+            // a whole group was moved: it stays as it was docked
+            _groupMoved = false;
+            s.Save();
+            _cache = s;
+            _cacheAt = DateTime.UtcNow;
+            return;
+        }
+
         s.OverlayDocks.Remove(title);
         if (s.OverlayDocking)
         {
@@ -242,6 +286,75 @@ public static class OverlayDocking
     }
 
     // ---- following the parent ----------------------------------------------------------------------------------------------------------
+
+    /// <summary>The overlay at the top of the group this one hangs in (itself when it hangs on nothing).</summary>
+    private static string RootOf(string title)
+    {
+        var docks = Current().OverlayDocks;
+        string at = title;
+        for (int guard = 0; guard < 20 && docks.TryGetValue(at, out OverlayDock? d) && Windows.ContainsKey(d.Parent); guard++)
+        {
+            at = d.Parent;
+        }
+
+        return at;
+    }
+
+    /// <summary>The groups of docked overlays that are on the screen right now (two or more overlays hanging together).</summary>
+    public static List<List<string>> Groups()
+    {
+        var docks = Current().OverlayDocks;
+        var groups = new Dictionary<string, List<string>>();
+        foreach (var (title, entry) in Windows)
+        {
+            if (!entry.Window.IsVisible)
+            {
+                continue;
+            }
+
+            string root = RootOf(title);
+            if (!Windows[root].Window.IsVisible)
+            {
+                continue;
+            }
+
+            if (!groups.TryGetValue(root, out List<string>? list))
+            {
+                groups[root] = list = new List<string>();
+            }
+
+            list.Add(title);
+        }
+
+        return groups.Values.Where(l => l.Count >= 2).ToList();
+    }
+
+    /// <summary>A group is being scaled or cropped as a whole: the docked ones are not put back at their parents meanwhile.</summary>
+    public static void BeginGroupGesture() => _applying = true;
+
+    /// <summary>The gesture is over: the places are what they are now, so the docks' distances are read from them and everything is saved.</summary>
+    public static void EndGroupGesture(IEnumerable<string> titles)
+    {
+        _applying = false;
+        var s = Current();
+        var set = titles.ToHashSet();
+        foreach (string title in set)
+        {
+            if (s.OverlayDocks.TryGetValue(title, out OverlayDock? dock) && set.Contains(dock.Parent)
+                && Windows.TryGetValue(title, out Entry? c) && Windows.TryGetValue(dock.Parent, out Entry? p))
+            {
+                var m = Bounds(c.Window);
+                var pb = Bounds(p.Window);
+                dock.Offset = dock.Side is "Left" or "Right" ? m.Y - pb.Y : m.X - pb.X;
+                _docksDirty = true;
+            }
+
+            Dirty.Add(title);
+        }
+
+        SaveTimer.Stop();
+        SaveTimer.Start();
+    }
 
     /// <summary>The overlays that hang (directly or further down) on the one with this title: they move with it.</summary>
     private static HashSet<string> Descendants(string title)

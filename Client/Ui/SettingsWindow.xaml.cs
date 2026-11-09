@@ -25,6 +25,7 @@ public partial class SettingsWindow : Window
         }
 
         InitNav(settings);
+        AddContentOpacityFields(settings);
         ApplyView();
         ShowUndo(undoUntil);
 
@@ -835,6 +836,11 @@ public partial class SettingsWindow : Window
         _settings.StreamOverlayPort = int.TryParse(StreamPortBox.Text, out int streamPort) && streamPort is >= 1024 and <= 65000 ? streamPort : Streaming.StreamOverlayServer.DefaultPort;
         _settings.StreamOverlayKey = MeterSettings.Load().StreamOverlayKey; // made and renewed by MainWindow, never by this copy
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
+
+        foreach (var (title, field) in _contentFields)
+        {
+            _settings.OverlayForegrounds[title] = field.Fraction;
+        }
 
         _settings.DisabledTools = _disabled.ToList();
         ToolSwitch.Enforce(_settings);

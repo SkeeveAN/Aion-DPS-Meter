@@ -27,6 +27,38 @@ public static class OverlayDesigner
     private static DesignerPlus? _plus;
     private static OpacityPanel? _panel;
     private static Action? _refresh;
+    private static System.Windows.Threading.DispatcherTimer? _tick;
+    private static readonly DesignerGroups Groups = new();
+
+    /// <summary>Overlay windows that are not <see cref="MovableOverlay"/>s (the timetable, the pet counter); set by the main window.</summary>
+    public static Func<IEnumerable<Window>>? Extra { get; set; }
+
+    internal static IEnumerable<Window> OverlayWindows() =>
+        MovableOverlay.All.Cast<Window>().Concat(Extra?.Invoke() ?? Enumerable.Empty<Window>()).Where(w => w.IsVisible);
+
+    /// <summary>The name an overlay has in the designer's tags (by its window title).</summary>
+    internal static string NameOf(string title)
+    {
+        string? key = title switch
+        {
+            OverlayPlaces.BossHp => "Settings.Combat.CardBossHp",
+            OverlayPlaces.BossCast => "Settings.Combat.CardBossCast",
+            OverlayPlaces.TargetOfTarget => "Combat.Element.TargetOfTarget",
+            OverlayPlaces.PetMap => "Settings.PetMap.CardMap",
+            OverlayPlaces.PetList => "Settings.PetMap.CardList",
+            OverlayPlaces.PetInfo => "Settings.Nav.Pets",
+            OverlayPlaces.Loot => "Main.MenuTools.Loot",
+            OverlayPlaces.Craft => "Main.MenuTools.Craft",
+            OverlayPlaces.Network => "Settings.Nav.Network",
+            OverlayPlaces.Assist => "Main.MenuTools.Assist",
+            OverlayPlaces.Dummy => "Main.MenuTools.DummyTest",
+            OverlayPlaces.Timetable => "Settings.Nav.Timetable",
+            OverlayPlaces.WorldBoss => "Settings.Nav.Boss",
+            OverlayPlaces.Hotkeys => "Settings.Hotkey.HotkeyOverlay",
+            _ => null,
+        };
+        return key is null ? title : LocalizationManager.Instance[key];
+    }
 
     public static bool Active { get; private set; }
 
@@ -56,12 +88,24 @@ public static class OverlayDesigner
         refresh();
         _bar.Show();
         _plus.Show();
+        OverlayDocking.GuideChanged += OnGuide;
+        _tick = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(120) };
+        _tick.Tick += (_, _) =>
+        {
+            _backdrop?.UpdateTags(OverlayWindows().ToList());
+            Groups.Refresh();
+        };
+        _tick.Start();
         BringToFront();
     }
 
     private static void End()
     {
         Active = false;
+        OverlayDocking.GuideChanged -= OnGuide;
+        _tick?.Stop();
+        _tick = null;
+        Groups.CloseAll();
         _panel?.Close();
         _panel = null;
         _bar?.Close();
@@ -74,14 +118,28 @@ public static class OverlayDesigner
         _refresh?.Invoke();
     }
 
+    private static void OnGuide(Rect? line) => _backdrop?.ShowGuide(line);
+
     /// <summary>The overlays above the dimming, the bar and the "+" above the overlays.</summary>
     public static void BringToFront()
     {
-        foreach (MovableOverlay overlay in MovableOverlay.All.ToList())
+        foreach (Window overlay in OverlayWindows().ToList())
         {
-            overlay.RaiseToFront();
+            NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(overlay).Handle);
         }
 
+        RaiseChrome();
+    }
+
+    /// <summary>The designer's own windows above all overlays (the main window raises the overlays once a second and calls this after it).</summary>
+    public static void RaiseChrome()
+    {
+        if (!Active)
+        {
+            return;
+        }
+
+        Groups.RaiseAll();
         _bar?.RaiseToFront();
         _plus?.RaiseToFront();
         _panel?.RaiseToFront();
@@ -302,8 +360,23 @@ public static class OverlayDesigner
 /// <summary>The dimming and the grid over the whole first monitor; clicks go through it to the game.</summary>
 internal sealed class DesignerBackdrop : Window
 {
+    private readonly Canvas _marks = new() { IsHitTestVisible = false };
+    private readonly Dictionary<string, Border> _tags = new();
+    private readonly Rectangle _guide = new() { Fill = OverlayDesigner.Orange, RadiusX = 3, RadiusY = 3, Visibility = Visibility.Collapsed, IsHitTestVisible = false,
+        Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 14, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0xBA, 0x42), Opacity = 0.9 } };
+    private readonly Border _guideLabel;
+    private readonly Rect _area = WindowPlacement.Primary();
+
     public DesignerBackdrop()
     {
+        _guideLabel = new Border
+        {
+            Background = OverlayDesigner.Orange,
+            CornerRadius = new CornerRadius(7),
+            Padding = new Thickness(10, 3, 10, 3),
+            Visibility = Visibility.Collapsed,
+            Child = new TextBlock { Text = LocalizationManager.Instance["Designer.Dock"], Foreground = OverlayDesigner.Ink, FontWeight = FontWeights.SemiBold },
+        };
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
         ResizeMode = ResizeMode.NoResize;
@@ -331,12 +404,70 @@ internal sealed class DesignerBackdrop : Window
             grid.Children.Add(new Rectangle { Width = area.Width, Height = 1, Fill = lineBrush, SnapsToDevicePixels = true, Margin = new Thickness(0, Math.Round(y), 0, 0) });
         }
 
-        Content = grid;
+        _marks.Children.Add(_guide);
+        _marks.Children.Add(_guideLabel);
+        var layers = new Grid();
+        layers.Children.Add(grid);
+        layers.Children.Add(_marks);
+        Content = layers;
         SourceInitialized += (_, _) =>
         {
             using var native = new NativeOverlay(this);
             native.SetClickThrough(true);
         };
+    }
+
+    /// <summary>A small orange tag with the name above every overlay that is on the screen.</summary>
+    public void UpdateTags(List<Window> windows)
+    {
+        var seen = new HashSet<string>();
+        foreach (Window w in windows)
+        {
+            string title = w.Title;
+            seen.Add(title);
+            if (!_tags.TryGetValue(title, out Border? tag))
+            {
+                tag = new Border
+                {
+                    Background = OverlayDesigner.Orange,
+                    CornerRadius = new CornerRadius(5, 5, 0, 0),
+                    Padding = new Thickness(9, 2, 9, 2),
+                    Child = new TextBlock { Text = OverlayDesigner.NameOf(title), Foreground = OverlayDesigner.Ink, FontWeight = FontWeights.SemiBold, FontSize = 12 },
+                };
+                _tags[title] = tag;
+                _marks.Children.Add(tag);
+            }
+
+            Canvas.SetLeft(tag, w.Left - _area.Left);
+            Canvas.SetTop(tag, Math.Max(0, w.Top - _area.Top - 22));
+        }
+
+        foreach (string gone in _tags.Keys.Where(k => !seen.Contains(k)).ToList())
+        {
+            _marks.Children.Remove(_tags[gone]);
+            _tags.Remove(gone);
+        }
+    }
+
+    /// <summary>The glowing line along the edge two overlays are pulled together at, with "Dock" beside it (null: hidden).</summary>
+    public void ShowGuide(Rect? line)
+    {
+        if (line is not { } r)
+        {
+            _guide.Visibility = Visibility.Collapsed;
+            _guideLabel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        _guide.Width = r.Width;
+        _guide.Height = r.Height;
+        Canvas.SetLeft(_guide, r.X - _area.Left);
+        Canvas.SetTop(_guide, r.Y - _area.Top);
+        _guide.Visibility = Visibility.Visible;
+        _guideLabel.Visibility = Visibility.Visible;
+        _guideLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        Canvas.SetLeft(_guideLabel, r.X - _area.Left + (r.Width - _guideLabel.DesiredSize.Width) / 2);
+        Canvas.SetTop(_guideLabel, r.Y - _area.Top - _guideLabel.DesiredSize.Height - 6);
     }
 }
 
@@ -630,4 +761,262 @@ internal sealed class OpacityPanel : Window
     }
 
     public void RaiseToFront() => NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+}
+
+/// <summary>The frames around groups of docked overlays: an orange outline with a label and handles that scale (corners) or crop (edges) the whole group.</summary>
+internal sealed class DesignerGroups
+{
+    private readonly Dictionary<string, GroupFrame> _frames = new();
+
+    /// <summary>A gesture is running: the frames are not rebuilt meanwhile.</summary>
+    public bool Busy { get; set; }
+
+    public void Refresh()
+    {
+        if (Busy)
+        {
+            return;
+        }
+
+        var keys = new HashSet<string>();
+        foreach (List<string> group in OverlayDocking.Groups())
+        {
+            string key = string.Join("|", group.OrderBy(t => t));
+            keys.Add(key);
+            if (!_frames.TryGetValue(key, out GroupFrame? frame))
+            {
+                frame = new GroupFrame(group, this);
+                _frames[key] = frame;
+                frame.Show();
+                frame.RaiseToFront();
+            }
+
+            frame.Fit();
+        }
+
+        foreach (string gone in _frames.Keys.Where(k => !keys.Contains(k)).ToList())
+        {
+            _frames[gone].Close();
+            _frames.Remove(gone);
+        }
+    }
+
+    public void RaiseAll()
+    {
+        foreach (GroupFrame f in _frames.Values)
+        {
+            f.RaiseToFront();
+        }
+    }
+
+    public void CloseAll()
+    {
+        foreach (GroupFrame f in _frames.Values)
+        {
+            f.Close();
+        }
+
+        _frames.Clear();
+    }
+}
+
+internal sealed class GroupFrame : Window
+{
+    private const double Pad = 14, Below = 30;
+    private readonly List<string> _titles;
+    private readonly DesignerGroups _owner;
+    private readonly bool _scalable;
+    private sealed record Member(MovableOverlay Overlay, double Scale, double W, double H, double L, double T);
+    private List<Member> _start = new();
+    private Rect _startBox;
+    private Point _startMouse;
+
+    public GroupFrame(List<string> titles, DesignerGroups owner)
+    {
+        _titles = titles;
+        _owner = owner;
+        WindowStyle = WindowStyle.None;
+        AllowsTransparency = true;
+        Background = Brushes.Transparent;
+        ResizeMode = ResizeMode.NoResize;
+        ShowInTaskbar = false;
+        ShowActivated = false;
+        Topmost = true;
+        AltTabHidden.Apply(this);
+        _scalable = titles.All(t => MovableOverlay.All.Any(o => o.Title == t));
+
+        var inner = new Grid { Margin = new Thickness(Pad - 6, Pad - 6, Pad - 6, Pad - 6 + Below) };
+        inner.Children.Add(new Border { BorderBrush = OverlayDesigner.Orange, BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(10), IsHitTestVisible = false });
+        var label = new Border
+        {
+            Background = OverlayDesigner.Orange,
+            CornerRadius = new CornerRadius(0, 0, 8, 8),
+            Padding = new Thickness(12, 3, 12, 3),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(10, 0, 0, -26),
+            IsHitTestVisible = false,
+            Child = new TextBlock { Text = string.Format(LocalizationManager.Instance["Designer.Group"], titles.Count), Foreground = OverlayDesigner.Ink, FontWeight = FontWeights.SemiBold },
+        };
+        inner.Children.Add(label);
+        if (_scalable)
+        {
+            foreach (var (h, v) in new[] { (HorizontalAlignment.Left, VerticalAlignment.Top), (HorizontalAlignment.Right, VerticalAlignment.Top), (HorizontalAlignment.Left, VerticalAlignment.Bottom), (HorizontalAlignment.Right, VerticalAlignment.Bottom) })
+            {
+                inner.Children.Add(Handle(h, v, corner: true));
+            }
+
+            foreach (var (h, v) in new[] { (HorizontalAlignment.Left, VerticalAlignment.Center), (HorizontalAlignment.Right, VerticalAlignment.Center), (HorizontalAlignment.Center, VerticalAlignment.Top), (HorizontalAlignment.Center, VerticalAlignment.Bottom) })
+            {
+                inner.Children.Add(Handle(h, v, corner: false));
+            }
+        }
+
+        Content = inner;
+    }
+
+    private Rect Box()
+    {
+        var members = OverlayDesigner.OverlayWindows().Where(w => _titles.Contains(w.Title)).ToList();
+        if (members.Count == 0)
+        {
+            return Rect.Empty;
+        }
+
+        double x1 = members.Min(w => w.Left), y1 = members.Min(w => w.Top), x2 = members.Max(w => w.Left + w.ActualWidth), y2 = members.Max(w => w.Top + w.ActualHeight);
+        return new Rect(x1, y1, x2 - x1, y2 - y1);
+    }
+
+    public void Fit() => Place(Box());
+
+    private void Place(Rect box)
+    {
+        if (box.IsEmpty)
+        {
+            return;
+        }
+
+        Left = box.Left - Pad;
+        Top = box.Top - Pad;
+        Width = box.Width + 2 * Pad;
+        Height = box.Height + 2 * Pad + Below;
+    }
+
+    public void RaiseToFront() => NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+
+    private System.Windows.Controls.Primitives.Thumb Handle(HorizontalAlignment h, VerticalAlignment v, bool corner)
+    {
+        bool horizontalEdge = !corner && v != VerticalAlignment.Center; // top or bottom edge
+        var square = new FrameworkElementFactory(typeof(Border));
+        square.SetValue(FrameworkElement.WidthProperty, corner ? 14.0 : horizontalEdge ? 36.0 : 6.0);
+        square.SetValue(FrameworkElement.HeightProperty, corner ? 14.0 : horizontalEdge ? 6.0 : 36.0);
+        square.SetValue(Border.BackgroundProperty, OverlayDesigner.Orange);
+        square.SetValue(Border.BorderBrushProperty, OverlayDesigner.Ink);
+        square.SetValue(Border.BorderThicknessProperty, new Thickness(1));
+        square.SetValue(Border.CornerRadiusProperty, new CornerRadius(3));
+        var grid = new FrameworkElementFactory(typeof(Grid));
+        grid.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
+        grid.AppendChild(square);
+        var thumb = new System.Windows.Controls.Primitives.Thumb
+        {
+            Template = new ControlTemplate(typeof(System.Windows.Controls.Primitives.Thumb)) { VisualTree = grid },
+            Width = corner ? 22 : horizontalEdge ? 44 : 18,
+            Height = corner ? 22 : horizontalEdge ? 18 : 44,
+            HorizontalAlignment = h,
+            VerticalAlignment = v,
+            Margin = new Thickness(h == HorizontalAlignment.Left ? -11 : 0, v == VerticalAlignment.Top ? -11 : 0, h == HorizontalAlignment.Right ? -11 : 0, v == VerticalAlignment.Bottom ? -11 : 0),
+            Cursor = corner ? (h == v.ToH() ? Cursors.SizeNWSE : Cursors.SizeNESW) : horizontalEdge ? Cursors.SizeNS : Cursors.SizeWE,
+        };
+        thumb.DragStarted += (_, _) => Begin();
+        thumb.DragDelta += (_, _) => Move(h, v, corner);
+        thumb.DragCompleted += (_, _) => End();
+        return thumb;
+    }
+
+    private Point MouseOnScreen()
+    {
+        Point device = PointToScreen(Mouse.GetPosition(this));
+        var source = PresentationSource.FromVisual(this);
+        return source?.CompositionTarget is { } target ? target.TransformFromDevice.Transform(device) : device;
+    }
+
+    private void Begin()
+    {
+        _owner.Busy = true;
+        OverlayDocking.BeginGroupGesture();
+        _start = MovableOverlay.All.Where(o => _titles.Contains(o.Title) && o.IsVisible)
+            .Select(o => { var (scale, w, h) = o.GroupStart(); return new Member(o, scale, w, h, o.Left, o.Top); }).ToList();
+        _startBox = Box();
+        _startMouse = MouseOnScreen();
+    }
+
+    private void Move(HorizontalAlignment h, VerticalAlignment v, bool corner)
+    {
+        Point m = MouseOnScreen();
+        Rect b = _startBox;
+        var moved = new List<Rect>();
+        if (corner)
+        {
+            bool left = h == HorizontalAlignment.Left, top = v == VerticalAlignment.Top;
+            double ax = left ? b.Right : b.Left, ay = top ? b.Bottom : b.Top;
+            double d0 = Math.Max(12, Math.Sqrt((_startMouse.X - ax) * (_startMouse.X - ax) + (_startMouse.Y - ay) * (_startMouse.Y - ay)));
+            double d1 = Math.Sqrt((m.X - ax) * (m.X - ax) + (m.Y - ay) * (m.Y - ay));
+            double f = d1 / d0;
+            f = Math.Max(f, _start.Max(s => 0.5 / s.Scale));
+            f = Math.Min(f, _start.Min(s => 3.0 / s.Scale));
+            foreach (Member s in _start)
+            {
+                double l = ax + (s.L - ax) * f, t = ay + (s.T - ay) * f;
+                s.Overlay.GroupApply(s.Scale * f, null, null, l, t);
+                moved.Add(new Rect(l, t, s.W * f, s.H * f));
+            }
+        }
+        else if (v == VerticalAlignment.Center)
+        {
+            bool left = h == HorizontalAlignment.Left;
+            double ax = left ? b.Right : b.Left;
+            double fw = Math.Clamp((left ? ax - m.X : m.X - ax) / Math.Max(1, b.Width), 0.2, 6);
+            foreach (Member s in _start)
+            {
+                double w = Math.Max(40, s.W * fw), l = ax + (s.L - ax) * fw;
+                s.Overlay.GroupApply(s.Scale, w, null, l, s.T);
+                moved.Add(new Rect(l, s.T, w, s.H));
+            }
+        }
+        else
+        {
+            bool top = v == VerticalAlignment.Top;
+            double ay = top ? b.Bottom : b.Top;
+            double fh = Math.Clamp((top ? ay - m.Y : m.Y - ay) / Math.Max(1, b.Height), 0.2, 6);
+            foreach (Member s in _start)
+            {
+                double hh = Math.Max(40, s.H * fh), t = ay + (s.T - ay) * fh;
+                s.Overlay.GroupApply(s.Scale, null, hh, s.L, t);
+                moved.Add(new Rect(s.L, t, s.W, hh));
+            }
+        }
+
+        if (moved.Count > 0)
+        {
+            double x1 = moved.Min(r => r.Left), y1 = moved.Min(r => r.Top), x2 = moved.Max(r => r.Right), y2 = moved.Max(r => r.Bottom);
+            Place(new Rect(x1, y1, x2 - x1, y2 - y1));
+        }
+    }
+
+    private void End()
+    {
+        foreach (Member s in _start)
+        {
+            s.Overlay.CommitPlace();
+        }
+
+        OverlayDocking.EndGroupGesture(_titles);
+        _owner.Busy = false;
+    }
+}
+
+internal static class AlignExtensions
+{
+    /// <summary>The horizontal side that lies on the same diagonal as a vertical side (top-left and bottom-right are one diagonal).</summary>
+    public static HorizontalAlignment ToH(this VerticalAlignment v) => v == VerticalAlignment.Top ? HorizontalAlignment.Left : HorizontalAlignment.Right;
 }

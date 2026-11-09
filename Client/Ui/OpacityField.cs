@@ -14,12 +14,26 @@ public sealed class OpacityField : Grid
     /// <summary>The user changed the value.</summary>
     public event Action? Changed;
 
+    private readonly TextBlock _label;
+    private readonly ColumnDefinition _labelColumn = new() { Width = new GridLength(90) };
+
+    /// <summary>The text before the slider ("Opacity" unless it says something else, like "Background" or "Content").</summary>
+    public string Label
+    {
+        get => _label.Text;
+        set
+        {
+            _label.Text = value;
+            _labelColumn.Width = new GridLength(150);
+        }
+    }
+
     public OpacityField()
     {
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
+        ColumnDefinitions.Add(_labelColumn);
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var label = new TextBlock { Text = LocalizationManager.Instance["Settings.PetMap.Opacity"], VerticalAlignment = VerticalAlignment.Center };
+        var label = _label = new TextBlock { Text = LocalizationManager.Instance["Settings.PetMap.Opacity"], VerticalAlignment = VerticalAlignment.Center };
         _slider = new Slider
         {
             Minimum = 0, Maximum = 100, TickFrequency = 5, IsSnapToTickEnabled = true, SmallChange = 5, LargeChange = 10,

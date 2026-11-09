@@ -83,6 +83,31 @@ public partial class SettingsWindow
         BuildSideNav();
     }
 
+    private readonly Dictionary<string, OpacityField> _contentFields = new();
+
+    /// <summary>Beside each overlay's opacity slider a second one: how clear the content (text, symbols) is. The first one is then the background's.</summary>
+    private void AddContentOpacityFields(MeterSettings settings)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        foreach (var (title, field) in new[]
+        {
+            (OverlayPlaces.Hotkeys, HotkeyOpacity), (OverlayPlaces.Network, NetworkOpacity), (OverlayPlaces.Loot, LootOpacity),
+            (OverlayPlaces.WorldBoss, BossOpacity), (OverlayPlaces.PetList, PetListOpacity), (OverlayPlaces.PetInfo, PetInfoOpacity),
+        })
+        {
+            if (field.Parent is not Panel parent)
+            {
+                continue;
+            }
+
+            field.Label = loc["Designer.Background"];
+            var content = new OpacityField { Label = loc["Designer.Content"], Margin = new Thickness(field.Margin.Left, 2, field.Margin.Right, field.Margin.Bottom) };
+            content.Fraction = settings.OverlayForegrounds.GetValueOrDefault(title, 1.0);
+            parent.Children.Insert(parent.Children.IndexOf(field) + 1, content);
+            _contentFields[title] = content;
+        }
+    }
+
     private static string NameOf(string tool)
     {
         foreach (var (id, nameKey, _) in ToolSwitch.All)

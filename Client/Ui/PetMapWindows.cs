@@ -124,6 +124,30 @@ public abstract class MovableOverlay : Window
 
     public bool IsLocked => _locked;
 
+    /// <summary>For the overlay designer's group frame: the scale and the size on the screen.</summary>
+    public (double Scale, double Width, double Height) GroupStart() => (_scale.ScaleX, ActualWidth, ActualHeight);
+
+    /// <summary>For the group frame: a new scale, a size pulled to (null: as it is) and a place, all at once.</summary>
+    public void GroupApply(double scale, double? screenWidth, double? screenHeight, double left, double top)
+    {
+        SetScale(scale);
+        if (screenWidth is { } w)
+        {
+            _frame.Width = Math.Max(10, w / _scale.ScaleX);
+        }
+
+        if (screenHeight is { } h)
+        {
+            _frame.Height = Math.Max(10, h / _scale.ScaleY);
+        }
+
+        Left = left;
+        Top = top;
+    }
+
+    /// <summary>Writes the place, size and scale to the settings (after a group gesture).</summary>
+    public void CommitPlace() => SavePlace();
+
     /// <summary>The height the frame may take in its own units (the scaling excluded): the height it was pulled to; without one, the screen's.</summary>
     protected double HeightLimit
     {

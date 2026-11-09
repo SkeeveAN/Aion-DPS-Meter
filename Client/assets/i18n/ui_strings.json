@@ -14569,5 +14569,29 @@
     "pt": "Designer de overlays ligado / desligado",
     "ja": "オーバーレイデザイナー オン / オフ",
     "ko": "오버레이 디자이너 켜기 / 끄기"
+  },
+  "Designer.Dock": {
+    "en": "Dock",
+    "de": "Andocken",
+    "fr": "Ancrer",
+    "es": "Acoplar",
+    "ru": "Прикрепить",
+    "zh": "吸附",
+    "zh-TW": "吸附",
+    "pt": "Acoplar",
+    "ja": "ドッキング",
+    "ko": "도킹"
+  },
+  "Designer.Group": {
+    "en": "Group · {0} overlays move together · corners = size, edges = width/height",
+    "de": "Gruppe · {0} Overlays bewegen sich zusammen · Ecken = Größe, Kanten = Breite/Höhe",
+    "fr": "Groupe · {0} overlays bougent ensemble · coins = taille, bords = largeur/hauteur",
+    "es": "Grupo · {0} overlays se mueven juntos · esquinas = tamaño, bordes = ancho/alto",
+    "ru": "Группа · {0} оверлеев двигаются вместе · углы = размер, края = ширина/высота",
+    "zh": "组 · {0} 个悬浮窗一起移动 · 角 = 大小，边 = 宽度/高度",
+    "zh-TW": "群組 · {0} 個浮層一起移動 · 角 = 大小，邊 = 寬度/高度",
+    "pt": "Grupo · {0} overlays movem-se juntos · cantos = tamanho, bordas = largura/altura",
+    "ja": "グループ · {0} 個のオーバーレイが一緒に動く · 角 = サイズ、辺 = 幅/高さ",
+    "ko": "그룹 · 오버레이 {0}개가 함께 이동 · 모서리 = 크기, 가장자리 = 너비/높이"
   }
 }

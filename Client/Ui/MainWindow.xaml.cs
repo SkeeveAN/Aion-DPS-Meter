@@ -1024,6 +1024,7 @@ public partial class MainWindow : Window
         _dummy?.RaiseToFront();
         _petFarm?.RaiseToFront();
         _petMapController?.RaiseToFront();
+        OverlayDesigner.RaiseChrome(); // the designer's own windows stay above the overlays
 
         FollowBossAutomatically();
 
@@ -5864,7 +5865,11 @@ public partial class MainWindow : Window
 
     /// <summary>A tool of the Tools menu: all tools share one window, the tools in the order of the menu on the left, the page of the chosen one on the right.</summary>
     /// <summary>The overlay designer on or off (hotkey and menu): every overlay can be moved at once, see OverlayDesigner.</summary>
-    private void ToggleOverlayDesigner() => OverlayDesigner.Toggle(() => ApplySettingsEverywhere(MeterSettings.Load()));
+    private void ToggleOverlayDesigner()
+    {
+        OverlayDesigner.Extra ??= () => new Window?[] { _timetable, _petFarm }.Where(w => w is { IsVisible: true }).Select(w => w!);
+        OverlayDesigner.Toggle(() => ApplySettingsEverywhere(MeterSettings.Load()));
+    }
 
     private void OnOverlayDesignerClicked(object sender, RoutedEventArgs e) => ToggleOverlayDesigner();
 
