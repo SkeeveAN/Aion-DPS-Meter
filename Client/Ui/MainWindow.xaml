@@ -677,6 +677,7 @@
                     </MenuItem>
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
+                        <MenuItem Header="{local:Loc Designer.Title}" Click="OnOverlayDesignerClicked"/>
                         <MenuItem x:Name="AlwaysOnTopMenuItem" Header="{local:Loc Main.MenuSettings.AlwaysOnTop}" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.Feedback}" Click="OnFeedbackClicked"/>
                     </MenuItem>

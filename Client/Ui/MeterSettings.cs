@@ -482,6 +482,12 @@ public sealed class MeterSettings
     public string HotkeyHotkeyOverlay { get; set; } = "Ctrl+Alt+O";
     /// <summary>All overlays (hotkey list, timetable, interactive map, pet info) off, and the same ones back on.</summary>
     public string HotkeyAllOverlays { get; set; } = "Ctrl+Alt+A";
+
+    /// <summary>Switches the overlay designer on and off (all overlays can be moved at once, see OverlayDesigner).</summary>
+    public string HotkeyDesigner { get; set; } = "Ctrl+Alt+F";
+
+    /// <summary>How clear the content (text, symbols) of an overlay is, 0 to 1, by the overlay's title; the background has its own value in <see cref="OverlayOpacities"/>. Missing: 1.</summary>
+    public Dictionary<string, double> OverlayForegrounds { get; set; } = new();
     /// <summary>World boss overlay on / off.</summary>
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
     /// <summary>Network overlay on / off.</summary>
@@ -701,7 +707,16 @@ public sealed class MeterSettings
         }
     }
 
+    /// <summary>The settings as the file has them; while the overlay designer is on, the locks of the overlays read as open.</summary>
     public static MeterSettings Load()
+    {
+        MeterSettings s = LoadRaw();
+        OverlayDesigner.Override(s);
+        return s;
+    }
+
+    /// <summary>The settings exactly as the file has them.</summary>
+    public static MeterSettings LoadRaw()
     {
         string path = File.Exists(SettingsPath) ? SettingsPath
             : File.Exists(LegacySettingsPath) ? LegacySettingsPath
@@ -767,6 +782,19 @@ public sealed class MeterSettings
 
     /// <summary>Written to a file of its own first and put in place at once, so a crash or a power cut never leaves half a file.</summary>
     public void Save()
+    {
+        OverlayDesigner.RestoreLocks(this); // the designer's "everything unlocked" is a reading, never a value for the file
+        try
+        {
+            SaveCore();
+        }
+        finally
+        {
+            OverlayDesigner.Override(this);
+        }
+    }
+
+    private void SaveCore()
     {
         AudioOutput.DeviceId = AudioDeviceId;
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);

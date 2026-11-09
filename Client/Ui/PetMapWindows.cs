@@ -17,6 +17,11 @@ namespace AionDPS.Ui;
 /// </summary>
 public abstract class MovableOverlay : Window
 {
+    private static readonly List<MovableOverlay> Instances = new();
+
+    /// <summary>Every overlay window that exists (the overlay designer raises them above its dimming).</summary>
+    public static IReadOnlyList<MovableOverlay> All => Instances;
+
     private const double MinScale = 0.5, MaxScale = 3.0;
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _frame;
@@ -85,6 +90,17 @@ public abstract class MovableOverlay : Window
         OverlayPlaces.WasReset += onReset;
         Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
         OverlayDocking.Attach(this, SavePlace);
+        Instances.Add(this);
+        Closed += (_, _) => Instances.Remove(this);
+        // the overlay designer: a right-click on an overlay opens how clear its content and background are
+        MouseRightButtonUp += (_, e) =>
+        {
+            if (!_locked && OverlayDesigner.Active)
+            {
+                OverlayDesigner.ShowOpacityPanel(this);
+                e.Handled = true;
+            }
+        };
     }
 
     private readonly double _defaultLeft, _defaultTop;
@@ -234,6 +250,12 @@ public abstract class MovableOverlay : Window
     /// <summary>The overlay's own opacity (0 to 1, set per overlay in its module; the key is its title) replaces the alpha of the body's dark background; <see cref="OpacityFloor"/> raises it.</summary>
     public void ApplyStoredOpacity()
     {
+        // the content has its own clearness (the overlay designer); the background alpha is set below
+        if (_shiftHost.Child is Border { Child: { } inner })
+        {
+            inner.Opacity = MeterSettings.Load().OverlayForegrounds.TryGetValue(Title, out double fg) ? Math.Clamp(fg, 0, 1) : 1.0;
+        }
+
         if (_shiftHost.Child is not Border { Background: SolidColorBrush bg } body)
         {
             return;

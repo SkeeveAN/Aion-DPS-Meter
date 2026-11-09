@@ -758,6 +758,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleAllOverlays:
                 ToggleAllOverlays();
                 break;
+            case HotkeyAction.ToggleOverlayDesigner:
+                ToggleOverlayDesigner();
+                break;
             case HotkeyAction.ToggleNetworkOverlay:
                 ToggleNetworkOverlay();
                 break;
@@ -812,6 +815,7 @@ public partial class MainWindow : Window
             [HotkeyAction.TogglePetMap] = HotkeyBinding.Parse(settings.HotkeyPetMap),
             [HotkeyAction.ToggleHotkeyOverlay] = HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay),
             [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
+            [HotkeyAction.ToggleOverlayDesigner] = HotkeyBinding.Parse(settings.HotkeyDesigner),
             [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
             [HotkeyAction.ToggleNetworkOverlay] = HotkeyBinding.Parse(settings.HotkeyNetwork),
             [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
@@ -5859,6 +5863,11 @@ public partial class MainWindow : Window
     private ToolsWindow? _toolsWindow;
 
     /// <summary>A tool of the Tools menu: all tools share one window, the tools in the order of the menu on the left, the page of the chosen one on the right.</summary>
+    /// <summary>The overlay designer on or off (hotkey and menu): every overlay can be moved at once, see OverlayDesigner.</summary>
+    private void ToggleOverlayDesigner() => OverlayDesigner.Toggle(() => ApplySettingsEverywhere(MeterSettings.Load()));
+
+    private void OnOverlayDesignerClicked(object sender, RoutedEventArgs e) => ToggleOverlayDesigner();
+
     /// <summary>Hides the switched-off tools in the Tools menu (and the separators left with nothing beside them).</summary>
     private void ApplyToolMenu(MeterSettings settings)
     {

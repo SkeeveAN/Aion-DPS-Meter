@@ -26,6 +26,7 @@ public enum HotkeyAction
     ToggleAssistOverlay,
     ToggleLootOverlay,
     ToggleCraftOverlay,
+    ToggleOverlayDesigner,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

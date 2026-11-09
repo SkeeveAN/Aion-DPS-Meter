@@ -92,6 +92,7 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyPetMapBox, HotkeyBinding.Parse(settings.HotkeyPetMap).ToString());
         SetHotkeyBox(HotkeyHotkeyOverlayBox, HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay).ToString());
         SetHotkeyBox(HotkeyAllOverlaysBox, HotkeyBinding.Parse(settings.HotkeyAllOverlays).ToString());
+        SetHotkeyBox(HotkeyDesignerBox, HotkeyBinding.Parse(settings.HotkeyDesigner).ToString());
         SetHotkeyBox(HotkeyWorldBossBox, HotkeyBinding.Parse(settings.HotkeyWorldBoss).ToString());
         SetHotkeyBox(HotkeyNetworkBox, HotkeyBinding.Parse(settings.HotkeyNetwork).ToString());
         SetHotkeyBox(HotkeyCombatBox, HotkeyBinding.Parse(settings.HotkeyCombatOverlay).ToString());
@@ -767,6 +768,7 @@ public partial class SettingsWindow : Window
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
         _settings.HotkeyHotkeyOverlay = (string?)HotkeyHotkeyOverlayBox.Tag ?? "";
         _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
+        _settings.HotkeyDesigner = (string?)HotkeyDesignerBox.Tag ?? "";
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
         _settings.HotkeyNetwork = (string?)HotkeyNetworkBox.Tag ?? "";
         _settings.HotkeyLoot = (string?)HotkeyLootBox.Tag ?? "";
