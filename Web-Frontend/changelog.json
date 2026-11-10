@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-07",
+  "date": "2026-11-10",
   "items": [
    {
     "text": "Comparison page: Questlog and the Shugo.GG app are in the comparison now (a second table of closed-source meters), Questlog's upload default is stated, and the list of strengths no longer claims voice announcements, a design editor or an OBS source",
@@ -48,6 +48,34 @@
      "Database"
     ],
     "date": "2026-11-07"
+   },
+   {
+    "text": "Release 2.0.0-alpha.1: new settings window with a left navigation (search, Program, Tools tiles, one page per tool), tools can be switched off",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-08"
+   },
+   {
+    "text": "Release 2.0.0-alpha.2: overlay designer - a hotkey (Ctrl+Alt+F, also in the Settings menu) puts every overlay into one editing mode; the game is dimmed with a grid, a bar says how to leave, a round \"+\" adds overlays that are off, a right-click sets content and background opacity",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-09"
+   },
+   {
+    "text": "Release 2.0.0-alpha.3: overlay designer - dragging any overlay of a docked group moves the whole group (Shift: only that one); a frame with handles around every group scales it (corners) or changes its width and height (edges); name tags above all overlays and a glowing \"Dock\" line where two overlays are pulled together; the overlays of the settings get a second opacity slider for the content beside the one for the background",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-09"
+   },
+   {
+    "text": "NC check: a player NC knows by id is no longer dropped because of one misread class - the class now comes from the majority of the fights and a verified player is only discarded when at least two fights agree on another class",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-10"
    }
   ]
  },
