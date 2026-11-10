@@ -3461,6 +3461,13 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory idEnd)
         {
             Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
+            if (Environment.GetEnvironmentVariable("AION2_PLAYERS") is { Length: > 0 } playersPath)
+            {
+                // every name the stream gave, with the class and the server the game announced next to it (UTF-8 file; to judge how well a crowd is recognised)
+                var snap = idEnd.Snapshot();
+                var damageOf = events.Where(e => !e.IsHeal).GroupBy(e => e.SourceObjectId).ToDictionary(g => g.Key, g => g.Sum(e => (long)e.Amount));
+                File.WriteAllLines(playersPath, snap.Names.Select(kv => string.Join('\t', kv.Key, kv.Value, snap.Classes.GetValueOrDefault(kv.Key) ?? "-", idEnd.ServerIdOf(kv.Key)?.ToString() ?? "-", snap.Guilds.GetValueOrDefault(kv.Key) ?? "-", damageOf.GetValueOrDefault(kv.Key))), System.Text.Encoding.UTF8);
+            }
         }
 
         if (Environment.GetEnvironmentVariable("AION2_STATS") == "1" && source.Entities is Aion2.Aion2EntityDirectory statsDirectory && statsDirectory.LocalStats is { } stats)
