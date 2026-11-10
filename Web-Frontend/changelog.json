@@ -76,6 +76,13 @@
      "Backend"
     ],
     "date": "2026-11-10"
+   },
+   {
+    "text": "Release 2.0.0-alpha.5: the new interface (alpha) - a big window with five tabs on top (Dashboard, Combat & Analysis, Character, Tools, Settings), a menu on the left that changes with the tab, the game and character state in the header (green or red dot) and the Character, Planning and Tools pages inside it; opened from the App menu, the meter window and the settings stay as they are; the pages are redrawn for the new interface step by step",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-10"
    }
   ]
  },

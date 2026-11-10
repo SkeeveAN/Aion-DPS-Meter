@@ -70,6 +70,25 @@ public static class ToolRender
                 break;
             }
 
+            case var hub when hub.StartsWith("hub", StringComparison.Ordinal):
+            {
+                // "hub", "hub:character:checklist": the new interface with a tab and a page of it
+                string[] parts = hub.Split(':');
+                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : null, _ => { }, none, none,
+                    () => new HubStatus(true, "Aahz", "Gladiator", "Kaisinel (EU)"));
+                if (parts.Length >= 3)
+                {
+                    hubWindow.SelectForRender(parts[1], parts[2]);
+                }
+
+                shown = (FrameworkElement)hubWindow.Content;
+                hubWindow.Content = null;
+                width = (int)hubWindow.Width;
+                height = (int)hubWindow.Height;
+                shown = new Border { Width = width, Height = height, Background = back, Child = shown };
+                break;
+            }
+
             default:
             {
                 Func<string, ToolPage?> build = id => id switch

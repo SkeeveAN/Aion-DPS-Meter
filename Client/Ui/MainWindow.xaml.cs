@@ -480,6 +480,7 @@ public partial class MainWindow : Window
         if (restricted)
         {
             _toolsWindow?.Close();
+            _hubWindow?.Close();
             _worldBoss?.Dispose();
             _worldBoss = null;
             _assist?.Dispose();
@@ -5914,6 +5915,50 @@ public partial class MainWindow : Window
         }
     }
 
+    private HubWindow? _hubWindow;
+
+    private void OnOpenHubClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        if (_hubWindow is { IsLoaded: true })
+        {
+            _hubWindow.Activate();
+            return;
+        }
+
+        _hubWindow = new HubWindow(
+            id => BuildToolPage(id),
+            tool =>
+            {
+                if (tool == "analyzer")
+                {
+                    OpenSessionManager();
+                }
+            },
+            () =>
+            {
+                Show();
+                WindowState = WindowState.Normal;
+                Activate();
+            },
+            () => OpenSettings(null),
+            () =>
+            {
+                var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
+                var own = directory?.LocalCharacter;
+                string? className = own is null ? null : Aion2.Protocol.Aion2SkillNames.ClassFromCode(own.ClassCode);
+                string? server = own is { ServerId: > 0 } ? Aion2.Protocol.Aion2Servers.NameOf(own.ServerId) : null;
+                if (server is not null && server.StartsWith("Europe - ", StringComparison.Ordinal))
+                {
+                    server = server["Europe - ".Length..] + " (EU)";
+                }
+
+                return new HubStatus(own is not null, own?.Name, className, server);
+            });
+        _hubWindow.Closed += (_, _) => _hubWindow = null;
+        _hubWindow.Show();
+    }
+
     private void OpenTool(string id)
     {
         if (PrivacyConsent.Restricted && !PrivacyConsent.RestrictedTools.Contains(id))
@@ -6003,6 +6048,19 @@ public partial class MainWindow : Window
         Action settingsPage = () => OpenSettingsPage(module);
         // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
+        if (module.StartsWith("hub.char.", StringComparison.Ordinal))
+        {
+            // the pages of the character tabs in the new interface: the character window's own tab, shown without its window
+            if (_source?.Entities is not Aion2.Aion2EntityDirectory characterDirectory)
+            {
+                return null;
+            }
+
+            var characterWindow = new CharacterWindow(characterDirectory);
+            characterWindow.ShowTab(module["hub.char.".Length..]);
+            return Hosted(characterWindow);
+        }
+
         switch (module)
         {
             case "checklist":
