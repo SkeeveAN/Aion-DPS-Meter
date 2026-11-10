@@ -489,6 +489,19 @@ test("one misread class in a crowd fight does not unseat a player NC knows by id
   sqlite.pragma("foreign_keys = on");
 });
 
+test("a Chanter whose own rows heal little is not outvoted by one row with a bigger heal of another class", async () => {
+  sqlite.pragma("foreign_keys = off");
+  const id = player("Heilerin", kaisinel, { faction: "Elyos" });
+  const row = (className: string, healing: number) => sqlite.prepare("insert into encounter_participants (encounter_id, player_id, class_name, faction, total_damage, total_healing, dps, idps, crit_rate_percent) values (1, ?, ?, 'Elyos', 0, ?, 0, 0, 0)").run(id, className, healing);
+  for (let i = 0; i < 5; i++) {
+    row("Chanter", 1100 + i);
+  }
+  row("Templar", 14996); // the only row that passes the bystander test, and the wrong class
+  const status = await processMatch(id, ncAnswer([raw({ name: "Heilerin", serverId: 1304, pcId: 33 })]), 1_000_000); // pcId 33: a Chanter
+  assert.equal(status, "verified", "five Chanter rows outvote the one Templar row");
+  sqlite.pragma("foreign_keys = on");
+});
+
 // --- gear score: the last tie-breaker when name, class, level and legion leave several characters ---
 function gearAnswer(name: string, levels: Record<string, number | null>) {
   return (async (input: unknown) => {

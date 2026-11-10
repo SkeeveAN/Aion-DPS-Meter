@@ -298,7 +298,7 @@ export function forgetLevelHint(playerId: number): void {
   levelHints.delete(playerId);
 }
 
-/** A row that did damage or healed for real. A bystander of a crowd fight only got a buff or a small heal of somebody else's class, and the class read off that skill is not his. */
+/** A row that did damage or healed for real. A bystander of a crowd fight only got a buff or a small heal of somebody else's class, and the class read off that skill is not his. It breaks a tie only: a Chanter's own rows often heal under 10,000 and must still outvote one outlier. */
 const BYSTANDER_FREE = sql`(${encounterParticipants.totalDamage} > 0 or ${encounterParticipants.totalHealing} >= 10000)`;
 
 function subjectOf(player: PlayerRow): Subject {
@@ -307,9 +307,9 @@ function subjectOf(player: PlayerRow): Subject {
   const votes = db
     .select({ className: encounterParticipants.className, n: sql<number>`count(*)`, last: sql<number>`max(${encounterParticipants.id})` })
     .from(encounterParticipants)
-    .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, ""), ne(encounterParticipants.className, "?"), BYSTANDER_FREE))
+    .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, ""), ne(encounterParticipants.className, "?")))
     .groupBy(encounterParticipants.className)
-    .orderBy(sql`count(*) desc`, sql`max(${encounterParticipants.id}) desc`)
+    .orderBy(sql`count(*) desc`, sql`sum(case when ${BYSTANDER_FREE} then 1 else 0 end) desc`, sql`max(${encounterParticipants.id}) desc`)
     .all();
   const fight = votes[0];
   const total = votes.reduce((sum, v) => sum + v.n, 0);
