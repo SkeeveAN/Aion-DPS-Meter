@@ -90,6 +90,13 @@
      "Client"
     ],
     "date": "2026-11-10"
+   },
+   {
+    "text": "Release 2.0.0-alpha.6: damage count - the system hit of skill 9971 (1,999,999 on oneself) no longer counts as damage (the same fix as in 1.19.10); the rest is as in alpha.5",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-10"
    }
   ]
  },
