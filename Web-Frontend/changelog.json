@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-07",
+  "date": "2026-11-10",
   "items": [
    {
     "text": "Comparison page: Questlog and the Shugo.GG app are in the comparison now (a second table of closed-source meters), Questlog's upload default is stated, and the list of strengths no longer claims voice announcements, a design editor or an OBS source",
@@ -48,6 +48,13 @@
      "Database"
     ],
     "date": "2026-11-07"
+   },
+   {
+    "text": "NC check: a player NC knows by id is no longer dropped because of one misread class - the class now comes from the majority of the fights and a verified player is only discarded when at least two fights agree on another class",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-10"
    }
   ]
  },
