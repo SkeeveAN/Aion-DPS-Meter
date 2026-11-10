@@ -467,6 +467,28 @@ test("a confirmed id whose class does not fit what the game shows is not him: wi
   assert.equal((sqlite.prepare("select count(*) c from player_nc_character where player_id = ?").get(idTwo) as { c: number }).c, 0, "the old character's data is gone");
 });
 
+test("one misread class in a crowd fight does not unseat a player NC knows by id", async () => {
+  const answer = (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("/character/info")) {
+      return new Response(JSON.stringify({ profile: { characterName: "Mehrheit", regionName: "L", characterLevel: 45, pcId: 6 } }), { status: 200 }); // class 1, a Gladiator
+    }
+    return new Response(JSON.stringify({ list: [], pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  const fight = (playerId: number, className: string, damage: number) => sqlite.prepare("insert into encounter_participants (encounter_id, player_id, class_name, faction, total_damage, dps, idps, crit_rate_percent) values (1, ?, ?, 'Elyos', ?, 0, 0, 0)").run(playerId, className, damage);
+  sqlite.pragma("foreign_keys = off"); // the rows only need a class, not a real fight
+  const crowd = confirmed("Mehrheit", "idMehrheit");
+  for (let i = 0; i < 4; i++) {
+    fight(crowd, "Gladiator", 1000 + i);
+  }
+  fight(crowd, "Ranger", 500); // the newest row is the outlier
+  assert.equal(await processMatch(crowd, answer, 2_000_000), "verified", "four Gladiator fights outvote one Ranger row");
+  const single = confirmed("Einzeln", "idEinzeln");
+  fight(single, "Ranger", 500);
+  assert.equal(await processMatch(single, answer, 2_000_000), "verified", "a single fight is no proof against NC's page");
+  sqlite.pragma("foreign_keys = on");
+});
+
 // --- gear score: the last tie-breaker when name, class, level and legion leave several characters ---
 function gearAnswer(name: string, levels: Record<string, number | null>) {
   return (async (input: unknown) => {
