@@ -1317,6 +1317,7 @@ public sealed class Aion2FrameDecoder
     /// <summary>Some frames carry a 250,000,000-style placeholder instead of a real hit (seen on an
     /// NPC skill in the reference capture); nothing a player deals comes near it.</summary>
     private const long MaxPlausibleAmount = 100_000_000;
+    private const long SystemSelfHitAmount = 1_999_999;
 
     /// <summary>
     /// The Aion 2 damage frame, as verified against a real capture and the in-game combat log
@@ -1945,6 +1946,13 @@ public sealed class Aion2FrameDecoder
         // its full health on itself (~56,000 per summon - 4.07 M over one Krao Cave run once spirits
         // are credited to their summoner), and topping up one's spirits is not party healing either.
         if (isHeal && _entities.SummonOwnerOf((int)target) is not null)
+        {
+            return Array.Empty<DamageEvent>();
+        }
+
+        // Skill 9971 (no name in the client) arrives as a 0438 frame from a player ON HIMSELF with exactly 1,999,999, once for several players in the same second
+        // (08:41:50 and 08:41:59 on 2026-11-10, 08:47 on 2026-11-08). It is a system effect, not a blow: it must not count as damage.
+        if (!isHeal && source == (int)target && amount == SystemSelfHitAmount)
         {
             return Array.Empty<DamageEvent>();
         }

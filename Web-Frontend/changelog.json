@@ -83,6 +83,13 @@
      "Client"
     ],
     "date": "2026-11-10"
+   },
+   {
+    "text": "Damage count: skill 9971, which a player hits himself with for exactly 1,999,999 (seen several times on 8 and 10 Nov, once for many players in the same second), is a system effect and no longer counts as damage - it had added two million to a player's total",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-10"
    }
   ]
  },
