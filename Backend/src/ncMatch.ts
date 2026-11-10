@@ -105,6 +105,8 @@ export type Subject = {
   faction: string;
   /** English class name, "" when unknown. */
   className: string;
+  /** How firmly the fights back the class: false for a single fight or a class that fewer than 60 % of them show (one misread row in a crowd must not outvote a character NC knows). */
+  classFirm?: boolean;
   /** True when the class was read off his skills in a fight (reliable), false when it only comes from his profile. */
   classFromFight: boolean;
   /** The class of a profile the client read (not NC's own): when it agrees with the one hit, a different class read off a fight does not veto it - the fight's guess (Cleric for a Chanter) is the weaker. */
@@ -300,12 +302,17 @@ export function forgetLevelHint(playerId: number): void {
 const BYSTANDER_FREE = sql`(${encounterParticipants.totalDamage} > 0 or ${encounterParticipants.totalHealing} >= 10000)`;
 
 function subjectOf(player: PlayerRow): Subject {
-  const fight = db
-    .select({ className: encounterParticipants.className })
+  // The class most of his fights show, the newest one on a tie: a bystander of a crowd is now and then read as another class (0.4 % of all rows, 5-11 % in some crowd fights),
+  // and the newest row alone used to unseat players NC knows ("verified" turned "none" for 117 players after one such row on 2026-11-08).
+  const votes = db
+    .select({ className: encounterParticipants.className, n: sql<number>`count(*)`, last: sql<number>`max(${encounterParticipants.id})` })
     .from(encounterParticipants)
     .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, ""), ne(encounterParticipants.className, "?"), BYSTANDER_FREE))
-    .orderBy(sql`${encounterParticipants.id} desc`)
-    .get();
+    .groupBy(encounterParticipants.className)
+    .orderBy(sql`count(*) desc`, sql`max(${encounterParticipants.id}) desc`)
+    .all();
+  const fight = votes[0];
+  const total = votes.reduce((sum, v) => sum + v.n, 0);
   const profile = db.select({ classId: playerProfiles.classId, level: playerProfiles.level, gearScore: playerProfiles.gearScore, source: playerProfiles.source }).from(playerProfiles).where(eq(playerProfiles.playerId, player.id)).get();
   const profileClass = profile?.classId ? AION2_CLASS_BY_ID[profile.classId] : undefined;
   return {
@@ -313,6 +320,7 @@ function subjectOf(player: PlayerRow): Subject {
     faction: player.faction,
     className: fight?.className ?? profileClass ?? classHints.get(player.id) ?? "",
     classFromFight: !!fight,
+    classFirm: !!fight && fight.n >= 2 && fight.n / total >= 0.6,
     profileClassName: profile && profile.source !== "nc" ? profileClass : undefined,
     level: Math.max(profile?.level ?? 0, levelHints.get(player.id) ?? 0) || null,
     legionServers: legionServersOf(player),
@@ -486,8 +494,11 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   if (before?.status === "verified" && before.ncCharacterId && before.ncServerId) {
     try {
       const current = await fetchCharacterProfile(fetchFn, { characterId: before.ncCharacterId, serverId: before.ncServerId }, before.ncRegion ?? shard);
-      const shown = subjectOf(player).className;
-      if (current && shown && current.classId !== null && AION2_CLASS_BY_ID[current.classId] !== shown) {
+      const subjectNow = subjectOf(player);
+      const shown = subjectNow.className;
+      // A class from his fights counts only when they agree on it (see Subject.classFirm); his own profile from the game always counts.
+      const firm = !subjectNow.classFromFight || subjectNow.classFirm === true;
+      if (current && shown && firm && current.classId !== null && AION2_CLASS_BY_ID[current.classId] !== shown) {
         // A character never changes class: the game shows another class than NC's page has for this id, so this id is not him.
         suspect = true;
         disproved = before.ncCharacterId;
