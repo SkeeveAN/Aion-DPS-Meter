@@ -1144,11 +1144,12 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
-          "players": "1-5"
+          "players": "1-5",
+          "itemLevel": 2800
         }
       },
       "variant": "advanced",
-      "hidden": true,
+      "hidden": false,
       "legacyNames": [
         "Fire Temple (Conquest [Hard])"
       ]
@@ -1198,11 +1199,12 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
-          "players": "1-5"
+          "players": "1-5",
+          "itemLevel": 2800
         }
       },
       "variant": "advanced",
-      "hidden": true,
+      "hidden": false,
       "legacyNames": [
         "Ferocious Horn Den (Conquest [Hard])"
       ]
