@@ -106,7 +106,7 @@ test("in Europe the rifts are at 02:00, 05:00 ... 23:00 local time, so an hour l
   // winter time (UTC+1): 14:00 local = 13:00 UTC, 17:00 = 16:00 UTC, 20:00 = 19:00 UTC
   assert.equal(open(at(26, 13, 30)), true, "26.10. 14:30 local");
   assert.equal(open(at(26, 12, 30)), false, "26.10. 13:30 local");
-  assert.equal(open(at(26, 16, 3)), true, "26.10. 17:03 local (the Kasaka kill with 23 Asmodians of Zemurru, 25.10.)");
+  assert.equal(open(at(26, 16, 3)), true, "26.10. 17:03 local (the Kasika kill with 23 Asmodians of Zemurru, 25.10.)");
   assert.equal(open(at(26, 16, 10)), true, "17:10 local");
   assert.equal(open(at(26, 15, 30)), false, "26.10. 16:30 local");
   assert.equal(open(at(26, 17, 30)), false, "26.10. 18:30 local: the hour is over");

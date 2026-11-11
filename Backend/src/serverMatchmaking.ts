@@ -3,6 +3,7 @@ import path from "node:path";
 import { announcementList } from "./announcements.js";
 import { getNc } from "./portraitService.js";
 import { noticeText } from "./twitchDrops.js";
+import { serverOfName } from "./content/aion2Servers.js";
 
 // Server matchmaking (which Elyos server shares its world with which Asmodian server). NC publishes it only as a table inside a notice ("[Notice] Server
 // Matchmaking Information (Asia)") and edits that notice when the pairings change. The announcement store already lists the notices; this module finds those
@@ -189,6 +190,12 @@ export async function refreshMatchmaking(fetchFn: FetchFn = fetch, now = Date.no
   return parsed;
 }
 
+// Older notices spell some servers differently (Tahavata, Rudra); mapped to the names we use, or those pairs get no server id and the world boss rule cannot find their partner.
+const NOTICE_SPELLING: Record<string, string> = { Tahavata: "Tahabata", Tahavatha: "Tahabata", Kasaka: "Kasika", Rudra: "Ludra" };
+const clientName = (name: string) => NOTICE_SPELLING[name] ?? name;
+/** A server's faction is fixed by its id; a faction cell that disagrees (the notice of 2026-11-11 lists Marchutan as Elyos) is a typo of NC's. */
+const factionFor = (region: string | null, name: string, given: AbyssPair["faction1"]): AbyssPair["faction1"] => serverOfName(`${region} - ${name}`)?.faction ?? given;
+
 /** The current pairs per region: from the newest notice (by posting time) that has pairs for that region. */
 export function matchmakingView(): {
   checkedAt: string | null;
@@ -215,7 +222,20 @@ export function matchmakingView(): {
   }
   return {
     checkedAt: checkedAt === null ? null : new Date(checkedAt).toISOString(),
-    regions: [...latest].map(([region, { n, pairs }]) => ({ region, noticeId: n.id, title: n.title, postedAt: n.postedAt, pairs })),
-    abyss: [...abyssLatest].map(([region, { n, pairs }]) => ({ region, noticeId: n.id, pairs })),
+    regions: [...latest].map(([region, { n, pairs }]) => ({
+      region,
+      noticeId: n.id,
+      title: n.title,
+      postedAt: n.postedAt,
+      pairs: pairs.map((p) => ({ ...p, elyos: clientName(p.elyos), asmodian: clientName(p.asmodian) })),
+    })),
+    abyss: [...abyssLatest].map(([region, { n, pairs }]) => ({
+      region,
+      noticeId: n.id,
+      pairs: pairs.map((p) => {
+        const [server1, server2] = [clientName(p.server1), clientName(p.server2)];
+        return { ...p, server1, server2, faction1: factionFor(region, server1, p.faction1), faction2: factionFor(region, server2, p.faction2) };
+      }),
+    })),
   };
 }

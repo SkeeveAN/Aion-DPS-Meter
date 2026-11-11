@@ -570,8 +570,7 @@ export const SERVER_NAMES = {
   "Nania": {
     "ru": "Нания"
   },
-  "Tahavatha": {
-    "fr": "Tahabata",
+  "Tahabata": {
     "ru": "Тахабата"
   },
   "Luteros": {
@@ -583,8 +582,7 @@ export const SERVER_NAMES = {
   "Daminu": {
     "ru": "Дамину"
   },
-  "Kasaka": {
-    "fr": "Kasika",
+  "Kasika": {
     "ru": "Касака"
   },
   "Bakarma": {

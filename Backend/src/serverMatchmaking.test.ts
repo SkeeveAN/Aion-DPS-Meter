@@ -61,3 +61,26 @@ test("abyss + rift notice (28 Oct): South America is LATAM, the abyss tables wit
   assert.deepEqual(abyss.find((p) => p.region === "Europe" && p.server1 === "Zikel"), { region: "Europe", server1: "Zikel", server2: "Kaisinel", faction1: "Asmodian", faction2: "Elyos" });
   assert.deepEqual(parseAbyssMatchmaking(fixture("lineup")), []);
 });
+
+test("notice of 2026-11-11: 23 pairs in Europe, Tahabata and Kasika are the names, a wrong Abyss faction cell is corrected", () => {
+  resetMatchmaking();
+  const h = fixture("2026-11-11");
+  const pairs = parseMatchmaking(h);
+  assert.equal(pairs.filter((p) => p.region === "Europe").length, 23);
+  recordNotice({ id: "b".repeat(24), title: "[Notice] Server Matchmaking | November 11", postedAt: "2026-11-11T08:00:00.000Z" }, pairs, 1, parseAbyssMatchmaking(h));
+  const view = matchmakingView();
+  const europe = view.regions.find((r) => r.region === "Europe")!.pairs;
+  assert.ok(europe.some((p) => p.elyos === "Tahabata" && p.asmodian === "Beritra"));
+  assert.ok(europe.some((p) => p.elyos === "Kasika" && p.asmodian === "Munin"));
+  assert.ok(!europe.some((p) => p.elyos === "Tahavatha" || p.elyos === "Kasaka"));
+  const abyss = view.abyss.find((r) => r.region === "Europe")!.pairs;
+  assert.deepEqual(abyss.find((p) => p.server1 === "Vaizel"), { region: "Europe", server1: "Vaizel", server2: "Marchutan", faction1: "Elyos", faction2: "Asmodian" });
+});
+
+test("old clients' names Tahavatha/Kasaka land on the servers Tahabata/Kasika", async () => {
+  const { canonicalServer, serverOfName, nameOf } = await import("./content/aion2Servers.js");
+  assert.deepEqual(canonicalServer("aion2:europe-tahavatha", "Europe - Tahavatha"), { fingerprint: "aion2:europe-tahabata", displayName: "Europe - Tahabata" });
+  assert.deepEqual(canonicalServer("aion2:europe-kasaka", "Europe - Kasaka"), { fingerprint: "aion2:europe-kasika", displayName: "Europe - Kasika" });
+  assert.equal(serverOfName("Europe - Kasaka")?.id, 1315);
+  assert.equal(nameOf(1311), "Europe - Tahabata");
+});
