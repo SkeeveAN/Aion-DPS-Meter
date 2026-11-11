@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.19.11",
   "date": "2026-11-11",
   "items": [
    {
@@ -13,7 +13,7 @@
     "date": "2026-11-11"
    },
    {
-    "text": "Fire Temple and Ferocious Horn Den (Conquest, Hard) are listed now: entry item level 2800, and the bosses of both rage after 4 minutes instead of 5 (data delivery, no new client needed)",
+    "text": "Fire Temple and Ferocious Horn Den (Conquest, Hard): the bosses of both rage after 4 minutes instead of 5, and both are listed with entry item level 2800",
     "areas": [
      "Client",
      "Website",
