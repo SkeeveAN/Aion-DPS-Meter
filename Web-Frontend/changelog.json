@@ -1,8 +1,43 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-11",
+  "date": "2026-11-10",
   "items": [
+   {
+    "text": "Release 2.0.0-alpha.1: new settings window with a left navigation (search, Program, Tools tiles, one page per tool), tools can be switched off",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-08"
+   },
+   {
+    "text": "Release 2.0.0-alpha.2: overlay designer - a hotkey (Ctrl+Alt+F, also in the Settings menu) puts every overlay into one editing mode; the game is dimmed with a grid, a bar says how to leave, a round \"+\" adds overlays that are off, a right-click sets content and background opacity",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-09"
+   },
+   {
+    "text": "Release 2.0.0-alpha.3: overlay designer - dragging any overlay of a docked group moves the whole group (Shift: only that one); a frame with handles around every group scales it (corners) or changes its width and height (edges); name tags above all overlays and a glowing \"Dock\" line where two overlays are pulled together; the overlays of the settings get a second opacity slider for the content beside the one for the background",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-09"
+   },
+   {
+    "text": "Release 2.0.0-alpha.5: the new interface (alpha) - a big window with five tabs on top (Dashboard, Combat & Analysis, Character, Tools, Settings), a menu on the left that changes with the tab, the game and character state in the header (green or red dot) and the Character, Planning and Tools pages inside it; opened from the App menu, the meter window and the settings stay as they are; the pages are redrawn for the new interface step by step",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-10"
+   },
+   {
+    "text": "Release 2.0.0-alpha.6: damage count - the system hit of skill 9971 (1,999,999 on oneself) no longer counts as damage (the same fix as in 1.19.10); the rest is as in alpha.5",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-10"
+   },
    {
     "text": "Server names: Tahabata and Kasika are NC's spelling (not Tahavatha/Kasaka), uploads of older clients under the old names land on the right server; the matchmaking of 11 Nov (23 pairs in Europe, Launch and Advanced Access servers can be paired) maps every pair to a server id again, and the faction of an Abyss pair comes from the server instead of NC's typo (Marchutan as Elyos)",
     "areas": [
