@@ -14893,5 +14893,113 @@
     "pt": "Opções",
     "ja": "オプション",
     "ko": "옵션"
+  },
+  "Hub.Dash.Connection": {
+    "en": "Game and character",
+    "de": "Spiel und Charakter",
+    "fr": "Jeu et personnage",
+    "es": "Juego y personaje",
+    "ru": "Игра и персонаж",
+    "zh": "游戏与角色",
+    "zh-TW": "遊戲與角色",
+    "pt": "Jogo e personagem",
+    "ja": "ゲームとキャラクター",
+    "ko": "게임과 캐릭터"
+  },
+  "Hub.Dash.Soon": {
+    "en": "Now and soon",
+    "de": "Jetzt und gleich",
+    "fr": "Maintenant et bientôt",
+    "es": "Ahora y pronto",
+    "ru": "Сейчас и скоро",
+    "zh": "当前与即将开始",
+    "zh-TW": "目前與即將開始",
+    "pt": "Agora e em breve",
+    "ja": "今と間もなく",
+    "ko": "지금과 곧"
+  },
+  "Hub.Dash.Tools": {
+    "en": "Tools",
+    "de": "Werkzeuge",
+    "fr": "Outils",
+    "es": "Herramientas",
+    "ru": "Инструменты",
+    "zh": "工具",
+    "zh-TW": "工具",
+    "pt": "Ferramentas",
+    "ja": "ツール",
+    "ko": "도구"
+  },
+  "Hub.Dash.Game": {
+    "en": "Game",
+    "de": "Spiel",
+    "fr": "Jeu",
+    "es": "Juego",
+    "ru": "Игра",
+    "zh": "游戏",
+    "zh-TW": "遊戲",
+    "pt": "Jogo",
+    "ja": "ゲーム",
+    "ko": "게임"
+  },
+  "Hub.Dash.Character": {
+    "en": "Character",
+    "de": "Charakter",
+    "fr": "Personnage",
+    "es": "Personaje",
+    "ru": "Персонаж",
+    "zh": "角色",
+    "zh-TW": "角色",
+    "pt": "Personagem",
+    "ja": "キャラクター",
+    "ko": "캐릭터"
+  },
+  "Hub.Dash.Class": {
+    "en": "Class",
+    "de": "Klasse",
+    "fr": "Classe",
+    "es": "Clase",
+    "ru": "Класс",
+    "zh": "职业",
+    "zh-TW": "職業",
+    "pt": "Classe",
+    "ja": "クラス",
+    "ko": "클래스"
+  },
+  "Hub.Dash.Server": {
+    "en": "Server",
+    "de": "Server",
+    "fr": "Serveur",
+    "es": "Servidor",
+    "ru": "Сервер",
+    "zh": "服务器",
+    "zh-TW": "伺服器",
+    "pt": "Servidor",
+    "ja": "サーバー",
+    "ko": "서버"
+  },
+  "Hub.Dash.Until": {
+    "en": "until {0}",
+    "de": "bis {0}",
+    "fr": "jusqu'à {0}",
+    "es": "hasta {0}",
+    "ru": "до {0}",
+    "zh": "直到 {0}",
+    "zh-TW": "直到 {0}",
+    "pt": "até {0}",
+    "ja": "{0} まで",
+    "ko": "{0}까지"
+  },
+  "Hub.Dash.NothingSoon": {
+    "en": "Nothing in the next hours.",
+    "de": "Nichts in den nächsten Stunden.",
+    "fr": "Rien dans les prochaines heures.",
+    "es": "Nada en las próximas horas.",
+    "ru": "Ничего в ближайшие часы.",
+    "zh": "接下来几小时没有活动。",
+    "zh-TW": "接下來幾小時沒有活動。",
+    "pt": "Nada nas próximas horas.",
+    "ja": "数時間以内の予定はありません。",
+    "ko": "앞으로 몇 시간 동안 없음."
   }
 }

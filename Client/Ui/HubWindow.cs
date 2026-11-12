@@ -161,7 +161,7 @@ public sealed class HubWindow : Window
         };
         return new[]
         {
-            new Section("dashboard", loc["Hub.Tab.Dashboard"], new[] { new Group(loc["Hub.Tab.Dashboard"], new[] { new Entry("overview", loc["Hub.Overview"], "soon", "") }) }),
+            new Section("dashboard", loc["Hub.Tab.Dashboard"], new[] { new Group(loc["Hub.Tab.Dashboard"], new[] { new Entry("overview", loc["Hub.Overview"], "overview", "") }) }),
             new Section("combat", loc["Hub.Tab.Combat"], new[] { new Group(loc["Hub.Tab.Combat"], combat.ToArray()) }),
             new Section("character", loc["Hub.Tab.Character"], new[]
             {
@@ -388,6 +388,10 @@ public sealed class HubWindow : Window
             case "meter":
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], (loc["Hub.OpenMeter"], _openMeter));
                 break;
+            case "overview":
+                _page = HubDashboard.Build(_status, OpenToolFromDashboard);
+                _host.Child = new Grid { Children = { _page.Content } };
+                break;
             case "settings":
                 _host.Child = Message(entry.Title, null, (loc["Hub.OpenSettings"], _openSettings));
                 break;
@@ -399,6 +403,12 @@ public sealed class HubWindow : Window
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], null);
                 break;
         }
+    }
+
+    /// <summary>A shortcut of the dashboard: the tools tab with that tool's page.</summary>
+    private void OpenToolFromDashboard(string tool)
+    {
+        SelectForRender(tool is "checklist" or "attributes" or "statcalc" ? "character" : "tools", tool);
     }
 
     private static UIElement Message(string title, string? text, (string Label, Action Click)? button)
