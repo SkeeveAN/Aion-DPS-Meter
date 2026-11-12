@@ -281,4 +281,16 @@ public static class ToolConfigs
             portRow,
             ConfigControls.Note(loc["Settings.Stream.Hint"])));
     }
+
+    // ───────────────────────────── pet map ─────────────────────────────
+
+    /// <summary>The options of the pet map: radius, the guards, the width of the region list, the fallback of the pet farm.</summary>
+    public static UIElement PetMap(Action<MeterSettings> applied)
+    {
+        var loc = LocalizationManager.Instance;
+        var c = new ConfigControls(applied);
+        return Page(ConfigControls.Card(loc["Settings.PetMap.CardMap"],
+            c.Slider(loc["Settings.PetMap.Radius"], null, 50, 500, 10, s => s.PetMapRadius, (s, v) => s.PetMapRadius = v, v => string.Format(loc["Settings.PetMap.RadiusValue"], v)),
+            c.Switch(loc["Settings.Gather.Guards"], loc["Settings.Gather.Guards.Tip"], s => s.ShowGuards, (s, v) => s.ShowGuards = v)));
+    }
 }

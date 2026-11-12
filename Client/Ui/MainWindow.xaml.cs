@@ -6011,6 +6011,56 @@ public partial class MainWindow : Window
     }
 
     /// <summary>The page of one tool for the tools window; null when the tool is not available (headless, no capture yet). A page with an overlay switch also gets the pop-out button.</summary>
+    /// <summary>A panel of the settings window (never shown) as a page of a tool; every change is written a moment later. Null when the panel is not there.</summary>
+    private UIElement? SettingsPanelTab(string panelName, Action<MeterSettings> applied, out Action cleanup)
+    {
+        cleanup = () => { };
+        var window = new SettingsWindow(MeterSettings.Load());
+        if (window.TakePanel(panelName) is not { } panel)
+        {
+            window.Close();
+            return null;
+        }
+
+        var body = new StackPanel { MinWidth = 560 };
+        body.Resources.MergedDictionaries.Add(window.Resources);
+        body.Children.Add(panel);
+        var save = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+        void Save()
+        {
+            save.Stop();
+            var s = MeterSettings.Load();
+            window.ReadPanel(panelName, s);
+            s.Save();
+            applied(s);
+        }
+
+        save.Tick += (_, _) => Save();
+        void Changed(object sender, RoutedEventArgs e)
+        {
+            save.Stop();
+            save.Start();
+        }
+
+        foreach (var routed in new[] { System.Windows.Controls.Primitives.ButtonBase.ClickEvent, System.Windows.Controls.Primitives.ToggleButton.CheckedEvent,
+            System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent,
+            System.Windows.Controls.Primitives.Selector.SelectionChangedEvent })
+        {
+            panel.AddHandler(routed, new RoutedEventHandler(Changed));
+        }
+
+        cleanup = () =>
+        {
+            if (save.IsEnabled)
+            {
+                Save();
+            }
+
+            window.Close();
+        };
+        return body;
+    }
+
     private ToolPage? BuildToolPage(string module, bool inPopOut = false)
     {
         ToolPage? page = BuildToolPageContent(module);
@@ -6180,12 +6230,29 @@ public partial class MainWindow : Window
                 stack.Children.Add(map.DetachBody()!);
                 stack.Children.Add(ModulePage.Caption(loc["Settings.PetMap.CardList"]));
                 stack.Children.Add(list.DetachBody()!);
-                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied);
+                // the four tabs: what the map shows, the pets, the collectibles, the options
+                UIElement? petsTab = SettingsPanelTab("PanelPets", applied, out Action petsCleanup);
+                UIElement? gatherTab = SettingsPanelTab("PanelGather", applied, out Action gatherCleanup);
+                var tabs = new List<(string, UIElement)> { (loc["Hub.Tab.View"], stack) };
+                if (petsTab is not null)
+                {
+                    tabs.Add((loc["Settings.Nav.Pets"], petsTab));
+                }
+
+                if (gatherTab is not null)
+                {
+                    tabs.Add((loc["Settings.Nav.Gather"], gatherTab));
+                }
+
+                tabs.Add((loc["Hub.Tab.Options"], ToolConfigs.PetMap(applied)));
+                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied, null, null, null, tabs);
                 return new ToolPage
                 {
                     Content = page,
                     Cleanup = () =>
                     {
+                        petsCleanup();
+                        gatherCleanup();
                         page.Stop();
                         _petMapController?.RemoveViews(map, list);
                         if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false, CubeMapOverride: false })
@@ -6201,56 +6268,14 @@ public partial class MainWindow : Window
             case "petmap.gather":
             {
                 // the settings of the map's pets / collectibles: the panel of the settings window (never shown) as a page here; every change is kept a moment later
-                string panelName = module == "petmap.pets" ? "PanelPets" : "PanelGather";
-                var window = new SettingsWindow(MeterSettings.Load());
-                if (window.TakePanel(panelName) is not { } panel)
+                UIElement? panelBody = SettingsPanelTab(module == "petmap.pets" ? "PanelPets" : "PanelGather", applied, out Action panelCleanup);
+                if (panelBody is null)
                 {
-                    window.Close();
                     return null;
                 }
 
-                var body = new StackPanel { MinWidth = 560 };
-                body.Resources.MergedDictionaries.Add(window.Resources);
-                body.Children.Add(panel);
-                var save = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
-                void Save()
-                {
-                    save.Stop();
-                    var s = MeterSettings.Load();
-                    window.ReadPanel(panelName, s);
-                    s.Save();
-                    ApplySettingsEverywhere(s);
-                }
-
-                save.Tick += (_, _) => Save();
-                void Changed(object sender, RoutedEventArgs e)
-                {
-                    save.Stop();
-                    save.Start();
-                }
-
-                foreach (var routed in new[] { System.Windows.Controls.Primitives.ButtonBase.ClickEvent, System.Windows.Controls.Primitives.ToggleButton.CheckedEvent,
-                    System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent,
-                    System.Windows.Controls.Primitives.Selector.SelectionChangedEvent })
-                {
-                    panel.AddHandler(routed, new RoutedEventHandler(Changed));
-                }
-
-                var page = new ModulePage(module == "petmap.pets" ? loc["Settings.Nav.Pets"] : loc["Settings.Nav.Gather"], body, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied);
-                return new ToolPage
-                {
-                    Content = page,
-                    Cleanup = () =>
-                    {
-                        page.Stop();
-                        if (save.IsEnabled)
-                        {
-                            Save();
-                        }
-
-                        window.Close();
-                    },
-                };
+                var page = new ModulePage(module == "petmap.pets" ? loc["Settings.Nav.Pets"] : loc["Settings.Nav.Gather"], panelBody, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied);
+                return new ToolPage { Content = page, Cleanup = () => { page.Stop(); panelCleanup(); } };
             }
 
             case "stream":

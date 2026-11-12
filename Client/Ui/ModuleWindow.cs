@@ -23,7 +23,7 @@ public sealed class ModulePage : DockPanel
     private readonly List<RadioButton> _tabButtons = new();
 
     public ModulePage(string title, UIElement body, Func<MeterSettings, bool> getOn, Action<MeterSettings, bool> setOn, Func<MeterSettings, string>? getKey,
-        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null, UIElement? left = null, UIElement? config = null)
+        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null, UIElement? left = null, UIElement? config = null, IReadOnlyList<(string Title, UIElement Content)>? tabList = null)
     {
         _getOn = getOn;
         _getKey = getKey;
@@ -98,27 +98,30 @@ public sealed class ModulePage : DockPanel
         SetDock(header, Dock.Top);
         Children.Add(header);
         var scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = body };
-        if (config is not null)
+        // tabs under the title: the display and the configuration, or the list the owner gave (the pet map has four)
+        var pages = tabList ?? (config is null ? null : new[] { (loc["Hub.Tab.View"], body), (loc["Hub.Tab.Config"], config) });
+        if (pages is not null)
         {
-            // two tabs under the title: what the tool shows, and what it can be set to
             var tabs = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 12) };
             var border = new Border { BorderThickness = new Thickness(0, 0, 0, 1), Child = tabs };
             border.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-            RadioButton Tab(string text, UIElement content, bool on)
+            bool first = true;
+            foreach (var (title2, content) in pages)
             {
-                var tab = new RadioButton { GroupName = "ModuleTab" + GetHashCode(), IsChecked = on, Content = text, Cursor = System.Windows.Input.Cursors.Hand, Template = TabTemplate() };
+                UIElement shownContent = content;
+                bool isView = first && ReferenceEquals(content, body);
+                var tab = new RadioButton { GroupName = "ModuleTab" + GetHashCode(), IsChecked = first, Content = title2, Cursor = System.Windows.Input.Cursors.Hand, Template = TabTemplate() };
                 tab.Checked += (_, _) =>
                 {
                     // the configuration wraps its texts to the width of the page; the view keeps the scroll bars it always had
-                    scroll.HorizontalScrollBarVisibility = content == config ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
-                    scroll.Content = content;
+                    scroll.HorizontalScrollBarVisibility = isView ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
+                    scroll.Content = shownContent;
                 };
                 _tabButtons.Add(tab);
-                return tab;
+                tabs.Children.Add(tab);
+                first = false;
             }
 
-            tabs.Children.Add(Tab(loc["Hub.Tab.View"], body, true));
-            tabs.Children.Add(Tab(loc["Hub.Tab.Config"], config, false));
             SetDock(border, Dock.Top);
             Children.Add(border);
         }

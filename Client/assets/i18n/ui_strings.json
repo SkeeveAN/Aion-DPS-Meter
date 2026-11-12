@@ -14881,5 +14881,17 @@
     "pt": "Configuração",
     "ja": "設定",
     "ko": "설정"
+  },
+  "Hub.Tab.Options": {
+    "en": "Options",
+    "de": "Einstellungen",
+    "fr": "Options",
+    "es": "Opciones",
+    "ru": "Параметры",
+    "zh": "选项",
+    "zh-TW": "選項",
+    "pt": "Opções",
+    "ja": "オプション",
+    "ko": "옵션"
   }
 }
