@@ -176,24 +176,24 @@ public static class OverlayDesigner
     // ───────────────────────────── the overlays and what "off" means for each ─────────────────────────────
 
     /// <summary>One overlay as the "+" lists it: its name, whether it is on, how to switch it on.</summary>
-    private sealed record Entry(string NameKey, Func<MeterSettings, bool> On, Action<MeterSettings> SwitchOn);
+    private sealed record Entry(string NameKey, Func<MeterSettings, bool> On, Action<MeterSettings> SwitchOn, string Title = "", Action<MeterSettings>? SwitchOff = null);
 
     private static readonly Entry[] Entries =
     {
-        new("Settings.PetMap.CardMap", s => s.ShowPetMap && s.PetMapShowMap, s => { s.ShowPetMap = true; s.PetMapShowMap = true; }),
-        new("Settings.PetMap.CardList", s => s.ShowPetMap && s.PetMapShowList, s => { s.ShowPetMap = true; s.PetMapShowList = true; }),
-        new("Settings.Nav.Pets", s => s.ShowPetFarm, s => s.ShowPetFarm = true),
-        new("Settings.Combat.CardBossHp", s => s.ShowCombatOverlay && s.ShowBossHp, s => { s.ShowCombatOverlay = true; s.ShowBossHp = true; }),
-        new("Settings.Combat.CardBossCast", s => s.ShowCombatOverlay && s.CombatShowBossCast, s => { s.ShowCombatOverlay = true; s.CombatShowBossCast = true; }),
-        new("Combat.Element.TargetOfTarget", s => s.ShowCombatOverlay && s.CombatShowTargetOfTarget, s => { s.ShowCombatOverlay = true; s.CombatShowTargetOfTarget = true; }),
-        new("Main.MenuTools.Loot", s => s.ShowLootOverlay, s => s.ShowLootOverlay = true),
-        new("Main.MenuTools.Craft", s => s.ShowCraftOverlay, s => s.ShowCraftOverlay = true),
-        new("Settings.Nav.Network", s => s.ShowNetworkOverlay, s => s.ShowNetworkOverlay = true),
-        new("Main.MenuTools.Assist", s => s.ShowAssistOverlay, s => s.ShowAssistOverlay = true),
-        new("Main.MenuTools.DummyTest", s => s.ShowDummyOverlay, s => s.ShowDummyOverlay = true),
-        new("Settings.Nav.Timetable", s => s.ShowTimetable, s => s.ShowTimetable = true),
-        new("Settings.Nav.Boss", s => s.ShowBossOverlay, s => s.ShowBossOverlay = true),
-        new("Settings.Hotkey.HotkeyOverlay", s => s.ShowHotkeyOverlay, s => s.ShowHotkeyOverlay = true),
+        new("Settings.PetMap.CardMap", s => s.ShowPetMap && s.PetMapShowMap, s => { s.ShowPetMap = true; s.PetMapShowMap = true; }, OverlayPlaces.PetMap, s => s.PetMapShowMap = false),
+        new("Settings.PetMap.CardList", s => s.ShowPetMap && s.PetMapShowList, s => { s.ShowPetMap = true; s.PetMapShowList = true; }, OverlayPlaces.PetList, s => s.PetMapShowList = false),
+        new("Settings.Nav.Pets", s => s.ShowPetFarm, s => s.ShowPetFarm = true, OverlayPlaces.PetInfo, s => s.ShowPetFarm = false),
+        new("Settings.Combat.CardBossHp", s => s.ShowCombatOverlay && s.ShowBossHp, s => { s.ShowCombatOverlay = true; s.ShowBossHp = true; }, OverlayPlaces.BossHp, s => s.ShowBossHp = false),
+        new("Settings.Combat.CardBossCast", s => s.ShowCombatOverlay && s.CombatShowBossCast, s => { s.ShowCombatOverlay = true; s.CombatShowBossCast = true; }, OverlayPlaces.BossCast, s => s.CombatShowBossCast = false),
+        new("Combat.Element.TargetOfTarget", s => s.ShowCombatOverlay && s.CombatShowTargetOfTarget, s => { s.ShowCombatOverlay = true; s.CombatShowTargetOfTarget = true; }, OverlayPlaces.TargetOfTarget, s => s.CombatShowTargetOfTarget = false),
+        new("Main.MenuTools.Loot", s => s.ShowLootOverlay, s => s.ShowLootOverlay = true, OverlayPlaces.Loot, s => s.ShowLootOverlay = false),
+        new("Main.MenuTools.Craft", s => s.ShowCraftOverlay, s => s.ShowCraftOverlay = true, OverlayPlaces.Craft, s => s.ShowCraftOverlay = false),
+        new("Settings.Nav.Network", s => s.ShowNetworkOverlay, s => s.ShowNetworkOverlay = true, OverlayPlaces.Network, s => s.ShowNetworkOverlay = false),
+        new("Main.MenuTools.Assist", s => s.ShowAssistOverlay, s => s.ShowAssistOverlay = true, OverlayPlaces.Assist, s => s.ShowAssistOverlay = false),
+        new("Main.MenuTools.DummyTest", s => s.ShowDummyOverlay, s => s.ShowDummyOverlay = true, OverlayPlaces.Dummy, s => s.ShowDummyOverlay = false),
+        new("Settings.Nav.Timetable", s => s.ShowTimetable, s => s.ShowTimetable = true, OverlayPlaces.Timetable, s => s.ShowTimetable = false),
+        new("Settings.Nav.Boss", s => s.ShowBossOverlay, s => s.ShowBossOverlay = true, OverlayPlaces.WorldBoss, s => s.ShowBossOverlay = false),
+        new("Settings.Hotkey.HotkeyOverlay", s => s.ShowHotkeyOverlay, s => s.ShowHotkeyOverlay = true, OverlayPlaces.Hotkeys, s => s.ShowHotkeyOverlay = false),
     };
 
     /// <summary>The tools that are switched off do not appear in the "+" (their overlays cannot be on).</summary>
@@ -204,6 +204,22 @@ public static class OverlayDesigner
         ["Main.MenuTools.Loot"] = "loot", ["Main.MenuTools.Craft"] = "craft", ["Settings.Nav.Network"] = "network", ["Main.MenuTools.Assist"] = "assist",
         ["Main.MenuTools.DummyTest"] = "dummy", ["Settings.Nav.Timetable"] = "timetable", ["Settings.Nav.Boss"] = "boss",
     };
+
+    /// <summary>Takes an overlay off the screen (the "Hide" of its panel); it comes back with the "+".</summary>
+    internal static void Hide(string title)
+    {
+        Entry? entry = Entries.FirstOrDefault(e => e.Title == title);
+        if (entry?.SwitchOff is null)
+        {
+            return;
+        }
+
+        var fresh = MeterSettings.Load();
+        entry.SwitchOff(fresh);
+        fresh.Save();
+        _refresh?.Invoke();
+        BringToFront();
+    }
 
     internal static List<(string Name, Action SwitchOn)> Off()
     {
@@ -516,12 +532,44 @@ internal sealed class DesignerBar : Window
             gridButton.Foreground = OverlayDesigner.Ink;
         }
 
+        // the cell of the grid: a click goes through the sizes
+        int[] cells = { 10, 20, 40, 80 };
+        var cellButton = OverlayDesigner.Chip(settings.OverlayGridSize.ToString());
+        cellButton.ToolTip = loc["Settings.OverlayGridSize"];
+        cellButton.Click += (_, _) =>
+        {
+            var s = MeterSettings.Load();
+            int next = cells.FirstOrDefault(c => c > s.OverlayGridSize);
+            s.OverlayGridSize = next == 0 ? cells[0] : next;
+            s.Save();
+            cellButton.Content = s.OverlayGridSize.ToString();
+            refresh();
+        };
+        var dockButton = OverlayDesigner.Chip(loc["Designer.Dock"]);
+        dockButton.ToolTip = loc["Settings.OverlayDocking.Hint"];
+        void ShowDock(bool on)
+        {
+            dockButton.Background = on ? OverlayDesigner.Orange : OverlayDesigner.Panel;
+            dockButton.Foreground = on ? OverlayDesigner.Ink : OverlayDesigner.Text;
+        }
+
+        ShowDock(settings.OverlayDocking);
+        dockButton.Click += (_, _) =>
+        {
+            var s = MeterSettings.Load();
+            s.OverlayDocking = !s.OverlayDocking;
+            s.Save();
+            ShowDock(s.OverlayDocking);
+            refresh();
+        };
         var done = OverlayDesigner.Chip(loc["Designer.Done"], primary: true);
         done.Margin = new Thickness(0);
         done.Click += (_, _) => OverlayDesigner.Toggle(refresh);
         _full.Children.Add(title);
         _full.Children.Add(hint);
+        _full.Children.Add(dockButton);
         _full.Children.Add(gridButton);
+        _full.Children.Add(cellButton);
         _full.Children.Add(done);
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         row.Children.Add(grip);
@@ -684,7 +732,7 @@ internal sealed class OpacityPanel : Window
         var settings = MeterSettings.Load();
         bool split = OverlayDesigner.HasSplit(title);
         var stack = new StackPanel { MinWidth = 300 };
-        stack.Children.Add(new TextBlock { Text = loc["Designer.Opacity"], Foreground = OverlayDesigner.Text, FontWeight = FontWeights.SemiBold, FontSize = 14, Margin = new Thickness(0, 0, 0, 8) });
+        stack.Children.Add(new TextBlock { Text = OverlayDesigner.NameOf(title), Foreground = OverlayDesigner.Text, FontWeight = FontWeights.SemiBold, FontSize = 14, Margin = new Thickness(0, 0, 0, 8) });
         if (split)
         {
             stack.Children.Add(Row(loc["Designer.Content"], settings.OverlayForegrounds.GetValueOrDefault(title, 1.0), v =>
@@ -714,10 +762,17 @@ internal sealed class OpacityPanel : Window
             refresh();
             Close();
         };
+        var hide = OverlayDesigner.Chip(loc["Designer.Hide"]);
+        hide.Click += (_, _) =>
+        {
+            Close();
+            OverlayDesigner.Hide(title);
+        };
         var close = OverlayDesigner.Chip(loc["Designer.Done"], primary: true);
         close.Margin = new Thickness(0);
         close.Click += (_, _) => Close();
         buttons.Children.Add(reset);
+        buttons.Children.Add(hide);
         buttons.Children.Add(close);
         stack.Children.Add(buttons);
         Content = new Border

@@ -14439,16 +14439,16 @@
     "ko": "격자"
   },
   "Designer.Hint": {
-    "en": "Drag overlays · corners = size · edges = width/height · right-click = opacity",
-    "de": "Overlays ziehen · Ecken = Größe · Kanten = Breite/Höhe · Rechtsklick = Deckkraft",
-    "fr": "Glisser les overlays · coins = taille · bords = largeur/hauteur · clic droit = opacité",
-    "es": "Arrastra los overlays · esquinas = tamaño · bordes = ancho/alto · clic derecho = opacidad",
-    "ru": "Перетаскивайте оверлеи · углы = размер · края = ширина/высота · правый клик = прозрачность",
-    "zh": "拖动悬浮窗 · 角 = 大小 · 边 = 宽度/高度 · 右键 = 不透明度",
-    "zh-TW": "拖曳浮層 · 角 = 大小 · 邊 = 寬度/高度 · 右鍵 = 不透明度",
-    "pt": "Arrasta os overlays · cantos = tamanho · bordas = largura/altura · botão direito = opacidade",
-    "ja": "オーバーレイをドラッグ · 角 = サイズ · 辺 = 幅/高さ · 右クリック = 不透明度",
-    "ko": "오버레이 드래그 · 모서리 = 크기 · 가장자리 = 너비/높이 · 오른쪽 클릭 = 불투명도"
+    "en": "Drag overlays · corners = size · edges = width/height · right-click = opacity, hide",
+    "de": "Overlays ziehen · Ecken = Größe · Kanten = Breite/Höhe · Rechtsklick = Deckkraft, Ausblenden",
+    "fr": "Glisser les overlays · coins = taille · bords = largeur/hauteur · clic droit = opacité, masquer",
+    "es": "Arrastra los overlays · esquinas = tamaño · bordes = ancho/alto · clic derecho = opacidad, ocultar",
+    "ru": "Перетаскивайте оверлеи · углы = размер · края = ширина/высота · правый клик = прозрачность, скрыть",
+    "zh": "拖动悬浮窗 · 角 = 大小 · 边 = 宽度/高度 · 右键 = 不透明度、隐藏",
+    "zh-TW": "拖曳浮層 · 角 = 大小 · 邊 = 寬度/高度 · 右鍵 = 不透明度、隱藏",
+    "pt": "Arrasta os overlays · cantos = tamanho · bordas = largura/altura · botão direito = opacidade, ocultar",
+    "ja": "オーバーレイをドラッグ · 角 = サイズ · 辺 = 幅/高さ · 右クリック = 不透明度、非表示",
+    "ko": "오버레이 드래그 · 모서리 = 크기 · 가장자리 = 너비/높이 · 오른쪽 클릭 = 불투명도, 숨기기"
   },
   "Designer.Add": {
     "en": "Add overlay",
