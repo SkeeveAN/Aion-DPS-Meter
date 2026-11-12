@@ -1,87 +1,78 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 using AionDPS.Aion2;
+using AionDPS.History;
 using AionDPS.Schedule;
+using AionDPS.Update;
 
 namespace AionDPS.Ui;
 
+/// <summary>What the dashboard pages read from the running meter.</summary>
+public sealed record DashboardSources(Func<HubStatus> Status, Action<string> OpenTool, Func<IReadOnlyList<SessionInfo>> Sessions, Action OpenSessions, string Version);
+
 /// <summary>
-/// The overview page of the new interface (Dashboard tab): the game and character, what is on in the game now and soon, the world bosses and the stored fights. Cards on
-/// real data, drawn again every second.
+/// The pages of the Dashboard tab of the new interface, all on real data and drawn again every second: the overview (game and character, today's checklist, what is on now,
+/// the world bosses, the figures of the recorded fights, shortcuts), the fights of the recording, the best fights, the update and the news.
 /// </summary>
 public static class HubDashboard
 {
-    public static ToolPage Build(Func<HubStatus> status, Action<string> openTool)
+    private static readonly Dictionary<(int Number, DateTime? End), IReadOnlyList<BossAttempt>> Attempts = new();
+
+    public static ToolPage Build(string page, DashboardSources src)
     {
-        var loc = LocalizationManager.Instance;
         var wrap = new WrapPanel { Margin = new Thickness(8, 8, 8, 20) };
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(page is "updates" or "news" ? 5 : 1) };
+        bool built = false;
         void Refresh()
         {
+            // the update and news pages ask the network once; they are not drawn again every second
+            if (built && page is "updates" or "news")
+            {
+                return;
+            }
+
+            built = true;
             wrap.Children.Clear();
             DateTime now = DateTime.Now;
-            var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, TimeSpan.FromHours(3));
-            wrap.Children.Add(Card(loc["Hub.Dash.Connection"], Connection(status(), loc), 420));
-            wrap.Children.Add(Card(loc["Hub.Dash.Soon"], Events(active, soon, now, loc), 520));
-            wrap.Children.Add(Card(loc["Settings.Nav.Boss"], Bosses(now, loc), 520, () => openTool("boss")));
-            wrap.Children.Add(Card(loc["Hub.Dash.Tools"], Shortcuts(openTool, loc), 420));
+            switch (page)
+            {
+                case "fights": Fights(wrap, src, now); break;
+                case "best": Best(wrap, src); break;
+                case "updates": Updates(wrap, src); break;
+                case "news": News(wrap); break;
+                default: Overview(wrap, src, now); break;
+            }
         }
 
         Refresh();
         timer.Tick += (_, _) => Refresh();
         timer.Start();
-        return new ToolPage
-        {
-            Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = wrap },
-            Cleanup = timer.Stop,
-        };
+        return new ToolPage { Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = wrap }, Cleanup = timer.Stop };
     }
 
-    private static Border Card(string title, UIElement body, double width, Action? open = null)
-    {
-        var stack = new StackPanel();
-        var head = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
-        var caption = new TextBlock { Text = title.ToUpperInvariant(), FontSize = 11, FontWeight = FontWeights.SemiBold };
-        caption.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
-        if (open is not null)
-        {
-            var link = new TextBlock { Text = "↗", Cursor = System.Windows.Input.Cursors.Hand, FontSize = 14 };
-            link.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-            link.MouseLeftButtonUp += (_, _) => open();
-            DockPanel.SetDock(link, Dock.Right);
-            head.Children.Add(link);
-        }
+    // ───────────────────────────── overview ─────────────────────────────
 
-        head.Children.Add(caption);
-        stack.Children.Add(head);
-        stack.Children.Add(body);
-        var card = new Border { Width = width, Margin = new Thickness(8), Padding = new Thickness(16, 12, 16, 14), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Top, Child = stack };
-        card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
-        card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-        return card;
-    }
-
-    private static TextBlock Text(string text, bool bold = false, string brush = "Brush.Text", double size = 13)
+    private static void Overview(WrapPanel wrap, DashboardSources src, DateTime now)
     {
-        var block = new TextBlock { Text = text, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, FontSize = size, TextTrimming = TextTrimming.CharacterEllipsis };
-        block.SetResourceReference(TextBlock.ForegroundProperty, brush);
-        return block;
-    }
-
-    private static Grid Line(string left, string right, bool strong = false, string rightBrush = "Brush.Accent")
-    {
-        var grid = new Grid { Margin = new Thickness(0, 4, 0, 4) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition());
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var l = Text(left, strong);
-        var r = Text(right, true, rightBrush);
-        r.Margin = new Thickness(12, 0, 0, 0);
-        Grid.SetColumn(r, 1);
-        grid.Children.Add(l);
-        grid.Children.Add(r);
-        return grid;
+        var loc = LocalizationManager.Instance;
+        var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, TimeSpan.FromHours(3));
+        var sessions = src.Sessions();
+        var attempts = sessions.SelectMany(s => AttemptsOf(s)).ToList();
+        var total = TimeSpan.FromSeconds(sessions.Sum(s => s.Duration(now).TotalSeconds));
+        var bestDps = attempts.Where(a => a.Duration.TotalSeconds >= 10).Select(a => (double?)(a.Counted / a.Duration.TotalSeconds)).DefaultIfEmpty(null).Max();
+        wrap.Children.Add(Card(loc["Hub.Dash.Connection"], Connection(src.Status(), loc), 420));
+        wrap.Children.Add(Card(loc["Main.MenuTools.Checklist"], Todo(loc), 420, () => src.OpenTool("checklist")));
+        wrap.Children.Add(Card(loc["Hub.Dash.Soon"], Events(active, soon, now, loc), 520, () => src.OpenTool("timetable")));
+        wrap.Children.Add(Card(loc["Settings.Nav.Boss"], Bosses(now, loc), 520, () => src.OpenTool("boss")));
+        var figures = new StackPanel();
+        figures.Children.Add(Line(loc["Hub.Dash.Recording"], WorldBossText.Duration(total)));
+        figures.Children.Add(Line(loc["Hub.Dash.Sessions"], sessions.Count.ToString()));
+        figures.Children.Add(Line(loc["Hub.Dash.BossFights"], attempts.Count.ToString()));
+        figures.Children.Add(Line(loc["Hub.Dash.BestDps"], bestDps is double d ? d.ToString("N0") : "–"));
+        wrap.Children.Add(Card(loc["Hub.Dash.Figures"], figures, 420));
+        wrap.Children.Add(Card(loc["Hub.Dash.Last"], LastFight(attempts, loc), 520, src.OpenSessions));
+        wrap.Children.Add(Card(loc["Hub.Dash.Tools"], Shortcuts(src.OpenTool, loc), 520));
     }
 
     private static UIElement Connection(HubStatus status, LocalizationManager loc)
@@ -97,6 +88,39 @@ public static class HubDashboard
         if (status.Server is { Length: > 0 })
         {
             stack.Children.Add(Line(loc["Hub.Dash.Server"], status.Server));
+        }
+
+        return stack;
+    }
+
+    /// <summary>The daily contents of the current character that still have entries left.</summary>
+    private static UIElement Todo(LocalizationManager loc)
+    {
+        var stack = new StackPanel();
+        try
+        {
+            TicketCharacter? me = Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase));
+            if (me is not null)
+            {
+                int shown = 0;
+                foreach (TicketDef def in Aion2Tickets.Catalog.Where(t => t.DailyAt is not null && !t.IsTime && t.Max > 0 && !Aion2Tickets.IsLocked(me, t.Id)))
+                {
+                    if (me.Tickets.TryGetValue(def.Id, out TicketValue value) && value.Count > 0 && shown < 8)
+                    {
+                        stack.Children.Add(Line(def.ShortIn(loc.Language), value.Count + " / " + def.Max));
+                        shown++;
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // the checklist reads what the game sent; with nothing sent the card stays empty
+        }
+
+        if (stack.Children.Count == 0)
+        {
+            stack.Children.Add(Text(loc["Hub.Dash.TodoNone"], false, "Brush.TextMuted"));
         }
 
         return stack;
@@ -156,6 +180,24 @@ public static class HubDashboard
         return stack;
     }
 
+    private static UIElement LastFight(List<BossAttempt> attempts, LocalizationManager loc)
+    {
+        var stack = new StackPanel();
+        BossAttempt? last = attempts.OrderByDescending(a => a.End).FirstOrDefault();
+        if (last is null)
+        {
+            stack.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+            return stack;
+        }
+
+        stack.Children.Add(Line(last.Name, last.Killed ? loc["Hub.Dash.Killed"] : loc["Hub.Dash.NotKilled"], true, last.Killed ? "Brush.Heal" : "Brush.Danger"));
+        stack.Children.Add(Line(loc["Hub.Dash.Duration"], WorldBossText.Duration(last.Duration)));
+        stack.Children.Add(Line(loc["Hub.Dash.Damage"], last.Counted.ToString("N0")));
+        stack.Children.Add(Line("DPS", last.Duration.TotalSeconds >= 1 ? (last.Counted / last.Duration.TotalSeconds).ToString("N0") : "–"));
+        stack.Children.Add(Line(loc["Hub.Dash.When"], last.End.ToString("dd.MM. HH:mm")));
+        return stack;
+    }
+
     private static UIElement Shortcuts(Action<string> openTool, LocalizationManager loc)
     {
         var panel = new WrapPanel();
@@ -168,5 +210,216 @@ public static class HubDashboard
         }
 
         return panel;
+    }
+
+    // ───────────────────────────── fights, best ─────────────────────────────
+
+    private static IReadOnlyList<BossAttempt> AttemptsOf(SessionInfo session)
+    {
+        // an open stay is not analysed (it is still growing); a closed one once
+        if (session.IsOpen)
+        {
+            return Array.Empty<BossAttempt>();
+        }
+
+        var key = (session.Number, session.End);
+        if (!Attempts.TryGetValue(key, out var list))
+        {
+            try
+            {
+                list = SessionAnalyzer.Analyze(session).Attempts;
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                list = Array.Empty<BossAttempt>();
+            }
+
+            Attempts[key] = list;
+        }
+
+        return list;
+    }
+
+    private static void Fights(WrapPanel wrap, DashboardSources src, DateTime now)
+    {
+        var loc = LocalizationManager.Instance;
+        var stack = new StackPanel();
+        var sessions = src.Sessions().OrderByDescending(s => s.Start).ToList();
+        foreach (SessionInfo s in sessions)
+        {
+            var attempts = AttemptsOf(s);
+            string detail = (s.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"]) + "  ·  " + WorldBossText.Duration(s.Duration(now))
+                + (attempts.Count > 0 ? "  ·  " + attempts.Count + " " + loc["Hub.Dash.BossFights"] : "");
+            var row = Line(SessionLabels.NameOf(s) + "   " + SessionLabels.TimeSpanOf(s), detail, !s.IsOpen);
+            row.Cursor = System.Windows.Input.Cursors.Hand;
+            row.MouseLeftButtonUp += (_, _) => src.OpenSessions();
+            stack.Children.Add(row);
+            foreach (BossAttempt a in attempts)
+            {
+                var sub = Line("      " + a.Name, (a.Killed ? "✓ " : "✗ ") + WorldBossText.Duration(a.Duration) + "  ·  " + a.Counted.ToString("N0"), false, a.Killed ? "Brush.Heal" : "Brush.Danger");
+                stack.Children.Add(sub);
+            }
+        }
+
+        if (sessions.Count == 0)
+        {
+            stack.Children.Add(Text(loc["Sessions.None"], false, "Brush.TextMuted"));
+        }
+
+        wrap.Children.Add(Card(loc["Hub.Dash.Fights"], stack, 1100, src.OpenSessions));
+    }
+
+    private static void Best(WrapPanel wrap, DashboardSources src)
+    {
+        var loc = LocalizationManager.Instance;
+        var stack = new StackPanel();
+        var best = src.Sessions().SelectMany(s => AttemptsOf(s)).Where(a => a.Duration.TotalSeconds >= 10)
+            .GroupBy(a => a.Name).Select(g => g.OrderByDescending(a => a.Counted / a.Duration.TotalSeconds).First())
+            .OrderByDescending(a => a.Counted / a.Duration.TotalSeconds).Take(20).ToList();
+        foreach (BossAttempt a in best)
+        {
+            stack.Children.Add(Line(a.Name + "   " + a.End.ToString("dd.MM. HH:mm"), (a.Counted / a.Duration.TotalSeconds).ToString("N0") + " DPS  ·  " + WorldBossText.Duration(a.Duration), a.Killed, a.Killed ? "Brush.Heal" : "Brush.Accent"));
+        }
+
+        if (best.Count == 0)
+        {
+            stack.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+        }
+
+        wrap.Children.Add(Card(loc["Hub.Dash.Best"], stack, 1100));
+    }
+
+    // ───────────────────────────── update, news ─────────────────────────────
+
+    private static void Updates(WrapPanel wrap, DashboardSources src)
+    {
+        var loc = LocalizationManager.Instance;
+        var stack = new StackPanel();
+        stack.Children.Add(Line(loc["Hub.Dash.Version"], src.Version));
+        var status = Text(UpdateService.CanUpdate ? loc["Hub.Dash.Checking"] : loc["Hub.Dash.NotInstalled"], false, "Brush.TextMuted");
+        status.Margin = new Thickness(0, 6, 0, 6);
+        stack.Children.Add(status);
+        if (UpdateService.CanUpdate)
+        {
+            _ = CheckUpdateAsync(status, loc);
+        }
+
+        var changelog = new Button { Content = loc["Hub.Dash.Changelog"], Padding = new Thickness(14, 4, 14, 4), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
+        changelog.Click += (_, _) => OpenUrl("https://aiondps.com/changelog");
+        stack.Children.Add(changelog);
+        wrap.Children.Add(Card(loc["Hub.Dash.Update"], stack, 520));
+    }
+
+    private static async Task CheckUpdateAsync(TextBlock status, LocalizationManager loc)
+    {
+        try
+        {
+            var info = await UpdateService.CheckAsync();
+            status.Text = info is null ? loc["Hub.Dash.UpToDate"] : string.Format(loc["Hub.Dash.Available"], info.TargetFullRelease.Version);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            status.Text = loc["Hub.Dash.CheckFailed"];
+        }
+    }
+
+    private static void News(WrapPanel wrap)
+    {
+        var loc = LocalizationManager.Instance;
+        wrap.Children.Add(Card(loc["Hub.Dash.Announcements"], NewsCard(loc["Hub.Dash.AnnouncementsText"], Announcements.AnnouncementsClient.PageUrl, async () =>
+        {
+            long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
+            return latest is null ? loc["Hub.Dash.CheckFailed"] : Announcements.AnnouncementsClient.IsNew(latest, MeterSettings.Load().AnnouncementsSeen) ? loc["Hub.Dash.NewOnes"] : loc["Hub.Dash.NothingNew"];
+        }, loc), 520));
+        wrap.Children.Add(Card(loc["Hub.Dash.Drops"], NewsCard(loc["Hub.Dash.DropsText"], Announcements.TwitchDropsClient.PageUrl, async () =>
+        {
+            var status = await Announcements.TwitchDropsClient.GetStatusAsync();
+            return status is null ? loc["Hub.Dash.CheckFailed"] : status.Value.Running ? loc["Hub.Dash.DropsRunning"] : loc["Hub.Dash.NothingNew"];
+        }, loc), 520));
+    }
+
+    private static UIElement NewsCard(string text, string url, Func<Task<string>> ask, LocalizationManager loc)
+    {
+        var stack = new StackPanel();
+        stack.Children.Add(Text(text, false, "Brush.TextMuted", 12));
+        var state = Text(loc["Hub.Dash.Checking"], true, "Brush.Accent");
+        state.Margin = new Thickness(0, 8, 0, 8);
+        stack.Children.Add(state);
+        _ = Fill(state, ask, loc);
+        var open = new Button { Content = loc["Hub.Dash.OpenPage"], Padding = new Thickness(14, 4, 14, 4), HorizontalAlignment = HorizontalAlignment.Left };
+        open.Click += (_, _) => OpenUrl(url);
+        stack.Children.Add(open);
+        return stack;
+    }
+
+    private static async Task Fill(TextBlock target, Func<Task<string>> ask, LocalizationManager loc)
+    {
+        try
+        {
+            target.Text = await ask();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            target.Text = loc["Hub.Dash.CheckFailed"];
+        }
+    }
+
+    private static void OpenUrl(string url)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // no browser: nothing to open
+        }
+    }
+
+    // ───────────────────────────── building blocks ─────────────────────────────
+
+    private static Border Card(string title, UIElement body, double width, Action? open = null)
+    {
+        var stack = new StackPanel();
+        var head = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
+        var caption = new TextBlock { Text = title.ToUpperInvariant(), FontSize = 11, FontWeight = FontWeights.SemiBold };
+        caption.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        if (open is not null)
+        {
+            var link = new TextBlock { Text = "↗", Cursor = System.Windows.Input.Cursors.Hand, FontSize = 14 };
+            link.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+            link.MouseLeftButtonUp += (_, _) => open();
+            DockPanel.SetDock(link, Dock.Right);
+            head.Children.Add(link);
+        }
+
+        head.Children.Add(caption);
+        stack.Children.Add(head);
+        stack.Children.Add(body);
+        var card = new Border { Width = width, Margin = new Thickness(8), Padding = new Thickness(16, 12, 16, 14), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Top, Child = stack };
+        card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+        card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        return card;
+    }
+
+    private static TextBlock Text(string text, bool bold = false, string brush = "Brush.Text", double size = 13)
+    {
+        var block = new TextBlock { Text = text, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, FontSize = size, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = size < 13 || brush == "Brush.TextMuted" ? TextWrapping.Wrap : TextWrapping.NoWrap };
+        block.SetResourceReference(TextBlock.ForegroundProperty, brush);
+        return block;
+    }
+
+    private static Grid Line(string left, string right, bool strong = false, string rightBrush = "Brush.Accent")
+    {
+        var grid = new Grid { Margin = new Thickness(0, 4, 0, 4), Background = System.Windows.Media.Brushes.Transparent };
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var l = Text(left, strong);
+        var r = Text(right, true, rightBrush);
+        r.Margin = new Thickness(12, 0, 0, 0);
+        Grid.SetColumn(r, 1);
+        grid.Children.Add(l);
+        grid.Children.Add(r);
+        return grid;
     }
 }

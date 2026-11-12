@@ -40,6 +40,8 @@ public sealed class HubWindow : Window
     private readonly Action _openMeter;
     private readonly Action _openSettings;
     private readonly Func<HubStatus> _status;
+    private Func<IReadOnlyList<AionDPS.History.SessionInfo>> _sessions = () => Array.Empty<AionDPS.History.SessionInfo>();
+    private string _version = "";
     private readonly Section[] _sections;
     private readonly StackPanel _tabs = new() { Orientation = Orientation.Horizontal };
     private readonly StackPanel _right = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
@@ -108,6 +110,17 @@ public sealed class HubWindow : Window
         };
     }
 
+    /// <summary>What the dashboard pages read: the recorded stays and the version.</summary>
+    public void SetDashboardSources(Func<IReadOnlyList<AionDPS.History.SessionInfo>> sessions, string version)
+    {
+        _sessions = sessions;
+        _version = version;
+        if (_entry is { Kind: "overview" } shown)
+        {
+            ShowEntry(shown);
+        }
+    }
+
     /// <summary>For the test picture: chooses a tab and a page of it without a click.</summary>
     internal void SelectForRender(string sectionId, string entryId)
     {
@@ -161,7 +174,17 @@ public sealed class HubWindow : Window
         };
         return new[]
         {
-            new Section("dashboard", loc["Hub.Tab.Dashboard"], new[] { new Group(loc["Hub.Tab.Dashboard"], new[] { new Entry("overview", loc["Hub.Overview"], "overview", "") }) }),
+            new Section("dashboard", loc["Hub.Tab.Dashboard"], new[]
+            {
+                new Group(loc["Hub.Tab.Dashboard"], new[]
+                {
+                    new Entry("overview", loc["Hub.Overview"], "overview", "overview"),
+                    new Entry("fights", loc["Hub.Dash.Fights"], "overview", "fights"),
+                    new Entry("best", loc["Hub.Dash.Best"], "overview", "best"),
+                    new Entry("updates", loc["Hub.Dash.Update"], "overview", "updates"),
+                    new Entry("news", loc["Hub.Dash.News"], "overview", "news"),
+                }),
+            }),
             new Section("combat", loc["Hub.Tab.Combat"], new[] { new Group(loc["Hub.Tab.Combat"], combat.ToArray()) }),
             new Section("character", loc["Hub.Tab.Character"], new[]
             {
@@ -389,7 +412,7 @@ public sealed class HubWindow : Window
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], (loc["Hub.OpenMeter"], _openMeter));
                 break;
             case "overview":
-                _page = HubDashboard.Build(_status, OpenToolFromDashboard);
+                _page = HubDashboard.Build(entry.Target, new DashboardSources(_status, OpenToolFromDashboard, _sessions, () => _openOwn("analyzer"), _version));
                 _host.Child = new Grid { Children = { _page.Content } };
                 break;
             case "settings":

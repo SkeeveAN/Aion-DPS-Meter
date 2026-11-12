@@ -5955,6 +5955,7 @@ public partial class MainWindow : Window
 
                 return new HubStatus(own is not null, own?.Name, className, server);
             });
+        _hubWindow.SetDashboardSources(() => _sessions.Sessions, AppVersion.Text);
         _hubWindow.Closed += (_, _) => _hubWindow = null;
         _hubWindow.Show();
     }
