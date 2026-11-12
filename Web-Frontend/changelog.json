@@ -97,6 +97,13 @@
      "Client"
     ],
     "date": "2026-11-10"
+   },
+   {
+    "text": "Release 2.0.0-alpha.7: the tool pages of the new interface have the tabs Display | Configuration (the pet map has Display | Pets | Collectibles | Options): timetable and world boss with show and sound per entry, boss fight with boss cast, target of the target and speech output, loot, network analysis, stream, pet map and craft configuration next to the tool; the overlay switches, locks, places and opacity sliders are gone from the pages (the overlay designer does them); a dashboard overview with the game and character, what is on now and soon and the world bosses; the settings sit inside the Settings tab",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-12"
    }
   ]
  },
