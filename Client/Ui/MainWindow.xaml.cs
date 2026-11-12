@@ -7157,6 +7157,7 @@ public partial class MainWindow : Window
 
     private bool _autoBossView;
     private int? _autoBossId;
+    private DateTime? _autoBossRunStart;
     private DateTime? _autoBossDeadAt;
 
     /// <summary>A boss hit this recently counts as being fought.</summary>
@@ -7219,13 +7220,17 @@ public partial class MainWindow : Window
             engagedAt = last;
         }
 
-        if (engaged is int boss && boss != _autoBossId)
+        if (engaged is int boss)
         {
             // The newest entry of that boss (a boss farmed again comes as "#1".."#N").
             ComboBoxItem? entry = MobBossFilter.Items.OfType<ComboBoxItem>().LastOrDefault(item => item.Tag is MobBossTag tag && tag.TargetId == boss);
-            if (entry is not null)
+            DateTime? runStart = (entry?.Tag as MobBossTag?)?.WindowStart;
+            // A wipe and retry keeps the boss's entity: the retry is a new entry ("#2") of the same boss, and the table starts over on it.
+            bool newRun = boss == _autoBossId && entry is not null && runStart != _autoBossRunStart;
+            if (entry is not null && (boss != _autoBossId || newRun))
             {
                 _autoBossId = boss;
+                _autoBossRunStart = runStart;
                 _autoBossDeadAt = null;
                 if (!ReferenceEquals(MobBossFilter.SelectedItem, entry))
                 {
