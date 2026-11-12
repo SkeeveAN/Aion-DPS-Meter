@@ -218,4 +218,67 @@ public static class ToolConfigs
         rows.Add(ConfigControls.Note(loc["Settings.Speech.Note"]));
         return ConfigControls.Card(loc["Settings.Speech.Title"], rows.ToArray());
     }
+
+    // ───────────────────────────── loot, network, stream ─────────────────────────────
+
+    /// <summary>What the loot list counts and how many lines it has.</summary>
+    public static UIElement Loot(Action<MeterSettings> applied)
+    {
+        var loc = LocalizationManager.Instance;
+        var c = new ConfigControls(applied);
+        int[] lines = { 3, 5, 8, 10, 15, 20, 30 };
+        return Page(ConfigControls.Card(loc["Loot.Settings.Content"],
+            c.Switch(loc["Loot.Settings.WholeSession"], null, s => s.LootOverlayWholeSession, (s, v) => s.LootOverlayWholeSession = v),
+            c.Switch(loc["Loot.Settings.HideCommon"], null, s => s.LootOverlayHideCommon, (s, v) => s.LootOverlayHideCommon = v),
+            c.Choice(loc["Loot.Settings.Lines"], null, lines.Select(l => (l.ToString(), l.ToString())).ToList(), s => (lines.Contains(s.LootOverlayLines) ? s.LootOverlayLines : 8).ToString(), (s, v) => s.LootOverlayLines = int.Parse(v), 80),
+            ConfigControls.Note(loc["Loot.Settings.Hint"])));
+    }
+
+    /// <summary>The lines of the network overlay.</summary>
+    public static UIElement Network(Action<MeterSettings> applied)
+    {
+        var loc = LocalizationManager.Instance;
+        var c = new ConfigControls(applied);
+        var rows = new List<UIElement> { ConfigControls.Note(loc["Settings.Network.Hint"], 0) };
+        foreach (string id in new[] { "server", "ping", "jitter", "traffic", "loss", "stalls", "gateway", "internet", "connection", "load" })
+        {
+            string line = id;
+            rows.Add(c.Switch(loc["Network.Row." + line], null, s => !s.NetworkOverlayHidden.Contains(line), (s, v) =>
+            {
+                s.NetworkOverlayHidden.Remove(line);
+                if (!v)
+                {
+                    s.NetworkOverlayHidden.Add(line);
+                }
+            }));
+        }
+
+        return Page(ConfigControls.Card(loc["Settings.Network.Rows"], rows.ToArray()));
+    }
+
+    /// <summary>The stream overlay: what it shows and the port of its page.</summary>
+    public static UIElement Stream(Action<MeterSettings> applied)
+    {
+        var loc = LocalizationManager.Instance;
+        var c = new ConfigControls(applied);
+        var port = new TextBox { Width = 80, Height = 26, MaxLength = 5, Text = MeterSettings.Load().StreamOverlayPort.ToString(), VerticalContentAlignment = VerticalAlignment.Center };
+        port.LostFocus += (_, _) =>
+        {
+            int value = int.TryParse(port.Text, out int p) && p is >= 1024 and <= 65000 ? p : Streaming.StreamOverlayServer.DefaultPort;
+            port.Text = value.ToString();
+            c.Change(s => s.StreamOverlayPort = value);
+        };
+        var portRow = new DockPanel { Margin = new Thickness(0, 6, 0, 6) };
+        var label = new TextBlock { Text = loc["Settings.Stream.Port"], VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+        label.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+        portRow.Children.Add(label);
+        portRow.Children.Add(port);
+        portRow.Children.Add(new Border());
+        return Page(ConfigControls.Card(loc["Settings.Nav.Stream"],
+            c.Switch(loc["Settings.Stream.On"], null, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v),
+            c.Switch(loc["Settings.Stream.Network"], null, s => s.StreamOverlayNetwork, (s, v) => s.StreamOverlayNetwork = v),
+            c.Switch(loc["Settings.Stream.Names"], null, s => s.StreamShowNames, (s, v) => s.StreamShowNames = v),
+            portRow,
+            ConfigControls.Note(loc["Settings.Stream.Hint"])));
+    }
 }

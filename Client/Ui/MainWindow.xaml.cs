@@ -6082,7 +6082,7 @@ public partial class MainWindow : Window
             case "loot":
             {
                 var lootPage = new LootPage();
-                var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied);
+                var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied, null, null, ToolConfigs.Loot(applied));
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); lootPage.Stop(); } };
             }
 
@@ -6135,7 +6135,7 @@ public partial class MainWindow : Window
                 var networkBody = new StackPanel();
                 networkBody.Children.Add(view.DetachBody()!);
                 networkBody.Children.Add(new NetworkReportPanel());
-                var page = new ModulePage(loc["Settings.Nav.Network"], networkBody, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
+                var page = new ModulePage(loc["Settings.Nav.Network"], networkBody, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied, null, null, ToolConfigs.Network(applied));
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _network?.RemoveView(view); } };
             }
 
@@ -6271,7 +6271,7 @@ public partial class MainWindow : Window
                 }
 
                 Show();
-                var page = new ModulePage(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show);
+                var page = new ModulePage(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show, null, ToolConfigs.Stream(applied));
                 return new ToolPage { Content = page, Cleanup = page.Stop };
             }
         }
