@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-12",
+  "items": [
+   {
+    "text": "Profile upload: a rank movement beyond a million either way counts as 0 and a title slot without an id is left out, so one unusable field no longer rejects the whole profile",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-12"
+   }
+  ]
+ },
+ {
   "version": "1.19.11",
   "date": "2026-11-11",
   "items": [

@@ -224,5 +224,9 @@
  "f16396ea": "Client: a session keeps its own copy of the skill uses, effects and positions when it ends (the capture's log drops the oldest quarter past 200,000 entries, so sessions saved later lost them), the log records when the own skills went on cooldown and came off it, the comparison shows activations by cooldown, cooldown length, waiting time and time ready but unused (marked approximate), and the log file counts the cast notices, effect frames and cooldown lists the capture read (implemented at the community's request)",
  "a25a36ba": null,
  "511bc293": "Twitch Drops page: the Battle Support, Customization and Soul Codex chests, the Pixel Glasses and the Black Conical Hat show their pictures and the game's own names in every language, a chest lists what it holds, and the Ludra campaign lists its drops as Twitch shows them (10 rewards with their watch times)",
- "4aedaeb": "Fire Temple and Ferocious Horn Den (Conquest, Hard): the bosses of both rage after 4 minutes instead of 5, and both are listed with entry item level 2800"
+ "4aedaeb": "Fire Temple and Ferocious Horn Den (Conquest, Hard): the bosses of both rage after 4 minutes instead of 5, and both are listed with entry item level 2800",
+ "548de78": null,
+ "1760f88": null,
+ "d79e33b": null,
+ "63327f8": null
 }
