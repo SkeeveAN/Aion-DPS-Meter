@@ -752,3 +752,14 @@ test("own Odyle energy: the newest reading replaces the stored one, unknown numb
   upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2 }));
   assert.equal(buildProfileView(id)!.odyle!.items, 80);
 });
+
+test("a rank movement beyond a million and a title slot without an id no longer cost the whole profile", () => {
+  const parsed = profileSchema.safeParse({
+    source: "self",
+    ranks: [{ type: 5, scope: 0, rank: 12, points: 100, change: 4294967, grade: 1, at: "2026-11-12T12:00:00Z" }, { type: 1, scope: 0, rank: 3, points: 9, change: -16, grade: 1, at: "2026-11-12T12:00:00Z" }],
+    titles: [{ slot: 1, titleId: 0 }, { slot: 2, titleId: 12030003 }],
+  });
+  assert.ok(parsed.success);
+  assert.deepEqual(parsed.data.ranks.map((r) => r.change), [0, -16]);
+  assert.deepEqual(parsed.data.titles, [{ slot: 2, titleId: 12030003 }]);
+});
