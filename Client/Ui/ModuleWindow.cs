@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -19,9 +20,10 @@ public sealed class ModulePage : DockPanel
     private Action? _popOut;
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _syncing;
+    private readonly List<RadioButton> _tabButtons = new();
 
     public ModulePage(string title, UIElement body, Func<MeterSettings, bool> getOn, Action<MeterSettings, bool> setOn, Func<MeterSettings, string>? getKey,
-        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null, UIElement? left = null)
+        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null, UIElement? left = null, UIElement? config = null)
     {
         _getOn = getOn;
         _getKey = getKey;
@@ -70,13 +72,12 @@ public sealed class ModulePage : DockPanel
         cog.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
         cog.Click += (_, _) => openSettings?.Invoke();
         right.Children.Add(_key);
-        if (openSettings is not null)
+        if (openSettings is not null && config is null)
         {
             right.Children.Add(cog);
         }
 
-        right.Children.Add(masterText);
-        right.Children.Add(_master);
+        // the overlay switch is gone from the page: the overlay designer (Ctrl+Alt+F) adds, hides and places the overlays
         // right of the overlay switch: the tool in a window of its own, to put it anywhere (only where the owner of the page has set PopOut)
         var popIcon = new TextBlock { Text = "\uE8A7", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, VerticalAlignment = VerticalAlignment.Center };
         popIcon.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
@@ -96,7 +97,33 @@ public sealed class ModulePage : DockPanel
 
         SetDock(header, Dock.Top);
         Children.Add(header);
-        Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = body });
+        var scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = body };
+        if (config is not null)
+        {
+            // two tabs under the title: what the tool shows, and what it can be set to
+            var tabs = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 12) };
+            var border = new Border { BorderThickness = new Thickness(0, 0, 0, 1), Child = tabs };
+            border.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            RadioButton Tab(string text, UIElement content, bool on)
+            {
+                var tab = new RadioButton { GroupName = "ModuleTab" + GetHashCode(), IsChecked = on, Content = text, Cursor = System.Windows.Input.Cursors.Hand, Template = TabTemplate() };
+                tab.Checked += (_, _) =>
+                {
+                    // the configuration wraps its texts to the width of the page; the view keeps the scroll bars it always had
+                    scroll.HorizontalScrollBarVisibility = content == config ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
+                    scroll.Content = content;
+                };
+                _tabButtons.Add(tab);
+                return tab;
+            }
+
+            tabs.Children.Add(Tab(loc["Hub.Tab.View"], body, true));
+            tabs.Children.Add(Tab(loc["Hub.Tab.Config"], config, false));
+            SetDock(border, Dock.Top);
+            Children.Add(border);
+        }
+
+        Children.Add(scroll);
 
         Sync();
         _timer.Tick += (_, _) =>
@@ -105,6 +132,36 @@ public sealed class ModulePage : DockPanel
             tick?.Invoke();
         };
         _timer.Start();
+    }
+
+    /// <summary>For the test picture: chooses the tab with this number (0 = display, 1 = configuration).</summary>
+    internal void SelectTabForRender(int index)
+    {
+        if (index >= 0 && index < _tabButtons.Count)
+        {
+            _tabButtons[index].IsChecked = true;
+        }
+    }
+
+    private static ControlTemplate TabTemplate()
+    {
+        var bd = new FrameworkElementFactory(typeof(Border)) { Name = "Bd" };
+        bd.SetValue(Border.PaddingProperty, new Thickness(18, 8, 18, 8));
+        bd.SetValue(Border.BorderThicknessProperty, new Thickness(0, 0, 0, 3));
+        bd.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
+        bd.SetValue(Border.BackgroundProperty, Brushes.Transparent);
+        var content = new FrameworkElementFactory(typeof(ContentPresenter));
+        content.SetValue(TextElement.FontWeightProperty, FontWeights.SemiBold);
+        bd.AppendChild(content);
+        var template = new ControlTemplate(typeof(RadioButton)) { VisualTree = bd };
+        var on = new Trigger { Property = System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Value = true };
+        on.Setters.Add(new Setter(Border.BorderBrushProperty, new DynamicResourceExtension("Brush.Accent"), "Bd"));
+        on.Setters.Add(new Setter(TextElement.ForegroundProperty, new DynamicResourceExtension("Brush.Accent")));
+        template.Triggers.Add(on);
+        var off = new Trigger { Property = System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Value = false };
+        off.Setters.Add(new Setter(TextElement.ForegroundProperty, new DynamicResourceExtension("Brush.TextMuted")));
+        template.Triggers.Add(off);
+        return template;
     }
 
     /// <summary>Shows the tool in a window of its own; the button for it (right of the overlay switch) is there only while this is set.</summary>

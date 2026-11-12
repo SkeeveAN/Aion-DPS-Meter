@@ -14857,5 +14857,29 @@
     "pt": "Ainda sem personagem",
     "ja": "キャラクター未取得",
     "ko": "아직 캐릭터 없음"
+  },
+  "Hub.Tab.View": {
+    "en": "Display",
+    "de": "Darstellung",
+    "fr": "Affichage",
+    "es": "Vista",
+    "ru": "Вид",
+    "zh": "显示",
+    "zh-TW": "顯示",
+    "pt": "Exibição",
+    "ja": "表示",
+    "ko": "표시"
+  },
+  "Hub.Tab.Config": {
+    "en": "Configuration",
+    "de": "Konfiguration",
+    "fr": "Configuration",
+    "es": "Configuración",
+    "ru": "Настройка",
+    "zh": "配置",
+    "zh-TW": "設定",
+    "pt": "Configuração",
+    "ja": "設定",
+    "ko": "설정"
   }
 }

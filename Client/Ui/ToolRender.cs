@@ -89,12 +89,21 @@ public static class ToolRender
                 break;
             }
 
+            case var cfg when cfg.StartsWith("config:", StringComparison.Ordinal):
+            {
+                shown = (FrameworkElement)ConfigPage(cfg["config:".Length..], loc, none, applied).Content;
+                width = 1100;
+                height = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_HEIGHT"), out int cfgTall) && cfgTall > 0 ? cfgTall : 900;
+                shown = new Border { Width = width, Height = height, Background = back, Child = shown };
+                break;
+            }
+
             default:
             {
                 Func<string, ToolPage?> build = id => id switch
                 {
                     "dummy" => DummyPage(what is "dummy-analyse" or "dummy-runs", what == "dummy-analyse"),
-                    "timetable" => TimetablePage(loc, none, applied),
+                    "timetable" => TimetablePage(loc, none, applied, what == "timetable"),
                     "stream" => StreamPage(loc, none, applied),
                     _ => ChecklistPage(),
                 };
@@ -210,13 +219,28 @@ public static class ToolRender
         return runs;
     }
 
-    private static ToolPage TimetablePage(LocalizationManager loc, Action hotkeys, Action<MeterSettings> applied)
+    private static ToolPage TimetablePage(LocalizationManager loc, Action hotkeys, Action<MeterSettings> applied, bool display = true)
     {
         var view = new TimetableWindow();
         UIElement body = view.DetachView();
         view.Refresh();
-        var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, hotkeys, applied, view.Refresh);
+        var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, hotkeys, applied, view.Refresh, null, ToolConfigs.Timetable(applied));
         page.PopOut = () => { };
+        return new ToolPage { Content = page };
+    }
+
+    /// <summary>The configuration tab of a tool (timetable, boss, combat, ...) on its own, for the test pictures.</summary>
+    private static ToolPage ConfigPage(string tool, LocalizationManager loc, Action hotkeys, Action<MeterSettings> applied)
+    {
+        UIElement config = tool switch
+        {
+            "timetable" => ToolConfigs.Timetable(applied),
+            "boss" => ToolConfigs.Boss(applied),
+            "combat" => ToolConfigs.Combat(applied),
+            _ => new Grid(),
+        };
+        var page = new ModulePage(tool, new TextBlock { Text = "…" }, s => false, (s, v) => { }, null, hotkeys, hotkeys, applied, null, null, config);
+        page.SelectTabForRender(1);
         return new ToolPage { Content = page };
     }
 

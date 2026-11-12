@@ -6142,7 +6142,7 @@ public partial class MainWindow : Window
             case "boss" when _worldBoss is not null:
             {
                 var view = _worldBoss.CreateView();
-                var page = new ModulePage(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied);
+                var page = new ModulePage(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied, null, null, ToolConfigs.Boss(applied));
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _worldBoss?.RemoveView(view); } };
             }
 
@@ -6151,7 +6151,7 @@ public partial class MainWindow : Window
                 var view = new TimetableWindow();
                 UIElement body = view.DetachView();
                 view.Refresh();
-                var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh);
+                var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh, null, ToolConfigs.Timetable(applied));
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); view.Close(); } };
             }
 
@@ -6160,43 +6160,14 @@ public partial class MainWindow : Window
                 var views = _combat.CreateViews();
                 var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
                 stack.Children.Add(ModulePage.Hint(loc["Combat.Page.SampleHint"]));
-                var elements = new List<(CheckBox Box, UIElement Body, Func<MeterSettings, bool> Get)>();
                 foreach (var (titleKey, view) in views)
                 {
-                    // each element's own switch sits at its caption and counts at once (the page and the overlay read the settings from disk)
-                    (Func<MeterSettings, bool> get, Action<MeterSettings, bool> set) = view.PartKind switch
-                    {
-                        CombatOverlayWindow.Part.Hp => ((Func<MeterSettings, bool>)(s => s.ShowBossHp), (Action<MeterSettings, bool>)((s, v) => s.ShowBossHp = v)),
-                        CombatOverlayWindow.Part.Cast => (s => s.CombatShowBossCast, (s, v) => s.CombatShowBossCast = v),
-                        _ => (s => s.CombatShowTargetOfTarget, (s, v) => s.CombatShowTargetOfTarget = v),
-                    };
-                    var (row, box) = ModulePage.SwitchCaption(loc[titleKey], loc["Settings.Overlay.ShowAs"]);
-                    box.Click += (_, _) =>
-                    {
-                        MeterSettings s = MeterSettings.Load();
-                        set(s, box.IsChecked == true);
-                        s.Save();
-                        applied(s);
-                    };
-                    UIElement body = view.DetachBody()!;
-                    elements.Add((box, body, get));
-                    stack.Children.Add(row);
-                    stack.Children.Add(body);
+                    // the elements are drawn as they look; showing, hiding and placing them is the overlay designer's job
+                    stack.Children.Add(ModulePage.Caption(loc[titleKey]));
+                    stack.Children.Add(view.DetachBody()!);
                 }
 
-                void SyncElements()
-                {
-                    MeterSettings s = MeterSettings.Load();
-                    foreach (var (box, body, get) in elements)
-                    {
-                        bool on = get(s);
-                        box.IsChecked = on;
-                        body.Opacity = on ? 1.0 : 0.45; // switched off: the sample stays, dimmed, so the page still shows what the display would be
-                    }
-                }
-
-                SyncElements();
-                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied, SyncElements);
+                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied, null, null, ToolConfigs.Combat(applied));
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _combat?.RemoveViews(views.Select(v => v.View)); } };
             }
 
