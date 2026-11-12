@@ -116,9 +116,12 @@ export const profileSchema = z.object({
     .max(10)
     .default([]),
   // The worn titles (slot 1..3 and the game's title id).
+  // A slot without a title reads as id 0: it is left out instead of costing the whole profile.
   titles: z
-    .array(z.object({ slot: z.number().int().min(1).max(3), titleId: z.number().int().min(1).max(2_000_000_000) }))
-    .max(3)
+    .preprocess(
+      (list) => (Array.isArray(list) ? list.filter((t) => !(t && typeof t === "object" && typeof (t as { titleId?: unknown }).titleId === "number" && (t as { titleId: number }).titleId < 1)) : list),
+      z.array(z.object({ slot: z.number().int().min(1).max(3), titleId: z.number().int().min(1).max(2_000_000_000) })).max(3),
+    )
     .default([]),
   // The pet circles: species 2 Cognia .. 6 Specia, its level and the quality of each effect slot (0 empty, 1 white .. 5 orange).
   pets: z
@@ -139,7 +142,12 @@ export const profileSchema = z.object({
         scope: z.number().int().min(0).max(9),
         rank: z.number().int().min(1).max(10_000_000),
         points: z.number().int().min(0).max(1_000_000_000_000),
-        change: z.number().int().min(-1_000_000).max(1_000_000).default(0),
+        // The rank movement; some rankings carry a different value in that place (more than a million either way), and one such field must not cost the whole profile: it counts as 0.
+        change: z
+          .number()
+          .int()
+          .default(0)
+          .transform((v) => (v >= -1_000_000 && v <= 1_000_000 ? v : 0)),
         grade: z.number().int().min(0).max(1000).default(0),
         // The stats the game lists beside the rank, as its own JSON text (kills, deaths, wins ...); parsed when shown.
         stats: z.string().max(300).optional(),
