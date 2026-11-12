@@ -1,18 +1,5 @@
 [
  {
-  "version": "Unreleased",
-  "date": "2026-11-12",
-  "items": [
-   {
-    "text": "Show the current boss automatically: a wipe and retry (the same boss entity, put back to full health) now moves the table to the new run (#2) and starts it from zero, instead of staying on the old run",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-12"
-   }
-  ]
- },
- {
   "version": "1.19.11",
   "date": "2026-11-11",
   "items": [
