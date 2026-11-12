@@ -77,6 +77,62 @@ public partial class SettingsWindow
         return brush;
     }
 
+    /// <summary>What the overlay designer (Ctrl+Alt+F) does now - showing, locking, placing, the opacity of each overlay - is out of the pages; the values are kept.</summary>
+    private void HideDesignerControls()
+    {
+        string[] names =
+        {
+            "ShowLootOverlayBox", "LootOverlayLockedBox", "LootOpacity", "ShowCombatOverlayBox", "CombatOverlayLockedBox", "ShowBossHpBox", "CombatHpLockedBox", "BossHpOpacity",
+            "CombatShowBossCastBox", "CombatCastLockedBox", "CombatCastOpacity", "CombatTargetOpacity", "ShowNetworkOverlayBox", "NetworkOverlayLockedBox", "NetworkOpacity",
+            "ShowTimetableBox", "TimetableLockedBox", "TimetableOpacityField", "ShowBossOverlayBox", "BossOverlayLockedBox", "BossOpacity", "ShowPetMapBox", "PetMapShowMapBox",
+            "PetMapShowListBox", "PetFarmLockedBox", "PetListLockedBox", "PetInfoLockedBox", "PetMapOpacity", "PetListOpacity", "PetInfoOpacity", "HotkeyOverlayLockedBox", "HotkeyOpacity",
+            "OverlayOpacityBox", "OverlayStyleBox",
+        };
+        foreach (string name in names)
+        {
+            if (FindName(name) is not FrameworkElement element)
+            {
+                continue;
+            }
+
+            element.Visibility = Visibility.Collapsed;
+            // a label and its box on one grid row: the row goes with the box
+            if (element.Parent is Grid { Children.Count: <= 3 } row)
+            {
+                row.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        foreach (var content in _contentFields.Values)
+        {
+            content.Visibility = Visibility.Collapsed;
+        }
+
+        // the "reset place" buttons (Tag = the overlay's window title)
+        foreach (string panel in AllPanels)
+        {
+            if (FindName(panel) is DependencyObject root)
+            {
+                HideResetButtons(root);
+            }
+        }
+    }
+
+    private static void HideResetButtons(DependencyObject parent)
+    {
+        foreach (object child in LogicalTreeHelper.GetChildren(parent))
+        {
+            if (child is Button { Tag: string tag } button && tag.StartsWith("Aion DPS", StringComparison.Ordinal))
+            {
+                button.Visibility = Visibility.Collapsed;
+            }
+            else if (child is DependencyObject node)
+            {
+                HideResetButtons(node);
+            }
+        }
+    }
+
     private void InitNav(MeterSettings settings)
     {
         _disabled = new HashSet<string>(settings.DisabledTools);

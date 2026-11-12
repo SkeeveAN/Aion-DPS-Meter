@@ -26,6 +26,7 @@ public partial class SettingsWindow : Window
 
         InitNav(settings);
         AddContentOpacityFields(settings);
+        HideDesignerControls();
         ApplyView();
         ShowUndo(undoUntil);
 
