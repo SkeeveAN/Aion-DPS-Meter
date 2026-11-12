@@ -690,6 +690,13 @@ public partial class SessionManagerWindow : Window
     private void OnCompareClicked(object sender, RoutedEventArgs e)
     {
         SessionInfo? picked = (SessionList.SelectedItem as Item)?.Session;
+        if (CompareInHost is not null)
+        {
+            // inside the new interface the comparison is a page, not a window
+            CompareInHost(picked);
+            return;
+        }
+
         new CompareWindow(_recorder, session => session.Extras ?? ExtrasFor?.Invoke(session), Import, picked is { Data.Events.Count: > 0 } ? new[] { picked } : null) { Owner = this }.Show();
     }
 
@@ -722,12 +729,17 @@ public partial class SessionManagerWindow : Window
     }
 
     /// <summary>A file of one stay comes back as that stay; a plain meter-session file becomes a stay of an unknown map, from its first to its last hit.</summary>
-    private SessionInfo Import(SessionFile.LoadedSession file)
+    /// <summary>Set by the new interface: the comparison opens as a page there (with the picked session, or none).</summary>
+    public Action<SessionInfo?>? CompareInHost { get; set; }
+
+    private SessionInfo Import(SessionFile.LoadedSession file) => Import(_recorder, file);
+
+    internal static SessionInfo Import(SessionRecorder recorder, SessionFile.LoadedSession file)
     {
         SessionInfo session;
         if (file.Stay is { } stay)
         {
-            session = _recorder.Import(stay.ZoneId, stay.Kind, stay.Start, stay.End);
+            session = recorder.Import(stay.ZoneId, stay.Kind, stay.Start, stay.End);
             session.Data.IngestEvents(file.Events.Concat(stay.Shields));
             session.Extras = stay.Extras;
             session.Avoids.AddRange(file.Avoids);
@@ -741,7 +753,7 @@ public partial class SessionManagerWindow : Window
         {
             DateTime first = file.Events.Count > 0 ? file.Events.Min(ev => ev.Timestamp) : file.SavedAt;
             DateTime last = file.Events.Count > 0 ? file.Events.Max(ev => ev.Timestamp) : file.SavedAt;
-            session = _recorder.Import(0, SessionKind.Map, first, last);
+            session = recorder.Import(0, SessionKind.Map, first, last);
             session.Data.IngestEvents(file.Events);
         }
 

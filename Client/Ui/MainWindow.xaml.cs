@@ -5994,6 +5994,13 @@ public partial class MainWindow : Window
 
     private void OpenSettingsPage(string module)
     {
+        // from a page of the new interface the settings are its own tab, not a window
+        if (_hubWindow is { IsLoaded: true } hub)
+        {
+            hub.GoTo("settings", "settings");
+            return;
+        }
+
         if (_settingsWindow is null)
         {
             OpenSettings(null);
@@ -6062,6 +6069,27 @@ public partial class MainWindow : Window
         return body;
     }
 
+    private SessionInfo? _pendingCompare;
+
+    /// <summary>The content of a window that is never shown, as a page: the styles the window defined for its own controls go with it, the buttons keep the shared look (also when disabled).</summary>
+    internal static ToolPage TakeWithStyles(Window window)
+    {
+        UIElement? body = ThemedChrome.TakeContent(window);
+        if (body is FrameworkElement element)
+        {
+            element.Resources.MergedDictionaries.Add(window.Resources);
+            if (Application.Current?.MainWindow?.Resources[typeof(Button)] is Style shared)
+            {
+                var buttons = new Style(typeof(Button), shared);
+                buttons.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(10, 4, 10, 4)));
+                buttons.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(4, 0, 0, 0)));
+                element.Resources[typeof(Button)] = buttons;
+            }
+        }
+
+        return new ToolPage { Content = body ?? new Grid(), Cleanup = window.Close };
+    }
+
     private ToolPage? BuildToolPage(string module, bool inPopOut = false)
     {
         ToolPage? page = BuildToolPageContent(module);
@@ -6101,21 +6129,28 @@ public partial class MainWindow : Window
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
         if (module == "hub.sessions")
         {
-            // the sessions inside the new interface: the content of the session window (never shown); loading, saving, comparing and the analysis work as in the window
+            // the sessions inside the new interface: the content of the session window (never shown); loading, saving and the analysis work as in the window
             var manager = new SessionManagerWindow(_sessions)
             {
                 ExtrasFor = ExtrasForSession,
                 AnalyzerFactory = BuildSessionAnalyzer,
                 DeathsFor = DeathsForSession,
+                CompareInHost = picked =>
+                {
+                    _pendingCompare = picked;
+                    _hubWindow?.GoTo("combat", "compare");
+                },
             };
-            // the styles the window defined for its own controls (text box, chips, cards) go with the content
-            UIElement? managerBody = ThemedChrome.TakeContent(manager);
-            if (managerBody is FrameworkElement managerElement)
-            {
-                managerElement.Resources.MergedDictionaries.Add(manager.Resources);
-            }
+            return TakeWithStyles(manager);
+        }
 
-            return new ToolPage { Content = managerBody ?? new Grid(), Cleanup = manager.Close };
+        if (module == "hub.compare")
+        {
+            SessionInfo? first = _pendingCompare;
+            _pendingCompare = null;
+            var compare = new CompareWindow(_sessions, session => session.Extras ?? ExtrasForSession(session), file => SessionManagerWindow.Import(_sessions, file),
+                first is { Data.Events.Count: > 0 } ? new[] { first } : null);
+            return TakeWithStyles(compare);
         }
 
         if (module == "hub.live")

@@ -161,6 +161,7 @@ public sealed class HubWindow : Window
         {
             new("live", loc["Hub.LiveMeter"], "tool", "hub.live"),
             new("sessions", loc["Hub.Sessions"], "tool", "hub.sessions"),
+            new("compare", loc["Hub.Compare"], "tool", "hub.compare"),
         };
         combat.AddRange(Tools("dummy"));
         var character = new List<Entry>
@@ -426,6 +427,9 @@ public sealed class HubWindow : Window
                 break;
         }
     }
+
+    /// <summary>Shows a page of the interface (for a page that sends the player on to another one).</summary>
+    public void GoTo(string sectionId, string entryId) => SelectForRender(sectionId, entryId);
 
     /// <summary>A shortcut of the dashboard: the tools tab with that tool's page.</summary>
     private void OpenToolFromDashboard(string tool)
