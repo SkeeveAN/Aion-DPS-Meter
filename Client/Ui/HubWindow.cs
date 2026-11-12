@@ -162,6 +162,7 @@ public sealed class HubWindow : Window
             new("live", loc["Hub.LiveMeter"], "tool", "hub.live"),
             new("sessions", loc["Hub.Sessions"], "tool", "hub.sessions"),
             new("compare", loc["Hub.Compare"], "tool", "hub.compare"),
+            new("replay", loc["Hub.Replay"], "tool", "hub.replay"),
         };
         combat.AddRange(Tools("dummy"));
         var character = new List<Entry>
@@ -425,6 +426,21 @@ public sealed class HubWindow : Window
             default:
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], null);
                 break;
+        }
+    }
+
+    /// <summary>The replay the Replay page shows (set by <see cref="ShowReplay"/>).</summary>
+    internal static Combat.ReplayData? PendingReplay { get; private set; }
+
+    /// <summary>A player's details asked for the replay of a fight: the Replay page of the Combat &amp; Analysis tab shows it.</summary>
+    internal void ShowReplay(Combat.ReplayData data)
+    {
+        PendingReplay = data;
+        Entry? shown = _entry;
+        GoTo("combat", "replay");
+        if (shown is { Id: "replay" })
+        {
+            ShowEntry(shown); // already on the page: it is built again for the new data
         }
     }
 

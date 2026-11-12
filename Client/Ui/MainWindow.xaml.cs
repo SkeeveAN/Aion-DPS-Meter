@@ -6155,6 +6155,18 @@ public partial class MainWindow : Window
             return TakeWithStyles(compare);
         }
 
+        if (module == "hub.replay")
+        {
+            if (HubWindow.PendingReplay is not { } replayData)
+            {
+                var none = new TextBlock { Text = loc["Hub.ReplayNone"], Margin = new Thickness(24), TextWrapping = TextWrapping.Wrap, HorizontalAlignment = HorizontalAlignment.Left };
+                none.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+                return new ToolPage { Content = none };
+            }
+
+            return TakeWithStyles(new FightReplayWindow(replayData));
+        }
+
         if (module == "hub.live")
         {
             return LiveMeterPage.Build(_rows, () =>

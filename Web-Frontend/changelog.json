@@ -104,6 +104,13 @@
      "Client"
     ],
     "date": "2026-11-12"
+   },
+   {
+    "text": "Release 2.0.0-alpha.8: the dashboard has five pages (overview with the checklist card, fights of the recording, best fights, update, news), the live meter, the sessions and the comparison are pages of the Combat & Analysis tab, the overlay designer got a Dock switch, the grid cell and Hide in the panel of each overlay (docking and grid left the settings), the settings and hotkey links of the pages lead to the Settings tab; fixes: with \"show the current boss automatically\" a wipe and retry moves the table to the new run and starts it from zero, and a boss no longer drops off the Mob/Boss list when a player takes over its old entity id",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-12"
    }
   ]
  },

@@ -15409,5 +15409,29 @@
     "pt": "Para a lista ›",
     "ja": "チェックリストへ ›",
     "ko": "체크리스트로 ›"
+  },
+  "Hub.Replay": {
+    "en": "Replay",
+    "de": "Replay",
+    "fr": "Replay",
+    "es": "Replay",
+    "ru": "Повтор",
+    "zh": "回放",
+    "zh-TW": "回放",
+    "pt": "Replay",
+    "ja": "リプレイ",
+    "ko": "리플레이"
+  },
+  "Hub.ReplayNone": {
+    "en": "Open a replay from the details of a player (Sessions).",
+    "de": "Ein Replay öffnest du in den Details eines Spielers (Sitzungen).",
+    "fr": "Ouvrez un replay depuis les détails d'un joueur (Sessions).",
+    "es": "Abre un replay desde los detalles de un jugador (Sesiones).",
+    "ru": "Откройте повтор из сведений об игроке (Сессии).",
+    "zh": "请在玩家详情(会话)中打开回放。",
+    "zh-TW": "請在玩家詳情(工作階段)中開啟回放。",
+    "pt": "Abra um replay a partir dos detalhes de um jogador (Sessões).",
+    "ja": "プレイヤーの詳細(セッション)からリプレイを開きます。",
+    "ko": "플레이어 상세(세션)에서 리플레이를 엽니다."
   }
 }

@@ -454,6 +454,13 @@ public partial class PlayerDetailsView : UserControl
     {
         if (_replay is not null)
         {
+            // inside the new interface the replay is a page of the Combat & Analysis tab, not a window
+            if (Window.GetWindow(this) is HubWindow hub)
+            {
+                hub.ShowReplay(_replay);
+                return;
+            }
+
             new FightReplayWindow(_replay) { Owner = Window.GetWindow(this) }.Show();
         }
     }
