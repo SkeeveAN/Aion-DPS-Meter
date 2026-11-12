@@ -74,7 +74,7 @@ public static class ToolRender
             {
                 // "hub", "hub:character:checklist": the new interface with a tab and a page of it
                 string[] parts = hub.Split(':');
-                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : null, _ => { }, none, none,
                     () => new HubStatus(true, "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (parts.Length >= 3)
                 {
@@ -145,6 +145,12 @@ public static class ToolRender
 
         Console.WriteLine($"render-tool: wrote {path} ({what}, {width}x{height} at x{scale})");
         Environment.Exit(0);
+    }
+
+    private static ToolPage SettingsPage()
+    {
+        var window = new SettingsWindow(MeterSettings.Load(), null);
+        return new ToolPage { Content = window.TakeEmbedded() ?? new Grid(), Cleanup = window.Close };
     }
 
     /// <summary>The checklist with made-up tickets of two characters, the way the render-checklist picture has it.</summary>

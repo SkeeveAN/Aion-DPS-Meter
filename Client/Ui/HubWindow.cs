@@ -173,7 +173,7 @@ public sealed class HubWindow : Window
                 new Group(loc["Hub.Group.World"], Tools("loot", "craft", "petmap", "timetable", "boss")),
                 new Group(loc["Hub.Group.Combat"], Tools("combat", "assist", "stream", "network", "theme")),
             }),
-            new Section("settings", settings, new[] { new Group(settings, new[] { new Entry("settings", settings, "settings", "") }) }),
+            new Section("settings", settings, new[] { new Group(settings, new[] { new Entry("settings", settings, "tool", "hub.settings") }) }),
         };
     }
 

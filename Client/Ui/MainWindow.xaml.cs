@@ -6098,6 +6098,52 @@ public partial class MainWindow : Window
         Action settingsPage = () => OpenSettingsPage(module);
         // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
+        if (module == "hub.settings")
+        {
+            // the settings inside the new interface: the content of the settings window (never shown); Save applies, as in the window
+            var settings = MeterSettings.Load();
+            string openedTheme = settings.Theme;
+            var window = new SettingsWindow(settings, null);
+            window.Saved += () =>
+            {
+                var onDisk = MeterSettings.Load();
+                if (settings.Theme == openedTheme)
+                {
+                    settings.Theme = onDisk.Theme;
+                }
+
+                settings.Save();
+                ApplySettingsEverywhere(settings);
+            };
+            window.ResetRequested += () =>
+            {
+                MeterSettings.ResetToDefaults();
+                ApplySettingsEverywhere(MeterSettings.Load());
+                ReopenSettings(DateTime.UtcNow.AddSeconds(30));
+            };
+            window.UndoRequested += () =>
+            {
+                if (MeterSettings.UndoReset())
+                {
+                    ApplySettingsEverywhere(MeterSettings.Load());
+                }
+
+                ReopenSettings(null);
+            };
+            window.OpenToolRequested += OpenTool;
+            window.CopyStreamLinkRequested += CopyStreamLink;
+            window.NewStreamKeyRequested += () =>
+            {
+                var current = MeterSettings.Load();
+                current.StreamOverlayKey = Streaming.StreamOverlayServer.NewKey();
+                current.Save();
+                _streamSettingsAt = DateTime.MinValue;
+                StreamTick();
+                CopyStreamLink();
+            };
+            return new ToolPage { Content = window.TakeEmbedded() ?? new Grid(), Cleanup = window.Close };
+        }
+
         if (module.StartsWith("hub.char.", StringComparison.Ordinal))
         {
             // the pages of the character tabs in the new interface: the character window's own tab, shown without its window

@@ -588,6 +588,34 @@ public partial class SettingsWindow : Window
     /// Hands one panel (Pets, Gathering) to the tools window, which shows it as a page of its own; this window is never shown then. The panel keeps working
     /// on this window's controls, <see cref="ReadPanel"/> reads them back.
     /// </summary>
+    /// <summary>The whole settings page as the Settings tab of the new interface: the window's content without its own title bar and without the Cancel button (the window is never shown).</summary>
+    public UIElement? TakeEmbedded()
+    {
+        if (Content is not Border { Child: DockPanel dock } border)
+        {
+            return null;
+        }
+
+        // the title bar (first child, docked top) and Cancel (last child of the bottom row)
+        if (dock.Children.Count > 0)
+        {
+            dock.Children[0].Visibility = Visibility.Collapsed;
+        }
+
+        foreach (UIElement child in dock.Children)
+        {
+            if (child is StackPanel { Orientation: Orientation.Horizontal } row && DockPanel.GetDock(child) == Dock.Bottom && row.Children.Count > 0)
+            {
+                row.Children[row.Children.Count - 1].Visibility = Visibility.Collapsed;
+                row.Margin = new Thickness(0, 6, 22, 8);
+            }
+        }
+
+        border.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Brush.Text");
+        Content = null;
+        return border;
+    }
+
     public UIElement? TakePanel(string name)
     {
         if (FindName(name) is StackPanel panel && panel.Parent is Panel parent)
