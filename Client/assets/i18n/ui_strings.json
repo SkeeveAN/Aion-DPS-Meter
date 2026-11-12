@@ -15385,5 +15385,29 @@
     "pt": "Novidades",
     "ja": "ニュース",
     "ko": "소식"
+  },
+  "Hub.Dash.TodoTitle": {
+    "en": "To do today",
+    "de": "Heute zu erledigen",
+    "fr": "À faire aujourd'hui",
+    "es": "Pendiente hoy",
+    "ru": "Сегодня сделать",
+    "zh": "今日待办",
+    "zh-TW": "今日待辦",
+    "pt": "Para hoje",
+    "ja": "今日やること",
+    "ko": "오늘 할 일"
+  },
+  "Hub.Dash.ToChecklist": {
+    "en": "To the checklist ›",
+    "de": "Zur Checkliste ›",
+    "fr": "Vers la liste ›",
+    "es": "A la lista ›",
+    "ru": "К списку ›",
+    "zh": "前往清单 ›",
+    "zh-TW": "前往清單 ›",
+    "pt": "Para a lista ›",
+    "ja": "チェックリストへ ›",
+    "ko": "체크리스트로 ›"
   }
 }

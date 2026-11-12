@@ -160,8 +160,7 @@ public sealed class HubWindow : Window
         var combat = new List<Entry>
         {
             new("live", loc["Hub.LiveMeter"], "tool", "hub.live"),
-            new("sessions", loc["Hub.Sessions"], "own", "analyzer"),
-            new("compare", loc["Hub.Compare"], "own", "analyzer"),
+            new("sessions", loc["Hub.Sessions"], "tool", "hub.sessions"),
         };
         combat.AddRange(Tools("dummy"));
         var character = new List<Entry>
@@ -412,7 +411,7 @@ public sealed class HubWindow : Window
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], (loc["Hub.OpenMeter"], _openMeter));
                 break;
             case "overview":
-                _page = HubDashboard.Build(entry.Target, new DashboardSources(_status, OpenToolFromDashboard, _sessions, () => _openOwn("analyzer"), _version));
+                _page = HubDashboard.Build(entry.Target, new DashboardSources(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version));
                 _host.Child = new Grid { Children = { _page.Content } };
                 break;
             case "settings":

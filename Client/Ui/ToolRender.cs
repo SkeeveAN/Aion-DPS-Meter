@@ -74,7 +74,7 @@ public static class ToolRender
             {
                 // "hub", "hub:character:checklist": the new interface with a tab and a page of it
                 string[] parts = hub.Split(':');
-                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : id == "hub.live" ? LivePage() : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : null, _ => { }, none, none,
                     () => new HubStatus(true, "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (parts.Length >= 3)
                 {
@@ -145,6 +145,18 @@ public static class ToolRender
 
         Console.WriteLine($"render-tool: wrote {path} ({what}, {width}x{height} at x{scale})");
         Environment.Exit(0);
+    }
+
+    private static ToolPage SessionsPage()
+    {
+        var window = new SessionManagerWindow(new History.SessionRecorder(_ => History.SessionKind.Map));
+        UIElement? body = ThemedChrome.TakeContent(window);
+        if (body is FrameworkElement element)
+        {
+            element.Resources.MergedDictionaries.Add(window.Resources);
+        }
+
+        return new ToolPage { Content = body ?? new Grid(), Cleanup = window.Close };
     }
 
     private static ToolPage LivePage()

@@ -6099,6 +6099,25 @@ public partial class MainWindow : Window
         Action settingsPage = () => OpenSettingsPage(module);
         // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
+        if (module == "hub.sessions")
+        {
+            // the sessions inside the new interface: the content of the session window (never shown); loading, saving, comparing and the analysis work as in the window
+            var manager = new SessionManagerWindow(_sessions)
+            {
+                ExtrasFor = ExtrasForSession,
+                AnalyzerFactory = BuildSessionAnalyzer,
+                DeathsFor = DeathsForSession,
+            };
+            // the styles the window defined for its own controls (text box, chips, cards) go with the content
+            UIElement? managerBody = ThemedChrome.TakeContent(manager);
+            if (managerBody is FrameworkElement managerElement)
+            {
+                managerElement.Resources.MergedDictionaries.Add(manager.Resources);
+            }
+
+            return new ToolPage { Content = managerBody ?? new Grid(), Cleanup = manager.Close };
+        }
+
         if (module == "hub.live")
         {
             return LiveMeterPage.Build(_rows, () =>

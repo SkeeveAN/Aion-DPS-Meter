@@ -62,7 +62,7 @@ public static class HubDashboard
         var total = TimeSpan.FromSeconds(sessions.Sum(s => s.Duration(now).TotalSeconds));
         var bestDps = attempts.Where(a => a.Duration.TotalSeconds >= 10).Select(a => (double?)(a.Counted / a.Duration.TotalSeconds)).DefaultIfEmpty(null).Max();
         wrap.Children.Add(Card(loc["Hub.Dash.Connection"], Connection(src.Status(), loc), 420));
-        wrap.Children.Add(Card(loc["Main.MenuTools.Checklist"], Todo(loc), 420, () => src.OpenTool("checklist")));
+        wrap.Children.Add(Card(loc["Hub.Dash.TodoTitle"], Todo(loc, src.OpenTool), 420, () => src.OpenTool("checklist")));
         wrap.Children.Add(Card(loc["Hub.Dash.Soon"], Events(active, soon, now, loc), 520, () => src.OpenTool("timetable")));
         wrap.Children.Add(Card(loc["Settings.Nav.Boss"], Bosses(now, loc), 520, () => src.OpenTool("boss")));
         var figures = new StackPanel();
@@ -93,36 +93,51 @@ public static class HubDashboard
         return stack;
     }
 
-    /// <summary>The daily contents of the current character that still have entries left.</summary>
-    private static UIElement Todo(LocalizationManager loc)
+    /// <summary>"Heute zu erledigen" as the HTML draft has it: the Odyle energy with its bar, the four entry counters (tickets 1, 4, 8 and 101) and a link to the checklist.</summary>
+    private static UIElement Todo(LocalizationManager loc, Action<string> openTool)
     {
         var stack = new StackPanel();
+        TicketCharacter? me = null;
         try
         {
-            TicketCharacter? me = Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase));
-            if (me is not null)
-            {
-                int shown = 0;
-                foreach (TicketDef def in Aion2Tickets.Catalog.Where(t => t.DailyAt is not null && !t.IsTime && t.Max > 0 && !Aion2Tickets.IsLocked(me, t.Id)))
-                {
-                    if (me.Tickets.TryGetValue(def.Id, out TicketValue value) && value.Count > 0 && shown < 8)
-                    {
-                        stack.Children.Add(Line(def.ShortIn(loc.Language), value.Count + " / " + def.Max));
-                        shown++;
-                    }
-                }
-            }
+            me = Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             // the checklist reads what the game sent; with nothing sent the card stays empty
         }
 
-        if (stack.Children.Count == 0)
+        TicketValue Value(int id) => me is not null && me.Tickets.TryGetValue(id, out TicketValue v) ? v : default;
+        TicketDef? ode = Aion2Tickets.Find(Aion2Tickets.OdyleId);
+        if (me is null || ode is null)
         {
             stack.Children.Add(Text(loc["Hub.Dash.TodoNone"], false, "Brush.TextMuted"));
         }
+        else
+        {
+            TicketValue o = Value(ode.Id);
+            stack.Children.Add(Line(ode.ShortIn(loc.Language), $"{o.Count} (+{o.Bonus}) / {ode.Max}"));
+            var bar = new ProgressBar { Height = 8, Maximum = 100, Value = ode.Max > 0 ? Math.Min(100.0, o.Count * 100.0 / ode.Max) : 0, BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8) };
+            bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
+            bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
+            stack.Children.Add(bar);
+            foreach (int id in new[] { 1, 4, 8, 101 })
+            {
+                if (Aion2Tickets.Find(id) is not { } def)
+                {
+                    continue;
+                }
 
+                TicketValue v = Value(id);
+                int cap = def.SubscribeMax > 0 ? def.SubscribeMax : def.Max;
+                stack.Children.Add(Line(def.ShortIn(loc.Language), $"{v.Count} / {cap}", false, v.Count > 0 ? "Brush.Accent" : "Brush.TextMuted"));
+            }
+        }
+
+        var link = new TextBlock { Text = loc["Hub.Dash.ToChecklist"], Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 8, 0, 0) };
+        link.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        link.MouseLeftButtonUp += (_, _) => openTool("checklist");
+        stack.Children.Add(link);
         return stack;
     }
 
