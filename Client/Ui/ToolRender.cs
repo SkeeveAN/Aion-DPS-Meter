@@ -74,7 +74,7 @@ public static class ToolRender
             {
                 // "hub", "hub:character:checklist": the new interface with a tab and a page of it
                 string[] parts = hub.Split(':');
-                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : id == "hub.live" ? LivePage() : null, _ => { }, none, none,
                     () => new HubStatus(true, "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (parts.Length >= 3)
                 {
@@ -145,6 +145,22 @@ public static class ToolRender
 
         Console.WriteLine($"render-tool: wrote {path} ({what}, {width}x{height} at x{scale})");
         Environment.Exit(0);
+    }
+
+    private static ToolPage LivePage()
+    {
+        var rows = new System.Collections.ObjectModel.ObservableCollection<PlayerRow>();
+        (string Name, string Class, long Damage, double Dps, double Fill, double Share)[] sample =
+        {
+            ("Aahz", "Gladiator", 2_310_000, 48210, 100, 31.2), ("Skeeve", "Sorcerer", 1_910_000, 39874, 83, 25.8), ("Chumley", "Assassin", 1_460_000, 30502, 63, 19.7), ("Nunzio", "Cleric", 860_000, 17940, 37, 11.6),
+        };
+        int rank = 1;
+        foreach (var p in sample)
+        {
+            rows.Add(new PlayerRow(rank) { Name = p.Name, ClassName = p.Class, Damage = p.Damage, Dps = p.Dps, FillPercent = p.Fill, SharePercent = p.Share, Rank = rank++ });
+        }
+
+        return LiveMeterPage.Build(rows, () => { });
     }
 
     private static ToolPage SettingsPage()

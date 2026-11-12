@@ -146,7 +146,7 @@ public sealed class HubWindow : Window
         string settings = loc["Main.MenuSettings"];
         var combat = new List<Entry>
         {
-            new("live", loc["Hub.LiveMeter"], "meter", ""),
+            new("live", loc["Hub.LiveMeter"], "tool", "hub.live"),
             new("sessions", loc["Hub.Sessions"], "own", "analyzer"),
             new("compare", loc["Hub.Compare"], "own", "analyzer"),
         };

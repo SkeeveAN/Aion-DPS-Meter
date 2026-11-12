@@ -6098,6 +6098,16 @@ public partial class MainWindow : Window
         Action settingsPage = () => OpenSettingsPage(module);
         // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
+        if (module == "hub.live")
+        {
+            return LiveMeterPage.Build(_rows, () =>
+            {
+                Show();
+                WindowState = WindowState.Normal;
+                Activate();
+            });
+        }
+
         if (module == "hub.settings")
         {
             // the settings inside the new interface: the content of the settings window (never shown); Save applies, as in the window
