@@ -6139,21 +6139,10 @@ public partial class MainWindow : Window
             case "craft":
             {
                 var craftPage = new CraftPage(() => _liveSource?.Entities as Aion2EntityDirectory);
-                CraftConfigWindow? craftConfig = null;
-                Action openCraftConfig = () =>
-                {
-                    if (craftConfig is { IsLoaded: true })
-                    {
-                        craftConfig.Activate();
-                        return;
-                    }
-
-                    craftConfig = new CraftConfigWindow(() => _liveSource?.Entities as Aion2EntityDirectory) { Owner = (Window?)_toolsWindow ?? this };
-                    craftConfig.Closed += (_, _) => craftConfig = null;
-                    craftConfig.Show();
-                };
-                var craftModule = new ModulePage("", craftPage, s => s.ShowCraftOverlay, (s, v) => s.ShowCraftOverlay = v, s => s.HotkeyCraft, hotkeys, openCraftConfig, applied, null, craftPage.ModeBar);
-                return new ToolPage { Content = craftModule, Cleanup = () => { craftModule.Stop(); craftPage.Stop(); } };
+                var craftConfig = new CraftConfigWindow(() => _liveSource?.Entities as Aion2EntityDirectory);
+                UIElement? craftConfigBody = craftConfig.TakeEmbedded();
+                var craftModule = new ModulePage("", craftPage, s => s.ShowCraftOverlay, (s, v) => s.ShowCraftOverlay = v, s => s.HotkeyCraft, hotkeys, null, applied, null, craftPage.ModeBar, craftConfigBody);
+                return new ToolPage { Content = craftModule, Cleanup = () => { craftModule.Stop(); craftPage.Stop(); craftConfig.CloseEmbedded(); } };
             }
 
             case "assist":

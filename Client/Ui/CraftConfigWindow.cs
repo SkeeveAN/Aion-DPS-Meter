@@ -25,7 +25,9 @@ public sealed class CraftConfigWindow : Window
     private readonly MeterSettings _settings;
     private readonly List<CraftEntry> _entries;
     private double _opacity;
-    private readonly string _baseline;
+    private string _baseline;
+    private bool _embedded;
+    private Button? _closeButton;
     private bool _allowClose;
 
     private string _category = "Alchemy";
@@ -70,11 +72,16 @@ public sealed class CraftConfigWindow : Window
         save.Click += (_, _) =>
         {
             SaveAll();
-            _allowClose = true;
-            Close();
+            _baseline = Snapshot();
+            if (!_embedded)
+            {
+                _allowClose = true;
+                Close();
+            }
         };
         var close = new Button { Content = loc["Config.Close"], Padding = new Thickness(22, 4, 22, 4) };
         close.Click += (_, _) => Close();
+        _closeButton = close;
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(14, 8, 14, 12) };
         buttons.Children.Add(save);
         buttons.Children.Add(close);
@@ -92,6 +99,30 @@ public sealed class CraftConfigWindow : Window
         ApplyFold();
         ThemedChrome.Apply(this);
         _baseline = Snapshot();
+    }
+
+    /// <summary>The page of the new interface: the content of this window (never shown) as the configuration tab of the craft tool. Save keeps the window open.</summary>
+    public UIElement? TakeEmbedded()
+    {
+        _embedded = true;
+        if (_closeButton is not null)
+        {
+            _closeButton.Visibility = Visibility.Collapsed;
+        }
+
+        return ThemedChrome.TakeContent(this);
+    }
+
+    /// <summary>The page goes away: what was changed and not saved is kept (as the settings pages of the map do), then the hidden window is closed.</summary>
+    public void CloseEmbedded()
+    {
+        if (Snapshot() != _baseline)
+        {
+            SaveAll();
+        }
+
+        _allowClose = true;
+        Close();
     }
 
     // ---------------------------------------------------------------- the search (folds out above the list)
@@ -529,23 +560,13 @@ public sealed class CraftConfigWindow : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        var overlay = new StackPanel();
-        overlay.Children.Add(SubHeading(loc["Craft.Overlay"]));
-        overlay.Children.Add(OptionRow(loc["Craft.Movable"], SwitchBox(_movable, v => _movable = v)));
-        overlay.Children.Add(OptionRow(loc["Craft.Lines"], LinesBox()));
-        overlay.Children.Add(OptionRow(loc["Craft.Opacity"], OpacityBox()));
-        var reset = new Button { Content = loc["Craft.ResetPlace"], Padding = new Thickness(12, 2, 12, 2), MinHeight = 24 };
-        reset.Click += (_, _) => OverlayPlaces.Reset(OverlayPlaces.Craft);
-        overlay.Children.Add(OptionRow(loc["Craft.PlaceLabel"], reset));
-        grid.Children.Add(overlay);
-
+        // the overlay's place, lines, opacity and movability are the overlay designer's job (Ctrl+Alt+F)
         var calc = new StackPanel();
         calc.Children.Add(SubHeading(loc["Craft.Calculation"]));
         calc.Children.Add(OptionRow(loc["Craft.Resolve"], SwitchBox(_resolve, v => _resolve = v)));
         calc.Children.Add(OptionRow(loc["Craft.CountInventory"], SwitchBox(_countInventory, v => _countInventory = v)));
         calc.Children.Add(OptionRow(loc["Craft.CountStorage"], SwitchBox(_countStorage, v => _countStorage = v)));
         calc.Children.Add(OptionRow(loc["Craft.CountAccount"], SwitchBox(_countAccount, v => _countAccount = v)));
-        Grid.SetColumn(calc, 2);
         grid.Children.Add(calc);
         stack.Children.Add(grid);
         return card;
