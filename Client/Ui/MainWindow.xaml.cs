@@ -94,7 +94,7 @@ public partial class MainWindow : Window
     /// SearchableComboBox template in the XAML). RefreshMobBossFilterItems's dedup and "upload
     /// every boss since Clear" (OnUploadLastRunClicked) both need the full, unfiltered set
     /// regardless of whatever the user currently has typed into the search box.</summary>
-    private readonly List<(int TargetId, string Name)> _mobBossEntries = new();
+    private readonly List<(int TargetId, string Name, bool IsPlayer)> _mobBossEntries = new();
 
     /// <summary>The XAML-declared "All" entry, captured once in the constructor so
     /// ApplyMobBossSearchFilter can keep re-inserting this SAME instance (preserving its
@@ -2189,7 +2189,8 @@ public partial class MainWindow : Window
         IEnumerable<int> targets = indexed ? _index.Targets.ToList() : _aggregator.Events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct();
         foreach (int targetId in targets)
         {
-            bool isPlayerTarget = IsPlayerName(targetId);
+            // a monster the game announced as a boss is no player, even when an earlier player once had the same entity id
+            bool isPlayerTarget = IsPlayerName(targetId) && !IsKnownBoss("", targetId);
             if (knownIds.Contains(targetId))
             {
                 continue;
@@ -2201,7 +2202,7 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            _mobBossEntries.Add((targetId, name));
+            _mobBossEntries.Add((targetId, name, isPlayerTarget));
             added = true;
         }
 
@@ -2351,7 +2352,8 @@ public partial class MainWindow : Window
         // Filtering here (rather than in RefreshMobBossFilterItems) keeps both sets around so
         // switching modes mid-session doesn't lose entries seen while the other mode was active.
         var rows = _mobBossEntries
-            .Where(entry => IsPlayerName(entry.TargetId) == _pvpOnly)
+            // what the target was when it was first seen: ids are used again later (another player on a boss's old id must not take the boss off the list)
+            .Where(entry => entry.IsPlayer == _pvpOnly)
             .SelectMany(entry => MobBossRowsFor(entry.TargetId, entry.Name))
             .Where(row => search.Length == 0 || row.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(row => row.Damage)
