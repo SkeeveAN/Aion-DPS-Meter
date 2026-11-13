@@ -196,7 +196,8 @@ public static class HubDashboard
             stack.Children.Add(Line(o.Event.NameIn(language), string.Format(loc["Hub.Dash.Until"], o.End.ToString("HH:mm")), true, "Brush.Heal"));
         }
 
-        foreach (EventOccurrence o in soon.Take(6))
+        // each event once, at its next start
+        foreach (EventOccurrence o in soon.GroupBy(x => x.Event.Id).Select(g => g.First()).Take(6))
         {
             stack.Children.Add(Line(o.Event.NameIn(language), WorldBossText.Duration(o.Start - now) + "  ·  " + o.Start.ToString("HH:mm")));
         }
@@ -226,13 +227,15 @@ public static class HubDashboard
                     continue;
                 }
 
-                rows.Add((Aion2FieldBosses.DisplayName(map, boss, language), WorldBossText.Of(st, now), st.Phase == BossPhase.Now, st.At ?? DateTime.MaxValue));
+                rows.Add((boss.NameIn(language), WorldBossText.Of(st, now), st.Phase == BossPhase.Now, st.At ?? DateTime.MaxValue));
             }
         }
 
-        foreach (var row in rows.OrderBy(r => r.Now ? 0 : 1).ThenBy(r => r.At).Take(7))
+        // the same boss in several places with the same time (the three Nahmas) is one line: "Name ×3"
+        var lines = rows.GroupBy(r => (r.Name, r.Text)).Select(g => (g.Key.Name, g.Key.Text, g.First().Now, g.First().At, Count: g.Count()));
+        foreach (var row in lines.OrderBy(r => r.Now ? 0 : 1).ThenBy(r => r.At).Take(7))
         {
-            stack.Children.Add(Line(row.Name, row.Text, row.Now, row.Now ? "Brush.Heal" : "Brush.Accent"));
+            stack.Children.Add(Line(row.Count > 1 ? $"{row.Name} ×{row.Count}" : row.Name, row.Text, row.Now, row.Now ? "Brush.Heal" : "Brush.Accent"));
         }
 
         if (rows.Count == 0)
