@@ -656,6 +656,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.2: a test build also looks at the stable channel, so a tester is led from the beta on to 2.0.0 when it appears; the consent text names the lookup of the own character's data on aiondps.com (Character tab and statistics page)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
