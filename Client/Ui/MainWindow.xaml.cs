@@ -7492,26 +7492,22 @@ public partial class MainWindow : Window
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
-    /// <summary>Which overlays the "all overlays" hotkey switched off, so the next press brings back exactly those.</summary>
-    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network, bool Combat, bool Dummy, bool Assist, bool Loot)? _overlaysSwitchedOff;
-
-    /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
-    /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
+    /// <summary>The window mode is on (the "all overlays" hotkey): the app is up and no overlay stands over the game. The other state is the overlay mode: the app is away and the overlays stand.</summary>
     private bool _overlayMode;
 
     /// <summary>
-    /// The one hotkey for the overlays: shown - the app goes away and only the overlays the designer set up stand; hidden - the app is back and every overlay is gone
-    /// (what was on is remembered for the next time).
+    /// The one hotkey for the overlays: shown - the app goes away and the overlays stand; hidden - the app is back and every overlay is gone. Which overlays are on is never
+    /// changed by it (the switches stay as the player set them, the designer's "hide" included): while the window mode is on, every read of the settings shows them as off
+    /// (<see cref="MeterSettings.OverlaysHidden"/>) and no write puts that into the file.
     /// </summary>
     private void ToggleAllOverlays()
     {
         _overlayMode = !_overlayMode;
-        WidgetKind.OverlaysHidden = !_overlayMode; // the widget overlays belong to it as well
-        var settings = MeterSettings.Load();
-        if (!_overlayMode)
+        bool windowMode = !_overlayMode;
+        MeterSettings.OverlaysHidden = windowMode;
+        WidgetKind.OverlaysHidden = windowMode; // the widget overlays belong to it as well
+        if (windowMode)
         {
-            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay, settings.ShowLootOverlay);
-            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = settings.ShowDummyOverlay = settings.ShowAssistOverlay = settings.ShowLootOverlay = false;
             if (_hubWindow is { } shown)
             {
                 shown.Show();
@@ -7521,13 +7517,10 @@ public partial class MainWindow : Window
         }
         else
         {
-            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true, true, false, false);
-            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay, settings.ShowLootOverlay) = back;
-            _overlaysSwitchedOff = null;
             _hubWindow?.Hide();
         }
 
-        settings.Save();
+        var settings = MeterSettings.Load();
         ApplyHotkeyOverlay(settings);
         ApplyTimetable(settings);
         ApplyPetFarm(settings);

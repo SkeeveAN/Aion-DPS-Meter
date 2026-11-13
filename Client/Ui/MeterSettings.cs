@@ -742,6 +742,11 @@ public sealed class MeterSettings
         }
 
         OverlayDesigner.Override(s);
+        if (OverlaysHidden && !OverlayDesigner.Active)
+        {
+            s.HideOverlays();
+        }
+
         return s;
     }
 
@@ -814,6 +819,7 @@ public sealed class MeterSettings
     public void Save()
     {
         OverlayDesigner.RestoreLocks(this); // the designer's "everything unlocked" is a reading, never a value for the file
+        bool wasHidden = RestoreHiddenOverlays();
         try
         {
             SaveCore();
@@ -821,7 +827,46 @@ public sealed class MeterSettings
         finally
         {
             OverlayDesigner.Override(this);
+            if (wasHidden)
+            {
+                HideOverlays();
+            }
         }
+    }
+
+    /// <summary>The window mode (the "all overlays" hotkey): while it is on every file read shows the overlays as off, and no write puts that into the file. Which overlays the player keeps is never touched by it.</summary>
+    public static bool OverlaysHidden { get; set; }
+
+    private (bool Hotkey, bool Timetable, bool PetMap, bool PetFarm, bool Boss, bool Network, bool Combat, bool Dummy, bool Assist, bool Loot, bool Craft)? _overlaysBeforeHiding;
+
+    /// <summary>Reads the overlays as switched off (the window mode), remembering what the file says.</summary>
+    private void HideOverlays()
+    {
+        _overlaysBeforeHiding = (ShowHotkeyOverlay, ShowTimetable, ShowPetMap, ShowPetFarm, ShowBossOverlay, ShowNetworkOverlay, ShowCombatOverlay, ShowDummyOverlay, ShowAssistOverlay, ShowLootOverlay, ShowCraftOverlay);
+        ShowHotkeyOverlay = ShowTimetable = ShowPetMap = ShowPetFarm = ShowBossOverlay = ShowNetworkOverlay = ShowCombatOverlay = ShowDummyOverlay = ShowAssistOverlay = ShowLootOverlay = ShowCraftOverlay = false;
+    }
+
+    /// <summary>Puts back what the file said before <see cref="HideOverlays"/> (a switch the player turned on meanwhile stays on); true when it was hidden.</summary>
+    private bool RestoreHiddenOverlays()
+    {
+        if (_overlaysBeforeHiding is not { } real)
+        {
+            return false;
+        }
+
+        ShowHotkeyOverlay |= real.Hotkey;
+        ShowTimetable |= real.Timetable;
+        ShowPetMap |= real.PetMap;
+        ShowPetFarm |= real.PetFarm;
+        ShowBossOverlay |= real.Boss;
+        ShowNetworkOverlay |= real.Network;
+        ShowCombatOverlay |= real.Combat;
+        ShowDummyOverlay |= real.Dummy;
+        ShowAssistOverlay |= real.Assist;
+        ShowLootOverlay |= real.Loot;
+        ShowCraftOverlay |= real.Craft;
+        _overlaysBeforeHiding = null;
+        return true;
     }
 
     private void SaveCore()
