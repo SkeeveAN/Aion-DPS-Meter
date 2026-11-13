@@ -333,7 +333,15 @@ public sealed class MeterSettings
     public string MenuControlMode { get; set; } = "Unknown";
 
 
+    /// <summary>The old master switch of the combat overlay (boss health, boss cast bar, target of the target). There is none any more: each of the three is on or off by itself, which is the designer's adding and hiding. Only read once to carry an old file over (<see cref="CombatMasterMigrated"/>).</summary>
     public bool ShowCombatOverlay { get; set; }
+
+    /// <summary>The old master switch of an older file has been carried over to the three parts.</summary>
+    public bool CombatMasterMigrated { get; set; }
+
+    /// <summary>At least one of the three combat overlays is on (it is on by its own switch only).</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool CombatOverlayAny => ShowBossHp || CombatShowBossCast || CombatShowTargetOfTarget;
 
     public bool CombatOverlayLocked { get; set; } = true;
 
@@ -368,7 +376,7 @@ public sealed class MeterSettings
     /// <summary>Place, size and scale of each element by its id ("BossCast", "TargetOfTarget", "Healer").</summary>
     public Dictionary<string, CombatElementLayout> CombatElements { get; set; } = new();
 
-    public bool CombatShowBossCast { get; set; } = true;
+    public bool CombatShowBossCast { get; set; }
     public bool CombatShowTargetOfTarget { get; set; }
 
     /// <summary>The healer's target: its name, hit points and effects. Off until switched on.</summary>
@@ -445,7 +453,7 @@ public sealed class MeterSettings
     public double OverlayScale { get; set; } = 1.0;
 
     /// <summary>The boss's health bar in the compact overlay (current / full, %, HP check mark).</summary>
-    public bool ShowBossHp { get; set; } = true;
+    public bool ShowBossHp { get; set; }
 
     /// <summary>How opaque the boss health bar window is (0.2 to 1).</summary>
     public double BossHpOpacity { get; set; } = 1.0;
@@ -742,6 +750,19 @@ public sealed class MeterSettings
         }
 
         OverlayDesigner.Override(s);
+        if (!s.CombatMasterMigrated)
+        {
+            // an older file: the master switch decided whether the three combat overlays stood at all - when it was off, none of them was on
+            if (!s.ShowCombatOverlay)
+            {
+                s.ShowBossHp = false;
+                s.CombatShowBossCast = false;
+                s.CombatShowTargetOfTarget = false;
+            }
+
+            s.CombatMasterMigrated = true;
+        }
+
         if (OverlaysHidden && !OverlayDesigner.Active)
         {
             s.HideOverlays();
@@ -837,13 +858,13 @@ public sealed class MeterSettings
     /// <summary>The window mode (the "all overlays" hotkey): while it is on every file read shows the overlays as off, and no write puts that into the file. Which overlays the player keeps is never touched by it.</summary>
     public static bool OverlaysHidden { get; set; }
 
-    private (bool Hotkey, bool Timetable, bool PetMap, bool PetFarm, bool Boss, bool Network, bool Combat, bool Dummy, bool Assist, bool Loot, bool Craft)? _overlaysBeforeHiding;
+    private (bool Hotkey, bool Timetable, bool PetMap, bool PetFarm, bool Boss, bool Network, bool BossHp, bool BossCast, bool TargetOfTarget, bool Dummy, bool Assist, bool Loot, bool Craft)? _overlaysBeforeHiding;
 
     /// <summary>Reads the overlays as switched off (the window mode), remembering what the file says.</summary>
     private void HideOverlays()
     {
-        _overlaysBeforeHiding = (ShowHotkeyOverlay, ShowTimetable, ShowPetMap, ShowPetFarm, ShowBossOverlay, ShowNetworkOverlay, ShowCombatOverlay, ShowDummyOverlay, ShowAssistOverlay, ShowLootOverlay, ShowCraftOverlay);
-        ShowHotkeyOverlay = ShowTimetable = ShowPetMap = ShowPetFarm = ShowBossOverlay = ShowNetworkOverlay = ShowCombatOverlay = ShowDummyOverlay = ShowAssistOverlay = ShowLootOverlay = ShowCraftOverlay = false;
+        _overlaysBeforeHiding = (ShowHotkeyOverlay, ShowTimetable, ShowPetMap, ShowPetFarm, ShowBossOverlay, ShowNetworkOverlay, ShowBossHp, CombatShowBossCast, CombatShowTargetOfTarget, ShowDummyOverlay, ShowAssistOverlay, ShowLootOverlay, ShowCraftOverlay);
+        ShowHotkeyOverlay = ShowTimetable = ShowPetMap = ShowPetFarm = ShowBossOverlay = ShowNetworkOverlay = ShowBossHp = CombatShowBossCast = CombatShowTargetOfTarget = ShowDummyOverlay = ShowAssistOverlay = ShowLootOverlay = ShowCraftOverlay = false;
     }
 
     /// <summary>Puts back what the file said before <see cref="HideOverlays"/> (a switch the player turned on meanwhile stays on); true when it was hidden.</summary>
@@ -860,7 +881,9 @@ public sealed class MeterSettings
         ShowPetFarm |= real.PetFarm;
         ShowBossOverlay |= real.Boss;
         ShowNetworkOverlay |= real.Network;
-        ShowCombatOverlay |= real.Combat;
+        ShowBossHp |= real.BossHp;
+        CombatShowBossCast |= real.BossCast;
+        CombatShowTargetOfTarget |= real.TargetOfTarget;
         ShowDummyOverlay |= real.Dummy;
         ShowAssistOverlay |= real.Assist;
         ShowLootOverlay |= real.Loot;

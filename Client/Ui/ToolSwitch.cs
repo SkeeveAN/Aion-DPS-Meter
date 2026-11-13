@@ -55,7 +55,7 @@ public static class ToolSwitch
                 case "loot": s.ShowLootOverlay = false; break;
                 case "craft": s.ShowCraftOverlay = false; break;
                 case "petmap": s.ShowPetMap = false; s.ShowPetFarm = false; break;
-                case "combat": s.ShowCombatOverlay = false; s.ShowBossHp = false; break;
+                case "combat": s.ShowBossHp = false; s.CombatShowBossCast = false; s.CombatShowTargetOfTarget = false; break;
                 case "assist": s.ShowAssistOverlay = false; break;
                 case "dummy": s.ShowDummyOverlay = false; break;
                 case "timetable": s.ShowTimetable = false; break;

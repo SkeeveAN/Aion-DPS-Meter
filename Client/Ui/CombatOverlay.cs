@@ -753,7 +753,7 @@ public sealed class CombatOverlayController : IDisposable
             }
         }
 
-        if (!settings.ShowCombatOverlay)
+        if (!settings.CombatOverlayAny)
         {
             _overlay?.ShowOverlay(false);
             _castOverlay?.ShowOverlay(false);

@@ -6690,7 +6690,7 @@ public partial class MainWindow : Window
                     stack.Children.Add(view.DetachBody()!);
                 }
 
-                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied);
+                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.CombatOverlayAny, (s, v) => s.ShowBossHp = s.CombatShowBossCast = s.CombatShowTargetOfTarget = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _combat?.RemoveViews(views.Select(v => v.View)); } };
             }
 
@@ -7487,7 +7487,7 @@ public partial class MainWindow : Window
     private void ToggleCombatOverlay()
     {
         var settings = MeterSettings.Load();
-        settings.ShowCombatOverlay = !settings.ShowCombatOverlay;
+        settings.ShowBossHp = settings.CombatShowBossCast = settings.CombatShowTargetOfTarget = !settings.CombatOverlayAny;
         settings.Save();
         _settingsWindow?.SyncOverlaySwitches(settings);
     }

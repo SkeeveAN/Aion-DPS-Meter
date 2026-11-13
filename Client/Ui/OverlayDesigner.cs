@@ -191,17 +191,16 @@ public static class OverlayDesigner
     // ───────────────────────────── the overlays and what "off" means for each ─────────────────────────────
 
     /// <summary>One overlay as the "+" lists it: its name, whether it is on, how to switch it on.</summary>
-    /// <summary>The boss health, the boss cast bar and the target of the target share one master switch (the combat overlay): when it is off, the part chosen comes alone - the others keep their own switches off.</summary>
-    private static void CombatPartOn(MeterSettings s, Action<MeterSettings> part)
+    /// <summary>The pet map and its list stand under one switch of the pet tool: when that is off, the part chosen comes alone and the other keeps its own switch off.</summary>
+    private static void PetMapPartOn(MeterSettings s, Action<MeterSettings> part)
     {
-        if (!s.ShowCombatOverlay)
+        if (!s.ShowPetMap)
         {
-            s.ShowBossHp = false;
-            s.CombatShowBossCast = false;
-            s.CombatShowTargetOfTarget = false;
+            s.PetMapShowMap = false;
+            s.PetMapShowList = false;
         }
 
-        s.ShowCombatOverlay = true;
+        s.ShowPetMap = true;
         part(s);
     }
 
@@ -209,12 +208,12 @@ public static class OverlayDesigner
 
     private static readonly Entry[] Entries =
     {
-        new("Settings.PetMap.CardMap", s => s.ShowPetMap && s.PetMapShowMap, s => { s.ShowPetMap = true; s.PetMapShowMap = true; }, OverlayPlaces.PetMap, s => s.PetMapShowMap = false),
-        new("Settings.PetMap.CardList", s => s.ShowPetMap && s.PetMapShowList, s => { s.ShowPetMap = true; s.PetMapShowList = true; }, OverlayPlaces.PetList, s => s.PetMapShowList = false),
+        new("Settings.PetMap.CardMap", s => s.ShowPetMap && s.PetMapShowMap, s => PetMapPartOn(s, c => c.PetMapShowMap = true), OverlayPlaces.PetMap, s => s.PetMapShowMap = false),
+        new("Settings.PetMap.CardList", s => s.ShowPetMap && s.PetMapShowList, s => PetMapPartOn(s, c => c.PetMapShowList = true), OverlayPlaces.PetList, s => s.PetMapShowList = false),
         new("Settings.Nav.Pets", s => s.ShowPetFarm, s => s.ShowPetFarm = true, OverlayPlaces.PetInfo, s => s.ShowPetFarm = false),
-        new("Settings.Combat.CardBossHp", s => s.ShowCombatOverlay && s.ShowBossHp, s => CombatPartOn(s, c => c.ShowBossHp = true), OverlayPlaces.BossHp, s => s.ShowBossHp = false),
-        new("Settings.Combat.CardBossCast", s => s.ShowCombatOverlay && s.CombatShowBossCast, s => CombatPartOn(s, c => c.CombatShowBossCast = true), OverlayPlaces.BossCast, s => s.CombatShowBossCast = false),
-        new("Combat.Element.TargetOfTarget", s => s.ShowCombatOverlay && s.CombatShowTargetOfTarget, s => CombatPartOn(s, c => c.CombatShowTargetOfTarget = true), OverlayPlaces.TargetOfTarget, s => s.CombatShowTargetOfTarget = false),
+        new("Settings.Combat.CardBossHp", s => s.ShowBossHp, s => s.ShowBossHp = true, OverlayPlaces.BossHp, s => s.ShowBossHp = false),
+        new("Settings.Combat.CardBossCast", s => s.CombatShowBossCast, s => s.CombatShowBossCast = true, OverlayPlaces.BossCast, s => s.CombatShowBossCast = false),
+        new("Combat.Element.TargetOfTarget", s => s.CombatShowTargetOfTarget, s => s.CombatShowTargetOfTarget = true, OverlayPlaces.TargetOfTarget, s => s.CombatShowTargetOfTarget = false),
         new("Main.MenuTools.Loot", s => s.ShowLootOverlay, s => s.ShowLootOverlay = true, OverlayPlaces.Loot, s => s.ShowLootOverlay = false),
         new("Main.MenuTools.Craft", s => s.ShowCraftOverlay, s => s.ShowCraftOverlay = true, OverlayPlaces.Craft, s => s.ShowCraftOverlay = false),
         new("Settings.Nav.Network", s => s.ShowNetworkOverlay, s => s.ShowNetworkOverlay = true, OverlayPlaces.Network, s => s.ShowNetworkOverlay = false),
