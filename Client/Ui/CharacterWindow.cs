@@ -1073,7 +1073,7 @@ public sealed class CharacterWindow : Window
     private sealed record SheetGroup(string Id, List<SheetRow> Rows);
 
     private static List<SheetGroup>? _sheet;
-    private bool _statsRelevantOnly = true;
+    private bool _statsRelevantOnly = Environment.GetEnvironmentVariable("AIONDPS_STATS_ALL") is null; // the picture mode can ask for the full list
     private readonly HashSet<string> _statsClosed = new();
 
     /// <summary>The layout of the game's own stat window (assets/aion2/stats/stat_sheet.json, made by Tools/aion2-dat/build_stat_sheet.py).</summary>

@@ -886,7 +886,7 @@ internal static class Program
             window.ShowOtherForPicture(f[0], remote);
         }
 
-        double width = Environment.GetEnvironmentVariable("AIONDPS_STATS") is { Length: > 0 } ? 1900 : 1180, height = 1000;
+        double width = Environment.GetEnvironmentVariable("AIONDPS_STATS") is { Length: > 0 } ? 1900 : 1180, height = Environment.GetEnvironmentVariable("AIONDPS_HEIGHT") is { Length: > 0 } tall ? int.Parse(tall) : 1000;
         // a Window cannot be the child of a border: its content (the page inside the window's chrome) is drawn instead
         System.Windows.UIElement? inner = window.Content as System.Windows.UIElement;
         window.Content = null;
