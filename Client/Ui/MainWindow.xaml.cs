@@ -6111,6 +6111,7 @@ public partial class MainWindow : Window
         _hubWindow.MeterView = BuildMeterView;
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
+        WidgetKind.MeterHasRows = () => _rows.Count > 0;
         _widgetOverlays ??= new WidgetOverlayController(() => _hubWindow?.OverlaySources());
     }
 

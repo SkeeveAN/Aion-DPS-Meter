@@ -32,6 +32,9 @@ public static class WidgetKind
 
     public static Action<int>? SetMeterMode { get; set; }
 
+    /// <summary>Whether the live meter has any row to show; an empty meter overlay is not drawn at all (set by the main window).</summary>
+    public static Func<bool>? MeterHasRows { get; set; }
+
     /// <summary>The meter's mode was changed (by the designer's buttons or by the window's): every place that shows the mode follows.</summary>
     public static event Action? MeterModeChanged;
 
@@ -292,7 +295,9 @@ public sealed class WidgetOverlayController : IDisposable
             }
 
             window.ApplyLockedIfChanged(locked);
-            window.ShowOverlay((!locked || gameInFront) && (!WidgetKind.OverlaysHidden || OverlayDesigner.Active));
+            // an empty live meter is not drawn over the game (only while the overlays are unlocked, to place it)
+            bool empty = id == "meter" && locked && WidgetKind.MeterHasRows?.Invoke() == false;
+            window.ShowOverlay((!locked || gameInFront) && (!WidgetKind.OverlaysHidden || OverlayDesigner.Active) && !empty);
         }
 
         foreach (string gone in _windows.Keys.Where(k => !s.WidgetOverlays.ContainsKey(k)).ToList())
