@@ -15709,5 +15709,17 @@
     "pt": "Copiar: dano «Nome: total (iDPS)», cura «Nome: total (iHPS)», dano sofrido «Nome: total (iTaken)», All in One «Nome: dano (iDPS, iHPS, iTaken)».",
     "ja": "コピー:ダメージ「名前: 合計 (iDPS)」、回復「名前: 合計 (iHPS)」、被ダメージ「名前: 合計 (iTaken)」、All in One「名前: ダメージ (iDPS, iHPS, iTaken)」。",
     "ko": "복사: 피해 \"이름: 합계 (iDPS)\", 치유 \"이름: 합계 (iHPS)\", 받은 피해 \"이름: 합계 (iTaken)\", All in One \"이름: 피해 (iDPS, iHPS, iTaken)\"."
+  },
+  "Hub.Mock": {
+    "en": "Sample data – how it could look",
+    "de": "Beispieldaten – so könnte es aussehen",
+    "fr": "Données d'exemple – voici à quoi cela pourrait ressembler",
+    "es": "Datos de ejemplo: así podría verse",
+    "ru": "Примерные данные — так это может выглядеть",
+    "zh": "示例数据 – 可能的样子",
+    "zh-TW": "範例資料 – 可能的樣子",
+    "pt": "Dados de exemplo – como poderia ficar",
+    "ja": "サンプルデータ – 表示のイメージ",
+    "ko": "예시 데이터 – 이렇게 보일 수 있습니다"
   }
 }

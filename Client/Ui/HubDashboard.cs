@@ -69,11 +69,11 @@ public static class HubDashboard
     internal static readonly Widget[] Widgets =
     {
         new("connection", "Hub.Dash.Connection", null, 420, 170, false),
-        new("todo", "Hub.Dash.TodoTitle", "checklist", 420, 190, false),
+        new("todo", "Hub.Dash.TodoTitle", "checklist", 420, 260, false),
         new("soon", "Hub.Dash.Soon", "timetable", 520, 290, false),
         new("bosses", "Settings.Nav.Boss", "boss", 520, 250, false),
-        new("figures", "Hub.Dash.Figures", null, 420, 170, false),
-        new("last", "Hub.Dash.Last", "sessions", 520, 170, false),
+        new("figures", "Hub.Dash.Figures", null, 420, 210, false),
+        new("last", "Hub.Dash.Last", "sessions", 520, 260, false),
         new("update", "Hub.Dash.Update", null, 420, 190, true),
         new("announcements", "Hub.Dash.Announcements", null, 420, 170, true),
         new("drops", "Hub.Dash.Drops", null, 420, 170, true),
@@ -101,6 +101,16 @@ public static class HubDashboard
                 var total = TimeSpan.FromSeconds(sessions.Sum(s => s.Duration(now).TotalSeconds));
                 var bestDps = attempts.Where(a => a.Duration.TotalSeconds >= 10).Select(a => (double?)(a.Counted / a.Duration.TotalSeconds)).DefaultIfEmpty(null).Max();
                 var figures = new StackPanel();
+                if (sessions.Count == 0)
+                {
+                    figures.Children.Add(MockTag());
+                    figures.Children.Add(Line(loc["Hub.Dash.Recording"], WorldBossText.Duration(TimeSpan.FromMinutes(72.5))));
+                    figures.Children.Add(Line(loc["Hub.Dash.Sessions"], "4"));
+                    figures.Children.Add(Line(loc["Hub.Dash.BossFights"], "3"));
+                    figures.Children.Add(Line(loc["Hub.Dash.BestDps"], 220478.ToString("N0")));
+                    return figures;
+                }
+
                 figures.Children.Add(Line(loc["Hub.Dash.Recording"], WorldBossText.Duration(total)));
                 figures.Children.Add(Line(loc["Hub.Dash.Sessions"], sessions.Count.ToString()));
                 figures.Children.Add(Line(loc["Hub.Dash.BossFights"], attempts.Count.ToString()));
@@ -123,6 +133,14 @@ public static class HubDashboard
                     return status is null ? loc["Hub.Dash.CheckFailed"] : status.Value.Running ? loc["Hub.Dash.DropsRunning"] : loc["Hub.Dash.NothingNew"];
                 }, loc);
         }
+    }
+
+    /// <summary>The tag every sample shows: where there is nothing real yet, the card shows how it could look and says so.</summary>
+    internal static TextBlock MockTag()
+    {
+        var tag = new TextBlock { Text = "◈ " + LocalizationManager.Instance["Hub.Mock"], FontSize = 11, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6) };
+        tag.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        return tag;
     }
 
     private static UIElement Connection(HubStatus status, LocalizationManager loc)
@@ -159,18 +177,22 @@ public static class HubDashboard
 
         TicketValue Value(int id) => me is not null && me.Tickets.TryGetValue(id, out TicketValue v) ? v : default;
         TicketDef? ode = Aion2Tickets.Find(Aion2Tickets.OdyleId);
-        if (me is null || ode is null)
+        bool mock = me is null;
+        if (mock)
         {
-            stack.Children.Add(Text(loc["Hub.Dash.TodoNone"], false, "Brush.TextMuted"));
+            stack.Children.Add(MockTag());
         }
-        else
+
+        if (ode is not null)
         {
-            TicketValue o = Value(ode.Id);
+            TicketValue o = mock ? new TicketValue(Math.Max(1, ode.Max * 6 / 10), Math.Max(1, ode.Max / 10), 0) : Value(ode.Id);
             stack.Children.Add(Line(ode.ShortIn(loc.Language), $"{o.Count} (+{o.Bonus}) / {ode.Max}"));
             var bar = new ProgressBar { Height = 8, Maximum = 100, Value = ode.Max > 0 ? Math.Min(100.0, o.Count * 100.0 / ode.Max) : 0, BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8) };
             bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
             bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
             stack.Children.Add(bar);
+            int[] sample = { 3, 2, 5, 1 };
+            int n = 0;
             foreach (int id in new[] { 1, 4, 8, 101 })
             {
                 if (Aion2Tickets.Find(id) is not { } def)
@@ -178,10 +200,15 @@ public static class HubDashboard
                     continue;
                 }
 
-                TicketValue v = Value(id);
+                TicketValue v = mock ? new TicketValue(sample[n], 0, 0) : Value(id);
+                n++;
                 int cap = def.SubscribeMax > 0 ? def.SubscribeMax : def.Max;
                 stack.Children.Add(Line(def.ShortIn(loc.Language), $"{v.Count} / {cap}", false, v.Count > 0 ? "Brush.Accent" : "Brush.TextMuted"));
             }
+        }
+        else
+        {
+            stack.Children.Add(Text(loc["Hub.Dash.TodoNone"], false, "Brush.TextMuted"));
         }
 
         var link = new TextBlock { Text = loc["Hub.Dash.ToChecklist"], Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 8, 0, 0) };
@@ -241,7 +268,15 @@ public static class HubDashboard
 
         if (rows.Count == 0)
         {
-            stack.Children.Add(Text(loc["Hub.Dash.BossesNone"], false, "Brush.TextMuted"));
+            stack.Children.Add(MockTag());
+            var first = Aion2FieldBosses.Maps.SelectMany(m => m.Bosses.Select(b => b.NameIn(language))).Distinct().Take(4).ToList();
+            string[] times = { "in 12 min 30 s", "in 47 min 05 s", "in 2 h 10 min", "in 5 h 28 min" };
+            for (int i = 0; i < first.Count; i++)
+            {
+                stack.Children.Add(Line(first[i], times[i], false));
+            }
+
+            stack.Children.Add(Text(loc["Hub.Dash.BossesNone"], false, "Brush.TextMuted", 11));
         }
 
         return stack;
@@ -253,7 +288,12 @@ public static class HubDashboard
         BossAttempt? last = attempts.OrderByDescending(a => a.End).FirstOrDefault();
         if (last is null)
         {
-            stack.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+            stack.Children.Add(MockTag());
+            stack.Children.Add(Line("Transcendent Bakarma", loc["Hub.Dash.Killed"], true, "Brush.Heal"));
+            stack.Children.Add(Line(loc["Hub.Dash.Duration"], WorldBossText.Duration(TimeSpan.FromSeconds(127))));
+            stack.Children.Add(Line(loc["Hub.Dash.Damage"], 28000755L.ToString("N0")));
+            stack.Children.Add(Line("DPS", 220478.ToString("N0")));
+            stack.Children.Add(Line(loc["Hub.Dash.When"], DateTime.Now.AddMinutes(-42).ToString("dd.MM. HH:mm")));
             return stack;
         }
 
@@ -316,7 +356,22 @@ public static class HubDashboard
 
         if (sessions.Count == 0)
         {
-            stack.Children.Add(Text(loc["Sessions.None"], false, "Brush.TextMuted"));
+            stack.Children.Add(MockTag());
+            DateTime t = DateTime.Now;
+            (string Name, string Detail, (string Boss, bool Killed, string Text)[] Fights)[] sample =
+            {
+                ("Draupnir   " + t.AddMinutes(-42).ToString("HH:mm") + " – " + t.AddMinutes(-31).ToString("HH:mm"), loc["Sessions.KindInstance"] + "  ·  11 min  ·  4 " + loc["Hub.Dash.BossFights"],
+                    new[] { ("Predator Saraswati", true, "1 min 26 s  ·  18.591.030"), ("Phantasmal Lakshmi", true, "1 min 14 s  ·  18.583.016"), ("Transcendent Bakarma", false, "1 min 48 s  ·  22.846.804"), ("Transcendent Bakarma", true, "2 min 07 s  ·  28.000.755") }),
+                ("Verteron   " + t.AddMinutes(-70).ToString("HH:mm") + " – " + t.AddMinutes(-44).ToString("HH:mm"), loc["Sessions.KindMap"] + "  ·  26 min", Array.Empty<(string, bool, string)>()),
+            };
+            foreach (var (name, detail, fights) in sample)
+            {
+                stack.Children.Add(Line(name, detail, true));
+                foreach (var (boss, killed, text) in fights)
+                {
+                    stack.Children.Add(Line("      " + boss, (killed ? "✓ " : "✗ ") + text, false, killed ? "Brush.Heal" : "Brush.Danger"));
+                }
+            }
         }
 
         wrap.Children.Add(Card(loc["Hub.Dash.Fights"], stack, 1100, src.OpenSessions));
@@ -336,7 +391,10 @@ public static class HubDashboard
 
         if (best.Count == 0)
         {
-            stack.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+            stack.Children.Add(MockTag());
+            stack.Children.Add(Line("Transcendent Bakarma   " + DateTime.Now.AddMinutes(-42).ToString("dd.MM. HH:mm"), "220.478 DPS  ·  2 min 07 s", true, "Brush.Heal"));
+            stack.Children.Add(Line("Predator Saraswati   " + DateTime.Now.AddMinutes(-55).ToString("dd.MM. HH:mm"), "216.246 DPS  ·  1 min 26 s", true, "Brush.Heal"));
+            stack.Children.Add(Line("Phantasmal Lakshmi   " + DateTime.Now.AddMinutes(-48).ToString("dd.MM. HH:mm"), "251.122 DPS  ·  1 min 14 s", true, "Brush.Heal"));
         }
 
         wrap.Children.Add(Card(loc["Hub.Dash.Best"], stack, 1100));

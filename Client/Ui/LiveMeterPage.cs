@@ -45,7 +45,29 @@ public static class LiveMeterPage
     public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null)
     {
         var loc = LocalizationManager.Instance;
-        var list = new ItemsControl { ItemsSource = rows, ItemTemplate = (DataTemplate)XamlReader.Parse(RowXaml) };
+        // with nothing recorded the list shows sample rows, tagged as such, so the player sees how it could look
+        var sample = new ObservableCollection<PlayerRow>();
+        (string Name, string Class, long Damage, double Dps, double Fill, double Share, long Heal, long Taken)[] mock =
+        {
+            ("Aahz", "Gladiator", 2_310_000, 48210, 100, 31.2, 0, 410_000), ("Skeeve", "Sorcerer", 1_910_000, 39874, 83, 25.8, 0, 220_000),
+            ("Chumley", "Assassin", 1_460_000, 30502, 63, 19.7, 0, 380_000), ("Nunzio", "Cleric", 860_000, 17940, 37, 11.6, 1_240_000, 150_000),
+        };
+        int n = 1;
+        foreach (var m in mock)
+        {
+            sample.Add(new PlayerRow(-n) { Name = m.Name, ClassName = m.Class, Damage = m.Damage, Dps = m.Dps, FillPercent = m.Fill, SharePercent = m.Share, Healing = m.Heal, DamageTaken = m.Taken, Rank = n++ });
+        }
+
+        var list = new ItemsControl { ItemsSource = rows.Count > 0 ? rows : sample, ItemTemplate = (DataTemplate)XamlReader.Parse(RowXaml) };
+        var mockTag = HubDashboard.MockTag();
+        mockTag.Margin = new Thickness(16, 0, 0, 0);
+        mockTag.VerticalAlignment = VerticalAlignment.Center;
+        mockTag.Visibility = rows.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
+        rows.CollectionChanged += (_, _) =>
+        {
+            list.ItemsSource = rows.Count > 0 ? rows : sample;
+            mockTag.Visibility = rows.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
+        };
         var card = new Border { Padding = new Thickness(16, 10, 16, 12), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Margin = new Thickness(14, 10, 14, 14), VerticalAlignment = VerticalAlignment.Top, Child = list };
         card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
         card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
@@ -56,7 +78,9 @@ public static class LiveMeterPage
         var title = new TextBlock { Text = loc["Hub.LiveMeter"], FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         head.Children.Add(open);
+        DockPanel.SetDock(title, Dock.Left);
         head.Children.Add(title);
+        head.Children.Add(mockTag);
         var page = new DockPanel();
         DockPanel.SetDock(head, Dock.Top);
         page.Children.Add(head);
