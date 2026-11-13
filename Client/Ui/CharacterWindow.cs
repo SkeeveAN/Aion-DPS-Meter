@@ -1037,117 +1037,156 @@ public sealed class CharacterWindow : Window
         return page;
     }
 
-    /// <summary>The stat sheet groups: the stat frame's ids; names from the client's stat texts (the species table, or the attribute table where it lacks one). Ids without a name are left out.</summary>
-    private static readonly (string Group, (int Id, string? Key, bool Percent)[] Stats)[] SheetGroups =
+    private sealed record SheetRow(Dictionary<string, string> Names, string Fmt, int Id, int Mult, int Div, List<(int Id, double Weight)>? Sum, bool Ceil = false);
+
+    private sealed record SheetGroup(string Id, List<SheetRow> Rows);
+
+    private static List<SheetGroup>? _sheet;
+    private bool _statsRelevantOnly = true;
+    private readonly HashSet<string> _statsClosed = new();
+
+    /// <summary>The layout of the game's own stat window (assets/aion2/stats/stat_sheet.json, made by Tools/aion2-dat/build_stat_sheet.py).</summary>
+    private static List<SheetGroup> Sheet()
     {
-        ("Character.StatAttack", new (int, string?, bool)[] { (284, "DefensePierce", false), (69, null, false), (38, null, false), (98, null, false), (587, null, false), (28, null, true), (32, "AmplifyWeaponDamage", true), (44, null, true), (589, null, true), (379, null, true), (520, "BossNpcAmplifyDamage", true), (50, null, false), (56, null, false) }),
-        ("Character.StatHits", new (int, string?, bool)[] { (146, "AdditionalHitRate", true), (442, null, true), (443, "HardHit", true), (100, null, false), (591, null, false), (256, "BlockPierce", false), (448, null, true), (449, null, true), (158, null, true) }),
-        ("Character.StatDefense", new (int, string?, bool)[] { (99, null, false), (588, null, false), (70, null, true), (103, null, false), (47, null, true), (101, null, false), (592, null, false), (445, null, true), (444, null, true), (446, null, true), (447, null, true) }),
-    };
-
-    /// <summary>The rows of the stat window that the frame gives in parts, put together the way the game does (checked on Aahz, 13 November 2026 against the stat window): attack = (weapon attack + additional
-    /// attack + the middle of min and max attack) with the attack increase; HP and MP = the base with their increase; the two speeds as they are.</summary>
-    private static IEnumerable<(string Name, string Value)> SheetTotals(IReadOnlyDictionary<int, int> stats, string language)
-    {
-        int V(int id) => stats.GetValueOrDefault(id);
-        string N0(double v) => Math.Round(v).ToString("N0", CultureInfo.CurrentCulture);
-        string Pct(double v) => v.ToString("0.##", CultureInfo.CurrentCulture) + " %";
-        string T(string key) => Aion2AttributeTable.Text("stat." + key, language);
-        if (V(317) > 0)
+        if (_sheet is not null)
         {
-            yield return (T("WeaponFixingDamage"), N0((V(317) + V(19) + (V(31) + V(33)) / 2.0) * (1 + V(425) / 10000.0)));
+            return _sheet;
         }
 
-        if (V(193) > 0)
+        var groups = new List<SheetGroup>();
+        try
         {
-            yield return (T("HPMax"), N0(V(193) * (1 + V(196) / 10000.0)));
+            using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(AssetStore.Path("aion2", "stats", "stat_sheet.json")));
+            foreach (System.Text.Json.JsonElement g in doc.RootElement.GetProperty("groups").EnumerateArray())
+            {
+                var rows = new List<SheetRow>();
+                foreach (System.Text.Json.JsonElement r in g.GetProperty("rows").EnumerateArray())
+                {
+                    var names = r.GetProperty("names").EnumerateObject().ToDictionary(x => x.Name, x => x.Value.GetString() ?? "");
+                    List<(int, double)>? sum = r.TryGetProperty("sum", out var sumElement)
+                        ? sumElement.EnumerateArray().Select(e => (e[0].GetInt32(), e[1].GetDouble())).ToList()
+                        : null;
+                    rows.Add(new SheetRow(names, r.GetProperty("fmt").GetString() ?? "n", r.TryGetProperty("id", out var id) ? id.GetInt32() : 0,
+                        r.TryGetProperty("mult", out var mult) && mult.ValueKind == System.Text.Json.JsonValueKind.Number ? mult.GetInt32() : 0,
+                        r.TryGetProperty("div", out var div) ? div.GetInt32() : 1, sum, r.TryGetProperty("ceil", out var ceil) && ceil.GetBoolean()));
+                }
+
+                groups.Add(new SheetGroup(g.GetProperty("id").GetString() ?? "", rows));
+            }
+        }
+        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            // no stat sheet: the card stays empty
         }
 
-        if (V(199) > 0)
-        {
-            yield return (T("MPMax"), N0(V(199) * (1 + V(197) / 10000.0)));
-        }
-
-        if (V(275) > 0)
-        {
-            yield return (T("CombatSpeed"), Pct(V(275)));
-        }
-
-        if (V(205) != 0)
-        {
-            yield return (T("MoveSpeed"), Pct(V(205) / 100.0));
-        }
+        return _sheet = groups;
     }
 
-    private UIElement StatRow(string name, string shown)
+    /// <summary>A row's number: the frame's value, or the parts put together the way the game does (checked against the stat window of Aahz on 13 November 2026), without the unit.</summary>
+    private static double SheetValue(SheetRow row, IReadOnlyDictionary<int, int> stats)
     {
-        var row = new Grid { Margin = new Thickness(0, 1, 0, 1) };
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.Children.Add(Text(name, 12.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 18, 0)));
-        TextBlock number = Text(shown, 12.5, FontWeights.SemiBold);
+        double V(int id) => stats.GetValueOrDefault(id);
+        double value = row.Sum is null ? V(row.Id) : row.Sum.Sum(t => t.Weight * V(t.Id));
+        if (row.Mult != 0)
+        {
+            value *= 1 + V(row.Mult) / 10000.0;
+            value = row.Fmt == "n" ? (row.Ceil ? Math.Ceiling(value - 1e-9) : Math.Floor(value)) : value; // the game rounds HP and MP up and the others down (checked on one character)
+        }
+
+        return value / row.Div;
+    }
+
+    private static string SheetText(SheetRow row, double value) => row.Fmt == "p"
+        ? (value / 100.0).ToString("0.#", CultureInfo.CurrentCulture) + " %"
+        : Math.Round(value, MidpointRounding.AwayFromZero).ToString("N0", CultureInfo.CurrentCulture);
+
+    private UIElement StatCell(string name, string shown)
+    {
+        var cell = new Grid { Margin = new Thickness(0, 0, 0, 3) };
+        cell.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        cell.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var text = Text(name, 12.5, brush: Res("Brush.TextMuted"), margin: new Thickness(10, 0, 10, 0));
+        text.TextTrimming = TextTrimming.CharacterEllipsis;
+        text.ToolTip = name;
+        cell.Children.Add(text);
+        TextBlock number = Text(shown, 12.5, FontWeights.SemiBold, margin: new Thickness(0, 0, 10, 0));
         Grid.SetColumn(number, 1);
-        row.Children.Add(number);
-        return row;
+        cell.Children.Add(number);
+        return new Border { Background = Res("Brush.Control"), CornerRadius = new CornerRadius(3), Padding = new Thickness(0, 5, 0, 5), Margin = new Thickness(0, 0, 4, 0), Child = cell };
     }
 
-    private UIElement StatRows(IEnumerable<(string Name, string Value)> rows)
-    {
-        var panel = new StackPanel();
-        foreach ((string name, string value) in rows)
-        {
-            panel.Children.Add(StatRow(name, value));
-        }
-
-        return panel;
-    }
-
-    /// <summary>The character's stat sheet: the values of the stat frame, grouped (attack, hits, defence).</summary>
+    /// <summary>The character's stat sheet like the game's stat window: the totals on top, then the groups (fold open and shut), two values to a line; "only relevant" leaves out what is zero.</summary>
     private UIElement BuildStatSheet(IReadOnlyDictionary<int, int> stats)
     {
-        var panel = new StackPanel { MinWidth = 300 };
-        panel.Children.Add(Heading(Loc("Character.StatSheet")));
         string language = LocalizationManager.Instance.Language;
-        var totals = SheetTotals(stats, language).ToList();
-        if (totals.Count > 0)
+        var host = new StackPanel { Width = 640 };
+        void Fill()
         {
-            panel.Children.Add(StatRows(totals));
-        }
-
-        foreach ((string group, var list) in SheetGroups)
-        {
-            var rows = new List<UIElement>();
-            foreach ((int id, string? key, bool percent) in list)
+            host.Children.Clear();
+            var header = new Grid();
+            header.Children.Add(Heading(Loc("Character.StatSheet")));
+            var relevant = new CheckBox { Content = Loc("Character.StatRelevant"), IsChecked = _statsRelevantOnly, HorizontalAlignment = HorizontalAlignment.Right, Foreground = Res("Brush.TextMuted"), Margin = new Thickness(0, 0, 0, 8) };
+            relevant.Click += (_, _) =>
             {
-                if (!stats.TryGetValue(id, out int value) || value == 0)
+                _statsRelevantOnly = relevant.IsChecked == true;
+                Fill();
+            };
+            header.Children.Add(relevant);
+            host.Children.Add(header);
+            foreach (SheetGroup group in Sheet())
+            {
+                var shown = new List<(string Name, string Value)>();
+                foreach (SheetRow row in group.Rows)
+                {
+                    double value = SheetValue(row, stats);
+                    if (value == 0 && _statsRelevantOnly)
+                    {
+                        continue;
+                    }
+
+                    shown.Add((row.Names.GetValueOrDefault(language) ?? row.Names.GetValueOrDefault("en") ?? "?", SheetText(row, value)));
+                }
+
+                if (shown.Count == 0)
                 {
                     continue;
                 }
 
-                (string name, bool speciesPercent) = Aion2Artwork.SpeciesStat(id, language);
-                if (name.StartsWith("Stat ", StringComparison.Ordinal) && key is not null)
+                bool open = group.Id == "total" || !_statsClosed.Contains(group.Id);
+                if (group.Id != "total")
                 {
-                    name = Aion2AttributeTable.Text("stat." + key, language);
-                    speciesPercent = percent;
+                    var bar = new Border { Background = Res("Brush.Control"), CornerRadius = new CornerRadius(3), Padding = new Thickness(10, 6, 10, 6), Margin = new Thickness(0, 10, 4, 6), Cursor = Cursors.Hand };
+                    bar.Child = Text((open ? "\u25BE  " : "\u25B8  ") + Loc("Character.Stat." + group.Id), 12.5, FontWeights.Bold, Res("Brush.Accent"));
+                    string id = group.Id;
+                    bar.MouseLeftButtonUp += (_, _) =>
+                    {
+                        if (!_statsClosed.Remove(id))
+                        {
+                            _statsClosed.Add(id);
+                        }
+
+                        Fill();
+                    };
+                    host.Children.Add(bar);
                 }
 
-                string shown = speciesPercent || percent ? (value / 100.0).ToString("0.##", CultureInfo.CurrentCulture) + " %" : value.ToString("N0", CultureInfo.CurrentCulture);
-                rows.Add(StatRow(name, shown));
-            }
+                if (!open)
+                {
+                    continue;
+                }
 
-            if (rows.Count == 0)
-            {
-                continue;
-            }
+                var grid = new UniformGrid { Columns = 2 };
+                foreach ((string name, string value) in shown)
+                {
+                    grid.Children.Add(StatCell(name, value));
+                }
 
-            panel.Children.Add(Text(Loc(group), 12, FontWeights.Bold, Res("Brush.Accent"), new Thickness(0, 8, 0, 3)));
-            foreach (UIElement row in rows)
-            {
-                panel.Children.Add(row);
+                host.Children.Add(grid);
             }
         }
 
-        return panel;
+        Fill();
+        return host;
     }
 
     /// <summary>True when the current theme has a light panel colour (the symbols are light grey line art and must be darkened there).</summary>

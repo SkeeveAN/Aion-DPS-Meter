@@ -1,0 +1,1748 @@
+{
+ "groups": [
+  {
+   "id": "total",
+   "title": "overview",
+   "rows": [
+    {
+     "names": {
+      "en": "Attack",
+      "de": "Angriffskraft",
+      "fr": "ATQ",
+      "es": "Ataque",
+      "ru": "АТК",
+      "pt": "Ataque",
+      "ja": "攻撃力",
+      "ko": "공격력"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       317,
+       1
+      ],
+      [
+       19,
+       1
+      ],
+      [
+       31,
+       0.5
+      ],
+      [
+       33,
+       0.5
+      ]
+     ],
+     "mult": 425
+    },
+    {
+     "names": {
+      "en": "Defense",
+      "de": "Verteidigung",
+      "fr": "DÉF",
+      "es": "Defensa",
+      "ru": "ЗЩТ",
+      "pt": "Defesa",
+      "ja": "防御力",
+      "ko": "방어력"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       52,
+       1
+      ],
+      [
+       307,
+       1
+      ]
+     ],
+     "mult": 426
+    },
+    {
+     "names": {
+      "en": "Accuracy",
+      "de": "Präzision",
+      "fr": "Précision",
+      "es": "Precisión",
+      "ru": "Меткость",
+      "pt": "Precisão",
+      "ja": "命中",
+      "ko": "명중"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       104,
+       1
+      ],
+      [
+       318,
+       1
+      ]
+     ],
+     "mult": 427
+    },
+    {
+     "names": {
+      "en": "Evasion",
+      "de": "Ausweichen",
+      "fr": "Esquive",
+      "es": "Evasión",
+      "ru": "УКЛ",
+      "pt": "Evasão",
+      "ja": "回避",
+      "ko": "회피"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       116,
+       1
+      ],
+      [
+       312,
+       1
+      ]
+     ],
+     "mult": 428
+    },
+    {
+     "names": {
+      "en": "Critical Hit",
+      "de": "Kritischer Treffer",
+      "fr": "CRIT",
+      "es": "Crítico",
+      "ru": "Крит. удар",
+      "pt": "Acerto Crítico",
+      "ja": "クリティカル",
+      "ko": "치명타"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       128,
+       1
+      ]
+     ],
+     "mult": 429
+    },
+    {
+     "names": {
+      "en": "Critical Hit Resist",
+      "de": "Krit.-Widerstand",
+      "fr": "RÉS aux CRIT",
+      "es": "Resistencia Crítica",
+      "ru": "Сопротивление крит. удару",
+      "pt": "Resistência a Acerto Crítico",
+      "ja": "クリティカル抵抗",
+      "ko": "치명타 저항"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       133,
+       1
+      ]
+     ],
+     "mult": 430
+    },
+    {
+     "names": {
+      "en": "HP",
+      "de": "LP",
+      "fr": "PV",
+      "es": "Puntos de Vida",
+      "ru": "ОЗ",
+      "pt": "PV",
+      "ja": "HP",
+      "ko": "생명력"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       193,
+       1
+      ]
+     ],
+     "mult": 196,
+     "ceil": true
+    },
+    {
+     "names": {
+      "en": "MP",
+      "de": "MP",
+      "fr": "PM",
+      "es": "Puntos de Maná",
+      "ru": "ОМ",
+      "pt": "PM",
+      "ja": "MP",
+      "ko": "정신력"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       199,
+       1
+      ]
+     ],
+     "mult": 197,
+     "ceil": true
+    },
+    {
+     "names": {
+      "en": "Combat Speed",
+      "de": "Kampftempo",
+      "fr": "VIT de combat",
+      "es": "Velocidad de Hechizo",
+      "ru": "СКР боя",
+      "pt": "Velocidade de Combate",
+      "ja": "戦闘速度",
+      "ko": "전투 속도"
+     },
+     "fmt": "p",
+     "id": 282
+    },
+    {
+     "names": {
+      "en": "Move Speed",
+      "de": "Bewegungstempo",
+      "fr": "VIT de déplacement",
+      "es": "Velocidad de Movimiento",
+      "ru": "Скорость движения",
+      "pt": "Velocidade de Movimento",
+      "ja": "移動速度",
+      "ko": "이동 속도"
+     },
+     "fmt": "p",
+     "id": 205
+    }
+   ]
+  },
+  {
+   "id": "combat",
+   "title": "Kampf",
+   "rows": [
+    {
+     "names": {
+      "en": "Penetration",
+      "de": "Penetration",
+      "fr": "Perforation",
+      "es": "Penetración",
+      "ru": "Пробитие",
+      "pt": "Penetração",
+      "ja": "貫通",
+      "ko": "관통"
+     },
+     "fmt": "n",
+     "id": 284
+    },
+    {
+     "names": {
+      "en": "Power Shard Damage Bonus",
+      "de": "Zusatzschaden (Siegelstein)",
+      "fr": "DGT supplémentaires Éclat de pouvoir",
+      "es": "Daño Adicional de Fragmento de Poder",
+      "ru": "Доп. урон от камней силы",
+      "pt": "Dano Adicional do Fragmento de Poder",
+      "ja": "封魂石追加ダメージ",
+      "ko": "봉혼석 추가 피해"
+     },
+     "fmt": "n",
+     "id": 69
+    },
+    {
+     "names": {
+      "en": "Critical Attack",
+      "de": "Krit.-Angriffskraft",
+      "fr": "ATQ CRIT",
+      "es": "Ataque Crítico",
+      "ru": "Крит. АТК",
+      "pt": "Ataque Crítico",
+      "ja": "クリティカル攻撃力",
+      "ko": "치명타 공격력"
+     },
+     "fmt": "n",
+     "id": 38
+    },
+    {
+     "names": {
+      "en": "Critical Damage Defense",
+      "de": "Krit.-Verteidigung",
+      "fr": "DÉF CRIT",
+      "es": "Defensa Crítica",
+      "ru": "ЗЩТ от крит. удара",
+      "pt": "Defesa de Acerto Crítico",
+      "ja": "クリティカル防御力",
+      "ko": "치명타 방어력"
+     },
+     "fmt": "n",
+     "id": 41
+    },
+    {
+     "names": {
+      "en": "Back Attack",
+      "de": "Angriffskraft (Rückseitig)",
+      "fr": "ATQ dans le dos",
+      "es": "Ataque por la Espalda",
+      "ru": "АТК с тыла",
+      "pt": "Ataque pela Retaguarda",
+      "ja": "後方攻撃力",
+      "ko": "후방 공격력"
+     },
+     "fmt": "n",
+     "id": 98
+    },
+    {
+     "names": {
+      "en": "Back Defense",
+      "de": "Verteidigung (Rückseitig)",
+      "fr": "DÉF dans le dos",
+      "es": "Defensa por la Espalda",
+      "ru": "ЗЩТ с тыла",
+      "pt": "Defesa da Retaguarda",
+      "ja": "後方防御力",
+      "ko": "후방 방어력"
+     },
+     "fmt": "n",
+     "id": 99
+    },
+    {
+     "names": {
+      "en": "Front Attack",
+      "de": "Angriffskraft (Frontal)",
+      "fr": "ATQ frontale",
+      "es": "Ataque Frontal",
+      "ru": "АТК спереди",
+      "pt": "Ataque Frontal",
+      "ja": "前方攻撃力",
+      "ko": "전방 공격력"
+     },
+     "fmt": "n",
+     "id": 587
+    },
+    {
+     "names": {
+      "en": "Front Defense",
+      "de": "Verteidigung (Frontal)",
+      "fr": "DÉF frontale",
+      "es": "Defensa Frontal",
+      "ru": "ЗЩТ спереди",
+      "pt": "Defesa Frontal",
+      "ja": "前方防御力",
+      "ko": "전방 방어력"
+     },
+     "fmt": "n",
+     "id": 588
+    },
+    {
+     "names": {
+      "en": "Damage Boost",
+      "de": "Schadensverstärkung",
+      "fr": "Boost de DGT",
+      "es": "Amplificación de Daño",
+      "ru": "Увелич. урона",
+      "pt": "Amplificação de Dano",
+      "ja": "ダメージ増幅",
+      "ko": "피해 증폭"
+     },
+     "fmt": "p",
+     "id": 28
+    },
+    {
+     "names": {
+      "en": "Damage Tolerance",
+      "de": "Schadensresistenz",
+      "fr": "Tolérance aux DGT",
+      "es": "Tolerancia a Daño",
+      "ru": "Стойкость к урону",
+      "pt": "Tolerância a Dano",
+      "ja": "ダメージ耐性",
+      "ko": "피해 내성"
+     },
+     "fmt": "p",
+     "id": 70
+    },
+    {
+     "names": {
+      "en": "Weapon Damage Boost",
+      "de": "Verstärkung (Waffenschaden)",
+      "fr": "Boost de DGT arme",
+      "es": "Amplificación de Daño de Arma",
+      "ru": "Увелич. урона оружия",
+      "pt": "Amplificação de Dano de Arma",
+      "ja": "武器ダメージ増幅",
+      "ko": "무기 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 32
+    },
+    {
+     "names": {
+      "en": "Critical Damage Boost",
+      "de": "Krit.-Schadensverstärkung",
+      "fr": "Boost de DGT CRIT",
+      "es": "Amplificación de Daño Crítico",
+      "ru": "Увелич. крит. урона",
+      "pt": "Amplificação de Dano Crítico",
+      "ja": "クリティカル ダメージ増幅",
+      "ko": "치명타 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 44
+    },
+    {
+     "names": {
+      "en": "Critical Damage Tolerance",
+      "de": "Krit.-Schadensresistenz",
+      "fr": "Tolérance aux DGT CRIT",
+      "es": "Tolerancia a Daño Crítico",
+      "ru": "Стойкость к крит. урону",
+      "pt": "Tolerância a Dano Crítico",
+      "ja": "クリティカル ダメージ耐性",
+      "ko": "치명타 피해 내성"
+     },
+     "fmt": "p",
+     "id": 47
+    },
+    {
+     "names": {
+      "en": "Back Attack Damage Boost",
+      "de": "Schadensverstärkung (Rückseitig)",
+      "fr": "Boost de DGT dans le dos",
+      "es": "Amplificación de Daño por la Espalda",
+      "ru": "Увеличение урона от атаки с тыла",
+      "pt": "Amplificação de Dano da Retaguarda",
+      "ja": "後方ダメージ増幅",
+      "ko": "후방 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 102
+    },
+    {
+     "names": {
+      "en": "Back Attack Damage Tolerance",
+      "de": "Schadensresistenz (Rückseitig)",
+      "fr": "Tolérance aux DGT dans le dos",
+      "es": "Tolerancia a Daño por la Espalda",
+      "ru": "Стойкость к урону от атаки с тыла",
+      "pt": "Tolerância a Dano pela Retaguarda",
+      "ja": "後方ダメージ耐性",
+      "ko": "후방 피해 내성"
+     },
+     "fmt": "p",
+     "id": 103
+    },
+    {
+     "names": {
+      "en": "Front Attack Damage Boost",
+      "de": "Schadensverstärkung (Frontal)",
+      "fr": "Boost de DGT frontaux",
+      "es": "Amplificación de Daño Frontal",
+      "ru": "Увеличение урона от атаки спереди",
+      "pt": "Amplificação de Dano de Ataque Frontal",
+      "ja": "前方ダメージ増幅",
+      "ko": "전방 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 589
+    },
+    {
+     "names": {
+      "en": "Front Attack Damage Tolerance",
+      "de": "Schadensresistenz (Frontal)",
+      "fr": "Tolérance aux DGT frontaux",
+      "es": "Tolerancia a Daño Frontal",
+      "ru": "Сопротивление урону спереди",
+      "pt": "Tolerância a Dano de Ataque Frontal",
+      "ja": "前方ダメージ耐性",
+      "ko": "전방 피해 내성"
+     },
+     "fmt": "p",
+     "id": 590
+    }
+   ]
+  },
+  {
+   "id": "hits",
+   "title": "Trefferwertung",
+   "rows": [
+    {
+     "names": {
+      "en": "Multi-hit Chance",
+      "de": "Mehrfachtreffer",
+      "fr": "Taux multi-coups",
+      "es": "Acierto de Multigolpe",
+      "ru": "Попадание мультиударом",
+      "pt": "Acerto de Golpes Múltiplos",
+      "ja": "多段ヒット的中",
+      "ko": "다단 히트 적중"
+     },
+     "fmt": "p",
+     "id": 146
+    },
+    {
+     "names": {
+      "en": "Multi-hit Resist",
+      "de": "Widerstand (Mehrfachtreffer)",
+      "fr": "RÉS multi-coups",
+      "es": "Resistencia a Multigolpe",
+      "ru": "Сопротивление мультиудару",
+      "pt": "Resistência a Golpes Múltiplos",
+      "ja": "多段ヒット抵抗",
+      "ko": "다단 히트 저항"
+     },
+     "fmt": "p",
+     "id": 147
+    },
+    {
+     "names": {
+      "en": "Back Attack Critical Hit",
+      "de": "Krit.-Treffer (Rückseitig)",
+      "fr": "CRIT dans le dos",
+      "es": "Ataque Crítico por la Espalda",
+      "ru": "Крит. удар с тыла",
+      "pt": "Acerto Crítico pela Retaguarda",
+      "ja": "後方クリティカル",
+      "ko": "후방 치명타"
+     },
+     "fmt": "n",
+     "id": 100
+    },
+    {
+     "names": {
+      "en": "Back Attack Critical Hit Resist",
+      "de": "Krit.-Widerstand (Rückseitig)",
+      "fr": "RÉS CRIT dans le dos",
+      "es": "Resistencia a Ataque Crítico por la Espalda",
+      "ru": "Сопротивление крит. удару с тыла",
+      "pt": "Resistência a Acerto Crítico pela Retaguarda",
+      "ja": "後方クリティカル抵抗",
+      "ko": "후방 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 101
+    },
+    {
+     "names": {
+      "en": "Front Attack Critical Hit",
+      "de": "Kritischer Treffer (Frontal)",
+      "fr": "CRIT frontal",
+      "es": "Ataque Crítico Frontal",
+      "ru": "Крит. удар спереди",
+      "pt": "Acerto Crítico Frontal",
+      "ja": "前方クリティカル",
+      "ko": "전방 치명타"
+     },
+     "fmt": "n",
+     "id": 591
+    },
+    {
+     "names": {
+      "en": "Front Attack Critical Hit Resist",
+      "de": "Widerstand (Kritischer Treffer Frontal)",
+      "fr": "RÉS CRIT frontal",
+      "es": "Resistencia Crítica frontal",
+      "ru": "Сопротивление крит. удару спереди",
+      "pt": "Resistência a Acerto Crítico Frontal",
+      "ja": "前方クリティカル抵抗",
+      "ko": "전방 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 592
+    },
+    {
+     "names": {
+      "en": "Block Penetration",
+      "de": "Penetration (Block)",
+      "fr": "Perforation Blocage",
+      "es": "Penetración de Bloqueo",
+      "ru": "Пробитие блока",
+      "pt": "Penetração de Bloqueio",
+      "ja": "ガード貫通",
+      "ko": "막기 관통"
+     },
+     "fmt": "n",
+     "id": 256
+    },
+    {
+     "names": {
+      "en": "Block",
+      "de": "Block",
+      "fr": "Blocage",
+      "es": "Bloqueo",
+      "ru": "Блок",
+      "pt": "Bloqueio",
+      "ja": "ガード",
+      "ko": "막기"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       255,
+       1
+      ]
+     ],
+     "mult": 432
+    },
+    {
+     "names": {
+      "en": "Endurance Penetration",
+      "de": "Eisenwall-Penetration",
+      "fr": "Perforation blindage",
+      "es": "Penetración de Tenacidad",
+      "ru": "Пробитие Непробиваемости",
+      "pt": "Penetração de Solidez",
+      "ja": "鉄壁貫通",
+      "ko": "철벽 관통"
+     },
+     "fmt": "p",
+     "id": 449
+    },
+    {
+     "names": {
+      "en": "Endurance",
+      "de": "Eisenwall",
+      "fr": "Blindage",
+      "es": "Tenacidad",
+      "ru": "Непробиваемость",
+      "pt": "Solidez",
+      "ja": "鉄壁",
+      "ko": "철벽"
+     },
+     "fmt": "p",
+     "id": 445
+    },
+    {
+     "names": {
+      "en": "Regeneration Penetration",
+      "de": "Regenerations-Penetration",
+      "fr": "Perforation de la restauration",
+      "es": "Penetración de Recuperación",
+      "ru": "Пробитие Регенерации",
+      "pt": "Penetração de Regeneração",
+      "ja": "再生貫通",
+      "ko": "재생 관통"
+     },
+     "fmt": "p",
+     "id": 448
+    },
+    {
+     "names": {
+      "en": "Regeneration",
+      "de": "Regeneration",
+      "fr": "Restauration",
+      "es": "Recuperación",
+      "ru": "Регенерация",
+      "pt": "Recuperação",
+      "ja": "再生",
+      "ko": "재생"
+     },
+     "fmt": "p",
+     "id": 444
+    },
+    {
+     "names": {
+      "en": "Perfect Chance",
+      "de": "Perfektion",
+      "fr": "Coup parfait",
+      "es": "Perforación",
+      "ru": "Совершенный удар",
+      "pt": "Acerto Perfeito",
+      "ja": "完璧",
+      "ko": "완벽"
+     },
+     "fmt": "p",
+     "id": 442
+    },
+    {
+     "names": {
+      "en": "Perfect Resist",
+      "de": "Perfekter Widerstand",
+      "fr": "RÉS parfaite",
+      "es": "Resistencia a Perforación",
+      "ru": "Сопротивление Совершенному удару",
+      "pt": "Resistência a Acerto Perfeito",
+      "ja": "完璧抵抗",
+      "ko": "완벽 저항"
+     },
+     "fmt": "p",
+     "id": 446
+    },
+    {
+     "names": {
+      "en": "Double Chance",
+      "de": "Wucht",
+      "fr": "Coup puissant",
+      "es": "Golpe",
+      "ru": "Мощный удар",
+      "pt": "Golpe Potente",
+      "ja": "強打",
+      "ko": "강타"
+     },
+     "fmt": "p",
+     "id": 443
+    },
+    {
+     "names": {
+      "en": "Double Resist",
+      "de": "Wucht-Widerstand",
+      "fr": "RÉS coup puissant",
+      "es": "Resistencia a Golpe",
+      "ru": "Сопротивление Мощному удару",
+      "pt": "Resistência a Golpe Potente",
+      "ja": "強打抵抗",
+      "ko": "강타 저항"
+     },
+     "fmt": "p",
+     "id": 447
+    }
+   ]
+  },
+  {
+   "id": "status",
+   "title": "Statuseffekte",
+   "rows": [
+    {
+     "names": {
+      "en": "Stun Chance",
+      "de": "Treffer (Betäubung)",
+      "fr": "Taux d'Étourdissement",
+      "es": "Acierto de Aturdimiento",
+      "ru": "Попадание Оглушением",
+      "pt": "Acerto de Atordoamento",
+      "ja": "気絶的中",
+      "ko": "기절 적중"
+     },
+     "fmt": "p",
+     "sum": [
+      [
+       158,
+       1
+      ],
+      [
+       321,
+       1
+      ]
+     ]
+    },
+    {
+     "names": {
+      "en": "Status Effect Chance",
+      "de": "Statuseffekt-Trefferchance",
+      "fr": "Taux altération état",
+      "es": "Acierto de Efectos de Estado",
+      "ru": "Попадание эффектами",
+      "pt": "Acerto de Alteração de Estado",
+      "ja": "状態異常的中",
+      "ko": "상태이상 적중"
+     },
+     "fmt": "p",
+     "id": 158
+    },
+    {
+     "names": {
+      "en": "Status Effect Resist",
+      "de": "Widerstand (Statuseffekte)",
+      "fr": "RÉS aux altérations d'état",
+      "es": "Resistencia a Efectos de Estado",
+      "ru": "Сопротивление негат. эффектам",
+      "pt": "Resistência a Alteração de Estado",
+      "ja": "状態異常抵抗",
+      "ko": "상태이상 저항"
+     },
+     "fmt": "p",
+     "id": 159
+    }
+   ]
+  },
+  {
+   "id": "pvp",
+   "title": "PvP",
+   "rows": [
+    {
+     "names": {
+      "en": "PvP Attack",
+      "de": "Angriffskraft (PvP)",
+      "fr": "ATQ JcJ",
+      "es": "Ataque JcJ",
+      "ru": "АТК в PvP",
+      "pt": "Ataque em JvJ",
+      "ja": "PvP攻撃力",
+      "ko": "PVP 공격력"
+     },
+     "fmt": "n",
+     "id": 58
+    },
+    {
+     "names": {
+      "en": "PvP Defense",
+      "de": "Verteidigung (PvP)",
+      "fr": "DÉF JcJ",
+      "es": "Defensa JcJ",
+      "ru": "ЗЩТ в PvP",
+      "pt": "Defesa em JvJ",
+      "ja": "PvP防御力",
+      "ko": "PVP 방어력"
+     },
+     "fmt": "n",
+     "id": 61
+    },
+    {
+     "names": {
+      "en": "PvP Damage Boost",
+      "de": "Schadensverstärkung (PvP)",
+      "fr": "Boost de DGT JcJ",
+      "es": "Amplificación de Daño JcJ",
+      "ru": "Увеличене урона в PvP",
+      "pt": "Amplificação de Dano em JvJ",
+      "ja": "PvPダメージ増幅",
+      "ko": "PVP 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 65
+    },
+    {
+     "names": {
+      "en": "PvP Damage Tolerance",
+      "de": "Schadensresistenz (PvP)",
+      "fr": "Tolérance aux DGT JcJ",
+      "es": "Tolerancia a Daño JcJ",
+      "ru": "Стойкость к урону в PvP",
+      "pt": "Tolerância a Dano em JvJ",
+      "ja": "PvPダメージ耐性",
+      "ko": "PVP 피해 내성"
+     },
+     "fmt": "p",
+     "id": 76
+    },
+    {
+     "names": {
+      "en": "PvP Accuracy",
+      "de": "Präzision (PvP)",
+      "fr": "Précision JcJ",
+      "es": "Precisión JcJ",
+      "ru": "Меткость в PvP",
+      "pt": "Precisão em JvJ",
+      "ja": "PvP命中",
+      "ko": "PVP 명중"
+     },
+     "fmt": "n",
+     "id": 113
+    },
+    {
+     "names": {
+      "en": "PvP Evasion",
+      "de": "Ausweichen (PvP)",
+      "fr": "Esquive JcJ",
+      "es": "Evasión JcJ",
+      "ru": "УКЛ в PvP",
+      "pt": "Evasão em JvJ",
+      "ja": "PvP回避",
+      "ko": "PVP 회피"
+     },
+     "fmt": "n",
+     "id": 125
+    },
+    {
+     "names": {
+      "en": "PvP Critical Hit",
+      "de": "Krit.-Treffer (PvP)",
+      "fr": "CRIT JcJ",
+      "es": "Crítico JcJ",
+      "ru": "Крит. удар в PvP",
+      "pt": "Acerto Crítico em JvJ",
+      "ja": "PvPクリティカル",
+      "ko": "PVP 치명타"
+     },
+     "fmt": "n",
+     "id": 132
+    },
+    {
+     "names": {
+      "en": "PvP Critical Hit Resist",
+      "de": "Krit.-Widerstand (PvP)",
+      "fr": "RÉS CRIT JcJ",
+      "es": "Resistencia Crítica JcJ",
+      "ru": "Сопротивление крит. удару в PvP",
+      "pt": "Resistência a Acerto Crítico em JvJ",
+      "ja": "PvPクリティカル抵抗",
+      "ko": "PVP 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 136
+    },
+    {
+     "names": {
+      "en": "PvP Block",
+      "de": "Block (PvP)",
+      "fr": "Blocage JcJ",
+      "es": "Bloqueo JcJ",
+      "ru": "Блок в PvP",
+      "pt": "Bloqueio em JvJ",
+      "ja": "PvPガード",
+      "ko": "PVP 막기"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       569,
+       1
+      ]
+     ],
+     "mult": 432
+    }
+   ]
+  },
+  {
+   "id": "pve",
+   "title": "PvE",
+   "rows": [
+    {
+     "names": {
+      "en": "PvE Attack",
+      "de": "Angriffskraft (PvE)",
+      "fr": "ATQ JcE",
+      "es": "Ataque JcE",
+      "ru": "АТК в PvE",
+      "pt": "Ataque em JvA",
+      "ja": "PvE攻撃力",
+      "ko": "PVE 공격력"
+     },
+     "fmt": "n",
+     "id": 56
+    },
+    {
+     "names": {
+      "en": "PvE Defense",
+      "de": "Verteidigung (PvE)",
+      "fr": "DÉF JcE",
+      "es": "Defensa JcE",
+      "ru": "ЗЩТ в PvE",
+      "pt": "Defesa em JvA",
+      "ja": "PvE防御力",
+      "ko": "PVE 방어력"
+     },
+     "fmt": "n",
+     "id": 57
+    },
+    {
+     "names": {
+      "en": "PvE Accuracy",
+      "de": "Präzision (PvE)",
+      "fr": "Précision JcE",
+      "es": "Precisión JcE",
+      "ru": "Меткость в PvE",
+      "pt": "Precisão em JvA",
+      "ja": "PvE命中",
+      "ko": "PVE 명중"
+     },
+     "fmt": "n",
+     "id": 110
+    },
+    {
+     "names": {
+      "en": "PvE Evasion",
+      "de": "Ausweichen (PvE)",
+      "fr": "Esquive JcE",
+      "es": "Evasión JcE",
+      "ru": "УКЛ в PvE",
+      "pt": "Evasão em JvA",
+      "ja": "PvE回避",
+      "ko": "PVE 회피"
+     },
+     "fmt": "n",
+     "id": 122
+    },
+    {
+     "names": {
+      "en": "PvE Damage Boost",
+      "de": "Schadensverstärkung (PvE)",
+      "fr": "Boost de DGT JcE",
+      "es": "Amplificación de Daño de JcE",
+      "ru": "Увеличение урона в PvE",
+      "pt": "Amplificação de Dano em JvA",
+      "ja": "PvEダメージ増幅",
+      "ko": "PVE 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 379
+    },
+    {
+     "names": {
+      "en": "PvE Damage Tolerance",
+      "de": "Schadensresistenz (PvE)",
+      "fr": "Tolérance aux DGT JcE",
+      "es": "Tolerancia a Daño JcE",
+      "ru": "Стойкость к урону в PvE",
+      "pt": "Tolerância a Dano em JvA",
+      "ja": "PvEダメージ耐性",
+      "ko": "PVE 피해 내성"
+     },
+     "fmt": "p",
+     "id": 380
+    },
+    {
+     "names": {
+      "en": "Boss Attack",
+      "de": "Angriffskraft (Boss)",
+      "fr": "ATQ contre les boss",
+      "es": "Ataque de Jefe",
+      "ru": "АТК по боссу",
+      "pt": "Ataque contra Chefe",
+      "ja": "ボス攻撃力",
+      "ko": "보스 공격력"
+     },
+     "fmt": "n",
+     "id": 50
+    },
+    {
+     "names": {
+      "en": "Boss Defense",
+      "de": "Verteidigung (Boss)",
+      "fr": "DÉF contre les boss",
+      "es": "Defensa de Jefe",
+      "ru": "ЗЩТ от босса",
+      "pt": "Defesa contra Chefe",
+      "ja": "ボス防御力",
+      "ko": "보스 방어력"
+     },
+     "fmt": "n",
+     "id": 51
+    },
+    {
+     "names": {
+      "en": "Boss Damage Boost",
+      "de": "Schadensverstärkung (Boss)",
+      "fr": "Boost de DGT boss",
+      "es": "Amplificación de Daño de Jefe",
+      "ru": "Увеличение урона по боссам",
+      "pt": "Aumento de Dano contra Chefe",
+      "ja": "ボス ダメージ増幅",
+      "ko": "보스 피해 증폭"
+     },
+     "fmt": "p",
+     "id": 520
+    },
+    {
+     "names": {
+      "en": "Boss Damage Tolerance",
+      "de": "Schadensresistenz (Boss)",
+      "fr": "Tolérance aux DGT boss",
+      "es": "Tolerancia a Daño de Jefe",
+      "ru": "Стойкость к урону от босса",
+      "pt": "Tolerância a Dano contra Chefe",
+      "ja": "ボス ダメージ耐性",
+      "ko": "보스 피해 내성"
+     },
+     "fmt": "p",
+     "id": 521
+    }
+   ]
+  },
+  {
+   "id": "faction",
+   "title": "Fraktion",
+   "rows": [
+    {
+     "names": {
+      "en": "Cogni Attack",
+      "de": "Angriffskraft (Cognia)",
+      "fr": "ATQ Intellia",
+      "es": "Ataque de Cognis",
+      "ru": "АТК по разумным",
+      "pt": "Ataque contra Intelectuais",
+      "ja": "知性族攻撃力",
+      "ko": "지성족 공격력"
+     },
+     "fmt": "n",
+     "id": 393
+    },
+    {
+     "names": {
+      "en": "Cogni Defense",
+      "de": "Verteidigung (Cognia)",
+      "fr": "DÉF Intellia",
+      "es": "Defensa de Cognis",
+      "ru": "ЗЩТ от разумных",
+      "pt": "Defesa contra Intelectuais",
+      "ja": "知性族防御力",
+      "ko": "지성족 방어력"
+     },
+     "fmt": "n",
+     "id": 394
+    },
+    {
+     "names": {
+      "en": "Cogni Accuracy",
+      "de": "Präzision (Cognia)",
+      "fr": "Précision Intellia",
+      "es": "Precisión de Cognis",
+      "ru": "Меткость по разумным",
+      "pt": "Precisão contra Intelectuais",
+      "ja": "知性族命中",
+      "ko": "지성족 명중"
+     },
+     "fmt": "n",
+     "id": 395
+    },
+    {
+     "names": {
+      "en": "Cogni Evasion",
+      "de": "Ausweichen (Cognia)",
+      "fr": "Esquive Intellia",
+      "es": "Evasión de Cognis",
+      "ru": "УКЛ от разумных",
+      "pt": "Evasão contra Intelectuais",
+      "ja": "知性族回避",
+      "ko": "지성족 회피"
+     },
+     "fmt": "n",
+     "id": 396
+    },
+    {
+     "names": {
+      "en": "Cogni Critical Hit",
+      "de": "Krit.-Treffer (Cognia)",
+      "fr": "CRIT Intellia",
+      "es": "Crítico de Cognis",
+      "ru": "Крит. удар по разумным",
+      "pt": "Acerto Crítico contra Intelectuais",
+      "ja": "知性族クリティカル",
+      "ko": "지성족 치명타"
+     },
+     "fmt": "n",
+     "id": 397
+    },
+    {
+     "names": {
+      "en": "Cogni Critical Hit Resist",
+      "de": "Krit.-Widerstand (Cognia)",
+      "fr": "RÉS CRIT Intellia",
+      "es": "Resistencia Crítica de Cognis",
+      "ru": "Сопротивление крит. удару от разумных",
+      "pt": "Resistência a Acerto Crítico contra Intelectuais",
+      "ja": "知性族クリティカル抵抗",
+      "ko": "지성족 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 398
+    },
+    {
+     "names": {
+      "en": "Cogni Block",
+      "de": "Block (Cognia)",
+      "fr": "Blocage Intellia",
+      "es": "Bloqueo de Cognis",
+      "ru": "Блок разумных",
+      "pt": "Bloqueio contra Intelectuais",
+      "ja": "知性族ガード",
+      "ko": "지성족 막기"
+     },
+     "fmt": "n",
+     "id": 400
+    },
+    {
+     "names": {
+      "en": "Fera Attack",
+      "de": "Angriffskraft (Fera)",
+      "fr": "ATQ Bestia",
+      "es": "Ataque de Feras",
+      "ru": "АТК по диким",
+      "pt": "Ataque contra Ferais",
+      "ja": "野性族攻撃力",
+      "ko": "야성족 공격력"
+     },
+     "fmt": "n",
+     "id": 401
+    },
+    {
+     "names": {
+      "en": "Fera Defense",
+      "de": "Verteidigung (Fera)",
+      "fr": "DÉF Bestia",
+      "es": "Defensa de Feras",
+      "ru": "ЗЩТ от диких",
+      "pt": "Defesa contra Ferais",
+      "ja": "野性族防御力",
+      "ko": "야성족 방어력"
+     },
+     "fmt": "n",
+     "id": 402
+    },
+    {
+     "names": {
+      "en": "Fera Accuracy",
+      "de": "Präzision (Fera)",
+      "fr": "Précision Bestia",
+      "es": "Precisión de Feras",
+      "ru": "Меткость по диким",
+      "pt": "Precisão contra Ferais",
+      "ja": "野性族命中",
+      "ko": "야성족 명중"
+     },
+     "fmt": "n",
+     "id": 403
+    },
+    {
+     "names": {
+      "en": "Fera Evasion",
+      "de": "Ausweichen (Fera)",
+      "fr": "Esquive Bestia",
+      "es": "Evasión de Feras",
+      "ru": "УКЛ от диких",
+      "pt": "Evasão contra Ferais",
+      "ja": "野性族回避",
+      "ko": "야성족 회피"
+     },
+     "fmt": "n",
+     "id": 404
+    },
+    {
+     "names": {
+      "en": "Fera Critical Hit",
+      "de": "Krit.-Treffer (Fera)",
+      "fr": "CRIT Bestia",
+      "es": "Crítico de Feras",
+      "ru": "Крит. удар по диким",
+      "pt": "Acerto Crítico contra Ferais",
+      "ja": "野性族クリティカル",
+      "ko": "야성족 치명타"
+     },
+     "fmt": "n",
+     "id": 405
+    },
+    {
+     "names": {
+      "en": "Fera Critical Hit Resist",
+      "de": "Krit.-Widerstand (Fera)",
+      "fr": "RÉS CRIT Bestia",
+      "es": "Resistencia Crítica de Feras",
+      "ru": "Сопротивление крит. удару от диких",
+      "pt": "Resistência a Acerto Crítico contra Ferais",
+      "ja": "野性族クリティカル抵抗",
+      "ko": "야성족 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 406
+    },
+    {
+     "names": {
+      "en": "Fera Block",
+      "de": "Block (Fera)",
+      "fr": "Blocage Bestia",
+      "es": "Bloqueo de Feras",
+      "ru": "Блок диких",
+      "pt": "Bloqueio contra Ferais",
+      "ja": "野性族ガード",
+      "ko": "야성족 막기"
+     },
+     "fmt": "n",
+     "id": 408
+    },
+    {
+     "names": {
+      "en": "Natura Attack",
+      "de": "Angriffskraft (Natura)",
+      "fr": "ATQ Natura",
+      "es": "Ataque de Naturas",
+      "ru": "АТК по природных монстрам",
+      "pt": "Ataque contra Naturais",
+      "ja": "自然族攻撃力",
+      "ko": "자연족 공격력"
+     },
+     "fmt": "n",
+     "id": 409
+    },
+    {
+     "names": {
+      "en": "Natura Defense",
+      "de": "Verteidigung (Natura)",
+      "fr": "DÉF Natura",
+      "es": "Defensa de Naturas",
+      "ru": "ЗЩТ от природных монстров",
+      "pt": "Defesa contra Naturais",
+      "ja": "自然族防御力",
+      "ko": "자연족 방어력"
+     },
+     "fmt": "n",
+     "id": 410
+    },
+    {
+     "names": {
+      "en": "Natura Accuracy",
+      "de": "Präzision (Natura)",
+      "fr": "Précision Natura",
+      "es": "Precisión de Naturas",
+      "ru": "Меткость по природным монстрам",
+      "pt": "Precisão contra Naturais",
+      "ja": "自然族命中",
+      "ko": "자연족 명중"
+     },
+     "fmt": "n",
+     "id": 411
+    },
+    {
+     "names": {
+      "en": "Natura Evasion",
+      "de": "Ausweichen (Natura)",
+      "fr": "Esquive Natura",
+      "es": "Evasión de Naturas",
+      "ru": "УКЛ от природных монстров",
+      "pt": "Evasão contra Naturais",
+      "ja": "自然族回避",
+      "ko": "자연족 회피"
+     },
+     "fmt": "n",
+     "id": 412
+    },
+    {
+     "names": {
+      "en": "Natura Critical Hit",
+      "de": "Krit.-Treffer (Natura)",
+      "fr": "CRIT Natura",
+      "es": "Crítico de Naturas",
+      "ru": "Крит. удар по природным монстрам",
+      "pt": "Acerto Crítico contra Naturais",
+      "ja": "自然族クリティカル",
+      "ko": "자연족 치명타"
+     },
+     "fmt": "n",
+     "id": 413
+    },
+    {
+     "names": {
+      "en": "Natura Critical Hit Resist",
+      "de": "Krit.-Widerstand (Natura)",
+      "fr": "RÉS CRIT Natura",
+      "es": "Resistencia Crítica de Naturas",
+      "ru": "Сопротивление крит. удару от природных монстров",
+      "pt": "Resistência a Acerto Crítico contra Naturais",
+      "ja": "自然族クリティカル抵抗",
+      "ko": "자연족 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 414
+    },
+    {
+     "names": {
+      "en": "Natura Block",
+      "de": "Block (Natura)",
+      "fr": "Blocage Natura",
+      "es": "Bloqueo de Naturas",
+      "ru": "Блок природных монстров",
+      "pt": "Bloqueio contra Naturais",
+      "ja": "自然族ガード",
+      "ko": "자연족 막기"
+     },
+     "fmt": "n",
+     "id": 416
+    },
+    {
+     "names": {
+      "en": "Varian Attack",
+      "de": "Angriffskraft (Varia)",
+      "fr": "ATQ Varius",
+      "es": "Ataque de Varians",
+      "ru": "АТК по мутантам",
+      "pt": "Ataque contra Variantes",
+      "ja": "変形族攻撃力",
+      "ko": "변형족 공격력"
+     },
+     "fmt": "n",
+     "id": 417
+    },
+    {
+     "names": {
+      "en": "Varian Defense",
+      "de": "Verteidigung (Varia)",
+      "fr": "DÉF Varius",
+      "es": "Defensa de Varians",
+      "ru": "ЗЩТ от мутантов",
+      "pt": "Defesa contra Variantes",
+      "ja": "変形族防御力",
+      "ko": "변형족 방어력"
+     },
+     "fmt": "n",
+     "id": 418
+    },
+    {
+     "names": {
+      "en": "Varian Accuracy",
+      "de": "Präzision (Varia)",
+      "fr": "Précision Varius",
+      "es": "Precisión de Varians",
+      "ru": "Меткость по мутантам",
+      "pt": "Precisão contra Variantes",
+      "ja": "変形族命中",
+      "ko": "변형족 명중"
+     },
+     "fmt": "n",
+     "id": 419
+    },
+    {
+     "names": {
+      "en": "Varian Evasion",
+      "de": "Ausweichen (Varia)",
+      "fr": "Esquive Varius",
+      "es": "Evasión de Varians",
+      "ru": "УКЛ от мутанта",
+      "pt": "Evasão contra Variantes",
+      "ja": "変形族回避",
+      "ko": "변형족 회피"
+     },
+     "fmt": "n",
+     "id": 420
+    },
+    {
+     "names": {
+      "en": "Varian Critical Hit",
+      "de": "Krit.-Treffer (Varia)",
+      "fr": "CRIT Varius",
+      "es": "Crítico de Varians",
+      "ru": "Крит. удар по мутантам",
+      "pt": "Acerto Crítico contra Variantes",
+      "ja": "変形族クリティカル",
+      "ko": "변형족 치명타"
+     },
+     "fmt": "n",
+     "id": 421
+    },
+    {
+     "names": {
+      "en": "Varian Critical Hit Resist",
+      "de": "Krit.-Widerstand (Varia)",
+      "fr": "RÉS CRIT Varius",
+      "es": "Resistencia Crítica de Varians",
+      "ru": "Сопротивление крит. удару от мутантов",
+      "pt": "Resistência a Acerto Crítico contra Variantes",
+      "ja": "変形族クリティカル抵抗",
+      "ko": "변형족 치명타 저항"
+     },
+     "fmt": "n",
+     "id": 422
+    },
+    {
+     "names": {
+      "en": "Varian Block",
+      "de": "Block (Varia)",
+      "fr": "Blocage Varius",
+      "es": "Bloqueo de Varians",
+      "ru": "Блок мутантов",
+      "pt": "Bloqueio contra Variantes",
+      "ja": "変形族ガード",
+      "ko": "변형족 막기"
+     },
+     "fmt": "n",
+     "id": 424
+    }
+   ]
+  },
+  {
+   "id": "special",
+   "title": "Spezial",
+   "rows": [
+    {
+     "names": {
+      "en": "Mount Ground Move Speed",
+      "de": "Boden-Tempo (Reittier)",
+      "fr": "VIT de déplacement au sol de la monture",
+      "es": "Velocidad de Movimiento Terrestre de Montura",
+      "ru": "СКР наземного движ. скакуна",
+      "pt": "Velocidade de Movimento no Solo da Montaria",
+      "ja": "乗り物地上移動速度",
+      "ko": "탑승물 지상 이동 속도"
+     },
+     "fmt": "n",
+     "id": 208
+    },
+    {
+     "names": {
+      "en": "Mount Sprint Stamina Cost Reduction Rate",
+      "de": "SP-Kosten (Reittier): Sprint",
+      "fr": "Taux de réduction du coût d'Endurance (sprint monture)",
+      "es": "Reducción (%) de Consumo de Vigor de Esprint de Montura",
+      "ru": "Сниж. затраты ОД при ускорении скакуна (%)",
+      "pt": "Taxa de Redução do Consumo de Vigor da Disparada da Montaria",
+      "ja": "乗り物疾走の行動力消耗量減少率",
+      "ko": "탑승물 질주 행동력 소모량 감소율"
+     },
+     "fmt": "p",
+     "id": 210
+    },
+    {
+     "names": {
+      "en": "Cooldown",
+      "de": "Abklingzeit",
+      "fr": "Temps de recharge",
+      "es": "Tiempo de Enfriamiento",
+      "ru": "Перезарядка",
+      "pt": "Tempo de recarga",
+      "ja": "再使用時間",
+      "ko": "재시전 시간"
+     },
+     "fmt": "p",
+     "sum": [
+      [
+       215,
+       -1
+      ],
+      [
+       385,
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "resources",
+   "title": "Ressourcen",
+   "rows": [
+    {
+     "names": {
+      "en": "Stamina",
+      "de": "SP",
+      "fr": "Endurance",
+      "es": "Vigor",
+      "ru": "ОД",
+      "pt": "Vigor",
+      "ja": "行動力",
+      "ko": "행동력"
+     },
+     "fmt": "n",
+     "id": 242,
+     "div": 100
+    },
+    {
+     "names": {
+      "en": "Flight Power",
+      "de": "FP",
+      "fr": "Envol",
+      "es": "Energía de Vuelo",
+      "ru": "ОП",
+      "pt": "Energia de Voo",
+      "ja": "飛行力",
+      "ko": "비행력"
+     },
+     "fmt": "n",
+     "id": 298,
+     "div": 100
+    },
+    {
+     "names": {
+      "en": "Combat Natural HP Regen",
+      "de": "Natürliche LP-Regeneration (Kampf)",
+      "fr": "Régénération naturelle des PV en combat",
+      "es": "Recuperación Natural de Puntos de Vida (Combate)",
+      "ru": "Естественное восстановление ОЗ в бою",
+      "pt": "Recuperação Natural de PV em Combate",
+      "ja": "戦闘時のHP自然回復",
+      "ko": "전투 생명력 자연 회복"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       194,
+       1
+      ],
+      [
+       275,
+       1
+      ]
+     ]
+    },
+    {
+     "names": {
+      "en": "Out-of-Combat Natural HP Regen",
+      "de": "Natürliche LP-Regeneration (Nicht-Kampf)",
+      "fr": "Régénération naturelle des PV hors combat",
+      "es": "Recuperación Natural de Puntos de Vida (Reposo)",
+      "ru": "Естественное восстановление ОЗ вне боя",
+      "pt": "Recuperação Natural de PV Fora de Combate",
+      "ja": "非戦闘時のHP自然回復",
+      "ko": "비전투 생명력 자연 회복"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       194,
+       1
+      ],
+      [
+       195,
+       1
+      ]
+     ]
+    },
+    {
+     "names": {
+      "en": "HP Potion Recovery",
+      "de": "LP-Regeneration (Tränke)",
+      "fr": "Régénération de potion de PV",
+      "es": "Recuperación de Poción de Puntos de Vida",
+      "ru": "Восстановление от зелий ОЗ",
+      "pt": "Recuperação de PV com Poção",
+      "ja": "HPポーション回復",
+      "ko": "생명력 물약 회복"
+     },
+     "fmt": "n",
+     "id": 221
+    },
+    {
+     "names": {
+      "en": "HP Potion Recovery increase",
+      "de": "LP-Trank-Regeneration +",
+      "fr": "Augmentation de la régénération de Potion de PV",
+      "es": "Aumento de Recuperación de Poción de Puntos de Vida",
+      "ru": "Увеличение восстановления от зелий ОЗ",
+      "pt": "Aumento de PV Recuperada com Poção",
+      "ja": "HPポーション回復増加",
+      "ko": "생명력 물약 회복 증가"
+     },
+     "fmt": "p",
+     "id": 220
+    },
+    {
+     "names": {
+      "en": "Combat Natural MP Regen",
+      "de": "Natürliche MP-Regeneration (Kampf)",
+      "fr": "Régénération naturelle de PM en combat",
+      "es": "Recuperación Natural de Puntos de Maná (Combate)",
+      "ru": "Естественное восстановление ОМ в бою",
+      "pt": "Recuperação Natural de PM em Combate",
+      "ja": "戦闘時のMP自然回復",
+      "ko": "전투 정신력 자연 회복"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       200,
+       1
+      ],
+      [
+       276,
+       1
+      ]
+     ]
+    },
+    {
+     "names": {
+      "en": "Out-of-Combat Natural MP Regen",
+      "de": "Natürliche MP-Regeneration (Nicht-Kampf)",
+      "fr": "Régénération naturelle de PM hors combat",
+      "es": "Recuperación Natural de Puntos de Maná (Reposo)",
+      "ru": "Естественное восстановление ОМ вне боя",
+      "pt": "Recuperação Natural de PM Fora de Combate",
+      "ja": "非戦闘時のMP自然回復",
+      "ko": "비전투 정신력 자연 회복"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       200,
+       1
+      ],
+      [
+       201,
+       1
+      ]
+     ]
+    },
+    {
+     "names": {
+      "en": "MP Cost",
+      "de": "MP-Kosten",
+      "fr": "Coût en PM",
+      "es": "Consumo de Puntos de Maná",
+      "ru": "Затрата ОМ",
+      "pt": "Consumo de PM",
+      "ja": "MP消耗量",
+      "ko": "정신력 소모량"
+     },
+     "fmt": "p",
+     "id": 386
+    },
+    {
+     "names": {
+      "en": "Combat Natural Stamina Regen",
+      "de": "Natürliche SP-Regeneration (Kampf)",
+      "fr": "Régénération naturelle d'Endurance en combat",
+      "es": "Recuperación Natural de Vigor (Combate)",
+      "ru": "Естественное восстановление ОД в бою",
+      "pt": "Recuperação Natural de Vigor em Combate",
+      "ja": "戦闘時の行動力自然回復",
+      "ko": "전투 행동력 자연 회복"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       243,
+       1
+      ],
+      [
+       277,
+       1
+      ]
+     ],
+     "div": 100
+    },
+    {
+     "names": {
+      "en": "Out-of-Combat Natural Stamina Regen",
+      "de": "Natürliche SP-Regeneration (Nicht-Kampf)",
+      "fr": "Régénération naturelle d'Endurance hors combat",
+      "es": "Recuperación Natural de Vigor (Reposo)",
+      "ru": "Естественное восстановление ОД вне боя",
+      "pt": "Recuperação Natural de Vigor Fora de Combate",
+      "ja": "非戦闘時の行動力自然回復",
+      "ko": "비전투 행동력 자연 회복"
+     },
+     "fmt": "n",
+     "sum": [
+      [
+       243,
+       1
+      ],
+      [
+       244,
+       1
+      ]
+     ],
+     "div": 100
+    },
+    {
+     "names": {
+      "en": "Combat Natural Flight Power Regen",
+      "de": "Natürliche FP-Regeneration (Kampf)",
+      "fr": "Régénération naturelle d'Envol en combat",
+      "es": "Recuperación Natural de Energía de Vuelo (Combate)",
+      "ru": "Естественное восстановление ОП в бою",
+      "pt": "Recuperação Natural de Energia de Voo em Combate",
+      "ja": "戦闘時の飛行力自然回復",
+      "ko": "전투 비행력 자연 회복"
+     },
+     "fmt": "n",
+     "id": 300,
+     "div": 100
+    },
+    {
+     "names": {
+      "en": "Out-of-Combat Natural Flight Power Regen",
+      "de": "Natürliche FP-Regeneration (Nicht-Kampf)",
+      "fr": "Régénération naturelle de l'Envol hors combat",
+      "es": "Recuperación Natural de Energía de Vuelo (Reposo)",
+      "ru": "Естественное восстановление ОП вне боя",
+      "pt": "Recuperação Natural de Energia de Voo Fora de Combate",
+      "ja": "非戦闘時の飛行力自然回復",
+      "ko": "비전투 비행력 자연 회복"
+     },
+     "fmt": "n",
+     "id": 301,
+     "div": 100
+    }
+   ]
+  }
+ ]
+}
