@@ -452,9 +452,11 @@ internal static class Program
         if (args.Length > 1 && args[0] == "aion2-history-add")
         {
             // aion2-history-add <stays.json>: puts the stays of an aion2-history output into the fight history database (for tests; AIONDPS_DATA_DIR picks the folder)
-            var added = System.Text.Json.JsonSerializer.Deserialize<List<History.StayRecord>>(File.ReadAllText(args[1])) ?? new();
-            History.FightHistory.Add(added);
-            Console.WriteLine($"aion2-history-add: {added.Count} stay(s); {History.FightHistory.All(Array.Empty<History.SessionInfo>()).Count} in the history");
+            var added = System.Text.Json.JsonSerializer.Deserialize<History.HistoryBuilder.ChildResult>(File.ReadAllText(args[1]));
+            History.GameLog.AddHistoric(added?.Characters ?? new());
+            var stayList = added?.Stays ?? new();
+            History.FightHistory.Add(stayList);
+            Console.WriteLine($"aion2-history-add: {stayList.Count} stay(s), {added?.Characters.Count ?? 0} look(s); {History.FightHistory.All(Array.Empty<History.SessionInfo>()).Count} in the history");
             Aion2.Aion2Tickets.EnablePersistence();
             Aion2.Aion2FieldBosses.EnablePersistence();
             History.GameLog.WriteCharacters();

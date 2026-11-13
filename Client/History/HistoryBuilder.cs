@@ -14,6 +14,9 @@ public static class HistoryBuilder
 {
     private static bool _running;
 
+    /// <summary>What the child hands back: the stays with their boss fights and the looks at the account's characters at the logins.</summary>
+    public sealed record ChildResult(List<StayRecord> Stays, List<GameLog.CharacterRow> Characters);
+
     public static string FileKey(FileInfo file) => file.Name + "|" + file.Length;
 
     /// <summary>Starts the background work (once at a time); <paramref name="done"/> is called when a file was added.</summary>
@@ -122,10 +125,11 @@ public static class HistoryBuilder
                 return false;
             }
 
-            var stays = JsonSerializer.Deserialize<List<StayRecord>>(File.ReadAllText(output));
-            if (stays is not null)
+            var result = JsonSerializer.Deserialize<ChildResult>(File.ReadAllText(output));
+            if (result is not null)
             {
-                FightHistory.Add(stays);
+                FightHistory.Add(result.Stays);
+                GameLog.AddHistoric(result.Characters);
             }
 
             return true;
@@ -167,7 +171,26 @@ public static class HistoryBuilder
 
         // a replay must not write to the real pet-farm log
         PetFarmLog.PathOverride = Path.Combine(Path.GetTempPath(), "aion2-history-pet-farm.log");
-        DateTime last = DateTime.MinValue;
+        DateTime last = DateTime.MinValue, now = DateTime.MinValue, lastLook = DateTime.MinValue;
+        var looks = new List<GameLog.CharacterRow>();
+        Aion2Tickets.Reset();
+        // the characters of the account as the logins listed them: one look at most every ten minutes of the recording
+        Aion2Tickets.Changed += () =>
+        {
+            if (now - lastLook < TimeSpan.FromMinutes(10))
+            {
+                return;
+            }
+
+            lastLook = now;
+            foreach (TicketCharacter c in Aion2Tickets.Snapshot())
+            {
+                if (c.ItemLevel > 0)
+                {
+                    looks.Add(new GameLog.CharacterRow(now, c.Name, c.ServerId, c.ClassCode, c.Level, c.ItemLevel, c.Legion, c.LastOnlineMs));
+                }
+            }
+        };
         foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
         {
             bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
@@ -176,6 +199,7 @@ public static class HistoryBuilder
                 continue;
             }
 
+            now = segment.Timestamp;
             source.Ingest(segment with { FromServer = fromServer });
             Combat.Sources.CombatBatch polled = source.Poll(false);
             foreach (var ev in polled.Damage)
@@ -210,7 +234,7 @@ public static class HistoryBuilder
             }
         }
 
-        File.WriteAllText(output, JsonSerializer.Serialize(records));
+        File.WriteAllText(output, JsonSerializer.Serialize(new ChildResult(records, looks)));
         return 0;
     }
 }

@@ -17,8 +17,23 @@ public static class TimelineChart
 
     private static readonly Color GearColor = Color.FromRgb(0xff, 0xba, 0x42), PowerColor = Color.FromRgb(0x4e, 0xa0, 0xff);
 
-    public static UIElement Build(IReadOnlyList<GameLog.Snapshot> snapshots)
+    /// <summary>One line of the chart: a character with its looks over time.</summary>
+    public sealed record Series(string Name, Color Color, IReadOnlyList<GameLog.Snapshot> Points);
+
+    public static readonly Color[] Palette =
     {
+        Color.FromRgb(0xff, 0xba, 0x42), Color.FromRgb(0x4e, 0xa0, 0xff), Color.FromRgb(0x5f, 0xd3, 0x9a), Color.FromRgb(0xc0, 0x8a, 0xf5), Color.FromRgb(0xff, 0x6b, 0x6b), Color.FromRgb(0x7e, 0xe0, 0xe0),
+    };
+
+    /// <summary>One character: gear score and combat power.</summary>
+    public static UIElement Build(IReadOnlyList<GameLog.Snapshot> snapshots) => Build(new[] { new Series("", GearColor, snapshots) }, withPower: true);
+
+    /// <summary>Several characters: one gear score line each.</summary>
+    public static UIElement Build(IReadOnlyList<Series> series, bool withPower = false)
+    {
+        var snapshots = series.SelectMany(s => s.Points).OrderBy(p => p.At).ToList();
+        bool single = series.Count == 1;
+        withPower &= single && snapshots.Any(p => p.CombatPower > 0);
         var loc = LocalizationManager.Instance;
         var canvas = new Canvas { Width = W, Height = H };
         if (snapshots.Count == 0)
@@ -41,22 +56,27 @@ public static class TimelineChart
             return (lo - pad, hi + pad);
         }
 
-        var gear = Range(snapshots.Select(s => s.ItemLevel));
-        var power = Range(snapshots.Select(s => s.CombatPower));
+        var gear = Range(snapshots.Select(s => s.ItemLevel).Where(v => v > 0));
+        var power = withPower ? Range(snapshots.Select(s => s.CombatPower).Where(v => v > 0)) : (0, 1);
         double YGear(double v) => Top + (1 - (v - gear.Min) / (gear.Max - gear.Min)) * (H - Top - Bottom);
-        double YPower(double v) => Top + (1 - (v - power.Min) / (power.Max - power.Min)) * (H - Top - Bottom);
+        double YPower(double v) => Top + (1 - (v - power.Item1) / (power.Item2 - power.Item1)) * (H - Top - Bottom);
 
         Brush Muted() => (Brush)(Application.Current?.TryFindResource("Brush.TextMuted") ?? Brushes.Gray);
         Brush Line() => (Brush)(Application.Current?.TryFindResource("Brush.Border") ?? Brushes.DimGray);
+        Color gearColor = single ? series[0].Color : (Application.Current?.TryFindResource("Brush.Text") as SolidColorBrush)?.Color ?? Colors.White;
 
-        // the grid: four lines with the gear score on the left, the combat power beside it
+        // the grid: four lines with the gear score on the left (the combat power beside it for one character)
         for (int i = 0; i <= 4; i++)
         {
             double y = Top + i * (H - Top - Bottom) / 4;
             canvas.Children.Add(new Line { X1 = Left, X2 = W - Right, Y1 = y, Y2 = y, Stroke = Line(), StrokeThickness = 1, Opacity = 0.6 });
-            double g = gear.Max - i * (gear.Max - gear.Min) / 4, c = power.Max - i * (power.Max - power.Min) / 4;
-            canvas.Children.Add(Label(Math.Round(g).ToString("N0"), 2, y - 8, new SolidColorBrush(GearColor)));
-            canvas.Children.Add(Label(Math.Round(c).ToString("N0"), 2 + 40, y - 8, new SolidColorBrush(PowerColor), 11));
+            double g = gear.Max - i * (gear.Max - gear.Min) / 4;
+            canvas.Children.Add(Label(Math.Round(g).ToString("N0"), 2, y - 8, single ? new SolidColorBrush(gearColor) : Muted()));
+            if (withPower)
+            {
+                double c = power.Item2 - i * (power.Item2 - power.Item1) / 4;
+                canvas.Children.Add(Label(Math.Round(c).ToString("N0"), 2 + 40, y - 8, new SolidColorBrush(PowerColor), 11));
+            }
         }
 
         // the time: a label every fifth of the span
@@ -67,49 +87,78 @@ public static class TimelineChart
             canvas.Children.Add(Label(span > 3 * 86400 ? t.ToString("dd.MM.") : t.ToString("dd.MM. HH:mm"), x - 24, H - Bottom + 8, Muted(), 11));
         }
 
-        PointCollection gearPoints = new(), powerPoints = new();
-        foreach (var s in snapshots)
+        void Dot(double x, double y, Color color, string tip)
         {
-            gearPoints.Add(new Point(X(s.At), YGear(s.ItemLevel)));
-            powerPoints.Add(new Point(X(s.At), YPower(s.CombatPower)));
+            var dot = new Ellipse { Width = 11, Height = 11, Fill = new SolidColorBrush(color), Stroke = Brushes.White, StrokeThickness = 1.2, Cursor = System.Windows.Input.Cursors.Hand };
+            ToolTipService.SetInitialShowDelay(dot, 80);
+            ToolTipService.SetShowDuration(dot, 30000);
+            dot.ToolTip = new TextBlock { Text = tip, FontSize = 12, Margin = new Thickness(2) };
+            Canvas.SetLeft(dot, x - 5.5);
+            Canvas.SetTop(dot, y - 5.5);
+            canvas.Children.Add(dot);
         }
 
-        if (snapshots.Count > 1)
+        foreach (Series line in series)
         {
-            canvas.Children.Add(new Polyline { Points = gearPoints, Stroke = new SolidColorBrush(GearColor), StrokeThickness = 2.2, StrokeLineJoin = PenLineJoin.Round });
-            canvas.Children.Add(new Polyline { Points = powerPoints, Stroke = new SolidColorBrush(PowerColor), StrokeThickness = 2.2, StrokeLineJoin = PenLineJoin.Round });
-        }
-
-        // the marks: the first look, then every jump of 50 / 100 since the last mark
-        GameLog.Snapshot mark = snapshots[0];
-        for (int i = 0; i < snapshots.Count; i++)
-        {
-            GameLog.Snapshot s = snapshots[i];
-            bool jump = i == 0 || Math.Abs(s.ItemLevel - mark.ItemLevel) >= 50 || Math.Abs(s.CombatPower - mark.CombatPower) >= 100;
-            if (!jump)
+            var pts = line.Points.Where(p => p.ItemLevel > 0).ToList();
+            if (pts.Count == 0)
             {
                 continue;
             }
 
-            string tip = i == 0 ? loc["Hub.Stats.Start"] + "  " + s.At.ToString("dd.MM.yyyy HH:mm") : s.At.ToString("dd.MM.yyyy HH:mm") + "\n" + string.Join("\n", Changes(mark, s, loc));
-            foreach (var (series, y, color) in new[] { (0, YGear(s.ItemLevel), GearColor), (1, YPower(s.CombatPower), PowerColor) })
+            Color color = single ? GearColor : line.Color;
+            if (pts.Count > 1)
             {
-                var dot = new Ellipse { Width = 11, Height = 11, Fill = new SolidColorBrush(color), Stroke = Brushes.White, StrokeThickness = 1.2, Cursor = System.Windows.Input.Cursors.Hand };
-                ToolTipService.SetInitialShowDelay(dot, 80);
-                ToolTipService.SetShowDuration(dot, 30000);
-                dot.ToolTip = new TextBlock { Text = tip, FontSize = 12, Margin = new Thickness(2) };
-                Canvas.SetLeft(dot, X(s.At) - 5.5);
-                Canvas.SetTop(dot, y - 5.5);
-                canvas.Children.Add(dot);
-                _ = series;
+                canvas.Children.Add(new Polyline { Points = new PointCollection(pts.Select(p => new Point(X(p.At), YGear(p.ItemLevel)))), Stroke = new SolidColorBrush(color), StrokeThickness = 2.2, StrokeLineJoin = PenLineJoin.Round });
             }
 
-            mark = s;
+            if (withPower && line.Points.Count > 1)
+            {
+                canvas.Children.Add(new Polyline { Points = new PointCollection(line.Points.Where(p => p.CombatPower > 0).Select(p => new Point(X(p.At), YPower(p.CombatPower)))), Stroke = new SolidColorBrush(PowerColor), StrokeThickness = 2.2, StrokeLineJoin = PenLineJoin.Round });
+            }
+
+            // the marks: the first look, then every jump of 50 (gear score) / 100 (combat power) since the last mark
+            GameLog.Snapshot mark = pts[0];
+            for (int i = 0; i < pts.Count; i++)
+            {
+                GameLog.Snapshot p = pts[i];
+                bool jump = i == 0 || Math.Abs(p.ItemLevel - mark.ItemLevel) >= 50 || Math.Abs(p.CombatPower - mark.CombatPower) >= 100;
+                if (!jump)
+                {
+                    continue;
+                }
+
+                string who = line.Name.Length > 0 ? line.Name + "\n" : "";
+                string tip = who + (i == 0 ? loc["Hub.Stats.Start"] + "  " + p.At.ToString("dd.MM.yyyy HH:mm") : p.At.ToString("dd.MM.yyyy HH:mm") + "\n" + string.Join("\n", Changes(mark, p, loc)));
+                Dot(X(p.At), YGear(p.ItemLevel), color, tip);
+                if (withPower && p.CombatPower > 0)
+                {
+                    Dot(X(p.At), YPower(p.CombatPower), PowerColor, tip);
+                }
+
+                mark = p;
+            }
         }
 
         // the legend
-        canvas.Children.Add(Label("■ " + loc["Hub.Stats.GearScore"], Left + 8, 0, new SolidColorBrush(GearColor), 12));
-        canvas.Children.Add(Label("■ " + loc["Hub.Stats.CombatPower"], Left + 180, 0, new SolidColorBrush(PowerColor), 12));
+        if (single)
+        {
+            canvas.Children.Add(Label("■ " + loc["Hub.Stats.GearScore"], Left + 8, 0, new SolidColorBrush(GearColor), 12));
+            if (withPower)
+            {
+                canvas.Children.Add(Label("■ " + loc["Hub.Stats.CombatPower"], Left + 180, 0, new SolidColorBrush(PowerColor), 12));
+            }
+        }
+        else
+        {
+            double x = Left + 8;
+            foreach (Series line in series.Where(l => l.Points.Count > 0))
+            {
+                canvas.Children.Add(Label("■ " + line.Name, x, 0, new SolidColorBrush(line.Color), 12));
+                x += 22 + line.Name.Length * 8;
+            }
+        }
+
         return canvas;
     }
 
@@ -145,7 +194,7 @@ public static class TimelineChart
         }
 
         var a = Parse(before.Equip);
-        var b = Parse(now.Equip);
+        var b = before.Equip.Length == 0 || now.Equip.Length == 0 ? new Dictionary<int, (int Item, int Enchant)>() : Parse(now.Equip);
         foreach (var (slot, item) in b.OrderBy(kv => kv.Key))
         {
             string name = Aion2ItemNames.NameOf(item.Item, loc.Language) ?? string.Format(loc["Hub.Stats.Slot"], slot);
@@ -164,7 +213,7 @@ public static class TimelineChart
         }
 
         var boardsBefore = ParseBoards(before.Boards);
-        foreach (var (board, count) in ParseBoards(now.Boards).OrderBy(kv => kv.Key))
+        foreach (var (board, count) in (before.Boards.Length == 0 || now.Boards.Length == 0 ? new Dictionary<int, int>() : ParseBoards(now.Boards)).OrderBy(kv => kv.Key))
         {
             int old = boardsBefore.GetValueOrDefault(board);
             if (old != count)

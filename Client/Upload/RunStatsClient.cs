@@ -8,7 +8,7 @@ public sealed record SiteRun(string Boss, string Instance, string Category, stri
 
 /// <summary>
 /// The runs of a character as the website knows them: all uploads, not only what this computer saw. Two plain GETs (the search by the exact name, then the player's page data)
-/// to the fixed host, answered from a cache for ten minutes; only asked while the player has the uploads switched on (a name is sent in the lookup). Never throws.
+/// to the fixed host, answered from a cache for ten minutes. Never throws.
 /// </summary>
 public static class RunStatsClient
 {
@@ -16,12 +16,8 @@ public static class RunStatsClient
     private static readonly Dictionary<string, (DateTime At, List<SiteRun>? Runs)> Cache = new(StringComparer.OrdinalIgnoreCase);
     private static readonly HashSet<string> Asking = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Whether the lookup may be made at all: the uploads are on and the privacy question was not declined.</summary>
-    public static bool Allowed()
-    {
-        Ui.MeterSettings s = Ui.MeterSettings.Load();
-        return !Ui.PrivacyConsent.Restricted && (s.AutoUploadProfile || s.AutoUploadBoss);
-    }
+    /// <summary>Whether the lookup may be made: what other players uploaded about the own characters can always be read (a plain GET by the exact name); only the restricted mode (the privacy question declined) sends nothing at all.</summary>
+    public static bool Allowed() => !Ui.PrivacyConsent.Restricted;
 
     /// <summary>The runs from the cache (null: not asked yet or nothing there); starts the lookup when it is old, <paramref name="done"/> is called when new data came.</summary>
     public static List<SiteRun>? Get(string name, string server, Action? done)

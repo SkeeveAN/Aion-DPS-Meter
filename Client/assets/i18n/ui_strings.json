@@ -16023,16 +16023,16 @@
     "ko": "출처: aiondps.com – 이 캐릭터의 모든 업로드"
   },
   "Hub.Stats.SourceLocal": {
-    "en": "Source: this computer's history (switch the uploads on for the full statistics)",
-    "de": "Quelle: Verlauf dieses Rechners (Uploads einschalten für die Gesamtstatistik)",
-    "fr": "Source : historique de cet ordinateur (activez les envois pour les statistiques complètes)",
-    "es": "Fuente: historial de este equipo (activa las subidas para las estadísticas completas)",
-    "ru": "Источник: история этого компьютера (включите загрузки для полной статистики)",
-    "zh": "来源:本机历史(开启上传以获得完整统计)",
-    "zh-TW": "來源:本機歷史(開啟上傳以取得完整統計)",
-    "pt": "Fonte: histórico deste computador (ative os envios para a estatística completa)",
-    "ja": "出典:このPCの履歴(完全な統計にはアップロードを有効に)",
-    "ko": "출처: 이 컴퓨터의 기록(전체 통계는 업로드를 켜세요)"
+    "en": "Source: this computer's history",
+    "de": "Quelle: Verlauf dieses Rechners",
+    "fr": "Source : historique de cet ordinateur",
+    "es": "Fuente: historial de este equipo",
+    "ru": "Источник: история этого компьютера",
+    "zh": "来源:本机历史",
+    "zh-TW": "來源:本機歷史",
+    "pt": "Fonte: histórico deste computador",
+    "ja": "出典:このPCの履歴",
+    "ko": "출처: 이 컴퓨터의 기록"
   },
   "Hub.Stats.SourceLocalAsking": {
     "en": "Source: this computer's history (the website is asked …)",
@@ -16069,5 +16069,77 @@
     "pt": "menos",
     "ja": "少なく",
     "ko": "줄이기"
+  },
+  "Hub.Stats.UploadedFights": {
+    "en": "Fights (all uploads)",
+    "de": "Kämpfe (alle Uploads)",
+    "fr": "Combats (tous les envois)",
+    "es": "Combates (todas las subidas)",
+    "ru": "Бои (все загрузки)",
+    "zh": "战斗(所有上传)",
+    "zh-TW": "戰鬥(所有上傳)",
+    "pt": "Lutas (todos os envios)",
+    "ja": "戦闘(すべてのアップロード)",
+    "ko": "전투(모든 업로드)"
+  },
+  "Hub.Stats.InstanceRunsSite": {
+    "en": "Instance runs",
+    "de": "Instanz-Läufe",
+    "fr": "Passages d'instance",
+    "es": "Pasadas de instancia",
+    "ru": "Прохождения подземелий",
+    "zh": "副本次数",
+    "zh-TW": "副本次數",
+    "pt": "Passagens de instância",
+    "ja": "インスタンス周回",
+    "ko": "인스턴스 진행"
+  },
+  "Hub.Stats.DistinctInstances": {
+    "en": "Different instances",
+    "de": "Verschiedene Instanzen",
+    "fr": "Instances différentes",
+    "es": "Instancias distintas",
+    "ru": "Разных подземелий",
+    "zh": "不同副本",
+    "zh-TW": "不同副本",
+    "pt": "Instâncias diferentes",
+    "ja": "異なるインスタンス",
+    "ko": "서로 다른 인스턴스"
+  },
+  "Hub.Stats.DistinctBosses": {
+    "en": "Different bosses",
+    "de": "Verschiedene Bosse",
+    "fr": "Boss différents",
+    "es": "Jefes distintos",
+    "ru": "Разных боссов",
+    "zh": "不同Boss",
+    "zh-TW": "不同Boss",
+    "pt": "Chefes diferentes",
+    "ja": "異なるボス",
+    "ko": "서로 다른 보스"
+  },
+  "Hub.Stats.Period": {
+    "en": "Period",
+    "de": "Zeitraum",
+    "fr": "Période",
+    "es": "Período",
+    "ru": "Период",
+    "zh": "时间段",
+    "zh-TW": "時間段",
+    "pt": "Período",
+    "ja": "期間",
+    "ko": "기간"
+  },
+  "Hub.Stats.ThisPc": {
+    "en": "This computer",
+    "de": "Dieser Rechner",
+    "fr": "Cet ordinateur",
+    "es": "Este equipo",
+    "ru": "Этот компьютер",
+    "zh": "本机",
+    "zh-TW": "本機",
+    "pt": "Este computador",
+    "ja": "このPC",
+    "ko": "이 컴퓨터"
   }
 }

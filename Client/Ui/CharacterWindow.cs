@@ -1231,12 +1231,20 @@ public sealed class CharacterWindow : Window
             UIElement icon = RingIcon(key, false, 60, iconFill);
             ((FrameworkElement)icon).HorizontalAlignment = HorizontalAlignment.Center;
             stack.Children.Add(icon);
-            TextBlock label = Text(Loc("Character.Attr." + key), 12, FontWeights.Bold, mainName);
+            // the inner ring sits on the light glow: the symbol is paled and the name with its number stands on a plate of the panel colour, so both read as well as the outer ring
+            ((FrameworkElement)icon).Opacity = 0.55;
+            TextBlock label = Text(Loc("Character.Attr." + key), 13, FontWeights.Bold, mainName);
             label.HorizontalAlignment = HorizontalAlignment.Center;
-            stack.Children.Add(label);
-            TextBlock number = Text(value(id).ToString(CultureInfo.CurrentCulture), 11, FontWeights.Bold, text);
+            TextBlock number = Text(value(id).ToString(CultureInfo.CurrentCulture), 14, FontWeights.Bold, text);
             number.HorizontalAlignment = HorizontalAlignment.Center;
-            stack.Children.Add(number);
+            var plate = new StackPanel();
+            plate.Children.Add(label);
+            plate.Children.Add(number);
+            stack.Children.Add(new Border
+            {
+                Background = panel, Opacity = 0.92, CornerRadius = new CornerRadius(8), Padding = new Thickness(8, 1, 8, 2), Margin = new Thickness(0, -14, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Center, Child = plate,
+            });
             Place(stack, 96, 92, i, MainAttributes.Length, 112, 0.62);
         }
 

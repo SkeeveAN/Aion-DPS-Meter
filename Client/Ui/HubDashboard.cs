@@ -421,8 +421,9 @@ public static class HubDashboard
         return known is null ? "" : Aion2.Protocol.Aion2Servers.NameOf(known.ServerId);
     }
 
-    private static List<InstanceStat> InstanceStats(List<StayRecord> local, List<StayRecord> localInstances, List<string> names, bool mock, out string source)
+    private static List<InstanceStat> InstanceStats(List<StayRecord> local, List<StayRecord> localInstances, List<string> names, bool mock, out string source, out List<SiteRun>? siteOut)
     {
+        siteOut = null;
         var loc = LocalizationManager.Instance;
         // the website's runs of the chosen character (or of every known one, at most six)
         var who = _statCharacter.Length > 0 ? new List<string> { _statCharacter } : names.Take(6).ToList();
@@ -439,6 +440,7 @@ public static class HubDashboard
 
         if (any && site.Count > 0)
         {
+            siteOut = site;
             source = loc["Hub.Stats.SourceSite"];
             var result = new List<InstanceStat>();
             foreach (var g in site.GroupBy(r => r.Instance))
@@ -623,21 +625,28 @@ public static class HubDashboard
 
         wrap.Children.Add(chips);
 
-        // the time line of one character (the chosen one, else the first with a log); sample data until a character has two looks
-        string lineOf = _statCharacter.Length > 0 ? _statCharacter : names.FirstOrDefault(n => GameLog.Snapshots(n).Count > 0) ?? "";
-        var looks = lineOf.Length > 0 ? GameLog.Snapshots(lineOf) : new List<GameLog.Snapshot>();
-        var timeline = new StackPanel();
-        if (looks.Count < 2)
+        // the time line: one line per character (gear score), or for the chosen one gear score and combat power; made-up lines until a character has two looks
+        var lines = new List<TimelineChart.Series>();
+        var lineNames = _statCharacter.Length > 0 ? new List<string> { _statCharacter } : names;
+        for (int i = 0; i < lineNames.Count; i++)
         {
-            timeline.Children.Add(MockTag());
-            looks = TimelineChart.Sample();
-        }
-        else
-        {
-            timeline.Children.Add(Text(lineOf, true, "Brush.Text"));
+            // looks at the character itself (worn pieces, boards, combat power) when there are two or more, else the gear scores the logins listed
+            var own = GameLog.Snapshots(lineNames[i]);
+            var points = own.Count >= 2 ? own : GameLog.GearScores(lineNames[i]);
+            if (points.Count >= 2)
+            {
+                lines.Add(new TimelineChart.Series(lineNames[i], TimelineChart.Palette[i % TimelineChart.Palette.Length], points));
+            }
         }
 
-        timeline.Children.Add(TimelineChart.Build(looks));
+        var timeline = new StackPanel();
+        if (lines.Count == 0)
+        {
+            timeline.Children.Add(MockTag());
+            lines.Add(new TimelineChart.Series(_statCharacter.Length > 0 ? _statCharacter : "Aahz", TimelineChart.Palette[0], TimelineChart.Sample()));
+        }
+
+        timeline.Children.Add(TimelineChart.Build(lines, withPower: lines.Count == 1));
         wrap.Children.Add(Card(loc["Hub.Stats.Timeline"], timeline, 1110));
 
         var shown = all.Where(s => _statCharacter.Length == 0 || s.Character == _statCharacter).ToList();
@@ -655,21 +664,35 @@ public static class HubDashboard
 
         var instances = shown.Where(s => s.Kind == SessionKind.Instance).ToList();
         var attempts = shown.SelectMany(s => s.Attempts).ToList();
+
+        // instances and bosses: from the website when the player has the uploads on (all uploads of the character), else from this computer's history
+        var stats = InstanceStats(shown, instances, names, mock, out string source, out List<SiteRun>? siteRuns);
         var overview = new StackPanel();
-        if (mock)
+        if (mock && siteRuns is null)
         {
             overview.Children.Add(MockTag());
         }
 
-        overview.Children.Add(Line(loc["Hub.Stats.InstanceRuns"], instances.Count.ToString(), true));
-        overview.Children.Add(Line(loc["Hub.Stats.MapStays"], (shown.Count - instances.Count).ToString()));
-        overview.Children.Add(Line(loc["Hub.Stats.Time"], WorldBossText.Duration(TimeSpan.FromSeconds(shown.Sum(s => (s.End - s.Start).TotalSeconds)))));
-        overview.Children.Add(Line(loc["Hub.Stats.Kills"], attempts.Count(a => a.Killed).ToString(), false, "Brush.Heal"));
-        overview.Children.Add(Line(loc["Hub.Stats.Wipes"], attempts.Count(a => !a.Killed).ToString(), false, "Brush.Danger"));
-        wrap.Children.Add(Card(loc["Hub.Stats.Overview"], overview, 520));
+        if (siteRuns is not null)
+        {
+            // what the website holds: every upload of the character, not only what this computer saw
+            overview.Children.Add(Line(loc["Hub.Stats.UploadedFights"], siteRuns.Count.ToString("N0"), true));
+            overview.Children.Add(Line(loc["Hub.Stats.InstanceRunsSite"], stats.Sum(x => x.Runs).ToString("N0")));
+            overview.Children.Add(Line(loc["Hub.Stats.DistinctInstances"], stats.Count.ToString()));
+            overview.Children.Add(Line(loc["Hub.Stats.DistinctBosses"], siteRuns.Select(r => r.Boss).Distinct().Count().ToString()));
+            overview.Children.Add(Line(loc["Hub.Stats.Period"], siteRuns.Min(r => r.At).ToString("dd.MM.yyyy") + " – " + siteRuns.Max(r => r.At).ToString("dd.MM.yyyy")));
+            overview.Children.Add(Text(loc["Hub.Stats.ThisPc"] + ": " + instances.Count + " " + loc["Hub.Stats.Instances"] + ", " + attempts.Count + " " + loc["Hub.Dash.BossFights"], false, "Brush.TextMuted", 11));
+        }
+        else
+        {
+            overview.Children.Add(Line(loc["Hub.Stats.InstanceRuns"], instances.Count.ToString(), true));
+            overview.Children.Add(Line(loc["Hub.Stats.MapStays"], (shown.Count - instances.Count).ToString()));
+            overview.Children.Add(Line(loc["Hub.Stats.Time"], WorldBossText.Duration(TimeSpan.FromSeconds(shown.Sum(s => (s.End - s.Start).TotalSeconds)))));
+            overview.Children.Add(Line(loc["Hub.Stats.Kills"], attempts.Count(a => a.Killed).ToString(), false, "Brush.Heal"));
+            overview.Children.Add(Line(loc["Hub.Stats.Wipes"], attempts.Count(a => !a.Killed).ToString(), false, "Brush.Danger"));
+        }
 
-        // instances and bosses: from the website when the player has the uploads on (all uploads of the character), else from this computer's history
-        var stats = InstanceStats(shown, instances, names, mock, out string source);
+        wrap.Children.Add(Card(loc["Hub.Stats.Overview"], overview, 520));
         wrap.Children.Add(Card(loc["Hub.Stats.Instances"], InstanceBars(stats, loc, mock, source), 1110));
         wrap.Children.Add(Card(loc["Hub.Stats.Bosses"], BossGroups(stats, loc, mock), 1110));
 

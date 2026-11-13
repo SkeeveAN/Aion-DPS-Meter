@@ -259,6 +259,88 @@ DELETE FROM character_snapshot WHERE ts_ms < $cut AND rowid NOT IN (
         }
     }
 
+    /// <summary>One look at a character of the account as the list at a login showed it (read out of a recording, so it carries the time of the login).</summary>
+    public sealed record CharacterRow(DateTime At, string Name, int ServerId, int ClassCode, int Level, int ItemLevel, string? Legion, long LastOnlineMs);
+
+    /// <summary>Adds earlier looks (from recordings) to the log with their own times; a look equal to the one before it in time is left out.</summary>
+    public static void AddHistoric(IEnumerable<CharacterRow> rows)
+    {
+        try
+        {
+            lock (FightHistory.Gate)
+            {
+                using SqliteConnection db = FightHistory.Open();
+                using SqliteTransaction tx = db.BeginTransaction();
+                foreach (CharacterRow c in rows.OrderBy(r => r.At))
+                {
+                    long at = FightHistory.Ms(c.At);
+                    bool same;
+                    using (SqliteCommand before = db.CreateCommand())
+                    {
+                        before.Transaction = tx;
+                        before.CommandText = "SELECT class_code, level, item_level, IFNULL(legion,'') FROM character_log WHERE name=$n AND server_id=$s AND ts_ms<=$t ORDER BY ts_ms DESC LIMIT 1";
+                        before.Parameters.AddWithValue("$n", c.Name);
+                        before.Parameters.AddWithValue("$s", c.ServerId);
+                        before.Parameters.AddWithValue("$t", at);
+                        using SqliteDataReader r = before.ExecuteReader();
+                        same = r.Read() && r.GetInt32(0) == c.ClassCode && r.GetInt32(1) == c.Level && r.GetInt32(2) == c.ItemLevel && r.GetString(3) == (c.Legion ?? "");
+                    }
+
+                    if (same)
+                    {
+                        continue;
+                    }
+
+                    using SqliteCommand add = db.CreateCommand();
+                    add.Transaction = tx;
+                    add.CommandText = "INSERT INTO character_log VALUES ($t,$n,$s,$c,$l,$i,$g,$o)";
+                    add.Parameters.AddWithValue("$t", at);
+                    add.Parameters.AddWithValue("$n", c.Name);
+                    add.Parameters.AddWithValue("$s", c.ServerId);
+                    add.Parameters.AddWithValue("$c", c.ClassCode);
+                    add.Parameters.AddWithValue("$l", c.Level);
+                    add.Parameters.AddWithValue("$i", c.ItemLevel);
+                    add.Parameters.AddWithValue("$g", (object?)c.Legion ?? DBNull.Value);
+                    add.Parameters.AddWithValue("$o", c.LastOnlineMs);
+                    add.ExecuteNonQuery();
+                }
+
+                tx.Commit();
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // not written now
+        }
+    }
+
+    /// <summary>The gear score of a character as the log has it over time (from the logins), oldest first, as snapshots without worn pieces.</summary>
+    public static List<Snapshot> GearScores(string name)
+    {
+        var list = new List<Snapshot>();
+        try
+        {
+            lock (FightHistory.Gate)
+            {
+                using SqliteConnection db = FightHistory.Open();
+                using SqliteCommand command = db.CreateCommand();
+                command.CommandText = "SELECT ts_ms, item_level FROM character_log WHERE name=$n AND item_level > 0 ORDER BY ts_ms";
+                command.Parameters.AddWithValue("$n", name);
+                using SqliteDataReader r = command.ExecuteReader();
+                while (r.Read())
+                {
+                    list.Add(new Snapshot(FightHistory.Time(r.GetInt64(0)), r.GetInt32(1), 0, "", ""));
+                }
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // nothing logged yet
+        }
+
+        return list;
+    }
+
     /// <summary>The snapshots of one character, oldest first.</summary>
     public static List<Snapshot> Snapshots(string name)
     {
