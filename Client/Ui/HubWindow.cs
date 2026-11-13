@@ -262,43 +262,49 @@ public sealed class HubWindow : Window
     };
 
     private string? _updateVersion;
-    private bool _dropsRunning, _announcementsNew;
+    private bool _dropsActive, _dropsNew, _announcementsNew;
+    private long _dropsKey, _announcementsKey;
     private DateTime _newsAskedAt = DateTime.MinValue;
 
-    /// <summary>A round button of the header (like the pills beside it) with an icon, a tip and an orange dot when something is new.</summary>
-    private Border HeaderButton(string glyph, string tip, bool marked, Action click)
+    /// <summary>A round button of the header (like the pills beside it) with a drawn icon, a tip and, when something is new, the "New" tag beside the icon.</summary>
+    private Border HeaderButton(UIElement icon, string tip, string? newTag, Action click)
     {
-        var icon = new TextBlock { Text = glyph, FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 18, Foreground = marked ? Accent : Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
-        var grid = new Grid { Width = 28, Height = 28 };
-        grid.Children.Add(icon);
-        if (marked)
+        var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(icon);
+        if (newTag is not null)
         {
-            grid.Children.Add(new Ellipse { Width = 9, Height = 9, Fill = Accent, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 0, -2, 0) });
+            row.Children.Add(new Border
+            {
+                Margin = new Thickness(6, 0, 0, 0), Padding = new Thickness(6, 1, 6, 1), CornerRadius = new CornerRadius(8), Background = Frozen("#FFD24A"), VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock { Text = newTag, FontSize = 11, FontWeight = FontWeights.ExtraBold, Foreground = Frozen("#1A1200") },
+            });
         }
 
-        Border button = Pill(grid);
-        button.Padding = new Thickness(8, 0, 8, 0);
+        Border button = Pill(row);
+        button.Padding = new Thickness(12, 0, 12, 0);
         button.Cursor = Cursors.Hand;
         button.ToolTip = tip;
-        if (marked)
-        {
-            button.BorderBrush = Accent;
-        }
-
         button.MouseLeftButtonUp += (_, _) => click();
         return button;
     }
 
-    private static void OpenPage(string url)
+    /// <summary>The click on the Twitch or the announcements symbol: what is shown now counts as seen.</summary>
+    private void MarkSeen(bool drops)
     {
-        try
+        MeterSettings s = MeterSettings.Load();
+        if (drops)
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+            s.TwitchDropsSeen = Math.Max(s.TwitchDropsSeen, _dropsKey);
+            _dropsNew = false;
         }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        else
         {
-            // no browser: nothing to open
+            s.AnnouncementsSeen = Math.Max(s.AnnouncementsSeen, _announcementsKey);
+            _announcementsNew = false;
         }
+
+        s.Save();
+        RefreshStatus();
     }
 
     /// <summary>Asks the update, the announcements and the Twitch drops now and then (every five minutes); the header marks what is new.</summary>
@@ -318,10 +324,16 @@ public sealed class HubWindow : Window
                 _updateVersion = info?.TargetFullRelease.Version.ToString();
             }
 
+            MeterSettings seen = MeterSettings.Load();
             long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
-            _announcementsNew = Announcements.AnnouncementsClient.IsNew(latest, MeterSettings.Load().AnnouncementsSeen);
+            _announcementsKey = latest ?? 0;
+            _announcementsNew = Announcements.AnnouncementsClient.IsNew(latest, seen.AnnouncementsSeen);
+            // drops: running now, or starting within a week
             var drops = await Announcements.TwitchDropsClient.GetStatusAsync();
-            _dropsRunning = drops is { Running: true } d && Announcements.TwitchDropsClient.IsNew(d.Running, d.Latest, MeterSettings.Load().TwitchDropsSeen);
+            long soon = await Announcements.TwitchDropsClient.NextStartAsync(TimeSpan.FromDays(7));
+            _dropsActive = drops is { Running: true } || soon > 0;
+            _dropsKey = Math.Max(drops?.Latest ?? 0, soon);
+            _dropsNew = _dropsActive && _dropsKey > seen.TwitchDropsSeen;
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -344,13 +356,43 @@ public sealed class HubWindow : Window
 
         AskNews();
         _right.Children.Clear();
-        _right.Children.Add(HeaderButton("\uE896", loc["Hub.Dash.Update"] + (_updateVersion is null ? "" : " – " + _updateVersion), _updateVersion is not null, () => GoTo("dashboard", "updates")));
-        if (_dropsRunning)
+        // the update symbol only while there is an update (in the orange of the theme); the Twitch symbol while drops run or come soon; the announcements always - "New" until clicked
+        if (_updateVersion is not null)
         {
-            _right.Children.Add(HeaderButton("\uE7F4", loc["Hub.Dash.Drops"], true, () => OpenPage(Announcements.TwitchDropsClient.PageUrl)));
+            var arrow = new TextBlock { Text = "\uE896", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 18, VerticalAlignment = VerticalAlignment.Center };
+            arrow.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+            Border update = HeaderButton(arrow, loc["Hub.Dash.Update"] + " – " + _updateVersion, null, () => GoTo("dashboard", "updates"));
+            update.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+            _right.Children.Add(update);
         }
 
-        _right.Children.Add(HeaderButton("\uE789", loc["Hub.Dash.Announcements"], _announcementsNew, () => OpenPage(Announcements.AnnouncementsClient.PageUrl)));
+        if (_dropsActive)
+        {
+            var twitch = new System.Windows.Shapes.Path
+            {
+                Data = Geometry.Parse("F1 M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"),
+                Fill = Frozen("#A970FF"), Width = 16, Height = 16, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center,
+            };
+            Border drops = HeaderButton(twitch, loc["Hub.Dash.Drops"], _dropsNew ? loc["Main.TwitchDrops.New"] : null, () =>
+            {
+                MarkSeen(drops: true);
+                NewsWindow.ShowDrops();
+            });
+            drops.BorderBrush = Frozen("#A970FF");
+            _right.Children.Add(drops);
+        }
+
+        var horn = new System.Windows.Shapes.Path
+        {
+            Data = Geometry.Parse("M3,9 L3,15 L7,15 L14,20 L14,4 L7,9 Z M17,8 C18.5,9.5 18.5,14.5 17,16 M19.5,5.5 C22.5,8.5 22.5,15.5 19.5,18.5"),
+            Stroke = Light, StrokeThickness = 1.6, StrokeLineJoin = PenLineJoin.Round, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
+            Width = 18, Height = 15, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center,
+        };
+        _right.Children.Add(HeaderButton(horn, loc["Hub.Dash.Announcements"], _announcementsNew ? loc["Main.Announcements.New"] : null, () =>
+        {
+            MarkSeen(drops: false);
+            NewsWindow.ShowAnnouncements();
+        }));
         Color c = status.GameOn ? Color.FromRgb(0x3d, 0xdc, 0x84) : Color.FromRgb(0xff, 0x4d, 0x4d);
         var dot = new Ellipse
         {

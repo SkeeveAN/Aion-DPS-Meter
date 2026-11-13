@@ -38,6 +38,43 @@ public static class TwitchDropsClient
         }
     }
 
+    /// <summary>The start (epoch seconds) of the earliest campaign that has not begun yet but starts within <paramref name="within"/>; 0 when there is none or the server cannot be reached.</summary>
+    public static async Task<long> NextStartAsync(TimeSpan within)
+    {
+        try
+        {
+            using HttpResponseMessage response = await Http.GetAsync("https://aiondps.com/api/twitch-drops");
+            if (!response.IsSuccessStatusCode)
+            {
+                return 0;
+            }
+
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            long best = 0;
+            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            if (doc.RootElement.TryGetProperty("campaigns", out JsonElement campaigns))
+            {
+                foreach (JsonElement c in campaigns.EnumerateArray())
+                {
+                    if (c.TryGetProperty("startAt", out JsonElement at) && DateTimeOffset.TryParse(at.GetString(), out DateTimeOffset start))
+                    {
+                        long t = start.ToUnixTimeSeconds();
+                        if (t > now && t - now <= (long)within.TotalSeconds && (best == 0 || t < best))
+                        {
+                            best = t;
+                        }
+                    }
+                }
+            }
+
+            return best;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException or InvalidOperationException)
+        {
+            return 0;
+        }
+    }
+
     /// <summary>The icon shows while a campaign runs; "New" on top while its start is newer than what was seen at the last click
     /// (<paramref name="seen"/> = 0, a fresh install, counts as new).</summary>
     public static bool IsNew(bool running, long latest, long seen) => running && latest > seen;

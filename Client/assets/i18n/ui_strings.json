@@ -15529,5 +15529,29 @@
     "pt": "Baixando … {0} %",
     "ja": "ダウンロード中 … {0} %",
     "ko": "다운로드 중 … {0} %"
+  },
+  "Hub.Dash.DropsSoon": {
+    "en": "coming",
+    "de": "kommt bald",
+    "fr": "bientôt",
+    "es": "próximamente",
+    "ru": "скоро",
+    "zh": "即将开始",
+    "zh-TW": "即將開始",
+    "pt": "em breve",
+    "ja": "開催予定",
+    "ko": "예정"
+  },
+  "Hub.Dash.DropsOver": {
+    "en": "over",
+    "de": "vorbei",
+    "fr": "terminée",
+    "es": "terminada",
+    "ru": "закончилась",
+    "zh": "已结束",
+    "zh-TW": "已結束",
+    "pt": "encerrada",
+    "ja": "終了",
+    "ko": "종료"
   }
 }

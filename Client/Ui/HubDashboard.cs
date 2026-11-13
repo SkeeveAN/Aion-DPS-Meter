@@ -431,7 +431,17 @@ public static class HubDashboard
         stack.Children.Add(state);
         _ = Fill(state, ask, loc);
         var open = new Button { Content = loc["Hub.Dash.OpenPage"], Padding = new Thickness(14, 4, 14, 4), HorizontalAlignment = HorizontalAlignment.Left };
-        open.Click += (_, _) => OpenUrl(url);
+        open.Click += (_, _) =>
+        {
+            if (url == Announcements.AnnouncementsClient.PageUrl)
+            {
+                NewsWindow.ShowAnnouncements();
+            }
+            else
+            {
+                NewsWindow.ShowDrops();
+            }
+        };
         stack.Children.Add(open);
         return stack;
     }
