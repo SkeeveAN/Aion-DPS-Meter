@@ -170,7 +170,7 @@ public static class HubDashboard
         {
             // the character in the game, else the one the checklist saw last (its counters are kept on disk)
             var known = Aion2Tickets.Snapshot();
-            me = known.FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase)) ?? known.OrderByDescending(c => c.SavedAt).FirstOrDefault();
+            me = known.FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase)) ?? known.OrderByDescending(c => c.SavedAt).FirstOrDefault() ?? GameLog.LastKnownCharacter();
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

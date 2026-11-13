@@ -5971,6 +5971,42 @@ public partial class MainWindow : Window
     }
 
     private HubWindow? _hubWindow;
+    private bool _gameLogOn;
+
+    /// <summary>The login data and the counters are written to the history database as a log of changes (see <see cref="GameLog"/>), a moment after each change.</summary>
+    private void StartGameLog()
+    {
+        if (_gameLogOn || Headless)
+        {
+            return;
+        }
+
+        _gameLogOn = true;
+        var wait = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+        bool characters = true, bosses = true;
+        wait.Tick += (_, _) =>
+        {
+            wait.Stop();
+            bool c = characters, b = bosses;
+            characters = bosses = false;
+            _ = Task.Run(() =>
+            {
+                if (c)
+                {
+                    GameLog.WriteCharacters();
+                }
+
+                if (b)
+                {
+                    GameLog.WriteBosses();
+                }
+            });
+        };
+        Aion2Tickets.Changed += () => Dispatcher.BeginInvoke(new Action(() => { characters = true; wait.Stop(); wait.Start(); }));
+        Aion2FieldBosses.Changed += () => Dispatcher.BeginInvoke(new Action(() => { bosses = true; wait.Stop(); wait.Start(); }));
+        wait.Start(); // once at the start
+    }
+
     private SourceState _sourceState = SourceState.Idle;
     private long _hubFrames;
     private DateTime _hubFramesAt = DateTime.MinValue;
@@ -6041,6 +6077,7 @@ public partial class MainWindow : Window
         _hubWindow.SetDashboardSources(() => _sessions.Sessions, AppVersion.Text);
         // once: the recordings of earlier runs become the first entries of the history (a child process, in the background)
         HistoryBuilder.Start(() => Dispatcher.BeginInvoke(new Action(() => _hubWindow?.RefreshHistory())));
+        StartGameLog();
         _hubWindow.Closed += (_, _) =>
         {
             _hubWindow = null;

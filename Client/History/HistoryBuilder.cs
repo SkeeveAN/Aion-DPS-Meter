@@ -35,6 +35,36 @@ public static class HistoryBuilder
                     return;
                 }
 
+                // the saved sessions (by hand or automatic) first: they are quick
+                foreach (string dir in new[] { SessionFile.DefaultDirectory, SessionFile.DefaultAutoFolder }.Where(Directory.Exists).Distinct())
+                {
+                    foreach (FileInfo saved in new DirectoryInfo(dir).GetFiles("*" + SessionFile.Extension).OrderByDescending(f => f.LastWriteTime))
+                    {
+                        if (FightHistory.WasRead(FileKey(saved)))
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            var loaded = SessionFile.Load(saved.FullName);
+                            var recorder = new SessionRecorder(_ => SessionKind.Map);
+                            SessionInfo stay = Ui.SessionManagerWindow.Import(recorder, loaded);
+                            if (FightHistory.Summarize(stay) is { } record)
+                            {
+                                FightHistory.Add(new[] { record });
+                            }
+
+                            FightHistory.MarkRead(FileKey(saved));
+                            done?.Invoke();
+                        }
+                        catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or UnauthorizedAccessException)
+                        {
+                            // a file that cannot be read stays out
+                        }
+                    }
+                }
+
                 foreach (FileInfo file in new DirectoryInfo(folder).GetFiles("aion2-*.jsonl").OrderByDescending(f => f.LastWriteTime))
                 {
                     if (DateTime.Now - file.LastWriteTime < TimeSpan.FromMinutes(3) || FightHistory.WasRead(FileKey(file)))

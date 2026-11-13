@@ -18,13 +18,13 @@ public sealed record StayRecord(DateTime Start, DateTime End, int ZoneId, Sessio
 /// </summary>
 public static class FightHistory
 {
-    private static readonly object Gate = new();
+    internal static readonly object Gate = new();
     private static bool _ready;
 
     /// <summary>The database of the history (SQLite, in the program's data folder): stays and their boss fights, and the recordings already worked through.</summary>
     public static string StorePath => Path.Combine(Environment.GetEnvironmentVariable("AIONDPS_DATA_DIR") is { Length: > 0 } testDir ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"), "fight-history.db");
 
-    private static SqliteConnection Open()
+    internal static SqliteConnection Open()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(StorePath)!);
         var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = StorePath, Pooling = false }.ToString());
@@ -37,7 +37,13 @@ PRAGMA journal_mode=WAL;
 CREATE TABLE IF NOT EXISTS stays (id INTEGER PRIMARY KEY, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, zone INTEGER NOT NULL, kind INTEGER NOT NULL, hits INTEGER NOT NULL, UNIQUE(zone, start_ms));
 CREATE TABLE IF NOT EXISTS attempts (stay_id INTEGER NOT NULL REFERENCES stays(id) ON DELETE CASCADE, boss TEXT NOT NULL, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, counted INTEGER NOT NULL, killed INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS attempts_boss ON attempts(boss);
-CREATE TABLE IF NOT EXISTS files (key TEXT PRIMARY KEY);";
+CREATE TABLE IF NOT EXISTS files (key TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS character_log (ts_ms INTEGER NOT NULL, name TEXT NOT NULL, server_id INTEGER NOT NULL, class_code INTEGER NOT NULL, level INTEGER NOT NULL, item_level INTEGER NOT NULL, legion TEXT, last_online_ms INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS character_log_who ON character_log(name, server_id, ts_ms);
+CREATE TABLE IF NOT EXISTS ticket_log (ts_ms INTEGER NOT NULL, name TEXT NOT NULL, server_id INTEGER NOT NULL, ticket_id INTEGER NOT NULL, count INTEGER NOT NULL, bonus INTEGER NOT NULL, time_ms INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS ticket_log_who ON ticket_log(name, server_id, ticket_id, ts_ms);
+CREATE TABLE IF NOT EXISTS boss_log (ts_ms INTEGER NOT NULL, npc INTEGER NOT NULL, phase INTEGER NOT NULL, at_ms INTEGER NOT NULL, seen_ms INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
             create.ExecuteNonQuery();
             _ready = true;
         }
@@ -45,9 +51,9 @@ CREATE TABLE IF NOT EXISTS files (key TEXT PRIMARY KEY);";
         return connection;
     }
 
-    private static long Ms(DateTime t) => new DateTimeOffset(t).ToUnixTimeMilliseconds();
+    internal static long Ms(DateTime t) => new DateTimeOffset(t).ToUnixTimeMilliseconds();
 
-    private static DateTime Time(long ms) => DateTimeOffset.FromUnixTimeMilliseconds(ms).LocalDateTime;
+    internal static DateTime Time(long ms) => DateTimeOffset.FromUnixTimeMilliseconds(ms).LocalDateTime;
 
     /// <summary>The summary of a session (null for a stay without hits).</summary>
     public static StayRecord? Summarize(SessionInfo session)

@@ -442,6 +442,12 @@ internal static class Program
             var added = System.Text.Json.JsonSerializer.Deserialize<List<History.StayRecord>>(File.ReadAllText(args[1])) ?? new();
             History.FightHistory.Add(added);
             Console.WriteLine($"aion2-history-add: {added.Count} stay(s); {History.FightHistory.All(Array.Empty<History.SessionInfo>()).Count} in the history");
+            Aion2.Aion2Tickets.EnablePersistence();
+            Aion2.Aion2FieldBosses.EnablePersistence();
+            History.GameLog.WriteCharacters();
+            History.GameLog.WriteBosses();
+            var lastKnown = History.GameLog.LastKnownCharacter();
+            Console.WriteLine($"aion2-history-add: log written; last known character {(lastKnown is null ? "none" : lastKnown.Name + " level " + lastKnown.Level + ", " + lastKnown.Tickets.Count + " counters")}");
             return;
         }
 
