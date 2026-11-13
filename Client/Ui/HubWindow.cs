@@ -201,6 +201,7 @@ public sealed class HubWindow : Window
             new("arcana", loc["Hub.Arcana"], "tool", "hub.char.arcana"),
             new("board", loc["Hub.Board"], "tool", "hub.char.board"),
             new("species", loc["Hub.Species"], "tool", "hub.char.species"),
+            new("stats", loc["Hub.Stats.Title"], "overview", "stats"),
         };
         return new[]
         {
@@ -210,7 +211,6 @@ public sealed class HubWindow : Window
                 {
                     new Entry("overview", loc["Hub.Overview"], "overview", "overview"),
                     new Entry("fights", loc["Hub.Dash.Fights"], "overview", "fights"),
-                    new Entry("stats", loc["Hub.Stats.Title"], "overview", "stats"),
                     new Entry("best", loc["Hub.Dash.Best"], "overview", "best"),
                     new Entry("updates", loc["Hub.Dash.Update"], "overview", "updates"),
                     new Entry("news", loc["Hub.Dash.News"], "overview", "news"),
