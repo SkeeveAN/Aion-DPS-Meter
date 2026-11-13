@@ -302,7 +302,12 @@ public sealed class HubWindow : Window
         update.MouseLeftButtonUp += (_, _) => FooterUpdateClick();
         right.Children.Add(update);
 
-        var pinIcon = new TextBlock { Text = "\uE718", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, Foreground = Muted, VerticalAlignment = VerticalAlignment.Center };
+        // two windows over each other, the front one filled: "this one stays in front"
+        var back = new System.Windows.Shapes.Rectangle { Width = 10, Height = 8, Stroke = Muted, StrokeThickness = 1.3, RadiusX = 1, RadiusY = 1, Margin = new Thickness(0, 0, 0, 5), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        var front = new System.Windows.Shapes.Rectangle { Width = 10, Height = 8, Stroke = Muted, Fill = Navy, StrokeThickness = 1.3, RadiusX = 1, RadiusY = 1, Margin = new Thickness(5, 5, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        var pinIcon = new Grid { Width = 17, Height = 15 };
+        pinIcon.Children.Add(back);
+        pinIcon.Children.Add(front);
         var tick = new TextBlock { Text = "✓", FontSize = 12, FontWeight = FontWeights.Bold, Foreground = Frozen("#3ddc84"), Margin = new Thickness(3, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
         var pinRow = new StackPanel { Orientation = Orientation.Horizontal };
         pinRow.Children.Add(pinIcon);
@@ -310,7 +315,10 @@ public sealed class HubWindow : Window
         _pin = new Border { Padding = new Thickness(10, 3, 10, 3), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = pinRow, ToolTip = loc["Hub.Footer.OnTop"] };
         void ShowPin()
         {
-            pinIcon.Foreground = Topmost ? Light : Muted;
+            Brush ink = Topmost ? Light : Muted;
+            back.Stroke = ink;
+            front.Stroke = ink;
+            front.Fill = Topmost ? Light : Navy;
             tick.Visibility = Topmost ? Visibility.Visible : Visibility.Collapsed;
         }
 
