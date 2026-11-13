@@ -15052,7 +15052,7 @@
   },
   "Hub.Dash.Figures": {
     "en": "Recorded fights",
-    "de": "Aufgezeichnete Kämpfe",
+    "de": "Kennzahlen",
     "fr": "Combats enregistrés",
     "es": "Combates grabados",
     "ru": "Записанные бои",
@@ -15160,7 +15160,7 @@
   },
   "Hub.Dash.Fights": {
     "en": "Fights of the recording",
-    "de": "Kämpfe der Aufzeichnung",
+    "de": "Kämpfe",
     "fr": "Combats de l'enregistrement",
     "es": "Combates de la grabación",
     "ru": "Бои записи",
