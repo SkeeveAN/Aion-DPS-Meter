@@ -15,15 +15,6 @@ public static class ToolSettingsPage
         var c = new ConfigControls(applied);
         string nameKey = ToolSwitch.All.First(t => t.Id == tool).NameKey, descKey = ToolSwitch.All.First(t => t.Id == tool).DescKey;
         var stack = new StackPanel { Margin = new Thickness(14, 10, 14, 14) };
-        stack.Children.Add(ConfigControls.Card("", c.Switch(loc["Tool.Active"], loc[descKey],
-            s => !s.DisabledTools.Contains(tool), (s, on) =>
-            {
-                s.DisabledTools.Remove(tool);
-                if (!on)
-                {
-                    s.DisabledTools.Add(tool);
-                }
-            })));
         UIElement? more = tool switch
         {
             "timetable" => ToolConfigs.Timetable(applied),

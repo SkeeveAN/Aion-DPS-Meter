@@ -6703,7 +6703,7 @@ public partial class MainWindow : Window
                 stack.Children.Add(map.DetachBody()!);
                 stack.Children.Add(ModulePage.Caption(loc["Settings.PetMap.CardList"]));
                 stack.Children.Add(list.DetachBody()!);
-                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied);
+                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.PetMapShowMap = s.PetMapShowList = v, s => s.HotkeyPetMap, hotkeys, null, applied);
                 return new ToolPage
                 {
                     Content = page,
@@ -7397,7 +7397,7 @@ public partial class MainWindow : Window
     private void TogglePetMap()
     {
         var settings = MeterSettings.Load();
-        settings.ShowPetMap = !settings.ShowPetMap;
+        settings.PetMapShowMap = settings.PetMapShowList = !settings.ShowPetMap;
         settings.Save();
         ApplyPetFarm(settings);
         _settingsWindow?.SyncOverlaySwitches(settings);

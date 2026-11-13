@@ -28,7 +28,7 @@ public static class ToolSwitch
     {
         int dot = id.IndexOf('.');
         string tool = dot < 0 ? id : id[..dot];
-        return !settings.DisabledTools.Contains(tool);
+        return true; // there is no "tool active" switch any more: every tool is there, and an overlay is on only by having been added in the overlay designer
     }
 
     /// <summary>The tool a hotkey belongs to (null: a hotkey of the program itself).</summary>
@@ -48,21 +48,6 @@ public static class ToolSwitch
     /// <summary>Switches the overlays of the switched-off tools off (in memory; the settings window saves them).</summary>
     public static void Enforce(MeterSettings s)
     {
-        foreach (string id in s.DisabledTools)
-        {
-            switch (id)
-            {
-                case "loot": s.ShowLootOverlay = false; break;
-                case "craft": s.ShowCraftOverlay = false; break;
-                case "petmap": s.ShowPetMap = false; s.ShowPetFarm = false; break;
-                case "combat": s.ShowBossHp = false; s.CombatShowBossCast = false; s.CombatShowTargetOfTarget = false; break;
-                case "assist": s.ShowAssistOverlay = false; break;
-                case "dummy": s.ShowDummyOverlay = false; break;
-                case "timetable": s.ShowTimetable = false; break;
-                case "boss": s.ShowBossOverlay = false; break;
-                case "stream": s.StreamOverlayOn = false; break;
-                case "network": s.ShowNetworkOverlay = false; break;
-            }
-        }
+        // nothing: no tool is switched off, so no overlay is switched off with it
     }
 }

@@ -583,10 +583,13 @@ public sealed class MeterSettings
     /// <summary>The pet map (see the Pet-Karte settings page): shown or not, how many metres around the player it covers, how opaque it is.</summary>
     public bool ShowPetMap { get; set; }
 
-    /// <summary>The interactive map is two overlays: the map and the list of pets and collectibles. Each is chosen on its own; shown only while the module's switch is on too.</summary>
-    public bool PetMapShowMap { get; set; } = true;
+    /// <summary>The pet tool's old switch of an older file has been carried over to the map and its list.</summary>
+    public bool PetMapMasterMigrated { get; set; }
 
-    public bool PetMapShowList { get; set; } = true;
+    /// <summary>The interactive map is two overlays: the map and the list of pets and collectibles. Each is chosen on its own; shown only while the module's switch is on too.</summary>
+    public bool PetMapShowMap { get; set; }
+
+    public bool PetMapShowList { get; set; }
 
     /// <summary>The list is positioned on its own; null (a settings file from before) follows <see cref="PetFarmLocked"/>, as the map does.</summary>
     public bool? PetListLocked { get; set; }
@@ -762,6 +765,20 @@ public sealed class MeterSettings
 
             s.CombatMasterMigrated = true;
         }
+
+        if (!s.PetMapMasterMigrated)
+        {
+            // an older file: the pet tool's switch decided whether the map and its list stood at all
+            if (!s.ShowPetMap)
+            {
+                s.PetMapShowMap = false;
+                s.PetMapShowList = false;
+            }
+
+            s.PetMapMasterMigrated = true;
+        }
+
+        s.ShowPetMap = s.PetMapShowMap || s.PetMapShowList; // no master switch: the pet map is on when its map or its list was added
 
         if (OverlaysHidden && !OverlayDesigner.Active)
         {

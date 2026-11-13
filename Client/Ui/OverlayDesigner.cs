@@ -191,25 +191,12 @@ public static class OverlayDesigner
     // ───────────────────────────── the overlays and what "off" means for each ─────────────────────────────
 
     /// <summary>One overlay as the "+" lists it: its name, whether it is on, how to switch it on.</summary>
-    /// <summary>The pet map and its list stand under one switch of the pet tool: when that is off, the part chosen comes alone and the other keeps its own switch off.</summary>
-    private static void PetMapPartOn(MeterSettings s, Action<MeterSettings> part)
-    {
-        if (!s.ShowPetMap)
-        {
-            s.PetMapShowMap = false;
-            s.PetMapShowList = false;
-        }
-
-        s.ShowPetMap = true;
-        part(s);
-    }
-
     private sealed record Entry(string NameKey, Func<MeterSettings, bool> On, Action<MeterSettings> SwitchOn, string Title = "", Action<MeterSettings>? SwitchOff = null);
 
     private static readonly Entry[] Entries =
     {
-        new("Settings.PetMap.CardMap", s => s.ShowPetMap && s.PetMapShowMap, s => PetMapPartOn(s, c => c.PetMapShowMap = true), OverlayPlaces.PetMap, s => s.PetMapShowMap = false),
-        new("Settings.PetMap.CardList", s => s.ShowPetMap && s.PetMapShowList, s => PetMapPartOn(s, c => c.PetMapShowList = true), OverlayPlaces.PetList, s => s.PetMapShowList = false),
+        new("Settings.PetMap.CardMap", s => s.PetMapShowMap, s => s.PetMapShowMap = true, OverlayPlaces.PetMap, s => s.PetMapShowMap = false),
+        new("Settings.PetMap.CardList", s => s.PetMapShowList, s => s.PetMapShowList = true, OverlayPlaces.PetList, s => s.PetMapShowList = false),
         new("Settings.Nav.Pets", s => s.ShowPetFarm, s => s.ShowPetFarm = true, OverlayPlaces.PetInfo, s => s.ShowPetFarm = false),
         new("Settings.Combat.CardBossHp", s => s.ShowBossHp, s => s.ShowBossHp = true, OverlayPlaces.BossHp, s => s.ShowBossHp = false),
         new("Settings.Combat.CardBossCast", s => s.CombatShowBossCast, s => s.CombatShowBossCast = true, OverlayPlaces.BossCast, s => s.CombatShowBossCast = false),
@@ -268,7 +255,7 @@ public static class OverlayDesigner
         foreach (Entry e in Entries)
         {
             names.Add(loc[e.NameKey]);
-            if (e.On(s) || (ToolOfName.TryGetValue(e.NameKey, out string? tool) && !ToolSwitch.IsOn(s, tool)))
+            if (e.On(s))
             {
                 continue;
             }
