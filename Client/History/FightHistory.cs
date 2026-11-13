@@ -1,5 +1,5 @@
 using System.IO;
-using System.Text.Json;
+using Microsoft.Data.Sqlite;
 
 namespace AionDPS.History;
 
@@ -18,58 +18,36 @@ public sealed record StayRecord(DateTime Start, DateTime End, int ZoneId, Sessio
 /// </summary>
 public static class FightHistory
 {
-    private sealed class Store
-    {
-        public List<StayRecord> Stays { get; set; } = new();
-        public List<string> Files { get; set; } = new();
-    }
-
     private static readonly object Gate = new();
-    private static Store? _store;
+    private static bool _ready;
 
-    public static string StorePath => Path.Combine(Environment.GetEnvironmentVariable("AIONDPS_DATA_DIR") is { Length: > 0 } testDir ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"), "fight-history.json");
+    /// <summary>The database of the history (SQLite, in the program's data folder): stays and their boss fights, and the recordings already worked through.</summary>
+    public static string StorePath => Path.Combine(Environment.GetEnvironmentVariable("AIONDPS_DATA_DIR") is { Length: > 0 } testDir ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"), "fight-history.db");
 
-    private static Store Load()
+    private static SqliteConnection Open()
     {
-        lock (Gate)
+        Directory.CreateDirectory(Path.GetDirectoryName(StorePath)!);
+        var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = StorePath, Pooling = false }.ToString());
+        connection.Open();
+        if (!_ready)
         {
-            if (_store is not null)
-            {
-                return _store;
-            }
-
-            try
-            {
-                if (File.Exists(StorePath))
-                {
-                    _store = JsonSerializer.Deserialize<Store>(File.ReadAllText(StorePath));
-                }
-            }
-            catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
-            {
-                // a damaged file: the history starts again
-            }
-
-            return _store ??= new Store();
+            using SqliteCommand create = connection.CreateCommand();
+            create.CommandText = @"
+PRAGMA journal_mode=WAL;
+CREATE TABLE IF NOT EXISTS stays (id INTEGER PRIMARY KEY, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, zone INTEGER NOT NULL, kind INTEGER NOT NULL, hits INTEGER NOT NULL, UNIQUE(zone, start_ms));
+CREATE TABLE IF NOT EXISTS attempts (stay_id INTEGER NOT NULL REFERENCES stays(id) ON DELETE CASCADE, boss TEXT NOT NULL, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, counted INTEGER NOT NULL, killed INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS attempts_boss ON attempts(boss);
+CREATE TABLE IF NOT EXISTS files (key TEXT PRIMARY KEY);";
+            create.ExecuteNonQuery();
+            _ready = true;
         }
+
+        return connection;
     }
 
-    private static void Save()
-    {
-        lock (Gate)
-        {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(StorePath)!);
-                File.WriteAllText(StorePath + ".tmp", JsonSerializer.Serialize(Load()));
-                File.Move(StorePath + ".tmp", StorePath, overwrite: true);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                // the history stays in memory
-            }
-        }
-    }
+    private static long Ms(DateTime t) => new DateTimeOffset(t).ToUnixTimeMilliseconds();
+
+    private static DateTime Time(long ms) => DateTimeOffset.FromUnixTimeMilliseconds(ms).LocalDateTime;
 
     /// <summary>The summary of a session (null for a stay without hits).</summary>
     public static StayRecord? Summarize(SessionInfo session)
@@ -95,41 +73,103 @@ public static class FightHistory
         return new StayRecord(session.Start, session.End ?? session.Data.Events[^1].Timestamp, session.ZoneId, session.Kind, session.Data.Events.Count, attempts);
     }
 
-    private static bool Same(StayRecord a, StayRecord b) => a.ZoneId == b.ZoneId && Math.Abs((a.Start - b.Start).TotalSeconds) < 30;
-
-    /// <summary>Adds stays (one that is already there stays as it was).</summary>
+    /// <summary>Adds stays (one that is already there - same map, start within 30 seconds - stays as it was).</summary>
     public static void Add(IEnumerable<StayRecord> stays)
     {
-        Store store = Load();
-        bool changed = false;
-        lock (Gate)
+        try
         {
-            foreach (StayRecord stay in stays)
+            lock (Gate)
             {
-                if (!store.Stays.Any(s => Same(s, stay)))
+                using SqliteConnection db = Open();
+                using SqliteTransaction tx = db.BeginTransaction();
+                foreach (StayRecord stay in stays)
                 {
-                    store.Stays.Add(stay);
-                    changed = true;
+                    long start = Ms(stay.Start);
+                    using (SqliteCommand find = db.CreateCommand())
+                    {
+                        find.Transaction = tx;
+                        find.CommandText = "SELECT 1 FROM stays WHERE zone=$z AND ABS(start_ms-$s)<30000";
+                        find.Parameters.AddWithValue("$z", stay.ZoneId);
+                        find.Parameters.AddWithValue("$s", start);
+                        if (find.ExecuteScalar() is not null)
+                        {
+                            continue;
+                        }
+                    }
+
+                    long id;
+                    using (SqliteCommand insert = db.CreateCommand())
+                    {
+                        insert.Transaction = tx;
+                        insert.CommandText = "INSERT OR IGNORE INTO stays (start_ms, end_ms, zone, kind, hits) VALUES ($s,$e,$z,$k,$h); SELECT last_insert_rowid();";
+                        insert.Parameters.AddWithValue("$s", start);
+                        insert.Parameters.AddWithValue("$e", Ms(stay.End));
+                        insert.Parameters.AddWithValue("$z", stay.ZoneId);
+                        insert.Parameters.AddWithValue("$k", (int)stay.Kind);
+                        insert.Parameters.AddWithValue("$h", stay.Hits);
+                        id = Convert.ToInt64(insert.ExecuteScalar());
+                    }
+
+                    foreach (AttemptRecord a in stay.Attempts)
+                    {
+                        using SqliteCommand attempt = db.CreateCommand();
+                        attempt.Transaction = tx;
+                        attempt.CommandText = "INSERT INTO attempts (stay_id, boss, start_ms, end_ms, counted, killed) VALUES ($i,$b,$s,$e,$c,$k)";
+                        attempt.Parameters.AddWithValue("$i", id);
+                        attempt.Parameters.AddWithValue("$b", a.Boss);
+                        attempt.Parameters.AddWithValue("$s", Ms(a.Start));
+                        attempt.Parameters.AddWithValue("$e", Ms(a.End));
+                        attempt.Parameters.AddWithValue("$c", a.Counted);
+                        attempt.Parameters.AddWithValue("$k", a.Killed ? 1 : 0);
+                        attempt.ExecuteNonQuery();
+                    }
                 }
+
+                tx.Commit();
             }
         }
-
-        if (changed)
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
         {
-            Save();
+            // the history cannot be written now: the next stay tries again
         }
     }
 
-    public static bool WasRead(string fileKey) => Load().Files.Contains(fileKey);
+    public static bool WasRead(string fileKey)
+    {
+        try
+        {
+            lock (Gate)
+            {
+                using SqliteConnection db = Open();
+                using SqliteCommand command = db.CreateCommand();
+                command.CommandText = "SELECT 1 FROM files WHERE key=$k";
+                command.Parameters.AddWithValue("$k", fileKey);
+                return command.ExecuteScalar() is not null;
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            return true; // not readable: leave the file alone
+        }
+    }
 
     public static void MarkRead(string fileKey)
     {
-        lock (Gate)
+        try
         {
-            Load().Files.Add(fileKey);
+            lock (Gate)
+            {
+                using SqliteConnection db = Open();
+                using SqliteCommand command = db.CreateCommand();
+                command.CommandText = "INSERT OR IGNORE INTO files (key) VALUES ($k)";
+                command.Parameters.AddWithValue("$k", fileKey);
+                command.ExecuteNonQuery();
+            }
         }
-
-        Save();
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // read again next time
+        }
     }
 
     /// <summary>Everything known: the kept history and the sessions of this run (the sessions win where both have a stay), newest first. An open session is left out.</summary>
@@ -144,15 +184,47 @@ public static class FightHistory
             }
         }
 
-        lock (Gate)
+        try
         {
-            foreach (StayRecord stored in Load().Stays)
+            lock (Gate)
             {
-                if (!result.Any(r => Same(r, stored)))
+                using SqliteConnection db = Open();
+                var stored = new Dictionary<long, StayRecord>();
+                using (SqliteCommand stays = db.CreateCommand())
                 {
-                    result.Add(stored);
+                    stays.CommandText = "SELECT id, start_ms, end_ms, zone, kind, hits FROM stays ORDER BY start_ms DESC LIMIT 500";
+                    using SqliteDataReader r = stays.ExecuteReader();
+                    while (r.Read())
+                    {
+                        stored[r.GetInt64(0)] = new StayRecord(Time(r.GetInt64(1)), Time(r.GetInt64(2)), r.GetInt32(3), (SessionKind)r.GetInt32(4), r.GetInt32(5), new List<AttemptRecord>());
+                    }
+                }
+
+                using (SqliteCommand attempts = db.CreateCommand())
+                {
+                    attempts.CommandText = "SELECT stay_id, boss, start_ms, end_ms, counted, killed FROM attempts ORDER BY start_ms";
+                    using SqliteDataReader r = attempts.ExecuteReader();
+                    while (r.Read())
+                    {
+                        if (stored.TryGetValue(r.GetInt64(0), out StayRecord? stay))
+                        {
+                            stay.Attempts.Add(new AttemptRecord(r.GetString(1), Time(r.GetInt64(2)), Time(r.GetInt64(3)), r.GetInt64(4), r.GetInt32(5) != 0));
+                        }
+                    }
+                }
+
+                foreach (StayRecord s in stored.Values)
+                {
+                    if (!result.Any(x => x.ZoneId == s.ZoneId && Math.Abs((x.Start - s.Start).TotalSeconds) < 30))
+                    {
+                        result.Add(s);
+                    }
                 }
             }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // no history to read
         }
 
         return result.OrderByDescending(r => r.Start).ToList();

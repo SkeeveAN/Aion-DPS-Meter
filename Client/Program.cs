@@ -436,6 +436,15 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "aion2-history-add")
+        {
+            // aion2-history-add <stays.json>: puts the stays of an aion2-history output into the fight history database (for tests; AIONDPS_DATA_DIR picks the folder)
+            var added = System.Text.Json.JsonSerializer.Deserialize<List<History.StayRecord>>(File.ReadAllText(args[1])) ?? new();
+            History.FightHistory.Add(added);
+            Console.WriteLine($"aion2-history-add: {added.Count} stay(s); {History.FightHistory.All(Array.Empty<History.SessionInfo>()).Count} in the history");
+            return;
+        }
+
         if (args.Length > 2 && args[0] == "aion2-history")
         {
             // aion2-history <recording.jsonl> <out.json> [own character]: the stays and boss fights of a recording as JSON (started by the program itself for the fight history)
