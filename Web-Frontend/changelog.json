@@ -125,6 +125,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-alpha.11: the old meter window no longer flashes at start (it starts invisible and stays hidden); the dashboard shows game, character and server only while the game sends data, world bosses only when their time is fresh, the tools block is gone, and the overview is a board whose widgets can be moved, sized, removed and added again with the plus (update, announcements and Twitch drops as extra widgets)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
