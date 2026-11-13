@@ -287,35 +287,7 @@ public sealed class DummyTestWindow : Window
         AddStat(status, 3, loc["Dummy.Hits"], _hitsText);
         column.Children.Add(Card(status));
 
-        // the overlay
-        var overlay = new WrapPanel();
-        overlay.Children.Add(Label(loc["Dummy.Overlay"], "Brush.TextSubtle", 13, true));
-        ((TextBlock)overlay.Children[0]).Margin = new Thickness(0, 0, 18, 0);
-        _overlayOn.Content = loc["Dummy.OverlayOn"];
-        _overlayLocked.Content = loc["Settings.PetFarm.Locked"];
-        foreach (CheckBox box in new[] { _overlayOn, _overlayLocked })
-        {
-            box.Margin = new Thickness(0, 0, 22, 0);
-            box.VerticalAlignment = VerticalAlignment.Center;
-            box.SetResourceReference(Control.ForegroundProperty, "Brush.Text");
-            box.Click += OnOverlayBoxChanged;
-            overlay.Children.Add(box);
-        }
-
-        Button all = MakeButton(loc["Dummy.OverlayAll"], (_, _) =>
-        {
-            _toggleAllOverlays();
-            SyncOverlayBoxes(MeterSettings.Load());
-        });
-        all.Margin = new Thickness(0, 0, 16, 0);
-        overlay.Children.Add(all);
-        var hint = Label(loc["Dummy.OverlayHint"], "Brush.TextMuted", 12);
-        overlay.Children.Add(hint);
-        var overlayStack = new StackPanel();
-        overlayStack.Children.Add(overlay);
-        overlayStack.Children.Add(OverlayControls.OpacityRow(OverlayPlaces.Dummy, 0.6));
-        overlayStack.Children.Add(OverlayControls.ResetButton(OverlayPlaces.Dummy));
-        column.Children.Add(Card(overlayStack));
+        // showing, locking, placing and the opacity of the overlay are the overlay designer's job (Ctrl+Alt+F)
 
         // the runs
         var header = Label(loc["Dummy.Runs"], "Brush.Text", 15, true);

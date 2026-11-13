@@ -6350,17 +6350,15 @@ public partial class MainWindow : Window
             case "loot":
             {
                 var lootPage = new LootPage();
-                var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied, null, null, ToolConfigs.Loot(applied));
+                var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); lootPage.Stop(); } };
             }
 
             case "craft":
             {
                 var craftPage = new CraftPage(() => _liveSource?.Entities as Aion2EntityDirectory);
-                var craftConfig = new CraftConfigWindow(() => _liveSource?.Entities as Aion2EntityDirectory);
-                UIElement? craftConfigBody = craftConfig.TakeEmbedded();
-                var craftModule = new ModulePage("", craftPage, s => s.ShowCraftOverlay, (s, v) => s.ShowCraftOverlay = v, s => s.HotkeyCraft, hotkeys, null, applied, null, craftPage.ModeBar, craftConfigBody);
-                return new ToolPage { Content = craftModule, Cleanup = () => { craftModule.Stop(); craftPage.Stop(); craftConfig.CloseEmbedded(); } };
+                var craftModule = new ModulePage("", craftPage, s => s.ShowCraftOverlay, (s, v) => s.ShowCraftOverlay = v, s => s.HotkeyCraft, hotkeys, null, applied, null, craftPage.ModeBar);
+                return new ToolPage { Content = craftModule, Cleanup = () => { craftModule.Stop(); craftPage.Stop(); } };
             }
 
             case "assist":
@@ -6392,14 +6390,14 @@ public partial class MainWindow : Window
                 var networkBody = new StackPanel();
                 networkBody.Children.Add(view.DetachBody()!);
                 networkBody.Children.Add(new NetworkReportPanel());
-                var page = new ModulePage(loc["Settings.Nav.Network"], networkBody, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied, null, null, ToolConfigs.Network(applied));
+                var page = new ModulePage(loc["Settings.Nav.Network"], networkBody, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _network?.RemoveView(view); } };
             }
 
             case "boss" when _worldBoss is not null:
             {
                 var view = _worldBoss.CreateView();
-                var page = new ModulePage(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied, null, null, ToolConfigs.Boss(applied));
+                var page = new ModulePage(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _worldBoss?.RemoveView(view); } };
             }
 
@@ -6408,7 +6406,7 @@ public partial class MainWindow : Window
                 var view = new TimetableWindow();
                 UIElement body = view.DetachView();
                 view.Refresh();
-                var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh, null, ToolConfigs.Timetable(applied));
+                var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); view.Close(); } };
             }
 
@@ -6424,7 +6422,7 @@ public partial class MainWindow : Window
                     stack.Children.Add(view.DetachBody()!);
                 }
 
-                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied, null, null, ToolConfigs.Combat(applied));
+                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _combat?.RemoveViews(views.Select(v => v.View)); } };
             }
 
@@ -6437,29 +6435,12 @@ public partial class MainWindow : Window
                 stack.Children.Add(map.DetachBody()!);
                 stack.Children.Add(ModulePage.Caption(loc["Settings.PetMap.CardList"]));
                 stack.Children.Add(list.DetachBody()!);
-                // the four tabs: what the map shows, the pets, the collectibles, the options
-                UIElement? petsTab = SettingsPanelTab("PanelPets", applied, out Action petsCleanup);
-                UIElement? gatherTab = SettingsPanelTab("PanelGather", applied, out Action gatherCleanup);
-                var tabs = new List<(string, UIElement)> { (loc["Hub.Tab.View"], stack) };
-                if (petsTab is not null)
-                {
-                    tabs.Add((loc["Settings.Nav.Pets"], petsTab));
-                }
-
-                if (gatherTab is not null)
-                {
-                    tabs.Add((loc["Settings.Nav.Gather"], gatherTab));
-                }
-
-                tabs.Add((loc["Hub.Tab.Options"], ToolConfigs.PetMap(applied)));
-                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied, null, null, null, tabs);
+                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied);
                 return new ToolPage
                 {
                     Content = page,
                     Cleanup = () =>
                     {
-                        petsCleanup();
-                        gatherCleanup();
                         page.Stop();
                         _petMapController?.RemoveViews(map, list);
                         if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false, CubeMapOverride: false })
@@ -6503,7 +6484,7 @@ public partial class MainWindow : Window
                 }
 
                 Show();
-                var page = new ModulePage(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show, null, ToolConfigs.Stream(applied));
+                var page = new ModulePage(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show);
                 return new ToolPage { Content = page, Cleanup = page.Stop };
             }
         }

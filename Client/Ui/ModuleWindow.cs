@@ -146,7 +146,7 @@ public sealed class ModulePage : DockPanel
         }
     }
 
-    private static ControlTemplate TabTemplate()
+    internal static ControlTemplate TabTemplate()
     {
         var bd = new FrameworkElementFactory(typeof(Border)) { Name = "Bd" };
         bd.SetValue(Border.PaddingProperty, new Thickness(18, 8, 18, 8));

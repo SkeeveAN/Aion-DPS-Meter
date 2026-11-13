@@ -220,7 +220,6 @@ public sealed class HubWindow : Window
             new Section("settings", settings, new[]
             {
                 new Group(settings, new[] { new Entry("settings", loc["Settings.Nav.Program"], "tool", "hub.settings") }),
-                new Group(loc["Main.MenuTools"], ToolSwitch.All.Where(t => t.Id != "analyzer").Select(t => new Entry("cfg." + t.Id, loc[t.NameKey], "tool", "hub.cfg." + t.Id)).ToArray()),
             }),
         };
     }
@@ -650,6 +649,58 @@ public sealed class HubWindow : Window
         return template;
     }
 
+    /// <summary>The page of a tool under two tabs: the page itself, and its settings (built when the tab is first chosen; they end with the page).</summary>
+    private RadioButton? _toolSettingsTab;
+
+    /// <summary>For the test picture: the Settings tab of the tool page that is shown.</summary>
+    internal void SelectToolSettingsForRender() => _toolSettingsTab?.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, true);
+
+    private UIElement WithSettingsTab(string tool, UIElement view)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        ToolPage? settings = null;
+        var shown = new Border { Child = view };
+        var strip = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(14, 8, 0, 0) };
+        var line = new Border { BorderBrush = Line, BorderThickness = new Thickness(0, 0, 0, 1), Child = strip };
+        string group = "ToolTab" + Guid.NewGuid();
+        RadioButton Tab(string text, bool on, Action choose)
+        {
+            var tab = new RadioButton { GroupName = group, IsChecked = on, Content = text, Cursor = Cursors.Hand, Template = ModulePage.TabTemplate() };
+            tab.Checked += (_, _) => choose();
+            return tab;
+        }
+
+        strip.Children.Add(Tab(loc["Hub.Tab.View"], true, () => shown.Child = view));
+        var settingsTab = Tab(loc["Hub.Tab.Options"], false, () =>
+        {
+            settings ??= _build("hub.cfg." + tool);
+            shown.Child = settings?.Content ?? new TextBlock { Text = "–" };
+        });
+        _toolSettingsTab = settingsTab;
+        strip.Children.Add(settingsTab);
+        var inner = _page;
+        _page = new ToolPage { Content = view, CurrentTab = inner?.CurrentTab, Cleanup = () => { inner?.Cleanup?.Invoke(); settings?.Cleanup?.Invoke(); } };
+        var dock = new DockPanel();
+        DockPanel.SetDock(line, Dock.Top);
+        dock.Children.Add(line);
+        dock.Children.Add(shown);
+        return dock;
+    }
+
+    private static readonly HashSet<string> LiveTools = new() { "loot", "craft", "petmap", "boss", "combat", "assist", "network", "dummy", "hub.live" };
+
+    private bool GameIsOn()
+    {
+        try
+        {
+            return _status().GameOn;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     private void ShowEntry(Entry entry)
     {
         _entry = entry;
@@ -674,7 +725,35 @@ public sealed class HubWindow : Window
                 break;
             case "tool":
                 _page = _build(entry.Target);
-                _host.Child = _page?.Content is UIElement content ? new Grid { Children = { content } } : Message(entry.Title, "–", null);
+                if (_page?.Content is not UIElement content0)
+                {
+                    _host.Child = Message(entry.Title, "–", null);
+                    break;
+                }
+
+                UIElement content = content0;
+                // every tool has two tabs: what it shows, and its settings (the switch that takes it out of the menus and its own cards)
+                if (ToolSwitch.All.Any(t => t.Id == entry.Target) && entry.Target != "analyzer")
+                {
+                    content = WithSettingsTab(entry.Target, content);
+                }
+
+                // tools that live on what the game sends say so while the game is off: what they show is a sample or the last thing they saw
+                if (LiveTools.Contains(entry.Target) && !GameIsOn())
+                {
+                    var note = new Border { Padding = new Thickness(16, 7, 16, 7), Background = Frozen("#3a2a10"), BorderBrush = Accent, BorderThickness = new Thickness(0, 0, 0, 1), Child = new TextBlock { Text = loc["Hub.MockNote"], Foreground = Frozen("#ffd27a"), TextWrapping = TextWrapping.Wrap, FontSize = 12 } };
+                    var dock = new DockPanel();
+                    DockPanel.SetDock(note, Dock.Top);
+                    dock.Children.Add(note);
+                    dock.Children.Add(content);
+                    _host.Child = dock;
+                }
+                else
+                {
+                    _host.Child = new Grid { Children = { content } };
+                }
+
+                break;
                 break;
             default:
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], null);

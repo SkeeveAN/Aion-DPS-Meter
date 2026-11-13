@@ -15649,5 +15649,17 @@
     "pt": "Esta ferramenta não tem mais ajustes aqui; o que dá para ajustar está na própria ferramenta.",
     "ja": "このツールにここで設定できる項目はありません。設定はツール自体にあります。",
     "ko": "이 도구에는 여기서 더 설정할 항목이 없습니다. 설정은 도구 자체에 있습니다."
+  },
+  "Hub.MockNote": {
+    "en": "The game is not running: this page shows sample data or what it saw last.",
+    "de": "Das Spiel läuft nicht: Diese Seite zeigt Beispieldaten oder das, was sie zuletzt gesehen hat.",
+    "fr": "Le jeu n'est pas lancé : cette page montre des données d'exemple ou ce qu'elle a vu en dernier.",
+    "es": "El juego no está en marcha: esta página muestra datos de ejemplo o lo último que vio.",
+    "ru": "Игра не запущена: на странице примерные данные или то, что она видела в последний раз.",
+    "zh": "游戏未运行:此页面显示示例数据或上次看到的内容。",
+    "zh-TW": "遊戲未執行:此頁面顯示範例資料或上次看到的內容。",
+    "pt": "O jogo não está em execução: esta página mostra dados de exemplo ou o que viu por último.",
+    "ja": "ゲームが起動していません:このページにはサンプルデータまたは最後に見た内容が表示されます。",
+    "ko": "게임이 실행 중이 아닙니다. 이 페이지는 예시 데이터 또는 마지막으로 본 내용을 표시합니다."
   }
 }

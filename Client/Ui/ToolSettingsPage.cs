@@ -15,9 +15,6 @@ public static class ToolSettingsPage
         var c = new ConfigControls(applied);
         string nameKey = ToolSwitch.All.First(t => t.Id == tool).NameKey, descKey = ToolSwitch.All.First(t => t.Id == tool).DescKey;
         var stack = new StackPanel { Margin = new Thickness(14, 10, 14, 14) };
-        var title = new TextBlock { Text = loc[nameKey], FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 10) };
-        title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
-        stack.Children.Add(title);
         stack.Children.Add(ConfigControls.Card("", c.Switch(loc["Tool.Active"], loc[descKey],
             s => !s.DisabledTools.Contains(tool), (s, on) =>
             {
