@@ -25,7 +25,7 @@ public static class HubDashboard
 
     public static ToolPage Build(string page, DashboardSources src)
     {
-        if (page is not ("fights" or "best" or "updates" or "news"))
+        if (page is not ("fights" or "best" or "updates" or "news" or "stats"))
         {
             var board = new DashboardBoard(src);
             return new ToolPage { Content = board, Cleanup = board.Stop };
@@ -49,6 +49,7 @@ public static class HubDashboard
             {
                 case "fights": Fights(wrap, src, now); break;
                 case "best": Best(wrap, src); break;
+                case "stats": Stats(wrap, src); break;
                 case "updates": Updates(wrap, src); break;
                 case "news": News(wrap, src); break;
                 default: break;
@@ -402,6 +403,123 @@ public static class HubDashboard
         }
 
         wrap.Children.Add(Card(loc["Hub.Dash.Best"], stack, 1100));
+    }
+
+    private static string _statCharacter = "";
+
+    private static string ZoneName(int zone, SessionKind kind, LocalizationManager loc) => zone == 0 ? loc["Sessions.UnknownMap"]
+        : Aion2.Protocol.Aion2Zones.NameOf(zone, loc.Language) ?? string.Format(loc[kind == SessionKind.Instance ? "Sessions.UnknownInstance" : "Sessions.UnknownZone"], zone);
+
+    /// <summary>The personal statistics: instances run (per character, per instance), boss fights and kills, and how the characters developed - all from the kept history.</summary>
+    private static void Stats(WrapPanel wrap, DashboardSources src)
+    {
+        var loc = LocalizationManager.Instance;
+        var all = FightHistory.All(src.Sessions());
+        var developments = GameLog.Developments();
+        var names = all.Select(s => s.Character).Concat(developments.Select(d => d.Name)).Where(n => n.Length > 0).Distinct().OrderBy(n => n).ToList();
+        if (_statCharacter.Length > 0 && !names.Contains(_statCharacter))
+        {
+            _statCharacter = "";
+        }
+
+        // the character to look at: a chip each
+        var chips = new WrapPanel { Margin = new Thickness(8, 8, 8, 0), Width = 1100 };
+        foreach (string who in new[] { "" }.Concat(names))
+        {
+            string chosen = who;
+            var label = new TextBlock { Text = who.Length == 0 ? loc["Hub.Stats.All"] : who, FontWeight = who == _statCharacter ? FontWeights.SemiBold : FontWeights.Normal };
+            label.SetResourceReference(TextBlock.ForegroundProperty, who == _statCharacter ? "Brush.Accent" : "Brush.TextMuted");
+            var chip = new Border { Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 6), CornerRadius = new CornerRadius(15), BorderThickness = new Thickness(1), Cursor = System.Windows.Input.Cursors.Hand, Child = label, Background = System.Windows.Media.Brushes.Transparent };
+            chip.SetResourceReference(Border.BorderBrushProperty, who == _statCharacter ? "Brush.Accent" : "Brush.Border");
+            chip.MouseLeftButtonUp += (_, _) => _statCharacter = chosen;
+            chips.Children.Add(chip);
+        }
+
+        wrap.Children.Add(chips);
+        var shown = all.Where(s => _statCharacter.Length == 0 || s.Character == _statCharacter).ToList();
+        bool mock = shown.Count == 0;
+        if (mock)
+        {
+            DateTime t = DateTime.Now;
+            shown = new List<StayRecord>
+            {
+                new(t.AddHours(-3), t.AddHours(-3).AddMinutes(12), 600093, SessionKind.Instance, 5000, new List<AttemptRecord> { new("Predator Saraswati", t.AddHours(-3), t.AddHours(-3).AddMinutes(2), 18_591_030, true), new("Transcendent Bakarma", t.AddHours(-3).AddMinutes(4), t.AddHours(-3).AddMinutes(6), 28_000_755, true) }, "Aahz"),
+                new(t.AddDays(-1), t.AddDays(-1).AddMinutes(15), 600093, SessionKind.Instance, 6000, new List<AttemptRecord> { new("Phantasmal Lakshmi", t.AddDays(-1), t.AddDays(-1).AddMinutes(2), 18_583_016, true) }, "Aahz"),
+                new(t.AddDays(-2), t.AddDays(-2).AddMinutes(9), 600033, SessionKind.Instance, 3000, new List<AttemptRecord>(), "Nunzio"),
+            };
+        }
+
+        var instances = shown.Where(s => s.Kind == SessionKind.Instance).ToList();
+        var attempts = shown.SelectMany(s => s.Attempts).ToList();
+        var overview = new StackPanel();
+        if (mock)
+        {
+            overview.Children.Add(MockTag());
+        }
+
+        overview.Children.Add(Line(loc["Hub.Stats.InstanceRuns"], instances.Count.ToString(), true));
+        overview.Children.Add(Line(loc["Hub.Stats.MapStays"], (shown.Count - instances.Count).ToString()));
+        overview.Children.Add(Line(loc["Hub.Stats.Time"], WorldBossText.Duration(TimeSpan.FromSeconds(shown.Sum(s => (s.End - s.Start).TotalSeconds)))));
+        overview.Children.Add(Line(loc["Hub.Stats.Kills"], attempts.Count(a => a.Killed).ToString(), false, "Brush.Heal"));
+        overview.Children.Add(Line(loc["Hub.Stats.Wipes"], attempts.Count(a => !a.Killed).ToString(), false, "Brush.Danger"));
+        wrap.Children.Add(Card(loc["Hub.Stats.Overview"], overview, 520));
+
+        var perInstance = new StackPanel();
+        if (mock)
+        {
+            perInstance.Children.Add(MockTag());
+        }
+
+        foreach (var g in instances.GroupBy(s => s.ZoneId).OrderByDescending(g => g.Count()).Take(14))
+        {
+            int kills = g.SelectMany(s => s.Attempts).Count(a => a.Killed);
+            perInstance.Children.Add(Line(ZoneName(g.Key, SessionKind.Instance, loc), $"×{g.Count()}  ·  {WorldBossText.Duration(TimeSpan.FromSeconds(g.Sum(s => (s.End - s.Start).TotalSeconds)))}  ·  {kills} ✓", true));
+        }
+
+        if (instances.Count == 0)
+        {
+            perInstance.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+        }
+
+        wrap.Children.Add(Card(loc["Hub.Stats.Instances"], perInstance, 520));
+
+        var perBoss = new StackPanel();
+        if (mock)
+        {
+            perBoss.Children.Add(MockTag());
+        }
+
+        foreach (var g in attempts.GroupBy(a => a.Boss).OrderByDescending(g => g.Count()).Take(14))
+        {
+            var done = g.Where(a => a.Duration.TotalSeconds >= 10).ToList();
+            string best = done.Count > 0 ? loc["Hub.Stats.Best"] + " " + done.Max(a => a.Counted / a.Duration.TotalSeconds).ToString("N0") + " DPS" : "";
+            perBoss.Children.Add(Line(g.Key, $"{g.Count(a => a.Killed)} ✓  {g.Count(a => !a.Killed)} ✗   {best}"));
+        }
+
+        if (attempts.Count == 0)
+        {
+            perBoss.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+        }
+
+        wrap.Children.Add(Card(loc["Hub.Stats.Bosses"], perBoss, 520));
+
+        var progress = new StackPanel();
+        foreach (var d in developments.Where(d => _statCharacter.Length == 0 || d.Name == _statCharacter))
+        {
+            progress.Children.Add(Line(d.Name, string.Format(loc["Hub.Stats.Since"], d.Since.ToString("dd.MM.yyyy")), true));
+            progress.Children.Add(Line("      " + loc["Hub.Stats.Level"], d.FirstLevel == d.Level ? d.Level.ToString() : $"{d.FirstLevel} → {d.Level}"));
+            progress.Children.Add(Line("      " + loc["Hub.Stats.ItemLevel"], d.FirstItemLevel == d.ItemLevel ? d.ItemLevel.ToString() : $"{d.FirstItemLevel} → {d.ItemLevel}"));
+        }
+
+        if (progress.Children.Count == 0)
+        {
+            progress.Children.Add(MockTag());
+            progress.Children.Add(Line("Aahz", string.Format(loc["Hub.Stats.Since"], DateTime.Now.AddDays(-20).ToString("dd.MM.yyyy")), true));
+            progress.Children.Add(Line("      " + loc["Hub.Stats.Level"], "43 → 45"));
+            progress.Children.Add(Line("      " + loc["Hub.Stats.ItemLevel"], "2780 → 3011"));
+        }
+
+        wrap.Children.Add(Card(loc["Hub.Stats.Progress"], progress, 520));
     }
 
     // ───────────────────────────── update, news ─────────────────────────────

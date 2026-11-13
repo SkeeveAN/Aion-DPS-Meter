@@ -217,6 +217,39 @@ DELETE FROM boss_log WHERE ts_ms < $boss;";
         }
     }
 
+    /// <summary>One character's development as the log saw it: the first and the last values with the time of the first.</summary>
+    public sealed record Progress(string Name, DateTime Since, int FirstLevel, int FirstItemLevel, int Level, int ItemLevel, int ClassCode);
+
+    public static List<Progress> Developments()
+    {
+        var list = new List<Progress>();
+        try
+        {
+            lock (FightHistory.Gate)
+            {
+                using SqliteConnection db = FightHistory.Open();
+                using SqliteCommand command = db.CreateCommand();
+                command.CommandText = @"
+SELECT f.name, f.ts_ms, f.level, f.item_level, l.level, l.item_level, l.class_code FROM character_log f
+JOIN character_log l ON l.name = f.name AND l.server_id = f.server_id
+WHERE f.ts_ms = (SELECT MIN(ts_ms) FROM character_log WHERE name=f.name AND server_id=f.server_id)
+  AND l.ts_ms = (SELECT MAX(ts_ms) FROM character_log WHERE name=f.name AND server_id=f.server_id)
+GROUP BY f.name, f.server_id ORDER BY l.item_level DESC";
+                using SqliteDataReader r = command.ExecuteReader();
+                while (r.Read())
+                {
+                    list.Add(new Progress(r.GetString(0), FightHistory.Time(r.GetInt64(1)), r.GetInt32(2), r.GetInt32(3), r.GetInt32(4), r.GetInt32(5), r.GetInt32(6)));
+                }
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // nothing logged yet
+        }
+
+        return list;
+    }
+
     /// <summary>The character the log saw last with its last counters - what the program starts from when the checklist's own files are not there (after a crash, a new folder).</summary>
     public static TicketCharacter? LastKnownCharacter()
     {

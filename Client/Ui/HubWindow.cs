@@ -210,6 +210,7 @@ public sealed class HubWindow : Window
                 {
                     new Entry("overview", loc["Hub.Overview"], "overview", "overview"),
                     new Entry("fights", loc["Hub.Dash.Fights"], "overview", "fights"),
+                    new Entry("stats", loc["Hub.Stats.Title"], "overview", "stats"),
                     new Entry("best", loc["Hub.Dash.Best"], "overview", "best"),
                     new Entry("updates", loc["Hub.Dash.Update"], "overview", "updates"),
                     new Entry("news", loc["Hub.Dash.News"], "overview", "news"),

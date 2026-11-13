@@ -10,7 +10,7 @@ public sealed record AttemptRecord(string Boss, DateTime Start, DateTime End, lo
 }
 
 /// <summary>One stay in a map or instance with its boss fights (the lasting summary of a session: what the dashboard shows when the game is off).</summary>
-public sealed record StayRecord(DateTime Start, DateTime End, int ZoneId, SessionKind Kind, int Hits, List<AttemptRecord> Attempts);
+public sealed record StayRecord(DateTime Start, DateTime End, int ZoneId, SessionKind Kind, int Hits, List<AttemptRecord> Attempts, string Character = "");
 
 /// <summary>
 /// The lasting history of the fights: every ended session adds its summary, and the recordings of earlier runs (the debug files) are worked through once in the
@@ -34,7 +34,7 @@ public static class FightHistory
             using SqliteCommand create = connection.CreateCommand();
             create.CommandText = @"
 PRAGMA journal_mode=WAL;
-CREATE TABLE IF NOT EXISTS stays (id INTEGER PRIMARY KEY, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, zone INTEGER NOT NULL, kind INTEGER NOT NULL, hits INTEGER NOT NULL, UNIQUE(zone, start_ms));
+CREATE TABLE IF NOT EXISTS stays (id INTEGER PRIMARY KEY, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, zone INTEGER NOT NULL, kind INTEGER NOT NULL, hits INTEGER NOT NULL, character TEXT NOT NULL DEFAULT '', UNIQUE(zone, start_ms));
 CREATE TABLE IF NOT EXISTS attempts (stay_id INTEGER NOT NULL REFERENCES stays(id) ON DELETE CASCADE, boss TEXT NOT NULL, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, counted INTEGER NOT NULL, killed INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS attempts_boss ON attempts(boss);
 CREATE TABLE IF NOT EXISTS files (key TEXT PRIMARY KEY);
@@ -45,10 +45,36 @@ CREATE INDEX IF NOT EXISTS ticket_log_who ON ticket_log(name, server_id, ticket_
 CREATE TABLE IF NOT EXISTS boss_log (ts_ms INTEGER NOT NULL, npc INTEGER NOT NULL, phase INTEGER NOT NULL, at_ms INTEGER NOT NULL, seen_ms INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
             create.ExecuteNonQuery();
+            // a database of an earlier version gets the column for the character
+            using (SqliteCommand columns = db_cols(connection))
+            {
+                bool has = false;
+                using SqliteDataReader r = columns.ExecuteReader();
+                while (r.Read())
+                {
+                    has |= r.GetString(1) == "character";
+                }
+
+                r.Close();
+                if (!has)
+                {
+                    using SqliteCommand alter = connection.CreateCommand();
+                    alter.CommandText = "ALTER TABLE stays ADD COLUMN character TEXT NOT NULL DEFAULT ''";
+                    alter.ExecuteNonQuery();
+                }
+            }
+
             _ready = true;
         }
 
         return connection;
+    }
+
+    private static SqliteCommand db_cols(SqliteConnection c)
+    {
+        SqliteCommand command = c.CreateCommand();
+        command.CommandText = "PRAGMA table_info(stays)";
+        return command;
     }
 
     internal static long Ms(DateTime t) => new DateTimeOffset(t).ToUnixTimeMilliseconds();
@@ -56,7 +82,7 @@ CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
     internal static DateTime Time(long ms) => DateTimeOffset.FromUnixTimeMilliseconds(ms).LocalDateTime;
 
     /// <summary>The summary of a session (null for a stay without hits).</summary>
-    public static StayRecord? Summarize(SessionInfo session)
+    public static StayRecord? Summarize(SessionInfo session, string character = "")
     {
         if (session.Data.Events.Count == 0)
         {
@@ -76,7 +102,7 @@ CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
             // a stay that cannot be analysed keeps its times only
         }
 
-        return new StayRecord(session.Start, session.End ?? session.Data.Events[^1].Timestamp, session.ZoneId, session.Kind, session.Data.Events.Count, attempts);
+        return new StayRecord(session.Start, session.End ?? session.Data.Events[^1].Timestamp, session.ZoneId, session.Kind, session.Data.Events.Count, attempts, character);
     }
 
     /// <summary>Adds stays (one that is already there - same map, start within 30 seconds - stays as it was).</summary>
@@ -107,12 +133,13 @@ CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
                     using (SqliteCommand insert = db.CreateCommand())
                     {
                         insert.Transaction = tx;
-                        insert.CommandText = "INSERT OR IGNORE INTO stays (start_ms, end_ms, zone, kind, hits) VALUES ($s,$e,$z,$k,$h); SELECT last_insert_rowid();";
+                        insert.CommandText = "INSERT OR IGNORE INTO stays (start_ms, end_ms, zone, kind, hits, character) VALUES ($s,$e,$z,$k,$h,$c); SELECT last_insert_rowid();";
                         insert.Parameters.AddWithValue("$s", start);
                         insert.Parameters.AddWithValue("$e", Ms(stay.End));
                         insert.Parameters.AddWithValue("$z", stay.ZoneId);
                         insert.Parameters.AddWithValue("$k", (int)stay.Kind);
                         insert.Parameters.AddWithValue("$h", stay.Hits);
+                        insert.Parameters.AddWithValue("$c", stay.Character ?? "");
                         id = Convert.ToInt64(insert.ExecuteScalar());
                     }
 
@@ -198,11 +225,11 @@ CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
                 var stored = new Dictionary<long, StayRecord>();
                 using (SqliteCommand stays = db.CreateCommand())
                 {
-                    stays.CommandText = "SELECT id, start_ms, end_ms, zone, kind, hits FROM stays ORDER BY start_ms DESC LIMIT 500";
+                    stays.CommandText = "SELECT id, start_ms, end_ms, zone, kind, hits, character FROM stays ORDER BY start_ms DESC LIMIT 5000";
                     using SqliteDataReader r = stays.ExecuteReader();
                     while (r.Read())
                     {
-                        stored[r.GetInt64(0)] = new StayRecord(Time(r.GetInt64(1)), Time(r.GetInt64(2)), r.GetInt32(3), (SessionKind)r.GetInt32(4), r.GetInt32(5), new List<AttemptRecord>());
+                        stored[r.GetInt64(0)] = new StayRecord(Time(r.GetInt64(1)), Time(r.GetInt64(2)), r.GetInt32(3), (SessionKind)r.GetInt32(4), r.GetInt32(5), new List<AttemptRecord>(), r.GetString(6));
                     }
                 }
 

@@ -204,7 +204,7 @@ public static class HistoryBuilder
         var records = new List<StayRecord>();
         foreach (SessionInfo stay in stays.Sessions)
         {
-            if (FightHistory.Summarize(stay) is { } record)
+            if (FightHistory.Summarize(stay, ownName ?? "") is { } record)
             {
                 records.Add(record);
             }

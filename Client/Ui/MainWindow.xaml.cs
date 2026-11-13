@@ -1099,7 +1099,8 @@ public partial class MainWindow : Window
         }
 
         // every ended stay joins the lasting history of the fights (the dashboard's data when the game is off)
-        if (FightHistory.Summarize(stay) is { } record)
+        string own = (_liveSource?.Entities as Aion2EntityDirectory)?.LocalCharacter?.Name ?? "";
+        if (FightHistory.Summarize(stay, own) is { } record)
         {
             FightHistory.Add(new[] { record });
         }
