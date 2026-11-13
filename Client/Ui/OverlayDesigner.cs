@@ -90,6 +90,7 @@ public static class OverlayDesigner
         _bar = new DesignerBar(refresh);
         _plus = new DesignerPlus(refresh);
         _backdrop.Show();
+        _backdrop.TakeForeground();
         refresh();
         _bar.Show();
         _plus.Show();
@@ -445,7 +446,7 @@ internal sealed class DesignerBackdrop : Window
         AllowsTransparency = true;
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false;
-        ShowActivated = false;
+        ShowActivated = true;
         Topmost = true;
         AltTabHidden.Apply(this);
         Rect area = WindowPlacement.Primary();
@@ -474,11 +475,50 @@ internal sealed class DesignerBackdrop : Window
         layers.Children.Add(grid);
         layers.Children.Add(_marks);
         Content = layers;
-        SourceInitialized += (_, _) =>
+        // the designer is in front and takes the mouse and the keys: a click on the empty dimmed screen reaches the tool, never the game behind it
+        PreviewKeyDown += (_, e) =>
         {
-            using var native = new NativeOverlay(this);
-            native.SetClickThrough(true);
+            if (e.Key == System.Windows.Input.Key.Escape)
+            {
+                e.Handled = true;
+                OverlayDesigner.Toggle(() => { });
+            }
         };
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr handle);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool AllowSetForegroundWindow(int processId);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr handle, out uint processId);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool AttachThreadInput(uint attach, uint to, bool on);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern uint GetCurrentThreadId();
+
+    /// <summary>Takes the foreground (from the game): the keys go to the designer too. Windows only lets a program take it when it shares the input of the window that has it, so the two input queues are joined for the moment.</summary>
+    public void TakeForeground()
+    {
+        IntPtr mine = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        IntPtr current = GetForegroundWindow();
+        uint theirThread = current == IntPtr.Zero ? 0 : GetWindowThreadProcessId(current, out _);
+        uint myThread = GetCurrentThreadId();
+        bool attached = theirThread != 0 && theirThread != myThread && AttachThreadInput(myThread, theirThread, true);
+        SetForegroundWindow(mine);
+        if (attached)
+        {
+            AttachThreadInput(myThread, theirThread, false);
+        }
+
+        Activate();
     }
 
     /// <summary>A small orange tag with the name above every overlay that is on the screen.</summary>
