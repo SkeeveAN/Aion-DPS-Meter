@@ -663,6 +663,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.3: the live meter is a widget (dashboard or over the game) in the look it always had - class colour bars, header with target, time and mode, the total damage stands out, iDPS while a boss fight is chosen, the names shrink when it is pulled narrow - with its mode chosen in the overlay designer; every widget fills its overlay when pulled; the overlay designer takes the foreground and the mouse, groups its plus list, and shows the mode buttons only while it is on; new default hotkeys (overlay designer Ctrl+Alt+D, overlays Ctrl+Alt+H, copy Ctrl+Alt+C); sample rows of the live meter only while the game is off",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
