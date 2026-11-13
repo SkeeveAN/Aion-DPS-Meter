@@ -142,5 +142,9 @@
  "The combat power of the party's members is read from the party list and shown behind the name in the overlay (switch in the settings), saved with character and server id in session files and sent with the fight; the privacy text names it": {
   "en": "Overlay: the party members' combat power behind the name (switch in the settings); character and server id in saved session files",
   "de": "Overlay: Die Kampfkraft der Gruppenmitglieder hinter dem Namen (Schalter in den Einstellungen); Charakter- und Server-ID in gespeicherten Sitzungsdateien"
+ },
+ "Client patch 11.11. data: Fire Temple [Hard] and Fierce Horn Cave [Hard] bosses rage after 240 s (was 300 s) and need item level 2800, the Reforged Abyss time limit is 120 minutes (was 60); the data readers work with the versioned key manifest of the new client": {
+  "en": "Fire Temple and Horn Cave Hard: boss rage 240 s, item level 2800",
+  "de": "Feuertempel und Grimmhorn Schwer: Boss tobt nach 240 s, Gegenstandsstufe 2800"
  }
 }
