@@ -5,7 +5,7 @@ namespace AionDPS.Ui;
 /// <summary>
 /// The sound reminders of the timetable: once a second it looks at every event that has a sound chosen (Settings: Timetable) and plays it when the
 /// event starts in the chosen number of minutes. Each start is announced once; an event already inside the lead time when the meter starts is
-/// not announced late (only the first seconds after the moment count).
+/// not announced late (only the first 20 seconds after the moment count (a busy window thread may tick late)).
 /// </summary>
 public sealed class TimetableReminder : IDisposable
 {
@@ -45,7 +45,7 @@ public sealed class TimetableReminder : IDisposable
             foreach (EventOccurrence occurrence in EventSchedule.Upcoming(scheduled, now))
             {
                 TimeSpan sinceMoment = now - (occurrence.Start - lead); // 0 at the moment the sound is due
-                if (sinceMoment < TimeSpan.Zero || sinceMoment > TimeSpan.FromSeconds(5))
+                if (sinceMoment < TimeSpan.Zero || sinceMoment > TimeSpan.FromSeconds(20))
                 {
                     continue;
                 }
@@ -53,6 +53,7 @@ public sealed class TimetableReminder : IDisposable
                 if (_played.Add($"{scheduled.Id}|{occurrence.Start:O}|{lead.TotalMinutes}"))
                 {
                     NotifySounds.Play(setting.Sound, setting.Volume);
+                    Log($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {scheduled.Id} starts {occurrence.Start:HH:mm}, sound {setting.Sound} at {setting.Volume} %, {sinceMoment.TotalSeconds:0.0} s after the moment");
                 }
             }
         }
@@ -60,6 +61,19 @@ public sealed class TimetableReminder : IDisposable
         if (_played.Count > 500)
         {
             _played.Clear();
+        }
+    }
+
+    /// <summary>One line per played reminder, so a missed sound can be told from a sound that was too quiet.</summary>
+    private static void Log(string line)
+    {
+        try
+        {
+            File.AppendAllText(Path.Combine(MeterSettings.DataDirectory, "timetable-reminder.log"), line + Environment.NewLine);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // the log is a help only
         }
     }
 
