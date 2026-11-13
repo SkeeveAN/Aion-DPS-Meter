@@ -235,13 +235,17 @@ public static class OverlayDesigner
         BringToFront();
     }
 
-    internal static List<(string Name, Action SwitchOn)> Off()
+    /// <summary>What the "+" lists: the overlays that are off, then the widgets of the dashboard and the pages of the app that are not yet over the game. Group 0 = overlays, 1 = widgets, 2 = pages.
+    /// A name that an overlay already has is not listed again as a widget or page (the world boss overlay and the world boss widget, the update widget and the update page).</summary>
+    internal static List<(string Name, Action SwitchOn, int Group)> Off()
     {
         var s = MeterSettings.Load();
         var loc = LocalizationManager.Instance;
-        var list = new List<(string, Action)>();
+        var list = new List<(string, Action, int)>();
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (Entry e in Entries)
         {
+            names.Add(loc[e.NameKey]);
             if (e.On(s) || (ToolOfName.TryGetValue(e.NameKey, out string? tool) && !ToolSwitch.IsOn(s, tool)))
             {
                 continue;
@@ -255,24 +259,37 @@ public static class OverlayDesigner
                 fresh.Save();
                 _refresh?.Invoke();
                 BringToFront();
-            }));
+            }, 0));
         }
 
-        // the widgets: everything that can stand on a dashboard can also stand over the game
-        foreach (string id in WidgetKind.AllIds())
+        void AddWidget(string id, string name, int group)
         {
-            if (WidgetOverlayWindow.IsOn(s, id) || WidgetKind.TitleOf(id) is not { } name)
+            if (WidgetOverlayWindow.IsOn(s, id) || !names.Add(name))
             {
-                continue;
+                return;
             }
 
-            string widget = id;
-            list.Add((loc["Designer.WidgetPrefix"] + name, () =>
+            list.Add((name, () =>
             {
-                WidgetOverlayWindow.SetOn(widget, true);
+                WidgetOverlayWindow.SetOn(id, true);
                 _refresh?.Invoke();
                 BringToFront();
-            }));
+            }, group));
+        }
+
+        // the dashboard's own widgets first, then the pages (not the settings pages of the tools: those tools have their overlay above)
+        foreach (HubDashboard.Widget widget in HubDashboard.Widgets)
+        {
+            AddWidget(widget.Id, loc[widget.TitleKey], 1);
+        }
+
+        string toolsGroup = loc["Main.MenuTools"];
+        foreach (HubPageInfo page in WidgetKind.Pages?.Invoke() ?? Array.Empty<HubPageInfo>())
+        {
+            if (page.Group != toolsGroup)
+            {
+                AddWidget("page:" + page.Id, page.Title, 2);
+            }
         }
 
         return list;
@@ -717,7 +734,8 @@ internal sealed class DesignerPlus : Window
         var stack = new StackPanel();
         stack.Children.Add(title);
         stack.Children.Add(hint);
-        stack.Children.Add(_list);
+        // the list can be long: it scrolls inside the palette instead of running off the screen
+        stack.Children.Add(new ScrollViewer { Content = _list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = Math.Max(240, WindowPlacement.Primary().Height - 260) });
         _palette = new Border
         {
             Child = stack,
@@ -782,8 +800,16 @@ internal sealed class DesignerPlus : Window
             return;
         }
 
-        foreach (var (name, switchOn) in off)
+        string[] headings = { loc["Designer.GroupOverlays"], loc["Designer.GroupWidgets"], loc["Designer.GroupPages"] };
+        int lastGroup = -1;
+        foreach (var (name, switchOn, group) in off)
         {
+            if (group != lastGroup)
+            {
+                lastGroup = group;
+                _list.Children.Add(new TextBlock { Text = headings[group].ToUpperInvariant(), Foreground = OverlayDesigner.Muted, FontSize = 11, FontWeight = FontWeights.SemiBold, Margin = new Thickness(2, group == 0 ? 0 : 10, 0, 6) });
+            }
+
             var row = new DockPanel();
             var add = new TextBlock { Text = loc["Designer.AddButton"], Foreground = OverlayDesigner.Orange, FontWeight = FontWeights.SemiBold };
             DockPanel.SetDock(add, Dock.Right);

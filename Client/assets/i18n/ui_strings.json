@@ -16286,18 +16286,6 @@
     "ja": "背景色",
     "ko": "배경색"
   },
-  "Designer.WidgetPrefix": {
-    "en": "Widget: ",
-    "de": "Widget: ",
-    "fr": "Widget: ",
-    "es": "Widget: ",
-    "ru": "Widget: ",
-    "zh": "Widget: ",
-    "zh-TW": "Widget: ",
-    "pt": "Widget: ",
-    "ja": "Widget: ",
-    "ko": "Widget: "
-  },
   "Hub.Dash.Popout": {
     "en": "Open in a small window",
     "de": "In einem kleinen Fenster öffnen",
@@ -16345,5 +16333,41 @@
     "pt": "Configurações deste overlay",
     "ja": "このオーバーレイの設定",
     "ko": "이 오버레이 설정"
+  },
+  "Designer.GroupOverlays": {
+    "en": "Overlays",
+    "de": "Overlays",
+    "fr": "Overlays",
+    "es": "Overlays",
+    "ru": "Оверлеи",
+    "zh": "叠加层",
+    "zh-TW": "疊加層",
+    "pt": "Overlays",
+    "ja": "オーバーレイ",
+    "ko": "오버레이"
+  },
+  "Designer.GroupWidgets": {
+    "en": "Widgets",
+    "de": "Widgets",
+    "fr": "Widgets",
+    "es": "Widgets",
+    "ru": "Виджеты",
+    "zh": "小组件",
+    "zh-TW": "小工具",
+    "pt": "Widgets",
+    "ja": "ウィジェット",
+    "ko": "위젯"
+  },
+  "Designer.GroupPages": {
+    "en": "Pages",
+    "de": "Seiten",
+    "fr": "Pages",
+    "es": "Páginas",
+    "ru": "Страницы",
+    "zh": "页面",
+    "zh-TW": "頁面",
+    "pt": "Páginas",
+    "ja": "ページ",
+    "ko": "페이지"
   }
 }
