@@ -691,6 +691,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.7: the hotkey for the overlays no longer changes which overlays are on - the window mode shows them as off without writing that anywhere, so an overlay that was removed in the designer never comes back as a default",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
