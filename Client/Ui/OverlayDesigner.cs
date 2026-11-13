@@ -751,6 +751,11 @@ internal sealed class OpacityPanel : Window
             s.Save();
             refresh();
         }));
+        if (split)
+        {
+            stack.Children.Add(ColorRow(title, loc["Designer.BackColor"], refresh));
+        }
+
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
         var reset = OverlayDesigner.Chip(loc["Designer.Reset"]);
         reset.Click += (_, _) =>
@@ -758,6 +763,7 @@ internal sealed class OpacityPanel : Window
             OverlayPlaces.Reset(title);
             var s = MeterSettings.Load();
             s.OverlayForegrounds.Remove(title);
+            s.OverlayBackColors.Remove(title);
             s.Save();
             refresh();
             Close();
@@ -786,6 +792,53 @@ internal sealed class OpacityPanel : Window
             Margin = new Thickness(8),
             Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 12, ShadowDepth = 2, Opacity = 0.5 },
         };
+    }
+
+    private static readonly string[] BackColors = { "#000000", "#0E1820", "#1B3142", "#2B1B3D", "#3D1B1B", "#1B3D26", "#3D361B", "#FFFFFF" };
+
+    /// <summary>The colour of the background: a row of swatches (black is the usual one); the opacity above says how clear it is.</summary>
+    private static UIElement ColorRow(string title, string label, Action refresh)
+    {
+        var grid = new Grid { Margin = new Thickness(0, 4, 0, 2) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.Children.Add(new TextBlock { Text = label, Foreground = OverlayDesigner.Text, VerticalAlignment = VerticalAlignment.Center });
+        var swatches = new StackPanel { Orientation = Orientation.Horizontal };
+        string current = MeterSettings.Load().OverlayBackColors.GetValueOrDefault(title, "");
+        var rings = new List<(Border Ring, string Hex)>();
+        void Mark()
+        {
+            foreach ((Border ring, string hex) in rings)
+            {
+                ring.BorderBrush = string.Equals(hex, current, StringComparison.OrdinalIgnoreCase) ? OverlayDesigner.Orange : OverlayDesigner.Line;
+            }
+        }
+
+        foreach (string hex in BackColors)
+        {
+            var color = (Color)ColorConverter.ConvertFromString(hex);
+            var swatch = new Border
+            {
+                Width = 20, Height = 20, CornerRadius = new CornerRadius(10), Margin = new Thickness(0, 0, 6, 0), Cursor = Cursors.Hand,
+                Background = new SolidColorBrush(color), BorderThickness = new Thickness(2), BorderBrush = OverlayDesigner.Line, ToolTip = hex,
+            };
+            rings.Add((swatch, hex));
+            swatch.MouseLeftButtonUp += (_, _) =>
+            {
+                current = hex;
+                var s = MeterSettings.Load();
+                s.OverlayBackColors[title] = hex;
+                s.Save();
+                Mark();
+                refresh();
+            };
+            swatches.Children.Add(swatch);
+        }
+
+        Mark();
+        Grid.SetColumn(swatches, 1);
+        grid.Children.Add(swatches);
+        return grid;
     }
 
     private static UIElement Row(string label, double value, Action<double> changed)

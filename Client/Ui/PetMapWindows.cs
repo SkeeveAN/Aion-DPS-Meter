@@ -292,7 +292,32 @@ public abstract class MovableOverlay : Window
             alpha = Math.Max(alpha, floor);
         }
 
-        body.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(alpha * 255), bg.Color.R, bg.Color.G, bg.Color.B));
+        Color baseColor = bg.Color;
+        if (MeterSettings.Load().OverlayBackColors.TryGetValue(Title, out string? hex) && TryColor(hex, out Color chosen))
+        {
+            baseColor = chosen; // the colour chosen in the overlay designer
+        }
+
+        body.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(alpha * 255), baseColor.R, baseColor.G, baseColor.B));
+    }
+
+    private static bool TryColor(string? hex, out Color color)
+    {
+        color = default;
+        try
+        {
+            if (!string.IsNullOrEmpty(hex) && ColorConverter.ConvertFromString(hex) is Color parsed)
+            {
+                color = parsed;
+                return true;
+            }
+        }
+        catch (FormatException)
+        {
+            // a damaged value: the overlay keeps its own colour
+        }
+
+        return false;
     }
 
     public void RaiseToFront()

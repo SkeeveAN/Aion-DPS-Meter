@@ -14499,8 +14499,8 @@
     "ko": "+ 추가"
   },
   "Designer.Content": {
-    "en": "Content (text, symbols)",
-    "de": "Inhalt (Text, Symbole)",
+    "en": "Text strength",
+    "de": "Textstärke",
     "fr": "Contenu (texte, symboles)",
     "es": "Contenido (texto, símbolos)",
     "ru": "Содержимое (текст, значки)",
@@ -14511,8 +14511,8 @@
     "ko": "내용(텍스트, 기호)"
   },
   "Designer.Background": {
-    "en": "Background",
-    "de": "Hintergrund",
+    "en": "Opacity (background)",
+    "de": "Deckkraft (Hintergrund)",
     "fr": "Arrière-plan",
     "es": "Fondo",
     "ru": "Фон",
@@ -16273,5 +16273,17 @@
     "pt": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
     "ja": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
     "ko": "Base value, level points, titles, Daevanion and others (the game does not send them apart)"
+  },
+  "Designer.BackColor": {
+    "en": "Background colour",
+    "de": "Hintergrundfarbe",
+    "fr": "Background colour",
+    "es": "Background colour",
+    "ru": "Background colour",
+    "zh": "Background colour",
+    "zh-TW": "Background colour",
+    "pt": "Background colour",
+    "ja": "Background colour",
+    "ko": "Background colour"
   }
 }

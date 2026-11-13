@@ -501,6 +501,9 @@ public sealed class MeterSettings
 
     /// <summary>How clear the content (text, symbols) of an overlay is, 0 to 1, by the overlay's title; the background has its own value in <see cref="OverlayOpacities"/>. Missing: 1.</summary>
     public Dictionary<string, double> OverlayForegrounds { get; set; } = new();
+
+    /// <summary>The colour of an overlay's background as "#RRGGBB", by the overlay's title (the overlay designer's colour row); missing: the overlay's own dark colour. The opacity is <see cref="OverlayOpacities"/>.</summary>
+    public Dictionary<string, string> OverlayBackColors { get; set; } = new();
     /// <summary>World boss overlay on / off.</summary>
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
     /// <summary>Network overlay on / off.</summary>
