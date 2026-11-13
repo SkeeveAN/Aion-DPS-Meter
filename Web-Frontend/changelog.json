@@ -677,6 +677,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.5: the mode and look buttons of the live meter widget stand below the list, the chips overlay shows only the player rows (its header with target, time and mode and the column legend appear only in the overlay designer) with the class colour bars beginning at the left edge and the chips' header and legend aligned over their columns, and the overlay designer takes the foreground more firmly",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
