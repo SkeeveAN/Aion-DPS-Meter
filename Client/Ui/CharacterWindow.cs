@@ -594,7 +594,7 @@ public sealed class CharacterWindow : Window
             remote = _pictureRemote;
             status = remote is null ? Loc("Character.OtherNotFound") : null;
         }
-        else if (MainWindow.Headless || !MeterSettings.Load().AutoUploadProfile)
+        else if (MainWindow.Headless)
         {
             status = Loc("Character.OtherNeedUpload");
         }
@@ -1144,28 +1144,33 @@ public sealed class CharacterWindow : Window
             Place(stack, 84, 76, i - 0.5, Lords.Length, 228, LordIcon / 2 / 76);
         }
 
+        // the six main attributes in the style of the outer ring: the symbol on a dark disc, the number in a dark badge at its lower right, the name below in bold white
+        const double MainIcon = 50;
         for (int i = 0; i < MainAttributes.Length; i++)
         {
             (string key, int id) = MainAttributes[i];
-            var stack = new StackPanel { Width = 96, ToolTip = Loc("Character.Attr." + key) };
-            UIElement icon = RingIcon(key, false, 60, iconFill);
-            ((FrameworkElement)icon).HorizontalAlignment = HorizontalAlignment.Center;
-            stack.Children.Add(icon);
-            // the inner ring sits on the light glow: the symbol is paled and the name with its number stands on a plate of the panel colour, so both read as well as the outer ring
-            ((FrameworkElement)icon).Opacity = 0.55;
-            TextBlock label = Text(Loc("Character.Attr." + key), 13, FontWeights.Bold, mainName);
-            label.HorizontalAlignment = HorizontalAlignment.Center;
-            TextBlock number = Text(value(id).ToString(CultureInfo.CurrentCulture), 14, FontWeights.Bold, text);
-            number.HorizontalAlignment = HorizontalAlignment.Center;
-            var plate = new StackPanel();
-            plate.Children.Add(label);
-            plate.Children.Add(number);
-            stack.Children.Add(new Border
+            var stack = new Grid { Width = 84, Height = 72, ToolTip = Loc("Character.Attr." + key) };
+            stack.RowDefinitions.Add(new RowDefinition { Height = new GridLength(MainIcon) });
+            stack.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var icon = new Grid { Width = MainIcon, Height = MainIcon, VerticalAlignment = VerticalAlignment.Top };
+            icon.Children.Add(new System.Windows.Shapes.Ellipse { Fill = panel });
+            icon.Children.Add(RingIcon(key, false, MainIcon, iconFill));
+            icon.Children.Add(new Border
             {
-                Background = panel, Opacity = 0.92, CornerRadius = new CornerRadius(8), Padding = new Thickness(8, 1, 8, 2), Margin = new Thickness(0, -14, 0, 0),
-                HorizontalAlignment = HorizontalAlignment.Center, Child = plate,
+                Background = panel,
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(3, 0, 3, 0),
+                Margin = new Thickness(0, 0, -20, 4),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Child = new TextBlock { Text = value(id).ToString(CultureInfo.CurrentCulture), FontSize = 15, FontWeight = FontWeights.Bold, Foreground = text },
             });
-            Place(stack, 96, 92, i, MainAttributes.Length, 112, 0.62);
+            stack.Children.Add(icon);
+            TextBlock label = Text(Loc("Character.Attr." + key), 10.5, FontWeights.Bold, text);
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            Grid.SetRow(label, 1);
+            stack.Children.Add(label);
+            Place(stack, 84, 72, i, MainAttributes.Length, 112, MainIcon / 2 / 72);
         }
 
         return canvas;
@@ -1174,11 +1179,10 @@ public sealed class CharacterWindow : Window
     private static string FingerprintOf(int serverId) =>
         "aion2:" + System.Text.RegularExpressions.Regex.Replace(Aion2Servers.NameOf(serverId).ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
 
-    /// <summary>Fetches the portrait once per character and session - only when the profile upload is switched on
-    /// (the player is only on the server then), never in the headless picture modes. Errors leave the tab without it.</summary>
+    /// <summary>Fetches the portrait once per character and session - (what the website holds for the character can always be read; the restricted mode excepted), never in the headless picture modes. Errors leave the tab without it.</summary>
     private void StartPortraitLoad(string name, int serverId)
     {
-        if (MainWindow.Headless || serverId <= 0 || string.IsNullOrEmpty(name))
+        if (MainWindow.Headless || PrivacyConsent.Restricted || serverId <= 0 || string.IsNullOrEmpty(name))
         {
             return;
         }
