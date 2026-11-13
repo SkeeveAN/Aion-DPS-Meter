@@ -14,7 +14,7 @@ namespace AionDPS.Ui;
 public sealed record HubPageInfo(string Id, string Group, string Title);
 
 public sealed record DashboardSources(Func<HubStatus> Status, Action<string> OpenTool, Func<IReadOnlyList<SessionInfo>> Sessions, Action OpenSessions, string Version,
-    Func<IReadOnlyList<HubPageInfo>> Pages, Func<string, ToolPage?> BuildPage);
+    Func<IReadOnlyList<HubPageInfo>> Pages, Func<string, ToolPage?> BuildPage, Func<UIElement?>? MeterView = null);
 
 /// <summary>
 /// The pages of the Dashboard tab of the new interface, all on real data and drawn again every second: the overview (game and character, today's checklist, what is on now,
@@ -70,6 +70,7 @@ public static class HubDashboard
 
     internal static readonly Widget[] Widgets =
     {
+        new("meter", "Hub.LiveMeter", null, 390, 220, true),
         new("connection", "Hub.Dash.Connection", null, 420, 170, false),
         new("todo", "Hub.Dash.TodoTitle", "checklist", 420, 260, false),
         new("soon", "Hub.Dash.Soon", "timetable", 520, 290, false),
@@ -87,6 +88,7 @@ public static class HubDashboard
         var loc = LocalizationManager.Instance;
         switch (id)
         {
+            case "meter": return src.MeterView?.Invoke() ?? new TextBlock { Text = "–" };
             case "connection": return Connection(src.Status(), loc);
             case "todo": return Todo(loc, src.OpenTool);
             case "soon":

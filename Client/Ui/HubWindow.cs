@@ -111,10 +111,13 @@ public sealed class HubWindow : Window
         };
     }
 
+    /// <summary>The live meter's list as it is known from the meter overlay (class colour bars, DPS ...), bound to the meter's rows; set by the main window.</summary>
+    public Func<UIElement?>? MeterView { get; set; }
+
     /// <summary>The sources a widget needs, for the widgets that stand over the game.</summary>
     public DashboardSources OverlaySources() => Sources();
 
-    private DashboardSources Sources() => new(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version, PageList, BuildPage);
+    private DashboardSources Sources() => new(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version, PageList, BuildPage, MeterView);
 
     /// <summary>Every page of the app a dashboard can take as a widget (all but the overview itself).</summary>
     private IReadOnlyList<HubPageInfo> PageList() =>

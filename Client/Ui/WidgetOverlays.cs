@@ -27,6 +27,11 @@ public static class WidgetKind
     /// <summary>The pages of the app by id, set once the new interface exists (the names of the page widgets).</summary>
     public static Func<IReadOnlyList<HubPageInfo>>? Pages { get; set; }
 
+    /// <summary>The mode of the live meter (0 damage, 1 healing, 2 damage taken, 3 all in one, 4 all in one +): read and set by the main window; the designer's panel of the meter widget offers it.</summary>
+    public static Func<int>? MeterMode { get; set; }
+
+    public static Action<int>? SetMeterMode { get; set; }
+
     public static bool IsOverlayTitle(string title) => title.StartsWith(OverlayPrefix, StringComparison.Ordinal);
 
     public static string IdOfTitle(string title) => title[OverlayPrefix.Length..];
@@ -132,8 +137,15 @@ public sealed class WidgetOverlayWindow : MovableOverlay
         // the content fills the frame: pulling the overlay smaller or larger makes the widget itself smaller or larger (it is laid out for the new size, not cut off)
         var content = new Border { MinWidth = 80, MinHeight = 40, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
         var body = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 8, 12, 8), Child = content };
-        Color panel = Application.Current?.TryFindResource("Brush.Panel") is SolidColorBrush found ? found.Color : Color.FromRgb(0x0E, 0x18, 0x20);
-        body.Background = new SolidColorBrush(Color.FromArgb(0xE6, panel.R, panel.G, panel.B));
+        // the live meter keeps the look it always had over the game (the overlay's dark colour at its own opacity); the other widgets sit on the panel colour
+        bool meter = id == "meter";
+        Color panel = Application.Current?.TryFindResource(meter ? "Brush.OverlayBg" : "Brush.Panel") is SolidColorBrush found ? found.Color : Color.FromRgb(0x0E, 0x18, 0x20);
+        body.Background = new SolidColorBrush(Color.FromArgb(meter ? (byte)0x99 : (byte)0xE6, panel.R, panel.G, panel.B));
+        if (meter)
+        {
+            body.Padding = new Thickness(6, 4, 6, 4);
+            body.CornerRadius = new CornerRadius(6);
+        }
         Body = body;
         _host = new WidgetKind.Host(id, sources, content);
         _timer.Tick += (_, _) => _host.Refresh();

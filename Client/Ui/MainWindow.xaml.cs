@@ -6108,10 +6108,21 @@ public partial class MainWindow : Window
             }
         };
         _hubWindow.Show();
+        _hubWindow.MeterView = BuildMeterView;
+        WidgetKind.MeterMode = () => (int)_mode;
+        WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         _widgetOverlays ??= new WidgetOverlayController(() => _hubWindow?.OverlaySources());
     }
 
     private WidgetOverlayController? _widgetOverlays;
+
+    /// <summary>The meter's list as the compact overlay draws it (class icon, name, the bar in the class colour, DPS), for the widget of the live meter: the same rows, the same look.</summary>
+    private UIElement BuildMeterView()
+    {
+        var list = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = CompactOverlayRows.ItemTemplate };
+        Grid.SetIsSharedSizeScope(list, true);
+        return list;
+    }
 
     private void OpenTool(string id)
     {
@@ -6360,7 +6371,7 @@ public partial class MainWindow : Window
                 Show();
                 WindowState = WindowState.Normal;
                 Activate();
-            }, () => (int)_mode, mode => SetMode((MeterMode)mode));
+            }, () => (int)_mode, mode => SetMode((MeterMode)mode), () => (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is not null);
         }
 
         if (module.StartsWith("hub.cfg.", StringComparison.Ordinal))

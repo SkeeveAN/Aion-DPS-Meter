@@ -274,6 +274,15 @@ public static class OverlayDesigner
                 WidgetOverlayWindow.SetOn(id, true);
                 _refresh?.Invoke();
                 BringToFront();
+                if (id == "meter")
+                {
+                    // the live meter asks which mode it should show
+                    MovableOverlay? added = MovableOverlay.All.FirstOrDefault(w => w.Title == WidgetKind.OverlayPrefix + "meter" && w.IsVisible);
+                    if (added is not null)
+                    {
+                        ShowOpacityPanel(added);
+                    }
+                }
             }, group));
         }
 
@@ -865,6 +874,11 @@ internal sealed class OpacityPanel : Window
             s.Save();
             refresh();
         }));
+        if (title == WidgetKind.OverlayPrefix + "meter" && WidgetKind.MeterMode is { } getMode && WidgetKind.SetMeterMode is { } setMode)
+        {
+            stack.Children.Insert(1, ModeRow(loc, getMode, setMode));
+        }
+
         if (split)
         {
             stack.Children.Add(ColorRow(title, loc["Designer.BackColor"], refresh));
@@ -906,6 +920,42 @@ internal sealed class OpacityPanel : Window
             Margin = new Thickness(8),
             Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 12, ShadowDepth = 2, Opacity = 0.5 },
         };
+    }
+
+    /// <summary>What the live meter shows: the player picks the mode here (damage, healing, damage taken, all in one).</summary>
+    private static UIElement ModeRow(LocalizationManager loc, Func<int> getMode, Action<int> setMode)
+    {
+        var host = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
+        host.Children.Add(new TextBlock { Text = loc["Designer.MeterMode"], Foreground = OverlayDesigner.Muted, FontSize = 11, Margin = new Thickness(0, 0, 0, 4) });
+        var chips = new WrapPanel();
+        string[] names = { loc["Main.ModeDamage"], loc["Main.ModeHeal"], loc["Main.ModeTaken"], loc["Main.ModeAll"], loc["Main.ModeAllCompact"] };
+        var buttons = new List<Button>();
+        void Mark()
+        {
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                buttons[i].Background = i == getMode() ? OverlayDesigner.Orange : OverlayDesigner.Panel;
+                buttons[i].Foreground = i == getMode() ? OverlayDesigner.Ink : OverlayDesigner.Text;
+            }
+        }
+
+        for (int i = 0; i < names.Length; i++)
+        {
+            int mode = i;
+            Button chip = OverlayDesigner.Chip(names[i]);
+            chip.Margin = new Thickness(0, 0, 6, 6);
+            chip.Click += (_, _) =>
+            {
+                setMode(mode);
+                Mark();
+            };
+            buttons.Add(chip);
+            chips.Children.Add(chip);
+        }
+
+        Mark();
+        host.Children.Add(chips);
+        return host;
     }
 
     private static readonly string[] BackColors = { "#000000", "#0E1820", "#1B3142", "#2B1B3D", "#3D1B1B", "#1B3D26", "#3D361B", "#FFFFFF" };

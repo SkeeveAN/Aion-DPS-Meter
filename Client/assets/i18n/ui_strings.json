@@ -16369,5 +16369,17 @@
     "pt": "Páginas",
     "ja": "ページ",
     "ko": "페이지"
+  },
+  "Designer.MeterMode": {
+    "en": "What should the meter show?",
+    "de": "Was soll der Meter anzeigen?",
+    "fr": "Que doit afficher le meter ?",
+    "es": "¿Qué debe mostrar el medidor?",
+    "ru": "Что должен показывать измеритель?",
+    "zh": "计量器应显示什么？",
+    "zh-TW": "計量器應顯示什麼？",
+    "pt": "O que o medidor deve mostrar?",
+    "ja": "メーターに何を表示しますか？",
+    "ko": "미터가 무엇을 표시할까요?"
   }
 }

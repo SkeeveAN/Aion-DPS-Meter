@@ -42,7 +42,7 @@ public static class LiveMeterPage
   </Grid>
 </DataTemplate>";
 
-    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null)
+    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null, Func<bool>? gameOn = null)
     {
         var loc = LocalizationManager.Instance;
         // with nothing recorded the list shows sample rows, tagged as such, so the player sees how it could look
@@ -58,16 +58,24 @@ public static class LiveMeterPage
             sample.Add(new PlayerRow(-n) { Name = m.Name, ClassName = m.Class, Damage = m.Damage, Dps = m.Dps, FillPercent = m.Fill, SharePercent = m.Share, Healing = m.Heal, DamageTaken = m.Taken, Rank = n++ });
         }
 
-        var list = new ItemsControl { ItemsSource = rows.Count > 0 ? rows : sample, ItemTemplate = (DataTemplate)XamlReader.Parse(RowXaml) };
+        var list = new ItemsControl { ItemTemplate = (DataTemplate)XamlReader.Parse(RowXaml) };
         var mockTag = HubDashboard.MockTag();
         mockTag.Margin = new Thickness(16, 0, 0, 0);
         mockTag.VerticalAlignment = VerticalAlignment.Center;
-        mockTag.Visibility = rows.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
-        rows.CollectionChanged += (_, _) =>
+        // sample rows only while the game is not running: with the game on and nothing counted yet (an instance just entered) the list is simply empty, never made up
+        void Show()
         {
-            list.ItemsSource = rows.Count > 0 ? rows : sample;
-            mockTag.Visibility = rows.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
-        };
+            bool real = rows.Count > 0;
+            bool sampleShown = !real && gameOn?.Invoke() != true;
+            list.ItemsSource = real ? rows : sampleShown ? sample : null;
+            mockTag.Visibility = sampleShown ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        Show();
+        rows.CollectionChanged += (_, _) => Show();
+        var gameTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        gameTimer.Tick += (_, _) => Show();
+        gameTimer.Start();
         var card = new Border { Padding = new Thickness(16, 10, 16, 12), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Margin = new Thickness(14, 10, 14, 14), VerticalAlignment = VerticalAlignment.Top, Child = list };
         card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
         card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
@@ -101,6 +109,6 @@ public static class LiveMeterPage
         }
 
         page.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = card });
-        return new ToolPage { Content = page };
+        return new ToolPage { Content = page, Cleanup = gameTimer.Stop };
     }
 }
