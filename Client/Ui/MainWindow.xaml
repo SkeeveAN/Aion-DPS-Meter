@@ -1383,17 +1383,37 @@
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                            Height="20" Width="20" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <!-- when the overlay is pulled narrow the names shrink to fit; the numbers keep their size -->
+                                    <Viewbox Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <StackPanel VerticalAlignment="Center">
                                         <TextBlock Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
                                                    FontSize="11" TextTrimming="CharacterEllipsis"><Run Text="{Binding NameDisplay, Mode=OneWay}"/><Run Text="{Binding CombatPowerSuffix, Mode=OneWay}" FontWeight="Normal" FontSize="9.5"/></TextBlock>
                                         <local:AllLine FontSize="9.5" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
                                     </StackPanel>
+                                    </Viewbox>
                                     <TextBlock Grid.Column="2" Text="{Binding RateOrDamageCompact}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
                                                FontSize="11" VerticalAlignment="Center" Margin="6,0,0,0"/>
                                     <TextBlock Grid.Column="3" Text="{Binding ShareOrHealCompact}" Style="{StaticResource AllHealSubtle}"
                                                FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding TotalOrTakenCompact}" Style="{StaticResource AllTakenSubtle}"
-                                               FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding TotalOrTakenCompact}"
+                                               FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                        <TextBlock.Style>
+                                            <!-- the total damage stands out (bold, the text colour, a size larger); in the All in One modes the column is what was taken, as before -->
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource AllTakenSubtle}">
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding AllMode}" Value="False"/>
+                                                            <Condition Binding="{Binding AllCompact}" Value="False"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                        <Setter Property="FontSize" Value="11"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.OverlayText}"/>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </Grid>
                             </Grid>
                         </DataTemplate>

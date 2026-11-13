@@ -1359,7 +1359,7 @@ internal static class Program
             var meterView = (System.Windows.UIElement)type.GetMethod("BuildMeterView", flags)!.Invoke(window, null)!;
             panel = new System.Windows.Controls.Border
             {
-                Width = 390, Padding = new System.Windows.Thickness(6, 4, 6, 4), CornerRadius = new System.Windows.CornerRadius(6),
+                Width = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_WIDTH"), out int widgetWidth) ? widgetWidth : 390, Padding = new System.Windows.Thickness(6, 4, 6, 4), CornerRadius = new System.Windows.CornerRadius(6),
                 Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x99, 0, 0, 0)), Child = meterView,
             };
         }

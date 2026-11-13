@@ -6119,9 +6119,58 @@ public partial class MainWindow : Window
     /// <summary>The meter's list as the compact overlay draws it (class icon, name, the bar in the class colour, DPS), for the widget of the live meter: the same rows, the same look.</summary>
     private UIElement BuildMeterView()
     {
+        // the header of the meter overlay as it was: what is fought, how long it ran, the mode; below it the legend of the three numbers (the texts are the overlay's own, kept up to date by UpdateCompactOverlay)
+        TextBlock Bound(TextBlock source, double size, string brush, FontWeight? weight = null, HorizontalAlignment align = HorizontalAlignment.Left)
+        {
+            var text = new TextBlock { FontSize = size, HorizontalAlignment = align, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            if (weight is { } w)
+            {
+                text.FontWeight = w;
+            }
+
+            text.SetResourceReference(TextBlock.ForegroundProperty, brush);
+            text.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(TextBlock.Text)) { Source = source });
+            return text;
+        }
+
+        var head = new DockPanel { Margin = new Thickness(4, 0, 4, 4) };
+        TextBlock mode = Bound(OverlayModeText, 10, "Brush.OverlayText", FontWeights.Bold);
+        var modeTag = new Border { CornerRadius = new CornerRadius(3), Padding = new Thickness(6, 1, 6, 1), Margin = new Thickness(6, 0, 0, 0), Background = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)), Child = mode };
+        DockPanel.SetDock(modeTag, Dock.Right);
+        head.Children.Add(modeTag);
+        TextBlock time = Bound(OverlayTimeText, 12, "Brush.Accent");
+        DockPanel.SetDock(time, Dock.Right);
+        head.Children.Add(time);
+        head.Children.Add(Bound(OverlayTargetText, 13, "Brush.OverlayText", FontWeights.Bold));
+
+        var legend = new Grid { Margin = new Thickness(4, 0, 4, 1) };
+        legend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
+        legend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        legend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        legend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(46) });
+        legend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
+        var player = new TextBlock { Text = LocalizationManager.Instance["Main.Overlay.ColPlayer"], FontSize = 9 };
+        player.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+        Grid.SetColumn(player, 1);
+        legend.Children.Add(player);
+        TextBlock rate = Bound(OverlayRateHeader, 9, "Brush.TextSubtle");
+        rate.Margin = new Thickness(6, 0, 0, 0);
+        Grid.SetColumn(rate, 2);
+        legend.Children.Add(rate);
+        TextBlock share = Bound(OverlayShareHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
+        Grid.SetColumn(share, 3);
+        legend.Children.Add(share);
+        TextBlock total = Bound(OverlayTotalHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
+        Grid.SetColumn(total, 4);
+        legend.Children.Add(total);
+
         var list = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = CompactOverlayRows.ItemTemplate };
         Grid.SetIsSharedSizeScope(list, true);
-        return list;
+        var stack = new StackPanel();
+        stack.Children.Add(head);
+        stack.Children.Add(legend);
+        stack.Children.Add(list);
+        return stack;
     }
 
     private void OpenTool(string id)
@@ -7537,17 +7586,14 @@ public partial class MainWindow : Window
     /// fight has run, and whether the capture is running.</summary>
     private void UpdateCompactOverlay(IReadOnlyList<DamageEvent> shownHits, (int Count, DateTime First, DateTime Last)? summary = null)
     {
-        if (!_compactOverlay)
-        {
-            return;
-        }
-
+        // also without the compact overlay: the live meter widget reads these texts
         OverlayTargetText.Text = _pvpOnly ? "PvP"
             : _selectedTargetId is int targetId ? ResolveDisplayName(targetId)
             : LocalizationManager.Instance["Main.FilterAllTargets"];
         var strings = LocalizationManager.Instance;
         OverlayModeText.Text = strings[_healMode ? "Main.Overlay.ModeHeal" : _takenMode ? "Main.Overlay.ModeTaken" : _allMode ? "Main.Overlay.ModeAll" : _allCompactMode ? "Main.Overlay.ModeAllCompact" : "Main.Overlay.ModeDamage"];
-        OverlayRateHeader.Text = _allMode ? strings["Main.Overlay.ColDamage"] : _healMode ? "HPS" : _takenMode ? "DTPS" : "DPS";
+        // with a target chosen (a boss fight) the rate is the damage over the target's fight, the same window for everyone: the iDPS
+        OverlayRateHeader.Text = _allMode ? strings["Main.Overlay.ColDamage"] : _healMode ? "HPS" : _takenMode ? "DTPS" : _selectedTargetId is not null && !_pvpOnly ? "iDPS" : "DPS";
         OverlayShareHeader.Text = _allMode ? strings["Main.Overlay.ColHeal"] : "%";
         OverlayTotalHeader.Text = _allMode ? strings["Main.Overlay.ColTaken"] : strings["Main.Overlay.ColTotal"];
         bool capturing = (_source as Aion2.Aion2PacketCombatSource)?.ServerFingerprint is not null;

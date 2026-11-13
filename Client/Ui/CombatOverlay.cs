@@ -500,7 +500,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
     {
         Opacity = 1;
         double back = Math.Clamp(OverlayDesigner.GetBackground(settings, Title), 0.0, 1.0);
-        double text = Math.Clamp(settings.OverlayForegrounds.GetValueOrDefault(Title, 1.0), 0.0, 1.0);
+        double text = Math.Clamp(OverlayDesigner.GetText(settings, Title), 0.0, 1.0);
         string? hex = settings.OverlayBackColors.GetValueOrDefault(Title);
         if (_lookBrush is null || _lookKey != (back, text, hex))
         {

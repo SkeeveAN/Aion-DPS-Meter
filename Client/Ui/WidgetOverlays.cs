@@ -143,6 +143,7 @@ public sealed class WidgetOverlayWindow : MovableOverlay
         body.Background = new SolidColorBrush(Color.FromArgb(meter ? (byte)0x99 : (byte)0xE6, panel.R, panel.G, panel.B));
         if (meter)
         {
+            content.MinWidth = 200; // the numbers need their room; narrower than this the names are tiny, which tells the player not to pull it smaller
             body.Padding = new Thickness(6, 4, 6, 4);
             body.CornerRadius = new CornerRadius(6);
         }

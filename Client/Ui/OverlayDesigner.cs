@@ -371,6 +371,10 @@ public static class OverlayDesigner
         return s.OverlayOpacities.TryGetValue(title, out value);
     }
 
+    /// <summary>How clear the text of an overlay is. Missing: 1 - but the target-of-target overlay, which faded as a whole before there were two sliders, keeps following its opacity until the text is set once.</summary>
+    internal static double GetText(MeterSettings s, string title) =>
+        s.OverlayForegrounds.TryGetValue(title, out double v) ? v : title == OverlayPlaces.TargetOfTarget ? GetBackground(s, title) : 1.0;
+
     internal static void SetBackground(MeterSettings s, string title, double value)
     {
         switch (title)
@@ -858,7 +862,7 @@ internal sealed class OpacityPanel : Window
         stack.Children.Add(new TextBlock { Text = OverlayDesigner.NameOf(title), Foreground = OverlayDesigner.Text, FontWeight = FontWeights.SemiBold, FontSize = 14, Margin = new Thickness(0, 0, 0, 8) });
         if (split)
         {
-            stack.Children.Add(Row(loc["Designer.Content"], settings.OverlayForegrounds.GetValueOrDefault(title, 1.0), v =>
+            stack.Children.Add(Row(loc["Designer.Content"], OverlayDesigner.GetText(settings, title), v =>
             {
                 var s = MeterSettings.Load();
                 s.OverlayForegrounds[title] = v;
