@@ -37,6 +37,9 @@ public static class WidgetKind
 
     public static void RaiseMeterModeChanged() => MeterModeChanged?.Invoke();
 
+    /// <summary>The overlays are hidden (the window mode: the app is up and no overlay stands over the game); the widget overlays follow it like the others, except while the overlay designer is on.</summary>
+    public static bool OverlaysHidden { get; set; }
+
     public static bool IsOverlayTitle(string title) => title.StartsWith(OverlayPrefix, StringComparison.Ordinal);
 
     public static string IdOfTitle(string title) => title[OverlayPrefix.Length..];
@@ -289,7 +292,7 @@ public sealed class WidgetOverlayController : IDisposable
             }
 
             window.ApplyLockedIfChanged(locked);
-            window.ShowOverlay(!locked || gameInFront);
+            window.ShowOverlay((!locked || gameInFront) && (!WidgetKind.OverlaysHidden || OverlayDesigner.Active));
         }
 
         foreach (string gone in _windows.Keys.Where(k => !s.WidgetOverlays.ContainsKey(k)).ToList())

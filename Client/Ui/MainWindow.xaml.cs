@@ -7436,6 +7436,7 @@ public partial class MainWindow : Window
     private void ToggleAllOverlays()
     {
         _overlayMode = !_overlayMode;
+        WidgetKind.OverlaysHidden = !_overlayMode; // the widget overlays belong to it as well
         var settings = MeterSettings.Load();
         if (!_overlayMode)
         {
@@ -7460,6 +7461,7 @@ public partial class MainWindow : Window
         ApplyHotkeyOverlay(settings);
         ApplyTimetable(settings);
         ApplyPetFarm(settings);
+        _widgetOverlays?.Tick();
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
