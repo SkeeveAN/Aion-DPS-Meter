@@ -228,7 +228,7 @@
           "minLevel": 45,
           "itemLevel": 2800,
           "players": "10",
-          "timeLimitMinutes": 60,
+          "timeLimitMinutes": 120,
           "weeklyTries": 4
         }
       }
@@ -255,7 +255,7 @@
           "minLevel": 45,
           "itemLevel": 3000,
           "players": "10",
-          "timeLimitMinutes": 60,
+          "timeLimitMinutes": 120,
           "weeklyTries": 4
         }
       },
@@ -1144,6 +1144,7 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
+          "itemLevel": 2800,
           "players": "1-5"
         }
       },
@@ -1198,6 +1199,7 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
+          "itemLevel": 2800,
           "players": "1-5"
         }
       },
