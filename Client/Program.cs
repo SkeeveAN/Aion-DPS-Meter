@@ -858,6 +858,14 @@ internal static class Program
 
         var directory = new Aion2.Aion2EntityDirectory();
         directory.RestoreFrom(saved);
+        if (Environment.GetEnvironmentVariable("AIONDPS_STATS") is { Length: > 0 } statText)
+        {
+            // "id=value,..." as the stat frame carries them (for pictures of the stats card)
+            var frameValues = statText.Split(',').Select(p => p.Split('=')).ToDictionary(p => int.Parse(p[0]), p => int.Parse(p[1]));
+            directory.SetLocalAttributes(frameValues.Where(p => p.Key is >= Aion2.Aion2Attributes.FirstId and <= Aion2.Aion2Attributes.LastId).ToDictionary(p => p.Key, p => p.Value));
+            directory.SetLocalStats(frameValues);
+        }
+
         var window = new Ui.CharacterWindow(directory);
         window.ShowTab(tab);
         // AIONDPS_OTHER = "name|class code|level|item level|server id|legion" shows another character of the account instead; AIONDPS_OTHER_JSON is the file with
@@ -878,7 +886,7 @@ internal static class Program
             window.ShowOtherForPicture(f[0], remote);
         }
 
-        const double width = 1180, height = 1000;
+        double width = Environment.GetEnvironmentVariable("AIONDPS_STATS") is { Length: > 0 } ? 1900 : 1180, height = 1000;
         // a Window cannot be the child of a border: its content (the page inside the window's chrome) is drawn instead
         System.Windows.UIElement? inner = window.Content as System.Windows.UIElement;
         window.Content = null;
