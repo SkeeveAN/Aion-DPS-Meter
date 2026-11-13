@@ -132,6 +132,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-alpha.12: the new interface - the header lost the logo and name (the tabs start at the left, the title bar shows the name and the version), buttons for the update (only when there is one, in the orange of the theme), Twitch drops (Twitch purple, while drops run or start within a week) and the announcements, with a New tag until clicked; drops and announcements open in an app window of their own; footer with the update check and always on top; the dashboard has several dashboards (rename, delete, a plus for a new one), every page of the app can stand on a dashboard as a widget, widgets snap to each other, the plus is a round button; world bosses are listed one by one with their position; the old meter window is never seen",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
