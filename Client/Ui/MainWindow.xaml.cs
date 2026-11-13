@@ -260,6 +260,14 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        if (!Headless && MeterSettings.Load().OpenHubAtStart)
+        {
+            // never seen: no flash of the old window before the new one opens, and no taskbar entry of its own
+            Opacity = 0;
+            ShowInTaskbar = false;
+            ShowActivated = false;
+        }
+
         AppMenu.Tag = _uploadFlags;
         _sessions.Identify = IdentifyForSession;
         _sessions.IdentifyPlayer = IdentifyPlayerForSession;
@@ -2425,16 +2433,13 @@ public partial class MainWindow : Window
         ApplyClassFilterAvailability();
         LocalizationManager.Instance.PropertyChanged += (_, _) => LocalizeClassFilter();
 
-        // 2.0: the program starts with the new interface; the meter window stays behind it (it carries the capture and the overlays)
+        // 2.0: the program starts with the new interface; this window (it carries the capture and the overlays) is never seen
         if (!Headless && MeterSettings.Load().OpenHubAtStart)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                // the new interface is the program: the meter window goes into the tray (it carries the capture and the overlays) and closing the new window ends the program
-                _hubIsMain = true;
-                OnOpenHubClicked(this, new RoutedEventArgs());
-                _trayIcon?.HideWindow();
-            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            _hubIsMain = true;
+            OnOpenHubClicked(this, new RoutedEventArgs());
+            Hide();
+            Opacity = 1;
         }
 
         // See AppIconImage's own XAML remarks: a plain pack://siteoforigin Source silently
