@@ -45,16 +45,20 @@ public sealed class DashboardBoard : DockPanel
             Save();
         }
 
-        _add.Content = "＋";
+        _add.Content = "＋  " + loc["Hub.Dash.AddWidget"];
         _add.ToolTip = loc["Hub.Dash.AddWidget"];
-        _add.FontSize = 16;
-        _add.Padding = new Thickness(12, 2, 12, 2);
-        _add.Margin = new Thickness(0, 8, 14, 0);
+        _add.FontSize = 14;
+        _add.FontWeight = FontWeights.SemiBold;
+        _add.Padding = new Thickness(16, 6, 16, 6);
+        _add.Margin = new Thickness(0, 10, 16, 0);
+        _add.Cursor = Cursors.Hand;
+        _add.SetResourceReference(Control.BackgroundProperty, "Brush.Accent");
+        _add.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
+        _add.Foreground = new SolidColorBrush(Color.FromRgb(0x1a, 0x12, 0x00));
         _add.HorizontalAlignment = HorizontalAlignment.Right;
         _add.Click += (_, _) => ShowAddMenu();
         SetDock(_add, Dock.Top);
         Children.Add(_add);
-        _canvas.MinHeight = 600;
         _canvas.HorizontalAlignment = HorizontalAlignment.Left;
         _canvas.VerticalAlignment = VerticalAlignment.Top;
         Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _canvas });
@@ -297,8 +301,8 @@ public sealed class DashboardBoard : DockPanel
             bottom = Math.Max(bottom, p.Y + p.H);
         }
 
-        _canvas.Width = right + 40;
-        _canvas.Height = Math.Max(600, bottom + 40);
+        _canvas.Width = right + Margin8;
+        _canvas.Height = bottom + Margin8;
     }
 
     private void ShowAddMenu()
