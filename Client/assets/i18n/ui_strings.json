@@ -15673,5 +15673,41 @@
     "pt": "Cliente",
     "ja": "クライアント",
     "ko": "클라이언트"
+  },
+  "Hub.Hotkey.Overlays": {
+    "en": "Show / hide the overlays (the app goes away, only the overlays stand)",
+    "de": "Overlays anzeigen / ausblenden (die App verschwindet, nur die Overlays bleiben)",
+    "fr": "Afficher / masquer les overlays (l'application disparaît, seuls les overlays restent)",
+    "es": "Mostrar / ocultar los overlays (la app desaparece, solo quedan los overlays)",
+    "ru": "Показать / скрыть оверлеи (приложение исчезает, остаются только оверлеи)",
+    "zh": "显示 / 隐藏悬浮窗(应用消失,只留悬浮窗)",
+    "zh-TW": "顯示 / 隱藏浮層(應用程式消失,只留浮層)",
+    "pt": "Mostrar / ocultar os overlays (o app some, ficam só os overlays)",
+    "ja": "オーバーレイの表示 / 非表示(アプリは消え、オーバーレイだけが残ります)",
+    "ko": "오버레이 표시 / 숨기기(앱은 사라지고 오버레이만 남습니다)"
+  },
+  "Hub.Hotkey.Copy": {
+    "en": "Copy the fight (as the mode shows it)",
+    "de": "Kampf kopieren (wie der Modus es zeigt)",
+    "fr": "Copier le combat (comme le mode l'affiche)",
+    "es": "Copiar el combate (como lo muestra el modo)",
+    "ru": "Скопировать бой (как показывает режим)",
+    "zh": "复制战斗(按当前模式)",
+    "zh-TW": "複製戰鬥(依目前模式)",
+    "pt": "Copiar a luta (como o modo mostra)",
+    "ja": "戦闘をコピー(モードの表示どおり)",
+    "ko": "전투 복사(모드에 표시된 대로)"
+  },
+  "Hub.Hotkey.Note": {
+    "en": "Copy: damage \"Name: total (iDPS)\", healing \"Name: total (iHPS)\", damage taken \"Name: total (iTaken)\", All in One \"Name: damage (iDPS, iHPS, iTaken)\".",
+    "de": "Kopieren: Schaden „Name: gesamt (iDPS)“, Heilung „Name: gesamt (iHPS)“, Erlittener Schaden „Name: gesamt (iTaken)“, All in One „Name: Schaden (iDPS, iHPS, iTaken)“.",
+    "fr": "Copie : dégâts « Nom : total (iDPS) », soins « Nom : total (iHPS) », dégâts subis « Nom : total (iTaken) », All in One « Nom : dégâts (iDPS, iHPS, iTaken) ».",
+    "es": "Copia: daño «Nombre: total (iDPS)», curación «Nombre: total (iHPS)», daño recibido «Nombre: total (iTaken)», All in One «Nombre: daño (iDPS, iHPS, iTaken)».",
+    "ru": "Копия: урон «Имя: всего (iDPS)», лечение «Имя: всего (iHPS)», полученный урон «Имя: всего (iTaken)», All in One «Имя: урон (iDPS, iHPS, iTaken)».",
+    "zh": "复制:伤害“名称:总计 (iDPS)”,治疗“名称:总计 (iHPS)”,承受伤害“名称:总计 (iTaken)”,All in One“名称:伤害 (iDPS, iHPS, iTaken)”。",
+    "zh-TW": "複製:傷害「名稱:總計 (iDPS)」、治療「名稱:總計 (iHPS)」、承受傷害「名稱:總計 (iTaken)」、All in One「名稱:傷害 (iDPS, iHPS, iTaken)」。",
+    "pt": "Copiar: dano «Nome: total (iDPS)», cura «Nome: total (iHPS)», dano sofrido «Nome: total (iTaken)», All in One «Nome: dano (iDPS, iHPS, iTaken)».",
+    "ja": "コピー:ダメージ「名前: 合計 (iDPS)」、回復「名前: 合計 (iHPS)」、被ダメージ「名前: 合計 (iTaken)」、All in One「名前: ダメージ (iDPS, iHPS, iTaken)」。",
+    "ko": "복사: 피해 \"이름: 합계 (iDPS)\", 치유 \"이름: 합계 (iHPS)\", 받은 피해 \"이름: 합계 (iTaken)\", All in One \"이름: 피해 (iDPS, iHPS, iTaken)\"."
   }
 }

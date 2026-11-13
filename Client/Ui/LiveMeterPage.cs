@@ -21,6 +21,8 @@ public static class LiveMeterPage
       <ColumnDefinition Width='90'/>
       <ColumnDefinition Width='110'/>
       <ColumnDefinition Width='70'/>
+      <ColumnDefinition Width='90'/>
+      <ColumnDefinition Width='90'/>
     </Grid.ColumnDefinitions>
     <TextBlock Text='{Binding RankDisplay}' Foreground='{DynamicResource Brush.TextMuted}' VerticalAlignment='Center' HorizontalAlignment='Center'/>
     <StackPanel Grid.Column='1' VerticalAlignment='Center' Margin='0,0,10,0'>
@@ -31,10 +33,16 @@ public static class LiveMeterPage
     <TextBlock Grid.Column='3' Text='{Binding DpsDisplay}' FontWeight='SemiBold' Foreground='{DynamicResource Brush.Text}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
     <TextBlock Grid.Column='4' Text='{Binding DamageDisplay}' Foreground='{DynamicResource Brush.TextMuted}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
     <TextBlock Grid.Column='5' Text='{Binding ShareDisplay}' Foreground='{DynamicResource Brush.TextMuted}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
+    <TextBlock Grid.Column='6' Text='{Binding HealCompact}' Foreground='{DynamicResource Brush.Heal}' HorizontalAlignment='Right' VerticalAlignment='Center'>
+      <TextBlock.Style><Style TargetType='TextBlock'><Setter Property='Visibility' Value='Collapsed'/><Style.Triggers><DataTrigger Binding='{Binding AllMode}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger><DataTrigger Binding='{Binding AllCompact}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+    </TextBlock>
+    <TextBlock Grid.Column='7' Text='{Binding TakenCompact}' Foreground='{DynamicResource Brush.Danger}' HorizontalAlignment='Right' VerticalAlignment='Center'>
+      <TextBlock.Style><Style TargetType='TextBlock'><Setter Property='Visibility' Value='Collapsed'/><Style.Triggers><DataTrigger Binding='{Binding AllMode}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger><DataTrigger Binding='{Binding AllCompact}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+    </TextBlock>
   </Grid>
 </DataTemplate>";
 
-    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter)
+    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null)
     {
         var loc = LocalizationManager.Instance;
         var list = new ItemsControl { ItemsSource = rows, ItemTemplate = (DataTemplate)XamlReader.Parse(RowXaml) };
@@ -52,6 +60,26 @@ public static class LiveMeterPage
         var page = new DockPanel();
         DockPanel.SetDock(head, Dock.Top);
         page.Children.Add(head);
+        if (getMode is not null && setMode is not null)
+        {
+            // the mode of the list (it is also what the copy hotkey copies)
+            var chips = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(14, 10, 14, 0) };
+            string[] names = { loc["Main.ModeDamage"], loc["Main.ModeHeal"], loc["Main.ModeTaken"], loc["Main.ModeAll"], loc["Main.ModeAllCompact"] };
+            string group = "LiveMode" + Guid.NewGuid();
+            for (int i = 0; i < names.Length; i++)
+            {
+                int mode = i;
+                var chip = new RadioButton { GroupName = group, Content = names[i], IsChecked = getMode() == i, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(14, 5, 14, 5) };
+                chip.Template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse(
+                    "<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='RadioButton'><Border x:Name='Bd' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' CornerRadius='15' BorderThickness='1' BorderBrush='{DynamicResource Brush.Border}' Padding='14,5'><ContentPresenter x:Name='Cp' TextElement.Foreground='{DynamicResource Brush.TextMuted}'/></Border><ControlTemplate.Triggers><Trigger Property='IsChecked' Value='True'><Setter TargetName='Bd' Property='BorderBrush' Value='{DynamicResource Brush.Accent}'/><Setter TargetName='Cp' Property='TextElement.Foreground' Value='{DynamicResource Brush.Accent}'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
+                chip.Checked += (_, _) => setMode(mode);
+                chips.Children.Add(chip);
+            }
+
+            DockPanel.SetDock(chips, Dock.Top);
+            page.Children.Add(chips);
+        }
+
         page.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = card });
         return new ToolPage { Content = page };
     }

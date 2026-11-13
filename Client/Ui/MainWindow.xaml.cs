@@ -751,7 +751,7 @@ public partial class MainWindow : Window
                 SetPaused(!_paused);
                 break;
             case HotkeyAction.CopyDamageRanking:
-                CopyChatLineChunk(BuildDmgRankingText(), "No damage has been recorded yet.");
+                CopyChatLineChunk(BuildModeCopyText(), "No damage has been recorded yet.");
                 break;
             case HotkeyAction.ClearDamage:
                 ClearDamageData();
@@ -813,27 +813,15 @@ public partial class MainWindow : Window
             return;
         }
 
+        // only these are left: overlay designer, overlays shown / hidden (the app goes away and the overlays stand, or the app is back and they are gone), pause, clear, upload, copy
         var failed = _hotkeys.Apply(new Dictionary<HotkeyAction, HotkeyBinding>
         {
-            [HotkeyAction.ToggleHideUi] = HotkeyBinding.Parse(settings.HotkeyHideUi),
+            [HotkeyAction.ToggleOverlayDesigner] = HotkeyBinding.Parse(settings.HotkeyDesigner),
+            [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
             [HotkeyAction.TogglePause] = HotkeyBinding.Parse(settings.HotkeyPause),
-            [HotkeyAction.CopyDamageRanking] = HotkeyBinding.Parse(settings.HotkeyCopyDamage),
             [HotkeyAction.ClearDamage] = HotkeyBinding.Parse(settings.HotkeyClear),
             [HotkeyAction.UploadBoss] = HotkeyBinding.Parse(settings.HotkeyUploadBoss),
-            [HotkeyAction.NextMode] = HotkeyBinding.Parse(settings.HotkeyMode),
-            [HotkeyAction.ToggleTimetable] = HotkeyBinding.Parse(settings.HotkeyTimetable),
-            [HotkeyAction.TogglePetMap] = HotkeyBinding.Parse(settings.HotkeyPetMap),
-            [HotkeyAction.ToggleHotkeyOverlay] = HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay),
-            [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
-            [HotkeyAction.ToggleOverlayDesigner] = HotkeyBinding.Parse(settings.HotkeyDesigner),
-            [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
-            [HotkeyAction.ToggleNetworkOverlay] = HotkeyBinding.Parse(settings.HotkeyNetwork),
-            [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
-            [HotkeyAction.ToggleAssistOverlay] = HotkeyBinding.Parse(settings.HotkeyAssist),
-            [HotkeyAction.ToggleLootOverlay] = HotkeyBinding.Parse(settings.HotkeyLoot),
-            [HotkeyAction.ToggleCraftOverlay] = HotkeyBinding.Parse(settings.HotkeyCraft),
-            [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
-            [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
+            [HotkeyAction.CopyDamageRanking] = HotkeyBinding.Parse(settings.HotkeyCopyDamage),
         });
         if (failed.Count > 0)
         {
@@ -5041,6 +5029,7 @@ public partial class MainWindow : Window
                     {
                         if (_hubWindow is { IsLoaded: true } hubShown)
                         {
+                            hubShown.Show();
                             hubShown.WindowState = WindowState.Normal;
                             hubShown.Activate();
                         }
@@ -5749,6 +5738,35 @@ public partial class MainWindow : Window
         return lines;
     }
 
+    /// <summary>
+    /// The copy hotkey: the list as the chosen mode shows it, ranked by its total, "Name: total (rate)" - damage with its iDPS, healing with its iHPS, damage taken with its
+    /// iTaken; All in One (both kinds) "Name: damage (iDPS, iHPS, iTaken)". The rates are over the same span as the table's, so iHPS and iTaken follow from the damage and its rate.
+    /// </summary>
+    private List<string> BuildModeCopyText()
+    {
+        var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
+        bool all = _mode is MeterMode.All or MeterMode.AllCompact;
+        string Number(double v) => Math.Round(v).ToString("N0", DotGroupedNumberFormat);
+        var parts = new List<string>(ranked.Count);
+        foreach (PlayerRow row in ranked)
+        {
+            string rate = row.Dps is double d ? Number(d) : "n/a";
+            if (all)
+            {
+                double? seconds = row.Dps is double r && r > 0 ? row.Damage / r : null;
+                string heal = seconds is double sec && sec > 0 ? Number(row.Healing / sec) : "n/a";
+                string taken = seconds is double sec2 && sec2 > 0 ? Number(row.DamageTaken / sec2) : "n/a";
+                parts.Add($"{row.Name}: {Number(row.Damage)} ({rate}, {heal}, {taken})");
+            }
+            else
+            {
+                parts.Add($"{row.Name}: {Number(row.Damage)} ({rate})");
+            }
+        }
+
+        return ChunkChatLineParts(parts, ChatLineCharLimit);
+    }
+
     private List<string> BuildDmgRankingText()
     {
         var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
@@ -6238,7 +6256,7 @@ public partial class MainWindow : Window
                 Show();
                 WindowState = WindowState.Normal;
                 Activate();
-            });
+            }, () => (int)_mode, mode => SetMode((MeterMode)mode));
         }
 
         if (module.StartsWith("hub.cfg.", StringComparison.Ordinal))
@@ -6268,6 +6286,11 @@ public partial class MainWindow : Window
 
                 craft?.CloseEmbedded();
             });
+        }
+
+        if (module == "hub.client.NavHotkeys")
+        {
+            return new ToolPage { Content = ClientHotkeysPage.Build(applied) };
         }
 
         if (module == "hub.settings" || module.StartsWith("hub.client.", StringComparison.Ordinal))
@@ -7234,20 +7257,33 @@ public partial class MainWindow : Window
 
     /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
     /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
+    private bool _overlayMode;
+
+    /// <summary>
+    /// The one hotkey for the overlays: shown - the app goes away and only the overlays the designer set up stand; hidden - the app is back and every overlay is gone
+    /// (what was on is remembered for the next time).
+    /// </summary>
     private void ToggleAllOverlays()
     {
+        _overlayMode = !_overlayMode;
         var settings = MeterSettings.Load();
-        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay || settings.ShowCombatOverlay || settings.ShowDummyOverlay || settings.ShowAssistOverlay || settings.ShowLootOverlay;
-        if (anyOn)
+        if (!_overlayMode)
         {
             _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay, settings.ShowLootOverlay);
             settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = settings.ShowDummyOverlay = settings.ShowAssistOverlay = settings.ShowLootOverlay = false;
+            if (_hubWindow is { } shown)
+            {
+                shown.Show();
+                shown.WindowState = WindowState.Normal;
+                shown.Activate();
+            }
         }
         else
         {
             var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true, true, false, false);
             (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay, settings.ShowLootOverlay) = back;
             _overlaysSwitchedOff = null;
+            _hubWindow?.Hide();
         }
 
         settings.Save();

@@ -188,7 +188,7 @@ public sealed class ModulePage : DockPanel
         _master.IsChecked = _getOn(s);
         _syncing = false;
         string key = _getKey is null ? "" : HotkeyBinding.Parse(_getKey(s)).ToString();
-        _key.Visibility = _getKey is null ? Visibility.Collapsed : Visibility.Visible;
+        _key.Visibility = Visibility.Collapsed; // the tools have no hotkeys of their own any more
         _key.Content = key.Length > 0 ? key : LocalizationManager.Instance["Settings.Hotkey.NoKey"];
     }
 
