@@ -111,6 +111,12 @@ public partial class SettingsWindow
             content.Visibility = Visibility.Collapsed;
         }
 
+        // what is left of the card is only the explanation of the grid and the docking: their switches are in the overlay designer's bar now
+        if (FindName("OverlayLayoutCard") is FrameworkElement layoutCard)
+        {
+            layoutCard.Visibility = Visibility.Collapsed;
+        }
+
         // the "reset place" buttons (Tag = the overlay's window title)
         foreach (string panel in AllPanels)
         {

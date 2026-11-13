@@ -578,7 +578,7 @@
                                 </Grid>
                             </StackPanel>
                         </Border>
-<Border Style="{StaticResource SettingsCard}">
+<Border x:Name="OverlayLayoutCard" Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.OverlayLayout}"/>
                                 <CheckBox x:Name="OverlayGridSnapBox" Content="{local:Loc Settings.OverlayGrid}"/>
