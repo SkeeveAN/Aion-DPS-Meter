@@ -72,14 +72,14 @@ public sealed class DashboardBoard : DockPanel
         Color accent = (Application.Current?.TryFindResource("Brush.Accent") as SolidColorBrush)?.Color ?? Color.FromRgb(0xff, 0xba, 0x42);
         var fill = new RadialGradientBrush { GradientOrigin = new Point(0.5, 0.5), Center = new Point(0.5, 0.5), RadiusX = 0.55, RadiusY = 0.55 };
         fill.GradientStops.Add(new GradientStop(Color.FromArgb(0x10, accent.R, accent.G, accent.B), 0.0));
-        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0x55, accent.R, accent.G, accent.B), 0.65));
-        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0xdd, accent.R, accent.G, accent.B), 1.0));
+        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0x30, accent.R, accent.G, accent.B), 0.65));
+        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0x70, accent.R, accent.G, accent.B), 1.0));
         var plus = new TextBlock { Text = "＋", FontSize = 22, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, -2, 0, 0) };
         plus.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
         _add.Width = 44;
         _add.Height = 44;
         _add.CornerRadius = new CornerRadius(22);
-        _add.BorderThickness = new Thickness(3);
+        _add.BorderThickness = new Thickness(1.5);
         _add.Background = fill;
         _add.Child = plus;
         _add.ToolTip = loc["Hub.Dash.AddWidget"];

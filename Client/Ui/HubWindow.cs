@@ -295,20 +295,23 @@ public sealed class HubWindow : Window
         var right = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(right, 1);
 
-        _updateText = new TextBlock { Text = "⟳  " + loc["Hub.Dash.CheckNow"], Foreground = Muted, FontSize = 12, VerticalAlignment = VerticalAlignment.Center };
-        var update = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 8, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = _updateText, IsEnabled = AionDPS.Update.UpdateService.CanUpdate };
+        // icons only, the words are the tooltips; after a click the answer stands beside the icons for a moment
+        _updateText = new TextBlock { Text = "", Foreground = Muted, FontSize = 12, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+        right.Children.Add(_updateText);
+        var refresh = new TextBlock { Text = "\uE72C", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 20, Foreground = Muted, VerticalAlignment = VerticalAlignment.Center };
+        var update = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 4, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = refresh, ToolTip = loc["Hub.Dash.CheckNow"], IsEnabled = AionDPS.Update.UpdateService.CanUpdate, Opacity = AionDPS.Update.UpdateService.CanUpdate ? 1.0 : 0.4 };
         update.MouseEnter += (_, _) => update.Background = Hover;
         update.MouseLeave += (_, _) => update.Background = Brushes.Transparent;
         update.MouseLeftButtonUp += (_, _) => FooterUpdateClick();
         right.Children.Add(update);
 
         // two windows over each other, the front one filled: "this one stays in front"
-        var back = new System.Windows.Shapes.Rectangle { Width = 10, Height = 8, Stroke = Muted, StrokeThickness = 1.3, RadiusX = 1, RadiusY = 1, Margin = new Thickness(0, 0, 0, 5), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-        var front = new System.Windows.Shapes.Rectangle { Width = 10, Height = 8, Stroke = Muted, Fill = Navy, StrokeThickness = 1.3, RadiusX = 1, RadiusY = 1, Margin = new Thickness(5, 5, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-        var pinIcon = new Grid { Width = 17, Height = 15 };
+        var back = new System.Windows.Shapes.Rectangle { Width = 13, Height = 10, Stroke = Muted, StrokeThickness = 1.5, RadiusX = 1.5, RadiusY = 1.5, Margin = new Thickness(0, 0, 0, 6), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        var front = new System.Windows.Shapes.Rectangle { Width = 13, Height = 10, Stroke = Muted, Fill = Navy, StrokeThickness = 1.5, RadiusX = 1.5, RadiusY = 1.5, Margin = new Thickness(7, 7, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+        var pinIcon = new Grid { Width = 22, Height = 19 };
         pinIcon.Children.Add(back);
         pinIcon.Children.Add(front);
-        var tick = new TextBlock { Text = "✓", FontSize = 12, FontWeight = FontWeights.Bold, Foreground = Frozen("#3ddc84"), Margin = new Thickness(3, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+        var tick = new TextBlock { Text = "✓", FontSize = 15, FontWeight = FontWeights.Bold, Foreground = Frozen("#3ddc84"), Margin = new Thickness(3, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
         var pinRow = new StackPanel { Orientation = Orientation.Horizontal };
         pinRow.Children.Add(pinIcon);
         pinRow.Children.Add(tick);
@@ -342,6 +345,7 @@ public sealed class HubWindow : Window
     /// <summary>The first click looks for an update; with one found the same button downloads it and restarts.</summary>
     private async void FooterUpdateClick()
     {
+        // the icon stands for the check; the words are the tooltip
         LocalizationManager loc = LocalizationManager.Instance;
         if (_updateText is null || !AionDPS.Update.UpdateService.CanUpdate)
         {
@@ -359,7 +363,7 @@ public sealed class HubWindow : Window
 
             _updateText.Text = loc["Hub.Dash.Checking"];
             _footerUpdate = await AionDPS.Update.UpdateService.CheckAsync();
-            _updateText.Text = _footerUpdate is null ? "✓  " + loc["Hub.Dash.UpToDate"] : "⭳  " + loc["Hub.Dash.Version"] + " " + _footerUpdate.TargetFullRelease.Version + " – " + loc["Hub.Dash.InstallRestart"];
+            _updateText.Text = _footerUpdate is null ? "✓  " + loc["Hub.Dash.UpToDate"] : loc["Hub.Dash.Version"] + " " + _footerUpdate.TargetFullRelease.Version + " – " + loc["Hub.Dash.InstallRestart"];
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
