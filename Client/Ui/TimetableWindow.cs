@@ -23,7 +23,6 @@ public sealed class TimetableWindow : Window
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _panel;
     private readonly DockPanel _header;
-    private readonly Border _close;
     private readonly OverlayEdgeResize _edges;
     private bool _locked = true;
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
@@ -54,28 +53,10 @@ public sealed class TimetableWindow : Window
                 SavePosition();
             }
         };
-        var close = new Border { Padding = new Thickness(3, 2, 3, 2), CornerRadius = new CornerRadius(3), Cursor = Cursors.Hand, Background = Brushes.Transparent,
-            ToolTip = LocalizationManager.Instance["Main.Overlay.Close"] };
-        var closeGlyph = new TextBlock { Text = "", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 10, VerticalAlignment = VerticalAlignment.Center };
-        closeGlyph.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
-        close.Child = closeGlyph;
-        close.MouseEnter += (_, _) => close.Background = new SolidColorBrush(Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF));
-        close.MouseLeave += (_, _) => close.Background = Brushes.Transparent;
-        close.MouseLeftButtonDown += (_, e) =>
-        {
-            e.Handled = true;
-            var s = MeterSettings.Load();
-            s.ShowTimetable = false;
-            s.Save();
-            Hide();
-        };
-        DockPanel.SetDock(close, Dock.Right);
         var title = new TextBlock { FontWeight = FontWeights.Bold, FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Tag = "title" };
         title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
-        header.Children.Add(close);
         header.Children.Add(title);
         _header = header;
-        _close = close;
 
         var stack = new StackPanel();
         stack.Children.Add(header);
@@ -111,6 +92,15 @@ public sealed class TimetableWindow : Window
         OverlayPlaces.WasReset += onReset;
         Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
         OverlayDocking.Attach(this, SavePosition);
+        // the overlay designer: a right-click opens how clear it is, and "Hide" takes it off the screen (like every other overlay)
+        MouseRightButtonUp += (_, e) =>
+        {
+            if (!_locked && OverlayDesigner.Active)
+            {
+                OverlayDesigner.ShowOpacityPanel(this);
+                e.Handled = true;
+            }
+        };
     }
 
     /// <summary>Place, width and scale from the settings again (after "reset size and position").</summary>
@@ -123,11 +113,10 @@ public sealed class TimetableWindow : Window
         Top = s.TimetableTop ?? 120;
     }
 
-    /// <summary>Locked: click-through, no close button, no handles. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
+    /// <summary>Locked: click-through, no handles (the overlay designer takes it off the screen, like every other overlay). Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
     public void ApplyLocked(bool locked)
     {
         _locked = locked;
-        _close.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
         _edges.Show(!locked);
         _header.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _panel.BorderThickness = new Thickness(1);

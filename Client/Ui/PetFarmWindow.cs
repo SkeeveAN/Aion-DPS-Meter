@@ -80,6 +80,15 @@ public sealed class PetFarmWindow : Window
         SizeChanged += (_, e) => { if (!_resizing) { Left = _centerX - e.NewSize.Width / 2; } }; // keep the middle in place when the text changes
         Top = settings.PetFarmTop ?? 140;
         ApplyLocked(settings.PetInfoLocked);
+        // the overlay designer: a right-click opens how clear it is and "Hide"
+        MouseRightButtonUp += (_, e) =>
+        {
+            if (!_locked && OverlayDesigner.Active)
+            {
+                OverlayDesigner.ShowOpacityPanel(this);
+                e.Handled = true;
+            }
+        };
         Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
         OverlayPlaces.WasReset += onReset;
         Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
