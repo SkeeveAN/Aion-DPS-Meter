@@ -245,6 +245,23 @@ public sealed class WidgetOverlayController : IDisposable
             return;
         }
 
+        // the live meter overlay of the first betas was the page "Live-Meter"; it is the meter widget now (same place, same size)
+        if (s.WidgetOverlays.TryGetValue("page:live", out WidgetOverlayPlace? oldMeter))
+        {
+            if (!s.WidgetOverlays.ContainsKey("meter"))
+            {
+                s.WidgetOverlays["meter"] = oldMeter;
+            }
+
+            s.WidgetOverlays.Remove("page:live");
+            if (_windows.Remove("page:live", out WidgetOverlayWindow? oldWindow))
+            {
+                oldWindow.Close();
+            }
+
+            s.Save();
+        }
+
         bool locked = s.WidgetOverlaysLocked;
         bool gameInFront = GameWindow.ForegroundClientArea() is not null;
         foreach (var (id, place) in s.WidgetOverlays)
