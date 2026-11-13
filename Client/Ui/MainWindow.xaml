@@ -1463,11 +1463,12 @@
                         </Border.Style>
                         <Grid>
                         <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding AbsorbedFillPercent, Mode=OneWay}"
-                                     Foreground="#993AA0FF"
+                                     Foreground="#993AA0FF" Margin="-8,0,-8,0"
                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                         <Border Style="{StaticResource TeamStripe}" Margin="-8,-3,0,-3"/>
+                        <!-- the bar begins at the very left edge of the chip, not after its padding -->
                         <ProgressBar Style="{StaticResource TeamFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
-                                     Foreground="{Binding ClassBrush}"
+                                     Foreground="{Binding ClassBrush}" Margin="-8,0,-8,0"
                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                         <StackPanel VerticalAlignment="Center">
                             <!-- Same fixed columns as the window's row: rank, class icon, name, then DPS and
