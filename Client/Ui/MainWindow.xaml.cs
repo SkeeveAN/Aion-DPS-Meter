@@ -6167,6 +6167,17 @@ public partial class MainWindow : Window
         var list = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = CompactOverlayRows.ItemTemplate };
         Grid.SetIsSharedSizeScope(list, true);
         var stack = new StackPanel();
+        // the mode is chosen here, in the overlay designer, directly on the widget - not while the game is played
+        UIElement modeChoice = OpacityPanel.ModeRow(LocalizationManager.Instance, () => (int)_mode, m => SetMode((MeterMode)m));
+        var modeHost = new Border { Child = modeChoice, Margin = new Thickness(4, 0, 4, 4), Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
+        Action showMode = () => modeHost.Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
+        stack.Loaded += (_, _) =>
+        {
+            OverlayDesigner.ActiveChanged += showMode;
+            showMode();
+        };
+        stack.Unloaded += (_, _) => OverlayDesigner.ActiveChanged -= showMode;
+        stack.Children.Add(modeHost);
         stack.Children.Add(head);
         stack.Children.Add(legend);
         stack.Children.Add(list);

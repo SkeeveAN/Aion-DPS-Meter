@@ -67,6 +67,9 @@ public static class OverlayDesigner
 
     public static bool Active { get; private set; }
 
+    /// <summary>The designer came on or went off (the live meter widget shows its mode buttons only while it is on).</summary>
+    public static event Action? ActiveChanged;
+
     /// <summary>Switches the mode on or off. <paramref name="refresh"/> makes the overlays read the settings again (called after every change).</summary>
     public static void Toggle(Action refresh)
     {
@@ -86,6 +89,7 @@ public static class OverlayDesigner
         _saved = LockProps.Select(p => p.GetValue(disk)).ToArray();
         _refresh = refresh;
         Active = true;
+        ActiveChanged?.Invoke();
         _backdrop = new DesignerBackdrop();
         _bar = new DesignerBar(refresh);
         _plus = new DesignerPlus(refresh);
@@ -108,6 +112,7 @@ public static class OverlayDesigner
     private static void End()
     {
         Active = false;
+        ActiveChanged?.Invoke();
         OverlayDocking.GuideChanged -= OnGuide;
         _tick?.Stop();
         _tick = null;
@@ -880,7 +885,7 @@ internal sealed class OpacityPanel : Window
         }));
         if (title == WidgetKind.OverlayPrefix + "meter" && WidgetKind.MeterMode is { } getMode && WidgetKind.SetMeterMode is { } setMode)
         {
-            stack.Children.Insert(1, ModeRow(loc, getMode, setMode));
+            stack.Children.Insert(1, OpacityPanel.ModeRow(loc, getMode, setMode));
         }
 
         if (split)
@@ -927,7 +932,7 @@ internal sealed class OpacityPanel : Window
     }
 
     /// <summary>What the live meter shows: the player picks the mode here (damage, healing, damage taken, all in one).</summary>
-    private static UIElement ModeRow(LocalizationManager loc, Func<int> getMode, Action<int> setMode)
+    internal static UIElement ModeRow(LocalizationManager loc, Func<int> getMode, Action<int> setMode)
     {
         var host = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
         host.Children.Add(new TextBlock { Text = loc["Designer.MeterMode"], Foreground = OverlayDesigner.Muted, FontSize = 11, Margin = new Thickness(0, 0, 0, 4) });
