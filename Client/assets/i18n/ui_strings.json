@@ -16261,5 +16261,17 @@
     "pt": "Resources",
     "ja": "Resources",
     "ko": "Resources"
+  },
+  "Character.Source.Rest": {
+    "en": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "de": "Grundwert, Levelpunkte, Titel, Daevanion u. a. (das Spiel sendet sie nicht einzeln)",
+    "fr": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "es": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "ru": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "zh": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "zh-TW": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "pt": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "ja": "Base value, level points, titles, Daevanion and others (the game does not send them apart)",
+    "ko": "Base value, level points, titles, Daevanion and others (the game does not send them apart)"
   }
 }

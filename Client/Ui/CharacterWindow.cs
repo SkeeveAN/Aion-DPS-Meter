@@ -1037,6 +1037,37 @@ public sealed class CharacterWindow : Window
         return page;
     }
 
+    /// <summary>Where an attribute's number comes from, as far as the stream shows it: the rolled bonuses of the worn items (one line each), and the rest (base value of the level, points, titles, Daevanion ...), which the game does not send apart.</summary>
+    private string AttributeSources(int statId, int total)
+    {
+        var lines = new List<string>();
+        int fromItems = 0;
+        foreach (Aion2EquippedItem item in _directory.LocalEquipment)
+        {
+            foreach (Aion2RolledStat rolled in item.Stats ?? Array.Empty<Aion2RolledStat>())
+            {
+                if (rolled.StatId != statId || rolled.Value == 0)
+                {
+                    continue;
+                }
+
+                Aion2ItemInfo? info = Aion2ItemCatalog.Find(item.ItemId);
+                lines.Add($"{(rolled.Value > 0 ? "+" : "")}{rolled.Value}  {info?.Name ?? "#" + item.ItemId}{(info is null ? "" : " (" + info.Slot + ")")}");
+                fromItems += (int)rolled.Value;
+            }
+        }
+
+        lines.Sort((a, b) => string.CompareOrdinal(b, a));
+        int rest = total - fromItems;
+        if (rest != 0 || lines.Count == 0)
+        {
+            lines.Add($"{(rest > 0 ? "+" : "")}{rest}  {Loc("Character.Source.Rest")}");
+        }
+
+        lines.Add($"= {total}");
+        return string.Join("\n", lines);
+    }
+
     private sealed record SheetRow(Dictionary<string, string> Names, string Fmt, int Id, int Mult, int Div, List<(int Id, double Weight)>? Sum, bool Ceil = false);
 
     private sealed record SheetGroup(string Id, List<SheetRow> Rows);
@@ -1279,7 +1310,7 @@ public sealed class CharacterWindow : Window
         for (int i = 0; i < Lords.Length; i++)
         {
             (string key, int id) = Lords[i];
-            var stack = new Grid { Width = 84, Height = 76, ToolTip = $"{Loc("Character.Attr." + key)} [{Loc("Character.Lord." + key)}]" };
+            var stack = new Grid { Width = 84, Height = 76, ToolTip = $"{Loc("Character.Attr." + key)} [{Loc("Character.Lord." + key)}]\n{AttributeSources(id, value(id))}" };
             stack.RowDefinitions.Add(new RowDefinition { Height = new GridLength(LordIcon) });
             stack.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             var icon = new Grid { Width = LordIcon, Height = LordIcon, VerticalAlignment = VerticalAlignment.Top };
@@ -1308,7 +1339,7 @@ public sealed class CharacterWindow : Window
         for (int i = 0; i < MainAttributes.Length; i++)
         {
             (string key, int id) = MainAttributes[i];
-            var stack = new Grid { Width = 84, Height = 72, ToolTip = Loc("Character.Attr." + key) };
+            var stack = new Grid { Width = 84, Height = 72, ToolTip = Loc("Character.Attr." + key) + "\n" + AttributeSources(id, value(id)) };
             stack.RowDefinitions.Add(new RowDefinition { Height = new GridLength(MainIcon) });
             stack.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             var icon = new Grid { Width = MainIcon, Height = MainIcon, VerticalAlignment = VerticalAlignment.Top };
