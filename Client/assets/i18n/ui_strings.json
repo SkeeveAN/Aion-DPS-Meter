@@ -15445,5 +15445,41 @@
     "pt": "Sem horários atuais: abra a lista de chefes de campo no mapa do jogo.",
     "ja": "最新の時刻なし:ゲーム内マップでフィールドボスの一覧を開いてください。",
     "ko": "최신 시간 없음: 게임 내 지도에서 필드 보스 목록을 여세요."
+  },
+  "Hub.Dash.AddWidget": {
+    "en": "Add a widget",
+    "de": "Widget hinzufügen",
+    "fr": "Ajouter un widget",
+    "es": "Añadir un widget",
+    "ru": "Добавить виджет",
+    "zh": "添加小组件",
+    "zh-TW": "新增小工具",
+    "pt": "Adicionar widget",
+    "ja": "ウィジェットを追加",
+    "ko": "위젯 추가"
+  },
+  "Hub.Dash.RemoveWidget": {
+    "en": "Remove from the dashboard",
+    "de": "Vom Dashboard entfernen",
+    "fr": "Retirer du tableau de bord",
+    "es": "Quitar del panel",
+    "ru": "Убрать с обзора",
+    "zh": "从总览移除",
+    "zh-TW": "從總覽移除",
+    "pt": "Remover do painel",
+    "ja": "ダッシュボードから外す",
+    "ko": "대시보드에서 제거"
+  },
+  "Hub.Dash.AddNone": {
+    "en": "All widgets are on the dashboard.",
+    "de": "Alle Widgets sind auf dem Dashboard.",
+    "fr": "Tous les widgets sont sur le tableau de bord.",
+    "es": "Todos los widgets están en el panel.",
+    "ru": "Все виджеты уже на обзоре.",
+    "zh": "所有小组件都在总览上。",
+    "zh-TW": "所有小工具都在總覽上。",
+    "pt": "Todos os widgets estão no painel.",
+    "ja": "すべてのウィジェットが表示されています。",
+    "ko": "모든 위젯이 대시보드에 있습니다."
   }
 }

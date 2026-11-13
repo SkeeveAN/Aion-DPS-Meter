@@ -21,6 +21,12 @@ public static class HubDashboard
 
     public static ToolPage Build(string page, DashboardSources src)
     {
+        if (page is not ("fights" or "best" or "updates" or "news"))
+        {
+            var board = new DashboardBoard(src);
+            return new ToolPage { Content = board, Cleanup = board.Stop };
+        }
+
         var wrap = new WrapPanel { Margin = new Thickness(8, 8, 8, 20) };
         var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(page is "updates" or "news" ? 5 : 1) };
         bool built = false;
@@ -40,8 +46,8 @@ public static class HubDashboard
                 case "fights": Fights(wrap, src, now); break;
                 case "best": Best(wrap, src); break;
                 case "updates": Updates(wrap, src); break;
-                case "news": News(wrap); break;
-                default: Overview(wrap, src, now); break;
+                case "news": News(wrap, src); break;
+                default: break;
             }
         }
 
@@ -53,25 +59,66 @@ public static class HubDashboard
 
     // ───────────────────────────── overview ─────────────────────────────
 
-    private static void Overview(WrapPanel wrap, DashboardSources src, DateTime now)
+    /// <summary>The widgets of the overview: id, title key, the page the arrow leads to (null: none), what it shows and its first size.</summary>
+    internal sealed record Widget(string Id, string TitleKey, string? Opens, double W, double H, bool Static);
+
+    internal static readonly Widget[] Widgets =
+    {
+        new("connection", "Hub.Dash.Connection", null, 420, 170, false),
+        new("todo", "Hub.Dash.TodoTitle", "checklist", 420, 190, false),
+        new("soon", "Hub.Dash.Soon", "timetable", 520, 290, false),
+        new("bosses", "Settings.Nav.Boss", "boss", 520, 250, false),
+        new("figures", "Hub.Dash.Figures", null, 420, 170, false),
+        new("last", "Hub.Dash.Last", "sessions", 520, 170, false),
+        new("update", "Hub.Dash.Update", null, 420, 190, true),
+        new("announcements", "Hub.Dash.Announcements", null, 420, 170, true),
+        new("drops", "Hub.Dash.Drops", null, 420, 170, true),
+    };
+
+    /// <summary>The body of one widget, drawn from the live data.</summary>
+    internal static UIElement WidgetBody(string id, DashboardSources src, DateTime now)
     {
         var loc = LocalizationManager.Instance;
-        var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, TimeSpan.FromHours(3));
-        var sessions = src.Sessions();
-        var attempts = sessions.SelectMany(s => AttemptsOf(s)).ToList();
-        var total = TimeSpan.FromSeconds(sessions.Sum(s => s.Duration(now).TotalSeconds));
-        var bestDps = attempts.Where(a => a.Duration.TotalSeconds >= 10).Select(a => (double?)(a.Counted / a.Duration.TotalSeconds)).DefaultIfEmpty(null).Max();
-        wrap.Children.Add(Card(loc["Hub.Dash.Connection"], Connection(src.Status(), loc), 420));
-        wrap.Children.Add(Card(loc["Hub.Dash.TodoTitle"], Todo(loc, src.OpenTool), 420, () => src.OpenTool("checklist")));
-        wrap.Children.Add(Card(loc["Hub.Dash.Soon"], Events(active, soon, now, loc), 520, () => src.OpenTool("timetable")));
-        wrap.Children.Add(Card(loc["Settings.Nav.Boss"], Bosses(now, loc), 520, () => src.OpenTool("boss")));
-        var figures = new StackPanel();
-        figures.Children.Add(Line(loc["Hub.Dash.Recording"], WorldBossText.Duration(total)));
-        figures.Children.Add(Line(loc["Hub.Dash.Sessions"], sessions.Count.ToString()));
-        figures.Children.Add(Line(loc["Hub.Dash.BossFights"], attempts.Count.ToString()));
-        figures.Children.Add(Line(loc["Hub.Dash.BestDps"], bestDps is double d ? d.ToString("N0") : "–"));
-        wrap.Children.Add(Card(loc["Hub.Dash.Figures"], figures, 420));
-        wrap.Children.Add(Card(loc["Hub.Dash.Last"], LastFight(attempts, loc), 520, src.OpenSessions));
+        switch (id)
+        {
+            case "connection": return Connection(src.Status(), loc);
+            case "todo": return Todo(loc, src.OpenTool);
+            case "soon":
+            {
+                var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, TimeSpan.FromHours(3));
+                return Events(active, soon, now, loc);
+            }
+
+            case "bosses": return Bosses(now, loc);
+            case "figures":
+            {
+                var sessions = src.Sessions();
+                var attempts = sessions.SelectMany(s => AttemptsOf(s)).ToList();
+                var total = TimeSpan.FromSeconds(sessions.Sum(s => s.Duration(now).TotalSeconds));
+                var bestDps = attempts.Where(a => a.Duration.TotalSeconds >= 10).Select(a => (double?)(a.Counted / a.Duration.TotalSeconds)).DefaultIfEmpty(null).Max();
+                var figures = new StackPanel();
+                figures.Children.Add(Line(loc["Hub.Dash.Recording"], WorldBossText.Duration(total)));
+                figures.Children.Add(Line(loc["Hub.Dash.Sessions"], sessions.Count.ToString()));
+                figures.Children.Add(Line(loc["Hub.Dash.BossFights"], attempts.Count.ToString()));
+                figures.Children.Add(Line(loc["Hub.Dash.BestDps"], bestDps is double d ? d.ToString("N0") : "–"));
+                return figures;
+            }
+
+            case "last": return LastFight(src.Sessions().SelectMany(s => AttemptsOf(s)).ToList(), loc);
+            case "update": return UpdateBody(src, loc);
+            case "announcements":
+                return NewsCard(loc["Hub.Dash.AnnouncementsText"], Announcements.AnnouncementsClient.PageUrl, async () =>
+                {
+                    long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
+                    return latest is null ? loc["Hub.Dash.CheckFailed"] : Announcements.AnnouncementsClient.IsNew(latest, MeterSettings.Load().AnnouncementsSeen) ? loc["Hub.Dash.NewOnes"] : loc["Hub.Dash.NothingNew"];
+                }, loc);
+            default:
+                return NewsCard(loc["Hub.Dash.DropsText"], Announcements.TwitchDropsClient.PageUrl, async () =>
+                {
+                    var status = await Announcements.TwitchDropsClient.GetStatusAsync();
+                    return status is null ? loc["Hub.Dash.CheckFailed"] : status.Value.Running ? loc["Hub.Dash.DropsRunning"] : loc["Hub.Dash.NothingNew"];
+                }, loc);
+        }
     }
 
     private static UIElement Connection(HubStatus status, LocalizationManager loc)
@@ -296,6 +343,11 @@ public static class HubDashboard
     private static void Updates(WrapPanel wrap, DashboardSources src)
     {
         var loc = LocalizationManager.Instance;
+        wrap.Children.Add(Card(loc["Hub.Dash.Update"], UpdateBody(src, loc), 520));
+    }
+
+    private static UIElement UpdateBody(DashboardSources src, LocalizationManager loc)
+    {
         var stack = new StackPanel();
         stack.Children.Add(Line(loc["Hub.Dash.Version"], src.Version));
         var status = Text(UpdateService.CanUpdate ? loc["Hub.Dash.Checking"] : loc["Hub.Dash.NotInstalled"], false, "Brush.TextMuted");
@@ -309,7 +361,7 @@ public static class HubDashboard
         var changelog = new Button { Content = loc["Hub.Dash.Changelog"], Padding = new Thickness(14, 4, 14, 4), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
         changelog.Click += (_, _) => OpenUrl("https://aiondps.com/changelog");
         stack.Children.Add(changelog);
-        wrap.Children.Add(Card(loc["Hub.Dash.Update"], stack, 520));
+        return stack;
     }
 
     private static async Task CheckUpdateAsync(TextBlock status, LocalizationManager loc)
@@ -325,19 +377,11 @@ public static class HubDashboard
         }
     }
 
-    private static void News(WrapPanel wrap)
+    private static void News(WrapPanel wrap, DashboardSources src)
     {
         var loc = LocalizationManager.Instance;
-        wrap.Children.Add(Card(loc["Hub.Dash.Announcements"], NewsCard(loc["Hub.Dash.AnnouncementsText"], Announcements.AnnouncementsClient.PageUrl, async () =>
-        {
-            long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
-            return latest is null ? loc["Hub.Dash.CheckFailed"] : Announcements.AnnouncementsClient.IsNew(latest, MeterSettings.Load().AnnouncementsSeen) ? loc["Hub.Dash.NewOnes"] : loc["Hub.Dash.NothingNew"];
-        }, loc), 520));
-        wrap.Children.Add(Card(loc["Hub.Dash.Drops"], NewsCard(loc["Hub.Dash.DropsText"], Announcements.TwitchDropsClient.PageUrl, async () =>
-        {
-            var status = await Announcements.TwitchDropsClient.GetStatusAsync();
-            return status is null ? loc["Hub.Dash.CheckFailed"] : status.Value.Running ? loc["Hub.Dash.DropsRunning"] : loc["Hub.Dash.NothingNew"];
-        }, loc), 520));
+        wrap.Children.Add(Card(loc["Hub.Dash.Announcements"], WidgetBody("announcements", src, DateTime.Now), 520));
+        wrap.Children.Add(Card(loc["Hub.Dash.Drops"], WidgetBody("drops", src, DateTime.Now), 520));
     }
 
     private static UIElement NewsCard(string text, string url, Func<Task<string>> ask, LocalizationManager loc)
@@ -380,7 +424,7 @@ public static class HubDashboard
 
     // ───────────────────────────── building blocks ─────────────────────────────
 
-    private static Border Card(string title, UIElement body, double width, Action? open = null)
+    internal static Border Card(string title, UIElement body, double width, Action? open = null)
     {
         var stack = new StackPanel();
         var head = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
@@ -404,7 +448,7 @@ public static class HubDashboard
         return card;
     }
 
-    private static TextBlock Text(string text, bool bold = false, string brush = "Brush.Text", double size = 13)
+    internal static TextBlock Text(string text, bool bold = false, string brush = "Brush.Text", double size = 13)
     {
         var block = new TextBlock { Text = text, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, FontSize = size, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = size < 13 || brush == "Brush.TextMuted" ? TextWrapping.Wrap : TextWrapping.NoWrap };
         block.SetResourceReference(TextBlock.ForegroundProperty, brush);

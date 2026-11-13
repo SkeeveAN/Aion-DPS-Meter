@@ -431,6 +431,9 @@ public sealed class MeterSettings
     /// <summary>Per event id: shown in the timetable overlay or not, and the reminder sound (empty = none) with its volume. An event without an entry is shown, without sound.</summary>
     public Dictionary<string, TimetableEventSetting> TimetableEvents { get; set; } = new();
 
+    /// <summary>The widgets on the dashboard of the new interface and where they stand (a widget that is not in the list is not on the dashboard); empty = the first layout.</summary>
+    public Dictionary<string, DashboardPlace> Dashboard { get; set; } = new();
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 
@@ -931,4 +934,13 @@ public sealed class PopOutPlace
 
     /// <summary>The window is to come back at the next start.</summary>
     public bool Open { get; set; }
+}
+
+/// <summary>Place and size of one dashboard widget, in pixels of the dashboard.</summary>
+public sealed class DashboardPlace
+{
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double W { get; set; } = 420;
+    public double H { get; set; } = 180;
 }
