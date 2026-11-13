@@ -17,7 +17,7 @@ public sealed class DashboardBoard : DockPanel
     private readonly Canvas _canvas = new();
     private readonly Dictionary<string, (Border Frame, Border Body)> _frames = new();
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
-    private readonly Button _add = new();
+    private readonly Border _add = new();
     private readonly WrapPanel _tabs = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly Dictionary<string, UIElement> _cached = new();
     private readonly Dictionary<string, ToolPage> _pages = new();
@@ -68,17 +68,27 @@ public sealed class DashboardBoard : DockPanel
         _places = _sets[_active].Widgets;
         Save();
 
-        _add.Content = "＋";
+        // round, a strong ring in the accent of the theme that fades towards the middle
+        Color accent = (Application.Current?.TryFindResource("Brush.Accent") as SolidColorBrush)?.Color ?? Color.FromRgb(0xff, 0xba, 0x42);
+        var fill = new RadialGradientBrush { GradientOrigin = new Point(0.5, 0.5), Center = new Point(0.5, 0.5), RadiusX = 0.55, RadiusY = 0.55 };
+        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0x10, accent.R, accent.G, accent.B), 0.0));
+        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0x55, accent.R, accent.G, accent.B), 0.65));
+        fill.GradientStops.Add(new GradientStop(Color.FromArgb(0xdd, accent.R, accent.G, accent.B), 1.0));
+        var plus = new TextBlock { Text = "＋", FontSize = 22, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, -2, 0, 0) };
+        plus.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        _add.Width = 44;
+        _add.Height = 44;
+        _add.CornerRadius = new CornerRadius(22);
+        _add.BorderThickness = new Thickness(3);
+        _add.Background = fill;
+        _add.Child = plus;
         _add.ToolTip = loc["Hub.Dash.AddWidget"];
-        _add.FontSize = 20;
-        _add.FontWeight = FontWeights.SemiBold;
-        _add.Padding = new Thickness(14, 2, 14, 4);
-        _add.Margin = new Thickness(0, 10, 16, 0);
+        _add.Margin = new Thickness(0, 6, 16, 0);
         _add.Cursor = Cursors.Hand;
-        _add.SetResourceReference(Control.BackgroundProperty, "Brush.Accent");
-        _add.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
-        _add.Foreground = new SolidColorBrush(Color.FromRgb(0x1a, 0x12, 0x00));
-        _add.Click += (_, _) => ShowAddMenu();
+        _add.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+        _add.MouseEnter += (_, _) => _add.Opacity = 0.85;
+        _add.MouseLeave += (_, _) => _add.Opacity = 1.0;
+        _add.MouseLeftButtonUp += (_, _) => ShowAddMenu();
         var top = new DockPanel { Margin = new Thickness(16, 0, 0, 0) };
         SetDock(_add, Dock.Right);
         top.Children.Add(_add);
