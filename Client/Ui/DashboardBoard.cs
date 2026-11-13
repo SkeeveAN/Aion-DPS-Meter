@@ -45,11 +45,11 @@ public sealed class DashboardBoard : DockPanel
             Save();
         }
 
-        _add.Content = "＋  " + loc["Hub.Dash.AddWidget"];
+        _add.Content = "＋";
         _add.ToolTip = loc["Hub.Dash.AddWidget"];
-        _add.FontSize = 14;
+        _add.FontSize = 20;
         _add.FontWeight = FontWeights.SemiBold;
-        _add.Padding = new Thickness(16, 6, 16, 6);
+        _add.Padding = new Thickness(14, 2, 14, 4);
         _add.Margin = new Thickness(0, 10, 16, 0);
         _add.Cursor = Cursors.Hand;
         _add.SetResourceReference(Control.BackgroundProperty, "Brush.Accent");
