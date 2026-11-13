@@ -153,6 +153,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-alpha.15: the Character tab has a stats card like the game's stat window (totals - attack, defence, accuracy, evasion, crit, HP, MP, combat and move speed - and the groups combat, hit rating, status effects, PvP, PvE, faction, special and resources, folded open and shut, with a switch for only the relevant ones), the attribute and Lord value tooltips show where a number comes from (the rolled bonuses of each worn item, the rest as base), the statistics page shows what the website holds for the character (fights, instance runs, instances and bosses, period) with a time line of gear score and combat power, the timetable sounds are still played up to 20 seconds late and every played reminder is logged",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
