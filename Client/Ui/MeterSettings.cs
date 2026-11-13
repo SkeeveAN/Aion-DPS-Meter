@@ -97,7 +97,7 @@ public sealed class MeterSettings
 
     public string HotkeyPause { get; set; } = "Ctrl+Alt+P";
 
-    public string HotkeyCopyDamage { get; set; } = "Ctrl+Alt+D";
+    public string HotkeyCopyDamage { get; set; } = "Ctrl+Alt+C";
 
     public string HotkeyClear { get; set; } = "Ctrl+Alt+X";
 
@@ -494,10 +494,10 @@ public sealed class MeterSettings
     /// <summary>Hotkey overlay on / off.</summary>
     public string HotkeyHotkeyOverlay { get; set; } = "Ctrl+Alt+O";
     /// <summary>All overlays (hotkey list, timetable, interactive map, pet info) off, and the same ones back on.</summary>
-    public string HotkeyAllOverlays { get; set; } = "Ctrl+Alt+A";
+    public string HotkeyAllOverlays { get; set; } = "Ctrl+Alt+H";
 
     /// <summary>Switches the overlay designer on and off (all overlays can be moved at once, see OverlayDesigner).</summary>
-    public string HotkeyDesigner { get; set; } = "Ctrl+Alt+F";
+    public string HotkeyDesigner { get; set; } = "Ctrl+Alt+D";
 
     /// <summary>How clear the content (text, symbols) of an overlay is, 0 to 1, by the overlay's title; the background has its own value in <see cref="OverlayOpacities"/>. Missing: 1.</summary>
     public Dictionary<string, double> OverlayForegrounds { get; set; } = new();
@@ -733,6 +733,14 @@ public sealed class MeterSettings
     public static MeterSettings Load()
     {
         MeterSettings s = LoadRaw();
+        // the six hotkeys of the new interface have new defaults (designer D, overlays H, copy C): a file that still holds all three of the old defaults has never been changed by the player
+        if (s is { HotkeyDesigner: "Ctrl+Alt+F", HotkeyAllOverlays: "Ctrl+Alt+A", HotkeyCopyDamage: "Ctrl+Alt+D" })
+        {
+            s.HotkeyDesigner = "Ctrl+Alt+D";
+            s.HotkeyAllOverlays = "Ctrl+Alt+H";
+            s.HotkeyCopyDamage = "Ctrl+Alt+C";
+        }
+
         OverlayDesigner.Override(s);
         return s;
     }
