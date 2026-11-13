@@ -53,6 +53,9 @@ public partial class SettingsWindow
         ["stream"] = new[] { new ToolTab("Settings.Nav.Stream", "PanelStream") },
     };
 
+    /// <summary>One page of the program settings stands alone (inside the new interface the tabs along the top are its menu).</summary>
+    private bool _singlePage;
+
     private SettingsView _view = SettingsView.Program;
     private string? _module;
     private string _page = "NavGeneral";
@@ -386,7 +389,7 @@ public partial class SettingsWindow
         }
         else
         {
-            NavBar.Visibility = Visibility.Visible;
+            NavBar.Visibility = _singlePage ? Visibility.Collapsed : Visibility.Visible;
             visible = new[] { PageOfNav.GetValueOrDefault(_page, "PanelGeneral") };
             Title = loc["Settings.WindowTitle"];
         }

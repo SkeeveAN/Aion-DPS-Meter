@@ -589,6 +589,22 @@ public partial class SettingsWindow : Window
     /// on this window's controls, <see cref="ReadPanel"/> reads them back.
     /// </summary>
     /// <summary>The whole settings page as the Settings tab of the new interface: the window's content without its own title bar and without the Cancel button (the window is never shown).</summary>
+    public UIElement? TakeEmbeddedPage(string nav)
+    {
+        // one page of the program settings (the tabs along the top are the menu of the new interface now)
+        _view = SettingsView.Program;
+        _page = nav;
+        if (FindName(nav) is RadioButton radio)
+        {
+            radio.IsChecked = true;
+        }
+
+        _singlePage = true;
+        NavBar.Visibility = Visibility.Collapsed;
+        ApplyView();
+        return TakeEmbedded();
+    }
+
     public UIElement? TakeEmbedded()
     {
         if (Content is not Border { Child: DockPanel dock } border)

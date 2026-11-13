@@ -15661,5 +15661,17 @@
     "pt": "O jogo não está em execução: esta página mostra dados de exemplo ou o que viu por último.",
     "ja": "ゲームが起動していません:このページにはサンプルデータまたは最後に見た内容が表示されます。",
     "ko": "게임이 실행 중이 아닙니다. 이 페이지는 예시 데이터 또는 마지막으로 본 내용을 표시합니다."
+  },
+  "Hub.Group.Client": {
+    "en": "Client",
+    "de": "Client",
+    "fr": "Client",
+    "es": "Cliente",
+    "ru": "Клиент",
+    "zh": "客户端",
+    "zh-TW": "用戶端",
+    "pt": "Cliente",
+    "ja": "クライアント",
+    "ko": "클라이언트"
   }
 }

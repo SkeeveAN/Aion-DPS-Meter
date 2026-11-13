@@ -74,7 +74,7 @@ public static class ToolRender
             {
                 // "hub", "hub:character:checklist": the new interface with a tab and a page of it
                 string[] parts = hub.Split(':');
-                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.settings" ? SettingsPage() : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, _ => null, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, _ => null, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
                     () => new HubStatus(parts.Length < 4 || parts[3] != "off", "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (parts.Length >= 3)
                 {
@@ -169,10 +169,10 @@ public static class ToolRender
         return LiveMeterPage.Build(rows, () => { });
     }
 
-    private static ToolPage SettingsPage()
+    private static ToolPage SettingsPage(string? nav)
     {
         var window = new SettingsWindow(MeterSettings.Load(), null);
-        return new ToolPage { Content = window.TakeEmbedded() ?? new Grid(), Cleanup = window.Close };
+        return new ToolPage { Content = (nav is null ? window.TakeEmbedded() : window.TakeEmbeddedPage(nav)) ?? new Grid(), Cleanup = window.Close };
     }
 
     /// <summary>The checklist with made-up tickets of two characters, the way the render-checklist picture has it.</summary>

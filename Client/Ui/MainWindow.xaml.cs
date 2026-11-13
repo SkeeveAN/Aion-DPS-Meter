@@ -6063,7 +6063,7 @@ public partial class MainWindow : Window
         // from a page of the new interface the settings are its own tab, not a window
         if (_hubWindow is { IsLoaded: true } hub)
         {
-            hub.GoTo("settings", "settings");
+            hub.GoTo("tools", module.Length == 0 ? "client.hotkeys" : "client.general");
             return;
         }
 
@@ -6270,7 +6270,7 @@ public partial class MainWindow : Window
             });
         }
 
-        if (module == "hub.settings")
+        if (module == "hub.settings" || module.StartsWith("hub.client.", StringComparison.Ordinal))
         {
             // the settings inside the new interface: the content of the settings window (never shown); Save applies, as in the window
             var settings = MeterSettings.Load();
@@ -6313,7 +6313,7 @@ public partial class MainWindow : Window
                 StreamTick();
                 CopyStreamLink();
             };
-            return new ToolPage { Content = window.TakeEmbedded() ?? new Grid(), Cleanup = window.Close };
+            return new ToolPage { Content = (module == "hub.settings" ? window.TakeEmbedded() : window.TakeEmbeddedPage(module["hub.client.".Length..])) ?? new Grid(), Cleanup = window.Close };
         }
 
         if (module.StartsWith("hub.char.", StringComparison.Ordinal))
