@@ -1040,10 +1040,67 @@ public sealed class CharacterWindow : Window
     /// <summary>The stat sheet groups: the stat frame's ids; names from the client's stat texts (the species table, or the attribute table where it lacks one). Ids without a name are left out.</summary>
     private static readonly (string Group, (int Id, string? Key, bool Percent)[] Stats)[] SheetGroups =
     {
-        ("Character.StatAttack", new (int, string?, bool)[] { (317, "WeaponFixingDamage", false), (19, null, false), (33, "MinAttack", false), (31, null, false), (425, "DamageRatio", true), (32, "AmplifyWeaponDamage", true), (28, null, true), (44, null, true), (38, null, false), (379, null, true), (520, "BossNpcAmplifyDamage", true), (50, null, false), (56, null, false), (587, null, false), (98, null, false), (284, null, false), (69, null, false) }),
-        ("Character.StatHits", new (int, string?, bool)[] { (104, null, false), (128, null, false), (442, null, true), (443, null, true), (158, null, true), (591, null, false), (100, null, false) }),
-        ("Character.StatDefense", new (int, string?, bool)[] { (193, null, false), (199, null, false), (196, null, true), (52, null, false), (116, null, false), (133, null, false), (255, null, false), (444, null, true), (445, null, true), (446, null, true), (447, null, true), (159, null, false), (41, null, false), (47, null, true), (70, null, false), (51, null, false), (57, null, false), (588, null, false), (99, null, false) }),
+        ("Character.StatAttack", new (int, string?, bool)[] { (284, "DefensePierce", false), (69, null, false), (38, null, false), (98, null, false), (587, null, false), (28, null, true), (32, "AmplifyWeaponDamage", true), (44, null, true), (589, null, true), (379, null, true), (520, "BossNpcAmplifyDamage", true), (50, null, false), (56, null, false) }),
+        ("Character.StatHits", new (int, string?, bool)[] { (146, "AdditionalHitRate", true), (442, null, true), (443, "HardHit", true), (100, null, false), (591, null, false), (256, "BlockPierce", false), (448, null, true), (449, null, true), (158, null, true) }),
+        ("Character.StatDefense", new (int, string?, bool)[] { (99, null, false), (588, null, false), (70, null, true), (103, null, false), (47, null, true), (101, null, false), (592, null, false), (445, null, true), (444, null, true), (446, null, true), (447, null, true) }),
     };
+
+    /// <summary>The rows of the stat window that the frame gives in parts, put together the way the game does (checked on Aahz, 13 November 2026 against the stat window): attack = (weapon attack + additional
+    /// attack + the middle of min and max attack) with the attack increase; HP and MP = the base with their increase; the two speeds as they are.</summary>
+    private static IEnumerable<(string Name, string Value)> SheetTotals(IReadOnlyDictionary<int, int> stats, string language)
+    {
+        int V(int id) => stats.GetValueOrDefault(id);
+        string N0(double v) => Math.Round(v).ToString("N0", CultureInfo.CurrentCulture);
+        string Pct(double v) => v.ToString("0.##", CultureInfo.CurrentCulture) + " %";
+        string T(string key) => Aion2AttributeTable.Text("stat." + key, language);
+        if (V(317) > 0)
+        {
+            yield return (T("WeaponFixingDamage"), N0((V(317) + V(19) + (V(31) + V(33)) / 2.0) * (1 + V(425) / 10000.0)));
+        }
+
+        if (V(193) > 0)
+        {
+            yield return (T("HPMax"), N0(V(193) * (1 + V(196) / 10000.0)));
+        }
+
+        if (V(199) > 0)
+        {
+            yield return (T("MPMax"), N0(V(199) * (1 + V(197) / 10000.0)));
+        }
+
+        if (V(275) > 0)
+        {
+            yield return (T("CombatSpeed"), Pct(V(275)));
+        }
+
+        if (V(205) != 0)
+        {
+            yield return (T("MoveSpeed"), Pct(V(205) / 100.0));
+        }
+    }
+
+    private UIElement StatRow(string name, string shown)
+    {
+        var row = new Grid { Margin = new Thickness(0, 1, 0, 1) };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.Children.Add(Text(name, 12.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 18, 0)));
+        TextBlock number = Text(shown, 12.5, FontWeights.SemiBold);
+        Grid.SetColumn(number, 1);
+        row.Children.Add(number);
+        return row;
+    }
+
+    private UIElement StatRows(IEnumerable<(string Name, string Value)> rows)
+    {
+        var panel = new StackPanel();
+        foreach ((string name, string value) in rows)
+        {
+            panel.Children.Add(StatRow(name, value));
+        }
+
+        return panel;
+    }
 
     /// <summary>The character's stat sheet: the values of the stat frame, grouped (attack, hits, defence).</summary>
     private UIElement BuildStatSheet(IReadOnlyDictionary<int, int> stats)
@@ -1051,6 +1108,12 @@ public sealed class CharacterWindow : Window
         var panel = new StackPanel { MinWidth = 300 };
         panel.Children.Add(Heading(Loc("Character.StatSheet")));
         string language = LocalizationManager.Instance.Language;
+        var totals = SheetTotals(stats, language).ToList();
+        if (totals.Count > 0)
+        {
+            panel.Children.Add(StatRows(totals));
+        }
+
         foreach ((string group, var list) in SheetGroups)
         {
             var rows = new List<UIElement>();
@@ -1069,14 +1132,7 @@ public sealed class CharacterWindow : Window
                 }
 
                 string shown = speciesPercent || percent ? (value / 100.0).ToString("0.##", CultureInfo.CurrentCulture) + " %" : value.ToString("N0", CultureInfo.CurrentCulture);
-                var row = new Grid { Margin = new Thickness(0, 1, 0, 1) };
-                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                row.Children.Add(Text(name, 12.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 18, 0)));
-                TextBlock number = Text(shown, 12.5, FontWeights.SemiBold);
-                Grid.SetColumn(number, 1);
-                row.Children.Add(number);
-                rows.Add(row);
+                rows.Add(StatRow(name, shown));
             }
 
             if (rows.Count == 0)
