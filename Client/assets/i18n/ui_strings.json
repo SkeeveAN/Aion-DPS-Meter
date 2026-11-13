@@ -15433,5 +15433,17 @@
     "pt": "Abra um replay a partir dos detalhes de um jogador (Sessões).",
     "ja": "プレイヤーの詳細(セッション)からリプレイを開きます。",
     "ko": "플레이어 상세(세션)에서 리플레이를 엽니다."
+  },
+  "Hub.Dash.BossesNone": {
+    "en": "No current times: open the field boss list on the in-game map.",
+    "de": "Keine aktuellen Zeiten: öffne die Feldboss-Liste auf der Karte im Spiel.",
+    "fr": "Pas d'horaires actuels : ouvrez la liste des boss de terrain sur la carte du jeu.",
+    "es": "Sin horarios actuales: abre la lista de jefes de campo en el mapa del juego.",
+    "ru": "Нет актуальных времён: откройте список полевых боссов на карте в игре.",
+    "zh": "没有最新时间:请在游戏地图中打开野外Boss列表。",
+    "zh-TW": "沒有最新時間:請在遊戲地圖中開啟野外Boss列表。",
+    "pt": "Sem horários atuais: abra a lista de chefes de campo no mapa do jogo.",
+    "ja": "最新の時刻なし:ゲーム内マップでフィールドボスの一覧を開いてください。",
+    "ko": "최신 시간 없음: 게임 내 지도에서 필드 보스 목록을 여세요."
   }
 }
