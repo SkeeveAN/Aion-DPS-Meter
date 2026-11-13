@@ -16,13 +16,13 @@ public static class LiveMeterPage
   <Grid Margin='0,3,0,3'>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width='34'/>
-      <ColumnDefinition Width='230'/>
-      <ColumnDefinition Width='*'/>
-      <ColumnDefinition Width='90'/>
-      <ColumnDefinition Width='110'/>
-      <ColumnDefinition Width='70'/>
-      <ColumnDefinition Width='90'/>
-      <ColumnDefinition Width='90'/>
+      <ColumnDefinition Width='*' MinWidth='96'/>
+      <ColumnDefinition Width='*' MinWidth='30'/>
+      <ColumnDefinition Width='84'/>
+      <ColumnDefinition Width='104'/>
+      <ColumnDefinition Width='66'/>
+      <ColumnDefinition Width='Auto'/>
+      <ColumnDefinition Width='Auto'/>
     </Grid.ColumnDefinitions>
     <TextBlock Text='{Binding RankDisplay}' Foreground='{DynamicResource Brush.TextMuted}' VerticalAlignment='Center' HorizontalAlignment='Center'/>
     <StackPanel Grid.Column='1' VerticalAlignment='Center' Margin='0,0,10,0'>
@@ -33,10 +33,10 @@ public static class LiveMeterPage
     <TextBlock Grid.Column='3' Text='{Binding DpsDisplay}' FontWeight='SemiBold' Foreground='{DynamicResource Brush.Text}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
     <TextBlock Grid.Column='4' Text='{Binding DamageDisplay}' Foreground='{DynamicResource Brush.TextMuted}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
     <TextBlock Grid.Column='5' Text='{Binding ShareDisplay}' Foreground='{DynamicResource Brush.TextMuted}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
-    <TextBlock Grid.Column='6' Text='{Binding HealCompact}' Foreground='{DynamicResource Brush.Heal}' HorizontalAlignment='Right' VerticalAlignment='Center'>
+    <TextBlock Grid.Column='6' Text='{Binding HealCompact}' MinWidth='80' Margin='8,0,0,0' Foreground='{DynamicResource Brush.Heal}' HorizontalAlignment='Right' VerticalAlignment='Center'>
       <TextBlock.Style><Style TargetType='TextBlock'><Setter Property='Visibility' Value='Collapsed'/><Style.Triggers><DataTrigger Binding='{Binding AllMode}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger><DataTrigger Binding='{Binding AllCompact}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
     </TextBlock>
-    <TextBlock Grid.Column='7' Text='{Binding TakenCompact}' Foreground='{DynamicResource Brush.Danger}' HorizontalAlignment='Right' VerticalAlignment='Center'>
+    <TextBlock Grid.Column='7' Text='{Binding TakenCompact}' MinWidth='80' Margin='8,0,0,0' Foreground='{DynamicResource Brush.Danger}' HorizontalAlignment='Right' VerticalAlignment='Center'>
       <TextBlock.Style><Style TargetType='TextBlock'><Setter Property='Visibility' Value='Collapsed'/><Style.Triggers><DataTrigger Binding='{Binding AllMode}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger><DataTrigger Binding='{Binding AllCompact}' Value='True'><Setter Property='Visibility' Value='Visible'/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
     </TextBlock>
   </Grid>
@@ -83,7 +83,7 @@ public static class LiveMeterPage
         if (getMode is not null && setMode is not null)
         {
             // the mode of the list (it is also what the copy hotkey copies)
-            var chips = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(14, 10, 14, 0) };
+            var chips = new WrapPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(14, 10, 14, 0) };
             string[] names = { loc["Main.ModeDamage"], loc["Main.ModeHeal"], loc["Main.ModeTaken"], loc["Main.ModeAll"], loc["Main.ModeAllCompact"] };
             string group = "LiveMode" + Guid.NewGuid();
             for (int i = 0; i < names.Length; i++)

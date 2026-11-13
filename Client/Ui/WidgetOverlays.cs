@@ -129,18 +129,13 @@ public sealed class WidgetOverlayWindow : MovableOverlay
             () => LoadSize(id), (w, h) => SaveSize(id, w, h), OverlayEdgeMode.Crop)
     {
         WidgetId = id;
-        var content = new Border { MinWidth = 120, MinHeight = 40 };
+        // the content fills the frame: pulling the overlay smaller or larger makes the widget itself smaller or larger (it is laid out for the new size, not cut off)
+        var content = new Border { MinWidth = 80, MinHeight = 40, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
         var body = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 8, 12, 8), Child = content };
         Color panel = Application.Current?.TryFindResource("Brush.Panel") is SolidColorBrush found ? found.Color : Color.FromRgb(0x0E, 0x18, 0x20);
         body.Background = new SolidColorBrush(Color.FromArgb(0xE6, panel.R, panel.G, panel.B));
         Body = body;
         _host = new WidgetKind.Host(id, sources, content);
-        (double width, double height) = WidgetKind.SizeOf(id);
-        if (MeterSettings.Load().WidgetOverlays.GetValueOrDefault(id)?.Width is null)
-        {
-            content.Width = width - 24;
-        }
-
         _timer.Tick += (_, _) => _host.Refresh();
         IsVisibleChanged += (_, _) =>
         {
@@ -191,7 +186,8 @@ public sealed class WidgetOverlayWindow : MovableOverlay
     private static (double?, double?) LoadSize(string id)
     {
         WidgetOverlayPlace? p = MeterSettings.Load().WidgetOverlays.GetValueOrDefault(id);
-        return (p?.Width, p?.Height);
+        (double width, double height) = WidgetKind.SizeOf(id);
+        return (p?.Width ?? width, p?.Height ?? height); // before anyone pulled it: the widget's first size
     }
 
     private static void SaveSize(string id, double? width, double? height)
