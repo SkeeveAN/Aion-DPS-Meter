@@ -6197,8 +6197,11 @@ public partial class MainWindow : Window
         chipLegend.Children.Add(chipTotal);
         var chips = new StackPanel();
         Grid.SetIsSharedSizeScope(chips, true); // the legend and the chips share their column widths
-        chips.Children.Add(Head());
-        chips.Children.Add(chipLegend);
+        // the chips over the game show their rows only; the header and the legend are for placing the overlay in the designer
+        var chipHeader = new StackPanel { Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
+        chipHeader.Children.Add(Head());
+        chipHeader.Children.Add(chipLegend);
+        chips.Children.Add(chipHeader);
         chips.Children.Add(chipList);
 
         var body = new ContentControl();
@@ -6224,7 +6227,11 @@ public partial class MainWindow : Window
         choice.Children.Add(OpacityPanel.ModeRow(LocalizationManager.Instance, () => (int)_mode, m => SetMode((MeterMode)m)));
         choice.Children.Add(OpacityPanel.StyleRow(LocalizationManager.Instance));
         var modeHost = new Border { Child = choice, Margin = new Thickness(4, 10, 4, 4), Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
-        Action showMode = () => modeHost.Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
+        Action showMode = () =>
+        {
+            modeHost.Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
+            chipHeader.Visibility = modeHost.Visibility;
+        };
         Action follow = ApplyStyle;
         var stack = new StackPanel();
         stack.Loaded += (_, _) =>
