@@ -6196,7 +6196,7 @@ public partial class MainWindow : Window
         var choice = new StackPanel();
         choice.Children.Add(OpacityPanel.ModeRow(LocalizationManager.Instance, () => (int)_mode, m => SetMode((MeterMode)m)));
         choice.Children.Add(OpacityPanel.StyleRow(LocalizationManager.Instance));
-        var modeHost = new Border { Child = choice, Margin = new Thickness(4, 0, 4, 4), Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
+        var modeHost = new Border { Child = choice, Margin = new Thickness(4, 10, 4, 4), Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
         Action showMode = () => modeHost.Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
         Action follow = ApplyStyle;
         var stack = new StackPanel();
@@ -6214,8 +6214,8 @@ public partial class MainWindow : Window
             WidgetKind.MeterModeChanged -= follow;
             styleTimer.Stop();
         };
-        stack.Children.Add(modeHost);
         stack.Children.Add(body);
+        stack.Children.Add(modeHost); // below the list, so the data always begins at the same place, with the designer on or off
         return stack;
     }
 

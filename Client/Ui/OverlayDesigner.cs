@@ -110,6 +110,7 @@ public static class OverlayDesigner
         };
         _tick.Start();
         BringToFront();
+        _backdrop.TakeForeground(); // once more with every window up: the designer is in the foreground, not the game
     }
 
     private static void End()
@@ -531,6 +532,12 @@ internal sealed class DesignerBackdrop : Window
     private static extern bool AllowSetForegroundWindow(int processId);
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern void keybd_event(byte key, byte scan, uint flags, UIntPtr extra);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool BringWindowToTop(IntPtr handle);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
@@ -550,6 +557,10 @@ internal sealed class DesignerBackdrop : Window
         uint theirThread = current == IntPtr.Zero ? 0 : GetWindowThreadProcessId(current, out _);
         uint myThread = GetCurrentThreadId();
         bool attached = theirThread != 0 && theirThread != myThread && AttachThreadInput(myThread, theirThread, true);
+        // Windows hands the foreground only to a program that has just had input: a tap of the Alt key counts as that
+        keybd_event(0x12, 0, 0, UIntPtr.Zero);
+        keybd_event(0x12, 0, 2, UIntPtr.Zero);
+        BringWindowToTop(mine);
         SetForegroundWindow(mine);
         if (attached)
         {
