@@ -350,17 +350,55 @@ public static class HubDashboard
     {
         var stack = new StackPanel();
         stack.Children.Add(Line(loc["Hub.Dash.Version"], src.Version));
-        var status = Text(UpdateService.CanUpdate ? loc["Hub.Dash.Checking"] : loc["Hub.Dash.NotInstalled"], false, "Brush.TextMuted");
+        var status = Text(UpdateService.CanUpdate ? loc["Hub.Dash.UpdateAsk"] : loc["Hub.Dash.NotInstalled"], false, "Brush.TextMuted");
         status.Margin = new Thickness(0, 6, 0, 6);
         stack.Children.Add(status);
-        if (UpdateService.CanUpdate)
+        var buttons = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
+        var check = new Button { Content = loc["Hub.Dash.CheckNow"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 0, 8, 6), IsEnabled = UpdateService.CanUpdate };
+        var install = new Button { Content = loc["Hub.Dash.InstallRestart"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 0, 8, 6), Visibility = Visibility.Collapsed };
+        Velopack.UpdateInfo? found = null;
+        check.Click += async (_, _) =>
         {
-            _ = CheckUpdateAsync(status, loc);
-        }
+            check.IsEnabled = false;
+            status.Text = loc["Hub.Dash.Checking"];
+            try
+            {
+                found = await UpdateService.CheckAsync();
+                status.Text = found is null ? loc["Hub.Dash.UpToDate"] : string.Format(loc["Hub.Dash.Available"], found.TargetFullRelease.Version);
+                install.Visibility = found is null ? Visibility.Collapsed : Visibility.Visible;
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                status.Text = loc["Hub.Dash.CheckFailed"];
+            }
 
-        var changelog = new Button { Content = loc["Hub.Dash.Changelog"], Padding = new Thickness(14, 4, 14, 4), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
+            check.IsEnabled = true;
+        };
+        install.Click += async (_, _) =>
+        {
+            if (found is null)
+            {
+                return;
+            }
+
+            install.IsEnabled = false;
+            try
+            {
+                await UpdateService.DownloadAsync(found, percent => Application.Current.Dispatcher.Invoke(() => status.Text = string.Format(loc["Hub.Dash.Downloading"], percent)));
+                UpdateService.ApplyAndRestart(found);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                status.Text = loc["Hub.Dash.CheckFailed"];
+                install.IsEnabled = true;
+            }
+        };
+        buttons.Children.Add(check);
+        buttons.Children.Add(install);
+        var changelog = new Button { Content = loc["Hub.Dash.Changelog"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 0, 8, 6) };
         changelog.Click += (_, _) => OpenUrl("https://aiondps.com/changelog");
-        stack.Children.Add(changelog);
+        buttons.Children.Add(changelog);
+        stack.Children.Add(buttons);
         return stack;
     }
 

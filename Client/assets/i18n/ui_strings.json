@@ -15481,5 +15481,53 @@
     "pt": "Todos os widgets estão no painel.",
     "ja": "すべてのウィジェットが表示されています。",
     "ko": "모든 위젯이 대시보드에 있습니다."
+  },
+  "Hub.Dash.CheckNow": {
+    "en": "Check for updates",
+    "de": "Nach Updates suchen",
+    "fr": "Rechercher des mises à jour",
+    "es": "Buscar actualizaciones",
+    "ru": "Проверить обновления",
+    "zh": "检查更新",
+    "zh-TW": "檢查更新",
+    "pt": "Procurar atualizações",
+    "ja": "アップデートを確認",
+    "ko": "업데이트 확인"
+  },
+  "Hub.Dash.InstallRestart": {
+    "en": "Download and restart",
+    "de": "Herunterladen und neu starten",
+    "fr": "Télécharger et redémarrer",
+    "es": "Descargar y reiniciar",
+    "ru": "Скачать и перезапустить",
+    "zh": "下载并重启",
+    "zh-TW": "下載並重新啟動",
+    "pt": "Baixar e reiniciar",
+    "ja": "ダウンロードして再起動",
+    "ko": "다운로드 후 재시작"
+  },
+  "Hub.Dash.UpdateAsk": {
+    "en": "Press the button to look for a new version.",
+    "de": "Mit dem Knopf nach einer neuen Version suchen.",
+    "fr": "Appuyez sur le bouton pour chercher une nouvelle version.",
+    "es": "Pulsa el botón para buscar una versión nueva.",
+    "ru": "Нажмите кнопку, чтобы найти новую версию.",
+    "zh": "点击按钮检查新版本。",
+    "zh-TW": "按下按鈕檢查新版本。",
+    "pt": "Use o botão para procurar uma nova versão.",
+    "ja": "ボタンで新しいバージョンを確認します。",
+    "ko": "버튼을 눌러 새 버전을 확인하세요."
+  },
+  "Hub.Dash.Downloading": {
+    "en": "Downloading … {0} %",
+    "de": "Lade herunter … {0} %",
+    "fr": "Téléchargement … {0} %",
+    "es": "Descargando … {0} %",
+    "ru": "Загрузка … {0} %",
+    "zh": "下载中 … {0} %",
+    "zh-TW": "下載中 … {0} %",
+    "pt": "Baixando … {0} %",
+    "ja": "ダウンロード中 … {0} %",
+    "ko": "다운로드 중 … {0} %"
   }
 }
