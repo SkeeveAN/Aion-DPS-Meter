@@ -67,6 +67,9 @@ public static class OverlayDesigner
 
     public static bool Active { get; private set; }
 
+    /// <summary>For pictures of the designer's buttons without the designer: pretends it is on.</summary>
+    internal static void ShowAsActiveForPicture(bool on) => Active = on;
+
     /// <summary>The designer came on or went off (the live meter widget shows its mode buttons only while it is on).</summary>
     public static event Action? ActiveChanged;
 
@@ -1004,7 +1007,6 @@ internal sealed class OpacityPanel : Window
             {
                 var s = MeterSettings.Load();
                 s.OverlayStyle = tag;
-                s.OverlayStyleChosen = true;
                 s.Save();
                 Mark();
                 WidgetKind.RaiseMeterModeChanged();

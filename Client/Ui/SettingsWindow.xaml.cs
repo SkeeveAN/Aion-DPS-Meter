@@ -875,13 +875,7 @@ public partial class SettingsWindow : Window
         _settings.DebugRecording = DebugRecordingBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
-        string chosenStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;
-        if (chosenStyle != _settings.OverlayStyle)
-        {
-            _settings.OverlayStyleChosen = true;
-        }
-
-        _settings.OverlayStyle = chosenStyle;
+        _settings.OverlayStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.OverlayGridSnap = OverlayGridSnapBox.IsChecked ?? false;
         _settings.OverlayDocking = OverlayDockingBox.IsChecked ?? false;

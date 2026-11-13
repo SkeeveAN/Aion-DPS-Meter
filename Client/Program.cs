@@ -1356,6 +1356,14 @@ internal static class Program
         else if (kind == "widget")
         {
             // the live meter widget over the game: the list as the compact overlay draws it, on the overlay's dark background
+            if (Environment.GetEnvironmentVariable("AIONDPS_STYLE") is { Length: > 0 } pictureStyle)
+            {
+                var styleSettings = Ui.MeterSettings.Load();
+                styleSettings.OverlayStyle = pictureStyle; // Chips or Compact
+                styleSettings.Save();
+            }
+
+            Ui.OverlayDesigner.ShowAsActiveForPicture(Environment.GetEnvironmentVariable("AIONDPS_DESIGNER") is { Length: > 0 }); // the designer's buttons on the widget
             var meterView = (System.Windows.UIElement)type.GetMethod("BuildMeterView", flags)!.Invoke(window, null)!;
             panel = new System.Windows.Controls.Border
             {
