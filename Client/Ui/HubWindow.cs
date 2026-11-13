@@ -214,8 +214,6 @@ public sealed class HubWindow : Window
             }),
             new Section("tools", loc["Main.MenuTools"], new[]
             {
-                new Group(loc["Hub.Group.World"], Tools("loot", "craft", "petmap", "timetable", "boss")),
-                new Group(loc["Hub.Group.Combat"], Tools("combat", "assist", "stream", "network", "theme")),
                 new Group(loc["Hub.Group.Client"], new[]
                 {
                     new Entry("client.general", loc["Settings.Nav.General"], "tool", "hub.client.NavGeneral"),
@@ -224,6 +222,8 @@ public sealed class HubWindow : Window
                     new Entry("client.hotkeys", loc["Settings.Hotkeys"], "tool", "hub.client.NavHotkeys"),
                     new Entry("client.updates", loc["Settings.Nav.System"], "tool", "hub.client.NavUpdates"),
                 }),
+                new Group(loc["Hub.Group.World"], Tools("loot", "craft", "petmap", "timetable", "boss")),
+                new Group(loc["Hub.Group.Combat"], Tools("combat", "assist", "stream", "network", "theme")),
             }),
         };
     }
