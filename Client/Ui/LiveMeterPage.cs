@@ -72,12 +72,8 @@ public static class LiveMeterPage
         card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
         card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
         var head = new DockPanel { Margin = new Thickness(14, 12, 14, 0) };
-        var open = new Button { Content = loc["Hub.OpenMeter"], Padding = new Thickness(14, 4, 14, 4) };
-        open.Click += (_, _) => openMeter();
-        DockPanel.SetDock(open, Dock.Right);
         var title = new TextBlock { Text = loc["Hub.LiveMeter"], FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
-        head.Children.Add(open);
         DockPanel.SetDock(title, Dock.Left);
         head.Children.Add(title);
         head.Children.Add(mockTag);

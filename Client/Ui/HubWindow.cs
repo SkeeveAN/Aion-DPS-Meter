@@ -756,7 +756,7 @@ public sealed class HubWindow : Window
                 _host.Child = Message(entry.Title + "  ↗", null, null);
                 break;
             case "meter":
-                _host.Child = Message(entry.Title, loc["Hub.Soon"], (loc["Hub.OpenMeter"], _openMeter));
+                _host.Child = Message(entry.Title, loc["Hub.Soon"], null);
                 break;
             case "overview":
                 _page = HubDashboard.Build(entry.Target, Sources());

@@ -266,6 +266,9 @@ public abstract class MovableOverlay : Window
         }
     }
 
+    /// <summary>For an overlay whose background is not one border (the combat bars, the pet map): applies the designer's background opacity, text opacity and background colour itself; returns true when it did.</summary>
+    protected virtual bool ApplyLook(MeterSettings settings) => false;
+
     private byte? _baseAlpha;
 
     /// <summary>A least opacity (0 to 1) the overlay keeps while set, whatever its own setting says (the pet list over the shop, where it sits on the game's own window text).</summary>
@@ -274,6 +277,11 @@ public abstract class MovableOverlay : Window
     /// <summary>The overlay's own opacity (0 to 1, set per overlay in its module; the key is its title) replaces the alpha of the body's dark background; <see cref="OpacityFloor"/> raises it.</summary>
     public void ApplyStoredOpacity()
     {
+        if (ApplyLook(MeterSettings.Load()))
+        {
+            return; // an overlay that draws its background in several places does it itself
+        }
+
         // the content has its own clearness (the overlay designer); the background alpha is set below
         if (_shiftHost.Child is Border { Child: { } inner })
         {
@@ -391,6 +399,7 @@ public sealed class PetMapWindow : MovableOverlay
 {
     public const double ViewSize = 440;
     private readonly Canvas _canvas = new() { Width = ViewSize, Height = ViewSize, ClipToBounds = true, Background = Brushes.Transparent };
+    private readonly Canvas _tileLayer = new() { Width = ViewSize, Height = ViewSize, ClipToBounds = true, Background = Brushes.Transparent };
     private readonly Dictionary<string, BitmapSource?> _tiles = new();
     private readonly List<string> _tileOrder = new();
     private readonly List<Image> _tileImages = new();
@@ -423,7 +432,30 @@ public sealed class PetMapWindow : MovableOverlay
         Canvas.SetLeft(_meUnknown, ViewSize / 2 - 14);
         Canvas.SetTop(_meUnknown, ViewSize / 2 - 20);
         _canvas.Children.Add(_meUnknown);
-        Body = _canvas;
+        Body = new Grid { Children = { _tileLayer, _canvas } };
+    }
+
+    /// <summary>The designer's look: the opacity is the map picture's (the Render call gets it), the text opacity is that of the marks (the dots, the arrow), the colour is shown behind the map.</summary>
+    protected override bool ApplyLook(MeterSettings settings)
+    {
+        double text = Math.Clamp(settings.OverlayForegrounds.GetValueOrDefault(Title, 1.0), 0.0, 1.0);
+        double back = Math.Clamp(settings.PetMapOpacity, 0.0, 1.0);
+        _canvas.Opacity = text;
+        Brush backdrop = Brushes.Transparent;
+        try
+        {
+            if (settings.OverlayBackColors.TryGetValue(Title, out string? hex) && !string.IsNullOrEmpty(hex) && ColorConverter.ConvertFromString(hex) is Color chosen)
+            {
+                backdrop = new SolidColorBrush(Color.FromArgb((byte)Math.Round(back * 0.8 * 255), chosen.R, chosen.G, chosen.B));
+            }
+        }
+        catch (FormatException)
+        {
+            // a damaged value: no colour behind the map
+        }
+
+        _tileLayer.Background = backdrop;
+        return true;
     }
 
     private static (double?, double?) LoadSize()
@@ -516,7 +548,7 @@ public sealed class PetMapWindow : MovableOverlay
                     Panel.SetZIndex(image, -2); // under the danger zones of the guards and everything else
                     RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
                     _tileImages.Add(image);
-                    _canvas.Children.Insert(used, image);
+                    _tileLayer.Children.Add(image);
                 }
 
                 var img = _tileImages[used++];

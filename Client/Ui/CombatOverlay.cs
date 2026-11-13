@@ -486,12 +486,62 @@ public sealed class CombatOverlayWindow : MovableOverlay
     public bool Render(CombatFrame frame, MeterSettings settings)
     {
         var loc = LocalizationManager.Instance;
-        if (_part == Part.Cast)
+        bool shown = _part == Part.Cast ? RenderCast(frame, settings, loc) : _part == Part.Hp ? RenderHp(frame, settings, loc) : RenderTarget(frame, settings, loc);
+        ApplyLook(settings); // after the content: rows made just now get the look too
+        return shown;
+    }
+
+    private static readonly object LookMarker = new();
+    private (double Back, double Text, string? Hex)? _lookKey;
+    private System.Windows.Media.SolidColorBrush? _lookBrush;
+
+    /// <summary>The designer's look for the bars: every panel (the dark rounded background of a bar, a cast row) gets the chosen colour at the background opacity, and what sits on it the text opacity.</summary>
+    protected override bool ApplyLook(MeterSettings settings)
+    {
+        Opacity = 1;
+        double back = Math.Clamp(OverlayDesigner.GetBackground(settings, Title), 0.0, 1.0);
+        double text = Math.Clamp(settings.OverlayForegrounds.GetValueOrDefault(Title, 1.0), 0.0, 1.0);
+        string? hex = settings.OverlayBackColors.GetValueOrDefault(Title);
+        if (_lookBrush is null || _lookKey != (back, text, hex))
         {
-            return RenderCast(frame, settings, loc);
+            System.Windows.Media.Color baseColor = System.Windows.Media.Color.FromRgb(0x0E, 0x18, 0x20);
+            try
+            {
+                if (!string.IsNullOrEmpty(hex) && System.Windows.Media.ColorConverter.ConvertFromString(hex) is System.Windows.Media.Color chosen)
+                {
+                    baseColor = chosen;
+                }
+            }
+            catch (FormatException)
+            {
+                // a damaged value: the bars keep their own colour
+            }
+
+            _lookBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb((byte)Math.Round(0xB4 * back), baseColor.R, baseColor.G, baseColor.B));
+            _lookBrush.Freeze();
+            _lookKey = (back, text, hex);
         }
 
-        return _part == Part.Hp ? RenderHp(frame, settings, loc) : RenderTarget(frame, settings, loc);
+        void Walk(DependencyObject node)
+        {
+            if (node is Border border && (ReferenceEquals(border.Background, OverlayPictures.Panel) || ReferenceEquals(border.Tag, LookMarker)))
+            {
+                border.Background = _lookBrush;
+                border.Tag = LookMarker;
+                if (border.Child is { } child)
+                {
+                    child.Opacity = text;
+                }
+            }
+
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(node); i++)
+            {
+                Walk(System.Windows.Media.VisualTreeHelper.GetChild(node, i));
+            }
+        }
+
+        Walk(_stage);
+        return true;
     }
 
     private TargetOfTargetData? ShownTarget(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
@@ -511,7 +561,6 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderHp(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
-        Opacity = Math.Clamp(settings.BossHpOpacity, 0.0, 1.0);
         BossHpData? boss = frame.Boss;
         if (boss is null && (_editing || SampleWhenIdle || Preview) && (settings.ShowBossHp || Preview))
         {
@@ -530,7 +579,6 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderCast(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
-        Opacity = Math.Clamp(settings.CombatCastOpacity, 0.0, 1.0);
         bool any = false;
         bool castOn = settings.CombatShowBossCast || Preview;
         if (castOn && frame.Casts.Count > 0)
@@ -552,7 +600,6 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderTarget(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
-        Opacity = Math.Clamp(settings.CombatTargetOpacity, 0.0, 1.0);
         bool any = false;
         TargetOfTargetData? shownTot = ShownTarget(frame, settings, loc);
         if (shownTot is { } tot)

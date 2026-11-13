@@ -14499,28 +14499,28 @@
     "ko": "+ 추가"
   },
   "Designer.Content": {
-    "en": "Text strength",
-    "de": "Textstärke",
-    "fr": "Contenu (texte, symboles)",
-    "es": "Contenido (texto, símbolos)",
-    "ru": "Содержимое (текст, значки)",
-    "zh": "内容（文字、图标）",
-    "zh-TW": "內容（文字、圖示）",
-    "pt": "Conteúdo (texto, símbolos)",
-    "ja": "内容（文字・アイコン）",
-    "ko": "내용(텍스트, 기호)"
+    "en": "Text opacity",
+    "de": "Text-Deckkraft",
+    "fr": "Opacité du texte",
+    "es": "Opacidad del texto",
+    "ru": "Прозрачность текста",
+    "zh": "文字不透明度",
+    "zh-TW": "文字不透明度",
+    "pt": "Opacidade do texto",
+    "ja": "テキストの不透明度",
+    "ko": "텍스트 불투명도"
   },
   "Designer.Background": {
-    "en": "Opacity (background)",
-    "de": "Deckkraft (Hintergrund)",
-    "fr": "Arrière-plan",
-    "es": "Fondo",
-    "ru": "Фон",
-    "zh": "背景",
-    "zh-TW": "背景",
-    "pt": "Fundo",
-    "ja": "背景",
-    "ko": "배경"
+    "en": "Background opacity",
+    "de": "Hintergrund-Deckkraft",
+    "fr": "Opacité du fond",
+    "es": "Opacidad del fondo",
+    "ru": "Прозрачность фона",
+    "zh": "背景不透明度",
+    "zh-TW": "背景不透明度",
+    "pt": "Opacidade do fundo",
+    "ja": "背景の不透明度",
+    "ko": "배경 불투명도"
   },
   "Designer.Opacity": {
     "en": "Opacity",
@@ -16277,13 +16277,13 @@
   "Designer.BackColor": {
     "en": "Background colour",
     "de": "Hintergrundfarbe",
-    "fr": "Background colour",
-    "es": "Background colour",
-    "ru": "Background colour",
-    "zh": "Background colour",
-    "zh-TW": "Background colour",
-    "pt": "Background colour",
-    "ja": "Background colour",
-    "ko": "Background colour"
+    "fr": "Couleur du fond",
+    "es": "Color del fondo",
+    "ru": "Цвет фона",
+    "zh": "背景颜色",
+    "zh-TW": "背景顏色",
+    "pt": "Cor do fundo",
+    "ja": "背景色",
+    "ko": "배경색"
   }
 }

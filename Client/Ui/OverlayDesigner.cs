@@ -310,7 +310,7 @@ public static class OverlayDesigner
     }
 
     /// <summary>Only the overlays that fade as a whole (the boss fight, the map, the timetable) have a single opacity; the others split content and background.</summary>
-    internal static bool HasSplit(string title) => title is not (OverlayPlaces.BossHp or OverlayPlaces.BossCast or OverlayPlaces.TargetOfTarget or OverlayPlaces.PetMap or OverlayPlaces.Timetable or OverlayPlaces.PetInfo);
+    internal static bool HasSplit(string title) => title is not (OverlayPlaces.Timetable or OverlayPlaces.PetInfo);
 
     internal static readonly Brush Navy = Frozen(0x0f, 0x1c, 0x27, 0xee), Line = Frozen(0x29, 0x45, 0x57, 0xff), Orange = Frozen(0xff, 0xba, 0x42, 0xff), Ink = Frozen(0x1a, 0x12, 0x05, 0xff),
         Text = Frozen(0xea, 0xf2, 0xf8, 0xff), Muted = Frozen(0x9d, 0xb3, 0xc2, 0xff), Panel = Frozen(0x1b, 0x31, 0x42, 0xff);
