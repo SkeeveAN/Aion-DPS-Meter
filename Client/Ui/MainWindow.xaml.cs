@@ -6133,15 +6133,19 @@ public partial class MainWindow : Window
             return text;
         }
 
-        var head = new DockPanel { Margin = new Thickness(4, 0, 4, 4) };
-        TextBlock mode = Bound(OverlayModeText, 10, "Brush.OverlayText", FontWeights.Bold);
-        var modeTag = new Border { CornerRadius = new CornerRadius(3), Padding = new Thickness(6, 1, 6, 1), Margin = new Thickness(6, 0, 0, 0), Background = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)), Child = mode };
-        DockPanel.SetDock(modeTag, Dock.Right);
-        head.Children.Add(modeTag);
-        TextBlock time = Bound(OverlayTimeText, 12, "Brush.Accent");
-        DockPanel.SetDock(time, Dock.Right);
-        head.Children.Add(time);
-        head.Children.Add(Bound(OverlayTargetText, 13, "Brush.OverlayText", FontWeights.Bold));
+        DockPanel Head()
+        {
+            var header = new DockPanel { Margin = new Thickness(4, 0, 4, 4) };
+            TextBlock mode = Bound(OverlayModeText, 10, "Brush.OverlayText", FontWeights.Bold);
+            var modeTag = new Border { CornerRadius = new CornerRadius(3), Padding = new Thickness(6, 1, 6, 1), Margin = new Thickness(6, 0, 0, 0), Background = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)), Child = mode };
+            DockPanel.SetDock(modeTag, Dock.Right);
+            header.Children.Add(modeTag);
+            TextBlock time = Bound(OverlayTimeText, 12, "Brush.Accent");
+            DockPanel.SetDock(time, Dock.Right);
+            header.Children.Add(time);
+            header.Children.Add(Bound(OverlayTargetText, 13, "Brush.OverlayText", FontWeights.Bold));
+            return header;
+        }
 
         var legend = new Grid { Margin = new Thickness(4, 0, 4, 1) };
         legend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
@@ -6167,12 +6171,35 @@ public partial class MainWindow : Window
         var list = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = CompactOverlayRows.ItemTemplate };
         Grid.SetIsSharedSizeScope(list, true);
         var compact = new StackPanel();
-        compact.Children.Add(head);
+        compact.Children.Add(Head());
         compact.Children.Add(legend);
         compact.Children.Add(list);
         // the other look of the DPS overlay: one chip per player
-        var chips = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = OverlayContent.ItemTemplate };
-        Grid.SetIsSharedSizeScope(chips, true);
+        var chipList = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = OverlayContent.ItemTemplate };
+        // the header of the chips: what is fought, how long, the mode, and the legend over the columns the chips share (rank and symbol, name, DPS, total)
+        var chipLegend = new Grid { Margin = new Thickness(8, 0, 8, 1) };
+        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
+        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = "ChipTaken" });
+        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = "ChipDps" });
+        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = "ChipDamage" });
+        var chipPlayer = new TextBlock { Text = LocalizationManager.Instance["Main.Overlay.ColPlayer"], FontSize = 9 };
+        chipPlayer.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+        Grid.SetColumn(chipPlayer, 1);
+        chipLegend.Children.Add(chipPlayer);
+        TextBlock chipRate = Bound(OverlayRateHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
+        chipRate.Margin = new Thickness(12, 0, 0, 0);
+        Grid.SetColumn(chipRate, 3);
+        chipLegend.Children.Add(chipRate);
+        TextBlock chipTotal = Bound(OverlayTotalHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
+        chipTotal.Margin = new Thickness(12, 0, 0, 0);
+        Grid.SetColumn(chipTotal, 4);
+        chipLegend.Children.Add(chipTotal);
+        var chips = new StackPanel();
+        Grid.SetIsSharedSizeScope(chips, true); // the legend and the chips share their column widths
+        chips.Children.Add(Head());
+        chips.Children.Add(chipLegend);
+        chips.Children.Add(chipList);
 
         var body = new ContentControl();
         string? shown = null;
