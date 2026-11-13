@@ -32,8 +32,42 @@ public static class UpdateService
     /// </summary>
     public static bool CanUpdate => Manager.IsInstalled;
 
-    /// <summary>Newest release if it is newer than what is running, null if up to date.</summary>
-    public static Task<UpdateInfo?> CheckAsync() => Manager.CheckForUpdatesAsync();
+    /// <summary>
+    /// The stable channel. A test build (alpha, beta) lives on the test channel, where the stable release would never be offered; it looks at the stable
+    /// channel as well, so a tester is led on from the beta to 2.0.0 when it appears (2.0.0 is newer than 2.0.0-beta.N).
+    /// </summary>
+    private static readonly UpdateManager StableManager =
+        new(new GithubSource(RepositoryUrl, accessToken: null, prerelease: true), new UpdateOptions { ExplicitChannel = "win" });
+
+    /// <summary>The manager that found the update last returned: it also downloads and applies it (the two channels have their own files).</summary>
+    private static UpdateManager _found = Manager;
+
+    /// <summary>Newest release (of the own channel and, for a test build, of the stable channel) if it is newer than what is running, null if up to date.</summary>
+    public static async Task<UpdateInfo?> CheckAsync()
+    {
+        UpdateInfo? own = await Manager.CheckForUpdatesAsync();
+        UpdateInfo? stable = null;
+        if (Manager.CurrentVersion?.ToString().Contains('-') == true)
+        {
+            try
+            {
+                stable = await StableManager.CheckForUpdatesAsync();
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // the stable channel could not be asked: the test channel's answer stands
+            }
+        }
+
+        if (stable is not null && (own is null || stable.TargetFullRelease.Version > own.TargetFullRelease.Version))
+        {
+            _found = StableManager;
+            return stable;
+        }
+
+        _found = Manager;
+        return own;
+    }
 
     /// <summary>
     /// Fetches the update into Velopack's staging area. Delta packages mean this is usually a
@@ -41,12 +75,12 @@ public static class UpdateService
     /// so an interrupted download leaves the installed version untouched.
     /// </summary>
     public static Task DownloadAsync(UpdateInfo update, Action<int>? progress = null) =>
-        Manager.DownloadUpdatesAsync(update, progress);
+        _found.DownloadUpdatesAsync(update, progress);
 
     /// <summary>
     /// Swaps in the downloaded version and relaunches. This exits the process, so callers must
     /// treat it as the last thing they do -- anything that still needs saving has to be saved
     /// before the call, not after it.
     /// </summary>
-    public static void ApplyAndRestart(UpdateInfo update) => Manager.ApplyUpdatesAndRestart(update);
+    public static void ApplyAndRestart(UpdateInfo update) => _found.ApplyUpdatesAndRestart(update);
 }
