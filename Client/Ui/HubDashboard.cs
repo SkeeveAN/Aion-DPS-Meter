@@ -72,7 +72,6 @@ public static class HubDashboard
         figures.Children.Add(Line(loc["Hub.Dash.BestDps"], bestDps is double d ? d.ToString("N0") : "–"));
         wrap.Children.Add(Card(loc["Hub.Dash.Figures"], figures, 420));
         wrap.Children.Add(Card(loc["Hub.Dash.Last"], LastFight(attempts, loc), 520, src.OpenSessions));
-        wrap.Children.Add(Card(loc["Hub.Dash.Tools"], Shortcuts(src.OpenTool, loc), 520));
     }
 
     private static UIElement Connection(HubStatus status, LocalizationManager loc)
@@ -173,7 +172,9 @@ public static class HubDashboard
             foreach (var boss in map.Bosses)
             {
                 BossStatus st = Aion2FieldBosses.StatusOf(boss, now);
-                if (st.Phase == BossPhase.Unknown)
+                // "there now" counts only when it is fresh: a fixed window that is open, or a list the game sent a few minutes ago (a boss seen alive hours ago may be long dead)
+                bool fresh = boss.Rule is not null || (st.SeenAt is DateTime seen && now - seen < TimeSpan.FromMinutes(10));
+                if (st.Phase == BossPhase.Unknown || (st.Phase == BossPhase.Now && !fresh))
                 {
                     continue;
                 }
@@ -189,7 +190,7 @@ public static class HubDashboard
 
         if (rows.Count == 0)
         {
-            stack.Children.Add(Text(loc["Boss.OverlayEmpty"], false, "Brush.TextMuted"));
+            stack.Children.Add(Text(loc["Hub.Dash.BossesNone"], false, "Brush.TextMuted"));
         }
 
         return stack;
@@ -211,20 +212,6 @@ public static class HubDashboard
         stack.Children.Add(Line("DPS", last.Duration.TotalSeconds >= 1 ? (last.Counted / last.Duration.TotalSeconds).ToString("N0") : "–"));
         stack.Children.Add(Line(loc["Hub.Dash.When"], last.End.ToString("dd.MM. HH:mm")));
         return stack;
-    }
-
-    private static UIElement Shortcuts(Action<string> openTool, LocalizationManager loc)
-    {
-        var panel = new WrapPanel();
-        foreach (var (id, key) in new[] { ("checklist", "Main.MenuTools.Checklist"), ("craft", "Main.MenuTools.Craft"), ("petmap", "Settings.Nav.PetMap"), ("timetable", "Settings.Nav.Timetable"), ("loot", "Main.MenuTools.Loot"), ("boss", "Settings.Nav.Boss") })
-        {
-            var button = new Button { Content = loc[key], Margin = new Thickness(0, 0, 8, 8), Padding = new Thickness(12, 4, 12, 4) };
-            string tool = id;
-            button.Click += (_, _) => openTool(tool);
-            panel.Children.Add(button);
-        }
-
-        return panel;
     }
 
     // ───────────────────────────── fights, best ─────────────────────────────

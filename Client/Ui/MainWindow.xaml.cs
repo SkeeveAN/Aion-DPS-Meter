@@ -713,6 +713,7 @@ public partial class MainWindow : Window
     {
         // "Connected" is normally silent; the Aion 2 source's live counters (frames/events) are the
         // one exception, since they are how a stalled capture is told apart from a stalled decoder.
+        _sourceState = status.State;
         bool aion2Counters = status.State == SourceState.Connected && _source is Aion2PacketCombatSource;
         if (status.State is not (SourceState.Waiting or SourceState.Error) && !aion2Counters)
         {
@@ -5946,6 +5947,28 @@ public partial class MainWindow : Window
     }
 
     private HubWindow? _hubWindow;
+    private SourceState _sourceState = SourceState.Idle;
+    private long _hubFrames;
+    private DateTime _hubFramesAt = DateTime.MinValue;
+
+    /// <summary>The game is on when the capture is connected and its frames still come (a closed game leaves the capture connected, but silent).</summary>
+    private bool GameIsRunning()
+    {
+        if (_sourceState != SourceState.Connected || (_liveSource ?? _source) is not Aion2PacketCombatSource packet)
+        {
+            return false;
+        }
+
+        long frames = packet.Counters()?.Frames ?? 0;
+        DateTime now = DateTime.UtcNow;
+        if (frames != _hubFrames)
+        {
+            _hubFrames = frames;
+            _hubFramesAt = now;
+        }
+
+        return now - _hubFramesAt < TimeSpan.FromSeconds(15);
+    }
     private bool _hubIsMain;
 
     private void OnOpenHubClicked(object sender, RoutedEventArgs e)
@@ -5975,6 +5998,11 @@ public partial class MainWindow : Window
             () => OpenSettings(null),
             () =>
             {
+                if (!GameIsRunning())
+                {
+                    return new HubStatus(false, null, null, null);
+                }
+
                 var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
                 var own = directory?.LocalCharacter;
                 string? className = own is null ? null : Aion2.Protocol.Aion2SkillNames.ClassFromCode(own.ClassCode);
