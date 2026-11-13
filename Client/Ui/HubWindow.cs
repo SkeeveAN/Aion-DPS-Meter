@@ -261,6 +261,74 @@ public sealed class HubWindow : Window
         BorderBrush = Frozen("#2f4a60"), BorderThickness = new Thickness(1), Background = Frozen("#0c1823"), Child = child,
     };
 
+    private string? _updateVersion;
+    private bool _dropsRunning, _announcementsNew;
+    private DateTime _newsAskedAt = DateTime.MinValue;
+
+    /// <summary>A round button of the header (like the pills beside it) with an icon, a tip and an orange dot when something is new.</summary>
+    private Border HeaderButton(string glyph, string tip, bool marked, Action click)
+    {
+        var icon = new TextBlock { Text = glyph, FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 18, Foreground = marked ? Accent : Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        var grid = new Grid { Width = 28, Height = 28 };
+        grid.Children.Add(icon);
+        if (marked)
+        {
+            grid.Children.Add(new Ellipse { Width = 9, Height = 9, Fill = Accent, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 0, -2, 0) });
+        }
+
+        Border button = Pill(grid);
+        button.Padding = new Thickness(8, 0, 8, 0);
+        button.Cursor = Cursors.Hand;
+        button.ToolTip = tip;
+        if (marked)
+        {
+            button.BorderBrush = Accent;
+        }
+
+        button.MouseLeftButtonUp += (_, _) => click();
+        return button;
+    }
+
+    private static void OpenPage(string url)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // no browser: nothing to open
+        }
+    }
+
+    /// <summary>Asks the update, the announcements and the Twitch drops now and then (every five minutes); the header marks what is new.</summary>
+    private async void AskNews()
+    {
+        if (DateTime.UtcNow - _newsAskedAt < TimeSpan.FromMinutes(5))
+        {
+            return;
+        }
+
+        _newsAskedAt = DateTime.UtcNow;
+        try
+        {
+            if (AionDPS.Update.UpdateService.CanUpdate)
+            {
+                var info = await AionDPS.Update.UpdateService.CheckAsync();
+                _updateVersion = info?.TargetFullRelease.Version.ToString();
+            }
+
+            long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
+            _announcementsNew = Announcements.AnnouncementsClient.IsNew(latest, MeterSettings.Load().AnnouncementsSeen);
+            var drops = await Announcements.TwitchDropsClient.GetStatusAsync();
+            _dropsRunning = drops is { Running: true } d && Announcements.TwitchDropsClient.IsNew(d.Running, d.Latest, MeterSettings.Load().TwitchDropsSeen);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // offline: the header shows what it knew
+        }
+    }
+
     private void RefreshStatus()
     {
         LocalizationManager loc = LocalizationManager.Instance;
@@ -274,7 +342,15 @@ public sealed class HubWindow : Window
             status = new HubStatus(false, null, null, null);
         }
 
+        AskNews();
         _right.Children.Clear();
+        _right.Children.Add(HeaderButton("\uE896", loc["Hub.Dash.Update"] + (_updateVersion is null ? "" : " – " + _updateVersion), _updateVersion is not null, () => GoTo("dashboard", "updates")));
+        if (_dropsRunning)
+        {
+            _right.Children.Add(HeaderButton("\uE7F4", loc["Hub.Dash.Drops"], true, () => OpenPage(Announcements.TwitchDropsClient.PageUrl)));
+        }
+
+        _right.Children.Add(HeaderButton("\uE789", loc["Hub.Dash.Announcements"], _announcementsNew, () => OpenPage(Announcements.AnnouncementsClient.PageUrl)));
         Color c = status.GameOn ? Color.FromRgb(0x3d, 0xdc, 0x84) : Color.FromRgb(0xff, 0x4d, 0x4d);
         var dot = new Ellipse
         {
