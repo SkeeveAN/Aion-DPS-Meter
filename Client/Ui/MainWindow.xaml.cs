@@ -6166,21 +6166,56 @@ public partial class MainWindow : Window
 
         var list = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = CompactOverlayRows.ItemTemplate };
         Grid.SetIsSharedSizeScope(list, true);
-        var stack = new StackPanel();
-        // the mode is chosen here, in the overlay designer, directly on the widget - not while the game is played
-        UIElement modeChoice = OpacityPanel.ModeRow(LocalizationManager.Instance, () => (int)_mode, m => SetMode((MeterMode)m));
-        var modeHost = new Border { Child = modeChoice, Margin = new Thickness(4, 0, 4, 4), Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
+        var compact = new StackPanel();
+        compact.Children.Add(head);
+        compact.Children.Add(legend);
+        compact.Children.Add(list);
+        // the other look of the DPS overlay: one chip per player
+        var chips = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = OverlayContent.ItemTemplate };
+        Grid.SetIsSharedSizeScope(chips, true);
+
+        var body = new ContentControl();
+        string? shown = null;
+        void ApplyStyle()
+        {
+            string style = MeterSettings.Load().OverlayStyle;
+            if (style == shown)
+            {
+                return;
+            }
+
+            shown = style;
+            body.Content = style == "Chips" ? chips : compact;
+        }
+
+        ApplyStyle();
+        var styleTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        styleTimer.Tick += (_, _) => ApplyStyle();
+
+        // the mode and the look are chosen here, in the overlay designer, directly on the widget - not while the game is played
+        var choice = new StackPanel();
+        choice.Children.Add(OpacityPanel.ModeRow(LocalizationManager.Instance, () => (int)_mode, m => SetMode((MeterMode)m)));
+        choice.Children.Add(OpacityPanel.StyleRow(LocalizationManager.Instance));
+        var modeHost = new Border { Child = choice, Margin = new Thickness(4, 0, 4, 4), Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed };
         Action showMode = () => modeHost.Visibility = OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
+        Action follow = ApplyStyle;
+        var stack = new StackPanel();
         stack.Loaded += (_, _) =>
         {
             OverlayDesigner.ActiveChanged += showMode;
+            WidgetKind.MeterModeChanged += follow;
             showMode();
+            ApplyStyle();
+            styleTimer.Start();
         };
-        stack.Unloaded += (_, _) => OverlayDesigner.ActiveChanged -= showMode;
+        stack.Unloaded += (_, _) =>
+        {
+            OverlayDesigner.ActiveChanged -= showMode;
+            WidgetKind.MeterModeChanged -= follow;
+            styleTimer.Stop();
+        };
         stack.Children.Add(modeHost);
-        stack.Children.Add(head);
-        stack.Children.Add(legend);
-        stack.Children.Add(list);
+        stack.Children.Add(body);
         return stack;
     }
 

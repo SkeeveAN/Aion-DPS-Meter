@@ -89,7 +89,7 @@ public partial class SettingsWindow
             "CombatShowBossCastBox", "CombatCastLockedBox", "CombatCastOpacity", "CombatTargetOpacity", "ShowNetworkOverlayBox", "NetworkOverlayLockedBox", "NetworkOpacity",
             "ShowTimetableBox", "TimetableLockedBox", "TimetableOpacityField", "ShowBossOverlayBox", "BossOverlayLockedBox", "BossOpacity", "ShowPetMapBox", "PetMapShowMapBox",
             "PetMapShowListBox", "PetFarmLockedBox", "PetListLockedBox", "PetInfoLockedBox", "PetMapOpacity", "PetListOpacity", "PetInfoOpacity", "HotkeyOverlayLockedBox", "HotkeyOpacity",
-            "OverlayOpacityBox", "OverlayStyleBox", "OverlayDockingBox", "OverlayGridSizeBox", "OverlayGridSnapBox",
+            "OverlayOpacityBox", "OverlayDockingBox", "OverlayGridSizeBox", "OverlayGridSnapBox",
         };
         foreach (string name in names)
         {

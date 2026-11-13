@@ -140,7 +140,10 @@ public sealed class MeterSettings
     /// <summary>The look of Hide UI: "Chips" (a click-through chip per player) or "Compact" (one
     /// transparent panel with a header, the fought boss and a dense line per player; it takes
     /// clicks, so it can be dragged, scaled and a player opened).</summary>
-    public string OverlayStyle { get; set; } = "Chips";
+    public string OverlayStyle { get; set; } = "Compact";
+
+    /// <summary>The player has chosen the look of the DPS overlay once (settings page or overlay designer); until then "Chips" from an older file reads as the compact list, the look the live meter widget was made in.</summary>
+    public bool OverlayStyleChosen { get; set; }
 
     /// <summary>Compact look only: the panel lets every click through to the game, like the chips do.
     /// Off by default - then it takes clicks (drag, scale, open a player).</summary>
@@ -739,6 +742,11 @@ public sealed class MeterSettings
             s.HotkeyDesigner = "Ctrl+Alt+D";
             s.HotkeyAllOverlays = "Ctrl+Alt+H";
             s.HotkeyCopyDamage = "Ctrl+Alt+C";
+        }
+
+        if (!s.OverlayStyleChosen && s.OverlayStyle == "Chips")
+        {
+            s.OverlayStyle = "Compact";
         }
 
         OverlayDesigner.Override(s);

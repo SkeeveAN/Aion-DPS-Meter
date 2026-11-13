@@ -886,6 +886,7 @@ internal sealed class OpacityPanel : Window
         if (title == WidgetKind.OverlayPrefix + "meter" && WidgetKind.MeterMode is { } getMode && WidgetKind.SetMeterMode is { } setMode)
         {
             stack.Children.Insert(1, OpacityPanel.ModeRow(loc, getMode, setMode));
+            stack.Children.Insert(2, OpacityPanel.StyleRow(loc));
         }
 
         if (split)
@@ -965,6 +966,55 @@ internal sealed class OpacityPanel : Window
         Mark();
         host.Children.Add(chips);
         // the window's chips set the same mode: these follow
+        host.Loaded += (_, _) =>
+        {
+            WidgetKind.MeterModeChanged += Mark;
+            Mark();
+        };
+        host.Unloaded += (_, _) => WidgetKind.MeterModeChanged -= Mark;
+        return host;
+    }
+
+    /// <summary>How the DPS overlay looks: the compact list or one chip per player (the same choice as in the settings of the DPS meter).</summary>
+    internal static UIElement StyleRow(LocalizationManager loc)
+    {
+        var host = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
+        host.Children.Add(new TextBlock { Text = loc["Settings.OverlayStyle"], Foreground = OverlayDesigner.Muted, FontSize = 11, Margin = new Thickness(0, 0, 0, 4) });
+        var chips = new WrapPanel();
+        string[] tags = { "Compact", "Chips" };
+        string[] names = { loc["Settings.OverlayStyle.Compact"], loc["Settings.OverlayStyle.Chips"] };
+        var buttons = new List<Button>();
+        void Mark()
+        {
+            string current = MeterSettings.Load().OverlayStyle;
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                bool on = tags[i] == current;
+                buttons[i].Background = on ? OverlayDesigner.Orange : OverlayDesigner.Panel;
+                buttons[i].Foreground = on ? OverlayDesigner.Ink : OverlayDesigner.Text;
+            }
+        }
+
+        for (int i = 0; i < tags.Length; i++)
+        {
+            string tag = tags[i];
+            Button chip = OverlayDesigner.Chip(names[i]);
+            chip.Margin = new Thickness(0, 0, 6, 6);
+            chip.Click += (_, _) =>
+            {
+                var s = MeterSettings.Load();
+                s.OverlayStyle = tag;
+                s.OverlayStyleChosen = true;
+                s.Save();
+                Mark();
+                WidgetKind.RaiseMeterModeChanged();
+            };
+            buttons.Add(chip);
+            chips.Children.Add(chip);
+        }
+
+        Mark();
+        host.Children.Add(chips);
         host.Loaded += (_, _) =>
         {
             WidgetKind.MeterModeChanged += Mark;
