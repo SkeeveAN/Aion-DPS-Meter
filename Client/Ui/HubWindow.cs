@@ -304,7 +304,7 @@ public sealed class HubWindow : Window
             Stroke = Light, StrokeThickness = 2.2, StrokeLineJoin = PenLineJoin.Round, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
             Width = 16, Height = 16, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center,
         };
-        var update = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 4, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = refresh, ToolTip = loc["Hub.Dash.CheckNow"], IsEnabled = AionDPS.Update.UpdateService.CanUpdate, Opacity = AionDPS.Update.UpdateService.CanUpdate ? 1.0 : 0.4 };
+        var update = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 4, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = refresh, ToolTip = loc["Hub.Dash.CheckNow"] };
         update.MouseEnter += (_, _) => update.Background = Hover;
         update.MouseLeave += (_, _) => update.Background = Brushes.Transparent;
         update.MouseLeftButtonUp += (_, _) => FooterUpdateClick();
@@ -352,8 +352,14 @@ public sealed class HubWindow : Window
     {
         // the icon stands for the check; the words are the tooltip
         LocalizationManager loc = LocalizationManager.Instance;
-        if (_updateText is null || !AionDPS.Update.UpdateService.CanUpdate)
+        if (_updateText is null)
         {
+            return;
+        }
+
+        if (!AionDPS.Update.UpdateService.CanUpdate)
+        {
+            _updateText.Text = loc["Hub.Dash.NotInstalled"];
             return;
         }
 
