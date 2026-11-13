@@ -301,12 +301,20 @@ public sealed class HubWindow : Window
         var refresh = new System.Windows.Shapes.Path
         {
             Data = Geometry.Parse("M16.5,6.5 A7,7 0 1 0 17,11 M16.5,2 L16.5,6.5 L12,6.5"),
-            Stroke = Light, StrokeThickness = 2.2, StrokeLineJoin = PenLineJoin.Round, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
+            Stroke = Muted, StrokeThickness = 1.8, StrokeLineJoin = PenLineJoin.Round, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
             Width = 16, Height = 16, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center,
         };
         var update = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 4, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = refresh, ToolTip = loc["Hub.Dash.CheckNow"] };
-        update.MouseEnter += (_, _) => update.Background = Hover;
-        update.MouseLeave += (_, _) => update.Background = Brushes.Transparent;
+        update.MouseEnter += (_, _) =>
+        {
+            update.Background = Hover;
+            refresh.Stroke = Light;
+        };
+        update.MouseLeave += (_, _) =>
+        {
+            update.Background = Brushes.Transparent;
+            refresh.Stroke = Muted;
+        };
         update.MouseLeftButtonUp += (_, _) => FooterUpdateClick();
         right.Children.Add(update);
 
