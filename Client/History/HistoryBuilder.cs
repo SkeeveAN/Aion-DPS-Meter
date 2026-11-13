@@ -85,6 +85,7 @@ public static class HistoryBuilder
             }
             finally
             {
+                GameLog.Maintain();
                 _running = false;
             }
         });

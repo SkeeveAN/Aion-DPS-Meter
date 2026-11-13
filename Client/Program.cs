@@ -446,6 +446,7 @@ internal static class Program
             Aion2.Aion2FieldBosses.EnablePersistence();
             History.GameLog.WriteCharacters();
             History.GameLog.WriteBosses();
+            History.GameLog.Maintain();
             var lastKnown = History.GameLog.LastKnownCharacter();
             Console.WriteLine($"aion2-history-add: log written; last known character {(lastKnown is null ? "none" : lastKnown.Name + " level " + lastKnown.Level + ", " + lastKnown.Tickets.Count + " counters")}");
             return;

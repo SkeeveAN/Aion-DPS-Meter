@@ -157,6 +157,66 @@ public static class GameLog
         }
     }
 
+    /// <summary>
+    /// Keeps the database small without losing what still matters, once a day: the counters and characters of the log older than 90 days are thinned to the last value of each day
+    /// (the state at the end of each day stays, the changes in between go), the field boss times older than 60 days go (a respawn time is only worth something until the boss is
+    /// there again), then the file is compacted. Stays and boss fights are never touched (a few hundred bytes each).
+    /// </summary>
+    public static void Maintain()
+    {
+        try
+        {
+            lock (FightHistory.Gate)
+            {
+                using SqliteConnection db = FightHistory.Open();
+                string today = "maintained|" + DateTime.Today.ToString("yyyy-MM-dd");
+                using (SqliteCommand done = db.CreateCommand())
+                {
+                    done.CommandText = "SELECT 1 FROM files WHERE key=$k";
+                    done.Parameters.AddWithValue("$k", today);
+                    if (done.ExecuteScalar() is not null)
+                    {
+                        return;
+                    }
+                }
+
+                long ninety = FightHistory.Ms(DateTime.Now.AddDays(-90)), sixty = FightHistory.Ms(DateTime.Now.AddDays(-60));
+                int removed = 0;
+                using (SqliteCommand thin = db.CreateCommand())
+                {
+                    // the last row of every day (per character and counter) stays
+                    thin.CommandText = @"
+DELETE FROM ticket_log WHERE ts_ms < $cut AND rowid NOT IN (
+  SELECT MAX(rowid) FROM ticket_log WHERE ts_ms < $cut GROUP BY name, server_id, ticket_id, ts_ms / 86400000);
+DELETE FROM character_log WHERE ts_ms < $cut AND rowid NOT IN (
+  SELECT MAX(rowid) FROM character_log WHERE ts_ms < $cut GROUP BY name, server_id, ts_ms / 86400000);
+DELETE FROM boss_log WHERE ts_ms < $boss;";
+                    thin.Parameters.AddWithValue("$cut", ninety);
+                    thin.Parameters.AddWithValue("$boss", sixty);
+                    removed = thin.ExecuteNonQuery();
+                }
+
+                using (SqliteCommand mark = db.CreateCommand())
+                {
+                    mark.CommandText = "DELETE FROM files WHERE key LIKE 'maintained|%'; INSERT INTO files (key) VALUES ($k);";
+                    mark.Parameters.AddWithValue("$k", today);
+                    mark.ExecuteNonQuery();
+                }
+
+                if (removed > 0)
+                {
+                    using SqliteCommand compact = db.CreateCommand();
+                    compact.CommandText = "PRAGMA wal_checkpoint(TRUNCATE); VACUUM;";
+                    compact.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // tidied up the next time
+        }
+    }
+
     /// <summary>The character the log saw last with its last counters - what the program starts from when the checklist's own files are not there (after a crash, a new folder).</summary>
     public static TicketCharacter? LastKnownCharacter()
     {
