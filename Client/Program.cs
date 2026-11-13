@@ -1353,6 +1353,16 @@ internal static class Program
             panel.Visibility = System.Windows.Visibility.Visible;
             panel.Width = 390;
         }
+        else if (kind == "widget")
+        {
+            // the live meter widget over the game: the list as the compact overlay draws it, on the overlay's dark background
+            var meterView = (System.Windows.UIElement)type.GetMethod("BuildMeterView", flags)!.Invoke(window, null)!;
+            panel = new System.Windows.Controls.Border
+            {
+                Width = 390, Padding = new System.Windows.Thickness(6, 4, 6, 4), CornerRadius = new System.Windows.CornerRadius(6),
+                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x99, 0, 0, 0)), Child = meterView,
+            };
+        }
         else if (kind is "window" or "window-open")
         {
             // The normal window as it is without Hide UI: its whole content at a typical size.
