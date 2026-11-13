@@ -1010,103 +1010,23 @@ public sealed class CharacterWindow : Window
     {
         int Value(int id) => values.GetValueOrDefault(id);
 
-        var page = new Grid();
-        page.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 280 });
-        page.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        page.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 260 });
-
-        // Left: the portrait (when the server has it and the profile upload is on), then the main attributes as bars.
-        int top = Math.Max(1, MainAttributes.Max(a => Value(a.Id)));
-        var left = new StackPanel();
+        // The portrait (when the server has it and the profile upload is on) and the ring: the main attributes and the ten Lord values stand in the ring with their numbers (the Lord's
+        // name is in the tooltip), so the two lists that repeated them are gone.
+        var page = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left };
         if (_portrait is not null)
         {
-            left.Children.Add(new Image { Source = _portrait, Height = 300, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 0, 8), HorizontalAlignment = HorizontalAlignment.Center });
+            var portrait = new Image { Source = _portrait, Height = 340, Stretch = Stretch.Uniform, HorizontalAlignment = HorizontalAlignment.Center };
+            Border portraitCard = Card(portrait, new Thickness(16, 14, 16, 14));
+            portraitCard.VerticalAlignment = VerticalAlignment.Top;
+            page.Children.Add(portraitCard);
         }
 
-        left.Children.Add(Heading(Loc("Character.AttrMain")));
-        foreach ((string key, int id) in MainAttributes)
-        {
-            int value = Value(id);
-            var row = new Grid { Margin = new Thickness(0, 7, 0, 7), Opacity = value == 0 ? 0.55 : 1 };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(92) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
-            UIElement icon = AttrIcon(key, false, 24);
-            row.Children.Add(icon);
-            TextBlock name = Text(Loc("Character.Attr." + key));
-            name.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetColumn(name, 1);
-            row.Children.Add(name);
-
-            var bar = new Grid { Height = 8, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 8, 0) };
-            bar.Children.Add(new Border { CornerRadius = new CornerRadius(4), Background = Res("Brush.Border") });
-            bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(value, 0), GridUnitType.Star) });
-            bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(top - value, 0.0001), GridUnitType.Star) });
-            if (value > 0)
-            {
-                bar.Children.Add(new Border { CornerRadius = new CornerRadius(4), Background = Res("Brush.Accent") });
-            }
-
-            Grid.SetColumn(bar, 2);
-            row.Children.Add(bar);
-            TextBlock number = Text(value.ToString(CultureInfo.CurrentCulture), 13, FontWeights.Bold);
-            number.HorizontalAlignment = HorizontalAlignment.Right;
-            number.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetColumn(number, 3);
-            row.Children.Add(number);
-            left.Children.Add(row);
-        }
-
-        Border leftCard = Card(left, new Thickness(16, 14, 16, 8));
-        leftCard.VerticalAlignment = VerticalAlignment.Top;
-        Grid.SetColumn(leftCard, 0);
-        page.Children.Add(leftCard);
-
-        // Middle: the Lord ring.
         var middle = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
         middle.Children.Add(Heading(Loc("Character.AttrLords")));
         middle.Children.Add(BuildRing(Value));
-        Border middleCard = Card(middle, new Thickness(14, 14, 14, 10), new Thickness(12, 0, 12, 0));
+        Border middleCard = Card(middle, new Thickness(14, 14, 14, 10), new Thickness(_portrait is not null ? 12 : 0, 0, 0, 0));
         middleCard.VerticalAlignment = VerticalAlignment.Top;
-        Grid.SetColumn(middleCard, 1);
         page.Children.Add(middleCard);
-
-        // Right: the Lord list.
-        var list = new StackPanel();
-        list.Children.Add(Heading(Loc("Character.AttrLords")));
-        for (int i = 0; i < Lords.Length; i++)
-        {
-            (string key, int id) = Lords[i];
-            var row = new Grid { Margin = new Thickness(0, 0, 0, 0) };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            UIElement icon = AttrIcon(key, true, 28);
-            ((FrameworkElement)icon).HorizontalAlignment = HorizontalAlignment.Left;
-            row.Children.Add(icon);
-            var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-            names.Children.Add(Text(Loc("Character.Attr." + key)));
-            names.Children.Add(Text(Loc("Character.Lord." + key), 10.5, brush: Res("Brush.TextMuted")));
-            Grid.SetColumn(names, 1);
-            row.Children.Add(names);
-            TextBlock number = Text(Value(id).ToString(CultureInfo.CurrentCulture), 14, FontWeights.Bold);
-            number.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetColumn(number, 2);
-            row.Children.Add(number);
-            list.Children.Add(new Border
-            {
-                Padding = new Thickness(0, 5, 0, 5),
-                BorderThickness = new Thickness(0, 0, 0, i == Lords.Length - 1 ? 0 : 1),
-                BorderBrush = Res("Brush.Border"),
-                Child = row,
-            });
-        }
-
-        Border listCard = Card(list, new Thickness(16, 14, 16, 8));
-        listCard.VerticalAlignment = VerticalAlignment.Top;
-        Grid.SetColumn(listCard, 2);
-        page.Children.Add(listCard);
         return page;
     }
 
