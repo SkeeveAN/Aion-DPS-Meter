@@ -12,7 +12,7 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class DashboardBoard : DockPanel
 {
-    private const double Cell = 10, MinW = 240, MinH = 110, Margin8 = 12;
+    private const double Cell = 10, MinW = 240, MinH = 110, Margin8 = 10, Pull = 9;
     private readonly DashboardSources _src;
     private readonly Canvas _canvas = new();
     private readonly Dictionary<string, (Border Frame, Border Body)> _frames = new();
@@ -29,6 +29,19 @@ public sealed class DashboardBoard : DockPanel
         if (_places.Count == 0)
         {
             _places = FirstLayout();
+            Save();
+        }
+        else
+        {
+            // places from an earlier version may stand between the grid lines: onto the grid, so edges can be brought level
+            foreach (DashboardPlace p in _places.Values)
+            {
+                p.X = Snap(p.X);
+                p.Y = Snap(p.Y);
+                p.W = Math.Max(MinW, Snap(p.W));
+                p.H = Math.Max(MinH, Snap(p.H));
+            }
+
             Save();
         }
 
@@ -54,24 +67,20 @@ public sealed class DashboardBoard : DockPanel
 
     private static Dictionary<string, DashboardPlace> FirstLayout()
     {
-        // two columns of the first six widgets, as the overview always looked
+        // pairs side by side, both of a pair as high as the higher one, all on the grid
         var result = new Dictionary<string, DashboardPlace>();
-        double[] column = { Margin8, 0 };
-        double leftY = Margin8, rightY = Margin8, rightX = 520 + 2 * Margin8;
-        int i = 0;
-        foreach (var w in HubDashboard.Widgets.Where(w => !w.Static))
+        var shown = HubDashboard.Widgets.Where(w => !w.Static).ToList();
+        double y = Margin8;
+        for (int i = 0; i < shown.Count; i += 2)
         {
-            bool left = i++ % 2 == 0;
-            double y = left ? leftY : rightY;
-            result[w.Id] = new DashboardPlace { X = left ? column[0] : rightX, Y = y, W = w.W, H = w.H };
-            if (left)
+            var pair = shown.Skip(i).Take(2).ToList();
+            double height = pair.Max(w => w.H);
+            for (int k = 0; k < pair.Count; k++)
             {
-                leftY += w.H + Margin8;
+                result[pair[k].Id] = new DashboardPlace { X = Margin8 + k * (520 + Margin8), Y = y, W = 520, H = height };
             }
-            else
-            {
-                rightY += w.H + Margin8;
-            }
+
+            y += height + Margin8;
         }
 
         return result;
@@ -155,8 +164,15 @@ public sealed class DashboardBoard : DockPanel
             }
 
             Point now = e.GetPosition(_canvas);
-            Canvas.SetLeft(frame, Math.Max(0, Snap(x0 + now.X - start.X)));
-            Canvas.SetTop(frame, Math.Max(0, Snap(y0 + now.Y - start.Y)));
+            double nx = x0 + now.X - start.X, ny = y0 + now.Y - start.Y;
+            var others = Others(frame).ToList();
+            // left edge to another's left or right+gap; right edge to another's right or left-gap (the same for top and bottom)
+            double left = Pull_(nx, others.SelectMany(o => new[] { L(o), L(o) + o.Width + Margin8 }));
+            double rightFit = Pull_(nx + frame.Width, others.SelectMany(o => new[] { L(o) + o.Width, L(o) - Margin8 })) - frame.Width;
+            double top = Pull_(ny, others.SelectMany(o => new[] { T(o), T(o) + o.Height + Margin8 }));
+            double bottomFit = Pull_(ny + frame.Height, others.SelectMany(o => new[] { T(o) + o.Height, T(o) - Margin8 })) - frame.Height;
+            Canvas.SetLeft(frame, Math.Max(0, Math.Abs(left - nx) <= Math.Abs(rightFit - nx) ? left : rightFit));
+            Canvas.SetTop(frame, Math.Max(0, Math.Abs(top - ny) <= Math.Abs(bottomFit - ny) ? top : bottomFit));
         };
         head.MouseLeftButtonUp += (_, _) =>
         {
@@ -192,8 +208,11 @@ public sealed class DashboardBoard : DockPanel
             }
 
             Point now = e.GetPosition(_canvas);
-            frame.Width = Math.Max(MinW, Snap(w0 + now.X - s0.X));
-            frame.Height = Math.Max(MinH, Snap(h0 + now.Y - s0.Y));
+            var others = Others(frame).ToList();
+            double right = Pull_(L(frame) + w0 + now.X - s0.X, others.SelectMany(o => new[] { L(o) + o.Width, L(o) - Margin8 }));
+            double bottom = Pull_(T(frame) + h0 + now.Y - s0.Y, others.SelectMany(o => new[] { T(o) + o.Height, T(o) - Margin8 }));
+            frame.Width = Math.Max(MinW, right - L(frame));
+            frame.Height = Math.Max(MinH, bottom - T(frame));
         };
         grip.MouseLeftButtonUp += (_, _) =>
         {
@@ -221,6 +240,28 @@ public sealed class DashboardBoard : DockPanel
     }
 
     private static double Snap(double v) => Math.Round(v / Cell) * Cell;
+
+    /// <summary>Pulls a value to the nearest edge of another widget (or the gap beside it) when it is within a few pixels, else to the grid.</summary>
+    private double Pull_(double v, IEnumerable<double> candidates)
+    {
+        double best = double.NaN, bestDistance = Pull + 0.01;
+        foreach (double c in candidates)
+        {
+            double d = Math.Abs(v - c);
+            if (d < bestDistance)
+            {
+                bestDistance = d;
+                best = c;
+            }
+        }
+
+        return double.IsNaN(best) ? Snap(v) : best;
+    }
+
+    private IEnumerable<Border> Others(Border frame) => _frames.Values.Select(f => f.Frame).Where(f => !ReferenceEquals(f, frame));
+
+    private static double L(Border f) => Canvas.GetLeft(f);
+    private static double T(Border f) => Canvas.GetTop(f);
 
     private void Refresh()
     {
