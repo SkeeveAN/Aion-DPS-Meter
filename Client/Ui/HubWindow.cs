@@ -64,7 +64,7 @@ public sealed class HubWindow : Window
         _sections = BuildSections();
         _section = _sections[0];
         LocalizationManager loc = LocalizationManager.Instance;
-        Title = loc["Hub.Title"];
+        Title = "Daevas Power Suite";
         Width = 1500;
         Height = 900;
         MinWidth = 1000;
@@ -82,8 +82,8 @@ public sealed class HubWindow : Window
         barGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         barGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         barGrid.ColumnDefinitions.Add(new ColumnDefinition());
-        barGrid.Children.Add(Brand());
-        Grid.SetColumn(_tabs, 1);
+        Grid.SetColumn(_tabs, 0);
+        _tabs.Margin = new Thickness(-8, 0, 0, 0); // the first tab stands at the very left
         barGrid.Children.Add(_tabs);
         Grid.SetColumn(_right, 2);
         _right.HorizontalAlignment = HorizontalAlignment.Right;
@@ -115,6 +115,7 @@ public sealed class HubWindow : Window
     {
         _sessions = sessions;
         _version = version;
+        Title = version.Length > 0 ? "Daevas Power Suite " + version : "Daevas Power Suite";
         if (_entry is { Kind: "overview" } shown)
         {
             ShowEntry(shown);
