@@ -2428,7 +2428,13 @@ public partial class MainWindow : Window
         // 2.0: the program starts with the new interface; the meter window stays behind it (it carries the capture and the overlays)
         if (!Headless && MeterSettings.Load().OpenHubAtStart)
         {
-            Dispatcher.BeginInvoke(new Action(() => OnOpenHubClicked(this, new RoutedEventArgs())), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                // the new interface is the program: the meter window goes into the tray (it carries the capture and the overlays) and closing the new window ends the program
+                _hubIsMain = true;
+                OnOpenHubClicked(this, new RoutedEventArgs());
+                _trayIcon?.HideWindow();
+            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
 
         // See AppIconImage's own XAML remarks: a plain pack://siteoforigin Source silently
@@ -5025,7 +5031,18 @@ public partial class MainWindow : Window
                 "Aion DPS Meter " + AppVersion.Text,
                 new (string?, Action?)[]
                 {
-                    (loc["Main.Tray.Show"], () => _trayIcon?.Restore()),
+                    (loc["Main.Tray.Show"], () =>
+                    {
+                        if (_hubWindow is { IsLoaded: true } hubShown)
+                        {
+                            hubShown.WindowState = WindowState.Normal;
+                            hubShown.Activate();
+                        }
+                        else
+                        {
+                            _trayIcon?.Restore();
+                        }
+                    }),
                     (loc["Main.Tray.ToggleUi"], SetHideUi),
                     (loc["Main.Tray.StreamLink"], CopyStreamLink),
                     (loc["Main.MenuApp.CheckForUpdates"], () => _ = RunUpdateCheck(announceResult: true)),
@@ -5924,6 +5941,7 @@ public partial class MainWindow : Window
     }
 
     private HubWindow? _hubWindow;
+    private bool _hubIsMain;
 
     private void OnOpenHubClicked(object sender, RoutedEventArgs e)
     {
@@ -5964,7 +5982,14 @@ public partial class MainWindow : Window
                 return new HubStatus(own is not null, own?.Name, className, server);
             });
         _hubWindow.SetDashboardSources(() => _sessions.Sessions, AppVersion.Text);
-        _hubWindow.Closed += (_, _) => _hubWindow = null;
+        _hubWindow.Closed += (_, _) =>
+        {
+            _hubWindow = null;
+            if (_hubIsMain)
+            {
+                Close();
+            }
+        };
         _hubWindow.Show();
     }
 

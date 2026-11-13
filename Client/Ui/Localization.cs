@@ -121,18 +121,23 @@ public sealed class LocalizationManager : INotifyPropertyChanged
     {
         try
         {
-            string path = AssetStore.Path("i18n", "ui_strings.json");
-            if (!File.Exists(path))
+            // the shipped table first, then the delivered one on top: a delivered table older than the program lacks the newest keys
+            string shipped = Path.Combine(AssetStore.ShippedRoot, "i18n", "ui_strings.json");
+            string delivered = AssetStore.Path("i18n", "ui_strings.json");
+            foreach (string path in new[] { shipped, delivered }.Distinct())
             {
-                return;
-            }
-
-            var raw = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(path));
-            if (raw is not null)
-            {
-                foreach (var (key, value) in raw)
+                if (!File.Exists(path))
                 {
-                    _table[key] = value;
+                    continue;
+                }
+
+                var raw = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(path));
+                if (raw is not null)
+                {
+                    foreach (var (key, value) in raw)
+                    {
+                        _table[key] = value;
+                    }
                 }
             }
         }

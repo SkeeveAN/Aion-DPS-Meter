@@ -118,6 +118,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-alpha.10: the new interface is the program now - it opens at start and the old meter window goes into the tray (it keeps carrying the capture and the overlays), closing the new window ends the program, the tray entry shows the new window; the texts of the new interface no longer show their raw keys when the delivered text table is older than the program",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
