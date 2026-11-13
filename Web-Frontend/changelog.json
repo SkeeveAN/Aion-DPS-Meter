@@ -139,6 +139,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-alpha.13: the settings are part of the tools - every tool has the tabs Display and Settings (with the switch Tool active and its own cards), the program's settings are the group Client at the top of the Tools menu (General, DPS meter, Recording & upload, Hotkeys, System), the Settings tab is gone; tools that live on game data say so while the game is off; the dummy test lost its overlay switches; the new interface has an Always on top symbol and an update check in the footer",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
