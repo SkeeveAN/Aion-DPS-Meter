@@ -25,6 +25,7 @@ public abstract class MovableOverlay : Window
     private const double MinScale = 0.5, MaxScale = 3.0;
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _frame;
+    private readonly Border _gear;
     private readonly Border _bodyHost = new();
     private readonly Border _shiftHost = new();
     private readonly TranslateTransform _shift = new();
@@ -61,7 +62,24 @@ public abstract class MovableOverlay : Window
         _bodyHost.ClipToBounds = true;
         var stack = new DockPanel { LastChildFill = true };
         stack.Children.Add(_bodyHost);
-        _frame = new Border { Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(2), Background = Brushes.Transparent };
+        // the overlay designer's gear: a click opens the panel (opacity, colour, reset, hide), the same as the right-click
+        _gear = new Border
+        {
+            Width = 22, Height = 22, CornerRadius = new CornerRadius(11), Margin = new Thickness(0, 0, 3, 0), Cursor = Cursors.Hand, Visibility = Visibility.Collapsed,
+            HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42)),
+            ToolTip = LocalizationManager.Instance["Designer.Settings"],
+            Child = new TextBlock { Text = "\u2699", FontSize = 15, Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x05)), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, -2, 0, 0) },
+        };
+        _gear.MouseLeftButtonDown += (_, e) => e.Handled = true; // not a drag of the overlay
+        _gear.MouseLeftButtonUp += (_, e) =>
+        {
+            OverlayDesigner.ShowOpacityPanel(this);
+            e.Handled = true;
+        };
+        var layer = new Grid();
+        layer.Children.Add(stack);
+        layer.Children.Add(_gear);
+        _frame = new Border { Child = layer, LayoutTransform = _scale, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(2), Background = Brushes.Transparent };
         _frame.MouseLeftButtonDown += (_, e) =>
         {
             if (!_locked && e.ButtonState == MouseButtonState.Pressed)
@@ -184,6 +202,10 @@ public abstract class MovableOverlay : Window
         {
             ApplyLocked(locked);
         }
+        else
+        {
+            _gear.Visibility = !locked && OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed; // the designer may have come on with the overlay unlocked already
+        }
     }
 
     private void SetScale(double scale)
@@ -224,6 +246,7 @@ public abstract class MovableOverlay : Window
         }
 
         _edges.Show(!locked);
+        _gear.Visibility = !locked && OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
         _frame.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _frame.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
         _frame.Background = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromArgb(0x30, 0, 0, 0));

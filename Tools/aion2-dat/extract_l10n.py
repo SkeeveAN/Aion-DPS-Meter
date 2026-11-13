@@ -19,7 +19,7 @@ dat = Aion2Dat(bytes.fromhex(consts["manifest_hash_key_hex"]), int(consts["heade
 root, out = sys.argv[1], sys.argv[2]
 os.makedirs(out, exist_ok=True)
 count = dat.load_manifest(open(os.path.join(root, "Aion2/Content/StartUpData/Table/key_manifest.dat"), "rb").read())
-print(f"key manifest: {count} keys")
+print(f"key manifest: {count} keys" + (f", AppVersion {dat.version}" if dat.version else ", plain key"))
 text_dir = os.path.join(root, "AION2/Content/L10N/Text")
 for locale in sorted(os.listdir(text_dir)):
     path = os.path.join(text_dir, locale, "L10NString.dat")

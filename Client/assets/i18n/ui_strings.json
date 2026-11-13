@@ -14439,8 +14439,8 @@
     "ko": "격자"
   },
   "Designer.Hint": {
-    "en": "Drag overlays · corners = size · edges = width/height · right-click = opacity, hide",
-    "de": "Overlays ziehen · Ecken = Größe · Kanten = Breite/Höhe · Rechtsklick = Deckkraft, Ausblenden",
+    "en": "Drag overlays · corners = size · edges = width/height · gear or right-click = opacity, colour, hide",
+    "de": "Overlays ziehen · Ecken = Größe · Kanten = Breite/Höhe · Zahnrad oder Rechtsklick = Deckkraft, Farbe, Ausblenden",
     "fr": "Glisser les overlays · coins = taille · bords = largeur/hauteur · clic droit = opacité, masquer",
     "es": "Arrastra los overlays · esquinas = tamaño · bordes = ancho/alto · clic derecho = opacidad, ocultar",
     "ru": "Перетаскивайте оверлеи · углы = размер · края = ширина/высота · правый клик = прозрачность, скрыть",
@@ -16333,5 +16333,17 @@
     "pt": "Remover o overlay",
     "ja": "オーバーレイを外す",
     "ko": "오버레이 제거"
+  },
+  "Designer.Settings": {
+    "en": "Settings of this overlay",
+    "de": "Einstellungen dieses Overlays",
+    "fr": "Réglages de cet overlay",
+    "es": "Ajustes de este overlay",
+    "ru": "Настройки этого оверлея",
+    "zh": "此叠加层的设置",
+    "zh-TW": "此疊加層的設定",
+    "pt": "Configurações deste overlay",
+    "ja": "このオーバーレイの設定",
+    "ko": "이 오버레이 설정"
   }
 }
