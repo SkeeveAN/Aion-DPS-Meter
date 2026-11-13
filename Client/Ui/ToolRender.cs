@@ -74,7 +74,7 @@ public static class ToolRender
             {
                 // "hub", "hub:character:checklist": the new interface with a tab and a page of it
                 string[] parts = hub.Split(':');
-                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "checklist" ? ChecklistPage() : id == "hub.settings" ? SettingsPage() : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, _ => null, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
                     () => new HubStatus(true, "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (parts.Length >= 3)
                 {

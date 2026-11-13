@@ -15637,5 +15637,17 @@
     "pt": "Sempre no topo",
     "ja": "常に手前に表示",
     "ko": "항상 위에"
+  },
+  "Settings.Tool.NoMore": {
+    "en": "This tool has nothing more to set here; what can be set is in the tool itself.",
+    "de": "Dieses Tool hat hier keine weiteren Einstellungen; was sich einstellen lässt, steht im Tool selbst.",
+    "fr": "Cet outil n'a rien d'autre à régler ici ; le reste se trouve dans l'outil.",
+    "es": "Esta herramienta no tiene más ajustes aquí; el resto está en la propia herramienta.",
+    "ru": "Здесь у инструмента больше нет настроек; остальное — в самом инструменте.",
+    "zh": "此工具在此没有更多设置;可设置的内容在工具本身中。",
+    "zh-TW": "此工具在此沒有更多設定;可設定的內容在工具本身中。",
+    "pt": "Esta ferramenta não tem mais ajustes aqui; o que dá para ajustar está na própria ferramenta.",
+    "ja": "このツールにここで設定できる項目はありません。設定はツール自体にあります。",
+    "ko": "이 도구에는 여기서 더 설정할 항목이 없습니다. 설정은 도구 자체에 있습니다."
   }
 }

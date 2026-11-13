@@ -217,7 +217,11 @@ public sealed class HubWindow : Window
                 new Group(loc["Hub.Group.World"], Tools("loot", "craft", "petmap", "timetable", "boss")),
                 new Group(loc["Hub.Group.Combat"], Tools("combat", "assist", "stream", "network", "theme")),
             }),
-            new Section("settings", settings, new[] { new Group(settings, new[] { new Entry("settings", settings, "tool", "hub.settings") }) }),
+            new Section("settings", settings, new[]
+            {
+                new Group(settings, new[] { new Entry("settings", loc["Settings.Nav.Program"], "tool", "hub.settings") }),
+                new Group(loc["Main.MenuTools"], ToolSwitch.All.Where(t => t.Id != "analyzer").Select(t => new Entry("cfg." + t.Id, loc[t.NameKey], "tool", "hub.cfg." + t.Id)).ToArray()),
+            }),
         };
     }
 

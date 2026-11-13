@@ -612,6 +612,29 @@ public partial class SettingsWindow : Window
         }
 
         border.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Brush.Text");
+        // inside the new interface the tools' settings stand under Settings > Tools of its own menu: only the program's pages remain here
+        if (SideNav.Parent is FrameworkElement navScroll)
+        {
+            DependencyObject? column = navScroll;
+            while (column is not null && column is not Border { BorderThickness.Right: > 0 })
+            {
+                column = LogicalTreeHelper.GetParent(column);
+            }
+
+            if (column is FrameworkElement navColumn)
+            {
+                navColumn.Visibility = Visibility.Collapsed;
+                if (navColumn.Parent is Grid navGrid && navGrid.ColumnDefinitions.Count > 0)
+                {
+                    navGrid.ColumnDefinitions[0].Width = new GridLength(0);
+                }
+            }
+        }
+
+        // check boxes took the plain Windows text colour (near black on the dark page): they wear the theme's
+        var boxes = new Style(typeof(CheckBox), Resources[typeof(CheckBox)] as Style);
+        boxes.Setters.Add(new Setter(Control.ForegroundProperty, new DynamicResourceExtension("Brush.Text")));
+        border.Resources[typeof(CheckBox)] = boxes;
         Content = null;
         return border;
     }

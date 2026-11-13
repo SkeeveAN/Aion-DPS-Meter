@@ -6241,6 +6241,35 @@ public partial class MainWindow : Window
             });
         }
 
+        if (module.StartsWith("hub.cfg.", StringComparison.Ordinal))
+        {
+            string tool = module["hub.cfg.".Length..];
+            var cleanups = new List<Action>();
+            UIElement? Panel(string name)
+            {
+                UIElement? body = SettingsPanelTab(name, applied, out Action cleanup);
+                cleanups.Add(cleanup);
+                return body;
+            }
+
+            CraftConfigWindow? craft = null;
+            UIElement? CraftBody()
+            {
+                craft = new CraftConfigWindow(() => _liveSource?.Entities as Aion2EntityDirectory);
+                return craft.TakeEmbedded();
+            }
+
+            return ToolSettingsPage.Build(tool, applied, Panel, CraftBody, () =>
+            {
+                foreach (Action cleanup in cleanups)
+                {
+                    cleanup();
+                }
+
+                craft?.CloseEmbedded();
+            });
+        }
+
         if (module == "hub.settings")
         {
             // the settings inside the new interface: the content of the settings window (never shown); Save applies, as in the window
