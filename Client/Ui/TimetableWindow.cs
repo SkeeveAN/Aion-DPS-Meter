@@ -13,67 +13,24 @@ namespace AionDPS.Ui;
 /// look of the compact DPS overlay, independent of the meter window: drag its header to place it,
 /// the corner grip scales it, both are remembered. It takes clicks, so it is no click-through chip.
 /// </summary>
-public sealed class TimetableWindow : Window
+public sealed class TimetableWindow : MovableOverlay
 {
     private TimeSpan _lookahead = TimeSpan.FromMinutes(60);
     private const double PanelWidth = 260;
-    private const double MinScale = 0.7, MaxScale = 2.0;
 
     private readonly StackPanel _body = new();
-    private readonly ScaleTransform _scale = new(1, 1);
-    private readonly Border _panel;
-    private readonly DockPanel _header;
-    private readonly OverlayEdgeResize _edges;
-    private bool _locked = true;
+    private readonly TextBlock _title = new() { FontWeight = FontWeights.Bold, FontSize = 12, Margin = new Thickness(2, 0, 0, 4) };
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
 
-    public TimetableWindow()
+    public TimetableWindow() : base(OverlayPlaces.Timetable, new Border(), Load, Save, SystemParameters.WorkArea.Right - PanelWidth - 40, 120, LoadSize, SaveSize, OverlayEdgeMode.Width)
     {
-        Title = "Aion DPS Timetable";
-        WindowStyle = WindowStyle.None;
-        AllowsTransparency = true;
-        Background = Brushes.Transparent;
-        ResizeMode = ResizeMode.NoResize;
-        ShowInTaskbar = false;
-        AltTabHidden.Apply(this);
-        Topmost = true;
-        SizeToContent = SizeToContent.WidthAndHeight;
-
-        var settings = MeterSettings.Load();
-        ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
-        ApplyLookahead(settings.TimetableLookaheadMinutes);
-        SetScale(settings.TimetableScale);
-
-        var header = new DockPanel { Margin = new Thickness(2, 0, 0, 4), Background = Brushes.Transparent, Cursor = Cursors.SizeAll };
-        header.MouseLeftButtonDown += (_, e) =>
-        {
-            if (!_locked && e.ButtonState == MouseButtonState.Pressed)
-            {
-                DragMove();
-                SavePosition();
-            }
-        };
-        var title = new TextBlock { FontWeight = FontWeights.Bold, FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Tag = "title" };
-        title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
-        header.Children.Add(title);
-        _header = header;
-
-        var stack = new StackPanel();
-        stack.Children.Add(header);
+        _title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
+        var stack = new StackPanel { MinWidth = PanelWidth - 12 };
+        stack.Children.Add(_title);
         stack.Children.Add(_body);
-        _panel = new Border
-        {
-            Width = PanelWidth, CornerRadius = new CornerRadius(6), Padding = new Thickness(6, 5, 6, 5), Child = stack,
-            LayoutTransform = _scale, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top,
-        };
-        _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
-        if (settings.TimetableWidth is > 0) { _panel.Width = settings.TimetableWidth.Value; }
-        _edges = new OverlayEdgeResize(this, _panel, () => _scale.ScaleX, () => { }, SavePosition, SetScale, OverlayEdgeMode.Width);
-        Content = _edges.Wrap(_panel);
-        ApplyLocked(settings.TimetableLocked);
-
-        Left = settings.TimetableLeft ?? SystemParameters.WorkArea.Right - PanelWidth - 40;
-        Top = settings.TimetableTop ?? 120;
+        // the dark background at the overlay's opacity (the designer sets the opacity, the colour and how clear the text is, like for every overlay)
+        Body = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(6, 5, 6, 5), Child = stack, Background = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0)) };
+        ApplyLookahead(MeterSettings.Load().TimetableLookaheadMinutes);
         _timer.Tick += (_, _) => Refresh();
         IsVisibleChanged += (_, _) =>
         {
@@ -88,98 +45,45 @@ public sealed class TimetableWindow : Window
             }
         };
         Closed += (_, _) => _timer.Stop();
-        Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
-        OverlayPlaces.WasReset += onReset;
-        Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
-        OverlayDocking.Attach(this, SavePosition);
-        // the overlay designer: a right-click opens how clear it is, and "Hide" takes it off the screen (like every other overlay)
-        MouseRightButtonUp += (_, e) =>
-        {
-            if (!_locked && OverlayDesigner.Active)
-            {
-                OverlayDesigner.ShowOpacityPanel(this);
-                e.Handled = true;
-            }
-        };
     }
 
-    /// <summary>Place, width and scale from the settings again (after "reset size and position").</summary>
-    private void ReloadPlace()
+    private static (double?, double?, double) Load()
     {
         var s = MeterSettings.Load();
-        SetScale(s.TimetableScale);
-        _panel.Width = s.TimetableWidth is > 0 ? s.TimetableWidth.Value : PanelWidth;
-        Left = s.TimetableLeft ?? SystemParameters.WorkArea.Right - PanelWidth - 40;
-        Top = s.TimetableTop ?? 120;
+        return (s.TimetableLeft, s.TimetableTop, s.TimetableScale);
     }
 
-    /// <summary>Locked: click-through, no handles (the overlay designer takes it off the screen, like every other overlay). Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
-    public void ApplyLocked(bool locked)
+    private static void Save(double left, double top, double scale)
     {
-        _locked = locked;
-        _edges.Show(!locked);
-        _header.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
-        _panel.BorderThickness = new Thickness(1);
-        _panel.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
-        ApplyClickThrough();
+        var s = MeterSettings.Load();
+        s.TimetableLeft = left;
+        s.TimetableTop = top;
+        s.TimetableScale = scale;
+        s.Save();
+    }
+
+    private static (double?, double?) LoadSize()
+    {
+        var s = MeterSettings.Load();
+        return (s.TimetableWidth, null);
+    }
+
+    private static void SaveSize(double? width, double? height)
+    {
+        var s = MeterSettings.Load();
+        s.TimetableWidth = width;
+        s.Save();
     }
 
     /// <summary>Takes the content out of a window that is never shown, to put it into a tool's own window (a live view); <see cref="Refresh"/> keeps filling it.</summary>
     public UIElement DetachView()
     {
         ApplyLocked(true);
-        var content = (UIElement)Content;
-        Content = null;
-        return content;
-    }
-
-    /// <summary>Applies the lock only when it changed (the main window passes the settings on every refresh).</summary>
-    public void ApplyLockedIfChanged(bool locked)
-    {
-        if (locked != _locked)
-        {
-            ApplyLocked(locked);
-        }
-    }
-
-    private void ApplyClickThrough()
-    {
-        var handle = new System.Windows.Interop.WindowInteropHelper(this).EnsureHandle();
-        if (handle != IntPtr.Zero)
-        {
-            using var native = new NativeOverlay(this);
-            native.SetClickThrough(_locked);
-        }
+        return DetachBody()!;
     }
 
     /// <summary>How many minutes ahead an event is listed as "starts within ..." (Settings, 0 to 60; 0 lists nothing as "about to start").</summary>
     public void ApplyLookahead(int minutes) => _lookahead = TimeSpan.FromMinutes(Math.Clamp(minutes, 0, 60));
-
-    /// <summary>The overlay's dark background at the Settings' opacity (the same as the DPS overlay's).</summary>
-    public void ApplyOpacity(double opacity)
-    {
-        opacity = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.6, 0.0, 1.0);
-        var brush = new SolidColorBrush(Color.FromArgb((byte)Math.Round(opacity * 255), 0, 0, 0));
-        brush.Freeze();
-        Resources["Brush.OverlayBg"] = brush;
-    }
-
-    private void SetScale(double scale)
-    {
-        scale = Math.Clamp(double.IsFinite(scale) ? scale : 1.0, MinScale, MaxScale);
-        _scale.ScaleX = scale;
-        _scale.ScaleY = scale;
-    }
-
-    private void SavePosition()
-    {
-        var s = MeterSettings.Load();
-        s.TimetableLeft = Left;
-        s.TimetableTop = Top;
-        s.TimetableScale = _scale.ScaleX;
-        s.TimetableWidth = _panel.Width;
-        s.Save();
-    }
 
     /// <summary>Rebuilds the lines for the current time: what runs now with the time left, what
     /// starts within the hour with the time to go, else when the next one starts.</summary>
@@ -188,10 +92,7 @@ public sealed class TimetableWindow : Window
         var loc = LocalizationManager.Instance;
         string language = loc.Language;
         DateTime now = Aion2.ServerClock.Now; // the PC's time, corrected by the server clock's offset
-        if (_panel.Child is StackPanel { Children: [DockPanel { Children: [_, TextBlock title] }, ..] })
-        {
-            title.Text = loc["Timetable.Title"];
-        }
+        _title.Text = loc["Timetable.Title"];
 
         _body.Children.Clear();
         var shown = MeterSettings.Load().TimetableEvents;
@@ -248,17 +149,6 @@ public sealed class TimetableWindow : Window
         if (Content is UIElement content)
         {
             content.Visibility = show ? Visibility.Visible : Visibility.Hidden;
-        }
-    }
-
-    /// <summary>Puts the overlay back at the front of the topmost band. The main window calls this right after
-    /// raising itself, once a second, so the two never take turns being in front (that made the timetable
-    /// flicker through the meter). Not done from <see cref="Refresh"/>: its timer is offset from the main one.</summary>
-    public void RaiseToFront()
-    {
-        if (IsVisible)
-        {
-            NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
         }
     }
 

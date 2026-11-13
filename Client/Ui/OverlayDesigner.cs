@@ -326,6 +326,24 @@ public static class OverlayDesigner
         _ => s.OverlayOpacities.GetValueOrDefault(title, 0.6),
     };
 
+    /// <summary>The opacity of the background as the player set it; false when none was set (the overlay keeps its own dark colour).</summary>
+    internal static bool TryGetBackground(MeterSettings s, string title, out double value)
+    {
+        if (title == OverlayPlaces.Timetable)
+        {
+            value = s.TimetableOpacity ?? s.OverlayOpacity;
+            return true;
+        }
+
+        if (title == OverlayPlaces.PetInfo)
+        {
+            value = s.OverlayOpacities.GetValueOrDefault(title, s.OverlayOpacity);
+            return true;
+        }
+
+        return s.OverlayOpacities.TryGetValue(title, out value);
+    }
+
     internal static void SetBackground(MeterSettings s, string title, double value)
     {
         switch (title)
@@ -340,7 +358,7 @@ public static class OverlayDesigner
     }
 
     /// <summary>Only the overlays that fade as a whole (the boss fight, the map, the timetable) have a single opacity; the others split content and background.</summary>
-    internal static bool HasSplit(string title) => title is not (OverlayPlaces.Timetable or OverlayPlaces.PetInfo);
+    internal static bool HasSplit(string title) => true;
 
     internal static readonly Brush Navy = Frozen(0x0f, 0x1c, 0x27, 0xee), Line = Frozen(0x29, 0x45, 0x57, 0xff), Orange = Frozen(0xff, 0xba, 0x42, 0xff), Ink = Frozen(0x1a, 0x12, 0x05, 0xff),
         Text = Frozen(0xea, 0xf2, 0xf8, 0xff), Muted = Frozen(0x9d, 0xb3, 0xc2, 0xff), Panel = Frozen(0x1b, 0x31, 0x42, 0xff);

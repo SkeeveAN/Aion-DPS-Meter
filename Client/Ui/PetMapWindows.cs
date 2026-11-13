@@ -294,7 +294,7 @@ public abstract class MovableOverlay : Window
         }
 
         _baseAlpha ??= bg.Color.A;
-        double alpha = MeterSettings.Load().OverlayOpacities.TryGetValue(Title, out double v) ? Math.Clamp(v, 0, 1) : _baseAlpha.Value / 255.0;
+        double alpha = OverlayDesigner.TryGetBackground(MeterSettings.Load(), Title, out double v) ? Math.Clamp(v, 0, 1) : _baseAlpha.Value / 255.0;
         if (OpacityFloor is { } floor)
         {
             alpha = Math.Max(alpha, floor);

@@ -5925,7 +5925,6 @@ public partial class MainWindow : Window
     /// <summary>The overlay designer on or off (hotkey and menu): every overlay can be moved at once, see OverlayDesigner.</summary>
     private void ToggleOverlayDesigner()
     {
-        OverlayDesigner.Extra ??= () => new Window?[] { _timetable, _petFarm }.Where(w => w is { IsVisible: true }).Select(w => w!);
         OverlayDesigner.Toggle(() => ApplySettingsEverywhere(MeterSettings.Load()));
     }
 
@@ -7208,15 +7207,9 @@ public partial class MainWindow : Window
         }
 
         _timetable ??= new TimetableWindow();
-        _timetable.ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
         _timetable.ApplyLookahead(settings.TimetableLookaheadMinutes);
         _timetable.ApplyLockedIfChanged(settings.TimetableLocked);
-        if (!_timetable.IsVisible)
-        {
-            _timetable.Show();
-            _timetable.ApplyLocked(settings.TimetableLocked); // the click-through style is set again after the first show
-        }
-
+        _timetable.ShowOverlay(true); // shows it when it is hidden; the opacity, colour and text opacity are read again every couple of seconds
         _timetable.Refresh();
     }
 
@@ -7255,8 +7248,7 @@ public partial class MainWindow : Window
         }
 
         _petFarm ??= new PetFarmWindow();
-        _petFarm.ApplyOpacity(settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.PetInfo, settings.OverlayOpacity));
-        _petFarm.ApplyLocked(settings.PetInfoLocked);
+        _petFarm.Relock(settings.PetInfoLocked);
         _petFarmController ??= new PetFarmController(_petFarm, () => _source?.Entities as Aion2EntityDirectory);
     }
 

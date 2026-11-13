@@ -14,135 +14,50 @@ namespace AionDPS.Ui;
 /// visible with an outline, takes clicks and can be dragged and scaled with the grip in its corner; place and size are remembered.
 /// The target comes from the screen (<see cref="PetFarmReader"/>), the level from the pet list of the login frame.
 /// </summary>
-public sealed class PetFarmWindow : Window
+public sealed class PetFarmWindow : MovableOverlay
 {
-    private const double MinScale = 0.6, MaxScale = 3.0;
-
     private readonly StackPanel _lines = new();
-    private readonly ScaleTransform _scale = new(1, 1);
-    private readonly Border _panel;
     private IReadOnlyList<(string Pet, string Level)> _current = Array.Empty<(string, string)>();
-    private bool _locked = true;
-    private double _centerX;
-    private bool _resizing;
-    private readonly OverlayEdgeResize _edges;
 
-    public PetFarmWindow()
+    public PetFarmWindow() : base(OverlayPlaces.PetInfo, new Border(), Load, Save, SystemParameters.WorkArea.Width / 2 - 60, 140, LoadSize, SaveSize, OverlayEdgeMode.Uniform)
     {
-        Title = "Aion DPS Pet Farming";
-        WindowStyle = WindowStyle.None;
-        AllowsTransparency = true;
-        Background = Brushes.Transparent;
-        ResizeMode = ResizeMode.NoResize;
-        ShowInTaskbar = false;
-        AltTabHidden.Apply(this);
-        ShowActivated = false; // the game keeps the keyboard
-        Topmost = true;
-        SizeToContent = SizeToContent.WidthAndHeight;
-
-        var settings = MeterSettings.Load();
-        ApplyOpacity(settings.OverlayOpacity);
-        SetScale(settings.PetFarmScale);
-
-        var stack = new DockPanel { LastChildFill = true };
-        stack.Children.Add(new Border { Child = _lines, ClipToBounds = true });
-        _panel = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1) };
-        _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
-        _panel.MouseLeftButtonDown += (_, e) =>
-        {
-            if (!_locked && e.ButtonState == MouseButtonState.Pressed)
-            {
-                DragMove();
-                var s = MeterSettings.Load();
-                _centerX = Left + ActualWidth / 2;
-                s.PetFarmLeft = _centerX; // the saved value is the window's middle: the text grows to both sides
-                s.PetFarmTop = Top;
-                s.Save();
-            }
-        };
-        if (settings.PetFarmWidth is > 0) { _panel.Width = settings.PetFarmWidth.Value; }
-        if (settings.PetFarmHeight is > 0) { _panel.Height = settings.PetFarmHeight.Value; }
-        _edges = new OverlayEdgeResize(this, _panel, () => _scale.ScaleX, () => _resizing = true, () =>
-        {
-            _resizing = false;
-            _centerX = Left + ActualWidth / 2;
-            var s = MeterSettings.Load();
-            s.PetFarmScale = _scale.ScaleX;
-            s.PetFarmWidth = double.IsNaN(_panel.Width) ? null : _panel.Width;
-            s.PetFarmHeight = double.IsNaN(_panel.Height) ? null : _panel.Height;
-            s.PetFarmLeft = _centerX;
-            s.PetFarmTop = Top;
-            s.Save();
-        }, SetScale, OverlayEdgeMode.Uniform);
-        Content = _edges.Wrap(_panel);
-        _centerX = settings.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2;
-        Left = _centerX - 60;
-        SizeChanged += (_, e) => { if (!_resizing) { Left = _centerX - e.NewSize.Width / 2; } }; // keep the middle in place when the text changes
-        Top = settings.PetFarmTop ?? 140;
-        ApplyLocked(settings.PetInfoLocked);
-        // the overlay designer: a right-click opens how clear it is and "Hide"
-        MouseRightButtonUp += (_, e) =>
-        {
-            if (!_locked && OverlayDesigner.Active)
-            {
-                OverlayDesigner.ShowOpacityPanel(this);
-                e.Handled = true;
-            }
-        };
-        Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
-        OverlayPlaces.WasReset += onReset;
-        Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
-        LocationChanged += (_, _) => _centerX = Left + ActualWidth / 2; // placed from outside (docked): the middle is where it is now
-        OverlayDocking.Attach(this, () =>
-        {
-            var s = MeterSettings.Load();
-            s.PetFarmLeft = _centerX;
-            s.PetFarmTop = Top;
-            s.Save();
-        });
+        // the dark background at the overlay's opacity (the designer sets the opacity, the colour and how clear the text is, like for every overlay)
+        Body = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = _lines, Background = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0)) };
     }
 
-    /// <summary>Place, size and scale from the settings again (after "reset size and position").</summary>
-    private void ReloadPlace()
+    private static (double?, double?, double) Load()
     {
         var s = MeterSettings.Load();
-        SetScale(s.PetFarmScale);
-        _panel.Width = s.PetFarmWidth is > 0 ? s.PetFarmWidth.Value : double.NaN;
-        _panel.Height = s.PetFarmHeight is > 0 ? s.PetFarmHeight.Value : double.NaN;
-        _centerX = s.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2;
-        Left = _centerX - ActualWidth / 2;
-        Top = s.PetFarmTop ?? 140;
+        return (s.PetFarmLeft, s.PetFarmTop, s.PetFarmScale);
     }
 
-    private void SetScale(double scale)
+    private static void Save(double left, double top, double scale)
     {
-        scale = Math.Clamp(double.IsFinite(scale) ? scale : 1.0, MinScale, MaxScale);
-        _scale.ScaleX = scale;
-        _scale.ScaleY = scale;
+        var s = MeterSettings.Load();
+        s.PetFarmLeft = left;
+        s.PetFarmTop = top;
+        s.PetFarmScale = scale;
+        s.Save();
     }
 
-    public void ApplyOpacity(double opacity)
+    private static (double?, double?) LoadSize()
     {
-        opacity = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.6, 0.0, 1.0);
-        var brush = new SolidColorBrush(Color.FromArgb((byte)Math.Round(opacity * 255), 0, 0, 0));
-        brush.Freeze();
-        Resources["Brush.OverlayBg"] = brush;
+        var s = MeterSettings.Load();
+        return (s.PetFarmWidth, s.PetFarmHeight);
+    }
+
+    private static void SaveSize(double? width, double? height)
+    {
+        var s = MeterSettings.Load();
+        s.PetFarmWidth = width;
+        s.PetFarmHeight = height;
+        s.Save();
     }
 
     /// <summary>Locked: click-through, no outline, no grip, hidden without a pet. Unlocked: clickable, outlined, always visible so it can be placed.</summary>
-    public void ApplyLocked(bool locked)
+    public void Relock(bool locked)
     {
-        _locked = locked;
-        _edges.Show(!locked);
-        _panel.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
-        _panel.SetResourceReference(Border.BorderBrushProperty, locked ? "Brush.OverlayBg" : "Brush.Accent");
-        var handle = new System.Windows.Interop.WindowInteropHelper(this).EnsureHandle();
-        if (handle != IntPtr.Zero)
-        {
-            using var native = new NativeOverlay(this);
-            native.SetClickThrough(locked);
-        }
-
+        ApplyLockedIfChanged(locked);
         Render();
     }
 
@@ -150,7 +65,7 @@ public sealed class PetFarmWindow : Window
     public void Show(IReadOnlyList<(string Pet, string Level)> lines)
     {
         string key = string.Join("\n", lines.Select(l => l.Pet + "|" + l.Level));
-        if (key == string.Join("\n", _current.Select(l => l.Pet + "|" + l.Level)) && IsVisible == (lines.Count > 0 || !_locked))
+        if (key == string.Join("\n", _current.Select(l => l.Pet + "|" + l.Level)) && IsVisible == (lines.Count > 0 || !IsLocked))
         {
             return;
         }
@@ -178,10 +93,10 @@ public sealed class PetFarmWindow : Window
 
     private void Render()
     {
-        bool placeholder = _current.Count == 0 && !_locked;
+        bool placeholder = _current.Count == 0 && !IsLocked;
         if (_current.Count == 0 && !placeholder)
         {
-            Hide();
+            ShowOverlay(false);
             return;
         }
 
@@ -189,34 +104,10 @@ public sealed class PetFarmWindow : Window
         var rows = placeholder ? new[] { (LocalizationManager.Instance["PetFarm.Placeholder"], "") } : _current.ToArray();
         foreach ((string pet, string level) in rows)
         {
-            var row = BuildRow(pet, level);
-            _lines.Children.Add(row);
+            _lines.Children.Add(BuildRow(pet, level));
         }
 
-        if (!IsVisible)
-        {
-            Show();
-            ApplyLockedStyle();
-        }
-    }
-
-    // the click-through style is lost when WPF recreates the native window on a first Show
-    private void ApplyLockedStyle()
-    {
-        var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        if (handle != IntPtr.Zero)
-        {
-            using var native = new NativeOverlay(this);
-            native.SetClickThrough(_locked);
-        }
-    }
-
-    public void RaiseToFront()
-    {
-        if (IsVisible)
-        {
-            NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
-        }
+        ShowOverlay(true);
     }
 }
 
