@@ -15553,5 +15553,89 @@
     "pt": "encerrada",
     "ja": "終了",
     "ko": "종료"
+  },
+  "Hub.Dash.DefaultName": {
+    "en": "Default",
+    "de": "Standard",
+    "fr": "Standard",
+    "es": "Estándar",
+    "ru": "Стандартный",
+    "zh": "默认",
+    "zh-TW": "預設",
+    "pt": "Padrão",
+    "ja": "標準",
+    "ko": "기본"
+  },
+  "Hub.Dash.NewName": {
+    "en": "Dashboard {0}",
+    "de": "Dashboard {0}",
+    "fr": "Tableau {0}",
+    "es": "Panel {0}",
+    "ru": "Обзор {0}",
+    "zh": "总览 {0}",
+    "zh-TW": "總覽 {0}",
+    "pt": "Painel {0}",
+    "ja": "ダッシュボード {0}",
+    "ko": "대시보드 {0}"
+  },
+  "Hub.Dash.AddDashboard": {
+    "en": "New dashboard",
+    "de": "Neues Dashboard",
+    "fr": "Nouveau tableau de bord",
+    "es": "Nuevo panel",
+    "ru": "Новый обзор",
+    "zh": "新建总览",
+    "zh-TW": "新增總覽",
+    "pt": "Novo painel",
+    "ja": "新しいダッシュボード",
+    "ko": "새 대시보드"
+  },
+  "Hub.Dash.Rename": {
+    "en": "Rename",
+    "de": "Umbenennen",
+    "fr": "Renommer",
+    "es": "Renombrar",
+    "ru": "Переименовать",
+    "zh": "重命名",
+    "zh-TW": "重新命名",
+    "pt": "Renomear",
+    "ja": "名前を変更",
+    "ko": "이름 변경"
+  },
+  "Hub.Dash.Delete": {
+    "en": "Delete dashboard",
+    "de": "Dashboard löschen",
+    "fr": "Supprimer le tableau de bord",
+    "es": "Eliminar panel",
+    "ru": "Удалить обзор",
+    "zh": "删除总览",
+    "zh-TW": "刪除總覽",
+    "pt": "Excluir painel",
+    "ja": "ダッシュボードを削除",
+    "ko": "대시보드 삭제"
+  },
+  "Hub.Dash.DeleteSure": {
+    "en": "Really delete?",
+    "de": "Wirklich löschen?",
+    "fr": "Vraiment supprimer ?",
+    "es": "¿Eliminar de verdad?",
+    "ru": "Точно удалить?",
+    "zh": "确定删除?",
+    "zh-TW": "確定刪除?",
+    "pt": "Excluir mesmo?",
+    "ja": "本当に削除しますか?",
+    "ko": "정말 삭제할까요?"
+  },
+  "Hub.Footer.OnTop": {
+    "en": "Always on top",
+    "de": "Immer im Vordergrund",
+    "fr": "Toujours au premier plan",
+    "es": "Siempre visible",
+    "ru": "Поверх всех окон",
+    "zh": "始终置顶",
+    "zh-TW": "永遠在最上層",
+    "pt": "Sempre no topo",
+    "ja": "常に手前に表示",
+    "ko": "항상 위에"
   }
 }

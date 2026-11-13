@@ -434,6 +434,13 @@ public sealed class MeterSettings
     /// <summary>The widgets on the dashboard of the new interface and where they stand (a widget that is not in the list is not on the dashboard); empty = the first layout.</summary>
     public Dictionary<string, DashboardPlace> Dashboard { get; set; } = new();
 
+    /// <summary>The dashboards of the new interface (the first is the standard one; a name that is empty shows as "Standard" in the language of the program) and the one shown.</summary>
+    public List<DashboardSet> Dashboards { get; set; } = new();
+    public int DashboardActive { get; set; }
+
+    /// <summary>The new interface stays above other windows.</summary>
+    public bool HubAlwaysOnTop { get; set; }
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 
@@ -943,4 +950,11 @@ public sealed class DashboardPlace
     public double Y { get; set; }
     public double W { get; set; } = 420;
     public double H { get; set; } = 180;
+}
+
+/// <summary>One dashboard: its name and the widgets on it (a widget id: a built-in one, or "page:" and the id of a page of the app) with their places.</summary>
+public sealed class DashboardSet
+{
+    public string Name { get; set; } = "";
+    public Dictionary<string, DashboardPlace> Widgets { get; set; } = new();
 }

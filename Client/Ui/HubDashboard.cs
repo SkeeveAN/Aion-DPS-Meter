@@ -9,7 +9,11 @@ using AionDPS.Update;
 namespace AionDPS.Ui;
 
 /// <summary>What the dashboard pages read from the running meter.</summary>
-public sealed record DashboardSources(Func<HubStatus> Status, Action<string> OpenTool, Func<IReadOnlyList<SessionInfo>> Sessions, Action OpenSessions, string Version);
+/// <summary>A page of the app a dashboard can take as a widget: its id, the group it belongs to and its name.</summary>
+public sealed record HubPageInfo(string Id, string Group, string Title);
+
+public sealed record DashboardSources(Func<HubStatus> Status, Action<string> OpenTool, Func<IReadOnlyList<SessionInfo>> Sessions, Action OpenSessions, string Version,
+    Func<IReadOnlyList<HubPageInfo>> Pages, Func<string, ToolPage?> BuildPage);
 
 /// <summary>
 /// The pages of the Dashboard tab of the new interface, all on real data and drawn again every second: the overview (game and character, today's checklist, what is on now,

@@ -18,32 +18,55 @@ public sealed class DashboardBoard : DockPanel
     private readonly Dictionary<string, (Border Frame, Border Body)> _frames = new();
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly Button _add = new();
+    private readonly WrapPanel _tabs = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly Dictionary<string, UIElement> _cached = new();
-    private Dictionary<string, DashboardPlace> _places;
+    private readonly Dictionary<string, ToolPage> _pages = new();
+    private List<DashboardSet> _sets;
+    private int _active;
+    private Dictionary<string, DashboardPlace> _places = new();
+
+    /// <summary>A widget: a built-in one (see <see cref="HubDashboard.Widgets"/>) or a page of the app ("page:" and its id).</summary>
+    private sealed record Spec(string Id, string Title, string? Opens, double W, double H, bool Cached);
+
+    private Spec? SpecOf(string id)
+    {
+        if (id.StartsWith("page:", StringComparison.Ordinal))
+        {
+            HubPageInfo? page = _src.Pages().FirstOrDefault(p => "page:" + p.Id == id);
+            return page is null ? null : new Spec(id, page.Title, null, 520, 400, true);
+        }
+
+        var w = HubDashboard.Widgets.FirstOrDefault(x => x.Id == id);
+        return w is null ? null : new Spec(id, LocalizationManager.Instance[w.TitleKey], w.Opens, w.W, w.H, w.Static);
+    }
 
     public DashboardBoard(DashboardSources src)
     {
         _src = src;
         var loc = LocalizationManager.Instance;
-        _places = MeterSettings.Load().Dashboard;
-        if (_places.Count == 0)
+        MeterSettings settings = MeterSettings.Load();
+        _sets = settings.Dashboards;
+        if (_sets.Count == 0)
         {
-            _places = FirstLayout();
-            Save();
+            // the first start (or a layout of an earlier version): the standard dashboard
+            _sets.Add(new DashboardSet { Widgets = settings.Dashboard.Count > 0 ? settings.Dashboard : FirstLayout() });
         }
-        else
+
+        _active = Math.Clamp(settings.DashboardActive, 0, _sets.Count - 1);
+        foreach (DashboardSet set in _sets)
         {
             // places from an earlier version may stand between the grid lines: onto the grid, so edges can be brought level
-            foreach (DashboardPlace p in _places.Values)
+            foreach (DashboardPlace p in set.Widgets.Values)
             {
                 p.X = Snap(p.X);
                 p.Y = Snap(p.Y);
                 p.W = Math.Max(MinW, Snap(p.W));
                 p.H = Math.Max(MinH, Snap(p.H));
             }
-
-            Save();
         }
+
+        _places = _sets[_active].Widgets;
+        Save();
 
         _add.Content = "＋";
         _add.ToolTip = loc["Hub.Dash.AddWidget"];
@@ -55,19 +78,183 @@ public sealed class DashboardBoard : DockPanel
         _add.SetResourceReference(Control.BackgroundProperty, "Brush.Accent");
         _add.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
         _add.Foreground = new SolidColorBrush(Color.FromRgb(0x1a, 0x12, 0x00));
-        _add.HorizontalAlignment = HorizontalAlignment.Right;
         _add.Click += (_, _) => ShowAddMenu();
-        SetDock(_add, Dock.Top);
-        Children.Add(_add);
+        var top = new DockPanel { Margin = new Thickness(16, 0, 0, 0) };
+        SetDock(_add, Dock.Right);
+        top.Children.Add(_add);
+        _tabs.Margin = new Thickness(0, 10, 0, 0);
+        top.Children.Add(_tabs);
+        SetDock(top, Dock.Top);
+        Children.Add(top);
         _canvas.HorizontalAlignment = HorizontalAlignment.Left;
         _canvas.VerticalAlignment = VerticalAlignment.Top;
         Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _canvas });
+        BuildTabs();
         Build();
         _timer.Tick += (_, _) => Refresh();
         _timer.Start();
     }
 
-    public void Stop() => _timer.Stop();
+    private string NameOf(int index) => _sets[index].Name.Length > 0 ? _sets[index].Name : index == 0 ? LocalizationManager.Instance["Hub.Dash.DefaultName"] : string.Format(LocalizationManager.Instance["Hub.Dash.NewName"], index + 1);
+
+    /// <summary>The row of dashboards: one chip each (the shown one with a pencil at its edge) and a small plus for a new one.</summary>
+    private void BuildTabs()
+    {
+        var loc = LocalizationManager.Instance;
+        _tabs.Children.Clear();
+        for (int i = 0; i < _sets.Count; i++)
+        {
+            int index = i;
+            bool on = i == _active;
+            var label = new TextBlock { Text = NameOf(i), FontWeight = on ? FontWeights.SemiBold : FontWeights.Normal, VerticalAlignment = VerticalAlignment.Center };
+            label.SetResourceReference(TextBlock.ForegroundProperty, on ? "Brush.Accent" : "Brush.TextMuted");
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(label);
+            TextBlock? pencil = null;
+            if (on)
+            {
+                pencil = new TextBlock { Text = "\uE70F", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 12, Margin = new Thickness(8, 0, 0, 0), Cursor = Cursors.Hand, VerticalAlignment = VerticalAlignment.Center, ToolTip = loc["Hub.Dash.Rename"] };
+                pencil.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+                row.Children.Add(pencil);
+            }
+
+            var chip = new Border { Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 0), CornerRadius = new CornerRadius(15), BorderThickness = new Thickness(1), Cursor = Cursors.Hand, Child = row, Background = Brushes.Transparent };
+            chip.SetResourceReference(Border.BorderBrushProperty, on ? "Brush.Accent" : "Brush.Border");
+            chip.MouseLeftButtonUp += (_, e) =>
+            {
+                if (e.OriginalSource is TextBlock { Text: "\uE70F" })
+                {
+                    return;
+                }
+
+                SwitchTo(index);
+            };
+            if (pencil is not null)
+            {
+                pencil.MouseLeftButtonUp += (_, e) =>
+                {
+                    ShowEditPopup(chip);
+                    e.Handled = true;
+                };
+            }
+
+            _tabs.Children.Add(chip);
+        }
+
+        var plus = new TextBlock { Text = "＋", FontSize = 14, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        plus.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        var small = new Border { Width = 28, Height = 28, CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(1), Cursor = Cursors.Hand, Child = plus, ToolTip = loc["Hub.Dash.AddDashboard"], Background = Brushes.Transparent, Margin = new Thickness(0, 0, 8, 0) };
+        small.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        small.MouseLeftButtonUp += (_, _) =>
+        {
+            _sets.Add(new DashboardSet());
+            Save();
+            SwitchTo(_sets.Count - 1);
+        };
+        _tabs.Children.Add(small);
+    }
+
+    private void SwitchTo(int index)
+    {
+        if (index == _active && _canvas.Children.Count > 0)
+        {
+            return;
+        }
+
+        ReleasePages();
+        _active = index;
+        _places = _sets[_active].Widgets;
+        Save();
+        BuildTabs();
+        Build();
+    }
+
+    /// <summary>The inline popup of the pencil: the name of the dashboard to change, and Delete (asks once more; the last dashboard cannot be deleted).</summary>
+    private void ShowEditPopup(FrameworkElement anchor)
+    {
+        var loc = LocalizationManager.Instance;
+        var box = new TextBox { Text = _sets[_active].Name.Length > 0 ? _sets[_active].Name : NameOf(_active), MinWidth = 200, Padding = new Thickness(6, 4, 6, 4) };
+        var popup = new System.Windows.Controls.Primitives.Popup { PlacementTarget = anchor, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom, StaysOpen = false, AllowsTransparency = true, VerticalOffset = 4 };
+        void Apply()
+        {
+            string name = box.Text.Trim();
+            _sets[_active].Name = name.Length == 0 || (_active == 0 && name == loc["Hub.Dash.DefaultName"]) ? "" : name;
+            Save();
+            BuildTabs();
+            popup.IsOpen = false;
+        }
+
+        var ok = new Button { Content = loc["Hub.Dash.Rename"], Padding = new Thickness(12, 3, 12, 3), Margin = new Thickness(8, 0, 0, 0) };
+        ok.Click += (_, _) => Apply();
+        box.KeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Enter)
+            {
+                Apply();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                popup.IsOpen = false;
+            }
+        };
+        var nameRow = new DockPanel();
+        SetDock(ok, Dock.Right);
+        nameRow.Children.Add(ok);
+        nameRow.Children.Add(box);
+        var stack = new StackPanel { Margin = new Thickness(0) };
+        stack.Children.Add(nameRow);
+        if (_sets.Count > 1)
+        {
+            var delete = new Button { Content = loc["Hub.Dash.Delete"], Padding = new Thickness(12, 3, 12, 3), Margin = new Thickness(0, 8, 0, 0), HorizontalAlignment = HorizontalAlignment.Left };
+            delete.SetResourceReference(Control.ForegroundProperty, "Brush.Danger");
+            bool asked = false;
+            delete.Click += (_, _) =>
+            {
+                if (!asked)
+                {
+                    asked = true;
+                    delete.Content = loc["Hub.Dash.DeleteSure"];
+                    return;
+                }
+
+                popup.IsOpen = false;
+                ReleasePages();
+                _sets.RemoveAt(_active);
+                _active = Math.Max(0, _active - 1);
+                _places = _sets[_active].Widgets;
+                Save();
+                BuildTabs();
+                Build();
+            };
+            stack.Children.Add(delete);
+        }
+
+        var frame = new Border { Padding = new Thickness(12), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Child = stack, Margin = new Thickness(0, 0, 12, 12), Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 12, ShadowDepth = 2, Opacity = 0.5 } };
+        frame.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+        frame.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+        popup.Child = frame;
+        popup.IsOpen = true;
+        popup.Opened += (_, _) => { };
+        box.Dispatcher.BeginInvoke(new Action(() => { box.Focus(); box.SelectAll(); }), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    /// <summary>Ends the pages that stand as widgets (their timers); a dashboard that is shown again builds them again.</summary>
+    private void ReleasePages()
+    {
+        foreach (ToolPage page in _pages.Values)
+        {
+            page.Cleanup?.Invoke();
+        }
+
+        _pages.Clear();
+        _cached.Clear();
+    }
+
+    public void Stop()
+    {
+        _timer.Stop();
+        ReleasePages();
+    }
 
     private static Dictionary<string, DashboardPlace> FirstLayout()
     {
@@ -93,7 +280,8 @@ public sealed class DashboardBoard : DockPanel
     private void Save()
     {
         var s = MeterSettings.Load();
-        s.Dashboard = _places.ToDictionary(kv => kv.Key, kv => kv.Value);
+        s.Dashboards = _sets;
+        s.DashboardActive = _active;
         s.Save();
     }
 
@@ -101,21 +289,28 @@ public sealed class DashboardBoard : DockPanel
     {
         _canvas.Children.Clear();
         _frames.Clear();
-        foreach (var widget in HubDashboard.Widgets.Where(w => _places.ContainsKey(w.Id)))
+        foreach (string id in _places.Keys.ToList())
         {
-            AddFrame(widget);
+            if (SpecOf(id) is { } spec)
+            {
+                AddFrame(spec);
+            }
+            else
+            {
+                _places.Remove(id); // a page that is not there any more
+            }
         }
 
         Refresh();
         FitCanvas();
     }
 
-    private void AddFrame(HubDashboard.Widget widget)
+    private void AddFrame(Spec widget)
     {
         var loc = LocalizationManager.Instance;
         DashboardPlace place = _places[widget.Id];
         var body = new Border { Padding = new Thickness(0, 4, 0, 0), ClipToBounds = true };
-        var title = new TextBlock { Text = loc[widget.TitleKey].ToUpperInvariant(), FontSize = 11, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
+        var title = new TextBlock { Text = widget.Title.ToUpperInvariant(), FontSize = 11, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
         var close = new TextBlock { Text = "✕", Cursor = Cursors.Hand, FontSize = 12, Margin = new Thickness(8, 0, 0, 0), ToolTip = loc["Hub.Dash.RemoveWidget"] };
         close.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
@@ -272,16 +467,36 @@ public sealed class DashboardBoard : DockPanel
         DateTime now = DateTime.Now;
         foreach (var (id, (_, body)) in _frames)
         {
-            // the update and the news ask the network: they are built once
-            if (HubDashboard.Widgets.First(w => w.Id == id).Static)
+            // the update and the news ask the network, a page of the app has its own life: they are built once
+            if (SpecOf(id) is { Cached: true })
             {
                 if (!_cached.TryGetValue(id, out UIElement? kept))
                 {
-                    _cached[id] = kept = HubDashboard.WidgetBody(id, _src, now);
+                    if (id.StartsWith("page:", StringComparison.Ordinal))
+                    {
+                        ToolPage? page = _src.BuildPage(id["page:".Length..]);
+                        if (page is not null)
+                        {
+                            _pages[id] = page;
+                        }
+
+                        kept = page?.Content ?? new TextBlock { Text = "–" };
+                    }
+                    else
+                    {
+                        kept = HubDashboard.WidgetBody(id, _src, now);
+                    }
+
+                    _cached[id] = kept;
                 }
 
                 if (!ReferenceEquals(body.Child, kept))
                 {
+                    if (kept is FrameworkElement element && element.Parent is Decorator oldHost)
+                    {
+                        oldHost.Child = null;
+                    }
+
                     body.Child = kept;
                 }
 
@@ -309,24 +524,39 @@ public sealed class DashboardBoard : DockPanel
     {
         var loc = LocalizationManager.Instance;
         var menu = new ContextMenu();
-        var free = HubDashboard.Widgets.Where(w => !_places.ContainsKey(w.Id)).ToList();
-        if (free.Count == 0)
+        void Place(Spec spec)
         {
-            menu.Items.Add(new MenuItem { Header = loc["Hub.Dash.AddNone"], IsEnabled = false });
+            double bottom = _places.Values.Select(p => p.Y + p.H).DefaultIfEmpty(0).Max();
+            _places[spec.Id] = new DashboardPlace { X = Margin8, Y = Snap(bottom + Margin8), W = spec.W, H = spec.H };
+            Save();
+            Build();
         }
 
-        foreach (var widget in free)
+        foreach (var widget in HubDashboard.Widgets.Where(w => !_places.ContainsKey(w.Id)))
         {
-            var item = new MenuItem { Header = loc[widget.TitleKey] };
-            var chosen = widget;
-            item.Click += (_, _) =>
-            {
-                double bottom = _places.Values.Select(p => p.Y + p.H).DefaultIfEmpty(0).Max();
-                _places[chosen.Id] = new DashboardPlace { X = Margin8, Y = Snap(bottom + Margin8), W = chosen.W, H = chosen.H };
-                Save();
-                Build();
-            };
+            Spec spec = SpecOf(widget.Id)!;
+            var item = new MenuItem { Header = spec.Title };
+            item.Click += (_, _) => Place(spec);
             menu.Items.Add(item);
+        }
+
+        // every window of the app can stand on a dashboard: the pages of the tabs, grouped as the tabs are
+        menu.Items.Add(new Separator());
+        foreach (var group in _src.Pages().GroupBy(p => p.Group))
+        {
+            var sub = new MenuItem { Header = group.Key };
+            foreach (HubPageInfo page in group.Where(p => !_places.ContainsKey("page:" + p.Id)))
+            {
+                Spec spec = SpecOf("page:" + page.Id)!;
+                var item = new MenuItem { Header = page.Title };
+                item.Click += (_, _) => Place(spec);
+                sub.Items.Add(item);
+            }
+
+            if (sub.Items.Count > 0)
+            {
+                menu.Items.Add(sub);
+            }
         }
 
         menu.PlacementTarget = _add;

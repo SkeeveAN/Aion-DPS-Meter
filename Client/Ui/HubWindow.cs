@@ -74,7 +74,7 @@ public sealed class HubWindow : Window
         SetResourceReference(ForegroundProperty, "Brush.Text");
 
         var root = new DockPanel();
-        var footer = new Border { Height = 32, Background = Navy, BorderBrush = Line, BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(18, 0, 18, 0), Child = _footer };
+        var footer = new Border { Height = 32, Background = Navy, BorderBrush = Line, BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(18, 0, 18, 0), Child = FooterContent() };
         DockPanel.SetDock(footer, Dock.Bottom);
         root.Children.Add(footer);
         var bar = new Border { Height = 64, Background = NavyBar, BorderBrush = Line, BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(18, 0, 18, 0) };
@@ -107,6 +107,25 @@ public sealed class HubWindow : Window
         {
             _refresh.Stop();
             _page?.Cleanup?.Invoke();
+        };
+    }
+
+    private DashboardSources Sources() => new(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version, PageList, BuildPage);
+
+    /// <summary>Every page of the app a dashboard can take as a widget (all but the overview itself).</summary>
+    private IReadOnlyList<HubPageInfo> PageList() =>
+        _sections.SelectMany(sec => sec.Groups.SelectMany(g => g.Entries.Where(e => e.Id != "overview" && e.Kind is "tool" or "overview").Select(e => new HubPageInfo(e.Id, sec.Title, e.Title)))).ToList();
+
+    /// <summary>The page of an entry as its own content (for a widget of a dashboard); null when there is none.</summary>
+    private ToolPage? BuildPage(string entryId)
+    {
+        Entry? entry = _sections.SelectMany(sec => sec.Groups).SelectMany(g => g.Entries).FirstOrDefault(e => e.Id == entryId);
+        return entry switch
+        {
+            null => null,
+            { Kind: "overview" } => HubDashboard.Build(entry.Target, Sources()),
+            { Kind: "tool" } => _build(entry.Target),
+            _ => null,
         };
     }
 
@@ -260,6 +279,86 @@ public sealed class HubWindow : Window
         Height = 44, CornerRadius = new CornerRadius(22), Padding = new Thickness(16, 0, 16, 0), Margin = new Thickness(8, 0, 0, 0),
         BorderBrush = Frozen("#2f4a60"), BorderThickness = new Thickness(1), Background = Frozen("#0c1823"), Child = child,
     };
+
+    private Border? _pin;
+    private TextBlock? _updateText;
+    private Velopack.UpdateInfo? _footerUpdate;
+
+    /// <summary>The footer: the state of the game on the left; on the right the update check and the pin "always on top" (with a green tick while it is on).</summary>
+    private UIElement FooterContent()
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        grid.Children.Add(_footer);
+        var right = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        Grid.SetColumn(right, 1);
+
+        _updateText = new TextBlock { Text = "⟳  " + loc["Hub.Dash.CheckNow"], Foreground = Muted, FontSize = 12, VerticalAlignment = VerticalAlignment.Center };
+        var update = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 8, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = _updateText, IsEnabled = AionDPS.Update.UpdateService.CanUpdate };
+        update.MouseEnter += (_, _) => update.Background = Hover;
+        update.MouseLeave += (_, _) => update.Background = Brushes.Transparent;
+        update.MouseLeftButtonUp += (_, _) => FooterUpdateClick();
+        right.Children.Add(update);
+
+        var pinIcon = new TextBlock { Text = "\uE718", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, Foreground = Muted, VerticalAlignment = VerticalAlignment.Center };
+        var tick = new TextBlock { Text = "✓", FontSize = 12, FontWeight = FontWeights.Bold, Foreground = Frozen("#3ddc84"), Margin = new Thickness(3, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
+        var pinRow = new StackPanel { Orientation = Orientation.Horizontal };
+        pinRow.Children.Add(pinIcon);
+        pinRow.Children.Add(tick);
+        _pin = new Border { Padding = new Thickness(10, 3, 10, 3), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = pinRow, ToolTip = loc["Hub.Footer.OnTop"] };
+        void ShowPin()
+        {
+            pinIcon.Foreground = Topmost ? Light : Muted;
+            tick.Visibility = Topmost ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        _pin.MouseEnter += (_, _) => _pin.Background = Hover;
+        _pin.MouseLeave += (_, _) => _pin.Background = Brushes.Transparent;
+        _pin.MouseLeftButtonUp += (_, _) =>
+        {
+            Topmost = !Topmost;
+            MeterSettings s = MeterSettings.Load();
+            s.HubAlwaysOnTop = Topmost;
+            s.Save();
+            ShowPin();
+        };
+        Topmost = MeterSettings.Load().HubAlwaysOnTop;
+        ShowPin();
+        right.Children.Add(_pin);
+        grid.Children.Add(right);
+        return grid;
+    }
+
+    /// <summary>The first click looks for an update; with one found the same button downloads it and restarts.</summary>
+    private async void FooterUpdateClick()
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        if (_updateText is null || !AionDPS.Update.UpdateService.CanUpdate)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_footerUpdate is { } found)
+            {
+                await AionDPS.Update.UpdateService.DownloadAsync(found, percent => Dispatcher.Invoke(() => _updateText.Text = string.Format(loc["Hub.Dash.Downloading"], percent)));
+                AionDPS.Update.UpdateService.ApplyAndRestart(found);
+                return;
+            }
+
+            _updateText.Text = loc["Hub.Dash.Checking"];
+            _footerUpdate = await AionDPS.Update.UpdateService.CheckAsync();
+            _updateText.Text = _footerUpdate is null ? "✓  " + loc["Hub.Dash.UpToDate"] : "⭳  " + loc["Hub.Dash.Version"] + " " + _footerUpdate.TargetFullRelease.Version + " – " + loc["Hub.Dash.InstallRestart"];
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            _footerUpdate = null;
+            _updateText.Text = loc["Hub.Dash.CheckFailed"];
+        }
+    }
 
     private string? _updateVersion;
     private bool _dropsActive, _dropsNew, _announcementsNew;
@@ -532,7 +631,7 @@ public sealed class HubWindow : Window
                 _host.Child = Message(entry.Title, loc["Hub.Soon"], (loc["Hub.OpenMeter"], _openMeter));
                 break;
             case "overview":
-                _page = HubDashboard.Build(entry.Target, new DashboardSources(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version));
+                _page = HubDashboard.Build(entry.Target, Sources());
                 _host.Child = new Grid { Children = { _page.Content } };
                 break;
             case "settings":
