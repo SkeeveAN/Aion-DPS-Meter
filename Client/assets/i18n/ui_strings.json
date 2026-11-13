@@ -16141,5 +16141,53 @@
     "pt": "Este computador",
     "ja": "このPC",
     "ko": "이 컴퓨터"
+  },
+  "Character.StatSheet": {
+    "en": "Stats",
+    "de": "Werte",
+    "fr": "Stats",
+    "es": "Stats",
+    "ru": "Stats",
+    "zh": "Stats",
+    "zh-TW": "Stats",
+    "pt": "Stats",
+    "ja": "Stats",
+    "ko": "Stats"
+  },
+  "Character.StatAttack": {
+    "en": "Attack",
+    "de": "Angriff",
+    "fr": "Attack",
+    "es": "Attack",
+    "ru": "Attack",
+    "zh": "Attack",
+    "zh-TW": "Attack",
+    "pt": "Attack",
+    "ja": "Attack",
+    "ko": "Attack"
+  },
+  "Character.StatHits": {
+    "en": "Hits",
+    "de": "Treffer",
+    "fr": "Hits",
+    "es": "Hits",
+    "ru": "Hits",
+    "zh": "Hits",
+    "zh-TW": "Hits",
+    "pt": "Hits",
+    "ja": "Hits",
+    "ko": "Hits"
+  },
+  "Character.StatDefense": {
+    "en": "Defense",
+    "de": "Verteidigung",
+    "fr": "Defense",
+    "es": "Defense",
+    "ru": "Defense",
+    "zh": "Defense",
+    "zh-TW": "Defense",
+    "pt": "Defense",
+    "ja": "Defense",
+    "ko": "Defense"
   }
 }

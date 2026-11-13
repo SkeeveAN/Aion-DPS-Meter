@@ -1027,7 +1027,71 @@ public sealed class CharacterWindow : Window
         Border middleCard = Card(middle, new Thickness(14, 14, 14, 10), new Thickness(_portrait is not null ? 12 : 0, 0, 0, 0));
         middleCard.VerticalAlignment = VerticalAlignment.Top;
         page.Children.Add(middleCard);
+        if (_directory.LocalStats is { Count: > 0 } stats)
+        {
+            Border sheet = Card(BuildStatSheet(stats), new Thickness(16, 14, 16, 12), new Thickness(12, 0, 0, 0));
+            sheet.VerticalAlignment = VerticalAlignment.Top;
+            page.Children.Add(sheet);
+        }
+
         return page;
+    }
+
+    /// <summary>The stat sheet groups: the stat frame's ids; names from the client's stat texts (the species table, or the attribute table where it lacks one). Ids without a name are left out.</summary>
+    private static readonly (string Group, (int Id, string? Key, bool Percent)[] Stats)[] SheetGroups =
+    {
+        ("Character.StatAttack", new (int, string?, bool)[] { (317, "WeaponFixingDamage", false), (19, null, false), (33, "MinAttack", false), (31, null, false), (425, "DamageRatio", true), (32, "AmplifyWeaponDamage", true), (28, null, true), (44, null, true), (38, null, false), (379, null, true), (520, "BossNpcAmplifyDamage", true), (50, null, false), (56, null, false), (587, null, false), (98, null, false), (284, null, false), (69, null, false) }),
+        ("Character.StatHits", new (int, string?, bool)[] { (104, null, false), (128, null, false), (442, null, true), (443, null, true), (158, null, true), (591, null, false), (100, null, false) }),
+        ("Character.StatDefense", new (int, string?, bool)[] { (193, null, false), (199, null, false), (196, null, true), (52, null, false), (116, null, false), (133, null, false), (255, null, false), (444, null, true), (445, null, true), (446, null, true), (447, null, true), (159, null, false), (41, null, false), (47, null, true), (70, null, false), (51, null, false), (57, null, false), (588, null, false), (99, null, false) }),
+    };
+
+    /// <summary>The character's stat sheet: the values of the stat frame, grouped (attack, hits, defence).</summary>
+    private UIElement BuildStatSheet(IReadOnlyDictionary<int, int> stats)
+    {
+        var panel = new StackPanel { MinWidth = 300 };
+        panel.Children.Add(Heading(Loc("Character.StatSheet")));
+        string language = LocalizationManager.Instance.Language;
+        foreach ((string group, var list) in SheetGroups)
+        {
+            var rows = new List<UIElement>();
+            foreach ((int id, string? key, bool percent) in list)
+            {
+                if (!stats.TryGetValue(id, out int value) || value == 0)
+                {
+                    continue;
+                }
+
+                (string name, bool speciesPercent) = Aion2Artwork.SpeciesStat(id, language);
+                if (name.StartsWith("Stat ", StringComparison.Ordinal) && key is not null)
+                {
+                    name = Aion2AttributeTable.Text("stat." + key, language);
+                    speciesPercent = percent;
+                }
+
+                string shown = speciesPercent || percent ? (value / 100.0).ToString("0.##", CultureInfo.CurrentCulture) + " %" : value.ToString("N0", CultureInfo.CurrentCulture);
+                var row = new Grid { Margin = new Thickness(0, 1, 0, 1) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.Children.Add(Text(name, 12.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 18, 0)));
+                TextBlock number = Text(shown, 12.5, FontWeights.SemiBold);
+                Grid.SetColumn(number, 1);
+                row.Children.Add(number);
+                rows.Add(row);
+            }
+
+            if (rows.Count == 0)
+            {
+                continue;
+            }
+
+            panel.Children.Add(Text(Loc(group), 12, FontWeights.Bold, Res("Brush.Accent"), new Thickness(0, 8, 0, 3)));
+            foreach (UIElement row in rows)
+            {
+                panel.Children.Add(row);
+            }
+        }
+
+        return panel;
     }
 
     /// <summary>True when the current theme has a light panel colour (the symbols are light grey line art and must be darkened there).</summary>
