@@ -436,6 +436,13 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 2 && args[0] == "aion2-history")
+        {
+            // aion2-history <recording.jsonl> <out.json> [own character]: the stays and boss fights of a recording as JSON (started by the program itself for the fight history)
+            Environment.Exit(History.HistoryBuilder.RunChild(args[1], args[2], args.Length > 3 ? args[3] : null));
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-replay")
         {
             if (args.Length < 2)

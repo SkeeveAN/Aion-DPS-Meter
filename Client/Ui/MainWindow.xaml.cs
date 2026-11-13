@@ -1098,6 +1098,12 @@ public partial class MainWindow : Window
             return;
         }
 
+        // every ended stay joins the lasting history of the fights (the dashboard's data when the game is off)
+        if (FightHistory.Summarize(stay) is { } record)
+        {
+            FightHistory.Add(new[] { record });
+        }
+
         // The capture's log of skill uses and effects holds the newest 200,000 entries and drops the oldest quarter beyond that (a boss run adds about 19,000), so a stay
         // saved by hand an hour or two later would find its uses and effects gone while its positions are still there. The stay keeps its own copy from the moment it ends.
         FightExtras? kept = ExtrasForSession(stay);
@@ -6033,6 +6039,8 @@ public partial class MainWindow : Window
                 return new HubStatus(own is not null, own?.Name, className, server);
             });
         _hubWindow.SetDashboardSources(() => _sessions.Sessions, AppVersion.Text);
+        // once: the recordings of earlier runs become the first entries of the history (a child process, in the background)
+        HistoryBuilder.Start(() => Dispatcher.BeginInvoke(new Action(() => _hubWindow?.RefreshHistory())));
         _hubWindow.Closed += (_, _) =>
         {
             _hubWindow = null;

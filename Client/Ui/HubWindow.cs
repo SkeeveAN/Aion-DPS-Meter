@@ -129,6 +129,15 @@ public sealed class HubWindow : Window
         };
     }
 
+    /// <summary>The history got new entries: a dashboard page that shows them is drawn again.</summary>
+    public void RefreshHistory()
+    {
+        if (_entry is { Kind: "overview" } shown)
+        {
+            ShowEntry(shown);
+        }
+    }
+
     /// <summary>What the dashboard pages read: the recorded stays and the version.</summary>
     public void SetDashboardSources(Func<IReadOnlyList<AionDPS.History.SessionInfo>> sessions, string version)
     {

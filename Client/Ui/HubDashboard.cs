@@ -96,9 +96,9 @@ public static class HubDashboard
             case "bosses": return Bosses(now, loc);
             case "figures":
             {
-                var sessions = src.Sessions();
-                var attempts = sessions.SelectMany(s => AttemptsOf(s)).ToList();
-                var total = TimeSpan.FromSeconds(sessions.Sum(s => s.Duration(now).TotalSeconds));
+                var sessions = FightHistory.All(src.Sessions());
+                var attempts = sessions.SelectMany(s => s.Attempts).ToList();
+                var total = TimeSpan.FromSeconds(sessions.Sum(s => (s.End - s.Start).TotalSeconds));
                 var bestDps = attempts.Where(a => a.Duration.TotalSeconds >= 10).Select(a => (double?)(a.Counted / a.Duration.TotalSeconds)).DefaultIfEmpty(null).Max();
                 var figures = new StackPanel();
                 if (sessions.Count == 0)
@@ -118,7 +118,7 @@ public static class HubDashboard
                 return figures;
             }
 
-            case "last": return LastFight(src.Sessions().SelectMany(s => AttemptsOf(s)).ToList(), loc);
+            case "last": return LastFight(FightHistory.All(src.Sessions()).SelectMany(s => s.Attempts).ToList(), loc);
             case "update": return UpdateBody(src, loc);
             case "announcements":
                 return NewsCard(loc["Hub.Dash.AnnouncementsText"], Announcements.AnnouncementsClient.PageUrl, async () =>
@@ -168,7 +168,9 @@ public static class HubDashboard
         TicketCharacter? me = null;
         try
         {
-            me = Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase));
+            // the character in the game, else the one the checklist saw last (its counters are kept on disk)
+            var known = Aion2Tickets.Snapshot();
+            me = known.FirstOrDefault(c => string.Equals(c.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase)) ?? known.OrderByDescending(c => c.SavedAt).FirstOrDefault();
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -282,10 +284,10 @@ public static class HubDashboard
         return stack;
     }
 
-    private static UIElement LastFight(List<BossAttempt> attempts, LocalizationManager loc)
+    private static UIElement LastFight(List<AttemptRecord> attempts, LocalizationManager loc)
     {
         var stack = new StackPanel();
-        BossAttempt? last = attempts.OrderByDescending(a => a.End).FirstOrDefault();
+        AttemptRecord? last = attempts.OrderByDescending(a => a.End).FirstOrDefault();
         if (last is null)
         {
             stack.Children.Add(MockTag());
@@ -297,7 +299,7 @@ public static class HubDashboard
             return stack;
         }
 
-        stack.Children.Add(Line(last.Name, last.Killed ? loc["Hub.Dash.Killed"] : loc["Hub.Dash.NotKilled"], true, last.Killed ? "Brush.Heal" : "Brush.Danger"));
+        stack.Children.Add(Line(last.Boss, last.Killed ? loc["Hub.Dash.Killed"] : loc["Hub.Dash.NotKilled"], true, last.Killed ? "Brush.Heal" : "Brush.Danger"));
         stack.Children.Add(Line(loc["Hub.Dash.Duration"], WorldBossText.Duration(last.Duration)));
         stack.Children.Add(Line(loc["Hub.Dash.Damage"], last.Counted.ToString("N0")));
         stack.Children.Add(Line("DPS", last.Duration.TotalSeconds >= 1 ? (last.Counted / last.Duration.TotalSeconds).ToString("N0") : "–"));
@@ -337,19 +339,21 @@ public static class HubDashboard
     {
         var loc = LocalizationManager.Instance;
         var stack = new StackPanel();
-        var sessions = src.Sessions().OrderByDescending(s => s.Start).ToList();
-        foreach (SessionInfo s in sessions)
+        var sessions = FightHistory.All(src.Sessions());
+        foreach (StayRecord s in sessions.Take(60))
         {
-            var attempts = AttemptsOf(s);
-            string detail = (s.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"]) + "  ·  " + WorldBossText.Duration(s.Duration(now))
-                + (attempts.Count > 0 ? "  ·  " + attempts.Count + " " + loc["Hub.Dash.BossFights"] : "");
-            var row = Line(SessionLabels.NameOf(s) + "   " + SessionLabels.TimeSpanOf(s), detail, !s.IsOpen);
+            string where = s.ZoneId == 0 ? loc["Sessions.UnknownMap"] : Aion2.Protocol.Aion2Zones.NameOf(s.ZoneId, loc.Language)
+                ?? string.Format(loc[s.Kind == SessionKind.Instance ? "Sessions.UnknownInstance" : "Sessions.UnknownZone"], s.ZoneId);
+            string when = (s.Start.Date == DateTime.Today ? s.Start.ToString("HH:mm") : s.Start.ToString("dd.MM. HH:mm")) + " – " + s.End.ToString("HH:mm");
+            string detail = (s.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"]) + "  ·  " + WorldBossText.Duration(s.End - s.Start)
+                + (s.Attempts.Count > 0 ? "  ·  " + s.Attempts.Count + " " + loc["Hub.Dash.BossFights"] : "");
+            var row = Line(where + "   " + when, detail, true);
             row.Cursor = System.Windows.Input.Cursors.Hand;
             row.MouseLeftButtonUp += (_, _) => src.OpenSessions();
             stack.Children.Add(row);
-            foreach (BossAttempt a in attempts)
+            foreach (AttemptRecord a in s.Attempts.OrderBy(x => x.Start))
             {
-                var sub = Line("      " + a.Name, (a.Killed ? "✓ " : "✗ ") + WorldBossText.Duration(a.Duration) + "  ·  " + a.Counted.ToString("N0"), false, a.Killed ? "Brush.Heal" : "Brush.Danger");
+                var sub = Line("      " + a.Boss, (a.Killed ? "✓ " : "✗ ") + WorldBossText.Duration(a.Duration) + "  ·  " + a.Counted.ToString("N0"), false, a.Killed ? "Brush.Heal" : "Brush.Danger");
                 stack.Children.Add(sub);
             }
         }
@@ -381,12 +385,12 @@ public static class HubDashboard
     {
         var loc = LocalizationManager.Instance;
         var stack = new StackPanel();
-        var best = src.Sessions().SelectMany(s => AttemptsOf(s)).Where(a => a.Duration.TotalSeconds >= 10)
-            .GroupBy(a => a.Name).Select(g => g.OrderByDescending(a => a.Counted / a.Duration.TotalSeconds).First())
+        var best = FightHistory.All(src.Sessions()).SelectMany(s => s.Attempts).Where(a => a.Duration.TotalSeconds >= 10)
+            .GroupBy(a => a.Boss).Select(g => g.OrderByDescending(a => a.Counted / a.Duration.TotalSeconds).First())
             .OrderByDescending(a => a.Counted / a.Duration.TotalSeconds).Take(20).ToList();
-        foreach (BossAttempt a in best)
+        foreach (AttemptRecord a in best)
         {
-            stack.Children.Add(Line(a.Name + "   " + a.End.ToString("dd.MM. HH:mm"), (a.Counted / a.Duration.TotalSeconds).ToString("N0") + " DPS  ·  " + WorldBossText.Duration(a.Duration), a.Killed, a.Killed ? "Brush.Heal" : "Brush.Accent"));
+            stack.Children.Add(Line(a.Boss + "   " + a.End.ToString("dd.MM. HH:mm"), (a.Counted / a.Duration.TotalSeconds).ToString("N0") + " DPS  ·  " + WorldBossText.Duration(a.Duration), a.Killed, a.Killed ? "Brush.Heal" : "Brush.Accent"));
         }
 
         if (best.Count == 0)
