@@ -964,6 +964,13 @@ internal sealed class OpacityPanel : Window
 
         Mark();
         host.Children.Add(chips);
+        // the window's chips set the same mode: these follow
+        host.Loaded += (_, _) =>
+        {
+            WidgetKind.MeterModeChanged += Mark;
+            Mark();
+        };
+        host.Unloaded += (_, _) => WidgetKind.MeterModeChanged -= Mark;
         return host;
     }
 

@@ -32,6 +32,11 @@ public static class WidgetKind
 
     public static Action<int>? SetMeterMode { get; set; }
 
+    /// <summary>The meter's mode was changed (by the designer's buttons or by the window's): every place that shows the mode follows.</summary>
+    public static event Action? MeterModeChanged;
+
+    public static void RaiseMeterModeChanged() => MeterModeChanged?.Invoke();
+
     public static bool IsOverlayTitle(string title) => title.StartsWith(OverlayPrefix, StringComparison.Ordinal);
 
     public static string IdOfTitle(string title) => title[OverlayPrefix.Length..];

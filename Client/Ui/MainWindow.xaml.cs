@@ -6880,6 +6880,7 @@ public partial class MainWindow : Window
         ApplyModeButtons();
         UpdateDpsColumnHeader();
         RefreshRows();
+        WidgetKind.RaiseMeterModeChanged();
         if (save && !Headless)
         {
             var settings = MeterSettings.Load();

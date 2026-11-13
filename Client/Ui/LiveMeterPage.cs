@@ -94,16 +94,38 @@ public static class LiveMeterPage
             var chips = new WrapPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(14, 10, 14, 0) };
             string[] names = { loc["Main.ModeDamage"], loc["Main.ModeHeal"], loc["Main.ModeTaken"], loc["Main.ModeAll"], loc["Main.ModeAllCompact"] };
             string group = "LiveMode" + Guid.NewGuid();
+            var modeChips = new List<RadioButton>();
             for (int i = 0; i < names.Length; i++)
             {
                 int mode = i;
                 var chip = new RadioButton { GroupName = group, Content = names[i], IsChecked = getMode() == i, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(14, 5, 14, 5) };
                 chip.Template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse(
                     "<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='RadioButton'><Border x:Name='Bd' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' CornerRadius='15' BorderThickness='1' BorderBrush='{DynamicResource Brush.Border}' Padding='14,5'><ContentPresenter x:Name='Cp' TextElement.Foreground='{DynamicResource Brush.TextMuted}'/></Border><ControlTemplate.Triggers><Trigger Property='IsChecked' Value='True'><Setter TargetName='Bd' Property='BorderBrush' Value='{DynamicResource Brush.Accent}'/><Setter TargetName='Cp' Property='TextElement.Foreground' Value='{DynamicResource Brush.Accent}'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
-                chip.Checked += (_, _) => setMode(mode);
+                chip.Checked += (_, _) =>
+                {
+                    if (getMode() != mode)
+                    {
+                        setMode(mode);
+                    }
+                };
+                modeChips.Add(chip);
                 chips.Children.Add(chip);
             }
 
+            // the designer's buttons of the meter widget set the same mode: the chips follow
+            Action follow = () =>
+            {
+                for (int i = 0; i < modeChips.Count; i++)
+                {
+                    modeChips[i].IsChecked = getMode() == i;
+                }
+            };
+            chips.Loaded += (_, _) =>
+            {
+                WidgetKind.MeterModeChanged += follow;
+                follow();
+            };
+            chips.Unloaded += (_, _) => WidgetKind.MeterModeChanged -= follow;
             DockPanel.SetDock(chips, Dock.Top);
             page.Children.Add(chips);
         }
