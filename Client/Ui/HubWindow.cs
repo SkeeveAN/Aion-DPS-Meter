@@ -59,6 +59,7 @@ public sealed class HubWindow : Window
         _build = build;
         _openOwn = openOwn;
         _openMeter = openMeter;
+        WidgetKind.Pages = PageList;
         _openSettings = openSettings;
         _status = status;
         _sections = BuildSections();
@@ -109,6 +110,9 @@ public sealed class HubWindow : Window
             _page?.Cleanup?.Invoke();
         };
     }
+
+    /// <summary>The sources a widget needs, for the widgets that stand over the game.</summary>
+    public DashboardSources OverlaySources() => Sources();
 
     private DashboardSources Sources() => new(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version, PageList, BuildPage);
 

@@ -1438,6 +1438,7 @@ public partial class MainWindow : Window
         _hotkeys?.Dispose();
         _gateTimer.Stop();
         _timetable?.Close();
+        _widgetOverlays?.Dispose();
         _hotkeyOverlay?.Close();
         _worldBoss?.Dispose();
         _assist?.Dispose();
@@ -6108,7 +6109,10 @@ public partial class MainWindow : Window
             }
         };
         _hubWindow.Show();
+        _widgetOverlays ??= new WidgetOverlayController(() => _hubWindow?.OverlaySources());
     }
+
+    private WidgetOverlayController? _widgetOverlays;
 
     private void OpenTool(string id)
     {
@@ -6694,6 +6698,7 @@ public partial class MainWindow : Window
         ApplyTimetable(settings);
         ApplyPetFarm(settings);
         ApplyHotkeyOverlay(settings);
+        _widgetOverlays?.Tick();
         ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
         if (settings.CaptureAdapterId != _captureAdapterInUse)
         {

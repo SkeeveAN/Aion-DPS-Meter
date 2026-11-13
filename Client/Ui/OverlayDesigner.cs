@@ -17,7 +17,7 @@ public static class OverlayDesigner
     private static readonly string[] LockFlags =
     {
         "AssistOverlayLocked", "NetworkOverlayLocked", "LootOverlayLocked", "CraftOverlayLocked", "DummyOverlayLocked", "CombatOverlayLocked",
-        "CombatCastOverlayLocked", "CombatHpOverlayLocked", "PetFarmLocked", "PetInfoLocked", "BossOverlayLocked", "TimetableLocked", "PetListLocked", "HotkeyOverlayLocked",
+        "CombatCastOverlayLocked", "CombatHpOverlayLocked", "PetFarmLocked", "PetInfoLocked", "BossOverlayLocked", "TimetableLocked", "PetListLocked", "HotkeyOverlayLocked", "WidgetOverlaysLocked",
     };
 
     private static readonly PropertyInfo[] LockProps = LockFlags.Select(n => typeof(MeterSettings).GetProperty(n)!).ToArray();
@@ -39,6 +39,11 @@ public static class OverlayDesigner
     /// <summary>The name an overlay has in the designer's tags (by its window title).</summary>
     internal static string NameOf(string title)
     {
+        if (WidgetKind.IsOverlayTitle(title))
+        {
+            return WidgetKind.TitleOf(WidgetKind.IdOfTitle(title)) ?? title;
+        }
+
         string? key = title switch
         {
             OverlayPlaces.BossHp => "Settings.Combat.CardBossHp",
@@ -208,6 +213,14 @@ public static class OverlayDesigner
     /// <summary>Takes an overlay off the screen (the "Hide" of its panel); it comes back with the "+".</summary>
     internal static void Hide(string title)
     {
+        if (WidgetKind.IsOverlayTitle(title))
+        {
+            WidgetOverlayWindow.SetOn(WidgetKind.IdOfTitle(title), false);
+            _refresh?.Invoke();
+            BringToFront();
+            return;
+        }
+
         Entry? entry = Entries.FirstOrDefault(e => e.Title == title);
         if (entry?.SwitchOff is null)
         {
@@ -239,6 +252,23 @@ public static class OverlayDesigner
                 var fresh = MeterSettings.Load();
                 entry.SwitchOn(fresh);
                 fresh.Save();
+                _refresh?.Invoke();
+                BringToFront();
+            }));
+        }
+
+        // the widgets: everything that can stand on a dashboard can also stand over the game
+        foreach (string id in WidgetKind.AllIds())
+        {
+            if (WidgetOverlayWindow.IsOn(s, id) || WidgetKind.TitleOf(id) is not { } name)
+            {
+                continue;
+            }
+
+            string widget = id;
+            list.Add((loc["Designer.WidgetPrefix"] + name, () =>
+            {
+                WidgetOverlayWindow.SetOn(widget, true);
                 _refresh?.Invoke();
                 BringToFront();
             }));

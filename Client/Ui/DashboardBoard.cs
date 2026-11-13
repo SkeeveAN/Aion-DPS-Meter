@@ -327,6 +327,30 @@ public sealed class DashboardBoard : DockPanel
         var head = new DockPanel { Background = Brushes.Transparent, Cursor = Cursors.SizeAll, Margin = new Thickness(0, 0, 0, 4) };
         SetDock(close, Dock.Right);
         head.Children.Add(close);
+        // every widget can also stand over the game as an overlay, or in a small window of its own
+        var popout = new TextBlock { Text = "\u29C9", Cursor = Cursors.Hand, FontSize = 14, Margin = new Thickness(8, 0, 0, 0), ToolTip = loc["Hub.Dash.Popout"] };
+        popout.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        popout.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        popout.MouseLeftButtonUp += (_, _) => WidgetPopoutWindow.Show(widget.Id, _src);
+        SetDock(popout, Dock.Right);
+        head.Children.Add(popout);
+        var asOverlay = new TextBlock { Text = "\u25EB", Cursor = Cursors.Hand, FontSize = 14, Margin = new Thickness(8, 0, 0, 0) };
+        void ShowOverlayState()
+        {
+            bool on = WidgetOverlayWindow.IsOn(MeterSettings.Load(), widget.Id);
+            asOverlay.ToolTip = loc[on ? "Hub.Dash.OverlayOff" : "Hub.Dash.OverlayOn"];
+            asOverlay.SetResourceReference(TextBlock.ForegroundProperty, on ? "Brush.Accent" : "Brush.TextMuted");
+        }
+
+        ShowOverlayState();
+        asOverlay.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        asOverlay.MouseLeftButtonUp += (_, _) =>
+        {
+            WidgetOverlayWindow.SetOn(widget.Id, !WidgetOverlayWindow.IsOn(MeterSettings.Load(), widget.Id));
+            ShowOverlayState();
+        };
+        SetDock(asOverlay, Dock.Right);
+        head.Children.Add(asOverlay);
         if (widget.Opens is { } opens)
         {
             var link = new TextBlock { Text = "↗", Cursor = Cursors.Hand, FontSize = 14, Margin = new Thickness(8, 0, 0, 0) };

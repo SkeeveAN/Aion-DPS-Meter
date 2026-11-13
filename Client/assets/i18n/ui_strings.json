@@ -16285,5 +16285,53 @@
     "pt": "Cor do fundo",
     "ja": "背景色",
     "ko": "배경색"
+  },
+  "Designer.WidgetPrefix": {
+    "en": "Widget: ",
+    "de": "Widget: ",
+    "fr": "Widget: ",
+    "es": "Widget: ",
+    "ru": "Widget: ",
+    "zh": "Widget: ",
+    "zh-TW": "Widget: ",
+    "pt": "Widget: ",
+    "ja": "Widget: ",
+    "ko": "Widget: "
+  },
+  "Hub.Dash.Popout": {
+    "en": "Open in a small window",
+    "de": "In einem kleinen Fenster öffnen",
+    "fr": "Ouvrir dans une petite fenêtre",
+    "es": "Abrir en una ventana pequeña",
+    "ru": "Открыть в маленьком окне",
+    "zh": "在小窗口中打开",
+    "zh-TW": "在小視窗中開啟",
+    "pt": "Abrir numa janela pequena",
+    "ja": "小さなウィンドウで開く",
+    "ko": "작은 창으로 열기"
+  },
+  "Hub.Dash.OverlayOn": {
+    "en": "Show as overlay over the game",
+    "de": "Als Overlay über dem Spiel zeigen",
+    "fr": "Afficher en overlay sur le jeu",
+    "es": "Mostrar como overlay sobre el juego",
+    "ru": "Показать как оверлей поверх игры",
+    "zh": "作为叠加层显示在游戏上",
+    "zh-TW": "作為疊加層顯示在遊戲上",
+    "pt": "Mostrar como overlay sobre o jogo",
+    "ja": "ゲームの上にオーバーレイとして表示",
+    "ko": "게임 위에 오버레이로 표시"
+  },
+  "Hub.Dash.OverlayOff": {
+    "en": "Remove the overlay",
+    "de": "Overlay entfernen",
+    "fr": "Retirer l'overlay",
+    "es": "Quitar el overlay",
+    "ru": "Убрать оверлей",
+    "zh": "移除叠加层",
+    "zh-TW": "移除疊加層",
+    "pt": "Remover o overlay",
+    "ja": "オーバーレイを外す",
+    "ko": "오버레이 제거"
   }
 }

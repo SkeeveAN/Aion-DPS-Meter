@@ -29,6 +29,21 @@ public static class OverlayPlaces
 
     public static void Reset(string title)
     {
+        if (WidgetKind.IsOverlayTitle(title))
+        {
+            var ws = MeterSettings.Load();
+            if (ws.WidgetOverlays.GetValueOrDefault(WidgetKind.IdOfTitle(title)) is { } place)
+            {
+                place.Left = place.Top = place.Width = place.Height = null;
+                place.Scale = 1;
+            }
+
+            ws.OverlayShifts.Remove(title);
+            ws.Save();
+            WasReset?.Invoke(title);
+            return;
+        }
+
         if (!Prefixes.TryGetValue(title, out string? prefix))
         {
             return;

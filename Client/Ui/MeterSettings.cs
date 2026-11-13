@@ -504,6 +504,12 @@ public sealed class MeterSettings
 
     /// <summary>The colour of an overlay's background as "#RRGGBB", by the overlay's title (the overlay designer's colour row); missing: the overlay's own dark colour. The opacity is <see cref="OverlayOpacities"/>.</summary>
     public Dictionary<string, string> OverlayBackColors { get; set; } = new();
+
+    /// <summary>The widgets that stand over the game as overlays (the dashboard's widgets and the pages of the app), by the widget's id; see <see cref="WidgetOverlayPlace"/>.</summary>
+    public Dictionary<string, WidgetOverlayPlace> WidgetOverlays { get; set; } = new();
+
+    /// <summary>The widget overlays are click-through and without handles (the overlay designer unlocks them like the others).</summary>
+    public bool WidgetOverlaysLocked { get; set; } = true;
     /// <summary>World boss overlay on / off.</summary>
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
     /// <summary>Network overlay on / off.</summary>
