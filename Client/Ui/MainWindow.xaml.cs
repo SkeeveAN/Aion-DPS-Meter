@@ -6154,6 +6154,40 @@ public partial class MainWindow : Window
     }
 
     private SessionInfo? _pendingCompare;
+    private bool _savedSessionsLoaded;
+
+    /// <summary>The sessions that were saved to files (by hand, or the automatic saving) join the list once, newest 40, so old sessions can be looked at again.</summary>
+    private void LoadSavedSessions()
+    {
+        if (_savedSessionsLoaded)
+        {
+            return;
+        }
+
+        _savedSessionsLoaded = true;
+        try
+        {
+            var files = new[] { SessionFile.DefaultDirectory, SessionFile.DefaultAutoFolder, MeterSettings.Load().SessionAutoSaveFolder }
+                .Where(d => !string.IsNullOrEmpty(d) && Directory.Exists(d)).Distinct()
+                .SelectMany(d => Directory.EnumerateFiles(d, "*" + SessionFile.Extension, SearchOption.TopDirectoryOnly))
+                .OrderByDescending(File.GetLastWriteTime).Take(40).ToList();
+            foreach (string file in files)
+            {
+                try
+                {
+                    SessionManagerWindow.Import(_sessions, SessionFile.Load(file));
+                }
+                catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or InvalidDataException or UnauthorizedAccessException)
+                {
+                    // a file that cannot be read stays out
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // no saved sessions
+        }
+    }
 
     /// <summary>The content of a window that is never shown, as a page: the styles the window defined for its own controls go with it, the buttons keep the shared look (also when disabled).</summary>
     internal static ToolPage TakeWithStyles(Window window)
@@ -6213,6 +6247,7 @@ public partial class MainWindow : Window
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
         if (module == "hub.sessions")
         {
+            LoadSavedSessions();
             // the sessions inside the new interface: the content of the session window (never shown); loading, saving and the analysis work as in the window
             var manager = new SessionManagerWindow(_sessions)
             {

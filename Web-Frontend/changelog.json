@@ -146,6 +146,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-alpha.14: only six hotkeys are left (overlay designer, overlays shown / hidden - the app goes away and only the designer's overlays stand, pause, clear, upload, copy by mode as \"Name: total (iDPS / iHPS / iTaken)\"), the live meter page has mode chips, where there is nothing real yet the live meter, the dashboard cards and the pages Fights and Best fights show tagged sample data, saved session files join the sessions list, the update symbol of the header downloads and installs at once",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },

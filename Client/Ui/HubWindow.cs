@@ -398,6 +398,8 @@ public sealed class HubWindow : Window
         }
     }
 
+    private Velopack.UpdateInfo? _updateInfo;
+    private bool _updating;
     private string? _updateVersion;
     private bool _dropsActive, _dropsNew, _announcementsNew;
     private long _dropsKey, _announcementsKey;
@@ -458,6 +460,7 @@ public sealed class HubWindow : Window
             if (AionDPS.Update.UpdateService.CanUpdate)
             {
                 var info = await AionDPS.Update.UpdateService.CheckAsync();
+                _updateInfo = info;
                 _updateVersion = info?.TargetFullRelease.Version.ToString();
             }
 
@@ -475,6 +478,28 @@ public sealed class HubWindow : Window
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             // offline: the header shows what it knew
+        }
+    }
+
+    /// <summary>The update symbol of the header: download the new version and install it (the program restarts), no page in between.</summary>
+    private async void InstallUpdate()
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        if (_updateInfo is not { } info || _updating)
+        {
+            return;
+        }
+
+        _updating = true;
+        try
+        {
+            await AionDPS.Update.UpdateService.DownloadAsync(info, percent => Dispatcher.Invoke(() => _footer.Text = string.Format(loc["Hub.Dash.Downloading"], percent)));
+            AionDPS.Update.UpdateService.ApplyAndRestart(info);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            _footer.Text = loc["Hub.Dash.CheckFailed"];
+            _updating = false;
         }
     }
 
@@ -498,7 +523,7 @@ public sealed class HubWindow : Window
         {
             var arrow = new TextBlock { Text = "\uE896", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 18, VerticalAlignment = VerticalAlignment.Center };
             arrow.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-            Border update = HeaderButton(arrow, loc["Hub.Dash.Update"] + " – " + _updateVersion, null, () => GoTo("dashboard", "updates"));
+            Border update = HeaderButton(arrow, loc["Hub.Dash.InstallRestart"] + " – " + _updateVersion, null, InstallUpdate);
             update.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
             _right.Children.Add(update);
         }
@@ -560,7 +585,10 @@ public sealed class HubWindow : Window
         }
 
         _right.Children.Add(gamePill);
-        _footer.Text = loc[status.GameOn ? "Hub.GameOn" : "Hub.GameOff"];
+        if (!_updating)
+        {
+            _footer.Text = loc[status.GameOn ? "Hub.GameOn" : "Hub.GameOff"];
+        }
     }
 
     private BitmapImage? Picture(string? path)
