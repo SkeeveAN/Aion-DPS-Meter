@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-12",
+  "date": "2026-11-13",
   "items": [
    {
     "text": "Profile upload: a rank movement beyond a million either way counts as 0 and a title slot without an id is left out, so one unusable field no longer rejects the whole profile",
@@ -9,6 +9,13 @@
      "Backend"
     ],
     "date": "2026-11-12"
+   },
+   {
+    "text": "Privacy policy: the Character tab and the statistics page of the new client ask aiondps.com for what the site holds about the own character (name and server as the search term), in all ten languages",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
