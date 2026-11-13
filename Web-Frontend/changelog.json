@@ -649,6 +649,13 @@
      "Backend"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.1: the new interface is complete - the overlay designer has a gear on every overlay (opacity of the background, opacity of the text, background colour, reset, hide; the same by right-click), the timetable and the pet counter work like every other overlay, every widget of the dashboard and every page of the app (the live meter too) can stand over the game as an overlay or open in a small window of its own, the Character tab has a stats card like the game's stat window with the sources of every attribute in its tooltip, and the old meter window can no longer be opened from the live meter page",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },
