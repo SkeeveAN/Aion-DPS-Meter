@@ -109,8 +109,8 @@ public static class OverlayDesigner
             Groups.Refresh();
         };
         _tick.Start();
-        BringToFront();
-        _backdrop.TakeForeground(); // once more with every window up: the designer is in the foreground, not the game
+        _backdrop.TakeForeground(); // the designer is in the foreground, not the game ...
+        BringToFront(); // ... and the overlays and the designer's own windows stand above the dimming again (the foreground window of the topmost band is the one on top)
     }
 
     private static void End()
@@ -514,7 +514,9 @@ internal sealed class DesignerBackdrop : Window
         layers.Children.Add(grid);
         layers.Children.Add(_marks);
         Content = layers;
-        // the designer is in front and takes the mouse and the keys: a click on the empty dimmed screen reaches the tool, never the game behind it
+        // the designer is in front and takes the mouse and the keys: a click on the empty dimmed screen reaches the tool, never the game behind it;
+        // being activated, this window would stand above the overlays, so they are raised again every time
+        Activated += (_, _) => OverlayDesigner.BringToFront();
         PreviewKeyDown += (_, e) =>
         {
             if (e.Key == System.Windows.Input.Key.Escape)
