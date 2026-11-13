@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS character_log (ts_ms INTEGER NOT NULL, name TEXT NOT 
 CREATE INDEX IF NOT EXISTS character_log_who ON character_log(name, server_id, ts_ms);
 CREATE TABLE IF NOT EXISTS ticket_log (ts_ms INTEGER NOT NULL, name TEXT NOT NULL, server_id INTEGER NOT NULL, ticket_id INTEGER NOT NULL, count INTEGER NOT NULL, bonus INTEGER NOT NULL, time_ms INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS ticket_log_who ON ticket_log(name, server_id, ticket_id, ts_ms);
+CREATE TABLE IF NOT EXISTS character_snapshot (ts_ms INTEGER NOT NULL, name TEXT NOT NULL, server_id INTEGER NOT NULL, item_level INTEGER NOT NULL, combat_power INTEGER NOT NULL, equip TEXT NOT NULL, boards TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS character_snapshot_who ON character_snapshot(name, ts_ms);
 CREATE TABLE IF NOT EXISTS boss_log (ts_ms INTEGER NOT NULL, npc INTEGER NOT NULL, phase INTEGER NOT NULL, at_ms INTEGER NOT NULL, seen_ms INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS boss_log_npc ON boss_log(npc, ts_ms);";
             create.ExecuteNonQuery();

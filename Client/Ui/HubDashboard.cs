@@ -5,6 +5,7 @@ using AionDPS.Aion2;
 using AionDPS.History;
 using AionDPS.Schedule;
 using AionDPS.Update;
+using AionDPS.Upload;
 
 namespace AionDPS.Ui;
 
@@ -407,6 +408,191 @@ public static class HubDashboard
 
     private static string _statCharacter = "";
 
+    private sealed record BossStat(string Name, int Fights, double BestIdps);
+
+    private sealed record InstanceStat(string Name, int Runs, List<BossStat> Bosses);
+
+    private static readonly HashSet<string> OpenInstances = new();
+    private static bool _allInstances;
+
+    private static string ServerOf(string character)
+    {
+        var known = Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, character, StringComparison.OrdinalIgnoreCase));
+        return known is null ? "" : Aion2.Protocol.Aion2Servers.NameOf(known.ServerId);
+    }
+
+    private static List<InstanceStat> InstanceStats(List<StayRecord> local, List<StayRecord> localInstances, List<string> names, bool mock, out string source)
+    {
+        var loc = LocalizationManager.Instance;
+        // the website's runs of the chosen character (or of every known one, at most six)
+        var who = _statCharacter.Length > 0 ? new List<string> { _statCharacter } : names.Take(6).ToList();
+        var site = new List<SiteRun>();
+        bool any = false;
+        foreach (string name in who)
+        {
+            if (Upload.RunStatsClient.Get(name, ServerOf(name), null) is { } runs)
+            {
+                site.AddRange(runs);
+                any = true;
+            }
+        }
+
+        if (any && site.Count > 0)
+        {
+            source = loc["Hub.Stats.SourceSite"];
+            var result = new List<InstanceStat>();
+            foreach (var g in site.GroupBy(r => r.Instance))
+            {
+                // a run: the fights in one instance that follow each other within 45 minutes
+                int runs = 0;
+                DateTime lastAt = DateTime.MinValue;
+                foreach (SiteRun r in g.OrderBy(r => r.At))
+                {
+                    if (r.At - lastAt > TimeSpan.FromMinutes(45))
+                    {
+                        runs++;
+                    }
+
+                    lastAt = r.At;
+                }
+
+                var bosses = g.GroupBy(r => r.Boss).Select(b => new BossStat(b.Key, b.Count(), b.Max(r => r.Idps))).OrderByDescending(b => b.Fights).ToList();
+                result.Add(new InstanceStat(g.Key, runs, bosses));
+            }
+
+            return result.OrderByDescending(r => r.Runs).ToList();
+        }
+
+        source = Upload.RunStatsClient.Allowed() ? loc["Hub.Stats.SourceLocalAsking"] : loc["Hub.Stats.SourceLocal"];
+        if (mock)
+        {
+            source = loc["Hub.Dash.Mock"];
+        }
+
+        return localInstances.GroupBy(s => s.ZoneId).Select(g => new InstanceStat(ZoneName(g.Key, SessionKind.Instance, loc), g.Count(),
+            g.SelectMany(s => s.Attempts).GroupBy(a => a.Boss).Select(b => new BossStat(b.Key, b.Count(), b.Where(a => a.Duration.TotalSeconds >= 10).Select(a => a.Counted / a.Duration.TotalSeconds).DefaultIfEmpty(0).Max())).OrderByDescending(b => b.Fights).ToList()))
+            .OrderByDescending(r => r.Runs).ToList();
+    }
+
+    private static UIElement Bar(double share, string brush = "Brush.Accent", double width = 360)
+    {
+        var track = new Border { Height = 10, Width = width, CornerRadius = new CornerRadius(5), VerticalAlignment = VerticalAlignment.Center };
+        track.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
+        var fill = new Border { Height = 10, Width = Math.Max(3, width * share), CornerRadius = new CornerRadius(5), HorizontalAlignment = HorizontalAlignment.Left };
+        fill.SetResourceReference(Border.BackgroundProperty, brush);
+        track.Child = fill;
+        return track;
+    }
+
+    /// <summary>The instances as bars, the most run on top: ten at first, the rest behind "show all".</summary>
+    private static UIElement InstanceBars(List<InstanceStat> stats, LocalizationManager loc, bool mock, string source)
+    {
+        var stack = new StackPanel();
+        if (mock)
+        {
+            stack.Children.Add(MockTag());
+        }
+
+        stack.Children.Add(Text(source, false, "Brush.TextMuted", 11));
+        if (stats.Count == 0)
+        {
+            stack.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+            return stack;
+        }
+
+        int most = stats.Max(s => s.Runs);
+        var shown = _allInstances ? stats : stats.Take(10).ToList();
+        foreach (InstanceStat s in shown)
+        {
+            var row = new Grid { Margin = new Thickness(0, 4, 0, 4) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(280) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(110) });
+            var name = Text(s.Name, false);
+            var bar = Bar(most == 0 ? 0 : (double)s.Runs / most);
+            Grid.SetColumn(bar, 1);
+            var count = Text($"×{s.Runs}", true, "Brush.Accent");
+            count.HorizontalAlignment = HorizontalAlignment.Right;
+            Grid.SetColumn(count, 2);
+            row.Children.Add(name);
+            row.Children.Add(bar);
+            row.Children.Add(count);
+            stack.Children.Add(row);
+        }
+
+        if (stats.Count > 10)
+        {
+            var more = Text(_allInstances ? "▴ " + loc["Hub.Stats.Fewer"] : "▾ " + string.Format(loc["Hub.Stats.ShowAll"], stats.Count), true, "Brush.Accent");
+            more.Cursor = System.Windows.Input.Cursors.Hand;
+            more.Margin = new Thickness(0, 6, 0, 0);
+            more.MouseLeftButtonUp += (_, _) => _allInstances = !_allInstances;
+            stack.Children.Add(more);
+        }
+
+        return stack;
+    }
+
+    /// <summary>The bosses grouped by instance: each instance one line that opens to its bosses (fights and best iDPS with a bar) - a hundred bosses stay readable.</summary>
+    private static UIElement BossGroups(List<InstanceStat> stats, LocalizationManager loc, bool mock)
+    {
+        var stack = new StackPanel();
+        if (mock)
+        {
+            stack.Children.Add(MockTag());
+        }
+
+        foreach (InstanceStat s in stats.Where(s => s.Bosses.Count > 0).Take(40))
+        {
+            bool open = OpenInstances.Contains(s.Name);
+            var head = new Grid { Margin = new Thickness(0, 4, 0, 2), Background = System.Windows.Media.Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand };
+            head.ColumnDefinitions.Add(new ColumnDefinition());
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var title = Text((open ? "▾ " : "▸ ") + s.Name, true);
+            var info = Text($"{s.Bosses.Count} {loc["Hub.Stats.Bosses"]}  ·  {s.Bosses.Sum(b => b.Fights)} {loc["Hub.Dash.BossFights"]}", false, "Brush.TextMuted", 12);
+            Grid.SetColumn(info, 1);
+            head.Children.Add(title);
+            head.Children.Add(info);
+            string key = s.Name;
+            head.MouseLeftButtonUp += (_, _) =>
+            {
+                if (!OpenInstances.Remove(key))
+                {
+                    OpenInstances.Add(key);
+                }
+            };
+            stack.Children.Add(head);
+            if (!open)
+            {
+                continue;
+            }
+
+            double best = s.Bosses.Max(b => b.BestIdps);
+            foreach (BossStat b in s.Bosses)
+            {
+                var row = new Grid { Margin = new Thickness(18, 2, 0, 2) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(300) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+                var bar = Bar(best <= 0 ? 0 : b.BestIdps / best, "Brush.Heal", 300);
+                Grid.SetColumn(bar, 1);
+                var right = Text($"×{b.Fights}   {(b.BestIdps > 0 ? b.BestIdps.ToString("N0") + " iDPS" : "")}", false, "Brush.Accent");
+                right.HorizontalAlignment = HorizontalAlignment.Right;
+                Grid.SetColumn(right, 2);
+                row.Children.Add(Text(b.Name, false));
+                row.Children.Add(bar);
+                row.Children.Add(right);
+                stack.Children.Add(row);
+            }
+        }
+
+        if (stack.Children.Count == (mock ? 1 : 0))
+        {
+            stack.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
+        }
+
+        return stack;
+    }
+
     private static string ZoneName(int zone, SessionKind kind, LocalizationManager loc) => zone == 0 ? loc["Sessions.UnknownMap"]
         : Aion2.Protocol.Aion2Zones.NameOf(zone, loc.Language) ?? string.Format(loc[kind == SessionKind.Instance ? "Sessions.UnknownInstance" : "Sessions.UnknownZone"], zone);
 
@@ -436,6 +622,24 @@ public static class HubDashboard
         }
 
         wrap.Children.Add(chips);
+
+        // the time line of one character (the chosen one, else the first with a log); sample data until a character has two looks
+        string lineOf = _statCharacter.Length > 0 ? _statCharacter : names.FirstOrDefault(n => GameLog.Snapshots(n).Count > 0) ?? "";
+        var looks = lineOf.Length > 0 ? GameLog.Snapshots(lineOf) : new List<GameLog.Snapshot>();
+        var timeline = new StackPanel();
+        if (looks.Count < 2)
+        {
+            timeline.Children.Add(MockTag());
+            looks = TimelineChart.Sample();
+        }
+        else
+        {
+            timeline.Children.Add(Text(lineOf, true, "Brush.Text"));
+        }
+
+        timeline.Children.Add(TimelineChart.Build(looks));
+        wrap.Children.Add(Card(loc["Hub.Stats.Timeline"], timeline, 1110));
+
         var shown = all.Where(s => _statCharacter.Length == 0 || s.Character == _statCharacter).ToList();
         bool mock = shown.Count == 0;
         if (mock)
@@ -464,44 +668,10 @@ public static class HubDashboard
         overview.Children.Add(Line(loc["Hub.Stats.Wipes"], attempts.Count(a => !a.Killed).ToString(), false, "Brush.Danger"));
         wrap.Children.Add(Card(loc["Hub.Stats.Overview"], overview, 520));
 
-        var perInstance = new StackPanel();
-        if (mock)
-        {
-            perInstance.Children.Add(MockTag());
-        }
-
-        foreach (var g in instances.GroupBy(s => s.ZoneId).OrderByDescending(g => g.Count()).Take(14))
-        {
-            int kills = g.SelectMany(s => s.Attempts).Count(a => a.Killed);
-            perInstance.Children.Add(Line(ZoneName(g.Key, SessionKind.Instance, loc), $"×{g.Count()}  ·  {WorldBossText.Duration(TimeSpan.FromSeconds(g.Sum(s => (s.End - s.Start).TotalSeconds)))}  ·  {kills} ✓", true));
-        }
-
-        if (instances.Count == 0)
-        {
-            perInstance.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
-        }
-
-        wrap.Children.Add(Card(loc["Hub.Stats.Instances"], perInstance, 520));
-
-        var perBoss = new StackPanel();
-        if (mock)
-        {
-            perBoss.Children.Add(MockTag());
-        }
-
-        foreach (var g in attempts.GroupBy(a => a.Boss).OrderByDescending(g => g.Count()).Take(14))
-        {
-            var done = g.Where(a => a.Duration.TotalSeconds >= 10).ToList();
-            string best = done.Count > 0 ? loc["Hub.Stats.Best"] + " " + done.Max(a => a.Counted / a.Duration.TotalSeconds).ToString("N0") + " DPS" : "";
-            perBoss.Children.Add(Line(g.Key, $"{g.Count(a => a.Killed)} ✓  {g.Count(a => !a.Killed)} ✗   {best}"));
-        }
-
-        if (attempts.Count == 0)
-        {
-            perBoss.Children.Add(Text(loc["Hub.Dash.NoFights"], false, "Brush.TextMuted"));
-        }
-
-        wrap.Children.Add(Card(loc["Hub.Stats.Bosses"], perBoss, 520));
+        // instances and bosses: from the website when the player has the uploads on (all uploads of the character), else from this computer's history
+        var stats = InstanceStats(shown, instances, names, mock, out string source);
+        wrap.Children.Add(Card(loc["Hub.Stats.Instances"], InstanceBars(stats, loc, mock, source), 1110));
+        wrap.Children.Add(Card(loc["Hub.Stats.Bosses"], BossGroups(stats, loc, mock), 1110));
 
         var progress = new StackPanel();
         foreach (var d in developments.Where(d => _statCharacter.Length == 0 || d.Name == _statCharacter))

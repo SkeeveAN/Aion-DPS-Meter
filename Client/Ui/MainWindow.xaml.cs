@@ -6006,6 +6006,26 @@ public partial class MainWindow : Window
         Aion2Tickets.Changed += () => Dispatcher.BeginInvoke(new Action(() => { characters = true; wait.Stop(); wait.Start(); }));
         Aion2FieldBosses.Changed += () => Dispatcher.BeginInvoke(new Action(() => { bosses = true; wait.Stop(); wait.Start(); }));
         wait.Start(); // once at the start
+
+        // a look at the own character (gear score, combat power, worn pieces, Daevanion boards) every minute; the log keeps it when something differs
+        var look = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
+        look.Tick += (_, _) => WriteCharacterSnapshot();
+        look.Start();
+        Dispatcher.BeginInvoke(new Action(WriteCharacterSnapshot), DispatcherPriority.ApplicationIdle);
+    }
+
+    private void WriteCharacterSnapshot()
+    {
+        if (_liveSource?.Entities is not Aion2EntityDirectory directory || directory.LocalCharacter is not { } me)
+        {
+            return;
+        }
+
+        string equip = string.Concat(directory.LocalEquipment.OrderBy(i => i.SlotIndex).Select(i => $"{i.SlotIndex}:{i.ItemId}:{i.Enchant};"));
+        string boards = string.Concat(directory.LocalDaevanion.OrderBy(b => b.BoardId).Select(b => $"{b.BoardId}:{b.NodeIds.Count};"));
+        int itemLevel = Aion2Tickets.Snapshot().FirstOrDefault(c => string.Equals(c.Name, me.Name, StringComparison.OrdinalIgnoreCase))?.ItemLevel ?? 0;
+        int power = directory.CombatPowerOfName(me.Name) ?? 0;
+        _ = Task.Run(() => GameLog.WriteSnapshot(me.Name, me.ServerId, itemLevel, power, equip, boards));
     }
 
     private SourceState _sourceState = SourceState.Idle;

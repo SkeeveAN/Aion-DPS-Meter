@@ -436,6 +436,19 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "aion2-sitestats")
+        {
+            // aion2-sitestats <name> [server]: the runs aiondps.com holds for a character (a lookup of the exact name; for tests)
+            var siteRuns = Upload.RunStatsClient.Fetch(args[1], args.Length > 2 ? args[2] : "").GetAwaiter().GetResult();
+            Console.WriteLine(siteRuns is null ? "aion2-sitestats: nothing found" : $"aion2-sitestats: {siteRuns.Count} fights in {siteRuns.Select(r => r.Instance).Distinct().Count()} instances, {siteRuns.Select(r => r.Boss).Distinct().Count()} bosses");
+            foreach (var g in (siteRuns ?? new()).GroupBy(r => r.Instance).OrderByDescending(g => g.Count()).Take(8))
+            {
+                Console.WriteLine($"  {g.Key}: {g.Count()} fights, {g.Select(r => r.Boss).Distinct().Count()} bosses");
+            }
+
+            return;
+        }
+
         if (args.Length > 1 && args[0] == "aion2-history-add")
         {
             // aion2-history-add <stays.json>: puts the stays of an aion2-history output into the fight history database (for tests; AIONDPS_DATA_DIR picks the folder)

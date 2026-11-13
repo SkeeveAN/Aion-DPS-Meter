@@ -190,7 +190,9 @@ DELETE FROM ticket_log WHERE ts_ms < $cut AND rowid NOT IN (
   SELECT MAX(rowid) FROM ticket_log WHERE ts_ms < $cut GROUP BY name, server_id, ticket_id, ts_ms / 86400000);
 DELETE FROM character_log WHERE ts_ms < $cut AND rowid NOT IN (
   SELECT MAX(rowid) FROM character_log WHERE ts_ms < $cut GROUP BY name, server_id, ts_ms / 86400000);
-DELETE FROM boss_log WHERE ts_ms < $boss;";
+DELETE FROM boss_log WHERE ts_ms < $boss;
+DELETE FROM character_snapshot WHERE ts_ms < $cut AND rowid NOT IN (
+  SELECT MAX(rowid) FROM character_snapshot WHERE ts_ms < $cut GROUP BY name, ts_ms / 86400000);";
                     thin.Parameters.AddWithValue("$cut", ninety);
                     thin.Parameters.AddWithValue("$boss", sixty);
                     removed = thin.ExecuteNonQuery();
@@ -215,6 +217,73 @@ DELETE FROM boss_log WHERE ts_ms < $boss;";
         {
             // tidied up the next time
         }
+    }
+
+    /// <summary>One look at the own character: the gear score (the item level of the list), the combat power, the worn pieces ("slot:item:enchant;") and the Daevanion boards ("board:nodes;").</summary>
+    public sealed record Snapshot(DateTime At, int ItemLevel, int CombatPower, string Equip, string Boards);
+
+    /// <summary>Writes a snapshot of the own character when anything differs from the last one.</summary>
+    public static void WriteSnapshot(string name, int serverId, int itemLevel, int combatPower, string equip, string boards)
+    {
+        try
+        {
+            lock (FightHistory.Gate)
+            {
+                using SqliteConnection db = FightHistory.Open();
+                using (SqliteCommand latest = db.CreateCommand())
+                {
+                    latest.CommandText = "SELECT item_level, combat_power, equip, boards FROM character_snapshot WHERE name=$n ORDER BY ts_ms DESC LIMIT 1";
+                    latest.Parameters.AddWithValue("$n", name);
+                    using SqliteDataReader r = latest.ExecuteReader();
+                    if (r.Read() && r.GetInt32(0) == itemLevel && r.GetInt32(1) == combatPower && r.GetString(2) == equip && r.GetString(3) == boards)
+                    {
+                        return;
+                    }
+                }
+
+                using SqliteCommand add = db.CreateCommand();
+                add.CommandText = "INSERT INTO character_snapshot VALUES ($t,$n,$s,$i,$c,$e,$b)";
+                add.Parameters.AddWithValue("$t", FightHistory.Ms(DateTime.Now));
+                add.Parameters.AddWithValue("$n", name);
+                add.Parameters.AddWithValue("$s", serverId);
+                add.Parameters.AddWithValue("$i", itemLevel);
+                add.Parameters.AddWithValue("$c", combatPower);
+                add.Parameters.AddWithValue("$e", equip);
+                add.Parameters.AddWithValue("$b", boards);
+                add.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // not written now
+        }
+    }
+
+    /// <summary>The snapshots of one character, oldest first.</summary>
+    public static List<Snapshot> Snapshots(string name)
+    {
+        var list = new List<Snapshot>();
+        try
+        {
+            lock (FightHistory.Gate)
+            {
+                using SqliteConnection db = FightHistory.Open();
+                using SqliteCommand command = db.CreateCommand();
+                command.CommandText = "SELECT ts_ms, item_level, combat_power, equip, boards FROM character_snapshot WHERE name=$n ORDER BY ts_ms";
+                command.Parameters.AddWithValue("$n", name);
+                using SqliteDataReader r = command.ExecuteReader();
+                while (r.Read())
+                {
+                    list.Add(new Snapshot(FightHistory.Time(r.GetInt64(0)), r.GetInt32(1), r.GetInt32(2), r.GetString(3), r.GetString(4)));
+                }
+            }
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // nothing logged yet
+        }
+
+        return list;
     }
 
     /// <summary>One character's development as the log saw it: the first and the last values with the time of the first.</summary>
