@@ -2425,6 +2425,12 @@ public partial class MainWindow : Window
         ApplyClassFilterAvailability();
         LocalizationManager.Instance.PropertyChanged += (_, _) => LocalizeClassFilter();
 
+        // 2.0: the program starts with the new interface; the meter window stays behind it (it carries the capture and the overlays)
+        if (!Headless && MeterSettings.Load().OpenHubAtStart)
+        {
+            Dispatcher.BeginInvoke(new Action(() => OnOpenHubClicked(this, new RoutedEventArgs())), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+
         // See AppIconImage's own XAML remarks: a plain pack://siteoforigin Source silently
         // rendered nothing for this specific .ico, so it's decoded via GDI instead - the same
         // path Explorer itself uses for any .ico, rather than WPF's own (apparently less

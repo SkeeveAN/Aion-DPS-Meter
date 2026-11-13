@@ -111,6 +111,13 @@
      "Client"
     ],
     "date": "2026-11-12"
+   },
+   {
+    "text": "Release 2.0.0-alpha.9: the program now starts with the new interface (the hub window opens at start, the meter window stays behind it for the capture and the overlays)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
    }
   ]
  },

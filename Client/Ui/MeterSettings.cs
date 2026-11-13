@@ -450,6 +450,9 @@ public sealed class MeterSettings
     /// was never a deliberate choice, and its saved value is dropped.</summary>
     public bool AutoResetEnabled { get; set; }
 
+    /// <summary>Open the new interface (the hub window) when the program starts.</summary>
+    public bool OpenHubAtStart { get; set; } = true;
+
     /// <summary>Seconds without damage after which the next fight starts from zero (1 to 600).</summary>
     public int AutoResetSeconds { get; set; } = 10;
 
