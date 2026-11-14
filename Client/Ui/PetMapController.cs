@@ -123,7 +123,13 @@ public sealed class PetMapController : IDisposable
 
     public bool HasViews => _mapViews.Count > 0;
 
-    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !InMenu && (_settings.PetMapShowMap || _cubeMapOverride));
+    private void ShowMap(bool visible)
+    {
+        _map.IgnoreEyeOff = _cubeMapOverride; // the map for a hidden cube comes although its eye is closed
+        ShowMapCore(visible);
+    }
+
+    private void ShowMapCore(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !InMenu && (_settings.PetMapShowMap || _cubeMapOverride));
 
     private void ShowList(bool visible) => _list.ShowOverlay(visible && !_hideOverlays && _settings.ShowPetMap && _settings.PetMapShowList);
 

@@ -513,6 +513,9 @@ public sealed class MeterSettings
     /// <summary>The colour of an overlay's background as "#RRGGBB", by the overlay's title (the overlay designer's colour row); missing: the overlay's own dark colour. The opacity is <see cref="OverlayOpacities"/>.</summary>
     public Dictionary<string, string> OverlayBackColors { get; set; } = new();
 
+    /// <summary>The overlays (by title) whose eye in the overlay designer is closed: they keep their place and stay among the added overlays, but are not drawn over the game (the designer still shows them, dimmed, to place them).</summary>
+    public List<string> OverlayEyeOff { get; set; } = new();
+
     /// <summary>The widgets that stand over the game as overlays (the dashboard's widgets and the pages of the app), by the widget's id; see <see cref="WidgetOverlayPlace"/>.</summary>
     public Dictionary<string, WidgetOverlayPlace> WidgetOverlays { get; set; } = new();
 

@@ -16405,5 +16405,17 @@
     "pt": "Meu design",
     "ja": "マイデザイン",
     "ko": "내 디자인"
+  },
+  "Designer.EyeTip": {
+    "en": "Visible over the game (closed: placed, but not shown)",
+    "de": "Sichtbar über dem Spiel (geschlossen: platziert, aber nicht angezeigt)",
+    "fr": "Visible sur le jeu (fermé : placé, mais pas affiché)",
+    "es": "Visible sobre el juego (cerrado: colocado, pero no se muestra)",
+    "ru": "Виден поверх игры (закрыт: размещён, но не показывается)",
+    "zh": "在游戏上可见（关闭：已放置但不显示）",
+    "zh-TW": "在遊戲上可見（關閉：已放置但不顯示）",
+    "pt": "Visível sobre o jogo (fechado: posicionado, mas não mostrado)",
+    "ja": "ゲーム上に表示（閉じる：配置済みだが非表示）",
+    "ko": "게임 위에 표시(닫힘: 배치만 하고 표시하지 않음)"
   }
 }

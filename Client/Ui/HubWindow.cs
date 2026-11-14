@@ -720,6 +720,27 @@ public sealed class HubWindow : Window
         }
 
         strip.Children.Add(Tab(loc["Hub.Tab.View"], true, () => shown.Child = view));
+        // the interactive map has its pets and its gathering as tabs of their own: View | Pets | Gathering | Settings
+        var extraPages = new List<ToolPage>();
+        if (tool == "petmap")
+        {
+            foreach (var (label, page) in new[] { (loc["Settings.Nav.Pets"], "petmap.pets"), (loc["Settings.Nav.Gather"], "petmap.gather") })
+            {
+                ToolPage? built = null;
+                string id = page;
+                strip.Children.Add(Tab(label, false, () =>
+                {
+                    if (built is null && _build("hub.cfg." + id) is { } made)
+                    {
+                        built = made;
+                        extraPages.Add(made);
+                    }
+
+                    shown.Child = built?.Content ?? new TextBlock { Text = "–" };
+                }));
+            }
+        }
+
         var settingsTab = Tab(loc["Hub.Tab.Options"], false, () =>
         {
             settings ??= _build("hub.cfg." + tool);
@@ -728,7 +749,7 @@ public sealed class HubWindow : Window
         _toolSettingsTab = settingsTab;
         strip.Children.Add(settingsTab);
         var inner = _page;
-        _page = new ToolPage { Content = view, CurrentTab = inner?.CurrentTab, Cleanup = () => { inner?.Cleanup?.Invoke(); settings?.Cleanup?.Invoke(); } };
+        _page = new ToolPage { Content = view, CurrentTab = inner?.CurrentTab, Cleanup = () => { inner?.Cleanup?.Invoke(); settings?.Cleanup?.Invoke(); foreach (ToolPage extra in extraPages) { extra.Cleanup?.Invoke(); } } };
         var dock = new DockPanel();
         DockPanel.SetDock(line, Dock.Top);
         dock.Children.Add(line);

@@ -24,7 +24,7 @@ public static class ToolSettingsPage
             "network" => ToolConfigs.Network(applied),
             "stream" => ToolConfigs.Stream(applied),
             "craft" => craftConfig(),
-            "petmap" => PetMapStack(applied, panelOf),
+            "petmap" => ToolConfigs.PetMap(applied), // the pets and the gathering have their own tabs
             _ => null,
         };
         if (more is not null)
@@ -39,22 +39,15 @@ public static class ToolSettingsPage
         return new ToolPage { Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Content = stack }, Cleanup = cleanupExtra };
     }
 
-    private static UIElement PetMapStack(Action<MeterSettings> applied, Func<string, UIElement?> panelOf)
+    /// <summary>A page of the interactive map that is a panel of the settings window (the pets, the gathering), as a tab of its own.</summary>
+    public static ToolPage PanelTab(UIElement? body, Action cleanup)
     {
-        var loc = LocalizationManager.Instance;
-        var stack = new StackPanel();
-        stack.Children.Add(ToolConfigs.PetMap(applied));
-        foreach (var (panel, key) in new[] { ("PanelPets", "Settings.Nav.Pets"), ("PanelGather", "Settings.Nav.Gather") })
+        var stack = new StackPanel { Margin = new Thickness(14, 10, 14, 14) };
+        if (body is not null)
         {
-            if (panelOf(panel) is { } body)
-            {
-                var head = new TextBlock { Text = loc[key], FontSize = 15, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 14, 0, 6) };
-                head.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
-                stack.Children.Add(head);
-                stack.Children.Add(body);
-            }
+            stack.Children.Add(body);
         }
 
-        return stack;
+        return new ToolPage { Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Content = stack }, Cleanup = cleanup };
     }
 }

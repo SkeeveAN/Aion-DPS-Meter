@@ -26,6 +26,8 @@ public abstract class MovableOverlay : Window
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _frame;
     private readonly Border _gear;
+    private readonly Border _eye;
+    private readonly TextBlock _eyeGlyph;
     private readonly Border _bodyHost = new();
     private readonly Border _shiftHost = new();
     private readonly TranslateTransform _shift = new();
@@ -76,9 +78,31 @@ public abstract class MovableOverlay : Window
             OverlayDesigner.ShowOpacityPanel(this);
             e.Handled = true;
         };
+        // the eye: whether the overlay is drawn over the game at all; closed, it keeps its place (to be shown by something else, like the map for a hidden cube)
+        _eyeGlyph = new TextBlock { FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x05)), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        _eye = new Border
+        {
+            Width = 22, Height = 22, CornerRadius = new CornerRadius(11), Margin = new Thickness(0, 0, 28, 0), Cursor = Cursors.Hand, Visibility = Visibility.Collapsed,
+            HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42)),
+            ToolTip = LocalizationManager.Instance["Designer.EyeTip"], Child = _eyeGlyph,
+        };
+        _eye.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        _eye.MouseLeftButtonUp += (_, e) =>
+        {
+            var s = MeterSettings.Load();
+            if (!s.OverlayEyeOff.Remove(Title))
+            {
+                s.OverlayEyeOff.Add(Title);
+            }
+
+            s.Save();
+            ShowEyeState();
+            e.Handled = true;
+        };
         var layer = new Grid();
         layer.Children.Add(stack);
         layer.Children.Add(_gear);
+        layer.Children.Add(_eye);
         _frame = new Border { Child = layer, LayoutTransform = _scale, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(2), Background = Brushes.Transparent };
         _frame.MouseLeftButtonDown += (_, e) =>
         {
@@ -205,6 +229,8 @@ public abstract class MovableOverlay : Window
         else
         {
             _gear.Visibility = !locked && OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed; // the designer may have come on with the overlay unlocked already
+            _eye.Visibility = _gear.Visibility;
+            ShowEyeState();
         }
     }
 
@@ -247,6 +273,8 @@ public abstract class MovableOverlay : Window
 
         _edges.Show(!locked);
         _gear.Visibility = !locked && OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
+        _eye.Visibility = _gear.Visibility;
+        ShowEyeState();
         _frame.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _frame.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
         _frame.Background = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromArgb(0x30, 0, 0, 0));
@@ -264,8 +292,26 @@ public abstract class MovableOverlay : Window
     }
 
     /// <summary>Shows or hides the window; the click-through style is set again after the first show (WPF may recreate the handle).</summary>
+    /// <summary>The eye of the overlay designer is closed for this overlay: it is not drawn over the game (the designer still shows it, dimmed, so it can be placed).</summary>
+    public bool EyeOff => MeterSettings.Load().OverlayEyeOff.Contains(Title);
+
+    /// <summary>Something else shows this overlay although its eye is closed (the map for a hidden cube).</summary>
+    public bool IgnoreEyeOff { get; set; }
+
+    private void ShowEyeState()
+    {
+        bool off = EyeOff;
+        _eyeGlyph.Text = off ? "\uED1A" : "\uE7B3"; // closed / open eye
+        _frame.Opacity = off && OverlayDesigner.Active ? 0.45 : 1.0;
+    }
+
     public void ShowOverlay(bool visible)
     {
+        if (visible && !IgnoreEyeOff && !OverlayDesigner.Active && EyeOff)
+        {
+            visible = false;
+        }
+
         if (!visible)
         {
             if (IsVisible)

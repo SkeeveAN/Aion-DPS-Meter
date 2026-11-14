@@ -6515,6 +6515,17 @@ public partial class MainWindow : Window
                 return body;
             }
 
+            if (tool is "petmap.pets" or "petmap.gather")
+            {
+                return ToolSettingsPage.PanelTab(Panel(tool == "petmap.pets" ? "PanelPets" : "PanelGather"), () =>
+                {
+                    foreach (Action cleanup in cleanups)
+                    {
+                        cleanup();
+                    }
+                });
+            }
+
             CraftConfigWindow? craft = null;
             UIElement? CraftBody()
             {
