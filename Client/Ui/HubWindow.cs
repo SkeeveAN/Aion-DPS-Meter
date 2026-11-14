@@ -657,7 +657,7 @@ public sealed class HubWindow : Window
             foreach (Entry entry in group.Entries)
             {
                 Entry e = entry;
-                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = e.Title + (e.Kind == "own" ? "  ↗" : ""), Margin = new Thickness(0, 0, 0, 3) };
+                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e), Margin = new Thickness(0, 0, 0, 3) };
                 item.Checked += (_, _) => ShowEntry(e);
                 _menu.Children.Add(item);
             }
@@ -672,6 +672,28 @@ public sealed class HubWindow : Window
                 first1.IsChecked = true;
             }
         }
+    }
+
+    /// <summary>A symbol before the name of a tool in the menu (the Tools tab), in the colour of the text, so it also turns accent when the entry is chosen.</summary>
+    private static readonly Dictionary<string, string> MenuSymbols = new()
+    {
+        ["client.general"] = "\u2699", ["client.meter"] = "\u2694", ["client.install"] = "\u2B06", ["client.hotkeys"] = "\u2328", ["client.updates"] = "\u2318",
+        ["loot"] = "\u25C6", ["craft"] = "\u2692", ["petmap"] = "\u2316", ["timetable"] = "\u25F7", ["boss"] = "\u265C",
+        ["combat"] = "\u265B", ["assist"] = "\u2726", ["stream"] = "\u25C9", ["network"] = "\u21C5", ["theme"] = "\u270E",
+    };
+
+    private static object MenuContent(string sectionId, Entry entry)
+    {
+        string text = entry.Title + (entry.Kind == "own" ? "  ↗" : "");
+        if (sectionId != "tools" || !MenuSymbols.TryGetValue(entry.Id, out string? symbol))
+        {
+            return text;
+        }
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        row.Children.Add(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 18, Width = 28, TextAlignment = TextAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
+        row.Children.Add(new TextBlock { Text = text, FontSize = 14.5, VerticalAlignment = VerticalAlignment.Center });
+        return row;
     }
 
     private static ControlTemplate MenuTemplate()
