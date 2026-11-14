@@ -1449,8 +1449,10 @@ internal static class Program
 
         Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
+        var mainForStyles = new Ui.MainWindow(); // never shown: its resources hold the dark control styles the editor copies, as in the program
         var window = new Ui.ThemeEditorWindow(settings);
         var content = (System.Windows.FrameworkElement)window.Content;
+        content.Resources.MergedDictionaries.Add(window.Resources); // the styles of the window go with its content, as on the editor's page
         int w = (int)window.Width, h = (int)window.Height;
         for (int pass = 0; pass < 2; pass++)
         {
