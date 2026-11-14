@@ -1981,16 +1981,16 @@
     "ko": "채집"
   },
   "Settings.Gather.Hint": {
-    "en": "Everything your faction can gather, by kind. What you switch on appears on the interactive map as diamonds.",
-    "de": "Alles, was deine Fraktion sammeln kann, nach Art gruppiert. Was du einschaltest, erscheint als Raute auf der interaktiven Map.",
-    "fr": "Tout ce que votre faction peut récolter, par type. Ce que vous activez apparaît en losanges sur la carte interactive.",
-    "es": "Todo lo que tu facción puede recolectar, por tipo. Lo que actives aparece como rombos en el mapa interactivo.",
-    "ru": "Всё, что может собирать ваша фракция, по типам. Включённое появляется на интерактивной карте ромбами.",
-    "zh": "你的阵营可采集的所有物品，按种类分组。开启的会以菱形显示在交互地图上。",
-    "zh-TW": "您的陣營可採集的所有物品，依種類分組。開啟的項目會以菱形顯示在互動地圖上。",
-    "pt": "Tudo o que a sua raça pode coletar, por tipo. O que você ativar aparece no mapa interativo como losangos.",
-    "ja": "あなたの種族が採集できるものを種類別に表示します。オンにしたものは、インタラクティブマップにひし形で表示されます。",
-    "ko": "내 종족이 채집할 수 있는 모든 것을 종류별로 표시합니다. 켜 둔 항목은 인터랙티브 맵에 마름모로 표시됩니다."
+    "en": "Everything your faction can gather, by kind. What you switch on appears on the interactive map with the icon the game shows for it.",
+    "de": "Alles, was deine Fraktion sammeln kann, nach Art gruppiert. Was du einschaltest, erscheint auf der interaktiven Map mit dem Symbol, das das Spiel dafür zeigt.",
+    "fr": "Tout ce que ta faction peut récolter, par type. Ce que tu actives apparaît sur la carte interactive avec l'icône que le jeu montre pour cela.",
+    "es": "Todo lo que tu facción puede recolectar, por tipo. Lo que actives aparece en el mapa interactivo con el icono que el juego muestra para ello.",
+    "ru": "Всё, что может собирать ваша фракция, по видам. Включённое появляется на интерактивной карте со значком, который показывает игра.",
+    "zh": "你的阵营可以采集的一切，按类型分组。开启的内容会在互动地图上以游戏中显示的图标出现。",
+    "zh-TW": "你的陣營可以採集的一切，依類型分組。開啟的內容會在互動地圖上以遊戲中顯示的圖示出現。",
+    "pt": "Tudo o que a tua facção pode recolher, por tipo. O que ligares aparece no mapa interativo com o ícone que o jogo mostra para isso.",
+    "ja": "あなたの陣営が採集できるものを種類別に表示します。オンにしたものは、ゲームが表示するアイコンでインタラクティブマップに表示されます。",
+    "ko": "내 진영이 채집할 수 있는 모든 것을 종류별로 보여 줍니다. 켜 둔 항목은 게임에서 보여 주는 아이콘으로 인터랙티브 맵에 표시됩니다."
   },
   "Settings.Gather.Places": {
     "en": "{0} places on the world maps",

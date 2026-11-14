@@ -1650,6 +1650,23 @@ public partial class SettingsWindow : Window
     /// The Sammeln page: one line per kind (its name and "all / none" on the left), the collectibles as switchable pills on the right. Only what the
     /// player's own faction can use is listed, and only what the world maps hold a place for.
     /// </summary>
+    /// <summary>The text of a pill with the icon the game shows for the item in front of it (just the text where the client has no icon).</summary>
+    private static object GatherPillContent(Aion2GatherItem item, string language)
+    {
+        string name = item.NameIn(language);
+        if (Aion2Gather.Icon(item.Key) is not { } icon)
+        {
+            return name;
+        }
+
+        var image = new Image { Source = icon, Width = 20, Height = 20, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center };
+        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        row.Children.Add(image);
+        row.Children.Add(new TextBlock { Text = name, VerticalAlignment = VerticalAlignment.Center });
+        return row;
+    }
+
     private void BuildGatherPage()
     {
         GatherCards.Children.Clear();
@@ -1673,12 +1690,22 @@ public partial class SettingsWindow : Window
             line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             var title = new StackPanel { Orientation = Orientation.Horizontal };
-            title.Children.Add(new System.Windows.Shapes.Polygon
+            if (Aion2Gather.IconOfKind(kind) is { } kindIcon)
             {
-                Points = new PointCollection { new Point(6, 0), new Point(12, 7), new Point(6, 14), new Point(0, 7) },
-                Fill = new SolidColorBrush(PetMapPalette.OfGather(kind)), Stroke = Brushes.Black, StrokeThickness = 1,
-                Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center, Width = 12, Height = 14,
-            });
+                var kindImage = new Image { Source = kindIcon, Width = 22, Height = 22, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center };
+                RenderOptions.SetBitmapScalingMode(kindImage, BitmapScalingMode.HighQuality);
+                title.Children.Add(kindImage);
+            }
+            else
+            {
+                title.Children.Add(new System.Windows.Shapes.Polygon
+                {
+                    Points = new PointCollection { new Point(6, 0), new Point(12, 7), new Point(6, 14), new Point(0, 7) },
+                    Fill = new SolidColorBrush(PetMapPalette.OfGather(kind)), Stroke = Brushes.Black, StrokeThickness = 1,
+                    Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center, Width = 12, Height = 14,
+                });
+            }
+
             var heading = new TextBlock { Text = loc["Settings.PetMap.Gather." + kind], FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, MaxWidth = 92 };
             title.Children.Add(heading);
             var count = new TextBlock { FontSize = 11, Margin = new Thickness(0, 0, 0, 0) };
@@ -1705,7 +1732,7 @@ public partial class SettingsWindow : Window
                 string key = item.Key;
                 var pill = new System.Windows.Controls.Primitives.ToggleButton
                 {
-                    Content = item.NameIn(loc.Language), IsChecked = _gatherPicked.Contains(key),
+                    Content = GatherPillContent(item, loc.Language), IsChecked = _gatherPicked.Contains(key),
                     ToolTip = string.Format(loc["Settings.Gather.Places"], faction == "Elyos" ? item.Elyos : faction == "Asmodian" ? item.Asmodian : item.Count),
                 };
                 pill.SetResourceReference(FrameworkElement.StyleProperty, "GatherPill");

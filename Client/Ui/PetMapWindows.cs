@@ -475,6 +475,7 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<Ellipse> _dots = new();
     private readonly List<Ellipse> _liveDots = new();
     private readonly List<Polygon> _gatherMarks = new();
+    private readonly List<Image> _gatherIcons = new();
     private readonly List<Polygon> _edgeArrows = new();
     private readonly Polygon _me;
 
@@ -664,13 +665,34 @@ public sealed class PetMapWindow : MovableOverlay
             _dots[i].Visibility = Visibility.Collapsed;
         }
 
-        // collectibles: diamonds in the colour of their kind (the pets are round)
-        int mark = 0;
-        foreach ((string kind, float x, float y) in gather ?? Array.Empty<(string, float, float)>())
+        // collectibles: the icon the game shows for the item, or a diamond in the colour of the kind where the client has none (the pets are round)
+        int mark = 0, iconMark = 0;
+        foreach ((string kindKey, float x, float y) in gather ?? Array.Empty<(string, float, float)>())
         {
             double px = cx + (x - worldX) * ppu, py = cy + (y - worldY) * ppu;
             if (px < 6 || py < 6 || px > vw - 6 || py > vh - 6)
             {
+                continue;
+            }
+
+            int bar = kindKey.IndexOf('|');
+            string kind = bar < 0 ? kindKey : kindKey[..bar];
+            var icon = bar < 0 ? null : AionDPS.Aion2.Protocol.Aion2Gather.Icon(kindKey[(bar + 1)..]);
+            if (icon is not null)
+            {
+                if (iconMark >= _gatherIcons.Count)
+                {
+                    var image = new Image { Width = 24, Height = 24, IsHitTestVisible = false, Stretch = Stretch.Uniform, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 3, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.9 } };
+                    RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                    _gatherIcons.Add(image);
+                    _canvas.Children.Add(image);
+                }
+
+                var shown = _gatherIcons[iconMark++];
+                shown.Source = icon;
+                Canvas.SetLeft(shown, px - 12);
+                Canvas.SetTop(shown, py - 12);
+                shown.Visibility = Visibility.Visible;
                 continue;
             }
 
@@ -691,6 +713,11 @@ public sealed class PetMapWindow : MovableOverlay
         for (int i = mark; i < _gatherMarks.Count; i++)
         {
             _gatherMarks[i].Visibility = Visibility.Collapsed;
+        }
+
+        for (int i = iconMark; i < _gatherIcons.Count; i++)
+        {
+            _gatherIcons[i].Visibility = Visibility.Collapsed;
         }
 
         // the monsters really around the player (announced by the game): large, bright, over the general spawn points
@@ -810,8 +837,9 @@ public sealed class PetMapWindow : MovableOverlay
         if (gatherArrows && gather is not null)
         {
             var kinds = new Dictionary<string, (bool Visible, double BestSq, double Bx, double By)>();
-            foreach ((string kind, float x, float y) in gather)
+            foreach ((string kindKey, float x, float y) in gather)
             {
+                string kind = kindKey.Contains('|') ? kindKey[..kindKey.IndexOf('|')] : kindKey;
                 kinds.TryGetValue(kind, out var st);
                 if (st == default)
                 {

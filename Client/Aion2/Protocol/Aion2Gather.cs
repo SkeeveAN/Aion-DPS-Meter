@@ -50,6 +50,57 @@ public static class Aion2Gather
         return _keyById!.TryGetValue(envId, out var found) ? found : null;
     }
 
+    private static Dictionary<string, string>? _iconNames;
+    private static readonly Dictionary<string, System.Windows.Media.Imaging.BitmapSource?> IconCache = new();
+
+    /// <summary>The icon the game shows for a collectible (the item its gather source gives), by the collectible's key; null where the client has none (the map then draws a diamond).</summary>
+    public static System.Windows.Media.Imaging.BitmapSource? Icon(string key)
+    {
+        lock (IconCache)
+        {
+            if (IconCache.TryGetValue(key, out var cached))
+            {
+                return cached;
+            }
+
+            System.Windows.Media.Imaging.BitmapSource? icon = null;
+            try
+            {
+                if (_iconNames is null)
+                {
+                    string list = AssetStore.Path("aion2", "maps", "gather_icons.json");
+                    _iconNames = File.Exists(list) ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(list)) ?? new() : new();
+                }
+
+                if (_iconNames.TryGetValue(key, out string? name))
+                {
+                    string file = AssetStore.Path("aion2", "maps", "gather_icons", name + ".png");
+                    if (File.Exists(file))
+                    {
+                        var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                        bitmap.UriSource = new Uri(file);
+                        bitmap.EndInit();
+                        bitmap.Freeze();
+                        icon = bitmap;
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is IOException or JsonException or NotSupportedException or UriFormatException)
+            {
+                // no icon: the diamond stays
+            }
+
+            IconCache[key] = icon;
+            return icon;
+        }
+    }
+
+    /// <summary>The icon of a kind (its first collectible that has one), for the heading of the kind in the settings.</summary>
+    public static System.Windows.Media.Imaging.BitmapSource? IconOfKind(string kind) =>
+        Items().Where(i => i.Kind == kind).Select(i => Icon(i.Key)).FirstOrDefault(i => i is not null);
+
     private static Dictionary<long, (string Kind, string Key)>? _keyById;
     private static List<Aion2GatherItem>? _items;
     private static Dictionary<string, Dictionary<string, List<float[]>>>? _maps;   // map table -> item key -> x,y pairs

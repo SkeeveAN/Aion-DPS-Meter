@@ -629,7 +629,7 @@ public sealed class PetMapController : IDisposable
         }
 
         _gatherNamed = shown;
-        _gather = shown.Select(g => (g.Item.Kind, g.X, g.Y)).ToList();
+        _gather = shown.Select(g => (g.Item.Kind + "|" + g.Item.Key, g.X, g.Y)).ToList(); // the kind, then the item whose icon the map draws
     }
     private DateTime _savedAt = DateTime.MinValue;
 
