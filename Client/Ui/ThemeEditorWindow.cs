@@ -111,14 +111,12 @@ public sealed class ThemeEditorWindow : Window
         form.Children.Add(_classPanel);
 
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 22, 0, 0) };
-        var save = new Button { Content = loc["ThemeEditor.Save"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 0, 8, 0) };
         var reset = new Button { Content = loc["ThemeEditor.Reset"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 0, 8, 0) };
         var export = new Button { Content = loc["ThemeEditor.Export"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 8, 8, 0) };
         var import = new Button { Content = loc["ThemeEditor.Import"], Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 8, 8, 0) };
         export.Click += (_, _) => ExportTheme();
         import.Click += (_, _) => ImportTheme();
         var close = new Button { Content = loc["ThemeEditor.Close"], Padding = new Thickness(14, 4, 14, 4) };
-        save.Click += (_, _) => Save();
         reset.Click += (_, _) =>
         {
             _background.Hex = "";
@@ -141,7 +139,6 @@ public sealed class ThemeEditorWindow : Window
             Rebuild();
         };
         close.Click += (_, _) => Close();
-        buttons.Children.Add(save);
         buttons.Children.Add(reset);
         buttons.Children.Add(close);
         form.Children.Add(buttons);
@@ -176,6 +173,81 @@ public sealed class ThemeEditorWindow : Window
         _fontSize.ValueChanged += (_, _) => Rebuild();
         _loading = false;
         Rebuild();
+        _baseline = Snapshot(); // from here on a change is saved by itself
+        _name.TextChanged += (_, _) =>
+        {
+            if (_currentName is null)
+            {
+                ScheduleAutoSave(); // a new theme is saved as soon as it has a name
+            }
+        };
+    }
+
+    private System.Windows.Threading.DispatcherTimer? _autoTimer;
+
+    /// <summary>No Save button: a change of the fields is written to the theme's file a moment after the last one, and the theme is applied.</summary>
+    private void ScheduleAutoSave()
+    {
+        if (_loading || _populating || _baseline is null)
+        {
+            return;
+        }
+
+        _autoTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(900) };
+        _autoTimer.Tick -= OnAutoSave;
+        _autoTimer.Tick += OnAutoSave;
+        _autoTimer.Stop();
+        _autoTimer.Start();
+    }
+
+    private void OnAutoSave(object? sender, EventArgs e)
+    {
+        _autoTimer?.Stop();
+        if (_baseline is null || Snapshot() == _baseline)
+        {
+            return;
+        }
+
+        // the theme loaded keeps its file; a new one is named by what was typed, or gets a name of its own
+        string? name = _currentName;
+        if (name is null)
+        {
+            string typed = ThemeFile.CleanName(_name.Text);
+            if (typed.Length > 0 && (ThemeFile.IsReserved(typed) || File.Exists(ThemeFile.PathFor(typed))))
+            {
+                return; // that name is taken: the player types another
+            }
+
+            name = typed;
+            if (name.Length == 0)
+            {
+                string baseName = LocalizationManager.Instance["ThemeEditor.DefaultName"];
+                name = baseName;
+                for (int n = 2; File.Exists(ThemeFile.PathFor(name)); n++)
+                {
+                    name = $"{baseName} {n}";
+                }
+            }
+        }
+
+        ThemeFile file = CurrentFile();
+        file.Name = name;
+        if (!file.Write(ThemeFile.PathFor(name)))
+        {
+            return;
+        }
+
+        bool created = _currentName is null;
+        _settings.Theme = ThemeFile.SelectionFor(name);
+        _currentName = name;
+        _baseline = Snapshot();
+        if (created)
+        {
+            _name.Text = name;
+            FillThemeList(name);
+        }
+
+        Saved?.Invoke(_settings);
     }
 
     /// <summary>What every field holds while it has no colour of its own: the base theme's colours and the standard class colours, shown dimmed.</summary>
@@ -232,6 +304,8 @@ public sealed class ThemeEditorWindow : Window
             _name.Text = "";
             LoadFile(new ThemeFile());
         }
+
+        _baseline = Snapshot(); // what was just loaded is not a change
     }
 
     private bool SingleBar => _barMode.SelectedIndex == 1;
@@ -465,6 +539,7 @@ public sealed class ThemeEditorWindow : Window
             return;
         }
 
+        ScheduleAutoSave();
         _fontValue.Text = FontPoints is double pt ? $"{pt:0} pt" : "–";
         double size = ThemeManager.FontPointsFor(_settings.FontSize, FontPoints);
         ResourceDictionary theme = ThemeManager.Build(_settings.Theme, Overrides);

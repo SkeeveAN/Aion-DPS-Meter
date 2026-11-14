@@ -8257,16 +8257,16 @@
     "ko": "닫기"
   },
   "ThemeEditor.Hint": {
-    "en": "Changes show on the right at once. Save applies them to the main window and all overlays.",
-    "de": "Änderungen siehst du rechts sofort. Speichern übernimmt sie für Hauptfenster und alle Overlays.",
-    "fr": "Les changements apparaissent à droite aussitôt. Enregistrer les applique à la fenêtre principale et aux overlays.",
-    "es": "Los cambios se ven a la derecha al instante. Guardar los aplica a la ventana principal y los overlays.",
-    "ru": "Изменения сразу видны справа. «Сохранить» применяет их к главному окну и оверлеям.",
-    "zh": "更改会立即显示在右侧。保存后应用到主窗口和所有悬浮窗。",
-    "zh-TW": "變更會立即顯示在右側。儲存後套用到主視窗與所有懸浮視窗。",
-    "pt": "As alterações aparecem à direita na hora. Salvar aplica à janela principal e aos overlays.",
-    "ja": "変更は右側にすぐ表示されます。保存するとメインウィンドウとすべてのオーバーレイに反映されます。",
-    "ko": "변경 사항이 오른쪽에 바로 표시됩니다. 저장하면 메인 창과 모든 오버레이에 적용됩니다."
+    "en": "Changes show on the right at once and apply to the main window and all overlays by themselves.",
+    "de": "Änderungen siehst du rechts sofort; sie gelten von selbst für das Hauptfenster und alle Overlays.",
+    "fr": "Les changements apparaissent tout de suite à droite et s'appliquent d'eux-mêmes à la fenêtre principale et à tous les overlays.",
+    "es": "Los cambios se ven enseguida a la derecha y se aplican solos a la ventana principal y a todos los overlays.",
+    "ru": "Изменения сразу видны справа и сами применяются к главному окну и всем оверлеям.",
+    "zh": "更改会立即显示在右侧，并自动应用于主窗口和所有叠加层。",
+    "zh-TW": "變更會立即顯示在右側，並自動套用於主視窗和所有疊加層。",
+    "pt": "As alterações aparecem logo à direita e aplicam-se sozinhas à janela principal e a todos os overlays.",
+    "ja": "変更はすぐ右に表示され、メインウィンドウとすべてのオーバーレイに自動で適用されます。",
+    "ko": "변경 사항은 오른쪽에 바로 표시되고 메인 창과 모든 오버레이에 자동으로 적용됩니다."
   },
   "ThemeEditor.Export": {
     "en": "Export…",
@@ -16393,5 +16393,17 @@
     "pt": "Vista do chefe",
     "ja": "ボス表示",
     "ko": "보스 보기"
+  },
+  "ThemeEditor.DefaultName": {
+    "en": "My design",
+    "de": "Mein Design",
+    "fr": "Mon design",
+    "es": "Mi diseño",
+    "ru": "Мой дизайн",
+    "zh": "我的设计",
+    "zh-TW": "我的設計",
+    "pt": "Meu design",
+    "ja": "マイデザイン",
+    "ko": "내 디자인"
   }
 }
