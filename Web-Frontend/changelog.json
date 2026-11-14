@@ -705,6 +705,13 @@
      "Client"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.9: the overlay mode minimizes the window instead of hiding it, so its button stays in the taskbar and in Alt+Tab; every overlay has an eye in the overlay designer (closed: placed but not drawn over the game, and the map for a hidden cube still comes at its place); the interactive map has the tabs View, Pets, Gathering and Settings; the settings pages and the craft tool save by themselves (no Save button), the design editor too, and its buttons and choices wear the theme; the automatic boss view has a card of its own",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
    }
   ]
  },
