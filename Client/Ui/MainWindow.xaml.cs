@@ -6649,7 +6649,7 @@ public partial class MainWindow : Window
                     current.Save();
                     ApplySettingsEverywhere(current);
                 };
-                return Hosted(editor);
+                return TakeWithStyles(editor); // with the window's styles: the buttons, choices and switches of the editor wear the theme
             }
 
             case "network" when _network is not null:
