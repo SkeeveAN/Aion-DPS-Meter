@@ -85,7 +85,7 @@ public static class ToolRender
                     System.Threading.Thread.Sleep(7000);
                 }
 
-                var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, _ => null, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, PanelOfSettings, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
                     () => new HubStatus(parts.Length < 4 || parts[3] != "off", "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (parts.Length >= 3)
                 {
@@ -93,6 +93,10 @@ public static class ToolRender
                     if (parts.Length >= 4 && parts[3] == "settings")
                     {
                         hubWindow.SelectToolSettingsForRender();
+                    }
+                    else if (parts.Length >= 4 && parts[3] is "pets" or "gather")
+                    {
+                        hubWindow.SelectToolTabForRender("petmap." + parts[3]);
                     }
                 }
 
@@ -178,6 +182,19 @@ public static class ToolRender
         }
 
         return LiveMeterPage.Build(rows, () => { });
+    }
+
+    /// <summary>A panel of the settings window (the pets, the gathering) as a page takes it, with the styles of the window.</summary>
+    private static UIElement? PanelOfSettings(string name)
+    {
+        var window = new SettingsWindow(MeterSettings.Load(), null);
+        UIElement? panel = window.TakePanel(name);
+        if (panel is FrameworkElement element)
+        {
+            element.Resources.MergedDictionaries.Add(window.Resources);
+        }
+
+        return panel;
     }
 
     private static ToolPage SettingsPage(string? nav)

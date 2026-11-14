@@ -702,6 +702,17 @@ public sealed class HubWindow : Window
     private RadioButton? _toolSettingsTab;
 
     /// <summary>For the test picture: the Settings tab of the tool page that is shown.</summary>
+    private readonly Dictionary<string, RadioButton> _toolTabs = new();
+
+    /// <summary>For the test picture: one of the extra tabs of the tool page that is shown ("petmap.pets", "petmap.gather").</summary>
+    internal void SelectToolTabForRender(string id)
+    {
+        if (_toolTabs.TryGetValue(id, out RadioButton? tab))
+        {
+            tab.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, true);
+        }
+    }
+
     internal void SelectToolSettingsForRender() => _toolSettingsTab?.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, true);
 
     private UIElement WithSettingsTab(string tool, UIElement view)
@@ -728,7 +739,7 @@ public sealed class HubWindow : Window
             {
                 ToolPage? built = null;
                 string id = page;
-                strip.Children.Add(Tab(label, false, () =>
+                RadioButton extraTab = Tab(label, false, () =>
                 {
                     if (built is null && _build("hub.cfg." + id) is { } made)
                     {
@@ -737,7 +748,9 @@ public sealed class HubWindow : Window
                     }
 
                     shown.Child = built?.Content ?? new TextBlock { Text = "–" };
-                }));
+                });
+                _toolTabs[id] = extraTab;
+                strip.Children.Add(extraTab);
             }
         }
 
