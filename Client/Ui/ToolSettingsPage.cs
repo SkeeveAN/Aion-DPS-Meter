@@ -11,6 +11,11 @@ public static class ToolSettingsPage
 {
     public static ToolPage Build(string tool, Action<MeterSettings> applied, Func<string, UIElement?> panelOf, Func<UIElement?> craftConfig, Action? cleanupExtra)
     {
+        if (tool is "petmap.pets" or "petmap.gather")
+        {
+            return PanelTab(panelOf(tool == "petmap.pets" ? "PanelPets" : "PanelGather"), () => cleanupExtra?.Invoke());
+        }
+
         var loc = LocalizationManager.Instance;
         var c = new ConfigControls(applied);
         string nameKey = ToolSwitch.All.First(t => t.Id == tool).NameKey, descKey = ToolSwitch.All.First(t => t.Id == tool).DescKey;
