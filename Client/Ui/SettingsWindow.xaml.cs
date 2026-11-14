@@ -622,7 +622,15 @@ public partial class SettingsWindow : Window
         {
             if (child is StackPanel { Orientation: Orientation.Horizontal } row && DockPanel.GetDock(child) == Dock.Bottom && row.Children.Count > 0)
             {
-                row.Children[row.Children.Count - 1].Visibility = Visibility.Collapsed;
+                // no Save and no Cancel in the new interface: every change is saved by itself (the undo of a reset stays)
+                foreach (UIElement button in row.Children)
+                {
+                    if (button is Button { Name: not "UndoButton" })
+                    {
+                        button.Visibility = Visibility.Collapsed;
+                    }
+                }
+
                 row.Margin = new Thickness(0, 6, 22, 8);
             }
         }
@@ -651,8 +659,36 @@ public partial class SettingsWindow : Window
         var boxes = new Style(typeof(CheckBox), Resources[typeof(CheckBox)] as Style);
         boxes.Setters.Add(new Setter(Control.ForegroundProperty, new DynamicResourceExtension("Brush.Text")));
         border.Resources[typeof(CheckBox)] = boxes;
+        AutoSave(border);
         Content = null;
         return border;
+    }
+
+    /// <summary>Every change on the page is saved by itself a moment after the last one (the same as Save did): switches, choices, texts and sliders.</summary>
+    private void AutoSave(UIElement root)
+    {
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            OnSaveClicked(this, new RoutedEventArgs());
+        };
+        bool armed = false;
+        Dispatcher.BeginInvoke(() => armed = true, System.Windows.Threading.DispatcherPriority.ApplicationIdle); // what the page sets while it is built is not a change
+        void Changed()
+        {
+            if (armed)
+            {
+                timer.Stop();
+                timer.Start();
+            }
+        }
+
+        root.AddHandler(System.Windows.Controls.Primitives.ToggleButton.CheckedEvent, new RoutedEventHandler((_, _) => Changed()));
+        root.AddHandler(System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, new RoutedEventHandler((_, _) => Changed()));
+        root.AddHandler(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent, new SelectionChangedEventHandler((_, _) => Changed()));
+        root.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent, new TextChangedEventHandler((_, _) => Changed()));
+        root.AddHandler(System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent, new RoutedPropertyChangedEventHandler<double>((_, _) => Changed()));
     }
 
     public UIElement? TakePanel(string name)

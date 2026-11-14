@@ -16381,5 +16381,17 @@
     "pt": "O que o medidor deve mostrar?",
     "ja": "メーターに何を表示しますか？",
     "ko": "미터가 무엇을 표시할까요?"
+  },
+  "Settings.Card.BossView": {
+    "en": "Boss view",
+    "de": "Boss-Ansicht",
+    "fr": "Vue du boss",
+    "es": "Vista del jefe",
+    "ru": "Вид босса",
+    "zh": "首领视图",
+    "zh-TW": "首領檢視",
+    "pt": "Vista do chefe",
+    "ja": "ボス表示",
+    "ko": "보스 보기"
   }
 }

@@ -28,6 +28,7 @@ public sealed class CraftConfigWindow : Window
     private string _baseline;
     private bool _embedded;
     private Button? _closeButton;
+    private Button? _saveButton;
     private bool _allowClose;
 
     private string _category = "Alchemy";
@@ -82,6 +83,7 @@ public sealed class CraftConfigWindow : Window
         var close = new Button { Content = loc["Config.Close"], Padding = new Thickness(22, 4, 22, 4) };
         close.Click += (_, _) => Close();
         _closeButton = close;
+        _saveButton = save;
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(14, 8, 14, 12) };
         buttons.Children.Add(save);
         buttons.Children.Add(close);
@@ -110,7 +112,35 @@ public sealed class CraftConfigWindow : Window
             _closeButton.Visibility = Visibility.Collapsed;
         }
 
-        return ThemedChrome.TakeContent(this);
+        // no Save button in the new interface: a change is saved by itself a moment after the last one
+        if (_saveButton is not null)
+        {
+            _saveButton.Visibility = Visibility.Collapsed;
+        }
+
+        UIElement? page = ThemedChrome.TakeContent(this);
+        if (page is not null)
+        {
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                SaveAll();
+                _baseline = Snapshot();
+            };
+            void Changed()
+            {
+                timer.Stop();
+                timer.Start();
+            }
+
+            page.AddHandler(System.Windows.Controls.Primitives.ToggleButton.CheckedEvent, new RoutedEventHandler((_, _) => Changed()));
+            page.AddHandler(System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, new RoutedEventHandler((_, _) => Changed()));
+            page.AddHandler(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent, new SelectionChangedEventHandler((_, _) => Changed()));
+            page.AddHandler(System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent, new RoutedPropertyChangedEventHandler<double>((_, _) => Changed()));
+        }
+
+        return page;
     }
 
     /// <summary>The page goes away: what was changed and not saved is kept (as the settings pages of the map do), then the hidden window is closed.</summary>
