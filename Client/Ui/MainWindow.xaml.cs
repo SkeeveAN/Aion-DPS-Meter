@@ -6108,6 +6108,14 @@ public partial class MainWindow : Window
             }
         };
         _hubWindow.Show();
+        // the overlay mode puts the window into the taskbar; bringing it back from there is the window mode
+        _hubWindow.StateChanged += (_, _) =>
+        {
+            if (_overlayMode && _hubWindow is { WindowState: not WindowState.Minimized })
+            {
+                ToggleAllOverlays();
+            }
+        };
         _hubWindow.MeterView = BuildMeterView;
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
@@ -7526,9 +7534,10 @@ public partial class MainWindow : Window
                 shown.Activate();
             }
         }
-        else
+        else if (_hubWindow is { } away)
         {
-            _hubWindow?.Hide();
+            // minimized, not hidden: the button stays in the taskbar, and a click on it brings the window back
+            away.WindowState = WindowState.Minimized;
         }
 
         var settings = MeterSettings.Load();
