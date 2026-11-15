@@ -796,6 +796,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.22: the sheet of the dashboard's plus shows a picture of the real panel and a line about it for every panel and has links to the tabs; a new panel takes the first free place and the ones below move up when one is taken off; a new dashboard can start from a layout (Standard, Combat & analysis, Character, Streaming) or empty; the corner to pull a widget bigger sits in the very corner of the frame",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
