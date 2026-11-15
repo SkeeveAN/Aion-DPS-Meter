@@ -86,6 +86,8 @@ def main():
     ox, oy = S / 2 - (max(xs) + min(xs)) / 2 * scale, S / 2 + (max(ys) + min(ys)) / 2 * scale
     img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     ip = img.load()
+    emit = Image.new("L", (S, S), 0)
+    ep = emit.load()
     zbuf = [[-1e9] * S for _ in range(S)]
     light = (-0.45, 0.8, 0.55)
     ln = math.sqrt(sum(c * c for c in light))
@@ -118,10 +120,23 @@ def main():
                 er, eg, eb = gp[min(gw - 1, max(0, int(u * gw))), min(gw - 1, max(0, int(v * gw)))]
                 e = max(er, eg) / 255.0   # the glyphs are drawn in the red channel
                 R = min(255, int(r * shade + e * 255))
-                G = min(255, int(g * shade + e * 190))
-                B = min(255, int(bl * shade + e * 40))
+                G = min(255, int(g * shade + e * 170))
+                B = min(255, int(bl * shade + e * 30))
                 zbuf[y][x] = z
                 ip[x, y] = (R, G, B, 255)
+                ep[x, y] = int(255 * min(1.0, e * 1.6))
+    # the cube glows: the glyphs light up and bleed into the stone around them (an additive orange bloom over the picture, where the cube is)
+    soft = emit.filter(ImageFilter.GaussianBlur(max(2, S // size * 3)))
+    wide = emit.filter(ImageFilter.GaussianBlur(max(4, S // size * 8)))
+    cube_alpha = img.getchannel("A")
+    px = img.load()
+    sp_, wp_, ap_ = soft.load(), wide.load(), cube_alpha.load()
+    for y in range(S):
+        for x in range(S):
+            if ap_[x, y]:
+                k = min(1.0, sp_[x, y] / 255.0 * 2.4 + wp_[x, y] / 255.0 * 1.6)
+                r, g, b, a = px[x, y]
+                px[x, y] = (min(255, int(r + k * 255)), min(255, int(g + k * 150)), min(255, int(b + k * 25)), a)
     # dark outline of one pixel (at the final size) for contrast on the map, then the final size
     alpha = img.getchannel("A")
     ring = alpha.filter(ImageFilter.MaxFilter(2 * max(1, S // size) + 1))
