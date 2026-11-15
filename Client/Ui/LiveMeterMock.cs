@@ -158,32 +158,45 @@ internal static class LiveMeterMock
         return card;
     }
 
-    /// <summary>Under a boss meter: the encounter's link (when the automatic upload is on) with the two copy buttons.</summary>
+    /// <summary>
+    /// Under a boss meter: the encounter's link (when the automatic upload is on) in a field with its own copy button at the right end of the field (copies the link),
+    /// then a copy button for the chat text (DPS, HPS and so on as plain text), then the copy button with the Discord mark (the table for Discord).
+    /// </summary>
     private static UIElement LinkRow(string link)
     {
-        var box = new TextBox { Text = link, IsReadOnly = true, VerticalContentAlignment = VerticalAlignment.Center, Padding = new Thickness(8, 4, 8, 4), Height = 32, FontSize = 12.5 };
+        var box = new TextBox { Text = link, IsReadOnly = true, VerticalContentAlignment = VerticalAlignment.Center, Padding = new Thickness(8, 4, 40, 4), Height = 32, FontSize = 12.5 };
         box.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
         box.SetResourceReference(Control.ForegroundProperty, "Brush.Text");
         box.SetResourceReference(Control.BorderBrushProperty, "Brush.Border");
+        // the link's own copy button sits inside the field, at its right end
+        var inner = CopyButton(false, 28, 24);
+        inner.Margin = new Thickness(0, 0, 4, 0);
+        inner.HorizontalAlignment = HorizontalAlignment.Right;
+        inner.VerticalAlignment = VerticalAlignment.Center;
+        inner.BorderThickness = new Thickness(0);
+        inner.Background = Brushes.Transparent;
+        var field = new Grid();
+        field.Children.Add(box);
+        field.Children.Add(inner);
         var row = new Grid { Margin = new Thickness(0, 8, 0, 0) };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var copy = CopyButton(false);
+        var text = CopyButton(false);
         var discord = CopyButton(true);
-        Grid.SetColumn(box, 0);
-        Grid.SetColumn(copy, 1);
+        Grid.SetColumn(field, 0);
+        Grid.SetColumn(text, 1);
         Grid.SetColumn(discord, 2);
-        row.Children.Add(box);
-        row.Children.Add(copy);
+        row.Children.Add(field);
+        row.Children.Add(text);
         row.Children.Add(discord);
         return row;
     }
 
     /// <summary>The copy button: the usual two overlapping sheets; the second one carries the Discord mark in its background.</summary>
-    private static Border CopyButton(bool withDiscord)
+    private static Border CopyButton(bool withDiscord, double width = 34, double height = 32)
     {
-        var grid = new Grid { Width = 34, Height = 32 };
+        var grid = new Grid { Width = width, Height = height };
         if (withDiscord)
         {
             var mark = new System.Windows.Shapes.Path
