@@ -22,3 +22,8 @@ and how the world -> map mapping was found (UI scale 0.0196 per world unit, cent
 points). Dump the inputs with `Tools/aion2-icons` Extract (`export <out> UI/Map/WorldMap/<folder>/Res/`, `json <out> WorldMap/<folder>/WorldMap_<Map>.umap` or
 `SharedMap_<Map>.umap`; the `json` mode needs `AION_USMAP` and the `.umap` filter of the build on D:). 49 maps; not built: the non-square ones
 (Dungeon_L_0004, Dungeon_D_0011, Dungeon_0005, ReforgedAbyss) and RootCellar (spawn points do not fit its map).
+
+## Roads (2026-11-15)
+The game lays a road layer over its world maps (`UI/Map/WorldMap/<Map>/Res/<Map>_TransparentMapPath_<col>_<row>`, 2048 px DXT5, the yellow roads in the alpha).
+`build_road_tiles.py <dump dir> <assets/aion2/maps>` (reading with `path_tiles.py`) writes `<key>/<col>_<row>_p.png` for the tiles that have roads (Verteron 2048 px,
+Altgard and Abyss 1024 px like their ground tiles). The ground tiles are untouched: the pet map draws the road layer as a layer of its own, and the setting "Show the roads on the map" turns it off.

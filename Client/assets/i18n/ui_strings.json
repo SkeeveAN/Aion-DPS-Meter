@@ -16417,5 +16417,29 @@
     "pt": "Visível sobre o jogo (fechado: posicionado, mas não mostrado)",
     "ja": "ゲーム上に表示（閉じる：配置済みだが非表示）",
     "ko": "게임 위에 표시(닫힘: 배치만 하고 표시하지 않음)"
+  },
+  "Settings.PetMap.Roads": {
+    "en": "Show the roads on the map",
+    "de": "Wege auf der Karte zeigen",
+    "fr": "Afficher les routes sur la carte",
+    "es": "Mostrar los caminos en el mapa",
+    "ru": "Показывать дороги на карте",
+    "pt": "Mostrar as estradas no mapa",
+    "ja": "マップに道を表示する",
+    "ko": "지도에 길 표시",
+    "zh": "在地图上显示道路",
+    "zh-TW": "在地圖上顯示道路"
+  },
+  "Settings.PetMap.Roads.Tip": {
+    "en": "The yellow roads the game draws over its map. Off shows the bare ground.",
+    "de": "Die gelben Wege, die das Spiel über seine Karte legt. Aus zeigt nur den Boden.",
+    "fr": "Les routes jaunes que le jeu dessine sur sa carte. Désactivé : seulement le sol.",
+    "es": "Los caminos amarillos que el juego dibuja sobre su mapa. Desactivado muestra solo el suelo.",
+    "ru": "Жёлтые дороги, которые игра рисует поверх своей карты. Выключено: только земля.",
+    "pt": "As estradas amarelas que o jogo desenha sobre o seu mapa. Desligado mostra só o chão.",
+    "ja": "ゲームがマップの上に描く黄色い道。オフにすると地面だけを表示します。",
+    "ko": "게임이 지도 위에 그리는 노란 길입니다. 끄면 바닥만 표시됩니다.",
+    "zh": "游戏绘制在地图上的黄色道路。关闭后只显示地面。",
+    "zh-TW": "遊戲繪製在地圖上的黃色道路。關閉後只顯示地面。"
   }
 }

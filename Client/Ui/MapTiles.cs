@@ -31,6 +31,20 @@ internal static class MapTiles
         }
     }
 
+    /// <summary>The road layer of a tile (<c>&lt;col&gt;_&lt;row&gt;_p.png</c>, the yellow roads on a clear ground, as the game lays them over the map); null where the tile has no road or the map has none.</summary>
+    public static BitmapSource? LoadRoads(Aion2MapInfo map, int col, int row, int decodeWidth)
+    {
+        try
+        {
+            string path = AionDPS.Update.AssetStore.Path("aion2", "maps", map.Key, $"{col}_{row}_p.png");
+            return File.Exists(path) ? Decode(path, decodeWidth) : null;
+        }
+        catch (Exception ex) when (ex is IOException or NotSupportedException or InvalidOperationException or UriFormatException)
+        {
+            return null;
+        }
+    }
+
     private static BitmapImage Decode(string path, int width)
     {
         var image = new BitmapImage();

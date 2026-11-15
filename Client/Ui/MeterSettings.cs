@@ -604,6 +604,9 @@ public sealed class MeterSettings
 
     public double PetMapOpacity { get; set; } = 0.7;
 
+    /// <summary>The map with the roads the game lays over it (the yellow lines), or the bare ground.</summary>
+    public bool PetMapRoads { get; set; } = true;
+
     /// <summary>The pets whose monsters the pet map shows (pet ids). Empty until the player picks some.</summary>
     public List<int> PetMapPets { get; set; } = new();
 

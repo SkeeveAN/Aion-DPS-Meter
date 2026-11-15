@@ -510,6 +510,7 @@ public sealed class PetMapController : IDisposable
         }
 
         _map.MeHeading = _heading;
+        _map.ShowRoads = settings.PetMapRoads;
         if (_current is not null)
         {
             // the militia guards, on the open maps of the other side only (they are friendly at home)
@@ -518,6 +519,7 @@ public sealed class PetMapController : IDisposable
             foreach (var view in _mapViews)
             {
                 view.MeHeading = _heading;
+                view.ShowRoads = settings.PetMapRoads;
                 view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _pointsShown, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             }
             ShowMap(true);

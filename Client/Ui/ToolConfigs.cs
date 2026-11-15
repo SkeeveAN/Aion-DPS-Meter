@@ -291,6 +291,7 @@ public static class ToolConfigs
         var c = new ConfigControls(applied);
         return Page(ConfigControls.Card(loc["Settings.PetMap.CardMap"],
             c.Slider(loc["Settings.PetMap.Radius"], null, 50, 500, 10, s => s.PetMapRadius, (s, v) => s.PetMapRadius = v, v => string.Format(loc["Settings.PetMap.RadiusValue"], v)),
+            c.Switch(loc["Settings.PetMap.Roads"], loc["Settings.PetMap.Roads.Tip"], s => s.PetMapRoads, (s, v) => s.PetMapRoads = v),
             c.Switch(loc["Settings.Gather.Guards"], loc["Settings.Gather.Guards.Tip"], s => s.ShowGuards, (s, v) => s.ShowGuards = v)));
     }
 }

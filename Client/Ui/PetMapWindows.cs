@@ -472,6 +472,12 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly Dictionary<string, BitmapSource?> _tiles = new();
     private readonly List<string> _tileOrder = new();
     private readonly List<Image> _tileImages = new();
+    private readonly List<Image> _roadImages = new();
+    private readonly Dictionary<string, BitmapSource?> _roads = new();
+    private readonly List<string> _roadOrder = new();
+
+    /// <summary>Lay the roads of the game over the map (the yellow lines); off shows the bare ground.</summary>
+    public bool ShowRoads { get; set; } = true;
     private readonly List<Ellipse> _dots = new();
     private readonly List<Ellipse> _liveDots = new();
     private readonly List<Polygon> _gatherMarks = new();
@@ -562,6 +568,26 @@ public sealed class PetMapWindow : MovableOverlay
 
     public string TileDebug => string.Join(" ", _tiles.Select(kv => kv.Key + (kv.Value is null ? "=null" : "=ok")));
 
+    private BitmapSource? Road(Aion2MapInfo map, int col, int row)
+    {
+        string key = $"{map.Key}/{col}_{row}";
+        if (_roads.TryGetValue(key, out var cached))
+        {
+            return cached;
+        }
+
+        BitmapSource? bitmap = MapTiles.LoadRoads(map, col, row, Math.Min(map.Tile, 1536));
+        _roads[key] = bitmap;
+        _roadOrder.Add(key);
+        while (_roadOrder.Count > 8)
+        {
+            _roads.Remove(_roadOrder[0]);
+            _roadOrder.RemoveAt(0);
+        }
+
+        return bitmap;
+    }
+
     private BitmapSource? Tile(Aion2MapInfo map, int col, int row)
     {
         string key = $"{map.Key}/{col}_{row}";
@@ -635,6 +661,45 @@ public sealed class PetMapWindow : MovableOverlay
         for (int i = used; i < _tileImages.Count; i++)
         {
             _tileImages[i].Visibility = Visibility.Collapsed;
+        }
+
+        // the roads of the game over the ground (a layer of their own, so the map can be shown without them)
+        int roadsUsed = 0;
+        if (ShowRoads)
+        {
+            for (int col = c0; col <= c1; col++)
+            {
+                for (int row = r0; row <= r1; row++)
+                {
+                    if (Tile(map, col, row) is null || Road(map, col, row) is not { } road)
+                    {
+                        continue;
+                    }
+
+                    if (roadsUsed >= _roadImages.Count)
+                    {
+                        var image = new Image { Stretch = Stretch.Fill, SnapsToDevicePixels = false, IsHitTestVisible = false };
+                        Panel.SetZIndex(image, -1); // over the ground, under the danger zones, the dots and everything else
+                        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                        _roadImages.Add(image);
+                        _tileLayer.Children.Add(image);
+                    }
+
+                    var roadImage = _roadImages[roadsUsed++];
+                    roadImage.Source = road;
+                    roadImage.Opacity = opacity;
+                    roadImage.Width = map.Tile * k;
+                    roadImage.Height = map.Tile * k;
+                    Canvas.SetLeft(roadImage, cx + (col * map.Tile - nx) * k);
+                    Canvas.SetTop(roadImage, cy + (row * map.Tile - ny) * k);
+                    roadImage.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        for (int i = roadsUsed; i < _roadImages.Count; i++)
+        {
+            _roadImages[i].Visibility = Visibility.Collapsed;
         }
 
         int dot = 0;
