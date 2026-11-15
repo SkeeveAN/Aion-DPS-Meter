@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace AionDPS.Ui;
@@ -156,12 +157,7 @@ public sealed class DashboardBoard : DockPanel
         plus.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
         var small = new Border { Width = 28, Height = 28, CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(1), Cursor = Cursors.Hand, Child = plus, ToolTip = loc["Hub.Dash.AddDashboard"], Background = Brushes.Transparent, Margin = new Thickness(0, 0, 8, 0) };
         small.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-        small.MouseLeftButtonUp += (_, _) =>
-        {
-            _sets.Add(new DashboardSet());
-            Save();
-            SwitchTo(_sets.Count - 1);
-        };
+        small.MouseLeftButtonUp += (_, _) => ShowTemplatePopup(small);
         _tabs.Children.Add(small);
     }
 
@@ -466,6 +462,7 @@ public sealed class DashboardBoard : DockPanel
         close.MouseLeftButtonUp += (_, _) =>
         {
             _places.Remove(widget.Id);
+            Compact();
             Save();
             Build();
         };
@@ -474,6 +471,119 @@ public sealed class DashboardBoard : DockPanel
     }
 
     private static double Snap(double v) => Math.Round(v / Cell) * Cell;
+
+    /// <summary>Whether a rectangle lies clear of every widget of the dashboard (with the gap between widgets).</summary>
+    private bool Free(double x, double y, double w, double h, string? except = null)
+    {
+        foreach (var (id, o) in _places)
+        {
+            if (id != except && x < o.X + o.W + Margin8 && x + w + Margin8 > o.X && y < o.Y + o.H + Margin8 && y + h + Margin8 > o.Y)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>The first free place for a new widget, from the top left, row by row, within the width of the window: a gap is used before the board grows downwards.</summary>
+    private DashboardPlace Slot(double w, double h)
+    {
+        double limit = Math.Max(2 * 520 + 3 * Margin8, ActualWidth - 40);
+        double bottom = _places.Values.Select(p => p.Y + p.H).DefaultIfEmpty(0).Max();
+        for (double y = Margin8; y <= bottom + Margin8; y += Cell)
+        {
+            for (double x = Margin8; x + w <= limit || x == Margin8; x += Cell)
+            {
+                if (Free(x, y, w, h))
+                {
+                    return new DashboardPlace { X = x, Y = y, W = w, H = h };
+                }
+            }
+        }
+
+        return new DashboardPlace { X = Margin8, Y = Snap(bottom + Margin8), W = w, H = h };
+    }
+
+    /// <summary>After a widget was taken off: the ones below move up into the free place, as far as nothing stands in the way.</summary>
+    private void Compact()
+    {
+        foreach (var pair in _places.OrderBy(p => p.Value.Y).ThenBy(p => p.Value.X).ToList())
+        {
+            DashboardPlace p = pair.Value;
+            while (p.Y > Margin8 && Free(p.X, p.Y - Cell, p.W, p.H, pair.Key))
+            {
+                p.Y -= Cell;
+            }
+        }
+    }
+
+    /// <summary>The widgets of a layout for a new dashboard.</summary>
+    private static string[] TemplateIds(string key) => key switch
+    {
+        "combat" => new[] { "meter", "last", "figures", "page:best", "bosses", "soon" },
+        "character" => new[] { "connection", "todo", "page:profile", "page:attributes", "page:stats", "page:skills" },
+        "stream" => new[] { "meter", "last", "figures", "drops", "page:stream" },
+        _ => Array.Empty<string>(),
+    };
+
+    private void NewFromTemplate(string key)
+    {
+        var loc = LocalizationManager.Instance;
+        var set = new DashboardSet { Name = key switch { "combat" => loc["Hub.Dash.TplCombat"], "character" => loc["Hub.Dash.TplCharacter"], "stream" => loc["Hub.Dash.TplStream"], "standard" => loc["Hub.Dash.TplStandard"], _ => "" } };
+        _sets.Add(set);
+        _places = set.Widgets;
+        if (key == "standard")
+        {
+            foreach (var pair in FirstLayout())
+            {
+                _places[pair.Key] = pair.Value;
+            }
+        }
+
+        foreach (string id in TemplateIds(key))
+        {
+            if (SpecOf(id) is { } spec)
+            {
+                _places[id] = Slot(spec.W, spec.H);
+            }
+        }
+
+        Save();
+        SwitchTo(_sets.Count - 1);
+    }
+
+    /// <summary>The small plus of the row of dashboards: a new dashboard empty or from a layout.</summary>
+    private void ShowTemplatePopup(FrameworkElement anchor)
+    {
+        var loc = LocalizationManager.Instance;
+        var popup = new Popup { PlacementTarget = anchor, Placement = PlacementMode.Bottom, StaysOpen = false, AllowsTransparency = true, VerticalOffset = 4 };
+        var stack = new StackPanel { MinWidth = 220 };
+        var head = new TextBlock { Text = loc["Hub.Dash.NewFrom"], FontSize = 11, FontWeight = FontWeights.SemiBold, Margin = new Thickness(4, 0, 0, 8) };
+        head.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        stack.Children.Add(head);
+        foreach (var (key, name) in new[] { ("standard", loc["Hub.Dash.TplStandard"]), ("combat", loc["Hub.Dash.TplCombat"]), ("character", loc["Hub.Dash.TplCharacter"]), ("stream", loc["Hub.Dash.TplStream"]), ("empty", loc["Hub.Dash.TplEmpty"]) })
+        {
+            var text = new TextBlock { Text = name, FontSize = 13 };
+            text.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+            var row = new Border { Child = text, Padding = new Thickness(10, 6, 10, 6), CornerRadius = new CornerRadius(6), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+            row.MouseEnter += (_, _) => row.SetResourceReference(Border.BackgroundProperty, "Brush.ControlHoverStrong");
+            row.MouseLeave += (_, _) => row.Background = Brushes.Transparent;
+            string chosen = key;
+            row.MouseLeftButtonUp += (_, _) =>
+            {
+                popup.IsOpen = false;
+                NewFromTemplate(chosen);
+            };
+            stack.Children.Add(row);
+        }
+
+        var frame = new Border { Padding = new Thickness(12), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Child = stack, Margin = new Thickness(0, 0, 12, 12), Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 12, ShadowDepth = 2, Opacity = 0.5 } };
+        frame.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+        frame.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+        popup.Child = frame;
+        popup.IsOpen = true;
+    }
 
     /// <summary>Pulls a value to the nearest edge of another widget (or the gap beside it) when it is within a few pixels, else to the grid.</summary>
     private double Pull_(double v, IEnumerable<double> candidates)
@@ -555,11 +665,16 @@ public sealed class DashboardBoard : DockPanel
         _canvas.Height = bottom + Margin8;
     }
 
-    /// <summary>The sheet of the plus: every panel that can stand on the dashboard in groups, each with a small preview and an add button (one that is on the board is dimmed with a green tick). It closes with the add, a click beside it or Esc.</summary>
+    private const double SheetWidth = 500, ThumbWidth = 132, ThumbHeight = 80, Crop = 340;
+
+    // the pictures of the panels in the sheet, taken once from the real panel (per language and accent)
+    private static readonly Dictionary<string, ImageSource> Snapshots = new();
+
+    /// <summary>The sheet of the plus: every panel that can stand on the dashboard in groups, each with a picture of the real panel, a line about it and an add button (one that is on the board is dimmed with a green tick). It closes with the add, a click beside it or Esc.</summary>
     private void ShowAddMenu()
     {
-        var popup = new Popup { PlacementTarget = _add, Placement = PlacementMode.Bottom, StaysOpen = false, AllowsTransparency = true, PopupAnimation = PopupAnimation.Fade, HorizontalOffset = _add.ActualWidth + 16 - 430 - 12 };
-        popup.Child = BuildSheet(popup);
+        var popup = new Popup { PlacementTarget = _add, Placement = PlacementMode.Bottom, StaysOpen = false, AllowsTransparency = true, PopupAnimation = PopupAnimation.Fade, HorizontalOffset = _add.ActualWidth + 16 - SheetWidth - 12 };
+        popup.Child = BuildSheet(popup, false);
         popup.Opened += (_, _) => popup.Child.Focus();
         popup.IsOpen = true;
     }
@@ -569,7 +684,7 @@ public sealed class DashboardBoard : DockPanel
     {
         var grid = new Grid();
         grid.Children.Add(this);
-        var sheet = BuildSheet(new Popup());
+        var sheet = BuildSheet(new Popup(), true);
         ((ScrollViewer)sheet.Child).MaxHeight = 760;
         sheet.HorizontalAlignment = HorizontalAlignment.Right;
         sheet.VerticalAlignment = VerticalAlignment.Top;
@@ -578,11 +693,62 @@ public sealed class DashboardBoard : DockPanel
         return grid;
     }
 
-    private Border BuildSheet(Popup popup)
+    /// <summary>A picture of the real panel (its page for a page of the app) as it would stand on the board; null when there is none or it already stands somewhere.</summary>
+    private ImageSource? Snapshot(Spec spec)
+    {
+        ToolPage? page = null;
+        UIElement? content;
+        if (spec.Id.StartsWith("page:", StringComparison.Ordinal))
+        {
+            page = _src.BuildPage(spec.Id["page:".Length..]);
+            content = page?.Content;
+        }
+        else
+        {
+            content = HubDashboard.WidgetBody(spec.Id, _src, DateTime.Now);
+        }
+
+        try
+        {
+            if (content is null || (content is FrameworkElement { Parent: not null }))
+            {
+                return null;
+            }
+
+            // the upper left corner of the panel at its own size (so the writing stays readable in the small picture)
+            double h = Math.Round(Crop * ThumbHeight / ThumbWidth);
+            var element = (FrameworkElement)content;
+            element.Width = spec.W;
+            element.Height = spec.H;
+            var host = new Canvas { Width = Crop, Height = h, ClipToBounds = true };
+            host.SetResourceReference(Panel.BackgroundProperty, "Brush.Panel");
+            var inset = new Border { Padding = new Thickness(14, 12, 14, 0), Width = spec.W, Height = spec.H, Child = element };
+            host.Children.Add(inset);
+            host.Measure(new Size(Crop, h));
+            host.Arrange(new Rect(0, 0, Crop, h));
+            inset.Measure(new Size(spec.W, spec.H));
+            inset.Arrange(new Rect(0, 0, spec.W, spec.H));
+            host.UpdateLayout();
+            var bitmap = new RenderTargetBitmap((int)Crop, (int)h, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(host);
+            bitmap.Freeze();
+            inset.Child = null;
+            return bitmap;
+        }
+        finally
+        {
+            page?.Cleanup?.Invoke();
+        }
+    }
+
+    private Border BuildSheet(Popup popup, bool allAtOnce)
     {
         var loc = LocalizationManager.Instance;
         var green = new SolidColorBrush(Color.FromRgb(0x3d, 0xd6, 0x8c));
         green.Freeze();
+        string cachePrefix = loc.In("Hub.Dash.Add", "en") + "|" + (Application.Current?.TryFindResource("Brush.Accent") as SolidColorBrush)?.Color + "|" + loc["Hub.Dash.Add"] + "|";
+        var pending = new List<(Spec Spec, Image Image, UIElement Bars, string Key)>();
+
         TextBlock Label(string text, double size, string brush, FontWeight? weight = null)
         {
             var t = new TextBlock { Text = text, FontSize = size, FontWeight = weight ?? FontWeights.Normal, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
@@ -592,34 +758,49 @@ public sealed class DashboardBoard : DockPanel
 
         void Place(Spec spec)
         {
-            double bottom = _places.Values.Select(p => p.Y + p.H).DefaultIfEmpty(0).Max();
-            _places[spec.Id] = new DashboardPlace { X = Margin8, Y = Snap(bottom + Margin8), W = spec.W, H = spec.H };
+            _places[spec.Id] = Slot(spec.W, spec.H);
             popup.IsOpen = false;
             Save();
             Build();
         }
 
-        // the small preview: a few bars (the widths follow the id), dimmed with a tick when the panel is already on the board
-        UIElement Thumb(string id, bool added)
+        // the picture of the real panel; until it is taken a few bars stand in; dimmed with a tick when the panel is already on the board
+        UIElement Thumb(Spec spec, bool added)
         {
-            int seed = id.Aggregate(7, (h, c) => h * 31 + c) & 0xffff;
-            var grid = new Grid { Width = 86, Height = 52 };
+            int seed = spec.Id.Aggregate(7, (h, c) => h * 31 + c) & 0xffff;
+            var grid = new Grid { Width = ThumbWidth, Height = ThumbHeight };
             var frame = new Border { CornerRadius = new CornerRadius(5), BorderThickness = new Thickness(1), Background = new SolidColorBrush(Color.FromRgb(0x0b, 0x14, 0x1e)) };
             frame.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
             grid.Children.Add(frame);
-            var bars = new StackPanel { Margin = new Thickness(8, 8, 8, 6), Opacity = added ? 0.25 : 1 };
+            var bars = new StackPanel { Margin = new Thickness(10, 10, 10, 6) };
             for (int i = 0; i < 4; i++)
             {
-                var bar = new System.Windows.Shapes.Rectangle { Height = 5, Width = i == 0 ? 40 : 22 + (seed >> (i * 3)) % 44, RadiusX = 2, RadiusY = 2, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 3.5) };
+                var bar = new System.Windows.Shapes.Rectangle { Height = 5, Width = i == 0 ? 40 : 22 + (seed >> (i * 3)) % 60, RadiusX = 2, RadiusY = 2, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 5) };
                 bar.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, i == 0 ? "Brush.Accent" : "Brush.TextMuted");
                 bars.Children.Add(bar);
             }
 
             grid.Children.Add(bars);
+            var image = new Image { Stretch = Stretch.Fill, Margin = new Thickness(1) };
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            grid.Children.Add(new Border { Child = image, CornerRadius = new CornerRadius(5), ClipToBounds = true });
+            string key = cachePrefix + spec.Id;
+            if (Snapshots.TryGetValue(key, out ImageSource? known))
+            {
+                image.Source = known;
+                bars.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                pending.Add((spec, image, bars, key));
+            }
+
             if (added)
             {
-                grid.Children.Add(new Border { Background = new SolidColorBrush(Color.FromArgb(0xB0, 0x07, 0x0d, 0x14)), CornerRadius = new CornerRadius(5) });
-                grid.Children.Add(new TextBlock { Text = "\u2714", FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 22, Foreground = green, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+                image.Opacity = 0.55;
+                bars.Opacity = 0.25;
+                grid.Children.Add(new Border { Background = new SolidColorBrush(Color.FromArgb(0x60, 0x07, 0x0d, 0x14)), CornerRadius = new CornerRadius(5) });
+                grid.Children.Add(new TextBlock { Text = "\u2714", FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 24, Foreground = green, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
             }
 
             return grid;
@@ -629,7 +810,7 @@ public sealed class DashboardBoard : DockPanel
         {
             bool added = _places.ContainsKey(spec.Id);
             var row = new DockPanel { Margin = new Thickness(0, 0, 0, 8), Opacity = added ? 0.7 : 1, Background = Brushes.Transparent, Cursor = added ? Cursors.Arrow : Cursors.Hand };
-            var thumb = Thumb(spec.Id, added);
+            var thumb = Thumb(spec, added);
             SetDock(thumb, Dock.Left);
             row.Children.Add(thumb);
             var button = new Border { CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(1), Padding = new Thickness(12, 4, 12, 4), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) };
@@ -647,9 +828,20 @@ public sealed class DashboardBoard : DockPanel
 
             SetDock(button, Dock.Right);
             row.Children.Add(button);
-            var name = Label(spec.Title, 13, "Brush.Text", FontWeights.SemiBold);
-            name.Margin = new Thickness(12, 0, 0, 0);
-            row.Children.Add(name);
+            var texts = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0) };
+            texts.Children.Add(Label(spec.Title, 13, "Brush.Text", FontWeights.SemiBold));
+            string descKey = "Hub.Dash.Desc." + (spec.Id.StartsWith("page:", StringComparison.Ordinal) ? spec.Id["page:".Length..] : spec.Id);
+            string desc = loc[descKey];
+            if (desc != descKey)
+            {
+                var line = Label(desc, 11, "Brush.TextMuted");
+                line.TextWrapping = TextWrapping.Wrap;
+                line.TextTrimming = TextTrimming.None;
+                line.Margin = new Thickness(0, 2, 0, 0);
+                texts.Children.Add(line);
+            }
+
+            row.Children.Add(texts);
             return row;
         }
 
@@ -711,8 +903,31 @@ public sealed class DashboardBoard : DockPanel
             }
         }
 
+        // the tabs of the app as links
+        list.Children.Add(Group(loc["Hub.Dash.GoTo"]));
+        var links = new WrapPanel();
+        foreach (var (id, name) in new[] { ("dashboard", loc["Hub.Tab.Dashboard"]), ("combat", loc["Hub.Tab.Combat"]), ("character", loc["Hub.Tab.Character"]), ("tools", loc["Main.MenuTools"]) })
+        {
+            var text = new StackPanel { Orientation = Orientation.Horizontal };
+            text.Children.Add(Label("\u203A", 12, "Brush.Accent"));
+            var label = Label(name, 12, "Brush.Text");
+            label.Margin = new Thickness(6, 0, 0, 0);
+            text.Children.Add(label);
+            var pill = new Border { Child = text, CornerRadius = new CornerRadius(15), BorderThickness = new Thickness(1), Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 8), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+            pill.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            string tab = id;
+            pill.MouseLeftButtonUp += (_, _) =>
+            {
+                popup.IsOpen = false;
+                _src.OpenTool("tab:" + tab);
+            };
+            links.Children.Add(pill);
+        }
+
+        list.Children.Add(links);
+
         var scroll = new ScrollViewer { Content = list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = Math.Max(300, ActualHeight - 40) };
-        var sheet = new Border { Child = scroll, Width = 430, CornerRadius = new CornerRadius(12), BorderThickness = new Thickness(1), Padding = new Thickness(18, 16, 10, 8), Margin = new Thickness(12), Focusable = true, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 6, Opacity = 0.6 } };
+        var sheet = new Border { Child = scroll, Width = SheetWidth, CornerRadius = new CornerRadius(12), BorderThickness = new Thickness(1), Padding = new Thickness(18, 16, 10, 8), Margin = new Thickness(12), Focusable = true, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 6, Opacity = 0.6 } };
         sheet.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
         sheet.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
         sheet.PreviewKeyDown += (_, e) =>
@@ -723,6 +938,50 @@ public sealed class DashboardBoard : DockPanel
                 e.Handled = true;
             }
         };
+
+        // the pictures are taken one after the other while the sheet is open, so it appears at once and fills
+        void TakeNext()
+        {
+            while (pending.Count > 0)
+            {
+                if (!allAtOnce && !popup.IsOpen)
+                {
+                    return;
+                }
+
+                var (spec, image, bars, key) = pending[0];
+                pending.RemoveAt(0);
+                try
+                {
+                    if (Snapshot(spec) is { } picture)
+                    {
+                        Snapshots[key] = picture;
+                        image.Source = picture;
+                        bars.Visibility = Visibility.Collapsed;
+                    }
+                }
+                catch (Exception)
+                {
+                    // a panel that cannot be drawn stays with its bars
+                }
+
+                if (!allAtOnce)
+                {
+                    sheet.Dispatcher.BeginInvoke(new Action(TakeNext), System.Windows.Threading.DispatcherPriority.Background);
+                    return;
+                }
+            }
+        }
+
+        if (allAtOnce)
+        {
+            TakeNext();
+        }
+        else
+        {
+            popup.Opened += (_, _) => sheet.Dispatcher.BeginInvoke(new Action(TakeNext), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
         return sheet;
     }
 }

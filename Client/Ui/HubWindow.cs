@@ -917,6 +917,22 @@ public sealed class HubWindow : Window
     /// <summary>A shortcut of the dashboard: the tools tab with that tool's page.</summary>
     private void OpenToolFromDashboard(string tool)
     {
+        if (tool.StartsWith("tab:", StringComparison.Ordinal))
+        {
+            // a tab of the app (the links of the dashboard's sheet)
+            if (_sections.FirstOrDefault(s => s.Id == tool["tab:".Length..]) is { } target)
+            {
+                foreach (RadioButton tab in _tabs.Children.OfType<RadioButton>())
+                {
+                    tab.IsChecked = (Section)tab.Tag == target;
+                }
+
+                ShowSection(target);
+            }
+
+            return;
+        }
+
         SelectForRender(tool is "checklist" or "attributes" or "statcalc" ? "character" : "tools", tool);
     }
 
