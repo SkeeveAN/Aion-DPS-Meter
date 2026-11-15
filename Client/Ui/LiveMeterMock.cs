@@ -37,9 +37,23 @@ internal static class LiveMeterMock
         string[] names = { loc["Main.ModeDamage"], loc["Main.ModeHeal"], loc["Main.ModeTaken"], loc["Main.ModeAll"], loc["Main.ModeAllCompact"] };
         for (int i = 0; i < names.Length; i++)
         {
-            var chipText = new TextBlock { Text = names[i], FontWeight = i == 0 ? FontWeights.SemiBold : FontWeights.Normal };
-            var chip = new Border { Child = chipText, CornerRadius = new CornerRadius(15), BorderThickness = new Thickness(1), Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 0) };
+            var chipText = new TextBlock { FontWeight = i == 0 ? FontWeights.SemiBold : FontWeights.Normal, VerticalAlignment = VerticalAlignment.Center };
+            var chipRow = new StackPanel { Orientation = Orientation.Horizontal };
+            var chipSymbol = new TextBlock { Text = LiveMeterPage.ModeSymbols[i], FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 13, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center };
+            chipText.Text = names[i];
+            chipRow.Children.Add(chipSymbol);
+            chipRow.Children.Add(chipText);
+            string[] chipTips =
+            {
+                "Schaden der Gruppe: wer wie viel Schaden gemacht hat (DPS, Gesamtschaden, Anteil)",
+                "Heilung: wer wie viel geheilt hat (HPS, Gesamtheilung, Anteil)",
+                "Erlittener Schaden: was jeder Spieler eingesteckt hat, mit Anzahl der Tode",
+                "All in One: Schaden, Heilung und erlittener Schaden in einer Zeile",
+                "All in One +: wie All in One, mit Aufschlüsselung nach Fertigkeiten",
+            };
+            var chip = new Border { Child = chipRow, ToolTip = chipTips[i], CornerRadius = new CornerRadius(15), BorderThickness = new Thickness(1), Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 0) };
             chipText.SetResourceReference(TextBlock.ForegroundProperty, i == 0 ? "Brush.Accent" : "Brush.TextMuted");
+            chipSymbol.SetResourceReference(TextBlock.ForegroundProperty, i == 0 ? "Brush.Accent" : "Brush.TextMuted");
             chip.SetResourceReference(Border.BorderBrushProperty, i == 0 ? "Brush.Accent" : "Brush.Border");
             chips.Children.Add(chip);
         }
@@ -170,6 +184,7 @@ internal static class LiveMeterMock
         box.SetResourceReference(Control.BorderBrushProperty, "Brush.Border");
         // the link's own copy button sits inside the field, at its right end
         var inner = CopyButton(false, 28, 24);
+        inner.ToolTip = "Encounter-Link kopieren";
         inner.Margin = new Thickness(0, 0, 4, 0);
         inner.HorizontalAlignment = HorizontalAlignment.Right;
         inner.VerticalAlignment = VerticalAlignment.Center;
@@ -183,7 +198,9 @@ internal static class LiveMeterMock
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         var text = CopyButton(false);
+        text.ToolTip = "DPS / HPS und mehr als Text für den Chat kopieren";
         var discord = CopyButton(true);
+        discord.ToolTip = "Tabelle für Discord kopieren (mit dem Link)";
         Grid.SetColumn(field, 0);
         Grid.SetColumn(text, 1);
         Grid.SetColumn(discord, 2);

@@ -680,12 +680,17 @@ public sealed class HubWindow : Window
         ["client.general"] = "\u2699", ["client.meter"] = "\u2694", ["client.install"] = "\u2B06", ["client.hotkeys"] = "\u2328", ["client.updates"] = "\u2318",
         ["loot"] = "\u25C6", ["craft"] = "\u2692", ["petmap"] = "\u2316", ["timetable"] = "\u25F7", ["boss"] = "\u265C",
         ["combat"] = "\u265B", ["assist"] = "\u2726", ["stream"] = "\u25C9", ["network"] = "\u21C5", ["theme"] = "\u270E",
+        // the pages of the other tabs: Dashboard, Combat & Analysis, Character
+        ["overview"] = "\u2302", ["fights"] = "\u2694", ["best"] = "\u2605", ["updates"] = "\u2B06", ["news"] = "\u2709",
+        ["live"] = "\u26A1", ["sessions"] = "\u25A4", ["compare"] = "\u21C4", ["replay"] = "\u25B6", ["dummy"] = "\u25CE",
+        ["profile"] = "\u263A", ["skills"] = "\u2737", ["arcana"] = "\u2740", ["board"] = "\u2B22", ["species"] = "\u273F", ["stats"] = "\u2211",
+        ["checklist"] = "\u2611", ["attributes"] = "\u2630", ["statcalc"] = "\u2295",
     };
 
     private static object MenuContent(string sectionId, Entry entry)
     {
         string text = entry.Title + (entry.Kind == "own" ? "  ↗" : "");
-        if (sectionId != "tools" || !MenuSymbols.TryGetValue(entry.Id, out string? symbol))
+        if (!MenuSymbols.TryGetValue(entry.Id, out string? symbol))
         {
             return text;
         }

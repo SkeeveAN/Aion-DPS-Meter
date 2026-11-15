@@ -50,6 +50,17 @@ public static class LiveMeterPage
   </Grid>
 </DataTemplate>";
 
+    /// <summary>The symbols of the five modes (damage, heal, taken, all in one, all in one +) in front of their names.</summary>
+    internal static readonly string[] ModeSymbols = { "\u2694", "\u271A", "\u26E8", "\u2630", "\u229E" };
+
+    internal static UIElement ChipContent(int index, string text)
+    {
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        row.Children.Add(new TextBlock { Text = ModeSymbols[Math.Min(index, ModeSymbols.Length - 1)], FontFamily = new System.Windows.Media.FontFamily("Segoe UI Symbol"), FontSize = 13, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center });
+        row.Children.Add(new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center });
+        return row;
+    }
+
     public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null, Func<bool>? gameOn = null)
     {
         var loc = LocalizationManager.Instance;
@@ -106,7 +117,7 @@ public static class LiveMeterPage
             for (int i = 0; i < names.Length; i++)
             {
                 int mode = i;
-                var chip = new RadioButton { GroupName = group, Content = names[i], IsChecked = getMode() == i, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(14, 5, 14, 5) };
+                var chip = new RadioButton { GroupName = group, Content = ChipContent(i, names[i]), IsChecked = getMode() == i, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(14, 5, 14, 5) };
                 chip.Template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse(
                     "<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='RadioButton'><Border x:Name='Bd' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' CornerRadius='15' BorderThickness='1' BorderBrush='{DynamicResource Brush.Border}' Padding='14,5'><ContentPresenter x:Name='Cp' TextElement.Foreground='{DynamicResource Brush.TextMuted}'/></Border><ControlTemplate.Triggers><Trigger Property='IsChecked' Value='True'><Setter TargetName='Bd' Property='BorderBrush' Value='{DynamicResource Brush.Accent}'/><Setter TargetName='Cp' Property='TextElement.Foreground' Value='{DynamicResource Brush.Accent}'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
                 chip.Checked += (_, _) =>
