@@ -29,6 +29,11 @@ public static class HubDashboard
         if (page is not ("fights" or "best" or "updates" or "news" or "stats"))
         {
             var board = new DashboardBoard(src);
+            if (Environment.GetEnvironmentVariable("AIONDPS_DASHMOCK") == "1")
+            {
+                return new ToolPage { Content = board.WithSheetOpen(), Cleanup = board.Stop };
+            }
+
             return new ToolPage { Content = board, Cleanup = board.Stop };
         }
 

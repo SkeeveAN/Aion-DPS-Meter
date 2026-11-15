@@ -789,6 +789,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.21: the plus of the dashboard opens a sheet of its own instead of the grey menu: every panel in groups with a small preview and an add button (a panel that is already there is dimmed with a green tick), the sheet closes with the add, a click beside it or Esc, and the dashboard can be set back to the standard; the player details open in a window of its own, centred on the screen, when the old meter window is hidden; the Odyle spider pets are named the right way round in the profiles too",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },

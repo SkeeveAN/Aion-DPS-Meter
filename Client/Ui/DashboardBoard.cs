@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -554,46 +555,174 @@ public sealed class DashboardBoard : DockPanel
         _canvas.Height = bottom + Margin8;
     }
 
+    /// <summary>The sheet of the plus: every panel that can stand on the dashboard in groups, each with a small preview and an add button (one that is on the board is dimmed with a green tick). It closes with the add, a click beside it or Esc.</summary>
     private void ShowAddMenu()
     {
+        var popup = new Popup { PlacementTarget = _add, Placement = PlacementMode.Bottom, StaysOpen = false, AllowsTransparency = true, PopupAnimation = PopupAnimation.Fade, HorizontalOffset = _add.ActualWidth + 16 - 430 - 12 };
+        popup.Child = BuildSheet(popup);
+        popup.Opened += (_, _) => popup.Child.Focus();
+        popup.IsOpen = true;
+    }
+
+    /// <summary>The sheet as a picture (render-tool with AIONDPS_DASHMOCK=1): the board with the open sheet over it, without a window of its own.</summary>
+    internal UIElement WithSheetOpen()
+    {
+        var grid = new Grid();
+        grid.Children.Add(this);
+        var sheet = BuildSheet(new Popup());
+        ((ScrollViewer)sheet.Child).MaxHeight = 760;
+        sheet.HorizontalAlignment = HorizontalAlignment.Right;
+        sheet.VerticalAlignment = VerticalAlignment.Top;
+        sheet.Margin = new Thickness(0, 6, 4, 0);
+        grid.Children.Add(sheet);
+        return grid;
+    }
+
+    private Border BuildSheet(Popup popup)
+    {
         var loc = LocalizationManager.Instance;
-        var menu = new ContextMenu();
+        var green = new SolidColorBrush(Color.FromRgb(0x3d, 0xd6, 0x8c));
+        green.Freeze();
+        TextBlock Label(string text, double size, string brush, FontWeight? weight = null)
+        {
+            var t = new TextBlock { Text = text, FontSize = size, FontWeight = weight ?? FontWeights.Normal, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            t.SetResourceReference(TextBlock.ForegroundProperty, brush);
+            return t;
+        }
+
         void Place(Spec spec)
         {
             double bottom = _places.Values.Select(p => p.Y + p.H).DefaultIfEmpty(0).Max();
             _places[spec.Id] = new DashboardPlace { X = Margin8, Y = Snap(bottom + Margin8), W = spec.W, H = spec.H };
+            popup.IsOpen = false;
             Save();
             Build();
         }
 
-        foreach (var widget in HubDashboard.Widgets.Where(w => !_places.ContainsKey(w.Id)))
+        // the small preview: a few bars (the widths follow the id), dimmed with a tick when the panel is already on the board
+        UIElement Thumb(string id, bool added)
         {
-            Spec spec = SpecOf(widget.Id)!;
-            var item = new MenuItem { Header = spec.Title };
-            item.Click += (_, _) => Place(spec);
-            menu.Items.Add(item);
+            int seed = id.Aggregate(7, (h, c) => h * 31 + c) & 0xffff;
+            var grid = new Grid { Width = 86, Height = 52 };
+            var frame = new Border { CornerRadius = new CornerRadius(5), BorderThickness = new Thickness(1), Background = new SolidColorBrush(Color.FromRgb(0x0b, 0x14, 0x1e)) };
+            frame.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            grid.Children.Add(frame);
+            var bars = new StackPanel { Margin = new Thickness(8, 8, 8, 6), Opacity = added ? 0.25 : 1 };
+            for (int i = 0; i < 4; i++)
+            {
+                var bar = new System.Windows.Shapes.Rectangle { Height = 5, Width = i == 0 ? 40 : 22 + (seed >> (i * 3)) % 44, RadiusX = 2, RadiusY = 2, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 3.5) };
+                bar.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, i == 0 ? "Brush.Accent" : "Brush.TextMuted");
+                bars.Children.Add(bar);
+            }
+
+            grid.Children.Add(bars);
+            if (added)
+            {
+                grid.Children.Add(new Border { Background = new SolidColorBrush(Color.FromArgb(0xB0, 0x07, 0x0d, 0x14)), CornerRadius = new CornerRadius(5) });
+                grid.Children.Add(new TextBlock { Text = "\u2714", FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 22, Foreground = green, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+            }
+
+            return grid;
+        }
+
+        UIElement Entry(Spec spec)
+        {
+            bool added = _places.ContainsKey(spec.Id);
+            var row = new DockPanel { Margin = new Thickness(0, 0, 0, 8), Opacity = added ? 0.7 : 1, Background = Brushes.Transparent, Cursor = added ? Cursors.Arrow : Cursors.Hand };
+            var thumb = Thumb(spec.Id, added);
+            SetDock(thumb, Dock.Left);
+            row.Children.Add(thumb);
+            var button = new Border { CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(1), Padding = new Thickness(12, 4, 12, 4), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) };
+            if (added)
+            {
+                button.BorderBrush = green;
+                button.Child = new TextBlock { Text = loc["Hub.Dash.OnBoard"], FontSize = 11, Foreground = green };
+            }
+            else
+            {
+                button.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+                button.Child = Label(loc["Hub.Dash.Add"], 11, "Brush.Accent", FontWeights.SemiBold);
+                row.MouseLeftButtonUp += (_, _) => Place(spec);
+            }
+
+            SetDock(button, Dock.Right);
+            row.Children.Add(button);
+            var name = Label(spec.Title, 13, "Brush.Text", FontWeights.SemiBold);
+            name.Margin = new Thickness(12, 0, 0, 0);
+            row.Children.Add(name);
+            return row;
+        }
+
+        UIElement Group(string heading)
+        {
+            var line = new Border { Height = 1, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            line.SetResourceReference(Border.BackgroundProperty, "Brush.Border");
+            var row = new DockPanel { Margin = new Thickness(0, 12, 0, 10) };
+            var head = Label(heading.ToUpperInvariant(), 11, "Brush.Accent", FontWeights.SemiBold);
+            SetDock(head, Dock.Left);
+            row.Children.Add(head);
+            row.Children.Add(line);
+            return row;
+        }
+
+        var list = new StackPanel();
+        var title = new DockPanel { Margin = new Thickness(0, 0, 14, 0) };
+        var reset = Label(loc["Hub.Dash.Reset"], 11, "Brush.TextMuted");
+        reset.Cursor = Cursors.Hand;
+        bool sure = false;
+        reset.MouseLeftButtonUp += (_, _) =>
+        {
+            if (!sure)
+            {
+                sure = true;
+                reset.Text = loc["Hub.Dash.ResetSure"];
+                reset.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+                return;
+            }
+
+            _places.Clear();
+            foreach (var pair in FirstLayout())
+            {
+                _places[pair.Key] = pair.Value;
+            }
+
+            popup.IsOpen = false;
+            Save();
+            Build();
+        };
+        SetDock(reset, Dock.Right);
+        title.Children.Add(reset);
+        title.Children.Add(Label(loc["Hub.Dash.Extend"], 15, "Brush.Text", FontWeights.SemiBold));
+        list.Children.Add(title);
+
+        list.Children.Add(Group(loc["Hub.Dash.GroupOverview"]));
+        foreach (var widget in HubDashboard.Widgets)
+        {
+            list.Children.Add(Entry(SpecOf(widget.Id)!));
         }
 
         // every window of the app can stand on a dashboard: the pages of the tabs, grouped as the tabs are
-        menu.Items.Add(new Separator());
         foreach (var group in _src.Pages().GroupBy(p => p.Group))
         {
-            var sub = new MenuItem { Header = group.Key };
-            foreach (HubPageInfo page in group.Where(p => !_places.ContainsKey("page:" + p.Id)))
+            list.Children.Add(Group(group.Key));
+            foreach (HubPageInfo page in group)
             {
-                Spec spec = SpecOf("page:" + page.Id)!;
-                var item = new MenuItem { Header = page.Title };
-                item.Click += (_, _) => Place(spec);
-                sub.Items.Add(item);
-            }
-
-            if (sub.Items.Count > 0)
-            {
-                menu.Items.Add(sub);
+                list.Children.Add(Entry(SpecOf("page:" + page.Id)!));
             }
         }
 
-        menu.PlacementTarget = _add;
-        menu.IsOpen = true;
+        var scroll = new ScrollViewer { Content = list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = Math.Max(300, ActualHeight - 40) };
+        var sheet = new Border { Child = scroll, Width = 430, CornerRadius = new CornerRadius(12), BorderThickness = new Thickness(1), Padding = new Thickness(18, 16, 10, 8), Margin = new Thickness(12), Focusable = true, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 6, Opacity = 0.6 } };
+        sheet.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+        sheet.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+        sheet.PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Escape)
+            {
+                popup.IsOpen = false;
+                e.Handled = true;
+            }
+        };
+        return sheet;
     }
 }

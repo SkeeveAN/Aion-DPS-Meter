@@ -16465,5 +16465,77 @@
     "pt": "Clique duas vezes num jogador para ver os detalhes",
     "ja": "プレイヤーをダブルクリックで詳細を表示",
     "ko": "플레이어를 두 번 클릭하면 상세 정보가 표시됩니다"
+  },
+  "Hub.Dash.Extend": {
+    "en": "Extend the dashboard",
+    "de": "Dashboard erweitern",
+    "fr": "Étendre le tableau de bord",
+    "es": "Ampliar el panel",
+    "ru": "Расширить панель",
+    "zh": "扩展仪表盘",
+    "zh-TW": "擴充儀表板",
+    "pt": "Ampliar o painel",
+    "ja": "ダッシュボードを拡張",
+    "ko": "대시보드 확장"
+  },
+  "Hub.Dash.Add": {
+    "en": "+ Add",
+    "de": "+ Hinzufügen",
+    "fr": "+ Ajouter",
+    "es": "+ Añadir",
+    "ru": "+ Добавить",
+    "zh": "+ 添加",
+    "zh-TW": "+ 新增",
+    "pt": "+ Adicionar",
+    "ja": "+ 追加",
+    "ko": "+ 추가"
+  },
+  "Hub.Dash.OnBoard": {
+    "en": "On the dashboard",
+    "de": "Auf dem Dashboard",
+    "fr": "Sur le tableau de bord",
+    "es": "En el panel",
+    "ru": "На панели",
+    "zh": "已在仪表盘",
+    "zh-TW": "已在儀表板",
+    "pt": "No painel",
+    "ja": "表示中",
+    "ko": "대시보드에 있음"
+  },
+  "Hub.Dash.GroupOverview": {
+    "en": "OVERVIEW",
+    "de": "ÜBERSICHT",
+    "fr": "APERÇU",
+    "es": "RESUMEN",
+    "ru": "ОБЗОР",
+    "zh": "概览",
+    "zh-TW": "總覽",
+    "pt": "VISÃO GERAL",
+    "ja": "概要",
+    "ko": "개요"
+  },
+  "Hub.Dash.Reset": {
+    "en": "Restore the standard",
+    "de": "Standard wiederherstellen",
+    "fr": "Rétablir le standard",
+    "es": "Restaurar el estándar",
+    "ru": "Вернуть стандарт",
+    "zh": "恢复默认",
+    "zh-TW": "還原預設",
+    "pt": "Restaurar o padrão",
+    "ja": "標準に戻す",
+    "ko": "기본값 복원"
+  },
+  "Hub.Dash.ResetSure": {
+    "en": "Really? Click once more",
+    "de": "Wirklich? Noch einmal klicken",
+    "fr": "Vraiment ? Cliquez encore une fois",
+    "es": "¿De verdad? Haz clic otra vez",
+    "ru": "Точно? Нажмите ещё раз",
+    "zh": "确定吗？请再点一次",
+    "zh-TW": "確定嗎？請再點一次",
+    "pt": "Tem certeza? Clique mais uma vez",
+    "ja": "本当に？もう一度クリック",
+    "ko": "정말입니까? 한 번 더 클릭"
   }
 }
