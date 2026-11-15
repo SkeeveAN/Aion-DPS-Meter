@@ -519,6 +519,31 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "aion2-position-dump")
+        {
+            // every exact own position of a recording (time, x, y), to compare the map's mapping with a screenshot of the game's own map
+            var protocol = Aion2.Protocol.Aion2Protocol.Load();
+            using var source = new Aion2.Aion2PacketCombatSource(protocol);
+            var directory = (Aion2.Aion2EntityDirectory)source.Entities;
+            DateTime clock = DateTime.MinValue;
+            directory.Clock = () => clock;
+            directory.PositionProbe += p => Console.WriteLine($"{p.Now:HH:mm:ss.fff} {p.X:0} {p.Y:0}");
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(args[1]))
+            {
+                bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":13328", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                clock = segment.Timestamp;
+                source.Ingest(segment with { FromServer = fromServer });
+                source.Poll(false);
+            }
+
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-cube-check")
         {
             if (args.Length < 2)
