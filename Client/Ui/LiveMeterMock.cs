@@ -19,6 +19,9 @@ internal static class LiveMeterMock
     // the Discord mark (a 24 x 24 box, public-domain path), for the background of the second copy button
     private const string DiscordMark = "M 20.317 4.3698 a 19.7913 19.7913 0 0 0 -4.8851 -1.5152 a .0741 .0741 0 0 0 -.0785 .0371 c -.211 .3753 -.4447 .8648 -.6083 1.2495 c -1.8447 -.2762 -3.68 -.2762 -5.4868 0 c -.1636 -.3933 -.4058 -.8742 -.6177 -1.2495 a .077 .077 0 0 0 -.0785 -.037 a 19.7363 19.7363 0 0 0 -4.8852 1.515 a .0699 .0699 0 0 0 -.0321 .0277 C .5334 9.0458 -.319 13.5799 .0992 18.0578 a .0824 .0824 0 0 0 .0312 .0561 c 2.0528 1.5076 4.0413 2.4228 5.9929 3.0294 a .0777 .0777 0 0 0 .0842 -.0276 c .4616 -.6304 .8731 -1.2952 1.226 -1.9942 a .076 .076 0 0 0 -.0416 -.1057 c -.6528 -.2476 -1.2743 -.5495 -1.8722 -.8923 a .077 .077 0 0 1 -.0076 -.1277 c .1258 -.0943 .2517 -.1923 .3718 -.2914 a .0743 .0743 0 0 1 .0776 -.0105 c 3.9278 1.7933 8.18 1.7933 12.0614 0 a .0739 .0739 0 0 1 .0785 .0095 c .1202 .099 .246 .1981 .3728 .2924 a .077 .077 0 0 1 -.0066 .1276 a 12.2986 12.2986 0 0 1 -1.873 .8914 a .0766 .0766 0 0 0 -.0407 .1067 c .3604 .698 .7719 1.3628 1.225 1.9932 a .076 .076 0 0 0 .0842 .0286 c 1.961 -.6067 3.9495 -1.5219 6.0023 -3.0294 a .077 .077 0 0 0 .0313 -.0552 c .5004 -5.177 -.8382 -9.6739 -3.5485 -13.6604 a .061 .061 0 0 0 -.0312 -.0286 z M 8.02 15.3312 c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 c 0 -1.3332 .9555 -2.4189 2.157 -2.4189 c 1.2108 0 2.1757 1.0952 2.1568 2.419 c 0 1.3332 -.9555 2.4189 -2.1569 2.4189 z m 7.9748 0 c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 c 0 -1.3332 .9554 -2.4189 2.1569 -2.4189 c 1.2108 0 2.1757 1.0952 2.1568 2.419 c 0 1.3332 -.946 2.4189 -2.1568 2.4189 Z";
 
+    // AIONDPS_MOCKVARIANT=base: the first picture's basic look (no legend line, no end boss tag) with one link under the whole right list; otherwise a link under every boss
+    private static readonly bool Base = Environment.GetEnvironmentVariable("AIONDPS_MOCKVARIANT") == "base";
+
     public static ToolPage Build(string jsonPath)
     {
         var loc = LocalizationManager.Instance;
@@ -43,7 +46,7 @@ internal static class LiveMeterMock
 
         // left: all sessions
         var allRows = RowsOf(root.GetProperty("all"), 10);
-        UIElement left = Card("Alle Sitzungen", "Draupnir · 10:42 - 11:00", "DPS  ·  Schaden  ·  Anteil", new ItemsControl { ItemTemplate = RowTemplate(), ItemsSource = allRows });
+        UIElement left = Card("Alle Sitzungen", "Draupnir · 10:42 - 11:00", Base ? "" : "DPS  ·  Schaden  ·  Anteil", new ItemsControl { ItemTemplate = RowTemplate(), ItemsSource = allRows });
 
         // right: the last instance, the end boss on top
         var bosses = new StackPanel();
@@ -53,7 +56,12 @@ internal static class LiveMeterMock
             bosses.Children.Add(BossSection(b, boss++));
         }
 
-        UIElement right = Card("Letzte Instanz", "Draupnir · " + root.GetProperty("bosses").GetArrayLength() + " " + "Bosse", "iDPS  ·  Schaden  ·  Anteil", bosses);
+        if (Base)
+        {
+            bosses.Children.Add(LinkRow("https://aiondps.com/encounters/48219"));
+        }
+
+        UIElement right = Card("Letzte Instanz", "Draupnir · " + root.GetProperty("bosses").GetArrayLength() + " " + "Bosse", Base ? "" : "iDPS  ·  Schaden  ·  Anteil", bosses);
 
         var columns = new Grid { Margin = new Thickness(14, 10, 14, 14) };
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -101,7 +109,7 @@ internal static class LiveMeterMock
         int attempts = b.GetProperty("attempts").GetInt32();
         string status = (killed ? "Besiegt" : "Wipe") + " · " + (attempts > 1 ? "Versuch" + " " + attempts + " · " : "")
             + $"{seconds / 60}:{seconds % 60:00} · " + (b.GetProperty("total").GetInt64() / 1_000_000.0).ToString("0.0") + " " + "Mio.";
-        var name = new TextBlock { Text = (index == 0 ? "\u2605 " : "") + (b.GetProperty("name").GetString() ?? "?") + (index == 0 ? "  \u00B7  Endboss" : ""), FontSize = 14, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
+        var name = new TextBlock { Text = (index == 0 ? "\u2605 " : "") + (b.GetProperty("name").GetString() ?? "?") + (index == 0 && !Base ? "  \u00B7  Endboss" : ""), FontSize = 14, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         name.SetResourceReference(TextBlock.ForegroundProperty, index == 0 ? "Brush.Accent" : "Brush.Text");
         var state = new TextBlock { Text = status, FontSize = 12, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
         state.SetResourceReference(TextBlock.ForegroundProperty, killed ? "Brush.Heal" : "Brush.Danger");
@@ -115,7 +123,11 @@ internal static class LiveMeterMock
         section.Children.Add(header);
         section.Children.Add(rule);
         section.Children.Add(new ItemsControl { ItemTemplate = RowTemplate(), ItemsSource = RowsOf(b.GetProperty("rows"), 6) });
-        section.Children.Add(LinkRow("https://aiondps.com/encounters/" + (48219 - index)));
+        if (!Base)
+        {
+            section.Children.Add(LinkRow("https://aiondps.com/encounters/" + (48219 - index)));
+        }
+
         return section;
     }
 
