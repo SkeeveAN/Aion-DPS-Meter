@@ -300,35 +300,16 @@ public sealed class HubWindow : Window
         }
     }
 
-    private static ControlTemplate TabTemplate()
-    {
-        var border = new FrameworkElementFactory(typeof(Border));
-        border.Name = "Bd";
-        border.SetValue(Border.PaddingProperty, new Thickness(18, 0, 18, 0));
-        border.SetValue(Border.BorderThicknessProperty, new Thickness(0, 0, 0, 3));
-        border.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
-        // the tabs stand out from the bar: a tinted field, bright text; the chosen one has a stronger field, an accent line and bold accent text
-        border.SetValue(Border.BackgroundProperty, Frozen("#12202d"));
-        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(8, 8, 0, 0));
-        border.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 12, 6, 0));
-        var content = new FrameworkElementFactory(typeof(ContentPresenter));
-        content.Name = "Cp";
-        content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
-        content.SetValue(TextElement.FontSizeProperty, 15.0);
-        content.SetValue(TextElement.ForegroundProperty, Frozen("#d6e4ee"));
-        border.AppendChild(content);
-        var template = new ControlTemplate(typeof(RadioButton)) { VisualTree = border };
-        var checkedTrigger = new Trigger { Property = System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Value = true };
-        checkedTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, Accent, "Bd"));
-        checkedTrigger.Setters.Add(new Setter(Border.BackgroundProperty, Frozen("#1f3548"), "Bd"));
-        checkedTrigger.Setters.Add(new Setter(TextElement.FontWeightProperty, FontWeights.SemiBold, "Cp"));
-        checkedTrigger.Setters.Add(new Setter(TextElement.ForegroundProperty, Accent, "Cp"));
-        template.Triggers.Add(checkedTrigger);
-        var hover = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
-        hover.Setters.Add(new Setter(Border.BackgroundProperty, Frozen("#1a2b3b"), "Bd"));
-        template.Triggers.Add(hover);
-        return template;
-    }
+    /// <summary>The template of a top tab, in the colours of the chosen theme: a raised field, the text colour, and for the chosen one a stronger field, the accent line and bold accent text.</summary>
+    private static ControlTemplate TabTemplate() => (ControlTemplate)System.Windows.Markup.XamlReader.Parse(
+        "<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='RadioButton'>" +
+        "<Border x:Name='Bd' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' Padding='18,0,18,0' Margin='0,12,6,0' CornerRadius='8,8,0,0' BorderThickness='0,0,0,3' BorderBrush='Transparent' Background='{DynamicResource Brush.ControlRaised}'>" +
+        "<ContentPresenter x:Name='Cp' VerticalAlignment='Center' TextElement.FontSize='15' TextElement.Foreground='{DynamicResource Brush.Text}'/></Border>" +
+        "<ControlTemplate.Triggers>" +
+        "<Trigger Property='IsMouseOver' Value='True'><Setter TargetName='Bd' Property='Background' Value='{DynamicResource Brush.ControlHoverStrong}'/></Trigger>" +
+        "<Trigger Property='IsChecked' Value='True'><Setter TargetName='Bd' Property='BorderBrush' Value='{DynamicResource Brush.Accent}'/><Setter TargetName='Bd' Property='Background' Value='{DynamicResource Brush.ControlHoverStrong}'/>" +
+        "<Setter TargetName='Cp' Property='TextElement.FontWeight' Value='SemiBold'/><Setter TargetName='Cp' Property='TextElement.Foreground' Value='{DynamicResource Brush.Accent}'/></Trigger>" +
+        "</ControlTemplate.Triggers></ControlTemplate>");
 
     private Border Pill(UIElement child) => new()
     {
