@@ -775,6 +775,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.19: the data delivery reads the maps, the pets and the collectibles again as soon as the server's files were taken (a refitted map or a corrected pet name shows without a restart), and the pet info overlay keeps its lines and its hint in the middle of the frame",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
