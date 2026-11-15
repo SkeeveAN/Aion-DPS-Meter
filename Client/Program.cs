@@ -528,6 +528,7 @@ internal static class Program
             DateTime clock = DateTime.MinValue;
             directory.Clock = () => clock;
             directory.PositionProbe += p => Console.WriteLine($"{p.Now:HH:mm:ss.fff} {p.X:0} {p.Y:0}");
+            directory.SpawnProbe += (now, x, y) => Console.WriteLine($"{now:HH:mm:ss.fff} SPAWN {x:0} {y:0}");
             foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(args[1]))
             {
                 bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);

@@ -5,9 +5,9 @@
    "table": "World/World_L/World_L_A",
    "tile": 2048,
    "grid": 8,
-   "scale": 0.019583509634873143,
-   "offsetX": 8070.937975984913,
-   "offsetY": 8307.450753846877,
+   "scale": 0.020014346846840354,
+   "offsetX": 8170.937975984913,
+   "offsetY": 8207.450753846877,
    "tiles": 26,
    "openZones": [
     1010,

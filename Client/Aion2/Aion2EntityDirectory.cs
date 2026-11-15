@@ -822,8 +822,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private bool _positionIsSpawn;
 
     /// <summary>Where a zone frame put the player (a teleport or a loading screen): an exact place, but of the new zone, so a map change keeps it.</summary>
+    public event Action<DateTime, float, float>? SpawnProbe;
+
     public void NoteSpawnPosition(float x, float y)
     {
+        SpawnProbe?.Invoke(Now, x, y);
         lock (_gate)
         {
             _position = (x, y, Now);
