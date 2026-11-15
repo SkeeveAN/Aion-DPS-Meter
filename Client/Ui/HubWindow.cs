@@ -274,9 +274,18 @@ public sealed class HubWindow : Window
             return section.Title;
         }
 
+        // the texts take the colour and weight the tab's template gives its content (the chosen tab is accent and bold)
+        TextBlock Follow(TextBlock text)
+        {
+            var source = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.FindAncestor) { AncestorType = typeof(ContentPresenter) };
+            text.SetBinding(TextBlock.ForegroundProperty, new System.Windows.Data.Binding { Path = new PropertyPath(TextElement.ForegroundProperty), RelativeSource = source });
+            text.SetBinding(TextBlock.FontWeightProperty, new System.Windows.Data.Binding { Path = new PropertyPath(TextElement.FontWeightProperty), RelativeSource = source });
+            return text;
+        }
+
         var row = new StackPanel { Orientation = Orientation.Horizontal };
-        row.Children.Add(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 17, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center });
-        row.Children.Add(new TextBlock { Text = section.Title, VerticalAlignment = VerticalAlignment.Center });
+        row.Children.Add(Follow(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 17, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center }));
+        row.Children.Add(Follow(new TextBlock { Text = section.Title, VerticalAlignment = VerticalAlignment.Center }));
         return row;
     }
 
@@ -298,18 +307,25 @@ public sealed class HubWindow : Window
         border.SetValue(Border.PaddingProperty, new Thickness(18, 0, 18, 0));
         border.SetValue(Border.BorderThicknessProperty, new Thickness(0, 0, 0, 3));
         border.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
-        border.SetValue(Border.BackgroundProperty, Brushes.Transparent);
+        // the tabs stand out from the bar: a tinted field, bright text; the chosen one has a stronger field, an accent line and bold accent text
+        border.SetValue(Border.BackgroundProperty, Frozen("#12202d"));
+        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(8, 8, 0, 0));
+        border.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 12, 6, 0));
         var content = new FrameworkElementFactory(typeof(ContentPresenter));
+        content.Name = "Cp";
         content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
         content.SetValue(TextElement.FontSizeProperty, 15.0);
+        content.SetValue(TextElement.ForegroundProperty, Frozen("#d6e4ee"));
         border.AppendChild(content);
         var template = new ControlTemplate(typeof(RadioButton)) { VisualTree = border };
         var checkedTrigger = new Trigger { Property = System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Value = true };
         checkedTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, Accent, "Bd"));
-        checkedTrigger.Setters.Add(new Setter(TextElement.ForegroundProperty, Accent));
+        checkedTrigger.Setters.Add(new Setter(Border.BackgroundProperty, Frozen("#1f3548"), "Bd"));
+        checkedTrigger.Setters.Add(new Setter(TextElement.FontWeightProperty, FontWeights.SemiBold, "Cp"));
+        checkedTrigger.Setters.Add(new Setter(TextElement.ForegroundProperty, Accent, "Cp"));
         template.Triggers.Add(checkedTrigger);
         var hover = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
-        hover.Setters.Add(new Setter(Border.BackgroundProperty, Frozen("#0c1823"), "Bd"));
+        hover.Setters.Add(new Setter(Border.BackgroundProperty, Frozen("#1a2b3b"), "Bd"));
         template.Triggers.Add(hover);
         return template;
     }
