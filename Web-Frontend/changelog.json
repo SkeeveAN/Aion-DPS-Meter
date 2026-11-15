@@ -754,6 +754,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.16: the top tabs take the colours of the chosen theme again, and the Hidden Cube marks on the map stand out (a dark disc with a bright ring behind the cube, bigger)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
