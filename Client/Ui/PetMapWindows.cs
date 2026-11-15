@@ -488,8 +488,8 @@ public sealed class PetMapWindow : MovableOverlay
         // the gold cube itself, bigger than the places, with a glow that pulses (no frame around it)
         var cube = new Image { Width = 44, Height = 44, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
         RenderOptions.SetBitmapScalingMode(cube, BitmapScalingMode.HighQuality);
-        var glow = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0x30, 0x20), Opacity = 1 };
-        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, new System.Windows.Media.Animation.DoubleAnimation(6, 22, TimeSpan.FromMilliseconds(700)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever });
+        var glow = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0x70, 0x50), Opacity = 0.8 };
+        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, new System.Windows.Media.Animation.DoubleAnimation(4, 14, TimeSpan.FromMilliseconds(800)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever });
         cube.Effect = glow;
         var grid = new Grid { Width = 52, Height = 52, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
         Panel.SetZIndex(grid, 5);
