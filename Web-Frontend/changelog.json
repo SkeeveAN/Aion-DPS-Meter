@@ -740,6 +740,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.14: the Hidden Cube proximity sound counts the height too (a cube above or below is farther away, the distance is measured in three dimensions), and the interactive map shows beside each cube how many metres higher or lower it is than the player (a blue number with an arrow up or down)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
