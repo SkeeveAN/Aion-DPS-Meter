@@ -1464,7 +1464,7 @@ internal static class Program
             panel = new System.Windows.Controls.Border
             {
                 Width = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_WIDTH"), out int widgetWidth) ? widgetWidth : 390, Padding = new System.Windows.Thickness(6, 4, 6, 4), CornerRadius = new System.Windows.CornerRadius(6),
-                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x99, 0, 0, 0)), Child = meterView,
+                Background = Environment.GetEnvironmentVariable("AIONDPS_WIDGET_PANEL") is { Length: > 0 } && System.Windows.Application.Current?.TryFindResource("Brush.Panel") is System.Windows.Media.Brush panelBrush ? panelBrush : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x99, 0, 0, 0)), Child = meterView,
             };
         }
         else if (kind is "window" or "window-open")
