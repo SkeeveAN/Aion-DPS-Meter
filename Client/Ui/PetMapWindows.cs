@@ -760,8 +760,11 @@ public sealed class PetMapWindow : MovableOverlay
 
                 var shown = _gatherIcons[iconMark++];
                 shown.Source = icon;
-                Canvas.SetLeft(shown, px - 12);
-                Canvas.SetTop(shown, py - 12);
+                // the cubes are many and close together: a smaller picture than the other collectibles
+                double side = kind == "Cube" ? 17 : 24;
+                shown.Width = shown.Height = side;
+                Canvas.SetLeft(shown, px - side / 2);
+                Canvas.SetTop(shown, py - side / 2);
                 shown.Visibility = Visibility.Visible;
                 continue;
             }

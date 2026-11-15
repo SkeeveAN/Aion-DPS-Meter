@@ -1,7 +1,7 @@
 """Draws the picture of the Hidden Cube for the gathering settings and the map: python3 build_cube_icon.py <Client/assets/aion2/maps/gather_icons>
 
-The client has no icon of the cube (its item is a key), so this is drawn: a dark bronze cube seen from a corner, a glowing red ring with six spokes
-on each of its three faces, and a red glow around it - as the cube looks in the game. Output: HiddenCube.png (64 px, transparent)."""
+The client has no icon of the cube (its item is a key), so this is drawn: a pale stone cube with bone-coloured edges (the game's HiddenCube_01_D texture is grey stone with bone-white bands) seen from a corner, a glowing orange ring
+with six spokes on each of its three faces, and an orange glow around it - as the cube looks in the game. Output: HiddenCube.png (64 px, transparent)."""
 import math
 import os
 import sys
@@ -14,22 +14,22 @@ OUT = 64
 
 def face(shade):
     """One flat face: bronze square with a frame, the ring, six spokes and the hub, glowing red."""
-    base = tuple(int(c * shade) for c in (112, 74, 54))
+    base = tuple(int(c * shade) for c in (96, 88, 80))
     im = Image.new("RGBA", (S, S), base + (255,))
     d = ImageDraw.Draw(im)
-    d.rectangle([0, 0, S - 1, S - 1], outline=tuple(int(c * shade) for c in (170, 120, 90)), width=14)
-    d.rectangle([22, 22, S - 23, S - 23], outline=tuple(int(c * shade) for c in (60, 36, 28)), width=6)
+    d.rectangle([0, 0, S - 1, S - 1], outline=tuple(int(c * shade) for c in (206, 192, 168)), width=14)
+    d.rectangle([22, 22, S - 23, S - 23], outline=tuple(int(c * shade) for c in (70, 60, 52)), width=6)
     cx = cy = S / 2
     glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     g = ImageDraw.Draw(glow)
-    g.ellipse([cx - 190, cy - 190, cx + 190, cy + 190], fill=(40, 6, 6, 255))
-    g.ellipse([cx - 190, cy - 190, cx + 190, cy + 190], outline=(255, 70, 60, 255), width=26)
-    g.ellipse([cx - 150, cy - 150, cx + 150, cy + 150], outline=(255, 150, 130, 255), width=8)
+    g.ellipse([cx - 200, cy - 200, cx + 200, cy + 200], fill=(50, 18, 4, 255))
+    g.ellipse([cx - 200, cy - 200, cx + 200, cy + 200], outline=(255, 140, 20, 255), width=44)
+    g.ellipse([cx - 140, cy - 140, cx + 140, cy + 140], outline=(255, 220, 130, 255), width=14)
     for k in range(6):
         a = math.radians(30 + k * 60)
-        g.line([cx + math.cos(a) * 40, cy + math.sin(a) * 40, cx + math.cos(a) * 160, cy + math.sin(a) * 160], fill=(255, 110, 95, 255), width=14)
-    g.ellipse([cx - 44, cy - 44, cx + 44, cy + 44], fill=(255, 90, 80, 255), outline=(255, 190, 170, 255), width=8)
-    g.ellipse([cx - 16, cy - 16, cx + 16, cy + 16], fill=(60, 8, 8, 255))
+        g.line([cx + math.cos(a) * 40, cy + math.sin(a) * 40, cx + math.cos(a) * 160, cy + math.sin(a) * 160], fill=(255, 175, 50, 255), width=24)
+    g.ellipse([cx - 44, cy - 44, cx + 44, cy + 44], fill=(255, 150, 30, 255), outline=(255, 230, 170, 255), width=8)
+    g.ellipse([cx - 16, cy - 16, cx + 16, cy + 16], fill=(90, 30, 6, 255))
     halo = glow.filter(ImageFilter.GaussianBlur(14))
     im = Image.alpha_composite(im, halo)
     return Image.alpha_composite(im, glow)
@@ -67,8 +67,8 @@ def main():
     silhouette = canvas.getchannel("A")
     edge = ImageDraw.Draw(canvas)
     for p, q in ((top_pt, ur), (ur, lr), (lr, bot), (bot, ll), (ll, ul), (ul, top_pt), (mid, ul), (mid, ur), (mid, bot)):
-        edge.line([p, q], fill=(200, 140, 105, 255), width=10)
-    glow = Image.new("RGBA", (W, W), (255, 40, 30, 255))
+        edge.line([p, q], fill=(214, 198, 172, 255), width=10)
+    glow = Image.new("RGBA", (W, W), (255, 120, 20, 255))
     glow.putalpha(silhouette.filter(ImageFilter.MaxFilter(21)).filter(ImageFilter.GaussianBlur(34)).point(lambda v: int(v * 0.85)))
     final = Image.alpha_composite(glow, canvas)
     bbox = final.getchannel("A").point(lambda v: 255 if v > 24 else 0).getbbox()
