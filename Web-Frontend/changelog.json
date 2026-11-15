@@ -824,6 +824,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.26: the Overlay designer button of the hub brings the game to the front so the overlays can be placed over it, and the Done button of the designer brings the hub back; the hotkey and the other ways to end the designer move no window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
