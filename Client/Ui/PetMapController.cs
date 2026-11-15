@@ -66,7 +66,6 @@ public sealed class PetMapController : IDisposable
         list.Close();
     }
 
-    private string _listShown = "";
 
     private void RenderList(IReadOnlyList<(Color, string, string, string, bool)> rows)
     {

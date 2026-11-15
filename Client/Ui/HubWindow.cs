@@ -245,25 +245,6 @@ public sealed class HubWindow : Window
         };
     }
 
-    // ───────────────────────────── header ─────────────────────────────
-
-    private FrameworkElement Brand()
-    {
-        var logo = new Border
-        {
-            Width = 38, Height = 38, CornerRadius = new CornerRadius(10), Margin = new Thickness(0, 0, 12, 0),
-            Background = new LinearGradientBrush(Color.FromRgb(0xff, 0xba, 0x42), Color.FromRgb(0xb8, 0x66, 0x1a), 45),
-            Child = new TextBlock { Text = "D", FontWeight = FontWeights.ExtraBold, Foreground = Frozen("#2a1700"), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
-        };
-        var texts = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        texts.Children.Add(new TextBlock { Text = "DAEVAS POWER SUITE", FontSize = 15, FontWeight = FontWeights.SemiBold, Foreground = Light });
-        texts.Children.Add(new TextBlock { Text = "AION 2 Companion · Alpha", FontSize = 11, Foreground = Frozen("#62788a") });
-        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 28, 0), VerticalAlignment = VerticalAlignment.Center };
-        brand.Children.Add(logo);
-        brand.Children.Add(texts);
-        return brand;
-    }
-
     private static readonly Dictionary<string, string> TabSymbols = new() { ["dashboard"] = "\u2302", ["combat"] = "\u2694", ["character"] = "\u263A", ["tools"] = "\u2699" };
 
     /// <summary>The name of a top tab with its symbol in front.</summary>
