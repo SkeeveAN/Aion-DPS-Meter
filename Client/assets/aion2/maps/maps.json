@@ -33,9 +33,9 @@
    "table": "Intersever/Abyss/Abyss_Reshanta_A",
    "tile": 1024,
    "grid": 4,
-   "scale": 0.009878286530741168,
-   "offsetX": 2047.1930445744983,
-   "offsetY": 2056.9061147139305,
+   "scale": 0.010046217401763768,
+   "offsetX": 2048.0,
+   "offsetY": 2048.0,
    "tiles": 4
   }
  }

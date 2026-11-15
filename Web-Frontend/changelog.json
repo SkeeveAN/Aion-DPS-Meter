@@ -733,6 +733,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.13: the player and the world line up on the interactive map of Verteron (the map was refitted on the exact positions after teleports to seven statues and the game's own map: the old fit was about 65 m off on average, now about 17 m), the Abyss map is fitted the same way, the Hidden Cube has a cube as its picture instead of the key, and the map can show the game's roads",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
