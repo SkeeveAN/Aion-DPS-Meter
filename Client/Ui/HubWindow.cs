@@ -264,12 +264,28 @@ public sealed class HubWindow : Window
         return brand;
     }
 
+    private static readonly Dictionary<string, string> TabSymbols = new() { ["dashboard"] = "\u2302", ["combat"] = "\u2694", ["character"] = "\u263A", ["tools"] = "\u2699" };
+
+    /// <summary>The name of a top tab with its symbol in front.</summary>
+    private static object TabContent(Section section)
+    {
+        if (!TabSymbols.TryGetValue(section.Id, out string? symbol))
+        {
+            return section.Title;
+        }
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        row.Children.Add(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 17, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center });
+        row.Children.Add(new TextBlock { Text = section.Title, VerticalAlignment = VerticalAlignment.Center });
+        return row;
+    }
+
     private void BuildTabs()
     {
         foreach (Section section in _sections)
         {
             Section s = section;
-            var tab = new RadioButton { GroupName = "HubTabs", Foreground = Muted, Cursor = Cursors.Hand, Tag = s, IsChecked = s == _section, Template = TabTemplate(), Content = s.Title };
+            var tab = new RadioButton { GroupName = "HubTabs", Foreground = Muted, Cursor = Cursors.Hand, Tag = s, IsChecked = s == _section, Template = TabTemplate(), Content = TabContent(s) };
             tab.Checked += (_, _) => ShowSection(s);
             _tabs.Children.Add(tab);
         }
