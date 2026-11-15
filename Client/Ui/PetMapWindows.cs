@@ -486,12 +486,12 @@ public sealed class PetMapWindow : MovableOverlay
     private static Grid NewCubeMark()
     {
         // the gold cube itself, bigger than the places, with a glow that pulses (no frame around it)
-        var cube = new Image { Width = 44, Height = 44, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
+        var cube = new Image { Width = 36, Height = 36, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
         RenderOptions.SetBitmapScalingMode(cube, BitmapScalingMode.HighQuality);
         var glow = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0x70, 0x50), Opacity = 0.8 };
         glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, new System.Windows.Media.Animation.DoubleAnimation(4, 14, TimeSpan.FromMilliseconds(800)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever });
         cube.Effect = glow;
-        var grid = new Grid { Width = 52, Height = 52, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+        var grid = new Grid { Width = 44, Height = 44, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
         Panel.SetZIndex(grid, 5);
         grid.Children.Add(cube);
         return grid;
@@ -780,7 +780,7 @@ public sealed class PetMapWindow : MovableOverlay
                 var shown = _gatherIcons[iconMark++];
                 shown.Source = icon;
                 // the cubes are many and close together: a smaller picture than the other collectibles
-                double side = kind == "Cube" ? 30 : 24;
+                double side = kind == "Cube" ? 24 : 24;
                 shown.Width = shown.Height = side;
                 Canvas.SetLeft(shown, px - side / 2);
                 Canvas.SetTop(shown, py - side / 2);
@@ -833,8 +833,8 @@ public sealed class PetMapWindow : MovableOverlay
                 }
 
                 var cubeVisual = _cubeMarks[cubeMark++];
-                Canvas.SetLeft(cubeVisual, px - 26);
-                Canvas.SetTop(cubeVisual, py - 26);
+                Canvas.SetLeft(cubeVisual, px - 22);
+                Canvas.SetTop(cubeVisual, py - 22);
                 cubeVisual.Visibility = Visibility.Visible;
                 continue;
             }
@@ -894,7 +894,7 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             shownLabel.Inlines.Add(new System.Windows.Documents.Run(" " + metres));
-            Canvas.SetLeft(shownLabel, px + 28);
+            Canvas.SetLeft(shownLabel, px + 24);
             Canvas.SetTop(shownLabel, py - 9);
             shownLabel.Visibility = Visibility.Visible;
         }
