@@ -583,6 +583,31 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 2 && args[0] == "aion2-pet-check")
+        {
+            // aion2-pet-check <recording.jsonl> <character file copy> [pet id ...]: replays with the saved character restored and prints the pets' progress at the end
+            using var petSource = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load(), null, null, args[2]);
+            var petDir = (Aion2.Aion2EntityDirectory)petSource.Entities;
+            DateTime petClock = DateTime.MinValue;
+            petDir.Clock = () => petClock;
+            Console.WriteLine("before: " + string.Join(", ", petDir.LocalPetStates.Where(p => args.Skip(3).Select(int.Parse).Contains(p.PetId)).Select(p => $"{p.PetId} L{p.Level} {p.Progress}")) + $" (list {petDir.LocalPetStates.Count})");
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(args[1]))
+            {
+                bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":13328", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                petClock = segment.Timestamp;
+                petSource.Ingest(segment with { FromServer = fromServer });
+                petSource.Poll(false);
+            }
+
+            Console.WriteLine("after:  " + string.Join(", ", petDir.LocalPetStates.Where(p => args.Skip(3).Select(int.Parse).Contains(p.PetId)).Select(p => $"{p.PetId} L{p.Level} {p.Progress}")) + $" (list {petDir.LocalPetStates.Count}, character {petDir.LocalCharacter?.Name})");
+            return;
+        }
+
         if (args.Length > 3 && args[0] == "aion2-ui-trace")
         {
             // aion2-ui-trace <recording.jsonl> <from HH:mm:ss> <to HH:mm:ss>: the real window logic (never shown), fed in recording time, printing what the meter shows every 2 s
