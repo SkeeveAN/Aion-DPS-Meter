@@ -1,4 +1,4 @@
-"""Draws the picture of the Hidden Cube for the gathering settings and the map: python3 build_cube_icon.py <Client/assets/aion2/maps/gather_icons>
+"""SUPERSEDED by render_cube_model.py (the game's own 3D model); kept only as the hand-drawn fallback. Draws the picture of the Hidden Cube for the gathering settings and the map: python3 build_cube_icon.py <Client/assets/aion2/maps/gather_icons>
 
 The client has no icon of the cube (its item is a key), so this is drawn: a pale stone cube with bone-coloured edges (the game's HiddenCube_01_D texture is grey stone with bone-white bands) seen from a corner, a glowing orange ring
 with six spokes on each of its three faces, and an orange glow around it - as the cube looks in the game. Output: HiddenCube.png (64 px, transparent)."""
