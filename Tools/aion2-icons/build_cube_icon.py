@@ -80,7 +80,7 @@ def main():
     cube = square.resize((int(OUT * 0.88), int(OUT * 0.88)), Image.LANCZOS)
     plate = Image.new("RGBA", (OUT * 4, OUT * 4), (0, 0, 0, 0))
     d = ImageDraw.Draw(plate)
-    d.ellipse([4, 4, OUT * 4 - 5, OUT * 4 - 5], fill=(14, 18, 26, 235), outline=(255, 236, 190, 255), width=8)
+    d.ellipse([4, 4, OUT * 4 - 5, OUT * 4 - 5], fill=(20, 16, 4, 240), outline=(255, 221, 0, 255), width=14)
     plate = plate.resize((OUT, OUT), Image.LANCZOS)
     plate.alpha_composite(cube, ((OUT - cube.width) // 2, (OUT - cube.height) // 2 + 1))
     plate.save(os.path.join(out_dir, "HiddenCube.png"), optimize=True)

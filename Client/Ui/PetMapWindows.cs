@@ -477,6 +477,34 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<string> _roadOrder = new();
 
     private readonly List<TextBlock> _heightLabels = new();
+    private readonly List<Grid> _cubeMarks = new();
+
+    /// <summary>The pseudo pet id the live Hidden Cubes travel under (the controller's own number).</summary>
+    private const int CubeMarkPet = -1;
+
+    /// <summary>The mark of an announced cube: 44 px, a pulsing ring, a dark disc with a thick gold ring and the cube's picture.</summary>
+    private static Grid NewCubeMark()
+    {
+        var pulse = new Ellipse { Width = 44, Height = 44, Stroke = new SolidColorBrush(Color.FromRgb(0xFF, 0xD5, 0x4A)), StrokeThickness = 3, IsHitTestVisible = false, RenderTransformOrigin = new Point(0.5, 0.5), RenderTransform = new ScaleTransform(0.65, 0.65) };
+        var scale = new System.Windows.Media.Animation.DoubleAnimation(0.65, 1.0, TimeSpan.FromMilliseconds(1100)) { RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever };
+        var fade = new System.Windows.Media.Animation.DoubleAnimation(0.95, 0.0, TimeSpan.FromMilliseconds(1100)) { RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever };
+        pulse.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scale);
+        pulse.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scale);
+        pulse.BeginAnimation(UIElement.OpacityProperty, fade);
+        var disc = new Ellipse
+        {
+            Width = 32, Height = 32, Fill = new SolidColorBrush(Color.FromArgb(0xEE, 0x0E, 0x12, 0x1A)), Stroke = new SolidColorBrush(Color.FromRgb(0xFF, 0xD5, 0x4A)), StrokeThickness = 4, IsHitTestVisible = false,
+            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 8, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0xB0, 0x20), Opacity = 0.95 },
+        };
+        var cube = new Image { Width = 24, Height = 24, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
+        RenderOptions.SetBitmapScalingMode(cube, BitmapScalingMode.HighQuality);
+        var grid = new Grid { Width = 44, Height = 44, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+        Panel.SetZIndex(grid, 5);
+        grid.Children.Add(pulse);
+        grid.Children.Add(disc);
+        grid.Children.Add(cube);
+        return grid;
+    }
 
     /// <summary>The Hidden Cubes in view with how much higher (+) or lower (-) they are than the player (world units): drawn as a blue number with an arrow beside the cube.</summary>
     public IReadOnlyList<(float X, float Y, float Dz)> CubeHeights { get; set; } = Array.Empty<(float X, float Y, float Dz)>();
@@ -761,7 +789,7 @@ public sealed class PetMapWindow : MovableOverlay
                 var shown = _gatherIcons[iconMark++];
                 shown.Source = icon;
                 // the cubes are many and close together: a smaller picture than the other collectibles
-                double side = kind == "Cube" ? 22 : 24;
+                double side = kind == "Cube" ? 24 : 24;
                 shown.Width = shown.Height = side;
                 Canvas.SetLeft(shown, px - side / 2);
                 Canvas.SetTop(shown, py - side / 2);
@@ -794,12 +822,29 @@ public sealed class PetMapWindow : MovableOverlay
         }
 
         // the monsters really around the player (announced by the game): large, bright, over the general spawn points
-        int liveDot = 0;
+        int liveDot = 0, cubeMark = 0;
         foreach ((int pet, float x, float y) in live)
         {
             double px = cx + (x - worldX) * ppu, py = cy + (y - worldY) * ppu;
             if (px < 8 || py < 8 || px > vw - 8 || py > vh - 8)
             {
+                continue;
+            }
+
+            if (pet == CubeMarkPet)
+            {
+                // an announced Hidden Cube (in range right now): a large cube picture inside a bright gold ring that pulses, over everything else
+                while (cubeMark >= _cubeMarks.Count)
+                {
+                    var created = NewCubeMark();
+                    _cubeMarks.Add(created);
+                    _canvas.Children.Add(created);
+                }
+
+                var cubeVisual = _cubeMarks[cubeMark++];
+                Canvas.SetLeft(cubeVisual, px - 22);
+                Canvas.SetTop(cubeVisual, py - 22);
+                cubeVisual.Visibility = Visibility.Visible;
                 continue;
             }
 
@@ -820,6 +865,11 @@ public sealed class PetMapWindow : MovableOverlay
         for (int i = liveDot; i < _liveDots.Count; i++)
         {
             _liveDots[i].Visibility = Visibility.Collapsed;
+        }
+
+        for (int i = cubeMark; i < _cubeMarks.Count; i++)
+        {
+            _cubeMarks[i].Visibility = Visibility.Collapsed;
         }
 
         // the height of each cube in view beside its mark: an arrow up or down and the metres (blue)
@@ -852,7 +902,7 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             shownLabel.Inlines.Add(new System.Windows.Documents.Run(" " + metres));
-            Canvas.SetLeft(shownLabel, px + 12);
+            Canvas.SetLeft(shownLabel, px + 25);
             Canvas.SetTop(shownLabel, py - 9);
             shownLabel.Visibility = Visibility.Visible;
         }
