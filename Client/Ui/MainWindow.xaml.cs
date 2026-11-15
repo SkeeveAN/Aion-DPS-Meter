@@ -6293,11 +6293,8 @@ public partial class MainWindow : Window
             WidgetKind.MeterModeChanged -= follow;
             styleTimer.Stop();
         };
-        // the rows of the chips are drawn on the colour of the theme's controls, not on the dark overlay colour that suits the game
-        if (Application.Current?.TryFindResource("Brush.Control") is SolidColorBrush control)
-        {
-            stack.Resources["Brush.OverlayBg"] = new SolidColorBrush(control.Color);
-        }
+        // the part of a row that is not the damage bar is see-through: the widget's own background (the design editor's colour) shows, not the dark overlay colour that suits the game
+        stack.Resources["Brush.OverlayBg"] = Brushes.Transparent;
 
         stack.Children.Add(body);
         stack.Children.Add(modeHost); // below the list, so the data always begins at the same place, with the designer on or off
