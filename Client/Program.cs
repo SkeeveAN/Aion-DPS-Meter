@@ -576,6 +576,13 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 2 && args[0] == "aion2-meter-data")
+        {
+            // aion2-meter-data <recording.jsonl> <out.json> [from HH:mm:ss] [to HH:mm:ss]: the totals of all sessions and, per boss, the last attempt of the instance (for the design picture of two meters)
+            RunAion2MeterDataMode(args[1], args[2], args.Length > 3 ? TimeSpan.Parse(args[3]) : TimeSpan.Zero, args.Length > 4 ? TimeSpan.Parse(args[4]) : TimeSpan.FromDays(1));
+            return;
+        }
+
         if (args.Length > 3 && args[0] == "aion2-ui-trace")
         {
             // aion2-ui-trace <recording.jsonl> <from HH:mm:ss> <to HH:mm:ss>: the real window logic (never shown), fed in recording time, printing what the meter shows every 2 s
@@ -2677,6 +2684,76 @@ internal static class Program
         Console.WriteLine($"aion2-upload-dryrun: {sent} of {sendOnly.Length} requested upload(s) sent.");
         Environment.Exit(0);
     }
+
+    private static void RunAion2MeterDataMode(string path, string outPath, TimeSpan from, TimeSpan to)
+    {
+        var protocol = Aion2.Protocol.Aion2Protocol.Load();
+        using var source = new Aion2.Aion2PacketCombatSource(protocol);
+        var directory = (Aion2.Aion2EntityDirectory)source.Entities;
+        DateTime clock = DateTime.MinValue;
+        directory.Clock = () => clock;
+        var events = new List<Combat.DamageEvent>();
+        foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+        {
+            bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);
+            if (!fromServer && !segment.Destination.EndsWith(":13328", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            clock = segment.Timestamp;
+            source.Ingest(segment with { FromServer = fromServer });
+            events.AddRange(source.Poll(false).Damage.Where(e => !e.IsHeal));
+        }
+
+        object Rows(IEnumerable<Combat.DamageEvent> hits, double seconds)
+        {
+            var list = hits.Where(e => directory.IsKnownPlayer(e.SourceObjectId) && directory.NameFor(e.SourceObjectId) is not null).GroupBy(e => e.SourceObjectId)
+                .Select(g => new { id = g.Key, name = directory.NameFor(g.Key)!, cls = directory.ClassOf(g.Key) ?? "", damage = g.Sum(e => (long)e.Amount), active = g.Select(e => (long)(e.Timestamp - DateTime.MinValue).TotalSeconds).Distinct().Count() })
+                .OrderByDescending(r => r.damage).ToList();
+            long total = list.Sum(r => r.damage);
+            return list.Select(r => new { r.name, cls = r.cls, r.damage, dps = seconds > 0 ? r.damage / seconds : (r.active > 0 ? (double)r.damage / r.active : 0), share = total > 0 ? 100.0 * r.damage / total : 0 }).ToList();
+        }
+
+        var inWindow = events.Where(e => e.Timestamp.TimeOfDay >= from && e.Timestamp.TimeOfDay <= to).ToList();
+        double allSeconds = inWindow.Count > 1 ? (inWindow.Max(e => e.Timestamp) - inWindow.Min(e => e.Timestamp)).TotalSeconds : 0;
+        var all = Rows(inWindow, 0);
+        var bosses = new List<object>();
+        foreach ((int bossId, _) in directory.KnownBosses())
+        {
+            var onBoss = inWindow.Where(e => e.TargetObjectId == bossId).ToList();
+            if (onBoss.Count < 50)
+            {
+                continue;
+            }
+
+            var resets = directory.HitPoints.ResetsOf(bossId);
+            DateTime? runFrom = resets.Count > 0 ? resets[^1] : null;
+            var run = BossFightRun(inWindow, bossId, runFrom, directory);
+            if (run.Count == 0)
+            {
+                continue;
+            }
+
+            var bossHits = run.Where(e => e.TargetObjectId == bossId).ToList();
+            DateTime first = bossHits.Min(e => e.Timestamp), last = bossHits.Max(e => e.Timestamp);
+            double seconds = (last - first).TotalSeconds;
+            long highest = directory.HitPoints.HighestSeen(bossId) ?? 0;
+            long latest = directory.HitPoints.Latest(bossId)?.Hp ?? 0;
+            bosses.Add(new
+            {
+                name = directory.MonsterNameFor(bossId) ?? "?", first = first.ToString("HH:mm:ss"), last = last.ToString("HH:mm:ss"), seconds,
+                killed = latest <= 0, remainingPercent = highest > 0 ? 100.0 * latest / highest : 0, attempts = resets.Count(r => r >= inWindow.Min(e => e.Timestamp)) + 1,
+                total = run.Sum(e => (long)e.Amount), rows = Rows(run, seconds),
+            });
+        }
+
+        File.WriteAllText(outPath, System.Text.Json.JsonSerializer.Serialize(new { all, allSeconds, bosses = bosses.OrderBy(b => ((dynamic)b).first).Reverse().ToList() }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        Console.WriteLine($"aion2-meter-data: {inWindow.Count} hits, {bosses.Count} bosses -> {outPath}");
+    }
+
+    private static List<Combat.DamageEvent> BossFightRun(List<Combat.DamageEvent> events, int bossId, DateTime? from, Aion2.Aion2EntityDirectory directory)
+        => Combat.BossFight.ShownHits(events, bossId, from, from is null ? null : DateTime.MaxValue, id => directory.BossNpcIdOf(id) is not null, id => directory.IsKnownMonster(id));
 
     private static void RunAion2UiTraceMode(string path, TimeSpan from, TimeSpan to)
     {

@@ -87,6 +87,12 @@ public static class ToolRender
 
                 var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, PanelOfSettings, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
                     () => new HubStatus(parts.Length < 4 || parts[3] != "off", "Aahz", "Gladiator", "Kaisinel (EU)"));
+                if (Environment.GetEnvironmentVariable("AIONDPS_HUB_SIZE") is { Length: > 0 } size && size.Split('x') is { Length: 2 } wh)
+                {
+                    hubWindow.Width = double.Parse(wh[0]);
+                    hubWindow.Height = double.Parse(wh[1]);
+                }
+
                 hubWindow.MeterView = () => new TextBlock { Text = "(the list of the meter as it is shown)", Foreground = Brushes.Gray, Margin = new Thickness(0, 6, 0, 0) };
                 if (parts.Length >= 3)
                 {
@@ -171,6 +177,11 @@ public static class ToolRender
 
     private static ToolPage LivePage()
     {
+        if (Environment.GetEnvironmentVariable("AIONDPS_LIVEMOCK") is { Length: > 0 } mockData)
+        {
+            return LiveMeterMock.Build(mockData);
+        }
+
         var rows = new System.Collections.ObjectModel.ObservableCollection<PlayerRow>();
         (string Name, string Class, long Damage, double Dps, double Fill, double Share)[] sample =
         {

@@ -11,7 +11,7 @@ namespace AionDPS.Ui;
 /// </summary>
 public static class LiveMeterPage
 {
-    private const string RowXaml = @"
+    internal const string RowXaml = @"
 <DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'>
   <Grid Margin='0,3,0,3'>
     <Grid.ColumnDefinitions>
