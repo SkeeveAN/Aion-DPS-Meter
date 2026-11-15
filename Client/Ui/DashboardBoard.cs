@@ -368,7 +368,7 @@ public sealed class DashboardBoard : DockPanel
         ((TextBlock)grip.Child).SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
         // the corner to pull stands at the very edge of the frame, not inside the content
         inner.Margin = new Thickness(14, 10, 14, 16);
-        grip.Margin = new Thickness(0, 0, 2, 0);
+        grip.Margin = new Thickness(0, 0, -1, 0);
         ((TextBlock)grip.Child).Margin = new Thickness(0, 0, 0, -3);
         var cell = new Grid();
         cell.Children.Add(inner);
