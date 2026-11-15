@@ -712,6 +712,13 @@
      "Client"
     ],
     "date": "2026-11-14"
+   },
+   {
+    "text": "Release 2.0.0-beta.10: the tools menu has a symbol before every name; the interactive map shows the pictures the game shows for the collectibles (in the gathering settings and on the map); the DPS meter page has the tabs Display and Settings, with the button that opens the meter in a window of its own; the Configuration button of the tool pages is gone (the Settings tab has it)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
