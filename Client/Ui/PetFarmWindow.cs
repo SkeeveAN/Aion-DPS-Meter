@@ -16,7 +16,8 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class PetFarmWindow : MovableOverlay
 {
-    private readonly StackPanel _lines = new();
+    // the lines stand in the middle of the frame, also when the frame is pulled wider or higher than the text
+    private readonly StackPanel _lines = new() { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Center };
     private IReadOnlyList<(string Pet, string Level)> _current = Array.Empty<(string, string)>();
 
     public PetFarmWindow() : base(OverlayPlaces.PetInfo, new Border(), Load, Save, SystemParameters.WorkArea.Width / 2 - 60, 140, LoadSize, SaveSize, OverlayEdgeMode.Uniform)
@@ -101,10 +102,19 @@ public sealed class PetFarmWindow : MovableOverlay
         }
 
         _lines.Children.Clear();
-        var rows = placeholder ? new[] { (LocalizationManager.Instance["PetFarm.Placeholder"], "") } : _current.ToArray();
-        foreach ((string pet, string level) in rows)
+        if (placeholder)
         {
-            _lines.Children.Add(BuildRow(pet, level));
+            // the hint wraps and is centred in the frame
+            var hint = new TextBlock { Text = LocalizationManager.Instance["PetFarm.Placeholder"], FontWeight = FontWeights.Bold, FontSize = 13, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Stretch };
+            hint.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
+            _lines.Children.Add(hint);
+        }
+        else
+        {
+            foreach ((string pet, string level) in _current)
+            {
+                _lines.Children.Add(BuildRow(pet, level));
+            }
         }
 
         ShowOverlay(true);
