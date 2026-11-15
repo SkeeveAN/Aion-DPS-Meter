@@ -726,6 +726,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.12: the interactive map can show the roads the game lays over its world maps (Verteron, Altgard, Abyss) - the switch \"Show the roads on the map\" in the settings of the map chooses the map with or without them, on the overlay and in the window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
