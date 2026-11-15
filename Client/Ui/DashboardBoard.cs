@@ -366,10 +366,13 @@ public sealed class DashboardBoard : DockPanel
         var grip = new Border { Width = 16, Height = 16, Cursor = Cursors.SizeNWSE, Background = Brushes.Transparent, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom,
             Child = new TextBlock { Text = "◢", FontSize = 11, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom } };
         ((TextBlock)grip.Child).SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        // the corner to pull stands at the very edge of the frame, not inside the content
+        inner.Margin = new Thickness(14, 10, 14, 16);
+        grip.Margin = new Thickness(0, 0, 2, 2);
         var cell = new Grid();
         cell.Children.Add(inner);
         cell.Children.Add(grip);
-        var frame = new Border { Width = place.W, Height = place.H, Padding = new Thickness(14, 10, 14, 12), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Child = cell };
+        var frame = new Border { Width = place.W, Height = place.H, CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Child = cell };
         frame.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
         frame.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
         Canvas.SetLeft(frame, place.X);
