@@ -527,8 +527,8 @@ internal static class Program
             var directory = (Aion2.Aion2EntityDirectory)source.Entities;
             DateTime clock = DateTime.MinValue;
             directory.Clock = () => clock;
-            directory.PositionProbe += p => Console.WriteLine($"{p.Now:HH:mm:ss.fff} {p.X:0} {p.Y:0}");
-            directory.SpawnProbe += (now, x, y) => Console.WriteLine($"{now:HH:mm:ss.fff} SPAWN {x:0} {y:0}");
+            directory.PositionProbe += p => Console.WriteLine($"{p.Now:HH:mm:ss.fff} {p.X:0} {p.Y:0} z {(directory.PlayerHeight is { } h ? h.Z.ToString("0") : "-")}");
+            directory.SpawnProbe += (now, x, y) => Console.WriteLine($"{now:HH:mm:ss.fff} SPAWN {x:0} {y:0} z {(directory.PlayerHeight is { } h ? h.Z.ToString("0") : "-")}");
             foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(args[1]))
             {
                 bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);
@@ -2735,7 +2735,10 @@ internal static class Program
         var pets = points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
         var colors = pets.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => Ui.PetMapPalette.Of(t.i));
         var window = new Ui.PetMapWindow();
-        if (guards && window.Content is System.Windows.UIElement root)
+        // AIONDPS_CUBES="dx,dy,dz;..." (metres from the player): sample Hidden Cubes with their heights, for the test picture
+        var sampleCubes = (Environment.GetEnvironmentVariable("AIONDPS_CUBES") ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Select(t => t.Split(',').Select(v => double.Parse(v, System.Globalization.CultureInfo.InvariantCulture)).ToArray()).Where(a => a.Length == 3).ToList();
+        if ((guards || sampleCubes.Count > 0) && window.Content is System.Windows.UIElement root)
         {
             // never shown: lay the frame out once so that the map knows how much of itself is visible
             root.Measure(new System.Windows.Size(Ui.PetMapWindow.ViewSize, Ui.PetMapWindow.ViewSize));
@@ -2748,6 +2751,13 @@ internal static class Program
         window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors,
             Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.Items().Where(i => i.Count > 0).Select(i => i.Key).ToHashSet()),
             guards: guards ? new List<(float X, float Y)> { ((float)x + 1500, (float)y + 700), ((float)x - 1200, (float)y - 400), ((float)x - 30000, (float)y + 5000), ((float)x + 9000, (float)y - 21000) } : null);
+        if (sampleCubes.Count > 0)
+        {
+            window.CubeHeights = sampleCubes.Select(a => ((float)(x + a[0] * 100), (float)(y + a[1] * 100), (float)(a[2] * 100))).ToList();
+            colors[-1] = System.Windows.Media.Colors.Gold;
+            window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), sampleCubes.Select(a => (-1, (float)(x + a[0] * 100), (float)(y + a[1] * 100))).ToList(), colors, null);
+        }
+
         var list = new Ui.PetListWindow();
         list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "en") ?? "?", "Level 2 · 22/75", "104 m", false)).ToList());
         var visual = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)) };

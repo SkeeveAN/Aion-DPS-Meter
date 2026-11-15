@@ -329,7 +329,7 @@ public sealed class PetMapController : IDisposable
         }
 
         var directory = _directory();
-        var cubes = directory?.LiveCubes() ?? Array.Empty<(float X, float Y)>();
+        var cubes = directory?.LiveCubesWithHeight() ?? Array.Empty<(float X, float Y, float Z)>();
         if (cubes.Count == 0)
         {
             return;
@@ -337,7 +337,14 @@ public sealed class PetMapController : IDisposable
 
         if (directory!.BestPosition is { } me && DateTime.UtcNow - me.At < TimeSpan.FromSeconds(5))
         {
-            double meters = cubes.Min(c => Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y))) / 100.0;
+            // the height counts too: a cube two floors above or below is not "close" (the own height is known from his casts and moves, a minute old at most; without it the flat distance)
+            bool heightKnown = directory.PlayerHeight is { } own && DateTime.UtcNow - own.At < TimeSpan.FromSeconds(60);
+            float ownZ = heightKnown ? directory.PlayerHeight!.Value.Z : 0;
+            double meters = cubes.Min(c =>
+            {
+                double dz = heightKnown ? c.Z - ownZ : 0;
+                return Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y) + dz * dz);
+            }) / 100.0;
             _lastCubeInterval = Math.Clamp(0.15 + (meters - 3) / 97.0 * 2.35, 0.15, 2.5);
             _lastCubeFixAt = DateTime.UtcNow;
         }
@@ -503,14 +510,21 @@ public sealed class PetMapController : IDisposable
         // within the range the game announces monsters in, a spawn point without a monster is empty (killed, not respawned, or never there): only the announced monsters count there
         _pointsShown = known ? _points.Where(p => (p.X - tx) * (double)(p.X - tx) + (p.Y - ty) * (double)(p.Y - ty) >= MobRange * MobRange).ToList() : _points;
         // the Hidden Cubes in range (the game announces them only when the player is near): large gold dots like the live monsters, when the map shows cubes
+        List<(float X, float Y, float Dz)> cubeHeights = new();
         if (gatherKinds.Contains("Hidden Cube") && known)
         {
             live.AddRange(directory!.LiveCubes().Select(c => (CubePet, c.X, c.Y)));
             colors[CubePet] = PetMapPalette.OfGather("Cube");
+            // how much higher (+) or lower (-) each cube is than the player, in world units; only while his height is known
+            if (directory.PlayerHeight is { } own && DateTime.UtcNow - own.At < TimeSpan.FromSeconds(60))
+            {
+                cubeHeights = directory.LiveCubesWithHeight().Select(c => (c.X, c.Y, c.Z - own.Z)).ToList();
+            }
         }
 
         _map.MeHeading = _heading;
         _map.ShowRoads = settings.PetMapRoads;
+        _map.CubeHeights = cubeHeights;
         if (_current is not null)
         {
             // the militia guards, on the open maps of the other side only (they are friendly at home)
@@ -520,6 +534,7 @@ public sealed class PetMapController : IDisposable
             {
                 view.MeHeading = _heading;
                 view.ShowRoads = settings.PetMapRoads;
+                view.CubeHeights = cubeHeights;
                 view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _pointsShown, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             }
             ShowMap(true);

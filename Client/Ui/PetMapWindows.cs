@@ -476,6 +476,11 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly Dictionary<string, BitmapSource?> _roads = new();
     private readonly List<string> _roadOrder = new();
 
+    private readonly List<TextBlock> _heightLabels = new();
+
+    /// <summary>The Hidden Cubes in view with how much higher (+) or lower (-) they are than the player (world units): drawn as a blue number with an arrow beside the cube.</summary>
+    public IReadOnlyList<(float X, float Y, float Dz)> CubeHeights { get; set; } = Array.Empty<(float X, float Y, float Dz)>();
+
     /// <summary>Lay the roads of the game over the map (the yellow lines); off shows the bare ground.</summary>
     public bool ShowRoads { get; set; } = true;
     private readonly List<Ellipse> _dots = new();
@@ -812,6 +817,46 @@ public sealed class PetMapWindow : MovableOverlay
         for (int i = liveDot; i < _liveDots.Count; i++)
         {
             _liveDots[i].Visibility = Visibility.Collapsed;
+        }
+
+        // the height of each cube in view beside its mark: an arrow up or down and the metres (blue)
+        int heightMark = 0;
+        foreach ((float x, float y, float dz) in CubeHeights)
+        {
+            double px = cx + (x - worldX) * ppu, py = cy + (y - worldY) * ppu;
+            if (px < 8 || py < 8 || px > vw - 8 || py > vh - 8)
+            {
+                continue;
+            }
+
+            if (heightMark >= _heightLabels.Count)
+            {
+                var label = new TextBlock
+                {
+                    FontSize = 13, FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(0x5A, 0xB4, 0xFF)), IsHitTestVisible = false,
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 3, ShadowDepth = 0, Color = Colors.Black, Opacity = 1 },
+                };
+                _heightLabels.Add(label);
+                _canvas.Children.Add(label);
+            }
+
+            var shownLabel = _heightLabels[heightMark++];
+            int metres = (int)Math.Round(Math.Abs(dz) / 100.0);
+            shownLabel.Inlines.Clear();
+            if (metres > 0)
+            {
+                shownLabel.Inlines.Add(new System.Windows.Documents.Run(dz > 0 ? "\u25B2" : "\u25BC") { FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 10 });
+            }
+
+            shownLabel.Inlines.Add(new System.Windows.Documents.Run(" " + metres));
+            Canvas.SetLeft(shownLabel, px + 12);
+            Canvas.SetTop(shownLabel, py - 9);
+            shownLabel.Visibility = Visibility.Visible;
+        }
+
+        for (int i = heightMark; i < _heightLabels.Count; i++)
+        {
+            _heightLabels[i].Visibility = Visibility.Collapsed;
         }
 
         // a chosen pet with nothing in view: an arrow on the edge, in its colour, towards its nearest spawn point

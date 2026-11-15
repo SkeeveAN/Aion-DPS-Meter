@@ -803,10 +803,29 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         return Math.Sqrt(dx * dx + dy * dy) <= 3000 + 1000 * seconds;
     }
 
-    public void NoteLocalPosition(float x, float y)
+    /// <summary>The player's height (world units, 100 = 1 m) from the last report that carried one (an effect he cast, a position or zone frame), and when.</summary>
+    public (float Z, DateTime At)? PlayerHeight
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _playerZ;
+            }
+        }
+    }
+
+    private (float Z, DateTime At)? _playerZ;
+
+    public void NoteLocalPosition(float x, float y, float z = float.NaN)
     {
         lock (_gate)
         {
+            if (float.IsFinite(z))
+            {
+                _playerZ = (z, Now);
+            }
+
             if (PositionProbe is { } probe && _position is { } before && EnvironmentEstimateLocked(Now) is { } env)
             {
                 probe(((Now - before.At).TotalSeconds, Distance(before.X, before.Y, x, y), Distance(env.X, env.Y, x, y), env.Count, Now, x, y));
@@ -824,11 +843,16 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// <summary>Where a zone frame put the player (a teleport or a loading screen): an exact place, but of the new zone, so a map change keeps it.</summary>
     public event Action<DateTime, float, float>? SpawnProbe;
 
-    public void NoteSpawnPosition(float x, float y)
+    public void NoteSpawnPosition(float x, float y, float z = float.NaN)
     {
         SpawnProbe?.Invoke(Now, x, y);
         lock (_gate)
         {
+            if (float.IsFinite(z))
+            {
+                _playerZ = (z, Now);
+            }
+
             _position = (x, y, Now);
             _positionIsSpawn = true;
             _around.Clear();
@@ -1021,6 +1045,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     /// <summary>The Hidden Cubes in range right now.</summary>
     public IReadOnlyList<(float X, float Y)> LiveCubes() => LiveEnv().Where(e => e.Kind == "Cube").Select(e => (e.X, e.Y)).ToArray();
+
+    /// <summary>The Hidden Cubes in range right now with their height (the game announces it with the place).</summary>
+    public IReadOnlyList<(float X, float Y, float Z)> LiveCubesWithHeight()
+    {
+        lock (_gate)
+        {
+            return _env.Values.Where(c => c.Kind == "Cube" && c.State != EnvState.OutOfSight).Select(c => (c.X, c.Y, c.Z)).ToArray();
+        }
+    }
 
     public IReadOnlyList<(int NpcId, float X, float Y)> RecentMobPositions()
     {

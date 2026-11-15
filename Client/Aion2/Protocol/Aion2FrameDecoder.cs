@@ -240,7 +240,8 @@ public sealed class Aion2FrameDecoder
         // action (checked on a recording: it matched the first effect frame and the monsters announced around him). The pet map starts from it.
         if (place is { } spawn && float.IsFinite(spawn.X) && float.IsFinite(spawn.Y) && Math.Abs(spawn.X) is > 100 and < 500_000 && Math.Abs(spawn.Y) is > 100 and < 500_000)
         {
-            _entities.NoteSpawnPosition(spawn.X, spawn.Y);
+            float spawnZ = frame.Length >= 30 ? BinaryPrimitives.ReadSingleLittleEndian(frame[26..]) : float.NaN;
+            _entities.NoteSpawnPosition(spawn.X, spawn.Y, float.IsFinite(spawnZ) && Math.Abs(spawnZ) < 50_000 ? spawnZ : float.NaN);
         }
 
         if (zoneId == CurrentZoneId)
@@ -2294,7 +2295,7 @@ public sealed class Aion2FrameDecoder
             float z = BinaryPrimitives.ReadSingleLittleEndian(frame[^4..]);
             if (float.IsFinite(x) && float.IsFinite(y) && float.IsFinite(z) && Math.Abs(x) is > 100 and < 500_000 && Math.Abs(y) is > 100 and < 500_000 && Math.Abs(z) < 50_000)
             {
-                _entities.NoteLocalPosition(x, y);
+                _entities.NoteLocalPosition(x, y, z);
                 _entities.Combat.NotePosition(timestamp, (int)caster, x, y);
             }
         }
@@ -2598,7 +2599,9 @@ public sealed class Aion2FrameDecoder
         float y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 5)..]);
         if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) < 1_000_000 && Math.Abs(y) < 1_000_000)
         {
-            _entities.NoteLocalPosition(x, y);
+            // the height follows the two floats when the frame is long enough to hold it
+            float z = frame.Length >= p + 13 ? BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 9)..]) : float.NaN;
+            _entities.NoteLocalPosition(x, y, float.IsFinite(z) && Math.Abs(z) < 50_000 ? z : float.NaN);
             _entities.Combat.NotePosition(timestamp, (int)entityId, x, y);
         }
     }
