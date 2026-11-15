@@ -184,6 +184,9 @@ public static class HubDashboard
         TicketValue Value(int id) => me is not null && me.Tickets.TryGetValue(id, out TicketValue v) ? v : default;
         TicketDef? ode = Aion2Tickets.Find(Aion2Tickets.OdyleId);
         bool mock = me is null;
+        // the cap is the member's one while the membership runs (Odyle energy 840, else 560), as the checklist counts it; with no word on the membership it counts as running
+        bool premium = me is null || Aion2Tickets.HasPremium(me, DateTime.UtcNow) != false;
+        int CapOf(TicketDef def) => premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
         if (mock)
         {
             stack.Children.Add(MockTag());
@@ -191,9 +194,10 @@ public static class HubDashboard
 
         if (ode is not null)
         {
-            TicketValue o = mock ? new TicketValue(Math.Max(1, ode.Max * 6 / 10), Math.Max(1, ode.Max / 10), 0) : Value(ode.Id);
-            stack.Children.Add(Line(ode.ShortIn(loc.Language), $"{o.Count} (+{o.Bonus}) / {ode.Max}"));
-            var bar = new ProgressBar { Height = 8, Maximum = 100, Value = ode.Max > 0 ? Math.Min(100.0, o.Count * 100.0 / ode.Max) : 0, BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8) };
+            int odeCap = CapOf(ode);
+            TicketValue o = mock ? new TicketValue(Math.Max(1, odeCap * 6 / 10), Math.Max(1, odeCap / 10), 0) : Value(ode.Id);
+            stack.Children.Add(Line(ode.ShortIn(loc.Language), $"{o.Count} (+{o.Bonus}) / {odeCap}"));
+            var bar = new ProgressBar { Height = 8, Maximum = 100, Value = odeCap > 0 ? Math.Min(100.0, o.Count * 100.0 / odeCap) : 0, BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8) };
             bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
             bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
             stack.Children.Add(bar);
@@ -208,7 +212,7 @@ public static class HubDashboard
 
                 TicketValue v = mock ? new TicketValue(sample[n], 0, 0) : Value(id);
                 n++;
-                int cap = def.SubscribeMax > 0 ? def.SubscribeMax : def.Max;
+                int cap = CapOf(def);
                 stack.Children.Add(Line(def.ShortIn(loc.Language), $"{v.Count} / {cap}", false, v.Count > 0 ? "Brush.Accent" : "Brush.TextMuted"));
             }
         }
