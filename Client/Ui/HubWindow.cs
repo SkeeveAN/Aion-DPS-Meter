@@ -737,7 +737,7 @@ public sealed class HubWindow : Window
 
     internal void SelectToolSettingsForRender() => _toolSettingsTab?.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, true);
 
-    private UIElement WithSettingsTab(string tool, UIElement view)
+    private UIElement WithSettingsTab(string tool, UIElement view, ToolPage? ownSettings = null)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         ToolPage? settings = null;
@@ -776,6 +776,7 @@ public sealed class HubWindow : Window
             }
         }
 
+        settings = ownSettings;
         var settingsTab = Tab(loc["Hub.Tab.Options"], false, () =>
         {
             settings ??= _build("hub.cfg." + tool);
@@ -783,12 +784,32 @@ public sealed class HubWindow : Window
         });
         _toolSettingsTab = settingsTab;
         strip.Children.Add(settingsTab);
-        var inner = _page;
+        var inner = ownSettings is null ? _page : null;
         _page = new ToolPage { Content = view, CurrentTab = inner?.CurrentTab, Cleanup = () => { inner?.Cleanup?.Invoke(); settings?.Cleanup?.Invoke(); foreach (ToolPage extra in extraPages) { extra.Cleanup?.Invoke(); } } };
         var dock = new DockPanel();
         DockPanel.SetDock(line, Dock.Top);
         dock.Children.Add(line);
         dock.Children.Add(shown);
+        return dock;
+    }
+
+    /// <summary>The View tab of the DPS meter: the list the meter overlay draws, with the button that opens it in a window of its own.</summary>
+    private UIElement MeterPageView()
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var popout = new TextBlock { Text = "\u29C9", Cursor = Cursors.Hand, FontSize = 16, Margin = new Thickness(0, 0, 4, 0), ToolTip = loc["Hub.Dash.Popout"], HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+        popout.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        popout.MouseLeftButtonUp += (_, _) => WidgetPopoutWindow.Show("meter", Sources());
+        var head = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
+        var title = new TextBlock { Text = loc["Settings.Nav.Meter"], FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
+        title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+        DockPanel.SetDock(popout, Dock.Right);
+        head.Children.Add(popout);
+        head.Children.Add(title);
+        var dock = new DockPanel { Margin = new Thickness(14, 10, 14, 14) };
+        DockPanel.SetDock(head, Dock.Top);
+        dock.Children.Add(head);
+        dock.Children.Add(MeterView?.Invoke() ?? new TextBlock { Text = "–" });
         return dock;
     }
 
@@ -838,7 +859,12 @@ public sealed class HubWindow : Window
 
                 UIElement content = content0;
                 // every tool has two tabs: what it shows, and its settings (the switch that takes it out of the menus and its own cards)
-                if (ToolSwitch.All.Any(t => t.Id == entry.Target) && entry.Target != "analyzer")
+                if (entry.Id == "client.meter" && MeterView is not null)
+                {
+                    // the DPS meter: its list as the live widget shows it (with the window button) and the settings of the meter as the second tab
+                    content = WithSettingsTab("client.meter", MeterPageView(), _page);
+                }
+                else if (ToolSwitch.All.Any(t => t.Id == entry.Target) && entry.Target != "analyzer")
                 {
                     content = WithSettingsTab(entry.Target, content);
                 }

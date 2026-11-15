@@ -5,8 +5,8 @@ Usage:  python3 build_gather_icons.py <decoded Item.json> <raw texture dir> <cli
 
 The key of a collectible is its English object name (maps/gather.json). Its item is the one of that name (or "<name> Ore", "<name> Log", "<name> Gemstone"); the
 item's IconRes names the texture. Textures come from the already converted icons (craft/icons, items/icons) or, where those lack one, from the raw packages dumped with
-`Extract <Paks> dump <outdir> <icon name>` (single-mip DXT, see build_craft_icons.py). An item whose texture the client does not have (Food_L_c_002, _005) borrows the
-nearest food icon, and the map falls back to the coloured diamond for anything without an icon.
+`Extract <Paks> dump <outdir> <icon name>` (single-mip DXT, see build_craft_icons.py). An item whose texture the client does not have (Food_L_c_002, _005) uses the picture the conversion menu shows (Icon_Gather_*);
+the map falls back to the coloured diamond for anything without an icon.
 """
 import json
 import os
@@ -45,8 +45,8 @@ def convert(path):
 
 
 
-# the textures the client does not have: the nearest of the same family
-STAND_IN = {"Icon_Item_Gather_Food_L_c_002": "Icon_Item_Gather_Food_L_c_001", "Icon_Item_Gather_Food_L_c_005": "Icon_Item_Gather_Food_L_c_006"}
+# the two food items whose Icon_Item texture the client lacks show the Icon_Gather_* picture in the conversion menu (dump those two next to the others first)
+STAND_IN = {"Icon_Item_Gather_Food_L_c_002": "Icon_Gather_Fruit_L_lv2_01a", "Icon_Item_Gather_Food_L_c_005": "Icon_Gather_Food_L_lv1_01c"}
 SPECIAL = {"Hidden Cube": "Icon_Item_Currency_Treasure_Key_A_s_001", "Empyrean Trace: Verteron": "Icon_Item_Monolith_Material_L_001"}
 
 
@@ -97,4 +97,5 @@ def main():
     print(len(mapping), 'of', len(keys), 'collectibles have an icon')
 
 
-main()
+if __name__ == "__main__":
+    main()

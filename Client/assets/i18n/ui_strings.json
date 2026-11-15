@@ -11369,16 +11369,16 @@
     "zh-TW": "全部"
   },
   "Craft.Empty": {
-    "en": "No recipes marked yet. Open the configuration (button above) and mark the recipes you want to craft.",
-    "de": "Noch keine Rezepte markiert. Öffne die Konfiguration (Knopf oben) und markiere die Rezepte, die du herstellen willst.",
-    "fr": "Aucune recette marquée pour l'instant. Ouvrez la configuration (bouton ci-dessus) et marquez les recettes que vous voulez fabriquer.",
-    "es": "Aún no hay recetas marcadas. Abre la configuración (botón de arriba) y marca las recetas que quieres fabricar.",
-    "ru": "Рецепты пока не отмечены. Откройте настройки (кнопка выше) и отметьте рецепты, которые хотите создать.",
-    "pt": "Nenhuma receita marcada ainda. Abra a configuração (botão acima) e marque as receitas que você quer fabricar.",
-    "ja": "マークされたレシピはまだありません。設定（上のボタン）を開いて、作りたいレシピをマークしてください。",
-    "ko": "아직 표시한 레시피가 없습니다. 설정(위 버튼)을 열고 만들고 싶은 레시피를 표시하세요.",
-    "zh": "尚未标记任何配方。请打开配置（上方按钮），标记您想制作的配方。",
-    "zh-TW": "尚未標記任何配方。請開啟設定（上方按鈕），標記您想製作的配方。"
+    "en": "No recipes marked yet. Open the Settings tab and mark the recipes you want to craft.",
+    "de": "Noch keine Rezepte markiert. Öffne den Reiter „Einstellungen“ und markiere die Rezepte, die du herstellen willst.",
+    "fr": "Aucune recette marquée pour l'instant. Ouvrez l'onglet « Paramètres » et marquez les recettes que vous voulez fabriquer.",
+    "es": "Aún no hay recetas marcadas. Abre la pestaña «Ajustes» y marca las recetas que quieres fabricar.",
+    "ru": "Рецепты пока не отмечены. Откройте вкладку «Настройки» и отметьте рецепты, которые хотите создать.",
+    "pt": "Nenhuma receita marcada ainda. Abra a aba «Configurações» e marque as receitas que você quer fabricar.",
+    "ja": "マークされたレシピはまだありません。「設定」タブを開いて、作りたいレシピをマークしてください。",
+    "ko": "아직 표시한 레시피가 없습니다. '설정' 탭을 열고 만들고 싶은 레시피를 표시하세요.",
+    "zh": "尚未标记任何配方。请打开“设置”标签页，标记您想制作的配方。",
+    "zh-TW": "尚未標記任何配方。請開啟「設定」分頁，標記您想製作的配方。"
   },
   "Craft.AlsoMake": {
     "en": "Also craft:",

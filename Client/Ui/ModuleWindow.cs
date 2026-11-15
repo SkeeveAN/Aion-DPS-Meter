@@ -58,24 +58,7 @@ public sealed class ModulePage : DockPanel
         _key.MinHeight = 26;
         _key.ToolTip = loc["Settings.Hotkey.ChipTip"];
         _key.Click += (_, _) => openHotkeys();
-        var cogLabel = new StackPanel { Orientation = Orientation.Horizontal };
-        var cogIcon = new TextBlock { Text = "\uE713", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, VerticalAlignment = VerticalAlignment.Center };
-        var cogText = new TextBlock { Text = loc["Settings.Configuration"], Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-        cogIcon.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-        cogText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-        cogLabel.Children.Add(cogIcon);
-        cogLabel.Children.Add(cogText);
-        var cog = new Button
-        {
-            Content = cogLabel, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(8, 2, 10, 2), MinHeight = 26, ToolTip = loc["Settings.WindowTitle"],
-        };
-        cog.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
-        cog.Click += (_, _) => openSettings?.Invoke();
         right.Children.Add(_key);
-        if (openSettings is not null && config is null)
-        {
-            right.Children.Add(cog);
-        }
 
         // the overlay switch is gone from the page: the overlay designer (Ctrl+Alt+F) adds, hides and places the overlays
         // right of the overlay switch: the tool in a window of its own, to put it anywhere (only where the owner of the page has set PopOut)
