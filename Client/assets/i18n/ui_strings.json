@@ -16453,5 +16453,17 @@
     "pt": "Sessões e analisador de combate",
     "ja": "セッションと戦闘アナライザー",
     "ko": "세션 및 전투 분석기"
+  },
+  "Hub.Live.RowTip": {
+    "en": "Double-click a player for the details",
+    "de": "Doppelklick auf einen Spieler für die Details",
+    "fr": "Double-clic sur un joueur pour les détails",
+    "es": "Doble clic en un jugador para ver los detalles",
+    "ru": "Двойной щелчок по игроку — подробности",
+    "zh": "双击玩家查看详情",
+    "zh-TW": "雙擊玩家以查看詳細資料",
+    "pt": "Clique duas vezes num jogador para ver os detalhes",
+    "ja": "プレイヤーをダブルクリックで詳細を表示",
+    "ko": "플레이어를 두 번 클릭하면 상세 정보가 표시됩니다"
   }
 }

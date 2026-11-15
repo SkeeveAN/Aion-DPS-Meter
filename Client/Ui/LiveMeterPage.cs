@@ -69,7 +69,7 @@ public static class LiveMeterPage
         return row;
     }
 
-    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null, Func<bool>? gameOn = null)
+    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null, Func<bool>? gameOn = null, Action<PlayerRow>? openDetails = null)
     {
         var loc = LocalizationManager.Instance;
         // with nothing recorded the list shows sample rows, tagged as such, so the player sees how it could look
@@ -86,6 +86,20 @@ public static class LiveMeterPage
         }
 
         var list = new ItemsControl { ItemTemplate = (DataTemplate)XamlReader.Parse(RowXaml) };
+        // a double click on a player's row opens the details of the player, as in the meter window
+        if (openDetails is not null)
+        {
+            list.Cursor = System.Windows.Input.Cursors.Hand;
+            list.ToolTip = LocalizationManager.Instance["Hub.Live.RowTip"];
+            list.PreviewMouseLeftButtonDown += (_, e) =>
+            {
+                if (e.ClickCount == 2 && e.OriginalSource is FrameworkElement { DataContext: PlayerRow row } && row.ObjectId > 0)
+                {
+                    e.Handled = true;
+                    openDetails(row);
+                }
+            };
+        }
         var mockTag = HubDashboard.MockTag();
         mockTag.Margin = new Thickness(16, 0, 0, 0);
         mockTag.VerticalAlignment = VerticalAlignment.Center;

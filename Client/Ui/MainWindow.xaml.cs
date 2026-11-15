@@ -6543,7 +6543,7 @@ public partial class MainWindow : Window
                 Show();
                 WindowState = WindowState.Normal;
                 Activate();
-            }, () => (int)_mode, mode => SetMode((MeterMode)mode), () => (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is not null);
+            }, () => (int)_mode, mode => SetMode((MeterMode)mode), () => (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is not null, row => ShowPlayerDetails(row));
         }
 
         if (module.StartsWith("hub.cfg.", StringComparison.Ordinal))
