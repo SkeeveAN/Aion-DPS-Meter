@@ -116,12 +116,15 @@ def main():
                 n = [w0 * nrm[a][i] + w1 * nrm[b][i] + w2 * nrm[c][i] for i in range(3)]
                 nl = math.sqrt(sum(q * q for q in n)) or 1
                 lam = max(0.0, (n[0] * light[0] + n[1] * light[1] + n[2] * light[2]) / nl)
-                shade = 0.55 + 0.6 * lam
+                shade = 0.35 + 0.9 * lam
                 er, eg, eb = gp[min(gw - 1, max(0, int(u * gw))), min(gw - 1, max(0, int(v * gw)))]
                 e = max(er, eg) / 255.0   # the glyphs are drawn in the red channel
-                R = min(255, int(r * shade + e * 255))
-                G = min(255, int(g * shade + e * 170))
-                B = min(255, int(bl * shade + e * 30))
+                lum = (0.3 * r + 0.59 * g + 0.11 * bl) / 255.0
+                hot = min(1.0, e * 2.0)
+                # as in the game: the stone is lit red from inside (copper-red by its own brightness), the glyphs are almost white in the red
+                R = min(255, int(255 * min(1.0, lum * shade * 1.35 + 0.05) + hot * 130))
+                G = min(255, int(255 * min(1.0, lum * shade * 0.42) * 0.7 + hot * 185))
+                B = min(255, int(255 * min(1.0, lum * shade * 0.34) * 0.6 + hot * 175))
                 zbuf[y][x] = z
                 ip[x, y] = (R, G, B, 255)
                 ep[x, y] = int(255 * min(1.0, e * 1.6))
@@ -134,16 +137,16 @@ def main():
     for y in range(S):
         for x in range(S):
             if ap_[x, y]:
-                k = min(1.0, sp_[x, y] / 255.0 * 2.4 + wp_[x, y] / 255.0 * 1.6)
+                k = min(1.0, sp_[x, y] / 255.0 * 1.3 + wp_[x, y] / 255.0 * 0.9)
                 r, g, b, a = px[x, y]
-                px[x, y] = (min(255, int(r + k * 255)), min(255, int(g + k * 150)), min(255, int(b + k * 25)), a)
+                px[x, y] = (min(255, int(r + k * 200)), min(255, int(g + k * 40)), min(255, int(b + k * 35)), a)
     # dark outline of one pixel (at the final size) for contrast on the map, then the final size
     alpha = img.getchannel("A")
     ring = alpha.filter(ImageFilter.MaxFilter(2 * max(1, S // size) + 1))
-    outline = Image.new("RGBA", (S, S), (14, 10, 4, 255))
+    outline = Image.new("RGBA", (S, S), (30, 4, 4, 255))
     outline.putalpha(ring)
-    # a soft gold glow hugging the cube (not a frame): the stone alone is brown and grey like the map and gets lost on it
-    halo = Image.new("RGBA", (S, S), (255, 205, 40, 255))
+    # a soft red glow hugging the cube (not a frame): the stone alone is brown and grey like the map and gets lost on it
+    halo = Image.new("RGBA", (S, S), (255, 40, 30, 255))
     halo.putalpha(alpha.filter(ImageFilter.MaxFilter(2 * max(1, S // size) * 2 + 1)).filter(ImageFilter.GaussianBlur(max(2, S // size * 2))).point(lambda v: min(255, int(v * 1.5))))
     final = Image.alpha_composite(Image.alpha_composite(halo, outline), img).resize((size, size), Image.LANCZOS)
     final.save(out, optimize=True)
