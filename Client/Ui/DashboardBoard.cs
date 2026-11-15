@@ -67,6 +67,12 @@ public sealed class DashboardBoard : DockPanel
             }
         }
 
+        // the first dashboard as the earlier versions made it and never changed: the new standard takes its place
+        if (SameLayout(_sets[0].Widgets, EarlierStandard()))
+        {
+            _sets[0].Widgets = FirstLayout();
+        }
+
         _places = _sets[_active].Widgets;
         Save();
 
@@ -263,9 +269,19 @@ public sealed class DashboardBoard : DockPanel
         ReleasePages();
     }
 
-    private static Dictionary<string, DashboardPlace> FirstLayout()
+    /// <summary>The standard dashboard: the live meter, what is to do today, game and character, the figures and the last boss fight.</summary>
+    private static Dictionary<string, DashboardPlace> FirstLayout() => new()
     {
-        // pairs side by side, both of a pair as high as the higher one, all on the grid
+        ["meter"] = new DashboardPlace { X = 10, Y = 10, W = 390, H = 250 },
+        ["todo"] = new DashboardPlace { X = 410, Y = 10, W = 270, H = 250 },
+        ["connection"] = new DashboardPlace { X = 10, Y = 270, W = 390, H = 170 },
+        ["figures"] = new DashboardPlace { X = 410, Y = 270, W = 270, H = 170 },
+        ["last"] = new DashboardPlace { X = 10, Y = 450, W = 390, H = 190 },
+    };
+
+    /// <summary>The standard dashboard of the versions before: pairs side by side, both of a pair as high as the higher one. Only used to find a dashboard that was never changed.</summary>
+    private static Dictionary<string, DashboardPlace> EarlierStandard()
+    {
         var result = new Dictionary<string, DashboardPlace>();
         var shown = HubDashboard.Widgets.Where(w => !w.Static).ToList();
         double y = Margin8;
@@ -283,6 +299,9 @@ public sealed class DashboardBoard : DockPanel
 
         return result;
     }
+
+    private static bool SameLayout(Dictionary<string, DashboardPlace> a, Dictionary<string, DashboardPlace> b) =>
+        a.Count == b.Count && a.All(p => b.TryGetValue(p.Key, out DashboardPlace? o) && p.Value.X == o.X && p.Value.Y == o.Y && p.Value.W == o.W && p.Value.H == o.H);
 
     private void Save()
     {

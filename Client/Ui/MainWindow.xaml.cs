@@ -6293,6 +6293,12 @@ public partial class MainWindow : Window
             WidgetKind.MeterModeChanged -= follow;
             styleTimer.Stop();
         };
+        // the rows of the chips are drawn on the colour of the theme's controls, not on the dark overlay colour that suits the game
+        if (Application.Current?.TryFindResource("Brush.Control") is SolidColorBrush control)
+        {
+            stack.Resources["Brush.OverlayBg"] = new SolidColorBrush(control.Color);
+        }
+
         stack.Children.Add(body);
         stack.Children.Add(modeHost); // below the list, so the data always begins at the same place, with the designer on or off
         return stack;
