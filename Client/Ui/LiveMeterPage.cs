@@ -55,9 +55,17 @@ public static class LiveMeterPage
 
     internal static UIElement ChipContent(int index, string text)
     {
+        // the texts take the colour the chip's template gives its content (muted, accent when chosen), not the default text colour
+        TextBlock Follow(TextBlock block)
+        {
+            var source = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.FindAncestor) { AncestorType = typeof(ContentPresenter) };
+            block.SetBinding(TextBlock.ForegroundProperty, new System.Windows.Data.Binding { Path = new PropertyPath(System.Windows.Documents.TextElement.ForegroundProperty), RelativeSource = source });
+            return block;
+        }
+
         var row = new StackPanel { Orientation = Orientation.Horizontal };
-        row.Children.Add(new TextBlock { Text = ModeSymbols[Math.Min(index, ModeSymbols.Length - 1)], FontFamily = new System.Windows.Media.FontFamily("Segoe UI Symbol"), FontSize = 13, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center });
-        row.Children.Add(new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center });
+        row.Children.Add(Follow(new TextBlock { Text = ModeSymbols[Math.Min(index, ModeSymbols.Length - 1)], FontFamily = new System.Windows.Media.FontFamily("Segoe UI Symbol"), FontSize = 13, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center }));
+        row.Children.Add(Follow(new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center }));
         return row;
     }
 

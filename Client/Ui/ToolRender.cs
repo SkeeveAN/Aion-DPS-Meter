@@ -193,7 +193,8 @@ public static class ToolRender
             rows.Add(new PlayerRow(rank) { Name = p.Name, ClassName = p.Class, Damage = p.Damage, Dps = p.Dps, FillPercent = p.Fill, SharePercent = p.Share, Rank = rank++ });
         }
 
-        return LiveMeterPage.Build(rows, () => { });
+        int mode = 0;
+        return LiveMeterPage.Build(rows, () => { }, () => mode, m => mode = m);
     }
 
     /// <summary>A panel of the settings window (the pets, the gathering) as a page takes it, with the styles of the window.</summary>
