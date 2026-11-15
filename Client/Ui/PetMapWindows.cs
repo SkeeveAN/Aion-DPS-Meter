@@ -877,8 +877,9 @@ public sealed class PetMapWindow : MovableOverlay
             {
                 var label = new TextBlock
                 {
-                    FontSize = 13, FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(0x5A, 0xB4, 0xFF)), IsHitTestVisible = false,
-                    Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 3, ShadowDepth = 0, Color = Colors.Black, Opacity = 1 },
+                    FontSize = 15, FontWeight = FontWeights.ExtraBold, Foreground = new SolidColorBrush(Color.FromRgb(0x9B, 0xE0, 0xFF)), IsHitTestVisible = false,
+                    // a dark plate behind the number, so that it can be read on the light and the dark parts of the map
+                    Background = new SolidColorBrush(Color.FromArgb(0xD8, 0x08, 0x10, 0x20)), Padding = new Thickness(4, 1, 4, 1),
                 };
                 _heightLabels.Add(label);
                 _canvas.Children.Add(label);

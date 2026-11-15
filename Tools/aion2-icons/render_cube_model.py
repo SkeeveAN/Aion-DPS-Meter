@@ -12,6 +12,11 @@ from PIL import Image, ImageFilter
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import build_gather_icons as bg  # noqa: E402  (dds / convert helpers)
+import os
+
+
+SPOKE_PHASE_BY_AXIS = {0: 0.0, 1: 0.0, 2: 30.0}   # the wheels of the faces along x and y start at the x axis, those along z half a spoke later
+HUB_OUT, RING_IN, RING_OUT, SPOKE_HALF_WIDTH = 0.07, 0.275, 0.31, 0.022
 
 
 def load_texture(path):
@@ -61,6 +66,10 @@ def read_glb(path):
 def main():
     glb, diffuse, fx, out = sys.argv[1:5]
     size = int(sys.argv[5]) if len(sys.argv) > 5 else 64
+    for item in os.environ.get("CUBE_PHASES", "").split(","):
+        if ":" in item:
+            axis, value = item.split(":")
+            SPOKE_PHASE_BY_AXIS[int(axis)] = float(value)
     pos, nor, uv, idx = read_glb(glb)
     tex, glow = load_texture(diffuse), load_texture(fx)
     tp, gp = tex.load(), glow.load()
@@ -119,14 +128,34 @@ def main():
                 shade = 0.55 + 0.6 * lam
                 er, eg, eb = gp[min(gw - 1, max(0, int(u * gw))), min(gw - 1, max(0, int(v * gw)))]
                 e = max(er, eg) / 255.0   # the glyphs are drawn in the red channel
-                hot = min(1.0, e * 2.0)
+                # the wheel on every face: its six spokes and the ring are painted yellow (found by where the point lies on its face: the angle round the face's
+                # centre and the distance from it), the glyphs keep their red glow
+                mp = [w0 * pos[a][i] + w1 * pos[b][i] + w2 * pos[c][i] for i in range(3)]
+                nm = [w0 * nor[a][i] + w1 * nor[b][i] + w2 * nor[c][i] for i in range(3)]   # the normal in the model's own axes
+                nml = math.sqrt(sum(q * q for q in nm)) or 1
+                ax = max(range(3), key=lambda i: abs(nm[i]))
+                yellow = 0.0
+                if abs(nm[ax]) / nml > 0.55:
+                    rel = [mp[0], mp[1] - 1.1, mp[2]]
+                    uu, vv = [rel[i] for i in range(3) if i != ax]
+                    rr = math.hypot(uu, vv)
+                    phase = SPOKE_PHASE_BY_AXIS[ax]
+                    off = (math.degrees(math.atan2(vv, uu)) - phase) % 60.0
+                    ang = min(off, 60.0 - off)
+                    if RING_IN <= rr <= RING_OUT:
+                        yellow = 1.0
+                    elif HUB_OUT < rr < RING_IN and ang * math.pi / 180 * rr < SPOKE_HALF_WIDTH:
+                        yellow = 1.0
+                hot = 0.0 if yellow else min(1.0, e * 2.0)
                 # the stone keeps the colours of the model; only the glyphs and the lines of the rings glow, red with an almost white core
-                R = min(255, int(r * shade + hot * 255))
-                G = min(255, int(g * shade * (1 - 0.7 * hot) + hot * 150))
-                B = min(255, int(bl * shade * (1 - 0.7 * hot) + hot * 140))
+                if yellow:
+                    r, g, bl = 255, 205, 30
+                R = min(255, int(r * (1.0 if yellow else shade) + hot * 255))
+                G = min(255, int(g * (1.0 if yellow else shade) * (1 - 0.7 * hot) + hot * 150))
+                B = min(255, int(bl * (1.0 if yellow else shade) * (1 - 0.7 * hot) + hot * 140))
                 zbuf[y][x] = z
                 ip[x, y] = (R, G, B, 255)
-                ep[x, y] = int(255 * min(1.0, e * 1.6))
+                ep[x, y] = 0 if yellow else int(255 * min(1.0, e * 1.6))
     # the cube glows: the glyphs light up and bleed into the stone around them (an additive orange bloom over the picture, where the cube is)
     soft = emit.filter(ImageFilter.GaussianBlur(max(2, S // size * 3)))
     wide = emit.filter(ImageFilter.GaussianBlur(max(4, S // size * 8)))
