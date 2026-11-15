@@ -502,6 +502,12 @@ public sealed class PetMapWindow : MovableOverlay
         cube.Effect = glow;
         var grid = new Grid { Width = 44, Height = 44, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
         Panel.SetZIndex(grid, 5);
+        // a yellow field behind the real cube (the game announced it, it is there now), so it is told from the places at once
+        var plate = new Ellipse
+        {
+            Width = 40, Height = 40, Fill = new SolidColorBrush(Color.FromArgb(0xE6, 0xFF, 0xD2, 0x1E)), Stroke = new SolidColorBrush(Color.FromRgb(0xFF, 0xF0, 0x8A)), StrokeThickness = 2, IsHitTestVisible = false,
+        };
+        grid.Children.Add(plate);
         grid.Children.Add(cube);
         return grid;
     }
