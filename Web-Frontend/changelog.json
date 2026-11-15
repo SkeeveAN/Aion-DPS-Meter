@@ -810,6 +810,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.24: three lines at the left of the header fold the navigation (the tabs and the menu) to their symbols and open it again, the dashboard menu has an Overlay designer button, and the state of the game (a dot), the character and the server moved from the header to the footer, left of the update and always-on-top buttons",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
