@@ -26,6 +26,9 @@ public static class Aion2Pets
     private static readonly string FilePath = AssetStore.Path("aion2", "pets", "pets.json");
     private static Catalog? _catalog;
 
+    /// <summary>Forgets the pet table read so far (after the data delivery took a newer one).</summary>
+    public static void Reload() => _catalog = null;
+
     /// <summary>The species of a pet as the pet window groups them: Cognia (Intellect), Fera (Feral), Natura (Nature), Varia (Trans), Specia (Special).</summary>
     public static string? SpeciesOf(int petId) => Data.PetSpecies.TryGetValue(petId, out string? s) ? s : null;
 

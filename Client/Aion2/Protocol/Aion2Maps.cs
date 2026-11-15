@@ -29,6 +29,14 @@ public static class Aion2Maps
 
     public static IReadOnlyList<Aion2MapInfo> All => _maps ??= LoadMaps("maps.json");
 
+    /// <summary>Forgets the maps and spawn tables read so far, so the next lookup reads the files again (after the data delivery took a newer one: a refitted map shows without a restart).</summary>
+    public static void Reload()
+    {
+        _maps = null;
+        _instances = null;
+        _spawns = null;
+    }
+
     /// <summary>The maps of the instances (maps/instances.json, built by Tools/aion2-maps/build_instance_maps.py); apart from <see cref="All"/>, which stays the open world.</summary>
     public static IReadOnlyList<Aion2MapInfo> Instances => _instances ??= LoadMaps("instances.json");
 

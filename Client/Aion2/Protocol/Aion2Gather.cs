@@ -51,6 +51,19 @@ public static class Aion2Gather
     }
 
     private static Dictionary<string, string>? _iconNames;
+
+    /// <summary>Forgets the collectible tables and icons read so far (after the data delivery took newer files).</summary>
+    public static void Reload()
+    {
+        _iconNames = null;
+        _keyById = null;
+        _items = null;
+        _maps = null;
+        lock (IconCache)
+        {
+            IconCache.Clear();
+        }
+    }
     private static readonly Dictionary<string, System.Windows.Media.Imaging.BitmapSource?> IconCache = new();
 
     /// <summary>The icon the game shows for a collectible (the item its gather source gives), by the collectible's key; null where the client has none (the map then draws a diamond).</summary>

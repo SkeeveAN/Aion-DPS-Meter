@@ -5156,7 +5156,7 @@ public partial class MainWindow : Window
 
     /// <summary>The data the server has newer than the shipped set (tables, names, texts, maps; see DataUpdateClient) is taken into the data folder: at the start and then every two hours, off the
     /// window's thread. It belongs to the update function, so it runs whenever "check for updates" is on, also without the upload consent. The boss tables (which monster is a boss, how long it takes to rage)
-    /// are read again at once, so a new instance's bosses are recognised without a restart; the other tables are used from the next start.</summary>
+    /// are read again at once, so a new instance's bosses are recognised without a restart; the maps, the pets and the collectibles too (the pet map takes them at its next picture); the other tables are used from the next start.</summary>
     private async Task RefreshDataAsync()
     {
         if (Headless || DateTime.UtcNow - _dataRefreshedAt < TimeSpan.FromHours(2) || !MeterSettings.Load().CheckForUpdates)
@@ -5170,6 +5170,10 @@ public partial class MainWindow : Window
         {
             Aion2BossCatalog.Reload();
             Aion2BossRage.Reload();
+            // the maps (their fit), the pets and the collectibles too, so a corrected table shows without a restart (the pet map takes them at its next picture)
+            Aion2Maps.Reload();
+            Aion2Pets.Reload();
+            Aion2Gather.Reload();
         }
     }
 
