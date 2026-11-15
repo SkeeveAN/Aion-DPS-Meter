@@ -719,6 +719,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.11: the dashboard card \"Today's tasks\" counts the caps by the membership as the checklist does (Odyle energy of 840 with the membership instead of 560, the entry counters the same)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
