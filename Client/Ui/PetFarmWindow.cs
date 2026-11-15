@@ -383,6 +383,40 @@ internal static class GameWindow
         return new System.Drawing.Rectangle(origin.X, origin.Y, client.Right, client.Bottom);
     }
 
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int command);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsIconic(IntPtr hWnd);
+
+    /// <summary>Brings the game's window to the front (restores it when it is minimized); false when the game is not running or has no window. Only meant for a click of the player.</summary>
+    public static bool BringToFront()
+    {
+        foreach (System.Diagnostics.Process process in System.Diagnostics.Process.GetProcessesByName("AION2"))
+        {
+            using (process)
+            {
+                IntPtr window = process.MainWindowHandle;
+                if (window == IntPtr.Zero)
+                {
+                    continue;
+                }
+
+                if (IsIconic(window))
+                {
+                    ShowWindow(window, 9); // SW_RESTORE
+                }
+
+                return SetForegroundWindow(window);
+            }
+        }
+
+        return false;
+    }
+
     private static IntPtr _notGame;
     private static long _notGameAt;
 

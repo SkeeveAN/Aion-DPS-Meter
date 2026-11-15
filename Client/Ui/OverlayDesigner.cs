@@ -113,8 +113,14 @@ public static class OverlayDesigner
         BringToFront(); // ... and the overlays and the designer's own windows stand above the dimming again (the foreground window of the topmost band is the one on top)
     }
 
+    /// <summary>Set when the designer was started by a click in the hub: what to do when it ends (true: the "Done" button was clicked, the hub comes back to the front; false: it ended another way, the hub only gets its state back and does not move).</summary>
+    public static Action<bool>? ReturnTo { get; set; }
+
     private static void End()
     {
+        Action<bool>? back = ReturnTo;
+        ReturnTo = null;
+        back?.Invoke(false);
         Active = false;
         ActiveChanged?.Invoke();
         OverlayDocking.GuideChanged -= OnGuide;
@@ -703,7 +709,14 @@ internal sealed class DesignerBar : Window
         };
         var done = OverlayDesigner.Chip(loc["Designer.Done"], primary: true);
         done.Margin = new Thickness(0);
-        done.Click += (_, _) => OverlayDesigner.Toggle(refresh);
+        done.Click += (_, _) =>
+        {
+            // only a click on "Done" brings the hub back (the hotkey and the other ways to end it leave every window where it is)
+            Action<bool>? back = OverlayDesigner.ReturnTo;
+            OverlayDesigner.ReturnTo = null;
+            OverlayDesigner.Toggle(refresh);
+            back?.Invoke(true);
+        };
         _full.Children.Add(title);
         _full.Children.Add(hint);
         _full.Children.Add(dockButton);

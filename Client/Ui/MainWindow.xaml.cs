@@ -5981,6 +5981,39 @@ public partial class MainWindow : Window
 
     private void OnOverlayDesignerClicked(object sender, RoutedEventArgs e) => ToggleOverlayDesigner();
 
+    /// <summary>The button "Overlay designer" of the hub: the game comes to the front so the overlays can be placed over it, and the "Done" button of the designer brings the hub back. Only this click moves windows; the hotkey does not.</summary>
+    private void StartDesignerFromHub()
+    {
+        HubWindow? hub = _hubWindow;
+        if (OverlayDesigner.Active || hub is null)
+        {
+            ToggleOverlayDesigner(); // already on: the click switches it off, nothing moves
+            return;
+        }
+
+        bool wasOnTop = hub.Topmost;
+        ToggleOverlayDesigner();
+        OverlayDesigner.ReturnTo = activate =>
+        {
+            hub.Topmost = wasOnTop;
+            if (activate)
+            {
+                if (hub.WindowState == WindowState.Minimized)
+                {
+                    hub.WindowState = WindowState.Normal;
+                }
+
+                hub.Activate();
+            }
+        };
+        if (wasOnTop)
+        {
+            hub.Topmost = false; // otherwise it would stay in front of the game
+        }
+
+        GameWindow.BringToFront();
+    }
+
     /// <summary>Hides the switched-off tools in the Tools menu (and the separators left with nothing beside them).</summary>
     private void ApplyToolMenu(MeterSettings settings)
     {
@@ -6168,7 +6201,7 @@ public partial class MainWindow : Window
             }
         };
         _hubWindow.MeterView = BuildMeterView;
-        _hubWindow.ToggleDesigner = ToggleOverlayDesigner;
+        _hubWindow.ToggleDesigner = StartDesignerFromHub;
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         WidgetKind.MeterHasRows = () => _rows.Count > 0;
