@@ -14667,16 +14667,16 @@
     "ko": "실시간 미터"
   },
   "Hub.Sessions": {
-    "en": "Sessions",
-    "de": "Sitzungen",
-    "fr": "Sessions",
-    "es": "Sesiones",
-    "ru": "Сессии",
-    "zh": "会话",
-    "zh-TW": "工作階段",
-    "pt": "Sessões",
-    "ja": "セッション",
-    "ko": "세션"
+    "en": "Combat analyzer",
+    "de": "Kampf-Analysator",
+    "fr": "Analyseur de combat",
+    "es": "Analizador de combate",
+    "ru": "Анализатор боёв",
+    "zh": "战斗分析器",
+    "zh-TW": "戰鬥分析器",
+    "pt": "Analisador de combate",
+    "ja": "戦闘アナライザー",
+    "ko": "전투 분석기"
   },
   "Hub.Compare": {
     "en": "Compare players",
@@ -16441,5 +16441,17 @@
     "ko": "게임이 지도 위에 그리는 노란 길입니다. 끄면 바닥만 표시됩니다.",
     "zh": "游戏绘制在地图上的黄色道路。关闭后只显示地面。",
     "zh-TW": "遊戲繪製在地圖上的黃色道路。關閉後只顯示地面。"
+  },
+  "Hub.Sessions.Tip": {
+    "en": "Sessions and combat analyzer",
+    "de": "Sessions und Kampf-Analysator",
+    "fr": "Sessions et analyseur de combat",
+    "es": "Sesiones y analizador de combate",
+    "ru": "Сессии и анализатор боёв",
+    "zh": "会话与战斗分析器",
+    "zh-TW": "工作階段與戰鬥分析器",
+    "pt": "Sessões e analisador de combate",
+    "ja": "セッションと戦闘アナライザー",
+    "ko": "세션 및 전투 분석기"
   }
 }

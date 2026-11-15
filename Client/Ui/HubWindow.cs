@@ -671,6 +671,11 @@ public sealed class HubWindow : Window
             {
                 Entry e = entry;
                 var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e), Margin = new Thickness(0, 0, 0, 3) };
+                if (e.Id == "sessions")
+                {
+                    item.ToolTip = LocalizationManager.Instance["Hub.Sessions.Tip"];
+                }
+
                 item.Checked += (_, _) => ShowEntry(e);
                 _menu.Children.Add(item);
             }
