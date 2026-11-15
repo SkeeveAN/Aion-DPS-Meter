@@ -782,6 +782,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.20: the menu item Sessions is called Combat analyzer (tooltip: Sessions and combat analyzer), and a double click on a player's row in the live meter opens the player's details again",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
