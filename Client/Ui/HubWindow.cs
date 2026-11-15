@@ -649,7 +649,7 @@ public sealed class HubWindow : Window
 
         if (!_updating)
         {
-            _footer.Text = loc[status.GameOn ? "Hub.GameOn" : "Hub.GameOff"];
+            _footer.Text = ""; // the dot says whether the game runs; the text stands here only while an update is downloaded
         }
     }
 
