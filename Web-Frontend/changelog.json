@@ -761,6 +761,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.17: the Hidden Cube has the picture of the game's own 3D model (the six spokes and the ring of each wheel in yellow) as its place marks on the map and in the gathering settings, an announced cube is a larger one with a pulsing glow, and the height number beside it is bold and bright on a dark plate",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
