@@ -1,5 +1,5 @@
 """Builds Client/assets/aion2/maps/gather_icons.json and gather_icons/*.png: the icon of every collectible of the interactive map (what the game shows for
-the item the gather source gives: Odyle, Orichalcum Ore, Yggdrasil Log, the gemstones, herbs and food plants; the "Empyrean Trace" and the Hidden Cube key).
+the item the gather source gives: Odyle, Orichalcum Ore, Yggdrasil Log, the gemstones, herbs and food plants; the "Empyrean Trace" and the Hidden Cube, whose picture build_cube_icon.py draws: the client has none, its item is a key).
 
 Usage:  python3 build_gather_icons.py <decoded Item.json> <raw texture dir> <client assets/aion2 dir> [<item_names.json>]
 
@@ -47,7 +47,7 @@ def convert(path):
 
 # the two food items whose Icon_Item texture the client lacks show the Icon_Gather_* picture in the conversion menu (dump those two next to the others first)
 STAND_IN = {"Icon_Item_Gather_Food_L_c_002": "Icon_Gather_Fruit_L_lv2_01a", "Icon_Item_Gather_Food_L_c_005": "Icon_Gather_Food_L_lv1_01c"}
-SPECIAL = {"Hidden Cube": "Icon_Item_Currency_Treasure_Key_A_s_001", "Empyrean Trace: Verteron": "Icon_Item_Monolith_Material_L_001"}
+SPECIAL = {"Hidden Cube": "HiddenCube", "Empyrean Trace: Verteron": "Icon_Item_Monolith_Material_L_001"}
 
 
 def main():
@@ -78,7 +78,7 @@ def main():
                     break
         if icon is None:
             continue
-        use = icon if (icon in existing or os.path.exists(os.path.join(raw, icon + '.uasset'))) else STAND_IN.get(icon)
+        use = icon if (icon in existing or os.path.exists(os.path.join(raw, icon + '.uasset')) or os.path.exists(os.path.join(out_dir, icon + '.png'))) else STAND_IN.get(icon)
         if use is None:
             continue
         target = os.path.join(out_dir, use + '.png')
