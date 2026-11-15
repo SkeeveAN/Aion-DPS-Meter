@@ -5541,7 +5541,8 @@ public partial class MainWindow : Window
             new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, hits,
                 id => _source?.Entities.NameFor(id) ?? MonsterName(id), deaths: _deathsById.GetValueOrDefault(row.ObjectId), taken: true)
             {
-                Owner = this,
+                Owner = IsVisible ? this : null, // a window of its own when the meter window is hidden (the new interface): it stays when the hub is minimized
+                WindowStartupLocation = IsVisible ? WindowStartupLocation.CenterOwner : WindowStartupLocation.CenterScreen,
             }.Show();
             return;
         }
@@ -5560,7 +5561,8 @@ public partial class MainWindow : Window
             extras: extras, playerId: _historyMode ? _historyLiveIds.GetValueOrDefault(row.ObjectId, row.ObjectId) : row.ObjectId, fightStart: fightStart, fightEnd: fightEnd,
             replay: BuildReplayData(extras, fightStart, fightEnd, _aggregator.Events), seen: SeenInfoOf(row))
         {
-            Owner = this,
+            Owner = IsVisible ? this : null,
+            WindowStartupLocation = IsVisible ? WindowStartupLocation.CenterOwner : WindowStartupLocation.CenterScreen,
         }.Show();
     }
 
