@@ -76,7 +76,14 @@ def main():
     side = max(final.size)
     square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
     square.paste(final, ((side - final.width) // 2, (side - final.height) // 2))
-    square.resize((OUT, OUT), Image.LANCZOS).save(os.path.join(out_dir, "HiddenCube.png"), optimize=True)
+    # a dark disc with a bright ring behind the cube: on the tan and green of the map the orange cube alone is hard to see
+    cube = square.resize((int(OUT * 0.88), int(OUT * 0.88)), Image.LANCZOS)
+    plate = Image.new("RGBA", (OUT * 4, OUT * 4), (0, 0, 0, 0))
+    d = ImageDraw.Draw(plate)
+    d.ellipse([4, 4, OUT * 4 - 5, OUT * 4 - 5], fill=(14, 18, 26, 235), outline=(255, 236, 190, 255), width=8)
+    plate = plate.resize((OUT, OUT), Image.LANCZOS)
+    plate.alpha_composite(cube, ((OUT - cube.width) // 2, (OUT - cube.height) // 2 + 1))
+    plate.save(os.path.join(out_dir, "HiddenCube.png"), optimize=True)
 
 
 if __name__ == "__main__":
