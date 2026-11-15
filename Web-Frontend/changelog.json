@@ -803,6 +803,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.23: the standard dashboard is the live meter, what is to do today, game and character, the figures and the last boss fight (a first dashboard that was never changed takes it over), and the part of a row in the live meter widget that is not the damage bar is see-through, so the colour of the widget's background shows",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
