@@ -525,7 +525,8 @@ internal static class Program
             var protocol = Aion2.Protocol.Aion2Protocol.Load();
             using var source = new Aion2.Aion2PacketCombatSource(protocol);
             var directory = (Aion2.Aion2EntityDirectory)source.Entities;
-            DateTime clock = DateTime.MinValue;
+            DateTime clock = DateTime.MinValue, lastBest = DateTime.MinValue;
+            var hits = new Dictionary<int, (DateTime First, DateTime Last, int Count, long Sum)>();
             directory.Clock = () => clock;
             directory.PositionProbe += p => Console.WriteLine($"{p.Now:HH:mm:ss.fff} {p.X:0} {p.Y:0} z {(directory.PlayerHeight is { } h ? h.Z.ToString("0") : "-")}");
             directory.SpawnProbe += (now, x, y) => Console.WriteLine($"{now:HH:mm:ss.fff} SPAWN {x:0} {y:0} z {(directory.PlayerHeight is { } h ? h.Z.ToString("0") : "-")}");
@@ -539,9 +540,46 @@ internal static class Program
 
                 clock = segment.Timestamp;
                 source.Ingest(segment with { FromServer = fromServer });
-                source.Poll(false);
+                var polled = source.Poll(false);
+                foreach (var ev in polled.Damage.Where(e => !e.IsHeal))
+                {
+                    hits[ev.TargetObjectId] = hits.TryGetValue(ev.TargetObjectId, out var h) ? (h.First, ev.Timestamp, h.Count + 1, h.Sum + ev.Amount) : (ev.Timestamp, ev.Timestamp, 1, ev.Amount);
+                }
+
+                if (Environment.GetEnvironmentVariable("AIONDPS_BEST") == "1" && (clock - lastBest).TotalSeconds >= 2 && directory.BestPosition is { } best)
+                {
+                    lastBest = clock;
+                    Console.WriteLine($"{clock:HH:mm:ss.fff} BEST {best.X:0} {best.Y:0} age {(clock - best.At).TotalSeconds:0.0}s");
+                }
             }
 
+            if (Environment.GetEnvironmentVariable("AIONDPS_BOSS") == "1")
+            {
+                foreach ((int bossId, _) in directory.KnownBosses())
+                {
+                    long highest = directory.HitPoints.HighestSeen(bossId) ?? 0;
+                    var resets = directory.HitPoints.ResetsOf(bossId);
+                    Console.WriteLine($"BOSS {bossId} {directory.MonsterNameFor(bossId)} highest {highest:N0} readings {directory.HitPoints.ReadingCounts().GetValueOrDefault(bossId)} resets [{string.Join(", ", resets.Select(r => r.ToString("HH:mm:ss")))}] hits {(hits.TryGetValue(bossId, out var hh) ? $"{hh.First:HH:mm:ss}-{hh.Last:HH:mm:ss} n={hh.Count} sum={hh.Sum:N0}" : "none")}");
+                    var samples = directory.HitPoints.SamplesAround(bossId, DateTime.MinValue, DateTime.MaxValue);
+                    DateTime lastShown = DateTime.MinValue;
+                    foreach (var smp in samples)
+                    {
+                        if ((smp.At - lastShown).TotalSeconds >= 4)
+                        {
+                            lastShown = smp.At;
+                            Console.WriteLine($"   {smp.At:HH:mm:ss} hp {smp.Hp:N0} ({(highest > 0 ? 100.0 * smp.Hp / highest : 0):0.0}%)");
+                        }
+                    }
+                }
+            }
+
+            return;
+        }
+
+        if (args.Length > 3 && args[0] == "aion2-ui-trace")
+        {
+            // aion2-ui-trace <recording.jsonl> <from HH:mm:ss> <to HH:mm:ss>: the real window logic (never shown), fed in recording time, printing what the meter shows every 2 s
+            RunAion2UiTraceMode(args[1], TimeSpan.Parse(args[2]), TimeSpan.Parse(args[3]));
             return;
         }
 
@@ -2640,6 +2678,59 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    private static void RunAion2UiTraceMode(string path, TimeSpan from, TimeSpan to)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.MainWindow();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var type = typeof(Ui.MainWindow);
+        var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+        type.GetField("_source", flags)!.SetValue(window, source);
+        type.GetField("_liveSource", flags)!.SetValue(window, source);
+        var tick = type.GetMethod("OnPollTimerTick", flags)!;
+        var rows = (System.Collections.IList)type.GetField("_rows", flags)!.GetValue(window)!;
+        object? Field(string name) => type.GetField(name, flags)?.GetValue(window);
+        string Name(string field) => (Field(field) as System.Windows.Controls.TextBlock)?.Text ?? "";
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        DateTime lastTick = DateTime.MinValue, lastPrint = DateTime.MinValue;
+        foreach (var segment in Aion2.Capture.SegmentRecording.Read(path))
+        {
+            bool fromServer = segment.Source.EndsWith(":13328", StringComparison.Ordinal);
+            if (!fromServer && !segment.Destination.EndsWith(":13328", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            source.Ingest(segment with { FromServer = fromServer });
+            DateTime at = segment.Timestamp;
+            if ((at - lastTick).TotalMilliseconds < 300)
+            {
+                continue;
+            }
+
+            lastTick = at;
+            if (source.Entities is Aion2.Aion2EntityDirectory d)
+            {
+                d.Clock = () => at;
+            }
+
+            tick.Invoke(window, new object?[] { null, EventArgs.Empty });
+            if (at.TimeOfDay >= from && at.TimeOfDay <= to && (at - lastPrint).TotalSeconds >= 2)
+            {
+                lastPrint = at;
+                string top = string.Join(", ", rows.Cast<Ui.PlayerRow>().Take(3).Select(r => $"{r.Name} {r.Damage:N0}"));
+                var combo = Field("MobBossFilter") as System.Windows.Controls.ComboBox;
+                string entries = combo is null ? "" : string.Join(" | ", combo.Items.OfType<System.Windows.Controls.ComboBoxItem>().Skip(1).Select(i => i.Content?.ToString()));
+                Console.WriteLine($"{at:HH:mm:ss} target='{Name("OverlayTargetText")}' time={Name("OverlayTimeText")} rate={Name("OverlayRateHeader")} rows={rows.Count} [{top}] sel={Field("_selectedTargetId")} list: {entries}");
+            }
+        }
+
+        Environment.Exit(0);
+    }
+
     private static void RunAion2UiTestMode(string path, int serverPort)
     {
         {
@@ -3417,6 +3508,15 @@ internal static class Program
 
         static double Median(IEnumerable<double> v) { var l = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList(); return l.Count == 0 ? double.NaN : l[l.Count / 2]; }
         static double P90(IEnumerable<double> v) { var l = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList(); return l.Count == 0 ? double.NaN : l[(int)(l.Count * 0.9)]; }
+        // the estimate's error by how many entities it rests on (the Median <= 20 s variant), over all probes
+        int variantIndex = variants.FindIndex(v => v.Name == "Median <= 20s");
+        Console.WriteLine("Median <= 20s: error in metres by number of entities (median / p90 [count])");
+        foreach ((int lo, int hi) in new[] { (3, 3), (4, 5), (6, 8), (9, 15), (16, 1000) })
+        {
+            var sel = probes.Where(p => p.Entities >= lo && p.Entities <= hi).Select(p => p.Env[variantIndex]).ToList();
+            Console.WriteLine($"  {lo}-{(hi > 999 ? "inf" : hi.ToString())} entities: {Median(sel):0.0} / {P90(sel):0.0} [{sel.Count(v => !double.IsNaN(v))}]");
+        }
+
         Console.WriteLine($"aion2-position-check: {probes.Count} exact reports with a previous one");
         var buckets = new[] { (0.0, 1.0), (1.0, 2.5), (2.5, 5.0), (5.0, 15.0), (15.0, 1e9) };
         Console.WriteLine("error in metres, median / p90, by the age of the previous exact report (count in brackets); '-' = no environment of 3+ entities");

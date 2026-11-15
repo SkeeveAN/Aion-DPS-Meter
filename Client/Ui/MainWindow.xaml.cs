@@ -2211,12 +2211,36 @@ public partial class MainWindow : Window
             added = true;
         }
 
-        if (added || _mobBossFilterNeedsRebuild)
+        // A boss that is fought again keeps its entity: its entries "#1".."#N" are not a new target, so they are rebuilt when its runs change
+        // (the group wiped and the boss went back to full health, or a long quiet gap before the next pull). Without it the list kept the
+        // old run as the newest and the live view stayed on the old attempt until some other target came along.
+        bool runsMoved = false;
+        foreach (var entry in _mobBossEntries)
+        {
+            if (entry.IsPlayer || !_bossActivity.TryGetValue(entry.TargetId, out var activity))
+            {
+                continue;
+            }
+
+            int resetCount = (_source?.Entities as Aion2.Aion2EntityDirectory)?.HitPoints.ResetsOf(entry.TargetId).Count ?? 0;
+            if (_bossRunProbe.TryGetValue(entry.TargetId, out var probe)
+                && (probe.Resets != resetCount || (activity.Last - probe.Last).TotalSeconds > RunClusterGapSeconds))
+            {
+                runsMoved = true;
+            }
+
+            _bossRunProbe[entry.TargetId] = (resetCount, activity.Last);
+        }
+
+        if (added || runsMoved || _mobBossFilterNeedsRebuild)
         {
             ApplyMobBossSearchFilter();
             RefreshUploadAvailability();
         }
     }
+
+    /// <summary>Per boss: how many resets to full health and the time of the last hit when the Mob/Boss list was last checked (see <see cref="RefreshMobBossFilterItems"/>).</summary>
+    private readonly Dictionary<int, (int Resets, DateTime Last)> _bossRunProbe = new();
 
     /// <summary>
     /// Per the user: the upload entry points (the Session menu's two items, and the Damage view's
@@ -2325,7 +2349,10 @@ public partial class MainWindow : Window
         for (int i = 0; i < clusters.Count; i++)
         {
             List<DamageEvent> cluster = clusters[i];
-            var tag = new MobBossTag(targetId, cluster[0].Timestamp, cluster[^1].Timestamp);
+            // the run that is still going (the last one, no reset after it) has an open end: its window grows with the fight and its entry stays
+            // the same one while the list is rebuilt
+            DateTime windowEnd = i == clusters.Count - 1 && !wiped[i] ? DateTime.MaxValue : cluster[^1].Timestamp;
+            var tag = new MobBossTag(targetId, cluster[0].Timestamp, windowEnd);
             yield return (tag, $"{name} #{i + 1}{(wiped[i] ? " \U0001F480" : "")}", cluster.Sum(e => e.Amount));
         }
     }
@@ -2401,7 +2428,10 @@ public partial class MainWindow : Window
         // simply shows no selection while a search is narrowing the list, instead of fighting the
         // user's typing for keyboard focus.
         var stillPresent = MobBossFilter.Items.OfType<ComboBoxItem>()
-            .FirstOrDefault(item => Equals(item.Tag as MobBossTag?, previouslySelected));
+            .FirstOrDefault(item => Equals(item.Tag as MobBossTag?, previouslySelected))
+            ?? (previouslySelected is { WindowStart: not null } prev
+                ? MobBossFilter.Items.OfType<ComboBoxItem>().FirstOrDefault(item => item.Tag is MobBossTag t && t.TargetId == prev.TargetId && t.WindowStart == prev.WindowStart)
+                : null);
         if (stillPresent is not null)
         {
             MobBossFilter.SelectedItem = stillPresent;
