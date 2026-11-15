@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-13",
+  "date": "2026-11-15",
   "items": [
    {
     "text": "Profile upload: a rank movement beyond a million either way counts as 0 and a title slot without an id is left out, so one unusable field no longer rejects the whole profile",
@@ -16,6 +16,13 @@
      "Website"
     ],
     "date": "2026-11-13"
+   },
+   {
+    "text": "Data: the Verteron and Abyss map fit refitted on exact positions after teleports and the game's own map, and the Odyle spider pets 1021 and 1025 named the right way round (the Aberrant one is level 2, the Mutated one the top level)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
