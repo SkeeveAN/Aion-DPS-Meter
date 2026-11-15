@@ -207,7 +207,7 @@ internal static class LiveMeterMock
             grid.Children.Add(mark);
         }
 
-        // one copy symbol for all three buttons (two sheets); on the Discord mark it is drawn thicker, with a dark halo and a dark fill, so that it stands out
+        // one copy symbol for all three buttons (two sheets); on the Discord mark it is drawn thicker and with a dark halo (no fill: the mark shows through), so that it stands out
         var sheets = new System.Windows.Shapes.Path
         {
             Data = Geometry.Parse("M 6,3 H 13 A 1.5,1.5 0 0 1 14.5,4.5 V 11 M 3,6 H 10 A 1.5,1.5 0 0 1 11.5,7.5 V 14 A 1.5,1.5 0 0 1 10,15.5 H 4.5 A 1.5,1.5 0 0 1 3,14 Z"),
@@ -217,7 +217,6 @@ internal static class LiveMeterMock
         if (withDiscord)
         {
             sheets.Stroke = Brushes.White;
-            sheets.Fill = new SolidColorBrush(Color.FromArgb(0xB0, 0x14, 0x18, 0x40));
             sheets.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.95 };
         }
         else
