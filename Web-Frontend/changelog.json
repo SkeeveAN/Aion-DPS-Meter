@@ -817,6 +817,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.25: the live meter page shows two lists: all sessions on the left (it resets as it always did) and the last instance on the right with its boss fights, the newest on top, which stays after the instance was left until the next one has a boss fight; under each boss the encounter link (once the upload answered), a copy button for the chat text and one for the table for Discord",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
