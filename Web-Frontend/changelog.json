@@ -747,6 +747,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.15: the automatic boss view follows a boss that is fought again after a wipe (the list of its attempts is rebuilt at once, so the meter no longer shows the old attempt after a restart of the fight), the Hidden Cube has a new picture (glowing orange rings on grey stone, smaller on the map), the top tabs stand out and carry symbols, every page of the side menu has a symbol, the live meter shows the faction emblem and the class picture of each player and symbols in its mode buttons",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
    }
   ]
  },
