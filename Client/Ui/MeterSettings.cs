@@ -449,6 +449,9 @@ public sealed class MeterSettings
     /// <summary>The new interface stays above other windows.</summary>
     public bool HubAlwaysOnTop { get; set; }
 
+    /// <summary>The navigation of the hub shows only symbols (the three lines at the left of the header).</summary>
+    public bool HubNavCollapsed { get; set; }
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 

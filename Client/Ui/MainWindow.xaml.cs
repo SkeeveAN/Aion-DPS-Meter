@@ -6153,6 +6153,7 @@ public partial class MainWindow : Window
             }
         };
         _hubWindow.MeterView = BuildMeterView;
+        _hubWindow.ToggleDesigner = ToggleOverlayDesigner;
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         WidgetKind.MeterHasRows = () => _rows.Count > 0;

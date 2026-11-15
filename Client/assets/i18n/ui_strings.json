@@ -17029,5 +17029,29 @@
     "pt": "NOVO PAINEL A PARTIR DE UM MODELO",
     "ja": "テンプレートから新規ダッシュボード",
     "ko": "템플릿으로 새 대시보드"
+  },
+  "Hub.Nav.Toggle": {
+    "en": "Show or hide the names in the navigation",
+    "de": "Namen in der Navigation ein- oder ausblenden",
+    "fr": "Afficher ou masquer les noms dans la navigation",
+    "es": "Mostrar u ocultar los nombres en la navegación",
+    "ru": "Показать или скрыть названия в навигации",
+    "zh": "显示或隐藏导航中的名称",
+    "zh-TW": "顯示或隱藏導覽中的名稱",
+    "pt": "Mostrar ou ocultar os nomes na navegação",
+    "ja": "ナビゲーションの名前を表示／非表示",
+    "ko": "탐색의 이름 표시/숨기기"
+  },
+  "Hub.Designer.Tip": {
+    "en": "Move and resize all overlays over the game, then switch off again",
+    "de": "Alle Overlays über dem Spiel verschieben und in der Größe ändern, danach wieder ausschalten",
+    "fr": "Déplacer et redimensionner tous les overlays au-dessus du jeu, puis désactiver",
+    "es": "Mover y cambiar el tamaño de todos los overlays sobre el juego, luego desactivar",
+    "ru": "Перемещать и менять размер всех оверлеев поверх игры, затем выключить",
+    "zh": "移动并调整游戏上方所有悬浮窗的大小，然后关闭",
+    "zh-TW": "移動並調整遊戲上方所有浮動視窗的大小，然後關閉",
+    "pt": "Mover e redimensionar todos os overlays sobre o jogo e depois desligar",
+    "ja": "ゲーム上のすべてのオーバーレイを移動・サイズ変更し、終わったらオフにする",
+    "ko": "게임 위의 모든 오버레이를 이동·크기 조절한 뒤 끄기"
   }
 }

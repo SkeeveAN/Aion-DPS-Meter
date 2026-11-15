@@ -47,6 +47,10 @@ public sealed class HubWindow : Window
     private readonly StackPanel _right = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _menu = new() { Margin = new Thickness(10, 16, 10, 10) };
     private readonly Border _host = new();
+    private Border? _side;
+    private bool _collapsed;
+    private bool _menuRebuilding;
+    private readonly StackPanel _info = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 14, 0) };
     private readonly DispatcherTimer _refresh = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly TextBlock _footer = new() { Foreground = Muted, FontSize = 12, VerticalAlignment = VerticalAlignment.Center };
     private Section _section;
@@ -83,8 +87,11 @@ public sealed class HubWindow : Window
         barGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         barGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         barGrid.ColumnDefinitions.Add(new ColumnDefinition());
-        Grid.SetColumn(_tabs, 0);
-        _tabs.Margin = new Thickness(-8, 0, 0, 0); // the first tab stands at the very left
+        UIElement burger = NavToggle();
+        Grid.SetColumn(burger, 0);
+        barGrid.Children.Add(burger);
+        Grid.SetColumn(_tabs, 1);
+        _tabs.Margin = new Thickness(8, 0, 0, 0);
         barGrid.Children.Add(_tabs);
         Grid.SetColumn(_right, 2);
         _right.HorizontalAlignment = HorizontalAlignment.Right;
@@ -92,15 +99,17 @@ public sealed class HubWindow : Window
         bar.Child = barGrid;
         DockPanel.SetDock(bar, Dock.Top);
         root.Children.Add(bar);
-        var side = new Border { Width = 250, Background = Navy, BorderBrush = Line, BorderThickness = new Thickness(0, 0, 1, 0), Child = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _menu } };
+        var side = _side = new Border { Width = 250, Background = Navy, BorderBrush = Line, BorderThickness = new Thickness(0, 0, 1, 0), Child = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _menu } };
         DockPanel.SetDock(side, Dock.Left);
         root.Children.Add(side);
         root.Children.Add(_host);
         Content = root;
         ThemedChrome.Apply(this);
 
+        _collapsed = MeterSettings.Load().HubNavCollapsed;
         BuildTabs();
         ShowSection(_sections[0]);
+        ApplyNav();
         RefreshStatus();
         _refresh.Tick += (_, _) => RefreshStatus();
         _refresh.Start();
@@ -221,6 +230,7 @@ public sealed class HubWindow : Window
                     new Entry("best", loc["Hub.Dash.Best"], "overview", "best"),
                     new Entry("updates", loc["Hub.Dash.Update"], "overview", "updates"),
                     new Entry("news", loc["Hub.Dash.News"], "overview", "news"),
+                    new Entry("designer", loc["Designer.Title"], "action", "designer"),
                 }),
             }),
             new Section("combat", loc["Hub.Tab.Combat"], new[] { new Group(loc["Hub.Tab.Combat"], combat.ToArray()) }),
@@ -245,10 +255,54 @@ public sealed class HubWindow : Window
         };
     }
 
+    /// <summary>The three lines at the very left of the header: they take the names off the tabs and the menu (only the symbols stay) and bring them back.</summary>
+    private UIElement NavToggle()
+    {
+        var lines = new StackPanel { VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        for (int i = 0; i < 3; i++)
+        {
+            var line = new Border { Width = 20, Height = 2.5, CornerRadius = new CornerRadius(1.25), Margin = new Thickness(0, i == 0 ? 0 : 4, 0, 0) };
+            line.SetResourceReference(Border.BackgroundProperty, "Brush.Text");
+            lines.Children.Add(line);
+        }
+
+        var button = new Border { Width = 44, Height = 44, CornerRadius = new CornerRadius(8), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = lines, ToolTip = LocalizationManager.Instance["Hub.Nav.Toggle"], Margin = new Thickness(-8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        button.MouseEnter += (_, _) => button.SetResourceReference(Border.BackgroundProperty, "Brush.ControlHoverStrong");
+        button.MouseLeave += (_, _) => button.Background = Brushes.Transparent;
+        button.MouseLeftButtonUp += (_, _) => SetNavCollapsed(!_collapsed, true);
+        return button;
+    }
+
+    /// <summary>Collapsed: the tabs and the menu show their symbols only, the menu is narrow.</summary>
+    internal void SetNavCollapsed(bool collapsed, bool remember)
+    {
+        _collapsed = collapsed;
+        if (remember)
+        {
+            MeterSettings s = MeterSettings.Load();
+            s.HubNavCollapsed = collapsed;
+            s.Save();
+        }
+
+        ApplyNav();
+    }
+
+    private void ApplyNav()
+    {
+        if (_side is not null)
+        {
+            _side.Width = _collapsed ? 76 : 250;
+        }
+
+        _tabs.Children.Clear();
+        BuildTabs();
+        ShowSection(_section, _entry);
+    }
+
     private static readonly Dictionary<string, string> TabSymbols = new() { ["dashboard"] = "\u2302", ["combat"] = "\u2694", ["character"] = "\u263A", ["tools"] = "\u2699" };
 
     /// <summary>The name of a top tab with its symbol in front.</summary>
-    private static object TabContent(Section section)
+    private object TabContent(Section section)
     {
         if (!TabSymbols.TryGetValue(section.Id, out string? symbol))
         {
@@ -265,8 +319,12 @@ public sealed class HubWindow : Window
         }
 
         var row = new StackPanel { Orientation = Orientation.Horizontal };
-        row.Children.Add(Follow(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 17, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center }));
-        row.Children.Add(Follow(new TextBlock { Text = section.Title, VerticalAlignment = VerticalAlignment.Center }));
+        row.Children.Add(Follow(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = _collapsed ? 20 : 17, Margin = new Thickness(0, 0, _collapsed ? 0 : 8, 0), VerticalAlignment = VerticalAlignment.Center }));
+        if (!_collapsed)
+        {
+            row.Children.Add(Follow(new TextBlock { Text = section.Title, VerticalAlignment = VerticalAlignment.Center }));
+        }
+
         return row;
     }
 
@@ -275,7 +333,7 @@ public sealed class HubWindow : Window
         foreach (Section section in _sections)
         {
             Section s = section;
-            var tab = new RadioButton { GroupName = "HubTabs", Foreground = Muted, Cursor = Cursors.Hand, Tag = s, IsChecked = s == _section, Template = TabTemplate(), Content = TabContent(s) };
+            var tab = new RadioButton { GroupName = "HubTabs", Foreground = Muted, Cursor = Cursors.Hand, Tag = s, IsChecked = s == _section, Template = TabTemplate(), Content = TabContent(s), ToolTip = _collapsed ? s.Title : null };
             tab.Checked += (_, _) => ShowSection(s);
             _tabs.Children.Add(tab);
         }
@@ -312,6 +370,7 @@ public sealed class HubWindow : Window
         grid.Children.Add(_footer);
         var right = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(right, 1);
+        right.Children.Add(_info); // who plays: the state of the game as a dot, the character and the server
 
         // icons only, the words are the tooltips; after a click the answer stands beside the icons for a moment
         _updateText = new TextBlock { Text = "", Foreground = Muted, FontSize = 12, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
@@ -566,36 +625,28 @@ public sealed class HubWindow : Window
             MarkSeen(drops: false);
             NewsWindow.ShowAnnouncements();
         }));
+        // the footer: the state of the game as a dot, the class symbol with the name of the character, the server
         Color c = status.GameOn ? Color.FromRgb(0x3d, 0xdc, 0x84) : Color.FromRgb(0xff, 0x4d, 0x4d);
-        var dot = new Ellipse
+        _info.Children.Clear();
+        _info.Children.Add(new Ellipse
         {
-            Width = 16, Height = 16, Fill = new SolidColorBrush(c), Margin = new Thickness(0, 0, 10, 0), VerticalAlignment = VerticalAlignment.Center,
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = c, BlurRadius = 12, ShadowDepth = 0, Opacity = 0.9 },
-        };
-        var game = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-        game.Children.Add(dot);
-        game.Children.Add(new TextBlock { Text = "Aion 2", FontWeight = FontWeights.SemiBold, Foreground = Light, VerticalAlignment = VerticalAlignment.Center });
-        Border gamePill = Pill(game);
-        gamePill.ToolTip = loc[status.GameOn ? "Hub.GameOn" : "Hub.GameOff"];
-        Border? server = status.Server is { Length: > 0 } sv ? Pill(new TextBlock { Text = sv, Foreground = Light, VerticalAlignment = VerticalAlignment.Center }) : null;
-        var who = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            Width = 11, Height = 11, Fill = new SolidColorBrush(c), Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = loc[status.GameOn ? "Hub.GameOn" : "Hub.GameOff"],
+            Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = c, BlurRadius = 8, ShadowDepth = 0, Opacity = 0.9 },
+        });
+        var who = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, ToolTip = status.ClassName };
         if (status.ClassName is { Length: > 0 } cn && Picture(Aion2Artwork.ClassEmblemPath(cn)) is { } icon)
         {
-            who.Children.Add(new Image { Source = icon, Width = 26, Height = 26, Margin = new Thickness(0, 0, 10, 0) });
+            who.Children.Add(new Image { Source = icon, Width = 20, Height = 20, Margin = new Thickness(0, 0, 8, 0) });
         }
 
-        who.Children.Add(new TextBlock { Text = status.CharacterName ?? loc["Hub.NoCharacter"], Foreground = Light, VerticalAlignment = VerticalAlignment.Center });
-        if (server is not null)
+        who.Children.Add(new TextBlock { Text = status.CharacterName ?? loc["Hub.NoCharacter"], FontSize = 12, Foreground = Light, VerticalAlignment = VerticalAlignment.Center });
+        _info.Children.Add(who);
+        if (status.Server is { Length: > 0 } sv)
         {
-            _right.Children.Add(Pill(who));
-            _right.Children.Add(server);
-        }
-        else
-        {
-            _right.Children.Add(Pill(who));
+            _info.Children.Add(new TextBlock { Text = "·", FontSize = 14, Foreground = Muted, Margin = new Thickness(10, 0, 10, 0), VerticalAlignment = VerticalAlignment.Center });
+            _info.Children.Add(new TextBlock { Text = sv, FontSize = 12, Foreground = Muted, VerticalAlignment = VerticalAlignment.Center });
         }
 
-        _right.Children.Add(gamePill);
         if (!_updating)
         {
             _footer.Text = loc[status.GameOn ? "Hub.GameOn" : "Hub.GameOff"];
@@ -635,43 +686,92 @@ public sealed class HubWindow : Window
 
     // ───────────────────────────── menu and page ─────────────────────────────
 
-    private void ShowSection(Section section)
+    private void ShowSection(Section section, Entry? keep = null)
     {
         _section = section;
         _menu.Children.Clear();
+        _menu.Margin = _collapsed ? new Thickness(10, 16, 10, 10) : new Thickness(10, 16, 10, 10);
         bool first = true;
         foreach (Group group in section.Groups.Where(g => g.Entries.Length > 0))
         {
-            _menu.Children.Add(new TextBlock
+            if (_collapsed)
             {
-                Text = (group.Title ?? "").ToUpperInvariant(), FontSize = 11, Foreground = Frozen("#62788a"), FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(12, first ? 0 : 22, 0, 8),
-            });
+                // no heading over the symbols, a thin line between the groups
+                if (!first)
+                {
+                    _menu.Children.Add(new Border { Height = 1, Background = Line, Margin = new Thickness(8, 8, 8, 12) });
+                }
+            }
+            else
+            {
+                _menu.Children.Add(new TextBlock
+                {
+                    Text = (group.Title ?? "").ToUpperInvariant(), FontSize = 11, Foreground = Frozen("#62788a"), FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(12, first ? 0 : 22, 0, 8),
+                });
+            }
+
             first = false;
             foreach (Entry entry in group.Entries)
             {
                 Entry e = entry;
-                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e), Margin = new Thickness(0, 0, 0, 3) };
+                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e, _collapsed), Margin = new Thickness(0, 0, 0, 3) };
                 if (e.Id == "sessions")
                 {
                     item.ToolTip = LocalizationManager.Instance["Hub.Sessions.Tip"];
                 }
+                else if (e.Kind == "action")
+                {
+                    item.ToolTip = LocalizationManager.Instance["Hub.Designer.Tip"];
+                }
+                else if (_collapsed)
+                {
+                    item.ToolTip = e.Title;
+                }
 
-                item.Checked += (_, _) => ShowEntry(e);
+                if (e.Kind == "action")
+                {
+                    // a button, not a page: it is never the chosen entry
+                    item.PreviewMouseLeftButtonDown += (_, ev) =>
+                    {
+                        ev.Handled = true;
+                        ToggleDesigner?.Invoke();
+                    };
+                }
+                else
+                {
+                    item.Checked += (_, _) =>
+                    {
+                        if (!_menuRebuilding)
+                        {
+                            ShowEntry(e);
+                        }
+                    };
+                }
+
                 _menu.Children.Add(item);
             }
         }
 
-        Entry? start = section.Groups.SelectMany(g => g.Entries).FirstOrDefault();
-        if (start is not null)
+        // a rebuilt menu keeps the chosen entry without showing its page again; a new section starts with its first
+        var chosen = keep is not null ? _menu.Children.OfType<RadioButton>().FirstOrDefault(r => ReferenceEquals(r.Tag, keep)) : null;
+        if (chosen is not null)
         {
-            var first1 = _menu.Children.OfType<RadioButton>().FirstOrDefault();
-            if (first1 is not null)
-            {
-                first1.IsChecked = true;
-            }
+            _menuRebuilding = true;
+            chosen.IsChecked = true;
+            _menuRebuilding = false;
+            return;
+        }
+
+        var first1 = _menu.Children.OfType<RadioButton>().FirstOrDefault(r => ((Entry)r.Tag).Kind != "action");
+        if (first1 is not null)
+        {
+            first1.IsChecked = true;
         }
     }
+
+    /// <summary>The overlay designer on or off (set by the main window).</summary>
+    public Action? ToggleDesigner { get; set; }
 
     /// <summary>A symbol before the name of a tool in the menu (the Tools tab), in the colour of the text, so it also turns accent when the entry is chosen.</summary>
     private static readonly Dictionary<string, string> MenuSymbols = new()
@@ -683,20 +783,24 @@ public sealed class HubWindow : Window
         ["overview"] = "\u2302", ["fights"] = "\u2694", ["best"] = "\u2605", ["updates"] = "\u2B06", ["news"] = "\u2709",
         ["live"] = "\u26A1", ["sessions"] = "\u25A4", ["compare"] = "\u21C4", ["replay"] = "\u25B6", ["dummy"] = "\u25CE",
         ["profile"] = "\u263A", ["skills"] = "\u2737", ["arcana"] = "\u2740", ["board"] = "\u2B22", ["species"] = "\u273F", ["stats"] = "\u2211",
-        ["checklist"] = "\u2611", ["attributes"] = "\u2630", ["statcalc"] = "\u2295",
+        ["checklist"] = "\u2611", ["attributes"] = "\u2630", ["statcalc"] = "\u2295", ["designer"] = "\u25A3",
     };
 
-    private static object MenuContent(string sectionId, Entry entry)
+    private static object MenuContent(string sectionId, Entry entry, bool iconsOnly = false)
     {
         string text = entry.Title + (entry.Kind == "own" ? "  ↗" : "");
         if (!MenuSymbols.TryGetValue(entry.Id, out string? symbol))
         {
-            return text;
+            return iconsOnly ? new TextBlock { Text = entry.Title.Length > 0 ? entry.Title[..1].ToUpperInvariant() : "·", FontSize = 16, FontWeight = FontWeights.SemiBold, Width = 28, TextAlignment = TextAlignment.Center } : text;
         }
 
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         row.Children.Add(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 18, Width = 28, TextAlignment = TextAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
-        row.Children.Add(new TextBlock { Text = text, FontSize = 14.5, VerticalAlignment = VerticalAlignment.Center });
+        if (!iconsOnly)
+        {
+            row.Children.Add(new TextBlock { Text = text, FontSize = 14.5, VerticalAlignment = VerticalAlignment.Center });
+        }
+
         return row;
     }
 

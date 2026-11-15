@@ -93,6 +93,11 @@ public static class ToolRender
                     hubWindow.Height = double.Parse(wh[1]);
                 }
 
+                if (Environment.GetEnvironmentVariable("AIONDPS_NAVCOLLAPSED") == "1")
+                {
+                    hubWindow.SetNavCollapsed(true, false);
+                }
+
                 hubWindow.MeterView = () => new TextBlock { Text = "(the list of the meter as it is shown)", Foreground = Brushes.Gray, Margin = new Thickness(0, 6, 0, 0) };
                 if (parts.Length >= 3)
                 {
