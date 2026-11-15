@@ -93,7 +93,7 @@ internal static class LiveMeterMock
             long damage = r.GetProperty("damage").GetInt64();
             list.Add(new PlayerRow(-rank)
             {
-                Name = r.GetProperty("name").GetString() ?? "?", ClassName = r.GetProperty("cls").GetString() ?? "", Damage = damage, Dps = r.GetProperty("dps").GetDouble(),
+                Name = r.GetProperty("name").GetString() ?? "?", ClassName = r.GetProperty("cls").GetString() ?? "", Faction = r.TryGetProperty("faction", out var faction) ? faction.GetString() ?? "" : "", Damage = damage, Dps = r.GetProperty("dps").GetDouble(),
                 FillPercent = 100.0 * damage / top, SharePercent = r.GetProperty("share").GetDouble(), Rank = rank++,
             });
         }

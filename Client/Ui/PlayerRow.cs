@@ -81,7 +81,59 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string ClassName
     {
         get => _className;
-        set { if (_className == value) { return; } _className = value; OnPropertyChanged(); OnPropertyChanged(nameof(ClassBrush)); }
+        set { if (_className == value) { return; } _className = value; OnPropertyChanged(); OnPropertyChanged(nameof(ClassBrush)); OnPropertyChanged(nameof(ClassIcon)); }
+    }
+
+    /// <summary>The class's picture (assets/classes/icons), null when the class is unknown; for the lists of the new interface (the meter window binds the converter itself).</summary>
+    public System.Windows.Media.ImageSource? ClassIcon => IconCache.Of("classes", ClassName);
+
+    /// <summary>The faction's emblem (assets/races/icons), null while the faction is unknown.</summary>
+    public System.Windows.Media.ImageSource? FactionIcon => IconCache.Of("races", Faction);
+
+    /// <summary>Whether the faction is known (the emblem then stands where the rank number is).</summary>
+    public bool HasFaction => Faction.Length > 0;
+
+    private static class IconCache
+    {
+        private static readonly Dictionary<string, System.Windows.Media.ImageSource?> Loaded = new();
+
+        public static System.Windows.Media.ImageSource? Of(string folder, string name)
+        {
+            if (name.Length == 0)
+            {
+                return null;
+            }
+
+            string key = folder + "/" + name;
+            lock (Loaded)
+            {
+                if (!Loaded.TryGetValue(key, out var image))
+                {
+                    string path = System.IO.Path.Combine(AppContext.BaseDirectory, "assets", folder, "icons", name + ".png");
+                    try
+                    {
+                        var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+                        if (System.IO.File.Exists(path))
+                        {
+                            bitmap.BeginInit();
+                            bitmap.UriSource = new Uri(path, UriKind.Absolute);
+                            bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                            bitmap.EndInit();
+                            bitmap.Freeze();
+                            image = bitmap;
+                        }
+                    }
+                    catch (Exception ex) when (ex is System.IO.IOException or NotSupportedException or UriFormatException)
+                    {
+                        image = null;
+                    }
+
+                    Loaded[key] = image;
+                }
+
+                return image;
+            }
+        }
     }
 
     public int Level
@@ -95,7 +147,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string Faction
     {
         get => _faction;
-        set { if (_faction == value) { return; } _faction = value; OnPropertyChanged(); }
+        set { if (_faction == value) { return; } _faction = value; OnPropertyChanged(); OnPropertyChanged(nameof(FactionIcon)); OnPropertyChanged(nameof(HasFaction)); }
     }
 
     /// <summary>Drives the row's background. Kept separate from <see cref="Faction"/> because the

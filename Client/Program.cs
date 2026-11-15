@@ -2709,10 +2709,10 @@ internal static class Program
         object Rows(IEnumerable<Combat.DamageEvent> hits, double seconds)
         {
             var list = hits.Where(e => directory.IsKnownPlayer(e.SourceObjectId) && directory.NameFor(e.SourceObjectId) is not null).GroupBy(e => e.SourceObjectId)
-                .Select(g => new { id = g.Key, name = directory.NameFor(g.Key)!, cls = directory.ClassOf(g.Key) ?? "", damage = g.Sum(e => (long)e.Amount), active = g.Select(e => (long)(e.Timestamp - DateTime.MinValue).TotalSeconds).Distinct().Count() })
+                .Select(g => new { id = g.Key, name = directory.NameFor(g.Key)!, cls = directory.ClassOf(g.Key) ?? "", faction = directory.FactionOf(g.Key) ?? "", damage = g.Sum(e => (long)e.Amount), active = g.Select(e => (long)(e.Timestamp - DateTime.MinValue).TotalSeconds).Distinct().Count() })
                 .OrderByDescending(r => r.damage).ToList();
             long total = list.Sum(r => r.damage);
-            return list.Select(r => new { r.name, cls = r.cls, r.damage, dps = seconds > 0 ? r.damage / seconds : (r.active > 0 ? (double)r.damage / r.active : 0), share = total > 0 ? 100.0 * r.damage / total : 0 }).ToList();
+            return list.Select(r => new { r.name, cls = r.cls, r.faction, r.damage, dps = seconds > 0 ? r.damage / seconds : (r.active > 0 ? (double)r.damage / r.active : 0), share = total > 0 ? 100.0 * r.damage / total : 0 }).ToList();
         }
 
         var inWindow = events.Where(e => e.Timestamp.TimeOfDay >= from && e.Timestamp.TimeOfDay <= to).ToList();

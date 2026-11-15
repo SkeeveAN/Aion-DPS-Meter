@@ -24,10 +24,18 @@ public static class LiveMeterPage
       <ColumnDefinition Width='Auto'/>
       <ColumnDefinition Width='Auto'/>
     </Grid.ColumnDefinitions>
-    <TextBlock Text='{Binding RankDisplay}' Foreground='{DynamicResource Brush.TextMuted}' VerticalAlignment='Center' HorizontalAlignment='Center'/>
-    <StackPanel Grid.Column='1' VerticalAlignment='Center' Margin='0,0,10,0'>
+    <Grid VerticalAlignment='Center' HorizontalAlignment='Center'>
+      <Image Source='{Binding FactionIcon}' Width='16' Height='16'/>
+      <TextBlock Text='{Binding RankDisplay}' Foreground='{DynamicResource Brush.TextMuted}'>
+        <TextBlock.Style><Style TargetType='TextBlock'><Setter Property='Visibility' Value='Collapsed'/><Style.Triggers><DataTrigger Binding='{Binding HasFaction}' Value='False'><Setter Property='Visibility' Value='Visible'/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+      </TextBlock>
+    </Grid>
+    <StackPanel Grid.Column='1' Orientation='Horizontal' VerticalAlignment='Center' Margin='0,0,10,0'>
+    <Image Source='{Binding ClassIcon}' Width='26' Height='26' Margin='0,0,9,0' VerticalAlignment='Center'/>
+    <StackPanel VerticalAlignment='Center'>
       <TextBlock Text='{Binding NameDisplay}' FontWeight='SemiBold' Foreground='{DynamicResource Brush.Text}' TextTrimming='CharacterEllipsis'/>
       <TextBlock Text='{Binding ClassName}' FontSize='11' Foreground='{DynamicResource Brush.TextMuted}'/>
+    </StackPanel>
     </StackPanel>
     <ProgressBar Grid.Column='2' Height='12' Maximum='100' Value='{Binding FillPercent, Mode=OneWay}' Foreground='{Binding ClassBrush}' Background='{DynamicResource Brush.Control}' BorderThickness='0' VerticalAlignment='Center' Margin='0,0,12,0'/>
     <TextBlock Grid.Column='3' Text='{Binding DpsDisplay}' FontWeight='SemiBold' Foreground='{DynamicResource Brush.Text}' HorizontalAlignment='Right' VerticalAlignment='Center'/>
