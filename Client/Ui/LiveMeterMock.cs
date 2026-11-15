@@ -207,28 +207,25 @@ internal static class LiveMeterMock
             grid.Children.Add(mark);
         }
 
+        // one copy symbol for all three buttons (two sheets); on the Discord mark it is drawn thicker, with a dark halo and a dark fill, so that it stands out
+        var sheets = new System.Windows.Shapes.Path
+        {
+            Data = Geometry.Parse("M 6,3 H 13 A 1.5,1.5 0 0 1 14.5,4.5 V 11 M 3,6 H 10 A 1.5,1.5 0 0 1 11.5,7.5 V 14 A 1.5,1.5 0 0 1 10,15.5 H 4.5 A 1.5,1.5 0 0 1 3,14 Z"),
+            StrokeThickness = withDiscord ? 2.0 : 1.4, StrokeLineJoin = PenLineJoin.Round, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
+            Width = 18, Height = 18, Stretch = Stretch.None, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(2, 2, 0, 0),
+        };
         if (withDiscord)
         {
-            // over the Discord mark the copy symbol is drawn with a thicker line and a dark halo, so that it stands out
-            var sheets = new System.Windows.Shapes.Path
-            {
-                Data = Geometry.Parse("M 6,3 H 13 A 1.5,1.5 0 0 1 14.5,4.5 V 11 M 3,6 H 10 A 1.5,1.5 0 0 1 11.5,7.5 V 14 A 1.5,1.5 0 0 1 10,15.5 H 4.5 A 1.5,1.5 0 0 1 3,14 Z"),
-                Stroke = Brushes.White, StrokeThickness = 2.0, StrokeLineJoin = PenLineJoin.Round, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
-                Fill = new SolidColorBrush(Color.FromArgb(0xB0, 0x14, 0x18, 0x40)), Width = 18, Height = 18, Stretch = Stretch.None,
-                HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(2, 2, 0, 0),
-                Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.95 },
-            };
-            grid.Children.Add(sheets);
+            sheets.Stroke = Brushes.White;
+            sheets.Fill = new SolidColorBrush(Color.FromArgb(0xB0, 0x14, 0x18, 0x40));
+            sheets.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.95 };
         }
         else
         {
-            var glyph = new TextBlock
-            {
-                Text = "\uE8C8", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
-            };
-            glyph.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
-            grid.Children.Add(glyph);
+            sheets.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.Text");
         }
+
+        grid.Children.Add(sheets);
 
         var button = new Border { Child = grid, CornerRadius = new CornerRadius(6), BorderThickness = new Thickness(1), Margin = new Thickness(8, 0, 0, 0), Cursor = System.Windows.Input.Cursors.Hand };
         button.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
