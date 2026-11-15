@@ -2830,6 +2830,20 @@ internal static class Program
             }
         }
 
+        // what the right list of the live meter page would show: before and after the meter is cleared
+        var store = (Ui.LastInstanceStore)Field("_lastInstance")!;
+        void PrintLast(string when)
+        {
+            Console.WriteLine($"last instance {when}: '{store.Title}' {store.Bosses.Count} bosses");
+            foreach (Ui.BossSnapshot boss in store.Bosses)
+            {
+                Console.WriteLine($"  {boss.Name}: {(boss.Killed ? "killed" : boss.Wiped ? "wipe" : "open")} {boss.Seconds:0}s total {boss.Total:N0}, {boss.Rows.Count} players [{string.Join(", ", boss.Rows.Take(3).Select(r => r.Name + " " + r.Damage.ToString("N0")))}]");
+            }
+        }
+
+        PrintLast("at the end");
+        type.GetMethod("ClearDamageData", flags)!.Invoke(window, null);
+        PrintLast("after the clear");
         Environment.Exit(0);
     }
 

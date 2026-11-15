@@ -182,11 +182,6 @@ public static class ToolRender
 
     private static ToolPage LivePage()
     {
-        if (Environment.GetEnvironmentVariable("AIONDPS_LIVEMOCK") is { Length: > 0 } mockData)
-        {
-            return LiveMeterMock.Build(mockData);
-        }
-
         var rows = new System.Collections.ObjectModel.ObservableCollection<PlayerRow>();
         (string Name, string Class, long Damage, double Dps, double Fill, double Share)[] sample =
         {
@@ -199,7 +194,17 @@ public static class ToolRender
         }
 
         int mode = 0;
-        return LiveMeterPage.Build(rows, () => { }, () => mode, m => mode = m);
+        // the right list with the bosses of a last instance, as a sample
+        var last = new LastInstanceStore();
+        PlayerRow Row(int n, string name, string cls, string faction, long damage, double dps, double fill, double share) => new(-n) { Name = name, ClassName = cls, Faction = faction, Damage = damage, Dps = dps, FillPercent = fill, SharePercent = share, Rank = n };
+        last.Replace("Draupnir-Nest", new List<BossSnapshot>
+        {
+            new() { TargetId = 2, Name = "Draupnir", Start = DateTime.Today.AddHours(10).AddMinutes(53), End = DateTime.Today.AddHours(10).AddMinutes(58), Seconds = 292, Killed = true, Total = 18_583_817, EncounterId = 48219, Rows = new[]
+                { Row(1, "Aahz", "Gladiator", "Elyos", 5_929_089, 20_304, 100, 31.9), Row(2, "Skeeve", "Sorcerer", "Elyos", 5_082_239, 17_405, 86, 27.3), Row(3, "Chumley", "Assassin", "Elyos", 3_411_084, 11_682, 58, 18.4), Row(4, "Nunzio", "Cleric", "Elyos", 1_762_211, 6_035, 30, 9.5) } },
+            new() { TargetId = 1, Name = "Torwächter Kuri", Start = DateTime.Today.AddHours(10).AddMinutes(42), End = DateTime.Today.AddHours(10).AddMinutes(46), Seconds = 201, Killed = true, Total = 9_120_400, Rows = new[]
+                { Row(1, "Skeeve", "Sorcerer", "Elyos", 3_100_000, 15_422, 100, 34.0), Row(2, "Aahz", "Gladiator", "Elyos", 2_900_000, 14_428, 93, 31.8), Row(3, "Nunzio", "Cleric", "Elyos", 900_000, 4_478, 29, 9.9) } },
+        });
+        return LiveMeterPage.Build(rows, () => { }, () => mode, m => mode = m, last: last);
     }
 
     /// <summary>A panel of the settings window (the pets, the gathering) as a page takes it, with the styles of the window.</summary>

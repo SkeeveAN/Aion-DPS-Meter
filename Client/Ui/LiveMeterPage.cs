@@ -69,7 +69,7 @@ public static class LiveMeterPage
         return row;
     }
 
-    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null, Func<bool>? gameOn = null, Action<PlayerRow>? openDetails = null)
+    public static ToolPage Build(ObservableCollection<PlayerRow> rows, Action openMeter, Func<int>? getMode = null, Action<int>? setMode = null, Func<bool>? gameOn = null, Action<PlayerRow>? openDetails = null, LastInstanceStore? last = null, Action<BossSnapshot, int>? copyBoss = null)
     {
         var loc = LocalizationManager.Instance;
         // with nothing recorded the list shows sample rows, tagged as such, so the player sees how it could look
@@ -171,7 +171,28 @@ public static class LiveMeterPage
             page.Children.Add(chips);
         }
 
-        page.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = card });
+        UIElement content = card;
+        if (last is not null)
+        {
+            // two lists side by side: everything the meter counts (it resets as it always did) and the last instance with its bosses (it stays until the next one)
+            card.Child = null;
+            card.Margin = new Thickness(0);
+            card.Child = LiveInstanceView.Layout(loc["Hub.Live.AllSessions"], "", loc["Hub.Live.Legend"], list);
+            var right = new Border { Padding = new Thickness(16, 12, 16, 14), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Top, Child = LiveInstanceView.Card(last, copyBoss) };
+            right.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+            right.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            var columns = new Grid { Margin = new Thickness(14, 10, 14, 14) };
+            columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
+            columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Grid.SetColumn(card, 0);
+            Grid.SetColumn(right, 2);
+            columns.Children.Add(card);
+            columns.Children.Add(right);
+            content = columns;
+        }
+
+        page.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = content });
         return new ToolPage { Content = page, Cleanup = gameTimer.Stop };
     }
 }

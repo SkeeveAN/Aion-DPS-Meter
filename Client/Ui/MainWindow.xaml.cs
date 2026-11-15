@@ -311,6 +311,7 @@ public partial class MainWindow : Window
         playersView.LiveSortingProperties.Add(nameof(PlayerRow.Damage));
 
         _pollTimer.Tick += OnPollTimerTick;
+        _pollTimer.Tick += (_, _) => CaptureLastInstance();
 
         // Startup check is announced (per the user: should behave exactly like clicking "Check for
         // updates" in the App menu, not stay silent) -- a launch is never mid-fight, so a message
@@ -1729,10 +1730,12 @@ public partial class MainWindow : Window
     /// The hits shown for the selected target and run: for a boss, the boss and its adds over the
     /// boss fight (see <see cref="BossFight.ShownHits"/>); for anything else, that target alone.
     /// </summary>
-    private List<DamageEvent> ShownFightHits(IEnumerable<DamageEvent> damage, int targetId)
+    private List<DamageEvent> ShownFightHits(IEnumerable<DamageEvent> damage, int targetId) => ShownFightHits(damage, targetId, _selectedRunWindowStart, _selectedRunWindowEnd);
+
+    private List<DamageEvent> ShownFightHits(IEnumerable<DamageEvent> damage, int targetId, DateTime? from, DateTime? to)
     {
         var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
-        return BossFight.ShownHits(damage, targetId, _selectedRunWindowStart, _selectedRunWindowEnd,
+        return BossFight.ShownHits(damage, targetId, from, to,
             id => directory?.BossNpcIdOf(id) is not null,
             id => directory?.IsKnownMonster(id) == true);
     }
@@ -3523,6 +3526,8 @@ public partial class MainWindow : Window
             }
 
             UploadResult result = await UploadClient.SendAsync(payload);
+
+            NoteEncounterLink(payload, result);
             if (result.Success)
             {
                 uploadedNames.Add(payload.BossNpcName);
@@ -3999,6 +4004,8 @@ public partial class MainWindow : Window
             }
 
             UploadResult result = await UploadClient.SendAsync(payload);
+
+            NoteEncounterLink(payload, result);
             AutoUploadLog.Write($"boss {targetId} '{payload.BossNpcName}': {(result.Success ? "uploaded" : "failed: " + result.Error)}");
             if (result.Success)
             {
@@ -4457,6 +4464,7 @@ public partial class MainWindow : Window
 
         ShowUploadStatus("Uploading...");
         UploadResult sent = await UploadClient.SendAsync(fight);
+        NoteEncounterLink(fight, sent);
         if (!sent.Success)
         {
             ShowUploadStatus($"Upload failed: {sent.Error}");
@@ -4532,6 +4540,8 @@ public partial class MainWindow : Window
             }
 
             UploadResult result = await UploadClient.SendAsync(payload);
+
+            NoteEncounterLink(payload, result);
             if (result.Success)
             {
                 uploaded++;
@@ -5596,6 +5606,8 @@ public partial class MainWindow : Window
 
     private void ClearDamageData()
     {
+        CaptureLastInstance(); // what was fought stays in the right list of the live meter page
+        _lastCapturedEvents = -1;
         _aggregator.Clear();
         _groupNames.Clear();
         _avoids.Clear();
@@ -5634,9 +5646,12 @@ public partial class MainWindow : Window
     /// Discord. Was tab-separated, which Discord collapses into an unreadable run of text -- per
     /// the user, this needs to arrive as an aligned ASCII table.
     /// </summary>
-    private void CopyRowsToClipboard()
+    private void CopyRowsToClipboard() => CopyTextToClipboardIfAny(DamageTable(_rows), "No damage has been recorded yet.");
+
+    /// <summary>The Discord table of a list of rows (name, class, level, damage, DPS), empty without rows.</summary>
+    private string DamageTable(IEnumerable<PlayerRow> source)
     {
-        var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
+        var ranked = source.OrderByDescending(r => r.Damage).ToList();
         var rows = ranked
             .Select(r => (IReadOnlyList<string>)new[]
             {
@@ -5648,12 +5663,10 @@ public partial class MainWindow : Window
             })
             .ToList();
 
-        string table = AsciiTable.Render(
+        return AsciiTable.Render(
             new[] { "Name", "Class", "Lvl", "Damage", "DPS" },
             rows,
             new[] { false, false, true, true, true });
-
-        CopyTextToClipboardIfAny(table, "No damage has been recorded yet.");
     }
 
     /// <summary>Guards Clipboard.SetText against an empty result -- shared by CopyRowsToClipboard
@@ -5842,9 +5855,12 @@ public partial class MainWindow : Window
     /// lead with that target's name -- otherwise a line pasted into Aion chat carries damage numbers
     /// with no indication of which fight they're from.
     /// </summary>
-    private List<string> BuildDmgChatLine()
+    private List<string> BuildDmgChatLine() => BuildDmgChatLine(_rows, _selectedTargetId is int targetId ? (_targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId)) : null);
+
+    /// <summary>The chat line of a list of rows (the meter's own rows, or the rows of a boss of the last instance), with the boss in front when there is one.</summary>
+    private List<string> BuildDmgChatLine(IEnumerable<PlayerRow> source, string? bossName)
     {
-        var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
+        var ranked = source.OrderByDescending(r => r.Damage).ToList();
         var parts = new List<string>(ranked.Count);
         foreach (PlayerRow row in ranked)
         {
@@ -5861,9 +5877,8 @@ public partial class MainWindow : Window
         }
 
         List<string> lines = ChunkChatLineParts(parts, ChatLineCharLimit);
-        if (_selectedTargetId is int targetId)
+        if (bossName is not null)
         {
-            string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
             lines[0] = $"{bossName}: {lines[0]}";
         }
 
@@ -6549,7 +6564,7 @@ public partial class MainWindow : Window
                 Show();
                 WindowState = WindowState.Normal;
                 Activate();
-            }, () => (int)_mode, mode => SetMode((MeterMode)mode), () => (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is not null, row => ShowPlayerDetails(row));
+            }, () => (int)_mode, mode => SetMode((MeterMode)mode), () => (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is not null, row => ShowPlayerDetails(row), _lastInstance, CopyBossOfLastInstance);
         }
 
         if (module.StartsWith("hub.cfg.", StringComparison.Ordinal))
