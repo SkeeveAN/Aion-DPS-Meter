@@ -103,3 +103,8 @@ tables; `skill_effect_tables.py` reads their value lists (row layout in its docs
 Checked against the game's own tooltips (Keen Strike "Absorbiert 1 % LP", "[Verheerender Schlag]-Abklingzeit −1 Sek."; Zikel's Blessing "+10 %
 PvE, +5 % PvP"): 472 of 473 placeholders resolve. The tables are decrypted by `dectable.py` or by the Extract tool of Tools/aion2-icons
 (`table <out> SkillEffect SkillAbnormalEffect`).
+
+## Pets 1021 / 1025 swapped (2026-11-15)
+The pet window of the game: "Odspinnen-Abart" (soul only from chests) is pet 1021, level 2 5/75; "Mutierte Odspinnen-Abart" (its soul drops from the Odyle spiders, listed under Fundorte) is pet 1025, level 3 max. The server credits the soul
+of the mutated spider to 1025 (progress messages of the kills). build_pets.py named them the other way round (by the model key), so `pets.json` (names/keys, souls, monsters) and `regions.json` were swapped for these two ids by hand.
+Run build_pets.py again only with this swap in its extra.json, or the names go back.
