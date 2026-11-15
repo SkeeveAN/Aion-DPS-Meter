@@ -479,6 +479,15 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<TextBlock> _heightLabels = new();
     private readonly List<Grid> _cubeMarks = new();
 
+    private static readonly System.Windows.Media.Effects.DropShadowEffect CubeGlow = Frozen(new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 9, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0xC8, 0x1E), Opacity = 1 });
+    private static readonly System.Windows.Media.Effects.DropShadowEffect IconShadow = Frozen(new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 3, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.9 });
+
+    private static System.Windows.Media.Effects.DropShadowEffect Frozen(System.Windows.Media.Effects.DropShadowEffect effect)
+    {
+        effect.Freeze();
+        return effect;
+    }
+
     /// <summary>The pseudo pet id the live Hidden Cubes travel under (the controller's own number).</summary>
     private const int CubeMarkPet = -1;
 
@@ -488,8 +497,8 @@ public sealed class PetMapWindow : MovableOverlay
         // the gold cube itself, bigger than the places, with a glow that pulses (no frame around it)
         var cube = new Image { Width = 36, Height = 36, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
         RenderOptions.SetBitmapScalingMode(cube, BitmapScalingMode.HighQuality);
-        var glow = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0x70, 0x50), Opacity = 0.8 };
-        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, new System.Windows.Media.Animation.DoubleAnimation(4, 14, TimeSpan.FromMilliseconds(800)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever });
+        var glow = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0xC8, 0x1E), Opacity = 1 };
+        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, new System.Windows.Media.Animation.DoubleAnimation(8, 24, TimeSpan.FromMilliseconds(800)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever });
         cube.Effect = glow;
         var grid = new Grid { Width = 44, Height = 44, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
         Panel.SetZIndex(grid, 5);
@@ -779,6 +788,8 @@ public sealed class PetMapWindow : MovableOverlay
 
                 var shown = _gatherIcons[iconMark++];
                 shown.Source = icon;
+                // the cube places glow gold (a soft glow round the picture, no frame); the other collectibles keep their dark shadow
+                shown.Effect = kind == "Cube" ? CubeGlow : IconShadow;
                 // the cubes are many and close together: a smaller picture than the other collectibles
                 double side = kind == "Cube" ? 24 : 24;
                 shown.Width = shown.Height = side;
