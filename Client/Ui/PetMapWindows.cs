@@ -485,23 +485,14 @@ public sealed class PetMapWindow : MovableOverlay
     /// <summary>The mark of an announced cube: 44 px, a pulsing ring, a dark disc with a thick gold ring and the cube's picture.</summary>
     private static Grid NewCubeMark()
     {
-        var pulse = new Ellipse { Width = 44, Height = 44, Stroke = new SolidColorBrush(Color.FromRgb(0xFF, 0xD5, 0x4A)), StrokeThickness = 3, IsHitTestVisible = false, RenderTransformOrigin = new Point(0.5, 0.5), RenderTransform = new ScaleTransform(0.65, 0.65) };
-        var scale = new System.Windows.Media.Animation.DoubleAnimation(0.65, 1.0, TimeSpan.FromMilliseconds(1100)) { RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever };
-        var fade = new System.Windows.Media.Animation.DoubleAnimation(0.95, 0.0, TimeSpan.FromMilliseconds(1100)) { RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever };
-        pulse.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scale);
-        pulse.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scale);
-        pulse.BeginAnimation(UIElement.OpacityProperty, fade);
-        var disc = new Ellipse
-        {
-            Width = 32, Height = 32, Fill = new SolidColorBrush(Color.FromArgb(0xEE, 0x0E, 0x12, 0x1A)), Stroke = new SolidColorBrush(Color.FromRgb(0xFF, 0xD5, 0x4A)), StrokeThickness = 4, IsHitTestVisible = false,
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 8, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0xB0, 0x20), Opacity = 0.95 },
-        };
-        var cube = new Image { Width = 24, Height = 24, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
+        // the gold cube itself, bigger than the places, with a glow that pulses (no frame around it)
+        var cube = new Image { Width = 36, Height = 36, Source = AionDPS.Aion2.Protocol.Aion2Gather.Icon("Hidden Cube"), IsHitTestVisible = false };
         RenderOptions.SetBitmapScalingMode(cube, BitmapScalingMode.HighQuality);
+        var glow = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 0, Color = Color.FromRgb(0xFF, 0xD0, 0x20), Opacity = 1 };
+        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, new System.Windows.Media.Animation.DoubleAnimation(6, 22, TimeSpan.FromMilliseconds(700)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever });
+        cube.Effect = glow;
         var grid = new Grid { Width = 44, Height = 44, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
         Panel.SetZIndex(grid, 5);
-        grid.Children.Add(pulse);
-        grid.Children.Add(disc);
         grid.Children.Add(cube);
         return grid;
     }
