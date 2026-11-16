@@ -423,7 +423,9 @@ public partial class MainWindow : Window
                         wizardWindow.ShowInTaskbar = true;
                     }
 
+                    _firstStartWizardOpen = true;
                     wizardWindow.ShowDialog();
+                    _firstStartWizardOpen = false;
                 }
                 else if (PrivacyConsent.NeedsAsking(MeterSettings.Load()))
                 {
@@ -2477,6 +2479,7 @@ public partial class MainWindow : Window
     {
         ApplyClassFilterAvailability();
         LocalizationManager.Instance.PropertyChanged += (_, _) => LocalizeClassFilter();
+        LocalizationManager.Instance.PropertyChanged += (_, _) => OnLanguageChangedForHub();
 
         // 2.0: the program starts with the new interface; this window (it carries the capture and the overlays) is never seen
         if (!Headless && MeterSettings.Load().OpenHubAtStart)
@@ -6157,7 +6160,10 @@ public partial class MainWindow : Window
     }
     private bool _hubIsMain;
 
-    /// <summary>The new interface is built again (the same place, size and tab are not kept: it is used right after the first-start wizard, when the language may have changed). Closing the old one must not end the program.</summary>
+    /// <summary>
+    /// The new interface is built again, in the same place and size, on the same tab and page. Its texts are read once when it is built, so a change of the language (in the settings or in the
+    /// first-start wizard) builds it anew. Closing the old one must not end the program.
+    /// </summary>
     private void ReopenHub()
     {
         if (_hubWindow is not { } old)
@@ -6165,12 +6171,61 @@ public partial class MainWindow : Window
             return;
         }
 
+        Rect bounds = old.WindowState == WindowState.Normal ? new Rect(old.Left, old.Top, old.Width, old.Height) : old.RestoreBounds;
+        WindowState state = old.WindowState;
+        string sectionId = old.SectionId;
+        string? entryId = old.EntryId;
         bool main = _hubIsMain;
         _hubIsMain = false;
         old.Close();
         _hubWindow = null;
         OnOpenHubClicked(this, new RoutedEventArgs());
         _hubIsMain = main;
+        if (_hubWindow is { } hub)
+        {
+            hub.WindowStartupLocation = WindowStartupLocation.Manual;
+            hub.Left = bounds.Left;
+            hub.Top = bounds.Top;
+            hub.Width = bounds.Width;
+            hub.Height = bounds.Height;
+            if (state == WindowState.Maximized)
+            {
+                hub.WindowState = WindowState.Maximized;
+            }
+
+            if (entryId is not null)
+            {
+                hub.SelectForRender(sectionId, entryId);
+            }
+        }
+    }
+
+    private bool _hubLanguageQueued;
+    private bool _firstStartWizardOpen;
+
+    /// <summary>The language changed: when the open new interface was built in another one it is built again (a moment later, never inside the event that changed it, and not while the first-start wizard is open).</summary>
+    private void OnLanguageChangedForHub(bool afterSave = false)
+    {
+        if (_hubWindow is not { } hub || hub.BuiltLanguage == LocalizationManager.Instance.Language || _hubLanguageQueued || _firstStartWizardOpen)
+        {
+            return;
+        }
+
+        // while the settings of the client are open the page stays as it is (what is typed there is not lost); it is built again when the settings are saved or another page is chosen
+        if (!afterSave && hub.EntryId?.StartsWith("client.", StringComparison.Ordinal) == true)
+        {
+            return;
+        }
+
+        _hubLanguageQueued = true;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            _hubLanguageQueued = false;
+            if (_hubWindow is { } open && open.BuiltLanguage != LocalizationManager.Instance.Language)
+            {
+                ReopenHub();
+            }
+        }), DispatcherPriority.ApplicationIdle);
     }
 
     private void OnOpenHubClicked(object sender, RoutedEventArgs e)
@@ -6240,6 +6295,7 @@ public partial class MainWindow : Window
         _hubWindow.MeterView = BuildMeterView;
         _hubWindow.ToggleDesigner = StartDesignerFromHub;
         _hubWindow.OpenFeedback = () => OnFeedbackClicked(this, new RoutedEventArgs());
+        _hubWindow.PageChanged = () => OnLanguageChangedForHub();
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         WidgetKind.MeterHasRows = () => _rows.Count > 0;
@@ -6699,6 +6755,7 @@ public partial class MainWindow : Window
 
                 settings.Save();
                 ApplySettingsEverywhere(settings);
+                OnLanguageChangedForHub(afterSave: true);
             };
             window.ResetRequested += () =>
             {

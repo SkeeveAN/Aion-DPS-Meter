@@ -48,6 +48,14 @@ public sealed class HubWindow : Window
     private readonly StackPanel _menu = new() { Margin = new Thickness(10, 16, 10, 10) };
     private readonly Border _host = new();
     private Border? _side;
+
+    /// <summary>The language the texts of this window were built in (they are read once; a window built before a change of language is built again).</summary>
+    internal string BuiltLanguage { get; } = LocalizationManager.Instance.Language;
+
+    /// <summary>The tab and the page that are shown, to come back to them after the window was built again.</summary>
+    internal string SectionId => _section.Id;
+
+    internal string? EntryId => _entry?.Id;
     private bool _collapsed;
     private bool _menuRebuilding;
     private readonly StackPanel _info = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 14, 0) };
@@ -792,6 +800,9 @@ public sealed class HubWindow : Window
     /// <summary>The overlay designer on or off (set by the main window).</summary>
     public Action? ToggleDesigner { get; set; }
 
+    /// <summary>Another page was chosen (set by the main window: a change of language that waited for the settings page to be left is applied then).</summary>
+    public Action? PageChanged { get; set; }
+
     /// <summary>The form for a problem or an improvement (set by the main window).</summary>
     public Action? OpenFeedback { get; set; }
 
@@ -960,6 +971,7 @@ public sealed class HubWindow : Window
     private void ShowEntry(Entry entry)
     {
         _entry = entry;
+        PageChanged?.Invoke();
         LocalizationManager loc = LocalizationManager.Instance;
         _page?.Cleanup?.Invoke();
         _page = null;
