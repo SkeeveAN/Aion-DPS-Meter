@@ -5947,7 +5947,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        _feedbackWindow = new FeedbackWindow(MeterSettings.Load()) { Owner = this };
+        // the form of the hub: the meter window is hidden then and cannot be its owner
+        _feedbackWindow = new FeedbackWindow(MeterSettings.Load()) { Owner = IsVisible ? this : null };
+        if (!IsVisible)
+        {
+            _feedbackWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+
         _feedbackWindow.Closed += (_, _) => _feedbackWindow = null;
         _feedbackWindow.Show();
     }
@@ -6202,6 +6208,7 @@ public partial class MainWindow : Window
         };
         _hubWindow.MeterView = BuildMeterView;
         _hubWindow.ToggleDesigner = StartDesignerFromHub;
+        _hubWindow.OpenFeedback = () => OnFeedbackClicked(this, new RoutedEventArgs());
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         WidgetKind.MeterHasRows = () => _rows.Count > 0;

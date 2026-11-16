@@ -393,6 +393,25 @@ public sealed class HubWindow : Window
             refresh.Stroke = Muted;
         };
         update.MouseLeftButtonUp += (_, _) => FooterUpdateClick();
+        // report a problem or an improvement (a speech bubble): the form that sends it to the community
+        var bubble = new System.Windows.Shapes.Path
+        {
+            Data = Geometry.Parse("M4,4 H20 A2,2 0 0 1 22,6 V15 A2,2 0 0 1 20,17 H11 L6,21 V17 H4 A2,2 0 0 1 2,15 V6 A2,2 0 0 1 4,4 Z"),
+            Stroke = Muted, StrokeThickness = 1.7, StrokeLineJoin = PenLineJoin.Round, Width = 17, Height = 16, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center,
+        };
+        var feedback = new Border { Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 4, 0), CornerRadius = new CornerRadius(5), Cursor = Cursors.Hand, Background = Brushes.Transparent, Child = bubble, ToolTip = loc["Main.MenuSettings.Feedback"] };
+        feedback.MouseEnter += (_, _) =>
+        {
+            feedback.Background = Hover;
+            bubble.Stroke = Light;
+        };
+        feedback.MouseLeave += (_, _) =>
+        {
+            feedback.Background = Brushes.Transparent;
+            bubble.Stroke = Muted;
+        };
+        feedback.MouseLeftButtonUp += (_, _) => OpenFeedback?.Invoke();
+        right.Children.Add(feedback);
         right.Children.Add(update);
 
         // two windows over each other, the front one filled: "this one stays in front"
@@ -772,6 +791,9 @@ public sealed class HubWindow : Window
 
     /// <summary>The overlay designer on or off (set by the main window).</summary>
     public Action? ToggleDesigner { get; set; }
+
+    /// <summary>The form for a problem or an improvement (set by the main window).</summary>
+    public Action? OpenFeedback { get; set; }
 
     /// <summary>A symbol before the name of a tool in the menu (the Tools tab), in the colour of the text, so it also turns accent when the entry is chosen.</summary>
     private static readonly Dictionary<string, string> MenuSymbols = new()
