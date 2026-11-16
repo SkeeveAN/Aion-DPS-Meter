@@ -831,6 +831,13 @@
      "Client"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.27: a change of the language takes effect in the new interface at once, without a restart (it is built again in the same place, on the same page); the button to report a problem or an improvement is back as a speech bubble in the footer; the first-start wizard and the questions after it stand in the middle of the screen, and the interface is built in the language the wizard chose",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-16"
    }
   ]
  },
