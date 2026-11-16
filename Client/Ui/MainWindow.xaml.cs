@@ -412,19 +412,34 @@ public partial class MainWindow : Window
             bool wizard = !settings.SetupCompleted;
             Loaded += (_, _) =>
             {
+                // the meter window is hidden when the new interface is the main window (it ran its Loaded handler above and went away): the questions are no children of it then, they stand in the middle of the screen
+                Window? parent = IsVisible ? this : null;
+                string languageBefore = LocalizationManager.Instance.Language;
                 if (wizard)
                 {
-                    new WizardWindow(settings, RecognisedCharacterName, () => _liveSource?.Entities as Aion2.Aion2EntityDirectory) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+                    var wizardWindow = new WizardWindow(settings, RecognisedCharacterName, () => _liveSource?.Entities as Aion2.Aion2EntityDirectory) { Owner = parent, WindowStartupLocation = parent is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner };
+                    if (parent is null)
+                    {
+                        wizardWindow.ShowInTaskbar = true;
+                    }
+
+                    wizardWindow.ShowDialog();
                 }
                 else if (PrivacyConsent.NeedsAsking(MeterSettings.Load()))
                 {
                     // an install from before the question existed, or a policy that changed since the player accepted it
-                    PrivacyConsent.Ask(this);
+                    PrivacyConsent.Ask(parent);
+                }
+
+                // the wizard may have chosen another language: the new interface is built with its texts, so it is built again
+                if (LocalizationManager.Instance.Language != languageBefore)
+                {
+                    ReopenHub();
                 }
 
                 ApplyPrivacyRestrictions();
                 RestorePopOuts();
-                WindowPlacement.AskIfNeeded(this);
+                WindowPlacement.AskIfNeeded(parent);
                 AskForNpcapIfMissing();
             };
         }
@@ -526,7 +541,7 @@ public partial class MainWindow : Window
         }
 
         var loc = LocalizationManager.Instance;
-        if (ThemedMessageBox.Show(this, loc["Npcap.Missing.Text"], loc["Npcap.Missing.Title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(IsVisible ? this : null, loc["Npcap.Missing.Text"], loc["Npcap.Missing.Title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
         {
             try
             {
@@ -6141,6 +6156,22 @@ public partial class MainWindow : Window
         return now - _hubFramesAt < TimeSpan.FromSeconds(15);
     }
     private bool _hubIsMain;
+
+    /// <summary>The new interface is built again (the same place, size and tab are not kept: it is used right after the first-start wizard, when the language may have changed). Closing the old one must not end the program.</summary>
+    private void ReopenHub()
+    {
+        if (_hubWindow is not { } old)
+        {
+            return;
+        }
+
+        bool main = _hubIsMain;
+        _hubIsMain = false;
+        old.Close();
+        _hubWindow = null;
+        OnOpenHubClicked(this, new RoutedEventArgs());
+        _hubIsMain = main;
+    }
 
     private void OnOpenHubClicked(object sender, RoutedEventArgs e)
     {
