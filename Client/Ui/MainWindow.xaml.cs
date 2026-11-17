@@ -6271,6 +6271,11 @@ public partial class MainWindow : Window
 
                 return new HubStatus(own is not null, own?.Name, className, server);
             });
+        // before the dashboard is built again with the sources: a widget that finds no list of the meter then would show a dash for good
+        _hubWindow.MeterView = BuildMeterView;
+        _hubWindow.ToggleDesigner = StartDesignerFromHub;
+        _hubWindow.OpenFeedback = () => OnFeedbackClicked(this, new RoutedEventArgs());
+        _hubWindow.PageChanged = () => OnLanguageChangedForHub();
         _hubWindow.SetDashboardSources(() => _sessions.Sessions, AppVersion.Text);
         // once: the recordings of earlier runs become the first entries of the history (a child process, in the background)
         HistoryBuilder.Start(() => Dispatcher.BeginInvoke(new Action(() => _hubWindow?.RefreshHistory())));
@@ -6292,10 +6297,6 @@ public partial class MainWindow : Window
                 ToggleAllOverlays();
             }
         };
-        _hubWindow.MeterView = BuildMeterView;
-        _hubWindow.ToggleDesigner = StartDesignerFromHub;
-        _hubWindow.OpenFeedback = () => OnFeedbackClicked(this, new RoutedEventArgs());
-        _hubWindow.PageChanged = () => OnLanguageChangedForHub();
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         WidgetKind.MeterHasRows = () => _rows.Count > 0;

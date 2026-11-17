@@ -134,7 +134,8 @@ public sealed class HubWindow : Window
     /// <summary>The sources a widget needs, for the widgets that stand over the game.</summary>
     public DashboardSources OverlaySources() => Sources();
 
-    private DashboardSources Sources() => new(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version, PageList, BuildPage, MeterView);
+    // the meter's list is asked for when a widget is drawn, not taken when the sources are made: the main window gives it only after the window was built (a dashboard built before that would show a dash for good)
+    private DashboardSources Sources() => new(_status, OpenToolFromDashboard, _sessions, () => SelectForRender("combat", "sessions"), _version, PageList, BuildPage, () => MeterView?.Invoke());
 
     /// <summary>Every page of the app a dashboard can take as a widget (all but the overview itself).</summary>
     private IReadOnlyList<HubPageInfo> PageList() =>
