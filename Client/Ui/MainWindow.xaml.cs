@@ -506,7 +506,9 @@ public partial class MainWindow : Window
         if (restricted)
         {
             _toolsWindow?.Close();
+            _hubForceClose = true;
             _hubWindow?.Close();
+            _hubForceClose = false;
             _worldBoss?.Dispose();
             _worldBoss = null;
             _assist?.Dispose();
@@ -1424,6 +1426,7 @@ public partial class MainWindow : Window
     /// </summary>
     protected override void OnClosing(CancelEventArgs e)
     {
+        _hubForceClose = true; // the program ends: the new interface closes without asking
         SaveWindowStateToSettings();
         base.OnClosing(e);
         if (!e.Cancel)
@@ -6160,6 +6163,48 @@ public partial class MainWindow : Window
         return now - _hubFramesAt < TimeSpan.FromSeconds(15);
     }
     private bool _hubIsMain;
+    private bool _hubForceClose;
+
+    /// <summary>The close button of the new interface: ask whether to end the program or to put it into the system tray (unless the answer was kept with "do not ask again").</summary>
+    private bool HubMayClose()
+    {
+        if (_hubForceClose || !_hubIsMain || Headless || _hubWindow is not { } hub)
+        {
+            return true;
+        }
+
+        var settings = MeterSettings.Load();
+        int action = settings.HubCloseAction;
+        if (action == 0)
+        {
+            var loc = LocalizationManager.Instance;
+            bool remember = false;
+            var box = ThemedMessageBox.Build(hub, loc["Hub.Close.Text"], loc["Hub.Close.Title"], MessageBoxButton.YesNoCancel, MessageBoxImage.Question,
+                loc["Hub.Close.Remember"], on => remember = on, out var answer, (loc["Hub.Close.Tray"], loc["Hub.Close.Exit"], loc["Config.Cancel"]));
+            box.MinWidth = 0;
+            box.ShowDialog();
+            action = answer.Value switch { MessageBoxResult.Yes => 2, MessageBoxResult.No => 1, _ => 0 };
+            if (action == 0)
+            {
+                return false;
+            }
+
+            if (remember)
+            {
+                var fresh = MeterSettings.Load();
+                fresh.HubCloseAction = action;
+                fresh.Save();
+            }
+        }
+
+        if (action == 2 && _trayIcon is not null)
+        {
+            hub.Hide();
+            return false;
+        }
+
+        return true;
+    }
 
     /// <summary>
     /// The new interface is built again, in the same place and size, on the same tab and page. Its texts are read once when it is built, so a change of the language (in the settings or in the
@@ -6278,6 +6323,7 @@ public partial class MainWindow : Window
                 return new HubStatus(own is not null, own?.Name, className, server);
             });
         // before the dashboard is built again with the sources: a widget that finds no list of the meter then would show a dash for good
+        _hubWindow.ConfirmClose = HubMayClose;
         _hubWindow.MeterView = BuildMeterView;
         _hubWindow.ToggleDesigner = StartDesignerFromHub;
         _hubWindow.OpenFeedback = () => OnFeedbackClicked(this, new RoutedEventArgs());

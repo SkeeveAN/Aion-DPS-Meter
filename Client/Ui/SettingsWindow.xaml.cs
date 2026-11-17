@@ -51,6 +51,7 @@ public partial class SettingsWindow : Window
         }
 
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
+        BuildCloseAction(settings.HubCloseAction);
         AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
         AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
         DebugRecordingBox.IsChecked = settings.DebugRecording;
@@ -833,6 +834,7 @@ public partial class SettingsWindow : Window
         _settings.TimetableWidth = onDisk.TimetableWidth;
 
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
+        _settings.HubCloseAction = _closeAction;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
         _settings.UploadOtherPlayersProfiles = UploadOtherProfilesBox.IsChecked ?? false;
         _settings.ShareLoginWithLegion = ShareLoginBox.IsChecked ?? false;
@@ -1283,6 +1285,50 @@ public partial class SettingsWindow : Window
     private DateTime _undoUntil;
 
     /// <summary>"Reset all settings": the first click asks again, the second does it. The question lapses after a few seconds.</summary>
+    private int _closeAction;
+
+    /// <summary>The three-way switch for the close button of the new interface: exit (1), ask (0, in the middle), system tray (2).</summary>
+    private void BuildCloseAction(int action)
+    {
+        _closeAction = action;
+        var loc = LocalizationManager.Instance;
+        (int Value, string Text, CornerRadius Corner)[] parts =
+        {
+            (1, loc["Hub.Close.Exit"], new CornerRadius(4, 0, 0, 4)),
+            (0, loc["Settings.CloseAction.Ask"], new CornerRadius(0)),
+            (2, loc["Hub.Close.Tray"], new CornerRadius(0, 4, 4, 0)),
+        };
+        var segments = new List<(int Value, Border Box, TextBlock Label)>();
+        void Paint()
+        {
+            foreach (var (value, box, label) in segments)
+            {
+                bool on = value == _closeAction;
+                box.SetResourceReference(Border.BackgroundProperty, on ? "Brush.Accent" : "Brush.Control");
+                label.SetResourceReference(TextBlock.ForegroundProperty, on ? "Brush.Window" : "Brush.Text");
+                label.FontWeight = on ? FontWeights.Bold : FontWeights.Normal;
+            }
+        }
+
+        CloseActionHost.Children.Clear();
+        foreach (var (value, text, corner) in parts)
+        {
+            var label = new TextBlock { Text = text, FontSize = 12, HorizontalAlignment = HorizontalAlignment.Center };
+            var box = new Border { Child = label, CornerRadius = corner, Padding = new Thickness(14, 4, 14, 4), MinWidth = 90, BorderThickness = new Thickness(1, 1, value == 2 ? 1 : 0, 1), Cursor = Cursors.Hand };
+            box.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            int chosen = value;
+            box.MouseLeftButtonUp += (_, _) =>
+            {
+                _closeAction = chosen;
+                Paint();
+            };
+            segments.Add((value, box, label));
+            CloseActionHost.Children.Add(box);
+        }
+
+        Paint();
+    }
+
     private void OnResetSettingsClicked(object sender, RoutedEventArgs e)
     {
         var loc = LocalizationManager.Instance;

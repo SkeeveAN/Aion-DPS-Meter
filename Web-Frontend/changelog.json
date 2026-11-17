@@ -845,6 +845,13 @@
      "Client"
     ],
     "date": "2026-11-17"
+   },
+   {
+    "text": "Release 2.0.0-beta.29: the main window has a maximize button between minimize and close (a double click on the title bar does the same), the close button asks whether to exit or to keep running in the system tray (with \"do not ask again\"), the settings have a three-way switch for it (exit, ask in the middle, system tray), and the pet farming overlay keeps the width of its hint when it is locked, so its text stands in the middle of the place it was put at",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-17"
    }
   ]
  },

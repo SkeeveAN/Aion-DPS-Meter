@@ -38,7 +38,7 @@ public static class ThemedChrome
         return null;
     }
 
-    public static void Apply(Window window)
+    public static void Apply(Window window, bool maximizeButton = false)
     {
         UIElement? content = window.Content as UIElement;
         window.Content = null;
@@ -86,7 +86,8 @@ public static class ThemedChrome
         title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
         title.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(Window.Title)) { Source = window });
 
-        Button Caption(string geometry, Action action)
+        System.Windows.Shapes.Path? maximizeGlyph = null;
+        Button Caption(string geometry, Action action, bool isMaximize = false)
         {
             // Drawn lines, not a text glyph: the cross came out of a fallback font, and in some installs only half of it showed.
             // The drawing sits inside a 12 x 12 box with a margin of 1 for the stroke, Stretch.None: stretched into a box exactly as large as the lines, the ends of the cross were cut off
@@ -101,11 +102,24 @@ public static class ThemedChrome
             var button = new Button { Content = line, Width = 28, Height = 30, BorderThickness = new Thickness(0), Background = Brushes.Transparent, Margin = new Thickness(0), Padding = new Thickness(0) };
             button.SetResourceReference(Control.ForegroundProperty, "Brush.TextMuted");
             button.Click += (_, _) => action();
+            if (isMaximize)
+            {
+                maximizeGlyph = line;
+            }
+
             return button;
         }
 
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         buttons.Children.Add(Caption("M1,6 L11,6", () => window.WindowState = WindowState.Minimized));
+        const string Square = "M1.5,1.5 L10.5,1.5 L10.5,10.5 L1.5,10.5 Z";
+        const string Restore = "M1.5,3.5 L8.5,3.5 L8.5,10.5 L1.5,10.5 Z M3.5,3.5 L3.5,1.5 L10.5,1.5 L10.5,8.5 L8.5,8.5";
+        void ToggleMaximize() => window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        if (maximizeButton)
+        {
+            buttons.Children.Add(Caption(Square, ToggleMaximize, isMaximize: true));
+        }
+
         buttons.Children.Add(Caption("M1.5,1.5 L10.5,10.5 M10.5,1.5 L1.5,10.5", window.Close));
 
         var bar = new Grid { Height = 30 };
@@ -115,6 +129,12 @@ public static class ThemedChrome
         bar.Children.Add(buttons);
         bar.MouseLeftButtonDown += (_, e) =>
         {
+            if (maximizeButton && e.ClickCount == 2)
+            {
+                ToggleMaximize();
+                return;
+            }
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 window.DragMove();
@@ -133,5 +153,18 @@ public static class ThemedChrome
         frame.SetResourceReference(Border.BackgroundProperty, "Brush.Window");
         frame.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
         window.Content = frame;
+        if (maximizeButton)
+        {
+            // maximized, a window without frame reaches past the screen by the width of its resize border: the content is pulled back in
+            window.StateChanged += (_, _) =>
+            {
+                bool max = window.WindowState == WindowState.Maximized;
+                frame.Margin = max ? new Thickness(6) : new Thickness(0);
+                if (maximizeGlyph is not null)
+                {
+                    maximizeGlyph.Data = Geometry.Parse(max ? Restore : Square);
+                }
+            };
+        }
     }
 }

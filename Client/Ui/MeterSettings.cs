@@ -449,6 +449,9 @@ public sealed class MeterSettings
     /// <summary>The new interface stays above other windows.</summary>
     public bool HubAlwaysOnTop { get; set; }
 
+    /// <summary>What the close button of the new interface does: 0 asks, 1 ends the program, 2 puts the window into the system tray.</summary>
+    public int HubCloseAction { get; set; }
+
     /// <summary>The navigation of the hub shows only symbols (the three lines at the left of the header).</summary>
     public bool HubNavCollapsed { get; set; }
 

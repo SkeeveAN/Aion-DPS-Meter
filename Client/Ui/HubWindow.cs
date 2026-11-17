@@ -112,7 +112,7 @@ public sealed class HubWindow : Window
         root.Children.Add(side);
         root.Children.Add(_host);
         Content = root;
-        ThemedChrome.Apply(this);
+        ThemedChrome.Apply(this, maximizeButton: true);
 
         _collapsed = MeterSettings.Load().HubNavCollapsed;
         BuildTabs();
@@ -126,6 +126,20 @@ public sealed class HubWindow : Window
             _refresh.Stop();
             _page?.Cleanup?.Invoke();
         };
+    }
+
+    /// <summary>Asked when the window is to close: false keeps it open (the main window answers, with the question "close or into the tray").</summary>
+    public Func<bool>? ConfirmClose { get; set; }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        if (ConfirmClose is { } confirm && !confirm())
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        base.OnClosing(e);
     }
 
     /// <summary>The live meter's list as it is known from the meter overlay (class colour bars, DPS ...), bound to the meter's rows; set by the main window.</summary>

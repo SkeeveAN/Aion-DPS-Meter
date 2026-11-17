@@ -23,7 +23,8 @@ public sealed class PetFarmWindow : MovableOverlay
     public PetFarmWindow() : base(OverlayPlaces.PetInfo, new Border(), Load, Save, SystemParameters.WorkArea.Width / 2 - 60, 140, LoadSize, SaveSize, OverlayEdgeMode.Uniform)
     {
         // the dark background at the overlay's opacity (the designer sets the opacity, the colour and how clear the text is, like for every overlay)
-        Body = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = _lines, Background = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0)) };
+        // as wide as the hint when it is placed (unlocked): a locked frame without a width of its own would shrink to its text and stand to the left of the place it was put at; the text is centred in it
+        Body = new Border { MinWidth = 310, CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = _lines, Background = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0)) };
     }
 
     private static (double?, double?, double) Load()

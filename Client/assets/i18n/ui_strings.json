@@ -17221,5 +17221,101 @@
     "pt": "Copiar a tabela para o Discord (com o link)",
     "ja": "Discord用の表をコピー（リンク付き）",
     "ko": "디스코드용 표 복사(링크 포함)"
+  },
+  "Hub.Close.Title": {
+    "en": "Close",
+    "de": "Schließen",
+    "fr": "Fermer",
+    "es": "Cerrar",
+    "ru": "Закрыть",
+    "zh": "关闭",
+    "zh-TW": "關閉",
+    "pt": "Fechar",
+    "ja": "閉じる",
+    "ko": "닫기"
+  },
+  "Hub.Close.Text": {
+    "en": "Do you want to exit the program or keep it running in the system tray?",
+    "de": "Möchtest du das Programm beenden oder im System-Tray weiterlaufen lassen?",
+    "fr": "Voulez-vous quitter le programme ou le laisser tourner dans la zone de notification ?",
+    "es": "¿Quieres salir del programa o dejarlo funcionando en la bandeja del sistema?",
+    "ru": "Выйти из программы или оставить её работать в системном трее?",
+    "zh": "要退出程序,还是让它在系统托盘中继续运行?",
+    "zh-TW": "要結束程式,還是讓它在系統匣中繼續執行?",
+    "pt": "Deseja sair do programa ou mantê-lo em execução na bandeja do sistema?",
+    "ja": "プログラムを終了しますか?それともシステムトレイで動かし続けますか?",
+    "ko": "프로그램을 종료할까요, 아니면 시스템 트레이에서 계속 실행할까요?"
+  },
+  "Hub.Close.Tray": {
+    "en": "To tray",
+    "de": "In den Tray",
+    "fr": "Dans la zone de notif.",
+    "es": "A la bandeja",
+    "ru": "В трей",
+    "zh": "最小化到托盘",
+    "zh-TW": "縮到系統匣",
+    "pt": "Para a bandeja",
+    "ja": "トレイへ",
+    "ko": "트레이로"
+  },
+  "Hub.Close.Exit": {
+    "en": "Exit",
+    "de": "Beenden",
+    "fr": "Quitter",
+    "es": "Salir",
+    "ru": "Выйти",
+    "zh": "退出",
+    "zh-TW": "結束",
+    "pt": "Sair",
+    "ja": "終了",
+    "ko": "종료"
+  },
+  "Hub.Close.Remember": {
+    "en": "Do not ask again",
+    "de": "Nicht erneut nachfragen",
+    "fr": "Ne plus demander",
+    "es": "No volver a preguntar",
+    "ru": "Больше не спрашивать",
+    "zh": "不再询问",
+    "zh-TW": "不再詢問",
+    "pt": "Não perguntar novamente",
+    "ja": "今後は確認しない",
+    "ko": "다시 묻지 않기"
+  },
+  "Settings.CloseAction": {
+    "en": "Close button",
+    "de": "Schließen-Knopf",
+    "fr": "Bouton Fermer",
+    "es": "Botón Cerrar",
+    "ru": "Кнопка «Закрыть»",
+    "zh": "关闭按钮",
+    "zh-TW": "關閉按鈕",
+    "pt": "Botão Fechar",
+    "ja": "閉じるボタン",
+    "ko": "닫기 버튼"
+  },
+  "Settings.CloseAction.Hint": {
+    "en": "What the X of the main window does: exit the program, ask every time (middle) or keep running in the system tray.",
+    "de": "Was das X des Hauptfensters tut: Programm beenden, jedes Mal nachfragen (Mitte) oder im System-Tray weiterlaufen.",
+    "fr": "Ce que fait le X de la fenêtre principale : quitter, demander à chaque fois (milieu) ou rester dans la zone de notification.",
+    "es": "Qué hace la X de la ventana principal: salir, preguntar siempre (centro) o seguir en la bandeja del sistema.",
+    "ru": "Что делает крестик главного окна: выйти, спрашивать каждый раз (посередине) или работать в системном трее.",
+    "zh": "主窗口的 X 按钮的作用:退出程序、每次询问(中间)或在系统托盘中继续运行。",
+    "zh-TW": "主視窗的 X 按鈕的作用:結束程式、每次詢問(中間)或在系統匣中繼續執行。",
+    "pt": "O que o X da janela principal faz: sair, perguntar sempre (meio) ou continuar na bandeja do sistema.",
+    "ja": "メインウィンドウの×の動作:終了する、毎回確認する(中央)、システムトレイで動かし続ける。",
+    "ko": "메인 창의 X 버튼 동작: 종료, 매번 묻기(가운데), 시스템 트레이에서 계속 실행."
+  },
+  "Settings.CloseAction.Ask": {
+    "en": "Ask",
+    "de": "Nachfrage",
+    "fr": "Demander",
+    "es": "Preguntar",
+    "ru": "Спросить",
+    "zh": "询问",
+    "zh-TW": "詢問",
+    "pt": "Perguntar",
+    "ja": "確認",
+    "ko": "묻기"
   }
 }
