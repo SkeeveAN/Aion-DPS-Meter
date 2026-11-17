@@ -6019,6 +6019,7 @@ public partial class MainWindow : Window
         ToggleOverlayDesigner();
         OverlayDesigner.ReturnTo = activate =>
         {
+            hub = _hubWindow ?? hub; // the interface may have been built again meanwhile (another language)
             hub.Topmost = wasOnTop;
             if (activate)
             {
@@ -6183,6 +6184,11 @@ public partial class MainWindow : Window
         _hubIsMain = main;
         if (_hubWindow is { } hub)
         {
+            // the widgets over the game and in windows of their own were made from the sources of the old window: they are made again (the overlays by the controller, the windows in their places)
+            _widgetOverlays?.Dispose();
+            _widgetOverlays = new WidgetOverlayController(() => _hubWindow?.OverlaySources());
+            WidgetPopoutWindow.ReopenAll(hub.OverlaySources());
+
             hub.WindowStartupLocation = WindowStartupLocation.Manual;
             hub.Left = bounds.Left;
             hub.Top = bounds.Top;

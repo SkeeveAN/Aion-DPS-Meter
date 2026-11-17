@@ -838,6 +838,13 @@
      "Client"
     ],
     "date": "2026-11-16"
+   },
+   {
+    "text": "Release 2.0.0-beta.28: the live meter widget no longer shows a dash instead of its list when the dashboard was built before the main window handed the list over (also in its window on a second monitor), and after a change of language the widgets over the game and in windows of their own are made again in the new language, each in its place",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-17"
    }
   ]
  },

@@ -354,6 +354,25 @@ public sealed class WidgetPopoutWindow : Window
         };
     }
 
+    /// <summary>The windows of the widgets that are open are built again from new sources (the interface was built again, e.g. for another language), each in the place and size it had.</summary>
+    public static void ReopenAll(DashboardSources sources)
+    {
+        foreach ((string id, WidgetPopoutWindow window) in Open.ToList())
+        {
+            Rect bounds = window.WindowState == WindowState.Normal ? new Rect(window.Left, window.Top, window.Width, window.Height) : window.RestoreBounds;
+            window.Close();
+            Show(id, sources);
+            if (Open.TryGetValue(id, out WidgetPopoutWindow? fresh))
+            {
+                fresh.WindowStartupLocation = WindowStartupLocation.Manual;
+                fresh.Left = bounds.Left;
+                fresh.Top = bounds.Top;
+                fresh.Width = bounds.Width;
+                fresh.Height = bounds.Height;
+            }
+        }
+    }
+
     /// <summary>Opens the widget's window (a second click brings the one that is open to the front).</summary>
     public static void Show(string id, DashboardSources sources)
     {
