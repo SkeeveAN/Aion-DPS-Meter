@@ -5,7 +5,7 @@ namespace AionDPS.Aion2;
 
 /// <summary>
 /// What the checklist ticks by hand: the two weekly scroll purchases (12 Verteron scrolls, 20 Abyss scrolls from the NPC).
-/// The game sends nothing about them that the meter reads. (The five mandatory daily tasks come from the game: Aion2Tickets.MissionsId.) Per character, in %AppData%\Aion DPS Meter\aion2-checklist.json.
+/// The shop's purchase counters (frames 0x038c / 0x018c, see NoteGoods) tell the meter what was bought; the hand tick is kept for what it did not see. (The five mandatory daily tasks come from the game: Aion2Tickets.MissionsId.) Per character, in %AppData%\Aion DPS Meter\aion2-checklist.json.
 /// The weekly counters on Wednesday at 16:00 (16:00 Korean time, the game's own clock).
 /// </summary>
 public static class ChecklistManual
@@ -27,6 +27,73 @@ public static class ChecklistManual
         public int ConvertBig { get; set; }
         public int ConvertSmall { get; set; }
         public long WeeklyAtMs { get; set; }
+
+        /// <summary>What the game said about the shop goods of the scrolls (goods id, bought this week), see <see cref="NoteGoods"/>.</summary>
+        public Dictionary<string, int> Goods { get; set; } = new();
+    }
+
+    /// <summary>The shop goods of the weekly Verteron scroll (Elyos 133019901, Asmodians 233019901; limit 12 per server and week).</summary>
+    private static readonly uint[] VerteronGoods = { 133019901, 233019901 };
+
+    /// <summary>The four shop goods of the Western Root scrolls (Common, Rare, Legend, Unique; 5 each, so 20 together), Elyos and Asmodians.</summary>
+    private static readonly uint[] AbyssGoods = { 134019901, 134019902, 134019903, 134019904, 234019901, 234019902, 234019903, 234019904 };
+
+    private static int GameSum(State state, uint[] goods)
+    {
+        int sum = 0;
+        foreach (uint id in goods)
+        {
+            if (state.Goods.TryGetValue(id.ToString(System.Globalization.CultureInfo.InvariantCulture), out int bought))
+            {
+                sum += bought;
+            }
+        }
+
+        return sum;
+    }
+
+    /// <summary>The Verteron scrolls bought this week: what the game said (the shop's purchase counter), or the hand-ticked count where that is higher.</summary>
+    public static int VerteronCount(State state) => Math.Clamp(Math.Max(state.Verteron, GameSum(state, VerteronGoods)), 0, VerteronMax);
+
+    /// <summary>The Abyss scrolls bought this week (same rule as <see cref="VerteronCount"/>).</summary>
+    public static int AbyssCount(State state) => Math.Clamp(Math.Max(state.Abyss, GameSum(state, AbyssGoods)), 0, AbyssMax);
+
+    /// <summary>The shop sends the weekly purchase counter of a goods (frames 0x038c at a purchase = the amount bought, added up; 0x018c when the shop opens = the week's total, replaces it); the scroll goods are kept, per server.</summary>
+    public static void NoteGoods(IReadOnlyList<(uint Goods, int Bought)> list, DateTime now, bool added)
+    {
+        bool changed = false;
+        lock (Gate)
+        {
+            State state = Get(SharedKey, now);
+            foreach ((uint goods, int bought) in list)
+            {
+                if (Array.IndexOf(VerteronGoods, goods) < 0 && Array.IndexOf(AbyssGoods, goods) < 0)
+                {
+                    continue;
+                }
+
+                string key = goods.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                // a purchase (0x038c) carries the amount of that purchase, the opened shop (0x018c) the week's total
+                state.Goods.TryGetValue(key, out int old);
+                int total = added ? old + bought : bought;
+                if (total != old || !state.Goods.ContainsKey(key))
+                {
+                    state.Goods[key] = total;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                state.WeeklyAtMs = Ms(now);
+                Save();
+            }
+        }
+
+        if (changed)
+        {
+            Changed?.Invoke();
+        }
     }
 
     private sealed class Saved
@@ -95,6 +162,7 @@ public static class ChecklistManual
             state.Abyss = 0;
             state.ConvertBig = 0;
             state.ConvertSmall = 0;
+            state.Goods.Clear();
             state.WeeklyAtMs = Ms(now);
         }
     }

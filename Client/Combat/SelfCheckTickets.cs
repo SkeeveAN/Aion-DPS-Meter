@@ -296,11 +296,18 @@ public static class SelfCheckTickets
         Console.WriteLine($"  -> mission counter from the quest list 0x1c8d: {missionsRead}");
 
         // the shop counters 0x8e56 (12:38:27 on 14 October: the 20th purchase of Odyle energy; counter 100100 = another item, not read)
-        bool shopRead = Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e5600000126870100140000008079425da1010000"), out TicketReading shop)
-            && shop.Id == Aion2Tickets.ShopOdyleId && shop.Value.Count == 20 && shop.Value.TimeMs == 1792566000000
-            && !Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e5600000104870100" + "0a0000008079425da1010000"), out _)
+        // 18 November: 1209 = 4 (per character) and 1210 = 16 (per server) after the 20 purchases; 1172 (soul crystals) is not read
+        bool shopRead = Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e560000" + "03" + "94040000e8030000800d8111a2010000" + "b904000004000000800d8111a2010000" + "ba04000010000000800d8111a2010000"), out var shop)
+            && shop.Count == 2 && shop[0].Id == Aion2Tickets.ShopOdyleId && shop[0].Value.Count == 4 && shop[1].Id == Aion2Tickets.ShopOdyleServerId && shop[1].Value.Count == 16 && shop[1].Value.TimeMs == 1795590000000
             && !Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e560000"), out _);
         Console.WriteLine($"  -> shop counter of the Odyle purchase 0x8e56: {shopRead}");
+
+        // the purchase counters of shop goods (18 November: 12 Verteron scrolls bought in one go, then the shop opened again)
+        bool goodsRead = Aion2Tickets.TryParseGoodsCounters(Convert.FromHexString("038c00065983000001fdb8ed070c000000"), out var bought)
+            && bought.Count == 1 && bought[0] == (133019901u, 12)
+            && Aion2Tickets.TryParseGoodsCounters(Convert.FromHexString("018c0000aab40201fdb8ed070c000000122631efa1010000"), out var opened) && opened.Count == 1 && opened[0] == (133019901u, 12)
+            && !Aion2Tickets.TryParseGoodsCounters(Convert.FromHexString("018c0000bee4010023127ceaa1010000"), out _);
+        Console.WriteLine($"  -> shop goods counters 0x038c / 0x018c: {goodsRead}");
 
         // the level a counter needs: below it the checklist greys it out (unknown level = unlocked)
         var low = new TicketCharacter("Low", 1304, DateTime.UtcNow, new Dictionary<int, TicketValue>(), 28);

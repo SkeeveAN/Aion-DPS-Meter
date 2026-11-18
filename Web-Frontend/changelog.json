@@ -852,6 +852,13 @@
      "Client"
     ],
     "date": "2026-11-17"
+   },
+   {
+    "text": "Release 2.0.0-beta.30: the checklist reads the weekly scroll purchases from the game (the Verteron scrolls are counted as soon as you buy them or open the scroll merchant), and the weekly Odyle energy purchase counts the two shop limits again (4 per character and 16 per server, 20 together), which it had stopped reading after the shop changed",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-18"
    }
   ]
  },

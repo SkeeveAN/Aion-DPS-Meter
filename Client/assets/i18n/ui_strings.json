@@ -7658,8 +7658,8 @@
     "ko": "계정"
   },
   "Checklist.Note": {
-    "en": "Numbers from the game are those of the last login or change the meter saw (\"~\" = worked out from the refills since). The mandatory tasks come from the game (handed in); the scroll purchases are not visible to the meter, so they are not counted.",
-    "de": "Zahlen aus dem Spiel sind die des letzten Logins oder der letzten Änderung, die der Meter gesehen hat (\"~\" = aus den Refills seitdem berechnet). Die Pflichtaufgaben kommen aus dem Spiel (abgegeben); die Rollenkäufe sieht der Meter nicht, sie werden nicht gezählt.",
+    "en": "Numbers from the game are those of the last login or change the meter saw (\"~\" = worked out from the refills since). The mandatory tasks come from the game (handed in); the scroll purchases are read from the shop counter the game sends when you buy or open the shop.",
+    "de": "Zahlen aus dem Spiel sind die des letzten Logins oder der letzten Änderung, die der Meter gesehen hat (\"~\" = aus den Refills seitdem berechnet). Die Pflichtaufgaben kommen aus dem Spiel (abgegeben); die Rollenkäufe kommen vom Kaufzähler, den das Spiel beim Kauf und beim Öffnen des Händlers schickt.",
     "fr": "Les chiffres sont ceux de la dernière connexion ou modification vue par le compteur. « ~ » = calculé d'après les recharges depuis (quotidien 16 h, hebdomadaire mercredi 16 h, heure du serveur). Reconnectez-vous pour les valeurs exactes.",
     "es": "Las cifras son las del último inicio de sesión o cambio que vio el medidor. «~» = calculado con las recargas desde entonces (diario 16:00, semanal miércoles 16:00, hora del servidor). Vuelve a iniciar sesión para ver los valores exactos.",
     "ru": "Числа — с последнего входа или изменения, замеченного метром. «~» — рассчитано по пополнениям с тех пор (ежедневно в 16:00, еженедельно по средам в 16:00, время сервера). Для точных значений войдите снова.",

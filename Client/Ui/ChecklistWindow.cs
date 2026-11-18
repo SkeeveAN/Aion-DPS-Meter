@@ -431,12 +431,20 @@ public sealed class ChecklistWindow : Window
             AddTableRow(grid, row++, dungeon.ShortIn(language), count, Math.Max(dungeon.Max, count), count != value.Count, countsUp: false, bonus: value.Bonus);
         }
 
-        AddTableRow(grid, row++, ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), shared.Verteron, ChecklistManual.VerteronMax, false, countsUp: true);
-        AddTableRow(grid, row++, ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), shared.Abyss, ChecklistManual.AbyssMax, false, countsUp: true);
+        AddTableRow(grid, row++, ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), ChecklistManual.VerteronCount(shared), ChecklistManual.VerteronMax, false, countsUp: true);
+        AddTableRow(grid, row++, ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), ChecklistManual.AbyssCount(shared), ChecklistManual.AbyssMax, false, countsUp: true);
         // the purchase counter of the trade guild comes from the game; an older reset time means the week is over
-        character.Tickets.TryGetValue(Aion2Tickets.ShopOdyleId, out TicketValue shop);
+        // (4 a week per character and 16 per server, 20 together; each counts only while its reset time lies ahead)
         long nowMs = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero).ToUnixTimeMilliseconds();
-        int bought = shop.TimeMs > nowMs ? Math.Min(shop.Count, Aion2Tickets.ShopOdyleMax) : 0;
+        int bought = 0;
+        foreach ((int id, int limit) in new[] { (Aion2Tickets.ShopOdyleId, Aion2Tickets.ShopOdylePerCharacter), (Aion2Tickets.ShopOdyleServerId, Aion2Tickets.ShopOdylePerServer) })
+        {
+            if (character.Tickets.TryGetValue(id, out TicketValue shop) && shop.TimeMs > nowMs)
+            {
+                bought += Math.Min(shop.Count, limit);
+            }
+        }
+
         AddTableRow(grid, row++, loc["Checklist.ShopOdyle"], bought, Aion2Tickets.ShopOdyleMax, false, countsUp: true);
 
         // the week's points of the season missions (frame 0x8356 at login): points of 8,000; one that the game last changed more than a week ago is of a week long past

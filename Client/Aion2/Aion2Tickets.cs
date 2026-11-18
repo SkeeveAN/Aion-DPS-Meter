@@ -75,8 +75,14 @@ public static class Aion2Tickets
     /// <summary>The weekly purchase of Odyle energy in the Brisenwind trade guild (limit 20 a week per character) as a ticket of our own: count = bought, time = the
     /// game's reset time (ms since 1970; an older one means the week is over). The id is no game id; the game's own counter id is <see cref="ShopOdyleCounter"/>.</summary>
     public const int ShopOdyleId = 99000003;
-    public const int ShopOdyleCounter = 100134;
-    public const int ShopOdyleMax = 20;
+    /// <summary>Since November the shop sells the Odyle energy as two goods: 4 a week per character (counter 1209) and 16 a week per server (counter 1210), 20 together (the old counter 100134 is gone).
+    /// The server one is a ticket of our own as well (it is the same in the list of every character).</summary>
+    public const int ShopOdyleCounter = 1209;
+    public const int ShopOdyleServerId = 99000004;
+    public const int ShopOdyleServerCounter = 1210;
+    public const int ShopOdylePerCharacter = 4;
+    public const int ShopOdylePerServer = 16;
+    public const int ShopOdyleMax = ShopOdylePerCharacter + ShopOdylePerServer;
     public const int MaxCharacters = 40;
 
     /// <summary>The week's points of the season missions (the weekly reward steps 1,500 / 3,000 / 4,500 / 6,000 / 8,000) as a ticket of our own: count = points, time = when the game
@@ -510,11 +516,11 @@ public static class Aion2Tickets
         before is not null && (!before.Tickets.TryGetValue(MissionsId, out TicketValue old) || MissionsStale(old, at));
 
     /// <summary>The shop purchase counters <c>0x8e56</c> (the whole list a little after the login, one entry again after every purchase):
-    /// <c>00 00 | n (u8) | n x ( counter id u32 | bought u32 | reset time u64 ms )</c>. Seen on 14 October: counter 100134 = 20 after the 20 purchases of Odyle energy
-    /// (100,000 Kinah each), the reset of Wednesday 16:00 Korean time. Only the Odyle counter is read.</summary>
-    public static bool TryParseShopCounters(ReadOnlySpan<byte> frame, out TicketReading reading)
+    /// <c>00 00 | n (u8) | n x ( counter id u32 | bought u32 | reset time u64 ms )</c>. Seen on 18 November: counter 1209 = 4 (per character) and 1210 = 16 (per server) after the 20 purchases of Odyle energy
+    /// (100,000 Kinah each; the shop shows "Pro Charakter 4/4" and "Pro Server 16/16"), the reset of Wednesday 16:00 Korean time. Only the Odyle counters are read.</summary>
+    public static bool TryParseShopCounters(ReadOnlySpan<byte> frame, out List<TicketReading> readings)
     {
-        reading = default;
+        readings = new List<TicketReading>();
         if (frame.Length < 5 || frame.Length != 5 + 16 * frame[4])
         {
             return false;
@@ -523,21 +529,76 @@ public static class Aion2Tickets
         for (int i = 0; i < frame[4]; i++)
         {
             ReadOnlySpan<byte> entry = frame.Slice(5 + 16 * i, 16);
-            if (BinaryPrimitives.ReadUInt32LittleEndian(entry) == ShopOdyleCounter)
+            uint counter = BinaryPrimitives.ReadUInt32LittleEndian(entry);
+            if (counter != ShopOdyleCounter && counter != ShopOdyleServerCounter)
             {
-                uint bought = BinaryPrimitives.ReadUInt32LittleEndian(entry[4..]);
-                ulong reset = BinaryPrimitives.ReadUInt64LittleEndian(entry[8..]);
-                if (bought > 1000 || reset is < 1_500_000_000_000 or > 4_000_000_000_000)
-                {
-                    return false;
-                }
-
-                reading = new TicketReading(ShopOdyleId, new TicketValue((int)bought, 0, (long)reset));
-                return true;
+                continue;
             }
+
+            uint bought = BinaryPrimitives.ReadUInt32LittleEndian(entry[4..]);
+            ulong reset = BinaryPrimitives.ReadUInt64LittleEndian(entry[8..]);
+            if (bought > 1000 || reset is < 1_500_000_000_000 or > 4_000_000_000_000)
+            {
+                readings.Clear();
+                return false;
+            }
+
+            readings.Add(new TicketReading(counter == ShopOdyleCounter ? ShopOdyleId : ShopOdyleServerId, new TicketValue((int)bought, 0, (long)reset)));
         }
 
-        return false;
+        return readings.Count > 0;
+    }
+
+    /// <summary>The purchase counters of shop goods: <c>0x038c</c> after a purchase (<c>00 06 | u32 | n (u8) | n x (goods id u32, amount of this purchase u32)</c>, per the Wingbeat fork's reading: added up) and <c>0x018c</c> when the shop
+    /// opens (<c>00 00 | u24 | n (u8) | n x (goods id, bought) | server time u64</c>). Seen on 18 November: the 12 Verteron scrolls bought in one go gave 133019901 = 12; the goods ids are those of GameShopGoods.</summary>
+    public static bool TryParseGoodsCounters(ReadOnlySpan<byte> frame, out List<(uint Goods, int Bought)> list)
+    {
+        list = new List<(uint, int)>();
+        int countAt;
+        int first;
+        int tail;
+        if (frame.Length >= 2 && frame[0] == 0x03 && frame[1] == 0x8c)
+        {
+            countAt = 8;
+            first = 9;
+            tail = 0;
+        }
+        else if (frame.Length >= 2 && frame[0] == 0x01 && frame[1] == 0x8c)
+        {
+            countAt = 7;
+            first = 8;
+            tail = 8;
+        }
+        else
+        {
+            return false;
+        }
+
+        if (frame.Length <= countAt)
+        {
+            return false;
+        }
+
+        int n = frame[countAt];
+        if (n == 0 || n > 60 || frame.Length != first + 8 * n + tail)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < n; i++)
+        {
+            ReadOnlySpan<byte> entry = frame.Slice(first + 8 * i, 8);
+            uint bought = BinaryPrimitives.ReadUInt32LittleEndian(entry[4..]);
+            if (bought > 100_000)
+            {
+                list.Clear();
+                return false;
+            }
+
+            list.Add((BinaryPrimitives.ReadUInt32LittleEndian(entry), (int)bought));
+        }
+
+        return true;
     }
 
     /// <summary>A change <c>0x0c61</c>. <paramref name="reason"/>: 2 refill, 3 used, 1 gained.</summary>
@@ -767,9 +828,12 @@ public static class Aion2Tickets
             if (_awaitingName && _pending is not null && receivedAt >= _pendingAt)
             {
                 // The purchases of Odyle energy come only when the shop is opened (not with the login): a new login list keeps what it does not hold.
-                if (Characters.TryGetValue(name, out TicketCharacter? before) && !_pending.ContainsKey(ShopOdyleId) && before.Tickets.TryGetValue(ShopOdyleId, out TicketValue shop))
+                foreach (int shopId in new[] { ShopOdyleId, ShopOdyleServerId })
                 {
-                    _pending[ShopOdyleId] = shop;
+                    if (Characters.TryGetValue(name, out TicketCharacter? before) && !_pending.ContainsKey(shopId) && before.Tickets.TryGetValue(shopId, out TicketValue shop))
+                    {
+                        _pending[shopId] = shop;
+                    }
                 }
 
                 // the first login of a day sends yesterday's missions count: the old reading stays (stale, so the checklist shows it as an estimate)

@@ -70,6 +70,9 @@ public sealed class Aion2FrameDecoder
     private const int TicketListOpcode = 0x0b61;
     private const int TicketChangeOpcode = 0x0c61;
     private const int ShopCountersOpcode = 0x8e56;
+    /// <summary>The purchase counters of shop goods (0x038c after a purchase, 0x018c when a shop opens): the weekly scrolls of the checklist.</summary>
+    private const int GoodsCounterBoughtOpcode = 0x038c;
+    private const int GoodsCounterOpenOpcode = 0x018c;
 
     /// <summary>The achievements and season missions of the login (the week's points are read from it).</summary>
     private const int AchievementsOpcode = 0x8356;
@@ -977,9 +980,22 @@ public sealed class Aion2FrameDecoder
 
         if (opcode == ShopCountersOpcode)
         {
-            if (Aion2Tickets.TryParseShopCounters(frame, out TicketReading shop))
+            if (Aion2Tickets.TryParseShopCounters(frame, out List<TicketReading> shop))
             {
-                Aion2Tickets.ReceiveUpdate(shop, timestamp);
+                foreach (TicketReading reading in shop)
+                {
+                    Aion2Tickets.ReceiveUpdate(reading, timestamp);
+                }
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode is GoodsCounterBoughtOpcode or GoodsCounterOpenOpcode)
+        {
+            if (Aion2Tickets.TryParseGoodsCounters(frame, out List<(uint Goods, int Bought)> goods))
+            {
+                ChecklistManual.NoteGoods(goods, DateTime.Now, opcode == GoodsCounterBoughtOpcode);
             }
 
             return Array.Empty<DamageEvent>();
