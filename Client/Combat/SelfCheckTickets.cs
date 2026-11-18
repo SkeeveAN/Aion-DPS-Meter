@@ -302,6 +302,15 @@ public static class SelfCheckTickets
             && !Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e560000"), out _);
         Console.WriteLine($"  -> shop counter of the Odyle purchase 0x8e56: {shopRead}");
 
+        // the conversion counters 0x8f8d (login: 1 + 1 entries here) and 0x8b8d (after a conversion)
+        byte[] conv = Convert.FromHexString("8f8d0000" + "0000" + "02" + "3117da0104000000" + "3217da0100000000" + "01" + "3217da0102000000");
+        byte[] convChange = Convert.FromHexString("8b8d0000" + "01" + "3217da01" + new string('0', 52) + "0600000003000000");
+        bool convRead = Aion2Tickets.TryParseConversionCounters(conv, new DateTime(2026, 11, 18, 17, 0, 0), out var convTickets)
+            && convTickets.Count == 2 && convTickets[0].Id == Aion2Tickets.ConvertServerId && convTickets[0].Value.Count == 4 && convTickets[1].Id == Aion2Tickets.ConvertCharacterId && convTickets[1].Value.Count == 2
+            && Aion2Tickets.TryParseConversionCounters(convChange, new DateTime(2026, 11, 18, 17, 0, 0), out var convNew) && convNew.Count == 2 && convNew[0].Value.Count == 6 && convNew[1].Value.Count == 3
+            && !Aion2Tickets.TryParseConversionCounters(conv.AsSpan(0, conv.Length - 1), new DateTime(2026, 11, 18, 17, 0, 0), out _);
+        Console.WriteLine($"  -> conversion counters 0x8f8d / 0x8b8d: {convRead}");
+
         // the purchase counters of shop goods (18 November: 12 Verteron scrolls bought in one go, then the shop opened again)
         bool goodsRead = Aion2Tickets.TryParseGoodsCounters(Convert.FromHexString("038c00065983000001fdb8ed070c000000"), out var bought)
             && bought.Count == 1 && bought[0] == (133019901u, 12)

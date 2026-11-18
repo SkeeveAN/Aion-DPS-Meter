@@ -71,6 +71,8 @@ public sealed class Aion2FrameDecoder
     private const int TicketChangeOpcode = 0x0c61;
     private const int ShopCountersOpcode = 0x8e56;
     /// <summary>The purchase counters of shop goods (0x038c after a purchase, 0x018c when a shop opens): the weekly scrolls of the checklist.</summary>
+    private const int ConversionFullOpcode = 0x8f8d;
+    private const int ConversionChangeOpcode = 0x8b8d;
     private const int GoodsCounterBoughtOpcode = 0x038c;
     private const int GoodsCounterOpenOpcode = 0x018c;
 
@@ -983,6 +985,19 @@ public sealed class Aion2FrameDecoder
             if (Aion2Tickets.TryParseShopCounters(frame, out List<TicketReading> shop))
             {
                 foreach (TicketReading reading in shop)
+                {
+                    Aion2Tickets.ReceiveUpdate(reading, timestamp);
+                }
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode is ConversionFullOpcode or ConversionChangeOpcode)
+        {
+            if (Aion2Tickets.TryParseConversionCounters(frame, DateTime.Now, out List<TicketReading> conversions))
+            {
+                foreach (TicketReading reading in conversions)
                 {
                     Aion2Tickets.ReceiveUpdate(reading, timestamp);
                 }

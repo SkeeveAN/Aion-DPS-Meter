@@ -35,8 +35,17 @@ public static class ChecklistManual
     /// <summary>The shop goods of the weekly Verteron scroll (Elyos 133019901, Asmodians 233019901; limit 12 per server and week).</summary>
     private static readonly uint[] VerteronGoods = { 133019901, 233019901 };
 
-    /// <summary>The four shop goods of the Western Root scrolls (Common, Rare, Legend, Unique; 5 each, so 20 together), Elyos and Asmodians.</summary>
-    private static readonly uint[] AbyssGoods = { 134019901, 134019902, 134019903, 134019904, 234019901, 234019902, 234019903, 234019904 };
+    /// <summary>The Abyss scroll goods by tier (Common, Rare, Legend, Unique): per tier the goods of both lists (134… and 140…, Elyos; 234… and 240…, Asmodians) share one limit of 5 a week, as the Wingbeat fork counts them
+    /// (taken over without a recording of the second list, 18 November).</summary>
+    private static readonly uint[][] AbyssTiers =
+    {
+        new uint[] { 134019901, 140019901, 234019901, 240019901 },
+        new uint[] { 134019902, 140019902, 234019902, 240019902 },
+        new uint[] { 134019903, 140019903, 234019903, 240019903 },
+        new uint[] { 134019904, 140019904, 234019904, 240019904 },
+    };
+
+    private const int AbyssPerTier = 5;
 
     private static int GameSum(State state, uint[] goods)
     {
@@ -56,7 +65,16 @@ public static class ChecklistManual
     public static int VerteronCount(State state) => Math.Clamp(Math.Max(state.Verteron, GameSum(state, VerteronGoods)), 0, VerteronMax);
 
     /// <summary>The Abyss scrolls bought this week (same rule as <see cref="VerteronCount"/>).</summary>
-    public static int AbyssCount(State state) => Math.Clamp(Math.Max(state.Abyss, GameSum(state, AbyssGoods)), 0, AbyssMax);
+    public static int AbyssCount(State state)
+    {
+        int game = 0;
+        foreach (uint[] tier in AbyssTiers)
+        {
+            game += Math.Min(GameSum(state, tier), AbyssPerTier);
+        }
+
+        return Math.Clamp(Math.Max(state.Abyss, game), 0, AbyssMax);
+    }
 
     /// <summary>The shop sends the weekly purchase counter of a goods (frames 0x038c at a purchase = the amount bought, added up; 0x018c when the shop opens = the week's total, replaces it); the scroll goods are kept, per server.</summary>
     public static void NoteGoods(IReadOnlyList<(uint Goods, int Bought)> list, DateTime now, bool added)
@@ -67,7 +85,7 @@ public static class ChecklistManual
             State state = Get(SharedKey, now);
             foreach ((uint goods, int bought) in list)
             {
-                if (Array.IndexOf(VerteronGoods, goods) < 0 && Array.IndexOf(AbyssGoods, goods) < 0)
+                if (Array.IndexOf(VerteronGoods, goods) < 0 && !AbyssTiers.Any(t => Array.IndexOf(t, goods) >= 0))
                 {
                     continue;
                 }

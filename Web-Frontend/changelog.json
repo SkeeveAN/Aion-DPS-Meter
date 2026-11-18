@@ -859,6 +859,13 @@
      "Client"
     ],
     "date": "2026-11-18"
+   },
+   {
+    "text": "Release 2.0.0-beta.31: the checklist reads the two weekly conversions of Odyle energy (16 per server, 4 per character) from the game at the login and after every conversion, and counts the Abyss scrolls of the second scroll list as well (taken over from another meter, not yet seen in a recording)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-18"
    }
   ]
  },

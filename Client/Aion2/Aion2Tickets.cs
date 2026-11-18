@@ -80,6 +80,10 @@ public static class Aion2Tickets
     public const int ShopOdyleCounter = 1209;
     public const int ShopOdyleServerId = 99000004;
     public const int ShopOdyleServerCounter = 1210;
+    /// <summary>The two weekly conversions of Odyle energy (recipe 31070001 / 32070001 = 16 a week per server, 31070002 / 32070002 = 4 a week per character; Elyos / Asmodians): tickets of our own again,
+    /// the reset time is the next Wednesday 16:00 Korean time (the game does not send one).</summary>
+    public const int ConvertServerId = 99000005;
+    public const int ConvertCharacterId = 99000006;
     public const int ShopOdylePerCharacter = 4;
     public const int ShopOdylePerServer = 16;
     public const int ShopOdyleMax = ShopOdylePerCharacter + ShopOdylePerServer;
@@ -549,6 +553,103 @@ public static class Aion2Tickets
         return readings.Count > 0;
     }
 
+    private static bool ReadVarint(ReadOnlySpan<byte> frame, ref int at, out int value)
+    {
+        value = 0;
+        for (int shift = 0; shift < 21 && at < frame.Length; shift += 7)
+        {
+            byte b = frame[at++];
+            value |= (b & 0x7f) << shift;
+            if ((b & 0x80) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>The conversion counters: <c>0x8f8d</c> (all at the login: <c>00 00 | 2 bytes | n varint | n x (recipe u32, count per server u32) | m varint | m x (recipe u32, count per character u32)</c>) and <c>0x8b8d</c> (after a conversion:
+    /// <c>00 00 | n varint | n x (recipe u32 | 26 bytes | per server u32 | per character u32)</c>). Layout as in the Wingbeat fork, checked on 18 November against a login (12 + 90 entries, list ends exactly at the frame's end).
+    /// Recipes 31070001 / 32070001 (x16 per server) and 31070002 / 32070002 (x4 per character); Elyos and Asmodians each have their own, the larger one counts.</summary>
+    public static bool TryParseConversionCounters(ReadOnlySpan<byte> frame, DateTime now, out List<TicketReading> readings)
+    {
+        readings = new List<TicketReading>();
+        if (frame.Length < 5 || (frame[0] != 0x8f && frame[0] != 0x8b) || frame[1] != 0x8d || frame[2] != 0 || frame[3] != 0)
+        {
+            return false;
+        }
+
+        bool full = frame[0] == 0x8f;
+        int at = full ? 6 : 4;
+        int server = -1;
+        int character = -1;
+        void Note(uint recipe, uint count, bool perServer)
+        {
+            if (count > 1000)
+            {
+                return;
+            }
+
+            if (perServer && (recipe is 31070001 or 32070001))
+            {
+                server = Math.Max(server, (int)count);
+            }
+            else if (!perServer && (recipe is 31070002 or 32070002))
+            {
+                character = Math.Max(character, (int)count);
+            }
+        }
+
+        if (full)
+        {
+            for (int list = 0; list < 2; list++)
+            {
+                if (!ReadVarint(frame, ref at, out int n) || n > 4096 || at + 8 * n > frame.Length)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < n; i++, at += 8)
+                {
+                    Note(BinaryPrimitives.ReadUInt32LittleEndian(frame[at..]), BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 4)..]), list == 0);
+                }
+            }
+
+            if (at != frame.Length)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (!ReadVarint(frame, ref at, out int n) || n > 4096 || at + 38 * n != frame.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < n; i++, at += 38)
+            {
+                uint recipe = BinaryPrimitives.ReadUInt32LittleEndian(frame[at..]);
+                Note(recipe, BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 30)..]), true);
+                Note(recipe, BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 34)..]), false);
+            }
+        }
+
+        long reset = new DateTimeOffset(ChecklistManual.LastWeeklyReset(now).AddDays(7)).ToUnixTimeMilliseconds();
+        if (server >= 0)
+        {
+            readings.Add(new TicketReading(ConvertServerId, new TicketValue(server, 0, reset)));
+        }
+
+        if (character >= 0)
+        {
+            readings.Add(new TicketReading(ConvertCharacterId, new TicketValue(character, 0, reset)));
+        }
+
+        return readings.Count > 0;
+    }
+
     /// <summary>The purchase counters of shop goods: <c>0x038c</c> after a purchase (<c>00 06 | u32 | n (u8) | n x (goods id u32, amount of this purchase u32)</c>, per the Wingbeat fork's reading: added up) and <c>0x018c</c> when the shop
     /// opens (<c>00 00 | u24 | n (u8) | n x (goods id, bought) | server time u64</c>). Seen on 18 November: the 12 Verteron scrolls bought in one go gave 133019901 = 12; the goods ids are those of GameShopGoods.</summary>
     public static bool TryParseGoodsCounters(ReadOnlySpan<byte> frame, out List<(uint Goods, int Bought)> list)
@@ -828,7 +929,7 @@ public static class Aion2Tickets
             if (_awaitingName && _pending is not null && receivedAt >= _pendingAt)
             {
                 // The purchases of Odyle energy come only when the shop is opened (not with the login): a new login list keeps what it does not hold.
-                foreach (int shopId in new[] { ShopOdyleId, ShopOdyleServerId })
+                foreach (int shopId in new[] { ShopOdyleId, ShopOdyleServerId, ConvertServerId, ConvertCharacterId })
                 {
                     if (Characters.TryGetValue(name, out TicketCharacter? before) && !_pending.ContainsKey(shopId) && before.Tickets.TryGetValue(shopId, out TicketValue shop))
                     {

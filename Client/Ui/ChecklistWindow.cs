@@ -454,10 +454,22 @@ public sealed class ChecklistWindow : Window
             AddTableRow(grid, row++, loc["Checklist.WeeklyPoints"], points, Aion2Tickets.WeeklyPointsMax, false, countsUp: true);
         }
 
-        // the two conversions are a note ticked by hand (click = +1, right click = -1): the meter has not found their frame
+        // the two conversions come from the game (frames 0x8f8d at the login and 0x8b8d after a conversion); the hand tick (click = +1, right click = -1) stays for what the meter did not see
         ChecklistManual.State own = ChecklistManual.Get(character.Name, now);
-        AddTableRow(grid, row++, loc["Checklist.ConvertBig"], own.ConvertBig, ChecklistManual.ConvertBigMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertBig, d));
-        AddTableRow(grid, row++, loc["Checklist.ConvertSmall"], own.ConvertSmall, ChecklistManual.ConvertSmallMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertSmall, d));
+        int convertBig = own.ConvertBig;
+        int convertSmall = own.ConvertSmall;
+        if (character.Tickets.TryGetValue(Aion2Tickets.ConvertServerId, out TicketValue serverConvert) && serverConvert.TimeMs > nowMs)
+        {
+            convertBig = Math.Max(convertBig, Math.Min(serverConvert.Count, ChecklistManual.ConvertBigMax));
+        }
+
+        if (character.Tickets.TryGetValue(Aion2Tickets.ConvertCharacterId, out TicketValue characterConvert) && characterConvert.TimeMs > nowMs)
+        {
+            convertSmall = Math.Max(convertSmall, Math.Min(characterConvert.Count, ChecklistManual.ConvertSmallMax));
+        }
+
+        AddTableRow(grid, row++, loc["Checklist.ConvertBig"], convertBig, ChecklistManual.ConvertBigMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertBig, d));
+        AddTableRow(grid, row++, loc["Checklist.ConvertSmall"], convertSmall, ChecklistManual.ConvertSmallMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertSmall, d));
         stack.Children.Add(grid);
         _body.Children.Add(Card(stack));
     }
