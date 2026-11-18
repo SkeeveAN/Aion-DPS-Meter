@@ -6421,21 +6421,19 @@ public partial class MainWindow : Window
         var chipLegend = new Grid { Margin = new Thickness(8, 0, 8, 1) };
         chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
         chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = "ChipTaken" });
-        chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = "ChipDps" });
         chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = "ChipDamage" });
         var chipPlayer = new TextBlock { Text = LocalizationManager.Instance["Main.Overlay.ColPlayer"], FontSize = 9 };
         chipPlayer.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
         Grid.SetColumn(chipPlayer, 1);
         chipLegend.Children.Add(chipPlayer);
-        TextBlock chipRate = Bound(OverlayRateHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
-        chipRate.Margin = new Thickness(12, 0, 0, 0);
-        Grid.SetColumn(chipRate, 3);
-        chipLegend.Children.Add(chipRate);
+        // the damage and, directly under it, the DPS: both labels stand in the one right column of the chips
         TextBlock chipTotal = Bound(OverlayTotalHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
-        chipTotal.Margin = new Thickness(12, 0, 0, 0);
-        Grid.SetColumn(chipTotal, 4);
-        chipLegend.Children.Add(chipTotal);
+        TextBlock chipRate = Bound(OverlayRateHeader, 9, "Brush.TextSubtle", align: HorizontalAlignment.Right);
+        var chipNumbers = new StackPanel { Margin = new Thickness(12, 0, 0, 0) };
+        chipNumbers.Children.Add(chipTotal);
+        chipNumbers.Children.Add(chipRate);
+        Grid.SetColumn(chipNumbers, 2);
+        chipLegend.Children.Add(chipNumbers);
         var chips = new StackPanel();
         Grid.SetIsSharedSizeScope(chips, true); // the legend and the chips share their column widths
         // the chips over the game show their rows only; the header and the legend are for placing the overlay in the designer

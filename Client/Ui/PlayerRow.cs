@@ -47,17 +47,20 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public int? CombatPower
     {
         get => _combatPower;
-        set { if (_combatPower == value) { return; } _combatPower = value; OnPropertyChanged(); OnPropertyChanged(nameof(CombatPowerSuffix)); }
+        set { if (_combatPower == value) { return; } _combatPower = value; OnPropertyChanged(); OnPropertyChanged(nameof(CombatPowerSuffix)); OnPropertyChanged(nameof(CombatPowerLine)); }
     }
 
     /// <summary>Mirrors MeterSettings.ShowCombatPower, set on every refresh.</summary>
     public bool ShowCombatPower
     {
         get => _showCombatPower;
-        set { if (_showCombatPower == value) { return; } _showCombatPower = value; OnPropertyChanged(); OnPropertyChanged(nameof(CombatPowerSuffix)); }
+        set { if (_showCombatPower == value) { return; } _showCombatPower = value; OnPropertyChanged(); OnPropertyChanged(nameof(CombatPowerSuffix)); OnPropertyChanged(nameof(CombatPowerLine)); }
     }
 
     /// <summary>"  ⚔ 169.6K" behind the name; empty while the setting is off or the power is unknown.</summary>
+    /// <summary>"⚔ 188.214" for the second line under the name (the full number, no letters); empty while the setting is off or the power is unknown.</summary>
+    public string CombatPowerLine => ShowCombatPower && CombatPower is > 0 and int power ? "⚔ " + power.ToString("N0", System.Globalization.CultureInfo.CurrentCulture) : "";
+
     public string CombatPowerSuffix => ShowCombatPower && CombatPower is > 0 and int power ? "  ⚔ " + Compact(power) : "";
 
     public string Name

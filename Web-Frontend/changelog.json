@@ -873,6 +873,13 @@
      "Client"
     ],
     "date": "2026-11-18"
+   },
+   {
+    "text": "Release 2.0.0-beta.33: new layout of the meter rows in the window and the chip overlay - the name with the combat power and the damage taken under it on the left, the damage with the DPS directly under it on the right, all in numbers and symbols without letters, so the overlay gets much narrower and nothing is cut off any more",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-18"
    }
   ]
  },

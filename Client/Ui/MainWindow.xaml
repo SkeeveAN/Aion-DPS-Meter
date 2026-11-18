@@ -1130,7 +1130,7 @@
                                          everywhere (damage taken switched off) takes no room. The class
                                          colour bar fills the whole row height. Opt-in extras (relic AP,
                                          avoided attacks, PVP) get a second line only when there are any. -->
-                                    <Grid MinHeight="32">
+                                    <Grid MinHeight="40">
                                         <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding AbsorbedFillPercent, Mode=OneWay}"
                                                      Foreground="#993AA0FF"
                                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
@@ -1143,8 +1143,6 @@
                                                     <ColumnDefinition Width="18"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Taken"/>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Dps"/>
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Damage"/>
                                                 </Grid.ColumnDefinitions>
                                                 <!-- the faction emblem replaces the rank number (the number only shows while the faction is unknown) -->
@@ -1166,22 +1164,20 @@
                                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                                        Height="24" Width="24" Margin="4,0,8,0" ToolTip="{Binding Faction}"/>
                                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                                    <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis"><Run Text="{Binding Name, Mode=OneWay}"/><Run Text="{Binding CombatPowerSuffix, Mode=OneWay}" FontWeight="Normal" FontSize="10"/></TextBlock>
-                                                    <local:AllLine FontSize="10.5" TextElement.Foreground="{DynamicResource Brush.Text}" Opacity="0.85"/>
+                                                    <TextBlock Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                    <!-- second line: the combat power and the damage taken (symbols and numbers only), in the All in One Compact mode the healing/taken line -->
+                                                    <StackPanel Orientation="Horizontal" Opacity="0.85">
+                                                        <TextBlock Text="{Binding CombatPowerLine}" FontFamily="Segoe UI Symbol" FontSize="10.5" Margin="0,0,10,0" Foreground="{DynamicResource Brush.TextMuted}"/>
+                                                        <TextBlock Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenMuted}" FontSize="10.5" Margin="0,0,10,0" ToolTip="Damage this player received in the shown window"/>
+                                                        <TextBlock Text="{Binding AbsorbedDisplay}" Foreground="#3AA0FF" FontSize="10.5" Margin="0,0,10,0" ToolTip="Damage the group shield absorbed on this player"/>
+                                                        <local:AllLine FontSize="10.5" TextElement.Foreground="{DynamicResource Brush.Text}"/>
+                                                    </StackPanel>
                                                 </StackPanel>
-                                                <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" ToolTip="Damage this player received in the shown window">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="TakenRed"/>
-                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="TakenBlue"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenMuted}" FontSize="11" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding AbsorbedDisplay}" Foreground="#3AA0FF" FontSize="11" Margin="8,0,0,0" HorizontalAlignment="Right"
-                                                               ToolTip="Damage the group shield absorbed on this player"/>
-                                                </Grid>
-                                                <TextBlock Grid.Column="4" Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealMuted}"
-                                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
-                                                <TextBlock Grid.Column="5" Text="{Binding DamageDisplay}" FontWeight="SemiBold"
-                                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
+                                                <!-- on the right: the damage, and the DPS (or healing) directly under it -->
+                                                <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0">
+                                                    <TextBlock Text="{Binding DamageDisplay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                                    <TextBlock Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealMuted}" FontSize="10.5" HorizontalAlignment="Right"/>
+                                                </StackPanel>
                                             </Grid>
                                             <StackPanel Orientation="Horizontal" Margin="50,0,0,0"
                                                         Visibility="{Binding HasExtraInfo, Converter={StaticResource BoolToVis}}">
@@ -1442,7 +1438,7 @@
                       HorizontalAlignment="Left" VerticalAlignment="Top" Grid.IsSharedSizeScope="True">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Margin="0,0,0,1" Padding="8,3" MinHeight="32">
+                    <Border Margin="0,0,0,1" Padding="8,3" MinHeight="40">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Background" Value="{DynamicResource Brush.OverlayBg}"/>
@@ -1478,8 +1474,6 @@
                                     <ColumnDefinition Width="16"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ChipTaken"/>
-                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDps"/>
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDamage"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -1500,23 +1494,18 @@
                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                        Height="24" Width="24" Margin="4,0,8,0"/>
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                    <TextBlock Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold"
-                                               TextTrimming="CharacterEllipsis"><Run Text="{Binding Name, Mode=OneWay}"/><Run Text="{Binding CombatPowerSuffix, Mode=OneWay}" FontWeight="Normal" FontSize="10"/></TextBlock>
-                                    <local:AllLine FontSize="10" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
+                                    <TextBlock Text="{Binding Name, Mode=OneWay}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CombatPowerLine}" FontFamily="Segoe UI Symbol" FontSize="10" Margin="0,0,10,0" Foreground="{DynamicResource Brush.OverlayText}" Opacity="0.85"/>
+                                        <TextBlock Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenSubtle}" FontSize="10" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding AbsorbedDisplay}" Foreground="#3AA0FF" FontSize="10" Margin="0,0,10,0" ToolTip="Damage the group shield absorbed on this player"/>
+                                        <local:AllLine FontSize="10" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
+                                    </StackPanel>
                                 </StackPanel>
-                                <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ChipTakenRed"/>
-                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ChipTakenBlue"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenSubtle}" FontSize="11" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding AbsorbedDisplay}" Foreground="#3AA0FF" FontSize="11" Margin="8,0,0,0" HorizontalAlignment="Right"
-                                                               ToolTip="Damage the group shield absorbed on this player"/>
-                                                </Grid>
-                                <TextBlock Grid.Column="4" Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealSubtle}"
-                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
-                                <TextBlock Grid.Column="5" Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
-                                           FontWeight="SemiBold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0">
+                                    <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealSubtle}" FontSize="10" HorizontalAlignment="Right"/>
+                                </StackPanel>
                             </Grid>
                             <StackPanel Orientation="Horizontal" Margin="40,0,0,0"
                                         Visibility="{Binding HasExtraInfo, Converter={StaticResource BoolToVis}}">
