@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-15",
+  "date": "2026-11-18",
   "items": [
    {
     "text": "Profile upload: a rank movement beyond a million either way counts as 0 and a title slot without an id is left out, so one unusable field no longer rejects the whole profile",
@@ -30,6 +30,15 @@
      "Website"
     ],
     "date": "2026-11-15"
+   },
+   {
+    "text": "Data: Ludra gets its third mode Easy (2 hours, item level 2800, own bosses, loot table and the new Ludra gear change ticket), the Ludra gear drop is 15% in every mode, and the names of new items and monsters of the 2026-11-18 patch are taken from the game client",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-18"
    }
   ]
  },
