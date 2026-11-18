@@ -2957,9 +2957,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             {
                 return seen.CombatPower;
             }
-
-            return null;
         }
+
+        // The own character (and the others of the own legion) is never "seen" by the game's profile frame: the legion list of the login tells their combat power
+        // (as of the login; the same figure the character window uses). The equalised value of an arena (397,228) is no real power.
+        foreach (LegionMember member in LegionRoster())
+        {
+            if (string.Equals(member.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return member.CombatPower is > 0 and not 397_228 ? member.CombatPower : null;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Notes a player's hit on a monster, for <see cref="MatchPartyMembersByClass"/>.</summary>

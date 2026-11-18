@@ -866,6 +866,13 @@
      "Client"
     ],
     "date": "2026-11-18"
+   },
+   {
+    "text": "Release 2.0.0-beta.32: the meter shows the combat power of your own character and of the others in your legion (taken from the legion list of the login) - before, it stayed empty for yourself because the game does not announce your own character like other players",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-18"
    }
   ]
  },
