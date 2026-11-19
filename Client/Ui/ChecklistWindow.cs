@@ -284,6 +284,7 @@ public sealed class ChecklistWindow : Window
         // a small switch in front of the title: whether the checklist widget shows the energy
         var head = new DockPanel { Margin = new Thickness(0, 0, 0, 4) };
         CheckBox pick = Pick("odyle");
+        pick.Margin = new Thickness(0, 0, 10, 0);
         DockPanel.SetDock(pick, Dock.Left);
         head.Children.Add(pick);
         head.Children.Add(Label(def.NameIn(language), locked ? "Brush.TextSubtle" : "Brush.Text", 16, bold: true));
@@ -350,7 +351,7 @@ public sealed class ChecklistWindow : Window
     private static Grid NumberGrid(int extraColumns)
     {
         var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });  // the switch for the widget
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });  // the switch for the widget
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(215) }); // name
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(62) });  // count with its bonus (right-aligned)
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // slash
@@ -366,7 +367,13 @@ public sealed class ChecklistWindow : Window
     /// <summary>A small switch in front of an element of the checklist: whether the checklist widget (and its overlay) shows that element.</summary>
     private static CheckBox Pick(string key)
     {
-        var box = new CheckBox { IsChecked = ChecklistRows.IsPicked(key), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), ToolTip = LocalizationManager.Instance["Checklist.PickHint"] };
+        var box = new CheckBox { IsChecked = ChecklistRows.IsPicked(key), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 1, 0, 1), ToolTip = LocalizationManager.Instance["Checklist.PickHint"] };
+        // the on/off switch of the settings, not a check box
+        if (Application.Current?.TryFindResource("CompactSwitch") is Style switchStyle)
+        {
+            box.Style = switchStyle;
+        }
+
         box.Click += (_, _) => ChecklistRows.SetPicked(key, box.IsChecked == true);
         return box;
     }
@@ -481,7 +488,7 @@ public sealed class ChecklistWindow : Window
     private static void AddSubscriptionRow(StackPanel stack, string key, string name, string right, string rightBrush, string? warnBrush, bool muted, params string[] notes)
     {
         var grid = new Grid { Margin = new Thickness(0, 3, 0, 0) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         CheckBox pick = Pick(key);
@@ -505,7 +512,7 @@ public sealed class ChecklistWindow : Window
         {
             TextBlock line = Label(note, warnBrush == "Brush.Danger" ? "Brush.Danger" : "Brush.TextSubtle", 11);
             line.TextWrapping = TextWrapping.Wrap;
-            line.Margin = new Thickness(24, 1, 0, 0);
+            line.Margin = new Thickness(36, 1, 0, 0);
             stack.Children.Add(line);
         }
     }
@@ -592,7 +599,7 @@ public sealed class ChecklistWindow : Window
             int week = Math.Min(value.Bonus, pass.WeeklyLimit);
             bool full = value.Bonus >= pass.WeeklyLimit;
             var head = new Grid { Margin = new Thickness(0, 6, 0, 0) };
-            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             head.Children.Add(Pick("pass:" + pass.TicketId));

@@ -230,6 +230,33 @@
             </Setter>
         </Style>
 
+    <!-- The small on/off switch in front of a row of a list (the checklist): the same look as the settings switch, but as high as a line of text -->
+    <Style x:Key="CompactSwitch" TargetType="CheckBox">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Border x:Name="Track" Width="26" Height="14" CornerRadius="7" VerticalAlignment="Center" Background="{DynamicResource Brush.Control}"
+                            BorderBrush="{DynamicResource Brush.CheckBorder}" BorderThickness="1">
+                        <Ellipse x:Name="Knob" Width="8" Height="8" Fill="{DynamicResource Brush.TextSubtle}" HorizontalAlignment="Left" Margin="2,0,0,0"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource Brush.Switch}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Brush.Switch}"/>
+                            <Setter TargetName="Knob" Property="Fill" Value="#1a1205"/>
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="Knob" Property="Margin" Value="0,0,2,0"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Brush.CheckBorderHover}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- The two teams of the 10 against 10 arena (PlayerRow.TeamSide), in the colours the game gives them: the row takes a muted red or blue, the
          class colour shrinks to a thin bar at the foot, a stripe at the left edge repeats the colour. Theme-independent. -->
     <SolidColorBrush x:Key="Brush.TeamRedRow" Color="#8C873232"/>
