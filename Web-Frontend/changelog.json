@@ -1,5 +1,25 @@
 [
  {
+  "version": "2.0.2",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Checklist: the Abyss join tells which corridors are open for the character (a corridor that gets no time is shown as unavailable), partly used or used-up corridors count as entered, and below level 45 there are no corridor rows and no Abyss scroll",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "the checklist remembers at the Abyss join which Abyss Corridors are open for each character until the next reset (Thursday and Saturday 21:30), and shows a closed one as unavailable",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.0.1",
   "date": "2026-11-19",
   "items": [

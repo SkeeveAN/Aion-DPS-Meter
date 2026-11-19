@@ -162,5 +162,13 @@
  "the checklist shows the three Abyss Corridors (which you have been in since the Thursday and Saturday 21:30 reset), and the season mission points of the week are shown again (they stayed at 0)": {
   "en": "Checklist: Abyss Corridors, season points fixed",
   "de": "Checkliste: Abysskorridore, Saisonpunkte repariert"
+ },
+ "Checklist: the Abyss join tells which corridors are open for the character (a corridor that gets no time is shown as unavailable), partly used or used-up corridors count as entered, and below level 45 there are no corridor rows and no Abyss scroll": {
+  "en": "Checklist: the Abyss join shows which corridors are open or unavailable",
+  "de": "Checkliste: Abyss-Beitritt zeigt, welche Korridore offen oder nicht verfügbar sind"
+ },
+ "the checklist remembers at the Abyss join which Abyss Corridors are open for each character until the next reset (Thursday and Saturday 21:30), and shows a closed one as unavailable": {
+  "en": "Checklist: open Abyss Corridors are remembered until the reset",
+  "de": "Checkliste: offene Abysskorridore bis zum Reset gemerkt"
  }
 }
