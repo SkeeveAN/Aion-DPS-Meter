@@ -28,6 +28,12 @@ public static class NotifySounds
     /// <summary>The Hidden Cube "out of sight" sound (three falling notes, made by Tools/make_cube_left_sound.py): a cube went out of range, the player moves away from it.</summary>
     public static void PlayCubeLeft(int volume) => PlayFile("cube-left", volume);
 
+    /// <summary>An enemy came into view in the Abyss (two short falling notes, made by Tools/make_pvp_sounds.py).</summary>
+    public static void PlayPvpNear(int volume) => PlayFile("pvp-near", volume);
+
+    /// <summary>An enemy marked the player as target in the Abyss (three quick low-high beeps, made by Tools/make_pvp_sounds.py).</summary>
+    public static void PlayPvpTargeted(int volume) => PlayFile("pvp-targeted", volume);
+
     private static void PlayFile(string id, int volume)
     {
         string path = Path.Combine(AppContext.BaseDirectory, "assets", "sounds", id + ".wav");

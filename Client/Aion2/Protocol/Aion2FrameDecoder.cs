@@ -160,7 +160,7 @@ public sealed class Aion2FrameDecoder
     private const int CastOpcode = 0x0238;
 
     /// <summary>An actor's (player's or monster's) new target: <c>opcode | actor (varint) | 00 | target (varint, 0 = none)</c>; 0x3138 is the own character's: <c>opcode | 00 00 | target (varint) | 00 00</c>.</summary>
-    private const int ActorTargetOpcode = 0x3238, OwnTargetOpcode = 0x3138;
+    private const int ActorTargetOpcode = 0x3238, OwnTargetOpcode = 0x3138, PlayerGoneOpcode = 0x4736;
 
     /// <summary>A hit that lands: <c>opcode | attacker (varint) | 00 | target (varint) | skill id u32 | position ...</c>, about 0.3 s before the
     /// damage frame (0x0438) of the same hit, which holds the amount. In a fight of a few players both arrive for every hit (one notice per
@@ -913,6 +913,18 @@ public sealed class Aion2FrameDecoder
                 {
                     Aion2Tickets.ReceiveUpdate(reading, timestamp);
                 }
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == PlayerGoneOpcode)
+        {
+            // "A player is gone from view" (Stacy's fork, 2026-11-14, from an Abyss recording): opcode | player (varint) | 01 00; the counterpart of the first-sight frame.
+            int gp = 2;
+            if (TryReadVarint(frame, ref gp, out long gone) && gone is >= 1 and <= 10_000_000)
+            {
+                _entities.NotePlayerGone((int)gone);
             }
 
             return Array.Empty<DamageEvent>();
@@ -2603,6 +2615,7 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.Combat.NoteTarget((int)actor, (int)target, timestamp);
+        _entities.NoteActorTarget((int)actor, (int)target, timestamp);
     }
 
     private void DecodeLocalPosition(ReadOnlySpan<byte> frame, DateTime timestamp)
@@ -2735,6 +2748,8 @@ public sealed class Aion2FrameDecoder
                 {
                     _entities.NoteFaction((int)id, frame[factionAt]);
                 }
+
+                _entities.NoteAppearance((int)id);
 
                 // A player in a guild: further on, the frame carries server id (u16: 17 05 = 1303,
                 // 18 05 = 1304 Kaisinel) | guild id (u32, non-zero) | 00 00 | the same server id |

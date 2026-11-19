@@ -311,6 +311,11 @@ public static class SelfCheckTickets
             && !Aion2Tickets.TryParseConversionCounters(conv.AsSpan(0, conv.Length - 1), new DateTime(2026, 11, 18, 17, 0, 0), out _);
         Console.WriteLine($"  -> conversion counters 0x8f8d / 0x8b8d: {convRead}");
 
+        // the target power widget (after Stacy's fork): green below 95 %, red above 105 %, yellow within; unknown own power = no colour
+        bool targetSide = AionDPS.Ui.TargetPowerView.Side(0.9) == -1 && AionDPS.Ui.TargetPowerView.Side(1.2) == 1 && AionDPS.Ui.TargetPowerView.Side(1.04) == 0
+            && AionDPS.Ui.TargetPowerView.Side(0.96) == 0 && AionDPS.Ui.TargetPowerView.Side(null) == 0;
+        Console.WriteLine($"  -> target power colour bands: {targetSide}");
+
         // the purchase counters of shop goods (18 November: 12 Verteron scrolls bought in one go, then the shop opened again)
         bool goodsRead = Aion2Tickets.TryParseGoodsCounters(Convert.FromHexString("038c00065983000001fdb8ed070c000000"), out var bought)
             && bought.Count == 1 && bought[0] == (133019901u, 12)

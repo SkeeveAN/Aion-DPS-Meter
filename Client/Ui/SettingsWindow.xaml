@@ -1111,6 +1111,26 @@
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Combat.TargetHint2}" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
+                    <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PvpAlerts.Title}"/>
+                                <CheckBox x:Name="PvpAlertNearBox" Content="{local:Loc Settings.PvpAlertNear}"/>
+                                <CheckBox x:Name="PvpAlertTargetedBox" Content="{local:Loc Settings.PvpAlertTargeted}" Margin="0,4,0,0"/>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Style="{StaticResource CardHint}" Text="{local:Loc Settings.PvpAlertVolume}" VerticalAlignment="Center"/>
+                                    <Slider x:Name="PvpAlertVolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <Button x:Name="PvpAlertNearTest" Grid.Column="2" Content="▶ 1" Width="40" Height="26" Padding="0" Margin="0,0,4,0"/>
+                                    <Button x:Name="PvpAlertTargetedTest" Grid.Column="3" Content="▶ 2" Width="40" Height="26" Padding="0"/>
+                                </Grid>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.PvpAlerts.Hint}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                     <StackPanel x:Name="PanelTimetable" Visibility="Collapsed">
 <Border Style="{StaticResource SettingsCard}">
@@ -1313,6 +1333,7 @@
                                 <CheckBox x:Name="ShowMapOnCubeBox" Margin="0,12,0,0" Content="{local:Loc Settings.Gather.ShowMapOnCube}" ToolTip="{local:Loc Settings.Gather.ShowMapOnCube.Tip}"/>
                             </StackPanel>
                         </Border>
+
 
 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Gather.Hint}" Margin="2,0,0,10"/>
 <TextBlock x:Name="GatherFactionNote" Style="{StaticResource CardHint}" Margin="2,0,0,10" Visibility="Collapsed"/>

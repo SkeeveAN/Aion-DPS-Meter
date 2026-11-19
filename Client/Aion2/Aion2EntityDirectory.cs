@@ -883,7 +883,104 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            if (zoneId != _zoneId)
+            {
+                // the game does not take the players away one by one when the zone changes: nobody is in view any more (Stacy's fork)
+                _inView.Clear();
+            }
+
             _zoneId = zoneId;
+        }
+    }
+
+    // ---- The PvP alerts' data (the idea and the frames are Stacy's fork's, 2026-11-14, MIT; see Ui/PvpWatch.cs): who is in view, who aims at whom ----
+
+    private readonly HashSet<int> _inView = new();
+    private readonly List<(int Actor, int Target, DateTime At)> _targetLog = new();
+    private long _targetTotal;
+
+    /// <summary>A player appeared (the first-sight frame): he is in view until the game says he is gone (0x4736) or the zone changes.</summary>
+    public void NoteAppearance(int id)
+    {
+        lock (_gate)
+        {
+            _inView.Add(id);
+        }
+    }
+
+    /// <summary>The game said this player is gone from view (0x4736).</summary>
+    public void NotePlayerGone(int id)
+    {
+        lock (_gate)
+        {
+            _inView.Remove(id);
+        }
+    }
+
+    /// <summary>An actor's new target (0 = none); the log keeps the last few thousand changes.</summary>
+    public void NoteActorTarget(int actor, int target, DateTime at)
+    {
+        lock (_gate)
+        {
+            _targetLog.Add((actor, target, at));
+            _targetTotal++;
+            if (_targetLog.Count > 4000)
+            {
+                _targetLog.RemoveRange(0, 1000);
+            }
+        }
+    }
+
+    /// <summary>The target changes noted after the first <paramref name="after"/> ones (a running count); <paramref name="total"/> is the count now, to be handed back next time.</summary>
+    public IReadOnlyList<(int Actor, int Target, DateTime At)> TargetsSince(long after, out long total)
+    {
+        lock (_gate)
+        {
+            total = _targetTotal;
+            long first = _targetTotal - _targetLog.Count;
+            int skip = (int)Math.Clamp(after - first, 0, _targetLog.Count);
+            return _targetLog.Skip(skip).ToList();
+        }
+    }
+
+    /// <summary>The faction byte of a player's first-sight frame (1 = a player of an Elyos server, 2 = of an Asmodian server); 0 when not seen.</summary>
+    public int FactionByteOf(int id)
+    {
+        lock (_gate)
+        {
+            return _factionById.GetValueOrDefault(id);
+        }
+    }
+
+    /// <summary>The local player's faction, from his own server (1xxx Elyos, 2xxx Asmodian); 0 while unknown.</summary>
+    public int OwnFactionByte
+    {
+        get
+        {
+            lock (_gate)
+            {
+                int server = _character?.ServerId ?? 0;
+                return server / 1000 is 1 or 2 ? server / 1000 : 0;
+            }
+        }
+    }
+
+    /// <summary>Whether a player is an enemy: his faction byte differs from the own faction. Measured on 18 November 2026 in the lower Abyss (zone 20, 20:35 to 20:53): the 747 players seen with faction 1 and the
+    /// 81 with faction 2 (a byte six bytes behind the name carries the same value) - the players who struck the own Elyos character with damage skills were all Asmodians (19 of 19), the friends who healed him Elyos.
+    /// Stacy's fork reads the byte the other way round (1 = enemy); on our recording it is faction. False while the own or the player's faction is unknown.</summary>
+    public bool IsHostilePlayer(int id)
+    {
+        int own = OwnFactionByte;
+        int his = FactionByteOf(id);
+        return own != 0 && his != 0 && own != his;
+    }
+
+    /// <summary>The enemies in view right now: appeared, counted as enemies, and not gone since.</summary>
+    public IReadOnlyCollection<int> HostilePlayersInView()
+    {
+        lock (_gate)
+        {
+            return _inView.Where(IsHostilePlayer).ToList();
         }
     }
 
@@ -1124,11 +1221,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     public void SetLocalTarget(int entityId)
     {
+        // After a death the game sends the killer as the new target (Stacy's fork, recordings of 2026-11-14): it is kept, so the dead player sees who killed him.
         lock (_gate)
         {
             _target = (entityId, DateTime.UtcNow);
         }
     }
+
+    /// <summary>False while the last hit points read for the local player are 0 (he is dead); true otherwise, also while unknown.</summary>
+    public bool LocalPlayerAlive => LocalPlayerId < 0 || HitPoints.Latest(LocalPlayerId) is not { Hp: 0 };
 
     private (int EntityId, DateTime At)? _lastHit;
 

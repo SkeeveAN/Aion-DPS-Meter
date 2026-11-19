@@ -444,6 +444,9 @@ public sealed class MeterSettings
 
     /// <summary>The dashboards of the new interface (the first is the standard one; a name that is empty shows as "Standard" in the language of the program) and the one shown.</summary>
     public List<DashboardSet> Dashboards { get; set; } = new();
+
+    /// <summary>The target power widget was put once on the first dashboard (see DashboardBoard); a widget the user takes off afterwards does not come back.</summary>
+    public bool TargetPowerWidgetOffered { get; set; }
     public int DashboardActive { get; set; }
 
     /// <summary>The new interface stays above other windows.</summary>
@@ -543,6 +546,15 @@ public sealed class MeterSettings
     public bool ShowGuards { get; set; } = true;
     public string CubeSound { get; set; } = "ping";
     public int CubeSoundVolume { get; set; } = 70;
+
+    /// <summary>A sound when an enemy comes into view in the Abyss (Stacy's fork's idea, 2026-11-14; see Ui/PvpWatch.cs). On by default.</summary>
+    public bool PvpAlertNear { get; set; } = true;
+
+    /// <summary>A sound when an enemy marks the local player as target in the Abyss.</summary>
+    public bool PvpAlertTargeted { get; set; } = true;
+
+    /// <summary>The volume of both PvP sounds (0 to 100 percent).</summary>
+    public int PvpAlertVolume { get; set; } = 70;
     /// <summary>Pet arrows / gather arrows on / off.</summary>
     public string HotkeyPetArrows { get; set; } = "Ctrl+Alt+E";
     public string HotkeyGatherArrows { get; set; } = "Ctrl+Alt+G";

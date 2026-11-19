@@ -41,6 +41,7 @@ public partial class SettingsWindow
             new ToolTab("Settings.Combat.CardBossHp", "PanelCombat", new[] { 0, 1 }),
             new ToolTab("Settings.Combat.CardBossCast", "PanelCombat", new[] { 0, 2 }),
             new ToolTab("Combat.Element.TargetOfTarget", "PanelCombat", new[] { 0, 3 }),
+            new ToolTab("Settings.PvpAlerts.Tab", "PanelCombat", new[] { 4 }),
         },
         ["timetable"] = new[] { new ToolTab("Settings.Nav.Timetable", "PanelTimetable") },
         ["boss"] = new[] { new ToolTab("Settings.Nav.Boss", "PanelBoss") },

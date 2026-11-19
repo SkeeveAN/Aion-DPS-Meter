@@ -74,6 +74,22 @@ public sealed class DashboardBoard : DockPanel
         }
 
         _places = _sets[_active].Widgets;
+        // the target power widget (new in 2.0.0-beta.34) is put once on the first dashboard of everybody, so they see it exists; a widget taken off again stays off
+        if (!settings.TargetPowerWidgetOffered)
+        {
+            settings.TargetPowerWidgetOffered = true;
+            if (!_sets[0].Widgets.ContainsKey("targetpower"))
+            {
+                var active = _places;
+                _places = _sets[0].Widgets;
+                _places["targetpower"] = Slot(330, 110);
+                _places = active;
+            }
+
+            settings.Dashboards = _sets;
+            settings.Save();
+        }
+
         Save();
 
         // round, a strong ring in the accent of the theme that fades towards the middle
@@ -277,13 +293,14 @@ public sealed class DashboardBoard : DockPanel
         ["connection"] = new DashboardPlace { X = 10, Y = 270, W = 390, H = 170 },
         ["figures"] = new DashboardPlace { X = 410, Y = 270, W = 270, H = 170 },
         ["last"] = new DashboardPlace { X = 10, Y = 450, W = 390, H = 190 },
+        ["targetpower"] = new DashboardPlace { X = 410, Y = 450, W = 330, H = 110 },
     };
 
     /// <summary>The standard dashboard of the versions before: pairs side by side, both of a pair as high as the higher one. Only used to find a dashboard that was never changed.</summary>
     private static Dictionary<string, DashboardPlace> EarlierStandard()
     {
         var result = new Dictionary<string, DashboardPlace>();
-        var shown = HubDashboard.Widgets.Where(w => !w.Static).ToList();
+        var shown = HubDashboard.Widgets.Where(w => !w.Static && w.Id != "targetpower").ToList(); // the target power came later: the earlier standard had none
         double y = Margin8;
         for (int i = 0; i < shown.Count; i += 2)
         {

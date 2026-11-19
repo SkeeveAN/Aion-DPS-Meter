@@ -15,6 +15,23 @@ public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = ""
 /// <summary>Works out the combat overlay's frame from what the packet stream said (see <see cref="Aion2CombatState"/>); no windows, so a test can run it.</summary>
 public static class CombatOverlayData
 {
+    /// <summary>
+    /// The game calls almost every attack of Ketu (Abyssal Forge: Ludra) "Attack"; the mechanics players have to react to get a name of their own. Taken over from Stacy's fork
+    /// (MIT, 2026-11-10, from her Ludra recording; not checked against one of ours - no Ketu in our recordings): windup 1801830 (the family 180183x), then one or two scythes appear
+    /// 3.6 s later; windup 1801940 (the family 180194x) puts down the two orbs; the adds phase is Abyssal Gaze (1801962, 1801966, 1801969, listed by id because its family holds plain attacks too).
+    /// Normal difficulty; null for every other skill.
+    /// </summary>
+    public static string? MechanicKey(int skillId) => skillId switch
+    {
+        1801962 or 1801966 or 1801969 => "Combat.Mechanic.KetuAdds",
+        _ => (skillId / 10) switch
+        {
+            180183 => "Combat.Mechanic.KetuScythes",
+            180194 => "Combat.Mechanic.KetuOrbs",
+            _ => null,
+        },
+    };
+
     /// <summary>How long an entity counts as aiming at what it last used a skill on.</summary>
     private static readonly TimeSpan AimAge = TimeSpan.FromSeconds(10);
 
@@ -123,7 +140,8 @@ public static class CombatOverlayData
                 : cast.Target <= 0 || cast.Target == cast.Actor ? loc["Combat.AllAround"] : Name(dir, cast.Target, language);
             bool generic = Aion2SkillNames.IsGeneric(cast.SkillId);
             // a skill the client has no name for says what it paints on the floor ("Attack to the front") instead of a bare "Attack"
-            string skill = generic && Aion2SkillShapes.KindOf(cast.SkillId) is { } shape ? loc["Combat.Shape." + shape] : Aion2SkillNames.DisplayOf(cast.SkillId);
+            string skill = generic && CombatOverlayData.MechanicKey(cast.SkillId) is { } mechanic ? loc[mechanic]
+                : generic && Aion2SkillShapes.KindOf(cast.SkillId) is { } shape ? loc["Combat.Shape." + shape] : Aion2SkillNames.DisplayOf(cast.SkillId);
             string caster = Name(dir, cast.Actor, language);
             var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), generic,
                 $"{cast.Actor}:{cast.SkillId}:{cast.Start.Ticks}", !atYou && (view.IsArea || cast.Target <= 0 || cast.Target == cast.Actor));

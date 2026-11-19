@@ -880,6 +880,13 @@
      "Client"
     ],
     "date": "2026-11-18"
+   },
+   {
+    "text": "Release 2.0.0-beta.34: new widget Target combat power (name, class, full combat power and the gap in percent of the player you mark, green when he is weaker, red when stronger; it stays after your death so you see your killer; on the default dashboard and as an overlay element; after Stacy's fork), new Enemy alert tab under Boss fight (a sound when the first enemy of the other faction comes into view in the Abyss and when one targets you; checked on one evening in the lower Abyss; ideas from Stacy's fork), the Ketu attacks of Ludra have names in the cast bar (Scythe summon, Orbs, Adds phase; after Stacy's fork), and the combat power of your own character shows in the meter rows",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },

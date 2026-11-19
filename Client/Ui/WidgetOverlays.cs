@@ -296,7 +296,7 @@ public sealed class WidgetOverlayController : IDisposable
 
             window.ApplyLockedIfChanged(locked);
             // an empty live meter is not drawn over the game (only while the overlays are unlocked, to place it)
-            bool empty = id == "meter" && locked && WidgetKind.MeterHasRows?.Invoke() == false;
+            bool empty = locked && ((id == "meter" && WidgetKind.MeterHasRows?.Invoke() == false) || (id == "targetpower" && TargetPowerView.Provider?.Invoke() is null));
             window.ShowOverlay((!locked || gameInFront) && (!WidgetKind.OverlaysHidden || OverlayDesigner.Active) && !empty);
         }
 

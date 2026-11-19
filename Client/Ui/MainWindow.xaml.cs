@@ -330,6 +330,8 @@ public partial class MainWindow : Window
                 _ = RefreshDataAsync();
             };
             _updateTimer.Start();
+            // the PvP sounds of the Abyss (Stacy's fork's idea): a small ticker of its own, off in the headless test modes
+            new PvpAlertTicker(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory).Start();
             _announcementsTimer.Tick += (_, _) => { _ = RefreshAnnouncementsBadge(); _ = RefreshTwitchDropsBadge(); _ = RefreshSchedule(); };
             _announcementsTimer.Start();
             _ = RefreshAnnouncementsBadge();
@@ -6352,6 +6354,7 @@ public partial class MainWindow : Window
         WidgetKind.MeterMode = () => (int)_mode;
         WidgetKind.SetMeterMode = mode => SetMode((MeterMode)mode);
         WidgetKind.MeterHasRows = () => _rows.Count > 0;
+        TargetPowerView.Provider = () => _liveSource?.Entities is Aion2.Aion2EntityDirectory directory ? TargetPowerView.Build(directory) : null;
         _widgetOverlays ??= new WidgetOverlayController(() => _hubWindow?.OverlaySources());
     }
 

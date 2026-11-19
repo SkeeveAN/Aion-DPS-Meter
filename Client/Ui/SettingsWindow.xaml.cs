@@ -724,6 +724,9 @@ public partial class SettingsWindow : Window
             s.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
             s.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
             s.CubeSoundVolume = (int)CubeVolumeSlider.Value;
+            s.PvpAlertNear = PvpAlertNearBox.IsChecked ?? true;
+            s.PvpAlertTargeted = PvpAlertTargetedBox.IsChecked ?? true;
+            s.PvpAlertVolume = (int)PvpAlertVolumeSlider.Value;
             s.ShowMapOnCube = ShowMapOnCubeBox.IsChecked ?? false;
             s.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         }
@@ -903,6 +906,9 @@ public partial class SettingsWindow : Window
         _settings.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
         _settings.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
         _settings.CubeSoundVolume = (int)CubeVolumeSlider.Value;
+        _settings.PvpAlertNear = PvpAlertNearBox.IsChecked ?? true;
+        _settings.PvpAlertTargeted = PvpAlertTargetedBox.IsChecked ?? true;
+        _settings.PvpAlertVolume = (int)PvpAlertVolumeSlider.Value;
         _settings.ShowMapOnCube = ShowMapOnCubeBox.IsChecked ?? false;
         _settings.ShowGuards = ShowGuardsBox.IsChecked ?? true;
         _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
@@ -1685,7 +1691,18 @@ public partial class SettingsWindow : Window
         CubeArrivalTest.Click -= TestCubeArrival;
         CubeArrivalTest.Click += TestCubeArrival;
         ShowMapOnCubeBox.IsChecked = settings.ShowMapOnCube;
+        PvpAlertNearBox.IsChecked = settings.PvpAlertNear;
+        PvpAlertTargetedBox.IsChecked = settings.PvpAlertTargeted;
+        PvpAlertVolumeSlider.Value = Math.Clamp(settings.PvpAlertVolume, 0, 100);
+        PvpAlertNearTest.Click -= TestPvpNear;
+        PvpAlertNearTest.Click += TestPvpNear;
+        PvpAlertTargetedTest.Click -= TestPvpTargeted;
+        PvpAlertTargetedTest.Click += TestPvpTargeted;
     }
+
+    private void TestPvpNear(object sender, RoutedEventArgs e) => NotifySounds.PlayPvpNear((int)PvpAlertVolumeSlider.Value);
+
+    private void TestPvpTargeted(object sender, RoutedEventArgs e) => NotifySounds.PlayPvpTargeted((int)PvpAlertVolumeSlider.Value);
 
     private void TestCubeArrival(object sender, RoutedEventArgs e) => NotifySounds.PlayCubeArrival((int)CubeVolumeSlider.Value);
 

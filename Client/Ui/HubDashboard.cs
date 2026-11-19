@@ -85,6 +85,7 @@ public static class HubDashboard
         new("update", "Hub.Dash.Update", null, 420, 190, true),
         new("announcements", "Hub.Dash.Announcements", null, 420, 170, true),
         new("drops", "Hub.Dash.Drops", null, 420, 170, true),
+        new("targetpower", "Hub.Dash.TargetPower", null, 380, 64, false),
     };
 
     /// <summary>The body of one widget, drawn from the live data.</summary>
@@ -94,6 +95,7 @@ public static class HubDashboard
         switch (id)
         {
             case "meter": return src.MeterView?.Invoke() ?? new TextBlock { Text = "–" };
+            case "targetpower": return TargetPowerView.Body(TargetPowerView.Provider?.Invoke(), loc);
             case "connection": return Connection(src.Status(), loc);
             case "todo": return Todo(loc, src.OpenTool);
             case "soon":
