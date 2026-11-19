@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Checklist: the client learns which Abyss Corridors are unavailable by itself - the game names the holder of each artifact at every entry of the lower Abyss, and a corridor whose artifact the other side holds shows as unavailable (0 / 0)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.0.4",
   "date": "2026-11-20",
   "items": [
