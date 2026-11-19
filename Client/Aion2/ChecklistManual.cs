@@ -33,6 +33,12 @@ public static class ChecklistManual
 
         /// <summary>The Abyss Corridors the character entered (see <see cref="NoteCorridorEntry"/>), oldest first. Not cleared by the weekly reset: the corridors have their own reset times (<see cref="LastCorridorReset"/>).</summary>
         public List<CorridorEntry> CorridorEntries { get; set; } = new();
+
+        /// <summary>When the game granted the full usage time of a corridor (<see cref="CorridorFullMs"/>), seen at the Abyss join: the corridor is open to this character for the period. If its time is 0 later, it has been used.</summary>
+        public List<CorridorEntry> CorridorGrants { get; set; } = new();
+
+        /// <summary>Corridors the game gave no usage time at the Abyss join (0 with the refill reason): not available to this character for the period (the game says "Unavailable").</summary>
+        public List<CorridorEntry> CorridorClosed { get; set; } = new();
     }
 
     /// <summary>One visit of an Abyss Corridor: when (Unix ms) and which one (zone id 503001 and up).</summary>
@@ -80,6 +86,83 @@ public static class ChecklistManual
         (503002, new() { ["en"] = "Archipelago of Siel's Wings", ["de"] = "Siels Schwingen-Archipel", ["fr"] = "Archipel des ailes de Siel", ["es"] = "Archipiélago Alas de Siel", ["ru"] = "Архипелаг крыльев Сиэль", ["pt"] = "Arquipélago de Asas de Siel", ["ja"] = "シエルの翼の群島", ["ko"] = "시엘의 날개 군도" }),
         (503003, new() { ["en"] = "Reshanta's Root", ["de"] = "Wurzel von Reshanta", ["fr"] = "Racines de Reshanta", ["es"] = "Raíces de Reshanta", ["ru"] = "Корни Арэшурата", ["pt"] = "Raiz de Reshanta", ["ja"] = "エレシュランタの根", ["ko"] = "에레슈란타의 뿌리" }),
     };
+
+    /// <summary>The usage time every corridor holds per period (the game's ticket: 130 seconds).</summary>
+    public const long CorridorFullMs = 130_000;
+
+    /// <summary>The usage-time ticket of each corridor (the client's entrance table: 503001 spends 10000002, 503002 10000003, 503003 10000001).</summary>
+    public static int CorridorOfTicket(int ticketId) => ticketId switch { 10000002 => 503001, 10000003 => 503002, 10000001 => 503003, _ => 0 };
+
+    /// <summary>The usage time of a corridor's ticket as the game reported it (an update, or the login list): the full time = open and unused (remembered), less than the full time but
+    /// more than 0 = used in part (entered), 0 after the full time was seen in this period = used up (entered). A 0 alone says nothing: unused and not available look the same.</summary>
+    public static void NoteCorridorTime(string character, int ticketId, long remainingMs, DateTime now, bool atJoin = false)
+    {
+        int zone = CorridorOfTicket(ticketId);
+        if (zone == 0)
+        {
+            return;
+        }
+
+        bool changed = false;
+        lock (Gate)
+        {
+            State state = Get(character, now);
+            long from = Ms(LastCorridorReset(now));
+            if (atJoin && remainingMs == 0)
+            {
+                if (!state.CorridorClosed.Any(g => g.Ms >= from && g.Zone == zone))
+                {
+                    state.CorridorClosed.Add(new CorridorEntry { Ms = Ms(now), Zone = zone });
+                    changed = true;
+                }
+            }
+            else if (remainingMs >= CorridorFullMs)
+            {
+                if (!state.CorridorGrants.Any(g => g.Ms >= from && g.Zone == zone))
+                {
+                    state.CorridorGrants.Add(new CorridorEntry { Ms = Ms(now), Zone = zone });
+                    changed = true;
+                }
+            }
+            else if ((remainingMs > 0 || state.CorridorGrants.Any(g => g.Ms >= from && g.Zone == zone))
+                && !state.CorridorEntries.Any(e => e.Ms >= from && e.Zone == zone))
+            {
+                state.CorridorEntries.Add(new CorridorEntry { Ms = Ms(now), Zone = zone });
+                changed = true;
+            }
+
+            if (changed)
+            {
+                state.CorridorGrants.RemoveAll(g => g.Ms < Ms(now) - (long)CorridorKeep.TotalMilliseconds);
+                Save();
+            }
+        }
+
+        if (changed)
+        {
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>Whether the game gave this corridor no usage time at the Abyss join since the last reset ("Unavailable").</summary>
+    public static bool CorridorClosed(string character, int zone, DateTime now)
+    {
+        lock (Gate)
+        {
+            long from = Ms(LastCorridorReset(now));
+            return Get(character, now).CorridorClosed.Any(g => g.Ms >= from && g.Zone == zone);
+        }
+    }
+
+    /// <summary>Whether the full usage time of this corridor was seen for the character since the last reset.</summary>
+    public static bool CorridorGranted(string character, int zone, DateTime now)
+    {
+        lock (Gate)
+        {
+            long from = Ms(LastCorridorReset(now));
+            return Get(character, now).CorridorGrants.Any(g => g.Ms >= from && g.Zone == zone);
+        }
+    }
 
     /// <summary>Whether the character has entered this corridor since the last reset.</summary>
     public static bool CorridorEntered(string character, int zone, DateTime now)

@@ -293,6 +293,19 @@ public static class SelfCheckTickets
             && ChecklistManual.LastCorridorReset(new DateTime(2026, 11, 21, 21, 29, 0)) == new DateTime(2026, 11, 19, 21, 30, 0)
             && ChecklistManual.LastCorridorReset(new DateTime(2026, 11, 20, 12, 0, 0)) == new DateTime(2026, 11, 19, 21, 30, 0)
             && Aion2.Protocol.Aion2Zones.IsAbyssCorridor(503002) && !Aion2.Protocol.Aion2Zones.IsAbyssCorridor(20);
+        // the game's usage time of a corridor: full = open and unused (nothing entered), part used = entered, 0 after the full time = used up, 0 alone = nothing known
+        ChecklistManual.NoteCorridorTime("Aahz", 10000001, 0, thu.AddHours(2));
+        ChecklistManual.NoteCorridorTime("Aahz", 10000001, 130000, thu.AddHours(2));
+        bool openNotEntered = !ChecklistManual.CorridorEntered("Aahz", 503003, thu.AddHours(2)) && ChecklistManual.CorridorGranted("Aahz", 503003, thu.AddHours(2));
+        ChecklistManual.NoteCorridorTime("Aahz", 10000001, 0, thu.AddHours(2).AddMinutes(5));
+        bool usedUp = ChecklistManual.CorridorEntered("Aahz", 503003, thu.AddHours(2).AddMinutes(5));
+        ChecklistManual.NoteCorridorTime("Nunzio", 10000002, 0, thu.AddHours(2));
+        bool zeroAlone = !ChecklistManual.CorridorEntered("Nunzio", 503001, thu.AddHours(2));
+        ChecklistManual.NoteCorridorTime("Nunzio", 10000003, 40000, thu.AddHours(2));
+        bool partUsed = ChecklistManual.CorridorEntered("Nunzio", 503002, thu.AddHours(2));
+        ChecklistManual.NoteCorridorTime("Nunzio", 10000001, 0, thu.AddHours(2), atJoin: true);
+        bool closedAtJoin = ChecklistManual.CorridorClosed("Nunzio", 503003, thu.AddHours(2)) && !ChecklistManual.CorridorClosed("Nunzio", 503003, new DateTime(2026, 11, 21, 21, 31, 0));
+        corridorKept = corridorKept && closedAtJoin && openNotEntered && usedUp && zeroAlone && partUsed;
         Console.WriteLine($"  -> abyss corridor entries per character, kept after reload={corridorKept}");
         ChecklistManual.PathOverride = null;
         ChecklistManual.Reset();

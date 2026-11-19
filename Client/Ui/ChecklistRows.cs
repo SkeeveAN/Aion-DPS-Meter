@@ -55,13 +55,33 @@ public static class ChecklistRows
             rows.Add(new ChecklistRow("ticket:" + id, ChecklistGroup.Overview, def.ShortIn(language), count, Math.Max(CapOf(def), count + own.Bonus), count != own.Count, true, own.Bonus, def));
         }
 
-        // the three Abyss Corridors, one row each (0 / 1 = not entered yet since the Thursday / Saturday 21:30 reset), as "corridor: artifact", the artifact as the client names it
-        // the word "corridor" alone (the client's zone name is "Abyss Corridor": Abysskorridor, Corridor d'Abysse, Corredor del Abismo, ...)
-        string corridorName = language switch { "de" => "Korridor", "fr" => "Corridor", "es" or "pt" => "Corredor", "ru" => "Галерея", "ja" => "回廊", "ko" => "회랑", _ => "Corridor" };
-        foreach ((int zone, Dictionary<string, string> names) in Aion2.ChecklistManual.Corridors)
+        // the three Abyss Corridors (from level 45: below it there is no Abyss), one row each (0 / 1 = not entered yet since the Thursday / Saturday 21:30 reset). Entered = the zone frame said so,
+        // or the game's usage time of the corridor is used in part, or it is 0 after the full time was seen (see ChecklistManual.NoteCorridorTime).
+        if (character.Level == 0 || character.Level >= Aion2.Aion2Tickets.CorridorMinLevel)
         {
-            string artifact = names.GetValueOrDefault(language) ?? names["en"];
-            rows.Add(new ChecklistRow("corridor:" + zone, ChecklistGroup.Overview, corridorName + ": " + artifact, Aion2.ChecklistManual.CorridorEntered(character.Name, zone, now) ? 1 : 0, 1, false, true));
+            // the word "corridor" alone (the client's zone name is "Abyss Corridor": Abysskorridor, Corridor d'Abysse, Corredor del Abismo, ...)
+            string corridorName = language switch { "de" => "Korridor", "fr" => "Corridor", "es" or "pt" => "Corredor", "ru" => "Галерея", "ja" => "回廊", "ko" => "회랑", _ => "Corridor" };
+            foreach ((int zone, Dictionary<string, string> names) in Aion2.ChecklistManual.Corridors)
+            {
+                string artifact = names.GetValueOrDefault(language) ?? names["en"];
+                bool entered = Aion2.ChecklistManual.CorridorEntered(character.Name, zone, now);
+                int ticket = zone switch { 503001 => 10000002, 503002 => 10000003, _ => 10000001 };
+                if (!entered && character.Tickets.TryGetValue(ticket, out Aion2.TicketValue time))
+                {
+                    entered = time.TimeMs is > 0 and < Aion2.ChecklistManual.CorridorFullMs
+                        || (time.TimeMs == 0 && Aion2.ChecklistManual.CorridorGranted(character.Name, zone, now));
+                }
+
+                if (!entered && Aion2.ChecklistManual.CorridorClosed(character.Name, zone, now))
+                {
+                    // the game gave no time for this corridor at the Abyss join: it says "Unavailable" there as well
+                    string closed = language switch { "de" => "Nicht verfügbar", "fr" => "Indisponible", "es" => "No disponible", "ru" => "Недоступно", "pt" => "Uso Indisponível", "ja" => "利用不可", "ko" => "이용 불가", _ => "Unavailable" };
+                    rows.Add(new ChecklistRow("corridor:" + zone, ChecklistGroup.Overview, corridorName + ": " + artifact + " (" + closed + ")", 0, 0, false, true));
+                    continue;
+                }
+
+                rows.Add(new ChecklistRow("corridor:" + zone, ChecklistGroup.Overview, corridorName + ": " + artifact, entered ? 1 : 0, 1, false, true));
+            }
         }
 
         // the mandatory tasks of the home region as one counter of five (the count read last, or 0 as an estimate when a daily reset came since)
@@ -80,7 +100,10 @@ public static class ChecklistRows
         }
 
         rows.Add(new ChecklistRow("weekly:verteron", ChecklistGroup.Weekly, ChecklistWindow.ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), Aion2.ChecklistManual.VerteronCount(shared), Aion2.ChecklistManual.VerteronMax, false, true));
-        rows.Add(new ChecklistRow("weekly:abyss", ChecklistGroup.Weekly, ChecklistWindow.ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), Aion2.ChecklistManual.AbyssCount(shared), Aion2.ChecklistManual.AbyssMax, false, true));
+        if (character.Level == 0 || character.Level >= Aion2.Aion2Tickets.CorridorMinLevel)
+        {
+            rows.Add(new ChecklistRow("weekly:abyss", ChecklistGroup.Weekly, ChecklistWindow.ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), Aion2.ChecklistManual.AbyssCount(shared), Aion2.ChecklistManual.AbyssMax, false, true));
+        }
         // 4 a week per character and 16 per server, 20 together; each counts only while its reset time lies ahead
         long nowMs = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero).ToUnixTimeMilliseconds();
         int bought = 0;

@@ -829,7 +829,7 @@ public static class Aion2Tickets
         }
     }
 
-    public static void ReceiveUpdate(TicketReading reading, DateTime at)
+    public static void ReceiveUpdate(TicketReading reading, DateTime at, int reason = 0)
     {
         // The missions' head carries no time of its own: it gets the time it was read, so a daily reset since then is known (a relog keeps it). Stacy's approach (her fork, MIT).
         if (reading.Id == MissionsId && reading.Value.TimeMs == 0)
@@ -838,6 +838,7 @@ public static class Aion2Tickets
         }
 
         bool changed = false;
+        string? corridorName = null;
         lock (Gate)
         {
             if (_awaitingName && _pending is not null)
@@ -846,6 +847,7 @@ public static class Aion2Tickets
             }
             else if ((_current ?? _likely) is { } name)
             {
+                corridorName = name;
                 if (Characters.TryGetValue(name, out TicketCharacter? known))
                 {
                     if (reading.Id == MissionsId && at - _pendingAt >= TimeSpan.Zero && at - _pendingAt < LoginHeadWindow && FirstLoginOfDay(known, at))
@@ -878,11 +880,20 @@ public static class Aion2Tickets
             }
         }
 
+        // the usage time of an Abyss Corridor (the game's ticket 10000001-3): what it says about a visit goes to the checklist
+        if (corridorName is not null && ChecklistManual.CorridorOfTicket(reading.Id) != 0 && Characters.TryGetValue(corridorName, out TicketCharacter? who) && (who.Level == 0 || who.Level >= CorridorMinLevel))
+        {
+            ChecklistManual.NoteCorridorTime(corridorName, reading.Id, reading.Value.TimeMs, at, reason == 2);
+        }
+
         if (changed)
         {
             Changed?.Invoke();
         }
     }
+
+    /// <summary>No Abyss (so no corridors and no Abyss scrolls) below this level.</summary>
+    public const int CorridorMinLevel = 45;
 
     private static int _likelyServerId;
 

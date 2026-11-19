@@ -1045,9 +1045,9 @@ public sealed class Aion2FrameDecoder
 
         if (opcode == TicketChangeOpcode)
         {
-            if (Aion2Tickets.TryParseUpdate(frame, out TicketReading ticket, out _, out _))
+            if (Aion2Tickets.TryParseUpdate(frame, out TicketReading ticket, out int ticketReason, out _))
             {
-                Aion2Tickets.ReceiveUpdate(ticket, timestamp);
+                Aion2Tickets.ReceiveUpdate(ticket, timestamp, ticketReason);
             }
 
             return Array.Empty<DamageEvent>();
