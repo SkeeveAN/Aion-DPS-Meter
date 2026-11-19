@@ -150,5 +150,17 @@
  "The new interface of the program - a dashboard you arrange yourself (widgets, several boards), one window with a Tools menu for everything (live meter, sessions, comparison, replay, character with stats card, checklist, boss fight with enemy alert, interactive maps, Twitch Drops, announcements, server status, settings per tool), an overlay designer where every overlay and widget has its own gear (opacity, text strength, background colour, dock and grid), and a history database for characters, checklist and field boss times": {
   "en": "New interface: dashboard with widgets, one window with a Tools menu, overlay designer, history database",
   "de": "Neue Oberfläche: Dashboard mit Widgets, ein Fenster mit Tools-Menü, Overlay-Designer, Verlaufsdatenbank"
+ },
+ "Checklist: the three Abyss Corridors (Sulfur Tree Island, Archipelago of Siel's Wings, Reshanta's Root) show whether the character has been in each since the Thursday and Saturday 21:30 reset": {
+  "en": "Checklist: the three Abyss Corridors show where you have been since the reset",
+  "de": "Checkliste: die drei Abysskorridore zeigen, wo du seit dem Reset warst"
+ },
+ "Checklist: the season mission points of the week showed 0 because three tickets of our own shared one id (the pet auto-loot ticket overwrote them each login); the points and the server Odyle purchases have their own ids now": {
+  "en": "Checklist: the week's season mission points no longer show 0",
+  "de": "Checkliste: Saisonmissions-Punkte der Woche zeigen nicht mehr 0"
+ },
+ "the checklist shows the three Abyss Corridors (which you have been in since the Thursday and Saturday 21:30 reset), and the season mission points of the week are shown again (they stayed at 0)": {
+  "en": "Checklist: Abyss Corridors, season points fixed",
+  "de": "Checkliste: Abysskorridore, Saisonpunkte repariert"
  }
 }
