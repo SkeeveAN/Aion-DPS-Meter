@@ -23,6 +23,13 @@
      "Client"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Checklist: the season mission points of the week showed 0 because three tickets of our own shared one id (the pet auto-loot ticket overwrote them each login); the points and the server Odyle purchases have their own ids now",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },
