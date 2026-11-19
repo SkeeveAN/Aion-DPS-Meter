@@ -30,6 +30,65 @@ public static class ChecklistManual
 
         /// <summary>What the game said about the shop goods of the scrolls (goods id, bought this week), see <see cref="NoteGoods"/>.</summary>
         public Dictionary<string, int> Goods { get; set; } = new();
+
+        /// <summary>The Abyss Corridors the character entered (see <see cref="NoteCorridorEntry"/>), oldest first. Not cleared by the weekly reset: the corridors have their own reset times (<see cref="LastCorridorReset"/>).</summary>
+        public List<CorridorEntry> CorridorEntries { get; set; } = new();
+    }
+
+    /// <summary>One visit of an Abyss Corridor: when (Unix ms) and which one (zone id 503001 and up).</summary>
+    public sealed class CorridorEntry
+    {
+        public long Ms { get; set; }
+        public int Zone { get; set; }
+    }
+
+    /// <summary>How long entries are kept.</summary>
+    private static readonly TimeSpan CorridorKeep = TimeSpan.FromDays(60);
+
+    /// <summary>The corridors reset on Thursday and Saturday at 21:30 local time (the user's information, 19 November; the entries of that Thursday began at 21:48).</summary>
+    public static DateTime LastCorridorReset(DateTime now)
+    {
+        DateTime d = now.Date.AddHours(21).AddMinutes(30);
+        while (d > now || d.DayOfWeek is not (DayOfWeek.Thursday or DayOfWeek.Saturday))
+        {
+            d = d.AddDays(-1);
+        }
+
+        return d;
+    }
+
+    /// <summary>The character entered an Abyss Corridor (a zone frame with a new corridor zone id, 503001 and up; seen 19 November 21:48 and 21:58, each time from the lower Reshanta map).</summary>
+    public static void NoteCorridorEntry(string character, int zone, DateTime now)
+    {
+        lock (Gate)
+        {
+            State state = Get(character, now);
+            long ms = Ms(now);
+            state.CorridorEntries.RemoveAll(e => e.Ms < ms - (long)CorridorKeep.TotalMilliseconds);
+            state.CorridorEntries.Add(new CorridorEntry { Ms = ms, Zone = zone });
+            Save();
+        }
+
+        Changed?.Invoke();
+    }
+
+    /// <summary>The three corridors of the lower level: zone id and the artifact each is named after (the client's own texts, per language; other languages use English). The zone frames
+    /// name the corridor by id; which artifact belongs to which id is the client's entrance table (503001 spends the ticket of the Sulfur Tree Island).</summary>
+    public static readonly (int Zone, Dictionary<string, string> Names)[] Corridors =
+    {
+        (503001, new() { ["en"] = "Sulfur Tree Island", ["de"] = "Schwefelbauminsel", ["fr"] = "Île des Arbres de Soufre", ["es"] = "Isla del Árbol de Azufre", ["ru"] = "Остров серного дерева", ["pt"] = "Ilha da Árvore Sulfúrica", ["ja"] = "硫黄木の島", ["ko"] = "유황나무섬" }),
+        (503002, new() { ["en"] = "Archipelago of Siel's Wings", ["de"] = "Siels Schwingen-Archipel", ["fr"] = "Archipel des ailes de Siel", ["es"] = "Archipiélago Alas de Siel", ["ru"] = "Архипелаг крыльев Сиэль", ["pt"] = "Arquipélago de Asas de Siel", ["ja"] = "シエルの翼の群島", ["ko"] = "시엘의 날개 군도" }),
+        (503003, new() { ["en"] = "Reshanta's Root", ["de"] = "Wurzel von Reshanta", ["fr"] = "Racines de Reshanta", ["es"] = "Raíces de Reshanta", ["ru"] = "Корни Арэшурата", ["pt"] = "Raiz de Reshanta", ["ja"] = "エレシュランタの根", ["ko"] = "에레슈란타의 뿌리" }),
+    };
+
+    /// <summary>Whether the character has entered this corridor since the last reset.</summary>
+    public static bool CorridorEntered(string character, int zone, DateTime now)
+    {
+        lock (Gate)
+        {
+            long from = Ms(LastCorridorReset(now));
+            return Get(character, now).CorridorEntries.Any(e => e.Ms >= from && e.Zone == zone);
+        }
     }
 
     /// <summary>The shop goods of the weekly Verteron scroll (Elyos 133019901, Asmodians 233019901; limit 12 per server and week).</summary>

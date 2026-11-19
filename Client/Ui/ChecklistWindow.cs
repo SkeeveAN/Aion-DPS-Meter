@@ -352,7 +352,7 @@ public sealed class ChecklistWindow : Window
     {
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });  // the switch for the widget
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(215) }); // name
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(270) }); // name
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(62) });  // count with its bonus (right-aligned)
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // slash
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });  // maximum (left-aligned)

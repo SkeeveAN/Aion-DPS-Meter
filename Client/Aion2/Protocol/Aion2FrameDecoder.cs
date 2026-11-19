@@ -263,6 +263,11 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
+        if (Aion2Zones.IsAbyssCorridor(zoneId) && Aion2Tickets.CurrentName is { Length: > 0 } corridorCharacter)
+        {
+            ChecklistManual.NoteCorridorEntry(corridorCharacter, zoneId, DateTime.Now);
+        }
+
         CurrentZoneId = zoneId;
         _entryPlace = place;
         _entryAt = timestamp;

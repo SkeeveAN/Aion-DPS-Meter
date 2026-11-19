@@ -281,6 +281,19 @@ public static class SelfCheckTickets
         bool resetTimes = ChecklistManual.LastDailyReset(new DateTime(2026, 10, 14, 15, 59, 0)) == new DateTime(2026, 10, 13, 16, 0, 0)
             && ChecklistManual.LastWeeklyReset(new DateTime(2026, 10, 14, 15, 59, 0)) == new DateTime(2026, 10, 7, 16, 0, 0)
             && ChecklistManual.LastWeeklyReset(new DateTime(2026, 10, 14, 16, 0, 0)) == new DateTime(2026, 10, 14, 16, 0, 0);
+        var thu = new DateTime(2026, 11, 19, 21, 48, 0); // Thursday after the reset of 21:30
+        ChecklistManual.NoteCorridorEntry("Aahz", 503001, thu);
+        ChecklistManual.NoteCorridorEntry("Aahz", 503001, thu.AddMinutes(3)); // the same corridor again counts once
+        ChecklistManual.NoteCorridorEntry("Aahz", 503002, thu.AddMinutes(10));
+        ChecklistManual.Reset();
+        bool corridorKept = ChecklistManual.CorridorEntered("Aahz", 503001, thu.AddHours(1)) && ChecklistManual.CorridorEntered("Aahz", 503002, thu.AddHours(1))
+            && !ChecklistManual.CorridorEntered("Aahz", 503003, thu.AddHours(1))
+            && !ChecklistManual.CorridorEntered("Nunzio", 503001, thu.AddHours(1))
+            && !ChecklistManual.CorridorEntered("Aahz", 503001, new DateTime(2026, 11, 21, 21, 31, 0))  // Saturday 21:30 reset
+            && ChecklistManual.LastCorridorReset(new DateTime(2026, 11, 21, 21, 29, 0)) == new DateTime(2026, 11, 19, 21, 30, 0)
+            && ChecklistManual.LastCorridorReset(new DateTime(2026, 11, 20, 12, 0, 0)) == new DateTime(2026, 11, 19, 21, 30, 0)
+            && Aion2.Protocol.Aion2Zones.IsAbyssCorridor(503002) && !Aion2.Protocol.Aion2Zones.IsAbyssCorridor(20);
+        Console.WriteLine($"  -> abyss corridor entries per character, kept after reload={corridorKept}");
         ChecklistManual.PathOverride = null;
         ChecklistManual.Reset();
         try { File.Delete(tmp); } catch (IOException) { }

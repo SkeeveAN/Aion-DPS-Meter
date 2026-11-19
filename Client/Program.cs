@@ -1653,6 +1653,8 @@ internal static class Program
 
         Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
+        Aion2.ChecklistManual.PathOverride = Path.Combine(Path.GetTempPath(), $"render-checklist-{Guid.NewGuid():N}.json"); // never the real file
+        Aion2.ChecklistManual.Reset();
         if (Environment.GetEnvironmentVariable("AIONDPS_REAL_TICKETS") == "1")
         {
             Aion2.Aion2Tickets.Reset();
@@ -1672,6 +1674,8 @@ internal static class Program
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(102, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.MissionsId, new Aion2.TicketValue(5, 5, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.PremiumId, new Aion2.TicketValue(0, 0, DateTimeOffset.UtcNow.AddHours(16 * 24 + 20).ToUnixTimeMilliseconds())), t0.AddSeconds(11));
+            Aion2.ChecklistManual.NoteCorridorEntry("Aahz", 503001, DateTime.Now);
+            Aion2.ChecklistManual.NoteCorridorEntry("Aahz", 503002, DateTime.Now);
             Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14), level: 28); // a level 28 character: the daily dungeon (30) and the level 45 contents are still locked
         }
 

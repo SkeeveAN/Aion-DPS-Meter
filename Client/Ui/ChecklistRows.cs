@@ -55,6 +55,15 @@ public static class ChecklistRows
             rows.Add(new ChecklistRow("ticket:" + id, ChecklistGroup.Overview, def.ShortIn(language), count, Math.Max(CapOf(def), count + own.Bonus), count != own.Count, true, own.Bonus, def));
         }
 
+        // the three Abyss Corridors, one row each (0 / 1 = not entered yet since the Thursday / Saturday 21:30 reset), as "corridor: artifact", the artifact as the client names it
+        // the word "corridor" alone (the client's zone name is "Abyss Corridor": Abysskorridor, Corridor d'Abysse, Corredor del Abismo, ...)
+        string corridorName = language switch { "de" => "Korridor", "fr" => "Corridor", "es" or "pt" => "Corredor", "ru" => "Галерея", "ja" => "回廊", "ko" => "회랑", _ => "Corridor" };
+        foreach ((int zone, Dictionary<string, string> names) in Aion2.ChecklistManual.Corridors)
+        {
+            string artifact = names.GetValueOrDefault(language) ?? names["en"];
+            rows.Add(new ChecklistRow("corridor:" + zone, ChecklistGroup.Overview, corridorName + ": " + artifact, Aion2.ChecklistManual.CorridorEntered(character.Name, zone, now) ? 1 : 0, 1, false, true));
+        }
+
         // the mandatory tasks of the home region as one counter of five (the count read last, or 0 as an estimate when a daily reset came since)
         bool stale = character.Tickets.TryGetValue(Aion2.Aion2Tickets.MissionsId, out Aion2.TicketValue missions) && Aion2.Aion2Tickets.MissionsStale(missions, DateTime.Now);
         string region = loc[character.ServerId / 1000 == 2 ? "Checklist.RegionAsmodian" : "Checklist.RegionElyos"];
