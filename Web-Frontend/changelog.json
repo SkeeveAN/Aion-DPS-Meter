@@ -9,6 +9,13 @@
      "Backend"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Server: an upload with a wrong clock is moved onto the time of the run it joins before it is merged, so the run does not grow by the offset of that clock",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },
