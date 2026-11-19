@@ -1,113 +1,8 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.0.0",
   "date": "2026-11-19",
   "items": [
-   {
-    "text": "Comparison page: Questlog and the Shugo.GG app are in the comparison now (a second table of closed-source meters), Questlog's upload default is stated, and the list of strengths no longer claims voice announcements, a design editor or an OBS source",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-11-06"
-   },
-   {
-    "text": "Comparison page: the meters are ordered by how widely they are used (Questlog, Shugo.GG, AionFlex, A2Tools, NOIA2, aletheia, RATmeter, Aion2Flow, Daevalog, aion2t, LagoFast) instead of by license, with a row for the public usage figure and a note on how the order was made",
-    "areas": [
-     "Website",
-     "Backend"
-    ],
-    "date": "2026-11-06"
-   },
-   {
-    "text": "Comparison page: Abyss Logs is in the comparison now (rank 10, a closed-source meter with web leaderboards; its position is our estimate as it states no usage figure)",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-11-06"
-   },
-   {
-    "text": "Website: the texts about administrator rights say what is true - the installer and the updates need none, the meter itself asks for them at every start (UAC prompt) because the packet capture and the overlays over the game need them; the download page, its FAQ, the comparison and the README in all 10 languages",
-    "areas": [
-     "Website",
-     "Backend"
-    ],
-    "date": "2026-11-06"
-   },
-   {
-    "text": "Comparison page: the extras, rankings and overlay cells follow the programs' own pages (checked 6 Nov) - our map with pets and gathering spots, network report, design editor and 16 hotkeys; A2Tools' filtered public logs and leaderboards and its further plugins; Abyss Logs' hotkeys and class statistics by combat power bracket; Shugo.GG's website with armory, database, news and stream list, and that it has only a combat power leaderboard",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-11-06"
-   },
-   {
-    "text": "Website: the Daevanion boards and the skill build of a character can be rated with a thumb up on the profile page (one thumb per browser and a few per network address; when the character changes the build, the thumbs stay with the build they were given to and can be moved to the new one); the privacy page names the random number kept in the browser and the hashed address",
-    "areas": [
-     "Website",
-     "Backend",
-     "Database"
-    ],
-    "date": "2026-11-07"
-   },
-   {
-    "text": "Release 2.0.0-alpha.1: new settings window with a left navigation (search, Program, Tools tiles, one page per tool), tools can be switched off",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-08"
-   },
-   {
-    "text": "Release 2.0.0-alpha.2: overlay designer - a hotkey (Ctrl+Alt+F, also in the Settings menu) puts every overlay into one editing mode; the game is dimmed with a grid, a bar says how to leave, a round \"+\" adds overlays that are off, a right-click sets content and background opacity",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-09"
-   },
-   {
-    "text": "Release 2.0.0-alpha.3: overlay designer - dragging any overlay of a docked group moves the whole group (Shift: only that one); a frame with handles around every group scales it (corners) or changes its width and height (edges); name tags above all overlays and a glowing \"Dock\" line where two overlays are pulled together; the overlays of the settings get a second opacity slider for the content beside the one for the background",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-09"
-   },
-   {
-    "text": "NC check: a player NC knows by id is no longer dropped because of one misread class - the class now comes from the majority of the fights and a verified player is only discarded when at least two fights agree on another class",
-    "areas": [
-     "Backend"
-    ],
-    "date": "2026-11-10"
-   },
-   {
-    "text": "NC check: the class of a player is voted over all his fights again (a Chanter's own rows heal under 10,000 and were dropped, leaving one outlier row as the only evidence), rows with real damage or healing only break a tie",
-    "areas": [
-     "Backend"
-    ],
-    "date": "2026-11-10"
-   },
-   {
-    "text": "Release 2.0.0-alpha.5: the new interface (alpha) - a big window with five tabs on top (Dashboard, Combat & Analysis, Character, Tools, Settings), a menu on the left that changes with the tab, the state of game and character in the header, and the Character, Planning and Tools pages inside it; opened from the App menu, the meter window and the settings stay as they are",
-    "areas": [
-     "Client",
-     "Website"
-    ],
-    "date": "2026-11-10"
-   },
-   {
-    "text": "Damage count: the system hit of skill 9971 (1,999,999 on oneself) no longer counts as damage; replay test mode can write the names of a crowd with class and server (AION2_PLAYERS)",
-    "areas": [
-     "Client",
-     "Website"
-    ],
-    "date": "2026-11-10"
-   },
-   {
-    "text": "Release 2.0.0-alpha.6: damage count - the system hit of skill 9971 (1,999,999 on oneself) no longer counts as damage (the same fix as in 1.19.10)",
-    "areas": [
-     "Client",
-     "Website"
-    ],
-    "date": "2026-11-10"
-   },
    {
     "text": "New interface: tabs Display | Configuration on the tool pages, the overlay switch leaves the page; configuration of timetable, world boss and boss fight (cast, target, speech) next to the tool",
     "areas": [
@@ -651,240 +546,958 @@
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.1: the new interface is complete - the overlay designer has a gear on every overlay (opacity of the background, opacity of the text, background colour, reset, hide; the same by right-click), the timetable and the pet counter work like every other overlay, every widget of the dashboard and every page of the app (the live meter too) can stand over the game as an overlay or open in a small window of its own, the Character tab has a stats card like the game's stat window with the sources of every attribute in its tooltip, and the old meter window can no longer be opened from the live meter page",
+    "text": "Release 2.0.0-beta.1: the new interface is complete (overlay designer gear, widgets as overlays and in small windows, timetable and pet counter like every overlay, stats card)",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Updater: a test build also looks at the stable channel, so a tester is led from the beta on to 2.0.0 when it appears",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.2: a test build also looks at the stable channel, so a tester is led from the beta on to 2.0.0 when it appears; the consent text names the lookup of the own character's data on aiondps.com (Character tab and statistics page)",
+    "text": "Privacy policy: the Character tab and the statistics page ask aiondps.com for what the site holds about the own character (name and server as the search term), in all ten languages on the site and in the client's consent text",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Privacy policy: the Character tab and the statistics page of the new client ask aiondps.com for what the site holds about the own character (name and server as the search term), in all ten languages",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.2: a test build also looks at the stable channel, the consent text names the lookup of the own character",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Hotkeys: new defaults for the six hotkeys (overlay designer Ctrl+Alt+D, overlays shown / hidden Ctrl+Alt+H, copy Ctrl+Alt+C; pause P, clear X, upload U stay); a settings file that still holds the three old defaults moves to the new ones",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.3: the live meter is a widget (dashboard or over the game) in the look it always had - class colour bars, header with target, time and mode, the total damage stands out, iDPS while a boss fight is chosen, the names shrink when it is pulled narrow - with its mode chosen in the overlay designer; every widget fills its overlay when pulled; the overlay designer takes the foreground and the mouse, groups its plus list, and shows the mode buttons only while it is on; new default hotkeys (overlay designer Ctrl+Alt+D, overlays Ctrl+Alt+H, copy Ctrl+Alt+C); sample rows of the live meter only while the game is off",
+    "text": "Overlay designer: it takes the foreground and the mouse and keys while it is on (a click on the dimmed screen no longer reaches the game, Esc leaves)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.4: the look of the DPS overlay (chips or compact list) is a choice again, in the settings of the DPS meter and in the overlay designer on the live meter widget, with chips as the default; the widget overlays (the live meter too) go away with the other overlays when the window mode is on; the settings of the DPS meter lost the card that only explained the grid and the docking",
+    "text": "Overlay designer: the plus list is grouped (overlays, widgets, pages), scrolls inside its panel, and lists no name twice (the settings pages of the tools are left out: their overlays are above)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.5: the mode and look buttons of the live meter widget stand below the list, the chips overlay shows only the player rows (its header with target, time and mode and the column legend appear only in the overlay designer) with the class colour bars beginning at the left edge and the chips' header and legend aligned over their columns, and the overlay designer takes the foreground more firmly",
+    "text": "Widget overlays: the widget fills the frame, so pulling the overlay smaller or larger lays the widget out for the new size (it was cut off before); the live meter list and its mode chips adapt to the width",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.6: the live meter overlay is not drawn at all while the meter has no row (only while the overlays are unlocked, to place it)",
+    "text": "Live meter widget: the list as the meter overlay always drew it (class icon, name, class colour bar, DPS), a widget of its own (dashboard and over the game) without title and chips; the designer asks which mode it shows; sample rows only while the game is off",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.7: the hotkey for the overlays no longer changes which overlays are on - the window mode shows them as off without writing that anywhere, so an overlay that was removed in the designer never comes back as a default",
+    "text": "render-overlay: a picture of the live meter widget (widget)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.8: the overlays stand above the overlay designer's dimming again, so they can be moved and resized (since beta.5 the designer's surface lay over them and caught the mouse); there are no on/off switches any more - the switch \"Tool active\" is gone, the master switches of the combat overlays and of the pet map are gone, and an overlay is on only by having been added in the overlay designer; adding the boss health, the boss cast bar or the pet map no longer brings the others along",
+    "text": "Widget overlays: a live meter overlay made from the page Live-Meter in the first betas becomes the meter widget (same place and size)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-13"
    },
    {
-    "text": "Release 2.0.0-beta.9: the overlay mode minimizes the window instead of hiding it, so its button stays in the taskbar and in Alt+Tab; every overlay has an eye in the overlay designer (closed: placed but not drawn over the game, and the map for a hidden cube still comes at its place); the interactive map has the tabs View, Pets, Gathering and Settings; the settings pages and the craft tool save by themselves (no Save button), the design editor too, and its buttons and choices wear the theme; the automatic boss view has a card of its own",
+    "text": "Live meter widget: header (target, time, mode) and the legend of the three numbers like the old overlay, iDPS instead of DPS while a target (a boss fight) is chosen, the total damage stands out, names shrink when it is pulled narrow while the numbers keep their size; the target-of-target overlay keeps its old look until the text opacity is set",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Live meter widget: the mode buttons stand on the widget while the overlay designer is on and are gone when it is closed",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Meter mode: the designer's mode buttons and the chips of the Live-Meter page in the window show and set the same mode and follow each other",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.3: live meter widget in its old look with the mode chosen in the designer, widgets fill their overlay, designer in front with grouped plus list, new default hotkeys",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Overlay hotkey: the widget overlays (the live meter too) go away with the other overlays when the window mode is on and come back with them",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "DPS overlay look: Chips or compact list is a choice again - in the settings of the DPS meter and in the overlay designer on the live meter widget, which shows the chosen look; an older file's unchosen Chips reads as the compact list",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "DPS overlay look: Chips is the default again (compact only after the player's own change); pictures of the designer's buttons on the live meter widget",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "DPS meter settings: the card with only the explanation of the grid and the docking is gone (their switches are in the overlay designer's bar)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.4: DPS overlay look is a choice again (chips by default), widget overlays follow the window mode",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Live meter widget: the mode and look buttons below the list (the data always begins at the same place); the designer takes the foreground more firmly",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Live meter widget, chips look: the header (target, time, mode) and the legend over the columns, like the compact look",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Chips: the class colour bar begins at the left edge of the chip",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Chips overlay: the header (target, time, mode) and the legend show only while the overlay designer is on",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.5: live meter widget buttons below the list, chips overlay with rows only (header in the designer), colour bars from the left edge",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Live meter overlay: nothing is drawn while the meter has no row (only while the overlays are unlocked, to place it)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.6: an empty live meter overlay is not drawn",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Overlay hotkey: it no longer touches which overlays are on - the window mode shows them as off on every read and writes nothing of it, so an overlay the player removed never comes back as a default",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.7: the overlay hotkey no longer changes which overlays are on",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Overlay designer: adding the boss health, the boss cast bar or the target of the target no longer brings the other two along (they shared one master switch while their own switches were still on)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Combat overlays: no master switch any more - boss health, boss cast bar and target of the target are each on only by being added to the overlays (an older file's master switch is carried over once); the pet map and its list no longer bring each other along when added",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "No on/off switches for tools and overlays any more: the switch \"Tool active\" is gone (every tool is there, nothing is switched off with it), the pet tool's master switch is gone, and an overlay is on only by having been added in the overlay designer",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Overlay designer: the overlays stand above the dimming again after the designer took the foreground (they were under it: dimmed and not reachable)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Release 2.0.0-beta.8: overlays above the designer's dimming again, no on/off switches for tools and overlays",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-13"
+   },
+   {
+    "text": "Settings of the new interface: no Save button - every change is saved by itself a moment after the last one (program pages and the craft tool); the automatic boss view has a card of its own, Boss view",
     "areas": [
      "Client"
     ],
     "date": "2026-11-14"
    },
    {
-    "text": "Release 2.0.0-beta.10: the tools menu has a symbol before every name; the interactive map shows the pictures the game shows for the collectibles (in the gathering settings and on the map); the DPS meter page has the tabs Display and Settings, with the button that opens the meter in a window of its own; the Configuration button of the tool pages is gone (the Settings tab has it)",
+    "text": "Design editor: no Save button - a change is written to the theme's file a moment after the last one and applied (a new theme is named by what was typed or gets a name of its own)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Design editor page: it takes the styles of its window with it (its buttons, choices and switches were drawn in the system's light look in the new interface)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "render-themeeditor: the picture carries the styles of the window as the editor's page does",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Interactive map: its pages are the tabs View | Pets | Gathering | Settings (the settings keep the radius and the hostile guards); every overlay has an eye in the overlay designer - closed, the overlay keeps its place but is not drawn over the game, and the map for a hidden cube still comes at that place",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Test picture of the interactive map page with its tabs",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Test pictures of the pets and gathering tabs of the interactive map",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Overlay mode: the window is minimized instead of hidden, so its button stays in the taskbar, and a click on that button brings it back as the window mode",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Release 2.0.0-beta.9: taskbar button in the overlay mode, the eye of the overlays, tabs of the map, automatic saving of the settings pages and the design editor",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Interactive map, gathering: the icons the game shows for the collectibles (the items their gather sources give) in the settings and on the map, where the client has them; the tool that makes them",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Tools menu: a symbol before the name of every tool and settings page",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-14"
+   },
+   {
+    "text": "Tools: no Configuration button on the tool pages (the Settings tab has it), the DPS meter page has Display and Settings tabs with the window button, the gather icons of Kukuru, Inina, Ohkra and Conide from the conversion menu",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.11: the dashboard card \"Today's tasks\" counts the caps by the membership as the checklist does (Odyle energy of 840 with the membership instead of 560, the entry counters the same)",
+    "text": "Release 2.0.0-beta.10: symbols in the tools menu, the game's pictures for the collectibles, tabs of the DPS meter page, no Configuration button",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Dashboard, today's tasks: the caps follow the membership as the checklist counts them (Odyle energy 840 with it, 560 without; the entry counters the same)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.12: the interactive map can show the roads the game lays over its world maps (Verteron, Altgard, Abyss) - the switch \"Show the roads on the map\" in the settings of the map chooses the map with or without them, on the overlay and in the window",
+    "text": "Release 2.0.0-beta.11: the dashboard's today's tasks count the caps by the membership",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Interactive map: the roads of the game as a layer over the world maps (Verteron, Altgard, Abyss), with a switch in the map's settings to show the map with or without them; the tools that build the road tiles",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.13: the player and the world line up on the interactive map of Verteron (the map was refitted on the exact positions after teleports to seven statues and the game's own map: the old fit was about 65 m off on average, now about 17 m), the Abyss map is fitted the same way, the Hidden Cube has a cube as its picture instead of the key, and the map can show the game's roads",
+    "text": "Release 2.0.0-beta.12: the roads of the game on the interactive map, with a switch",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Interactive map, gathering: the Hidden Cube has a picture of a cube (red glowing rings on a bronze cube) instead of the key; the tool that draws it",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.14: the Hidden Cube proximity sound counts the height too (a cube above or below is farther away, the distance is measured in three dimensions), and the interactive map shows beside each cube how many metres higher or lower it is than the player (a blue number with an arrow up or down)",
+    "text": "aion2-position-dump: the exact own positions of a recording (to compare the map's mapping with a screenshot of the game's own map)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.15: the automatic boss view follows a boss that is fought again after a wipe (the list of its attempts is rebuilt at once, so the meter no longer shows the old attempt after a restart of the fight), the Hidden Cube has a new picture (glowing orange rings on grey stone, smaller on the map), the top tabs stand out and carry symbols, every page of the side menu has a symbol, the live meter shows the faction emblem and the class picture of each player and symbols in its mode buttons",
+    "text": "Interactive map, Verteron: calibration refitted (scale x1.022, offset +100/-100 native px) on the exact positions after teleports to five statues, registered against the game's own map, and on the pet spawn points; the player and the world line up (about 16 m rms instead of about 65 m)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.16: the top tabs take the colours of the chosen theme again, and the Hidden Cube marks on the map stand out (a dark disc with a bright ring behind the cube, bigger)",
+    "text": "Release 2.0.0-beta.13: Verteron and Abyss maps refitted on the exact positions, the Hidden Cube picture, roads",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube: the proximity sound counts the height too (distance in three dimensions while the player's height is known), and the map shows beside each cube how many metres higher or lower it is (blue number with an arrow up or down); the player's height is read from his casts, position and zone frames",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.17: the Hidden Cube has the picture of the game's own 3D model (the six spokes and the ring of each wheel in yellow) as its place marks on the map and in the gathering settings, an announced cube is a larger one with a pulsing glow, and the height number beside it is bold and bright on a dark plate",
+    "text": "Release 2.0.0-beta.14: Hidden Cube height in the proximity sound and on the map",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube picture: glowing orange rings on a grey stone cube with bone-coloured edges (after the game's own cube textures), smaller on the map",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.18: the two Odyle spider pets are named the right way round (the Aberrant Odyle Spider is level 2 5/75, the Mutated one is at the top level), the Hidden Cube places glow and the announced one sits on a yellow field, and the Verteron map with its new fit comes with this version",
+    "text": "Boss fight list: a boss that is fought again (same entity after a wipe, or after a long pause) gets its runs #1..#N rebuilt at once and the live run keeps an open end, so the automatic boss view moves to the new attempt instead of staying on the old one until another target comes along; debug modes: position dump with the held position and the bosses' hit points, a replay that prints what the meter shows over time",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.19: the data delivery reads the maps, the pets and the collectibles again as soon as the server's files were taken (a refitted map or a corrected pet name shows without a restart), and the pet info overlay keeps its lines and its hint in the middle of the frame",
+    "text": "Design picture of the live meter with two lists (all sessions, last instance with its bosses and the encounter links): render-tool with AIONDPS_LIVEMOCK, fed by the new aion2-meter-data mode; the Discord mark as a path",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.20: the menu item Sessions is called Combat analyzer (tooltip: Sessions and combat analyzer), and a double click on a player's row in the live meter opens the player's details again",
+    "text": "Design picture of the live meter: the variant with one link under the whole right list (AIONDPS_MOCKVARIANT=base)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.21: the plus of the dashboard opens a sheet of its own instead of the grey menu: every panel in groups with a small preview and an add button (a panel that is already there is dimmed with a green tick), the sheet closes with the add, a click beside it or Esc, and the dashboard can be set back to the standard; the player details open in a window of its own, centred on the screen, when the old meter window is hidden; the Odyle spider pets are named the right way round in the profiles too",
+    "text": "Live meter page: the faction emblem stands where the rank number is (the number while the faction is unknown) and the class picture before the name, like the meter window; also in the two-list design picture",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.22: the sheet of the dashboard's plus shows a picture of the real panel and a line about it for every panel and has links to the tabs; a new panel takes the first free place and the ones below move up when one is taken off; a new dashboard can start from a layout (Standard, Combat & analysis, Character, Streaming) or empty; the corner to pull a widget bigger sits in the very corner of the frame",
+    "text": "Design picture of the live meter: the link field with its own copy button inside, then the copy button for the chat text, then the one with the Discord mark for the table",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.23: the standard dashboard is the live meter, what is to do today, game and character, the figures and the last boss fight (a first dashboard that was never changed takes it over), and the part of a row in the live meter widget that is not the damage bar is see-through, so the colour of the widget's background shows",
+    "text": "Design picture: the Discord mark smaller, the copy symbol on it thicker with a dark halo",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.24: three lines at the left of the header fold the navigation (the tabs and the menu) to their symbols and open it again, the dashboard menu has an Overlay designer button, and the state of the game (a dot), the character and the server moved from the header to the footer, left of the update and always-on-top buttons",
+    "text": "Design picture: the same copy symbol on all three buttons, thicker on the Discord one",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.25: the live meter page shows two lists: all sessions on the left (it resets as it always did) and the last instance on the right with its boss fights, the newest on top, which stays after the instance was left until the next one has a boss fight; under each boss the encounter link (once the upload answered), a copy button for the chat text and one for the table for Discord",
+    "text": "Design picture: the copy symbol on the Discord button without a fill",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.26: the Overlay designer button of the hub brings the game to the front so the overlays can be placed over it, and the Done button of the designer brings the hub back; the hotkey and the other ways to end the designer move no window",
+    "text": "Side menu: a symbol in front of every page of every tab; live meter: a symbol in each mode chip; design picture: tooltips on the copy buttons and the mode chips",
     "areas": [
      "Client"
     ],
     "date": "2026-11-15"
    },
    {
-    "text": "Release 2.0.0-beta.27: a change of the language takes effect in the new interface at once, without a restart (it is built again in the same place, on the same page); the button to report a problem or an improvement is back as a speech bubble in the footer; the first-start wizard and the questions after it stand in the middle of the screen, and the interface is built in the language the wizard chose",
+    "text": "Hub: a symbol in front of the name of each top tab",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hub: the top tabs stand out - a tinted field each, bright text, the chosen one with a stronger field, accent line and bold accent text",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.15: boss view after a wipe, cube picture, tab and menu symbols, faction and class in the live meter",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hub: the top tabs take the colours of the chosen theme",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube mark: a dark disc with a bright ring behind the cube, bigger on the map (22 px), so it stands out on the map's colours",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.16: theme colours for the top tabs, clearer Hidden Cube marks",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Live meter: the texts of the mode buttons take the colour of their button (they were drawn in black); the test picture of the page has the mode buttons",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube: an announced cube gets a large pulsing gold-ringed mark with the cube picture (over everything else); the places get a bright yellow ring on a dark disc",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube: the places and the announced cube are gold cubes without a frame (the announced one bigger with a pulsing glow)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube picture rendered from the game's own 3D model (HiddenCube_01 with its stone texture and glowing glyphs) with a soft gold glow, instead of the hand-drawn one; bigger marks on the map; the tool that renders it",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube picture: the glyphs of the model glow (an orange bloom over the stone)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube picture: red like in the game (the stone lit red from inside, nearly white glyphs, red glow); the pulse of the announced cube red",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube picture: the stone keeps the model's colours, only the glyphs and the rings glow (red with a near-white core); no glow around the whole cube",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube picture: the six spokes and the ring of each wheel in yellow; the height number on the map bold and bright on a dark plate",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube marks smaller on the map (24 px the places, 36 px the announced one)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.17: the Hidden Cube from the game's model, smaller marks, bold height number",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube: the places glow gold (a soft glow round the picture), the announced cube pulses gold",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hidden Cube: the announced (real) cube sits on a yellow field",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "aion2-pet-check: replays a recording with the saved character restored and prints the pets' progress",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Pets: the Odyle spider pets 1021 and 1025 were named the wrong way round (proved by the game's pet window and the server's progress messages): names, souls, monsters and regions swapped",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.18: pet names of the Odyle spiders, cube marks, Verteron map fit",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Pet info overlay: the lines and the hint stand in the middle of the frame (the hint wraps) instead of at the left",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Data: the Verteron and Abyss map fit refitted on exact positions after teleports and the game's own map, and the Odyle spider pets 1021 and 1025 named the right way round (the Aberrant one is level 2, the Mutated one the top level)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Data delivery: after new files were taken the maps, the pets and the collectibles are read again at once (a refitted map or a corrected pet name shows without a restart; the pet map switches to the new fit within a second)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.19: new data without a restart, pet info centred",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Menu: \"Sessions\" is called \"Combat analyzer\" (Kampf-Analysator) with the tooltip \"Sessions and combat analyzer\", in all ten languages",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Live meter page: a double click on a player's row opens the player's details again (as in the meter window); tooltip on the list",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.20: Combat analyzer in the menu, double click on a player in the live meter",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Player details: a window of its own (no owner, centred on the screen) when the meter window is hidden, so it is detached from the old client and stays when the hub is minimized",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Profile pets: the Odyle spider pets 1021 and 1025 named the right way round in the profile data too; unused header brand and list marker removed from the hub",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.21: the plus of the dashboard opens a sheet with all panels (preview, add button, tick for those on the board, reset to the standard); player details as a window of its own",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Dashboard: the sheet of the plus shows a picture of the real panel and a line about it, links to the tabs; a new panel takes the first free place and the ones below move up when one is taken off; new dashboards from layouts (Standard, Combat & analysis, Character, Streaming, Empty)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Dashboard: the corner to pull a widget bigger stands at the very edge of the frame, no longer over the content",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Dashboard: the corner to pull a widget bigger sits on the lower edge of the frame",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Dashboard: the corner to pull a widget bigger sits in the very corner of the frame",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.22: dashboard sheet with pictures and lines, links, first free place, layouts for new dashboards, grip in the corner",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Profiles: the Odyle spider pets 1021 and 1025 show the right name and picture",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Dashboard: the standard is the live meter, to do today, game and character, figures and the last boss fight (a dashboard that was never changed takes it over); the rows of the live meter widget are drawn on the theme's colour instead of black",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Test picture of the live meter widget on the panel colour (AIONDPS_WIDGET_PANEL)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Live meter widget: the part of a row that is not the damage bar is see-through, so the background of the widget (the design editor's colour) shows",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Test picture of the live meter widget without rounded corners of its own",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.23: new standard dashboard, live meter widget rows see-through",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hub: three lines at the left of the header fold the navigation to symbols; an Overlay designer button in the dashboard menu; the state of the game (dot), the character and the server move to the footer",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hub footer: the text about the game on the left is gone, the dot says it",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.24: navigation folds to symbols, Overlay designer button, game state, character and server in the footer",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Live meter page: two lists - all sessions on the left (resets as always), the last instance on the right with its bosses, newest on top, kept after leaving the instance; under each boss the encounter link, a copy button for the chat text and one for the Discord table",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.25: live meter page with two lists, the last instance stays",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Overlay designer button of the hub: the game comes to the front, the Done button of the designer brings the hub back; the hotkey moves no window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Release 2.0.0-beta.26: Overlay designer button brings the game to the front, Done brings the hub back",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-15"
+   },
+   {
+    "text": "Hub: the button to report a problem or an improvement is back, a speech bubble in the footer (the form opens centred when the meter window is hidden)",
     "areas": [
      "Client"
     ],
     "date": "2026-11-16"
    },
    {
-    "text": "Release 2.0.0-beta.28: the live meter widget no longer shows a dash instead of its list when the dashboard was built before the main window handed the list over (also in its window on a second monitor), and after a change of language the widgets over the game and in windows of their own are made again in the new language, each in its place",
+    "text": "First start: the wizard and the questions after it stand in the middle of the screen (the meter window is hidden), and the new interface is built again when the wizard changed the language",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-16"
+   },
+   {
+    "text": "A change of the language builds the new interface again in the new language, same place and page (while the client settings are open it waits for Save or for another page), no restart",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-16"
+   },
+   {
+    "text": "Release 2.0.0-beta.27: language change without restart, feedback button back, first-start wizard fixes",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-16"
+   },
+   {
+    "text": "Live meter widget: the list of the meter is given to the new interface before its dashboard is built again (and asked for when a widget is drawn), so a widget built too early no longer shows a dash for good",
     "areas": [
      "Client"
     ],
     "date": "2026-11-17"
    },
    {
-    "text": "Release 2.0.0-beta.29: the main window has a maximize button between minimize and close (a double click on the title bar does the same), the close button asks whether to exit or to keep running in the system tray (with \"do not ask again\"), the settings have a three-way switch for it (exit, ask in the middle, system tray), and the pet farming overlay keeps the width of its hint when it is locked, so its text stands in the middle of the place it was put at",
+    "text": "Release 2.0.0-beta.28: live meter widget without a dash, widgets made again after a change of language",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
     ],
     "date": "2026-11-17"
    },
    {
-    "text": "Release 2.0.0-beta.30: the checklist reads the weekly scroll purchases from the game (the Verteron scrolls are counted as soon as you buy them or open the scroll merchant), and the weekly Odyle energy purchase counts the two shop limits again (4 per character and 16 per server, 20 together), which it had stopped reading after the shop changed",
+    "text": "Release 2.0.0-beta.29: maximize button, close asks exit or system tray (setting with three-way switch), pet farming overlay keeps its width when locked",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-17"
+   },
+   {
+    "text": "Data: Ludra gets its third mode Easy (2 hours, item level 2800, own bosses, loot table and the new Ludra gear change ticket), the Ludra gear drop is 15% in every mode, and the names of new items and monsters of the 2026-11-18 patch are taken from the game client",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
     ],
     "date": "2026-11-18"
    },
    {
-    "text": "Release 2.0.0-beta.31: the checklist reads the two weekly conversions of Odyle energy (16 per server, 4 per character) from the game at the login and after every conversion, and counts the Abyss scrolls of the second scroll list as well (taken over from another meter, not yet seen in a recording)",
+    "text": "Remove an accidentally committed node_modules link",
     "areas": [
-     "Client"
+     "Backend"
     ],
     "date": "2026-11-18"
    },
    {
-    "text": "Release 2.0.0-beta.32: the meter shows the combat power of your own character and of the others in your legion (taken from the legion list of the login) - before, it stayed empty for yourself because the game does not announce your own character like other players",
+    "text": "Release 2.0.0-beta.30: checklist reads the weekly scroll purchases from the game, weekly Odyle energy purchase counts the two new shop limits (4 per character, 16 per server)",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
     ],
     "date": "2026-11-18"
    },
    {
-    "text": "Release 2.0.0-beta.33: new layout of the meter rows in the window and the chip overlay - the name with the combat power and the damage taken under it on the left, the damage with the DPS directly under it on the right, all in numbers and symbols without letters, so the overlay gets much narrower and nothing is cut off any more",
+    "text": "Release 2.0.0-beta.31: checklist reads the weekly Odyle energy conversions (16 per server, 4 per character) from the game, Abyss scrolls of the second scroll list counted as well",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
     ],
     "date": "2026-11-18"
    },
    {
-    "text": "Release 2.0.0-beta.34: new widget Target combat power (name, class, full combat power and the gap in percent of the player you mark, green when he is weaker, red when stronger; it stays after your death so you see your killer; on the default dashboard and as an overlay element; after Stacy's fork), new Enemy alert tab under Boss fight (a sound when the first enemy of the other faction comes into view in the Abyss and when one targets you; checked on one evening in the lower Abyss; ideas from Stacy's fork), the Ketu attacks of Ludra have names in the cast bar (Scythe summon, Orbs, Adds phase; after Stacy's fork), and the combat power of your own character shows in the meter rows",
+    "text": "Release 2.0.0-beta.32: combat power of the own character and the own legion shown in the meter",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-18"
+   },
+   {
+    "text": "Release 2.0.0-beta.33: new layout of the meter rows (name with combat power and damage taken, damage with DPS under it, no letters)",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-18"
+   },
+   {
+    "text": "Release 2.0.0-beta.34: target combat power widget and enemy alert after Stacy's fork, Ketu attack names after Stacy's fork",
+    "areas": [
+     "Client",
+     "Website"
     ],
     "date": "2026-11-19"
    },
@@ -892,6 +1505,23 @@
     "text": "Own character no longer gets the name remembered from the last session (a twink of the same account) when it is not in the current group: the account's character in the group is taken instead",
     "areas": [
      "Client"
+    ],
+    "date": "2026-11-19"
+   },
+   {
+    "text": "Release 2.0.0-beta.35: announcements window with the whole text and line breaks, Twitch drops with live channels and folded old campaigns, server delivers the full notice text",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-11-19"
+   },
+   {
+    "text": "Backend: profile columns (skills, daevanion, gear, setups) are stored gzipped, with a migration script in small batches and a way back; plan for shrinking the database",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
     ],
     "date": "2026-11-19"
    },
@@ -911,32 +1541,170 @@
     "date": "2026-11-19"
    },
    {
-    "text": "Release 2.0.0-beta.35: the announcements window is bigger and shows the whole text of each notice with its line breaks (the first lines on the card, \"Show more\" opens the rest, \"Open in browser\" goes to NC's page; the text can be copied), and the Twitch Drops window shows who streams AION 2 with drops right now (channels, viewers, language, title, \"Open on Twitch\"), the claim deadline, and folds the rewards of finished campaigns away behind \"Show more\"",
+    "text": "Release 2.0.0-beta.36: checklist switches in front of every element, server status page in columns (changelog of beta.35 added)",
     "areas": [
-     "Client"
-    ],
-    "date": "2026-11-19"
-   },
-   {
-    "text": "Release 2.0.0-beta.36: the checklist has a small on/off switch in front of every element (Odyle energy, entry counters, daily and weekly counters, membership, access times, Daeva passes) that chooses what the checklist widget and its overlay show, the Odyle energy reads like on the guild list, the widget is called Checklist",
-    "areas": [
-     "Client"
+     "Client",
+     "Website"
     ],
     "date": "2026-11-19"
    },
    {
     "text": "Release 2.0.0-beta.37: the enemy alert is its own page right under Boss fight in the Tools menu (before it was hidden inside Boss fight), the design editor moved to the end of the Client group, and the groups of the menu can be folded by a click on their heading (the program remembers which ones)",
     "areas": [
-     "Client"
+     "Client",
+     "Website"
     ],
     "date": "2026-11-19"
    },
    {
     "text": "Release 2.0.0-beta.38: the enemy alert in the Tools menu is no longer indented, and the menu folded to symbols shows its symbols whole again (they were cut off when the list was longer than the window)",
     "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-19"
+   },
+   {
+    "text": "The new interface of the program - a dashboard you arrange yourself (widgets, several boards), one window with a Tools menu for everything (live meter, sessions, comparison, replay, character with stats card, checklist, boss fight with enemy alert, interactive maps, Twitch Drops, announcements, server status, settings per tool), an overlay designer where every overlay and widget has its own gear (opacity, text strength, background colour, dock and grid), and a history database for characters, checklist and field boss times",
+    "areas": [
      "Client"
     ],
     "date": "2026-11-19"
+   }
+  ]
+ },
+ {
+  "version": "1.19.11",
+  "date": "2026-11-11",
+  "items": [
+   {
+    "text": "Release 2.0.0-alpha.6: damage count - the system hit of skill 9971 (1,999,999 on oneself) no longer counts as damage (the same fix as in 1.19.10)",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-10"
+   },
+   {
+    "text": "Server names: Tahabata and Kasika are NC's spelling (not Tahavatha/Kasaka), uploads of older clients under the old names land on the right server; the matchmaking of 11 Nov (23 pairs in Europe, Launch and Advanced Access servers can be paired) maps every pair to a server id again, and the faction of an Abyss pair comes from the server instead of NC's typo (Marchutan as Elyos)",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-11"
+   },
+   {
+    "text": "Fire Temple and Ferocious Horn Den (Conquest, Hard): the bosses of both rage after 4 minutes instead of 5, and both are listed with entry item level 2800",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-11"
+   }
+  ]
+ },
+ {
+  "version": "1.19.10",
+  "date": "2026-11-10",
+  "items": [
+   {
+    "text": "Comparison page: Questlog and the Shugo.GG app are in the comparison now (a second table of closed-source meters), Questlog's upload default is stated, and the list of strengths no longer claims voice announcements, a design editor or an OBS source",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-06"
+   },
+   {
+    "text": "Comparison page: the meters are ordered by how widely they are used (Questlog, Shugo.GG, AionFlex, A2Tools, NOIA2, aletheia, RATmeter, Aion2Flow, Daevalog, aion2t, LagoFast) instead of by license, with a row for the public usage figure and a note on how the order was made",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-06"
+   },
+   {
+    "text": "Comparison page: Abyss Logs is in the comparison now (rank 10, a closed-source meter with web leaderboards; its position is our estimate as it states no usage figure)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-06"
+   },
+   {
+    "text": "Website: the texts about administrator rights say what is true - the installer and the updates need none, the meter itself asks for them at every start (UAC prompt) because the packet capture and the overlays over the game need them; the download page, its FAQ, the comparison and the README in all 10 languages",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-06"
+   },
+   {
+    "text": "Comparison page: the extras, rankings and overlay cells follow the programs' own pages (checked 6 Nov) - our map with pets and gathering spots, network report, design editor and 16 hotkeys; A2Tools' filtered public logs and leaderboards and its further plugins; Abyss Logs' hotkeys and class statistics by combat power bracket; Shugo.GG's website with armory, database, news and stream list, and that it has only a combat power leaderboard",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-06"
+   },
+   {
+    "text": "Website: the Daevanion boards and the skill build of a character can be rated with a thumb up on the profile page (one thumb per browser and a few per network address; when the character changes the build, the thumbs stay with the build they were given to and can be moved to the new one); the privacy page names the random number kept in the browser and the hashed address",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-07"
+   },
+   {
+    "text": "Release 2.0.0-alpha.1: new settings window with a left navigation (search, Program, Tools tiles, one page per tool), tools can be switched off",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-08"
+   },
+   {
+    "text": "Release 2.0.0-alpha.2: overlay designer - a hotkey (Ctrl+Alt+F, also in the Settings menu) puts every overlay into one editing mode; the game is dimmed with a grid, a bar says how to leave, a round \"+\" adds overlays that are off, a right-click sets content and background opacity",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-09"
+   },
+   {
+    "text": "Release 2.0.0-alpha.3: overlay designer - dragging any overlay of a docked group moves the whole group (Shift: only that one); a frame with handles around every group scales it (corners) or changes its width and height (edges); name tags above all overlays and a glowing \"Dock\" line where two overlays are pulled together; the overlays of the settings get a second opacity slider for the content beside the one for the background",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-09"
+   },
+   {
+    "text": "NC check: a player NC knows by id is no longer dropped because of one misread class - the class now comes from the majority of the fights and a verified player is only discarded when at least two fights agree on another class",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-10"
+   },
+   {
+    "text": "NC check: the class of a player is voted over all his fights again (a Chanter's own rows heal under 10,000 and were dropped, leaving one outlier row as the only evidence), rows with real damage or healing only break a tie",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-10"
+   },
+   {
+    "text": "Release 2.0.0-alpha.5: the new interface (alpha) - a big window with five tabs on top (Dashboard, Combat & Analysis, Character, Tools, Settings), a menu on the left that changes with the tab, the state of game and character in the header, and the Character, Planning and Tools pages inside it; opened from the App menu, the meter window and the settings stay as they are",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-10"
+   },
+   {
+    "text": "Damage count: the system hit of skill 9971 (1,999,999 on oneself) no longer counts as damage; replay test mode can write the names of a crowd with class and server (AION2_PLAYERS)",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-10"
    }
   ]
  },

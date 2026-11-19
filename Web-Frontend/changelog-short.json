@@ -146,5 +146,9 @@
  "Client patch 11.11. data: Fire Temple [Hard] and Fierce Horn Cave [Hard] bosses rage after 240 s (was 300 s) and need item level 2800, the Reforged Abyss time limit is 120 minutes (was 60); the data readers work with the versioned key manifest of the new client": {
   "en": "Fire Temple and Horn Cave Hard: boss rage 240 s, item level 2800",
   "de": "Feuertempel und Grimmhorn Schwer: Boss tobt nach 240 s, Gegenstandsstufe 2800"
+ },
+ "The new interface of the program - a dashboard you arrange yourself (widgets, several boards), one window with a Tools menu for everything (live meter, sessions, comparison, replay, character with stats card, checklist, boss fight with enemy alert, interactive maps, Twitch Drops, announcements, server status, settings per tool), an overlay designer where every overlay and widget has its own gear (opacity, text strength, background colour, dock and grid), and a history database for characters, checklist and field boss times": {
+  "en": "New interface: dashboard with widgets, one window with a Tools menu, overlay designer, history database",
+  "de": "Neue Oberfläche: Dashboard mit Widgets, ein Fenster mit Tools-Menü, Overlay-Designer, Verlaufsdatenbank"
  }
 }
