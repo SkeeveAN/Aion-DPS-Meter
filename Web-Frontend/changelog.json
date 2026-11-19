@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-13",
+  "date": "2026-11-19",
   "items": [
    {
     "text": "Comparison page: Questlog and the Shugo.GG app are in the comparison now (a second table of closed-source meters), Questlog's upload default is stated, and the list of strengths no longer claims voice announcements, a design editor or an OBS source",
@@ -892,6 +892,14 @@
     "text": "Own character no longer gets the name remembered from the last session (a twink of the same account) when it is not in the current group: the account's character in the group is taken instead",
     "areas": [
      "Client"
+    ],
+    "date": "2026-11-19"
+   },
+   {
+    "text": "Server status page: the game addresses in four columns (Elyos home servers, Asmodian home servers, shared instance servers, not assigned) with the name of each world, and the 46 European home servers are always checked",
+    "areas": [
+     "Website",
+     "Backend"
     ],
     "date": "2026-11-19"
    }
