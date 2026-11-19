@@ -925,6 +925,12 @@ public sealed class HubWindow : Window
 
     private UIElement WithSettingsTab(string tool, UIElement view, ToolPage? ownSettings = null)
     {
+        if (ownSettings is null && !ToolSettingsPage.HasSettings(tool))
+        {
+            // nothing to set: no tabs at all, the page is shown directly
+            return view;
+        }
+
         LocalizationManager loc = LocalizationManager.Instance;
         ToolPage? settings = null;
         var shown = new Border { Child = view };

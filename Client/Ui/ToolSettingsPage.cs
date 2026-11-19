@@ -9,6 +9,9 @@ namespace AionDPS.Ui;
 /// </summary>
 public static class ToolSettingsPage
 {
+    /// <summary>Whether the tool has settings of its own to show (the others get no Settings tab: it would only say there is nothing to set).</summary>
+    public static bool HasSettings(string tool) => tool is "timetable" or "boss" or "combat" or "loot" or "network" or "stream" or "craft" or "petmap" or "petmap.pets" or "petmap.gather" or "combat.pvp";
+
     public static ToolPage Build(string tool, Action<MeterSettings> applied, Func<string, UIElement?> panelOf, Func<UIElement?> craftConfig, Action? cleanupExtra)
     {
         if (tool is "petmap.pets" or "petmap.gather")
