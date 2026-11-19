@@ -262,6 +262,33 @@
       "variant": "advanced"
     },
     {
+      "key": "ReforgedAbyss:easy",
+      "slug": "abyssal-forge-ludra-easy",
+      "name": {
+        "en": "Abyssal Forge: Ludra (Easy)",
+        "ko": "심연의 재련 : 루드라 (쉬움)",
+        "zh": "深淵重鑄：盧德萊 (簡單)",
+        "de": "Abgrundsveredelung: Ludra (Einfach)",
+        "es": "Forja Abismal: Ludra (Fácil)",
+        "fr": "Creuset de l'Abîme : Ludra (Facile)",
+        "ja": "深淵の再錬：ルドラ (簡単)",
+        "pt": "Reforja Abissal: Ludra (Fácil)",
+        "ru": "Закалка пропасти: Рудра (Легкий)"
+      },
+      "category": "sanctuary",
+      "sortOrder": 102,
+      "hidden": false,
+      "modes": {
+        "easy": {
+          "minLevel": 45,
+          "itemLevel": 2800,
+          "players": "10",
+          "timeLimitMinutes": 120,
+          "weeklyTries": 4
+        }
+      }
+    },
+    {
       "key": "DraconicCrisis",
       "slug": "draconic-crisis-subjugation",
       "name": {
@@ -1144,12 +1171,12 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
-          "itemLevel": 2800,
-          "players": "1-5"
+          "players": "1-5",
+          "itemLevel": 2800
         }
       },
       "variant": "advanced",
-      "hidden": true,
+      "hidden": false,
       "legacyNames": [
         "Fire Temple (Conquest [Hard])"
       ]
@@ -1199,12 +1226,12 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
-          "itemLevel": 2800,
-          "players": "1-5"
+          "players": "1-5",
+          "itemLevel": 2800
         }
       },
       "variant": "advanced",
-      "hidden": true,
+      "hidden": false,
       "legacyNames": [
         "Ferocious Horn Den (Conquest [Hard])"
       ]
