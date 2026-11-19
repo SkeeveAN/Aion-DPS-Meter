@@ -15,17 +15,20 @@ public sealed class NewsWindow : Window
     private static readonly HttpClient Http = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(15) };
     private static NewsWindow? _announcements, _drops;
     private readonly StackPanel _list = new() { Margin = new Thickness(18, 14, 18, 18) };
+    private readonly ScrollViewer _scroll;
 
     private NewsWindow(string title)
     {
         Title = title;
-        Width = 780;
-        Height = 760;
+        // wide enough to read a notice, and still inside a 1080p screen
+        Width = Math.Min(980, SystemParameters.WorkArea.Width - 60);
+        Height = Math.Min(840, SystemParameters.WorkArea.Height - 60);
         MinWidth = 520;
         MinHeight = 360;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         SetResourceReference(Control.ForegroundProperty, "Brush.Text");
-        Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _list };
+        _scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _list };
+        Content = _scroll;
         ThemedChrome.Apply(this);
     }
 
@@ -93,6 +96,90 @@ public sealed class NewsWindow : Window
         }
     }
 
+    /// <summary>A selectable text (copy with the mouse); the mouse wheel goes on to the window's scroll.</summary>
+    private TextBox Reader(string text, double size, string brush, double top, double lineHeight)
+    {
+        var box = new TextBox
+        {
+            Text = text,
+            IsReadOnly = true,
+            TextWrapping = TextWrapping.Wrap,
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Padding = new Thickness(0),
+            FontSize = size,
+            Margin = new Thickness(0, top, 0, 0),
+            Cursor = System.Windows.Input.Cursors.IBeam,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            IsTabStop = false,
+        };
+        box.SetResourceReference(TextBox.ForegroundProperty, brush);
+        System.Windows.Documents.Block.SetLineHeight(box, lineHeight);
+        TextBlock.SetLineHeight(box, lineHeight);
+        box.PreviewMouseWheel += (_, e) =>
+        {
+            _scroll.ScrollToVerticalOffset(_scroll.VerticalOffset - e.Delta);
+            e.Handled = true;
+        };
+        return box;
+    }
+
+    private TextBlock LinkText(string text, Action click)
+    {
+        var link = new TextBlock { Text = text, FontSize = 12, FontWeight = FontWeights.SemiBold, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 0, 18, 0) };
+        link.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        link.MouseEnter += (_, _) => link.TextDecorations = TextDecorations.Underline;
+        link.MouseLeave += (_, _) => link.TextDecorations = null;
+        link.MouseLeftButtonUp += (_, _) => click();
+        return link;
+    }
+
+    /// <summary>A notice: title, time, the first lines (selectable) with "show more" to open the whole text, and "open in the browser" to NC's page.</summary>
+    private Border AnnouncementCard(string title, string when, Announcements.AnnouncementTexts text, string url, LocalizationManager loc)
+    {
+        var rows = new List<UIElement> { Text(title, 15, true), Text(when, 11, false, "Brush.TextMuted", 2) };
+        if (text.Full.Length > 0)
+        {
+            TextBox reader = Reader(text.Preview, 13, "Brush.Text", 8, 20);
+            rows.Add(reader);
+            var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
+            if (text.IsLong)
+            {
+                bool open = false;
+                TextBlock more = null!;
+                more = LinkText(loc["News.ShowMore"], () =>
+                {
+                    open = !open;
+                    reader.Text = open ? text.Full : text.Preview;
+                    more.Text = open ? loc["News.ShowLess"] : loc["News.ShowMore"];
+                });
+                actions.Children.Add(more);
+            }
+
+            if (Announcements.AnnouncementText.IsBrowserUrl(url))
+            {
+                actions.Children.Add(LinkText(loc["News.OpenBrowser"], () =>
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                    }
+                    catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+                    {
+                        // no browser: nothing to do
+                    }
+                }));
+            }
+
+            if (actions.Children.Count > 0)
+            {
+                rows.Add(actions);
+            }
+        }
+
+        return Card(rows.ToArray());
+    }
+
     private async Task FillAnnouncements()
     {
         var loc = LocalizationManager.Instance;
@@ -111,13 +198,59 @@ public sealed class NewsWindow : Window
             string summary = item.TryGetProperty("summary", out JsonElement s) ? s.GetString() ?? "" : "";
             string when = DateTime.TryParse(item.GetProperty("postedAt").GetString(), null, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime at)
                 ? at.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "";
-            _list.Children.Add(Card(Text(title, 14, true), Text(when, 11, false, "Brush.TextMuted", 2), Text(summary, 12, false, "Brush.TextSubtle", 6)));
+            string body = item.TryGetProperty("body", out JsonElement b) && b.ValueKind == JsonValueKind.String ? b.GetString() ?? "" : "";
+            string url = item.TryGetProperty("url", out JsonElement u) && u.ValueKind == JsonValueKind.String ? u.GetString() ?? "" : "";
+            _list.Children.Add(AnnouncementCard(title, when, Announcements.AnnouncementText.Prepare(body, summary), url, loc));
         }
 
         if (_list.Children.Count == 0)
         {
             _list.Children.Add(Text(loc["Hub.Dash.NothingNew"], 13, false, "Brush.TextMuted"));
         }
+    }
+
+    /// <summary>The channels that stream AION 2 with drops on right now (the server asks Twitch): their names, viewers, language and title, and "open on Twitch".</summary>
+    private Border LiveCard(JsonElement live, LocalizationManager loc)
+    {
+        int streams = live.GetProperty("streams").GetInt32();
+        int viewers = live.TryGetProperty("viewers", out JsonElement v) ? v.GetInt32() : 0;
+        var rows = new List<UIElement> { Text(string.Format(loc["News.DropsLive"], streams.ToString("N0"), viewers.ToString("N0")), 14, true) };
+        if (live.TryGetProperty("channels", out JsonElement channels))
+        {
+            foreach (JsonElement ch in channels.EnumerateArray())
+            {
+                string name = ch.TryGetProperty("name", out JsonElement n) ? n.GetString() ?? "" : "";
+                string login = ch.TryGetProperty("login", out JsonElement l) ? l.GetString() ?? "" : "";
+                int count = ch.TryGetProperty("viewers", out JsonElement cv) ? cv.GetInt32() : 0;
+                string language = ch.TryGetProperty("language", out JsonElement lg) ? (lg.GetString() ?? "").ToUpperInvariant() : "";
+                string title = ch.TryGetProperty("title", out JsonElement t) ? t.GetString() ?? "" : "";
+                rows.Add(Text($"{name}   ·   {count:N0}   ·   {language}", 12.5, true, "Brush.Text", 10));
+                if (title.Length > 0)
+                {
+                    rows.Add(Text(title, 12, false, "Brush.TextMuted", 1));
+                }
+
+                if (System.Text.RegularExpressions.Regex.IsMatch(login, "^[A-Za-z0-9_]{1,25}$"))
+                {
+                    string url = "https://www.twitch.tv/" + login;
+                    TextBlock open = LinkText(loc["News.OpenTwitch"], () =>
+                    {
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                        }
+                        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+                        {
+                            // no browser: nothing to do
+                        }
+                    });
+                    open.Margin = new Thickness(0, 3, 0, 0);
+                    rows.Add(open);
+                }
+            }
+        }
+
+        return Card(rows.ToArray());
     }
 
     private async Task FillDrops()
@@ -133,6 +266,17 @@ public sealed class NewsWindow : Window
         }
 
         DateTime now = DateTime.UtcNow;
+        if (doc.RootElement.TryGetProperty("live", out JsonElement live) && live.ValueKind == JsonValueKind.Object && live.TryGetProperty("streams", out JsonElement streams) && streams.GetInt32() > 0)
+        {
+            _list.Children.Add(LiveCard(live, loc));
+        }
+
+        if (doc.RootElement.TryGetProperty("claimBy", out JsonElement claim) && DateTime.TryParse(claim.GetString(), null, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime claimBy) && claimBy > now)
+        {
+            _list.Children.Add(Text(string.Format(loc["News.ClaimBy"], claimBy.ToLocalTime().ToString("dd.MM.yyyy HH:mm")), 12, true, "Brush.Heal", 0));
+            _list.Children.Add(new Border { Height = 10 });
+        }
+
         var shown = new List<(DateTime Start, UIElement Card)>();
         foreach (JsonElement c in campaigns.EnumerateArray())
         {
@@ -151,13 +295,30 @@ public sealed class NewsWindow : Window
             };
             if (c.TryGetProperty("rewards", out JsonElement rewards))
             {
+                // a running or coming campaign shows its rewards at once; a finished one folds them away behind "show more"
+                var rewardRows = new StackPanel { Visibility = now > end ? Visibility.Collapsed : Visibility.Visible };
                 foreach (JsonElement r in rewards.EnumerateArray())
                 {
                     int minutes = r.GetProperty("minutes").GetInt32();
                     string time = minutes >= 60 ? $"{minutes / 60} h" + (minutes % 60 > 0 ? $" {minutes % 60} min" : "") : $"{minutes} min";
                     int qty = r.GetProperty("qty").GetInt32();
-                    rows.Add(Text($"{time}   {(qty > 1 ? qty.ToString("N0") + "× " : "")}{r.GetProperty("name").GetString()}", 12, false, "Brush.Text", 4));
+                    rewardRows.Children.Add(Text($"{time}   {(qty > 1 ? qty.ToString("N0") + "× " : "")}{r.GetProperty("name").GetString()}", 12.5, false, "Brush.Text", 5));
                 }
+
+                if (now > end && rewardRows.Children.Count > 0)
+                {
+                    TextBlock more = null!;
+                    more = LinkText(loc["News.ShowMore"], () =>
+                    {
+                        bool open = rewardRows.Visibility != Visibility.Visible;
+                        rewardRows.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+                        more.Text = open ? loc["News.ShowLess"] : loc["News.ShowMore"];
+                    });
+                    more.Margin = new Thickness(0, 8, 0, 0);
+                    rows.Add(more);
+                }
+
+                rows.Add(rewardRows);
             }
 
             shown.Add((start, Card(rows.ToArray())));

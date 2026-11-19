@@ -32,6 +32,8 @@ export type Announcement = {
   status: "done" | null;
   /** Account restrictions only: the number of restricted accounts from the "[Restriction Details]" block of the full text. undefined = not read yet, null = read, no number in it. */
   restricted?: number | null;
+  /** The full text as plain text (paragraphs, line breaks, "• " lists), read from the single article of NC. undefined = not read yet, null = read, nothing in it. */
+  body?: string | null;
 };
 
 /** Lower case without accents, so one keyword covers "Compensación" and "compensacion". */
@@ -76,7 +78,48 @@ export function cleanTitle(title: string): string {
   return title.replace(/^\s*\[[^\]]{1,24}\]\s*/, "").replace(/\s+/g, " ").trim();
 }
 
-const ENTITIES: Record<string, string> = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'" };
+const ENTITIES: Record<string, string> = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'", hellip: "…", ndash: "–", mdash: "—", bull: "•", middot: "·", laquo: "«", raquo: "»", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”" };
+
+/** The longest full text kept per announcement (the stored history holds up to KEEP_PER_LANG of them). */
+export const MAX_BODY = 20_000;
+
+function decodeEntities(text: string): string {
+  return text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, e: string) => {
+    if (e[0] === "#") {
+      const code = e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+      return Number.isInteger(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : " ";
+    }
+    return ENTITIES[e.toLowerCase()] ?? m;
+  });
+}
+
+/**
+ * The HTML of one NC article as plain text: paragraphs and headings end in a blank line, <br> and block ends in a line break, a list item is a "• " line, tags and images
+ * are dropped, entities resolved, runs of blank lines folded to one. Cut at MAX_BODY characters with "…".
+ */
+export function htmlToText(html: string): string {
+  const text = decodeEntities(
+    html
+      .replace(/<(script|style)[\s\S]*?<\/\1\s*>/gi, "")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<img\b[^>]*>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<li\b[^>]*>/gi, "\n• ")
+      .replace(/<\/(p|h[1-6]|ul|ol|table|blockquote)\s*>/gi, "\n\n")
+      .replace(/<\/li\s*>/gi, "")
+      .replace(/<\/(div|tr)\s*>/gi, "\n")
+      .replace(/<\/t[dh]\s*>/gi, " ")
+      .replace(/<[^>]+>/g, ""),
+  )
+    .replace(/[​‌‍﻿]/g, "")
+    .replace(/[ \t  ]+/g, " ")
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return text.length > MAX_BODY ? `${text.slice(0, MAX_BODY - 1).trimEnd()}…` : text;
+}
 
 /** NC's summary is flattened HTML text with entities; the line breaks are lost, so it is only a teaser. */
 export function cleanSummary(raw: string, max = 280): string {
@@ -198,6 +241,10 @@ function load(): void {
 }
 
 function save(): void {
+  // a test run never writes the real history file
+  if (process.env.NODE_TEST_CONTEXT) {
+    return;
+  }
   try {
     mkdirSync(path.dirname(ANNOUNCEMENTS_FILE), { recursive: true });
     const tmp = `${ANNOUNCEMENTS_FILE}.tmp`;
@@ -214,6 +261,10 @@ export function mergeItems(fresh: Announcement[]): void {
     const old = store.get(keyOf(x));
     if (old?.restricted !== undefined && x.restricted === undefined && old.title === x.title) {
       x.restricted = old.restricted;
+    }
+    // the list carries no full text: what was read stays while title and summary are the same (a changed text is read again)
+    if (old?.body !== undefined && x.body === undefined && old.title === x.title && old.summary === x.summary) {
+      x.body = old.body;
     }
     store.set(keyOf(x), x);
   }
@@ -245,7 +296,7 @@ export function ncLangFor(siteLang: string | undefined): NcLang {
   return (NC_LANGS as readonly string[]).includes(base) ? (base as NcLang) : "en";
 }
 
-export type AnnouncementView = { id: string; title: string; summary: string; postedAt: string; category: Category; status: "done" | null; url: string; restricted?: number };
+export type AnnouncementView = { id: string; title: string; summary: string; postedAt: string; category: Category; status: "done" | null; url: string; restricted?: number; body?: string };
 
 /** The list for one site language (English where NC has no board in it), newest first. */
 export function announcementList(siteLang: string | undefined): { lang: NcLang; checkedAt: string | null; items: AnnouncementView[] } {
@@ -261,6 +312,7 @@ export function announcementList(siteLang: string | undefined): { lang: NcLang; 
       category: x.category,
       status: x.status,
       ...(x.category === "account" && typeof x.restricted === "number" ? { restricted: x.restricted } : {}),
+      ...(typeof x.body === "string" && x.body ? { body: localizeZones(x.body, lang) } : {}),
       url: `https://aion2.plaync.com/${WEB_LOCALE[lang]}/board/notice/view?articleId=${x.id}`,
     }));
   return { lang, checkedAt: checkedAt === null ? null : new Date(checkedAt).toISOString(), items };
@@ -331,22 +383,47 @@ export async function refreshAnnouncements(fetchFn: FetchFn = fetch, now = Date.
         backfilled.add(lang);
       }
     }
-    await readRestricted(fetchFn, pauseMs);
+    await readDetails(fetchFn, pauseMs);
     save();
   }
   return fresh.length;
 }
 
-/** Reads the restricted-account number from the full text of every account notice that has none yet (a failed request is tried again next time). */
-async function readRestricted(fetchFn: FetchFn, pauseMs: number): Promise<void> {
-  for (const x of store.values()) {
-    if (x.category !== "account" || x.restricted !== undefined) {
-      continue;
+/** The newest announcements per language whose full text is read (older ones only when an account notice needs its number). */
+const BODY_NEWEST_PER_LANG = 40;
+/** At most this many article requests per refresh run (NC's load and the server's disk limit: a run is every ten minutes, so the first fill takes a few hours). */
+export const DETAIL_REQUESTS_PER_RUN = 10;
+
+/**
+ * Reads the single article of NC for what the lists do not carry: the full text (the newest BODY_NEWEST_PER_LANG of every language) and the restricted-account number
+ * of an account notice. One request gives both. A failed request is tried again next time. Newest first, at most `limit` requests.
+ */
+async function readDetails(fetchFn: FetchFn, pauseMs: number, limit = DETAIL_REQUESTS_PER_RUN): Promise<void> {
+  const newest = new Set<string>();
+  for (const lang of NC_LANGS) {
+    for (const x of [...store.values()].filter((y) => y.lang === lang).sort(compare).slice(0, BODY_NEWEST_PER_LANG)) {
+      newest.add(keyOf(x));
     }
+  }
+  const todo = [...store.values()]
+    .filter((x) => (newest.has(keyOf(x)) && x.body === undefined) || (x.category === "account" && x.restricted === undefined))
+    .sort(compare)
+    .slice(0, limit);
+  for (const x of todo) {
     try {
       const { body } = await getNc(fetchFn, new URL(`${BASE}/notice_${x.lang}/article/${x.id}`), MAX_BYTES);
       const html = (JSON.parse(body.toString("utf8")) as { article?: { content?: { content?: unknown } } })?.article?.content?.content;
-      x.restricted = typeof html === "string" ? restrictedCount(html) : null;
+      if (typeof html === "string") {
+        x.body = htmlToText(html) || null;
+        if (x.category === "account") {
+          x.restricted = restrictedCount(html);
+        }
+      } else {
+        x.body = null;
+        if (x.category === "account") {
+          x.restricted = null;
+        }
+      }
     } catch {
       // later
     }

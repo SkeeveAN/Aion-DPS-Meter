@@ -15387,16 +15387,16 @@
     "ko": "소식"
   },
   "Hub.Dash.TodoTitle": {
-    "en": "To do today",
-    "de": "Heute zu erledigen",
-    "fr": "À faire aujourd'hui",
-    "es": "Pendiente hoy",
-    "ru": "Сегодня сделать",
-    "zh": "今日待办",
-    "zh-TW": "今日待辦",
-    "pt": "Para hoje",
-    "ja": "今日やること",
-    "ko": "오늘 할 일"
+    "en": "Checklist",
+    "de": "Checkliste",
+    "fr": "Liste de contrôle",
+    "es": "Lista de control",
+    "ru": "Чек-лист",
+    "zh": "清单",
+    "zh-TW": "清單",
+    "pt": "Lista de verificação",
+    "ja": "チェックリスト",
+    "ko": "체크리스트"
   },
   "Hub.Dash.ToChecklist": {
     "en": "To the checklist ›",
@@ -17449,5 +17449,101 @@
     "pt": "Alerta de inimigos",
     "ja": "敵アラート",
     "ko": "적 경보"
+  },
+  "News.ShowMore": {
+    "en": "Show more",
+    "de": "Mehr anzeigen",
+    "fr": "Afficher plus",
+    "es": "Mostrar más",
+    "ru": "Показать больше",
+    "zh": "展开",
+    "zh-TW": "展開",
+    "pt": "Mostrar mais",
+    "ja": "もっと見る",
+    "ko": "더 보기"
+  },
+  "News.ShowLess": {
+    "en": "Show less",
+    "de": "Weniger anzeigen",
+    "fr": "Afficher moins",
+    "es": "Mostrar menos",
+    "ru": "Свернуть",
+    "zh": "收起",
+    "zh-TW": "收起",
+    "pt": "Mostrar menos",
+    "ja": "閉じる",
+    "ko": "접기"
+  },
+  "News.OpenBrowser": {
+    "en": "Open in browser",
+    "de": "Im Browser öffnen",
+    "fr": "Ouvrir dans le navigateur",
+    "es": "Abrir en el navegador",
+    "ru": "Открыть в браузере",
+    "zh": "在浏览器中打开",
+    "zh-TW": "在瀏覽器中開啟",
+    "pt": "Abrir no navegador",
+    "ja": "ブラウザで開く",
+    "ko": "브라우저에서 열기"
+  },
+  "News.DropsLive": {
+    "en": "Live on Twitch with drops: {0} streams · {1} viewers",
+    "de": "Live auf Twitch mit Drops: {0} Streams · {1} Zuschauer",
+    "fr": "En direct sur Twitch avec drops : {0} streams · {1} spectateurs",
+    "es": "En directo en Twitch con drops: {0} streams · {1} espectadores",
+    "ru": "В эфире на Twitch с дропсами: {0} стримов · {1} зрителей",
+    "zh": "Twitch 掉落直播中：{0} 个直播 · {1} 位观众",
+    "zh-TW": "Twitch 掉落直播中：{0} 個直播 · {1} 位觀眾",
+    "pt": "Ao vivo na Twitch com drops: {0} streams · {1} espectadores",
+    "ja": "Twitchでドロップ配信中：{0}配信 · 視聴者{1}人",
+    "ko": "드롭 진행 중인 트위치 방송: {0}개 · 시청자 {1}명"
+  },
+  "News.OpenTwitch": {
+    "en": "Open on Twitch",
+    "de": "Auf Twitch öffnen",
+    "fr": "Ouvrir sur Twitch",
+    "es": "Abrir en Twitch",
+    "ru": "Открыть на Twitch",
+    "zh": "在 Twitch 打开",
+    "zh-TW": "在 Twitch 開啟",
+    "pt": "Abrir na Twitch",
+    "ja": "Twitchで開く",
+    "ko": "트위치에서 열기"
+  },
+  "News.ClaimBy": {
+    "en": "Claim your drops until {0}",
+    "de": "Drops abholen bis {0}",
+    "fr": "Récupérez vos drops jusqu'au {0}",
+    "es": "Reclama tus drops hasta el {0}",
+    "ru": "Заберите дропсы до {0}",
+    "zh": "请在 {0} 前领取掉落",
+    "zh-TW": "請在 {0} 前領取掉落",
+    "pt": "Resgate seus drops até {0}",
+    "ja": "ドロップは{0}まで受け取れます",
+    "ko": "{0}까지 드롭을 받으세요"
+  },
+  "Checklist.OdyleSummaryHint": {
+    "en": "Energy now (+ already charged) (+ still in items in the inventory and storages)",
+    "de": "Energie jetzt (+ bereits aufgeladen) (+ noch in Items im Inventar und Lager)",
+    "fr": "Énergie actuelle (+ déjà rechargée) (+ encore dans des objets de l'inventaire et des entrepôts)",
+    "es": "Energía actual (+ ya recargada) (+ aún en objetos del inventario y los almacenes)",
+    "ru": "Энергия сейчас (+ уже пополнена) (+ ещё в предметах в инвентаре и хранилищах)",
+    "zh": "当前能量（+已充能）（+仍在背包和仓库物品中）",
+    "zh-TW": "目前能量（+已充能）（+仍在背包和倉庫物品中）",
+    "pt": "Energia agora (+ já carregada) (+ ainda em itens no inventário e nos armazéns)",
+    "ja": "現在のエネルギー（＋チャージ済み）（＋インベントリと倉庫のアイテム内）",
+    "ko": "현재 에너지 (+이미 충전됨) (+인벤토리와 창고의 아이템에 남아 있음)"
+  },
+  "Checklist.PickHint": {
+    "en": "Show this element in the checklist widget (dashboard and overlay)",
+    "de": "Dieses Element im Checklisten-Widget zeigen (Dashboard und Overlay)",
+    "fr": "Afficher cet élément dans le widget de la liste (tableau de bord et overlay)",
+    "es": "Mostrar este elemento en el widget de la lista (panel y overlay)",
+    "ru": "Показывать этот элемент в виджете чек-листа (панель и оверлей)",
+    "zh": "在清单小组件中显示此项（仪表盘和浮层）",
+    "zh-TW": "在清單小工具中顯示此項（儀表板和浮層）",
+    "pt": "Mostrar este elemento no widget da lista (painel e overlay)",
+    "ja": "このエレメントをチェックリストのウィジェットに表示（ダッシュボードとオーバーレイ）",
+    "ko": "이 항목을 체크리스트 위젯에 표시 (대시보드와 오버레이)"
   }
 }

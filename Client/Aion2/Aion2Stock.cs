@@ -254,6 +254,9 @@ public static class Aion2Stock
         return stacks;
     }
 
+    /// <summary>The energy that all Odyle items in the inventory and the storages recharge together (quantity times 10 or 40), the way the guild list on the website adds it up; null while no item list was seen.</summary>
+    public static int? OdyleItemEnergy() => HasData ? (int)Math.Min(int.MaxValue, OdyleStacks().Sum(x => x.Quantity * OdyleUnitOf(x.Item))) : null;
+
     private static readonly (int Container, StockSources Source)[] Places =
     {
         (InventoryContainer, StockSources.Inventory),

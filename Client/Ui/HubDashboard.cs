@@ -172,7 +172,7 @@ public static class HubDashboard
         return stack;
     }
 
-    /// <summary>"Heute zu erledigen" as the HTML draft has it: the Odyle energy with its bar, the four entry counters (tickets 1, 4, 8 and 101) and a link to the checklist.</summary>
+    /// <summary>The checklist widget: the elements of the checklist that the player switched on there (the small switch in front of each element); by default the Odyle energy and the four entry counters.</summary>
     private static UIElement Todo(LocalizationManager loc, Action<string> openTool)
     {
         var stack = new StackPanel();
@@ -188,42 +188,70 @@ public static class HubDashboard
             // the checklist reads what the game sent; with nothing sent the card stays empty
         }
 
-        TicketValue Value(int id) => me is not null && me.Tickets.TryGetValue(id, out TicketValue v) ? v : default;
         TicketDef? ode = Aion2Tickets.Find(Aion2Tickets.OdyleId);
         bool mock = me is null;
         // the cap is the member's one while the membership runs (Odyle energy 840, else 560), as the checklist counts it; with no word on the membership it counts as running
         bool premium = me is null || Aion2Tickets.HasPremium(me, DateTime.UtcNow) != false;
-        int CapOf(TicketDef def) => premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
+        string language = loc.Language;
+        int shown = 0;
         if (mock)
         {
             stack.Children.Add(MockTag());
-        }
+            if (ode is not null)
+            {
+                int odeCap = premium && ode.SubscribeMax > ode.Max ? ode.SubscribeMax : ode.Max;
+                stack.Children.Add(Line(ode.ShortIn(language), OdyleSummary(Math.Max(1, odeCap * 6 / 10), Math.Max(1, odeCap / 10), Math.Max(1, odeCap / 5), 13)));
+                shown++;
+            }
 
-        if (ode is not null)
-        {
-            int odeCap = CapOf(ode);
-            TicketValue o = mock ? new TicketValue(Math.Max(1, odeCap * 6 / 10), Math.Max(1, odeCap / 10), 0) : Value(ode.Id);
-            stack.Children.Add(Line(ode.ShortIn(loc.Language), $"{o.Count} (+{o.Bonus}) / {odeCap}"));
-            var bar = new ProgressBar { Height = 8, Maximum = 100, Value = odeCap > 0 ? Math.Min(100.0, o.Count * 100.0 / odeCap) : 0, BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8) };
-            bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
-            bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
-            stack.Children.Add(bar);
             int[] sample = { 3, 2, 5, 1 };
             int n = 0;
             foreach (int id in new[] { 1, 4, 8, 101 })
             {
-                if (Aion2Tickets.Find(id) is not { } def)
+                if (Aion2Tickets.Find(id) is { } def)
                 {
-                    continue;
+                    stack.Children.Add(Line(def.ShortIn(language), $"{sample[n++]} / {(premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max)}", false, "Brush.Accent"));
+                    shown++;
                 }
-
-                TicketValue v = mock ? new TicketValue(sample[n], 0, 0) : Value(id);
-                n++;
-                int cap = CapOf(def);
-                stack.Children.Add(Line(def.ShortIn(loc.Language), $"{v.Count} / {cap}", false, v.Count > 0 ? "Brush.Accent" : "Brush.TextMuted"));
             }
         }
         else
+        {
+            DateTime now = DateTime.Now;
+            DateTime seenAt = me!.SavedAt.ToLocalTime();
+            if (ode is not null && ChecklistRows.IsPicked("odyle") && me.Tickets.TryGetValue(ode.Id, out TicketValue o))
+            {
+                int odeCap = premium && ode.SubscribeMax > ode.Max ? ode.SubscribeMax : ode.Max;
+                // the items count only for the character in the game (the item lists are its own)
+                int? items = string.Equals(me.Name, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase) ? Aion2.Aion2Stock.OdyleItemEnergy() : null;
+                stack.Children.Add(Line(ode.ShortIn(language), OdyleSummary(o.Count, o.Bonus, items, 13)));
+                var bar = new ProgressBar { Height = 8, Maximum = 100, Value = odeCap > 0 ? Math.Min(100.0, o.Count * 100.0 / odeCap) : 0, BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8) };
+                bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
+                bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
+                stack.Children.Add(bar);
+                shown++;
+            }
+
+            foreach (ChecklistRow r in ChecklistRows.Build(me, seenAt, now, premium, language).Where(r => ChecklistRows.IsPicked(r.Key)))
+            {
+                bool open = r.CountsUp ? r.Count < r.Cap : r.Count > 0;
+                string text = (r.Estimated ? "~" : "") + r.Count + (r.Bonus > 0 ? $" (+{r.Bonus})" : "") + " / " + r.Cap;
+                stack.Children.Add(Line(r.Label, text, false, open ? "Brush.Accent" : "Brush.TextMuted"));
+                shown++;
+            }
+
+            // membership, pet auto-loot, access times and the Daeva passes
+            foreach ((string key, string label, string text, bool open) in TimeRows(me, now, loc))
+            {
+                if (ChecklistRows.IsPicked(key))
+                {
+                    stack.Children.Add(Line(label, text, false, open ? "Brush.Accent" : "Brush.TextMuted"));
+                    shown++;
+                }
+            }
+        }
+
+        if (shown == 0)
         {
             stack.Children.Add(Text(loc["Hub.Dash.TodoNone"], false, "Brush.TextMuted"));
         }
@@ -233,6 +261,40 @@ public static class HubDashboard
         link.MouseLeftButtonUp += (_, _) => openTool("checklist");
         stack.Children.Add(link);
         return stack;
+    }
+
+    /// <summary>The time based elements of the checklist as (key, name, text, still running): membership, pet auto-loot, access times, Daeva passes (the experience of the week).</summary>
+    private static List<(string Key, string Label, string Text, bool Open)> TimeRows(TicketCharacter me, DateTime now, LocalizationManager loc)
+    {
+        var rows = new List<(string, string, string, bool)>();
+        if (me.Tickets.TryGetValue(Aion2Tickets.PremiumId, out TicketValue member) && member.TimeMs > 0)
+        {
+            TimeSpan left = DateTimeOffset.FromUnixTimeMilliseconds(member.TimeMs).LocalDateTime - now;
+            rows.Add(("sub:premium", loc["Checklist.Premium"], left > TimeSpan.Zero ? ChecklistWindow.LeftText(left) : "–", left > TimeSpan.Zero));
+        }
+
+        if (me.Tickets.TryGetValue(Aion2Tickets.AutoLootId, out TicketValue loot))
+        {
+            TimeSpan left = loot.TimeMs > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(loot.TimeMs).LocalDateTime - now : TimeSpan.Zero;
+            rows.Add(("sub:autoloot", loc["Checklist.AutoLoot"], left > TimeSpan.Zero ? ChecklistWindow.LeftText(left) : "–", left > TimeSpan.Zero));
+        }
+
+        foreach (int id in new[] { 3 })
+        {
+            if (Aion2Tickets.Find(id) is { } def && !Aion2Tickets.IsLocked(me, id) && me.Tickets.TryGetValue(id, out TicketValue t))
+            {
+                TimeSpan left = TimeSpan.FromMilliseconds(t.TimeMs);
+                rows.Add(("time:" + id, def.NameIn(loc.Language), $"{(int)left.TotalHours}:{left.Minutes:00}", left > TimeSpan.Zero));
+            }
+        }
+
+        foreach (Aion2Tickets.PassDef pass in Aion2Tickets.Passes.Where(p => me.Tickets.ContainsKey(p.TicketId)))
+        {
+            int week = Math.Min(me.Tickets[pass.TicketId].Bonus, pass.WeeklyLimit);
+            rows.Add(("pass:" + pass.TicketId, loc[pass.NameKeyFor(me.ServerId)], $"{week:N0} / {pass.WeeklyLimit:N0}", week < pass.WeeklyLimit));
+        }
+
+        return rows;
     }
 
     private static UIElement Events(List<EventOccurrence> active, List<EventOccurrence> soon, DateTime now, LocalizationManager loc)
@@ -891,6 +953,50 @@ public static class HubDashboard
         var block = new TextBlock { Text = text, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, FontSize = size, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = size < 13 || brush == "Brush.TextMuted" ? TextWrapping.Wrap : TextWrapping.NoWrap };
         block.SetResourceReference(TextBlock.ForegroundProperty, brush);
         return block;
+    }
+
+    private static readonly System.Windows.Media.Brush OdyleStonesBrush = Frozen(System.Windows.Media.Color.FromRgb(0x6C, 0xB4, 0xFF));
+
+    private static System.Windows.Media.Brush Frozen(System.Windows.Media.Color c)
+    {
+        var b = new System.Windows.Media.SolidColorBrush(c);
+        b.Freeze();
+        return b;
+    }
+
+    /// <summary>The Odyle energy the way the guild list of the website shows it: "60 (+1.595) (+3.880)" - the energy now, the part already charged (blue), the part still lying in items in the inventory and the storages (gold). A part of 0 or an unknown one is left out.</summary>
+    internal static TextBlock OdyleSummary(int count, int bonus, int? items, double size)
+    {
+        var block = new TextBlock { FontSize = size, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis };
+        block.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+        block.Inlines.Add(new System.Windows.Documents.Run(count.ToString("N0", System.Globalization.CultureInfo.CurrentCulture)));
+        if (bonus > 0)
+        {
+            block.Inlines.Add(new System.Windows.Documents.Run($" (+{bonus.ToString("N0", System.Globalization.CultureInfo.CurrentCulture)})") { Foreground = OdyleStonesBrush });
+        }
+
+        if (items is > 0)
+        {
+            var run = new System.Windows.Documents.Run($" (+{items.Value.ToString("N0", System.Globalization.CultureInfo.CurrentCulture)})");
+            run.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Brush.Accent");
+            block.Inlines.Add(run);
+        }
+
+        return block;
+    }
+
+    private static Grid Line(string left, UIElement right)
+    {
+        var grid = Line(left, "");
+        grid.Children.RemoveAt(1);
+        if (right is FrameworkElement fe)
+        {
+            fe.Margin = new Thickness(12, 0, 0, 0);
+        }
+
+        Grid.SetColumn(right, 1);
+        grid.Children.Add(right);
+        return grid;
     }
 
     private static Grid Line(string left, string right, bool strong = false, string rightBrush = "Brush.Accent")

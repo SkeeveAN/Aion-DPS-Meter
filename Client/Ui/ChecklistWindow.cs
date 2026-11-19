@@ -250,12 +250,18 @@ public sealed class ChecklistWindow : Window
         bool odyleLocked = Aion2Tickets.IsLocked(character, Aion2Tickets.OdyleId);
         if ((odyleLocked || character.Tickets.ContainsKey(Aion2Tickets.OdyleId)) && Aion2Tickets.Find(Aion2Tickets.OdyleId) is { } odyleDef)
         {
-            _body.Children.Add(OdyleCard(odyleDef, odyleLocked ? default : character.Tickets[Aion2Tickets.OdyleId], language, odyleLocked, _premium));
+            _body.Children.Add(OdyleCard(odyleDef, odyleLocked ? default : character.Tickets[Aion2Tickets.OdyleId], language, odyleLocked, _premium, character.Name));
         }
 
-        AddOverview(loc["Checklist.Overall"], Overview.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, seenAt, now, language);
-        AddDaily(loc["Checklist.Daily"], character);
-        AddWeekly(loc["Checklist.Weekly"], character, seenAt, now, language);
+        List<ChecklistRow> rows = ChecklistRows.Build(character, seenAt, now, _premium, language);
+        foreach ((ChecklistGroup group, string title) in new[] { (ChecklistGroup.Overview, loc["Checklist.Overall"]), (ChecklistGroup.Daily, loc["Checklist.Daily"]), (ChecklistGroup.Weekly, loc["Checklist.Weekly"]) })
+        {
+            ChecklistRow[] part = rows.Where(r => r.Group == group).ToArray();
+            if (part.Length > 0)
+            {
+                _body.Children.Add(SectionCard(title, part, character, group == ChecklistGroup.Overview));
+            }
+        }
 
         AddSubscriptions(loc["Checklist.Subs"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
         AddPass(loc["Checklist.DaevaPass"], character, language);
@@ -271,12 +277,27 @@ public sealed class ChecklistWindow : Window
     }
 
     /// <summary>The Odyle energy as the game's tooltip shows it: the basic energy (cap 840 with the subscription) and the charged energy (cap 2000).</summary>
-    private static UIElement OdyleCard(TicketDef def, TicketValue value, string language, bool locked, bool premium)
+    private static UIElement OdyleCard(TicketDef def, TicketValue value, string language, bool locked, bool premium, string characterName)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         var stack = new StackPanel();
-        stack.Children.Add(Label(def.NameIn(language), locked ? "Brush.TextSubtle" : "Brush.Text", 16, bold: true));
-        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
+        // a small switch in front of the title: whether the checklist widget shows the energy
+        var head = new DockPanel { Margin = new Thickness(0, 0, 0, 4) };
+        CheckBox pick = Pick("odyle");
+        DockPanel.SetDock(pick, Dock.Left);
+        head.Children.Add(pick);
+        head.Children.Add(Label(def.NameIn(language), locked ? "Brush.TextSubtle" : "Brush.Text", 16, bold: true));
+        stack.Children.Add(head);
+        if (!locked)
+        {
+            // as the guild list shows it: now (+ already charged) (+ still in items); the items are known for the character in the game only
+            int? items = string.Equals(characterName, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase) ? Aion2.Aion2Stock.OdyleItemEnergy() : null;
+            TextBlock summary = HubDashboard.OdyleSummary(value.Count, value.Bonus, items, 14);
+            summary.Margin = new Thickness(0, 0, 0, 4);
+            summary.ToolTip = loc["Checklist.OdyleSummaryHint"];
+            stack.Children.Add(summary);
+        }
+
         stack.Children.Add(OdyleLine(loc["Checklist.OdyleBase"], value.Count, Math.Max(premium ? def.SubscribeMax : def.Max, value.Count), locked));
         stack.Children.Add(OdyleLine(loc["Checklist.OdyleCharged"], value.Bonus, Math.Max(OdyleChargedMax, value.Bonus), locked));
         return Card(stack);
@@ -329,6 +350,7 @@ public sealed class ChecklistWindow : Window
     private static Grid NumberGrid(int extraColumns)
     {
         var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });  // the switch for the widget
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(215) }); // name
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(62) });  // count with its bonus (right-aligned)
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // slash
@@ -341,164 +363,85 @@ public sealed class ChecklistWindow : Window
         return grid;
     }
 
-    /// <summary>The overview as a table: the names left, the numbers one under the other in a column right behind them.</summary>
-    private void AddOverview(string title, IEnumerable<TicketDef> defs, TicketCharacter character, DateTime seenAt, DateTime now, string language)
+    /// <summary>A small switch in front of an element of the checklist: whether the checklist widget (and its overlay) shows that element.</summary>
+    private static CheckBox Pick(string key)
+    {
+        var box = new CheckBox { IsChecked = ChecklistRows.IsPicked(key), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), ToolTip = LocalizationManager.Instance["Checklist.PickHint"] };
+        box.Click += (_, _) => ChecklistRows.SetPicked(key, box.IsChecked == true);
+        return box;
+    }
+
+    /// <summary>One counter row: switch, name, the number (one under the other), behind it the warning of a refill that would run over the cap or the tick of a finished day.</summary>
+    private void AddRow(Grid grid, int row, ChecklistRow r, TicketCharacter character)
+    {
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        bool open = r.CountsUp ? r.Count < r.Cap : r.Count > 0;
+        CheckBox pick = Pick(r.Key);
+        Grid.SetRow(pick, row);
+        grid.Children.Add(pick);
+        TextBlock label = Label(r.Label, open ? "Brush.Text" : "Brush.TextSubtle", 13);
+        label.Margin = new Thickness(0, 1, 0, 1);
+        Grid.SetRow(label, row);
+        Grid.SetColumn(label, 1);
+        grid.Children.Add(label);
+        AddNumberCells(grid, row, 2, r.Count, r.Cap, r.Estimated, open, r.Bonus);
+        if (r.Manual is { } counter)
+        {
+            var hit = new Border { Background = Brushes.Transparent, Cursor = Cursors.Hand, ToolTip = "+1: left click / -1: right click" };
+            Grid.SetRow(hit, row);
+            Grid.SetColumn(hit, 1);
+            Grid.SetColumnSpan(hit, 4);
+            hit.MouseLeftButtonDown += (_, e) => { StepManual(character.Name, counter, 1); e.Handled = true; };
+            hit.MouseRightButtonDown += (_, e) => { StepManual(character.Name, counter, -1); e.Handled = true; };
+            grid.Children.Add(hit);
+        }
+    }
+
+    private UIElement SectionCard(string title, IEnumerable<ChecklistRow> rows, TicketCharacter character, bool withExtras)
     {
         LocalizationManager loc = LocalizationManager.Instance;
-        TicketDef[] list = defs.ToArray();
-        if (list.Length == 0)
-        {
-            return;
-        }
-
         var stack = new StackPanel();
         stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
         ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
         Grid grid = NumberGrid(1);
-        for (int i = 0; i < list.Length; i++)
+        int i = 0;
+        foreach (ChecklistRow r in rows)
         {
-            TicketDef def = list[i];
-            bool locked = Aion2Tickets.IsLocked(character, def.Id); // the level is too low: grey, 0 / cap
-            TicketValue own = locked || !character.Tickets.TryGetValue(def.Id, out TicketValue found) ? default : found;
-            int reported = own.Count;
-            int bonus = own.Bonus;
-            int count = locked ? 0 : Aion2Tickets.Expected(def, reported, seenAt, now, _premium);
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            TextBlock name = Label(def.ShortIn(language), count > 0 ? "Brush.Text" : "Brush.TextSubtle", 13);
-            name.Margin = new Thickness(0, 1, 0, 1);
-            Grid.SetRow(name, i);
-            grid.Children.Add(name);
-            AddNumberCells(grid, i, 1, count, Math.Max(CapOf(def), count + bonus), count != reported, count > 0, bonus);
-            // the next daily refill would run over the cap: part of it is lost tomorrow
-            int lost = locked ? 0 : Aion2Tickets.LostAtNextRefill(def, count, _premium);
-            if (lost > 0)
+            AddRow(grid, i, r, character);
+            UIElement? extra = null;
+            if (withExtras && r.Def is { } def)
             {
-                UIElement badge = WarnBadge(string.Format(CultureInfo.CurrentCulture, loc[lost == 1 ? "Checklist.WarnLostOne" : "Checklist.WarnLostMany"], lost), "Brush.Warning");
-                Grid.SetRow(badge, i);
-                Grid.SetColumn(badge, 4);
-                grid.Children.Add(badge);
+                // the next daily refill would run over the cap: part of it is lost tomorrow
+                int lost = Aion2Tickets.IsLocked(character, def.Id) ? 0 : Aion2Tickets.LostAtNextRefill(def, r.Count, _premium);
+                if (lost > 0)
+                {
+                    extra = WarnBadge(string.Format(CultureInfo.CurrentCulture, loc[lost == 1 ? "Checklist.WarnLostOne" : "Checklist.WarnLostMany"], lost), "Brush.Warning");
+                }
             }
-        }
-
-        stack.Children.Add(grid);
-        _body.Children.Add(Card(stack));
-    }
-
-    /// <summary>The daily part: the mandatory tasks ("Missions") of the home region (Verteron for Elyos, Altgard for Asmodians) as one counter, handed in of five
-    /// (five of five gets a tick).</summary>
-    private void AddDaily(string title, TicketCharacter character)
-    {
-        LocalizationManager loc = LocalizationManager.Instance;
-        // (Stacy's fix from her fork, MIT) the count read last, or 0 (shown as an estimate) when a daily reset came since that reading: the game sends it at a login, a hand-in or when the journal is opened, never at the reset
-        bool stale = character.Tickets.TryGetValue(Aion2Tickets.MissionsId, out TicketValue missions) && Aion2Tickets.MissionsStale(missions, DateTime.Now);
-        int done = stale ? 0 : missions.Count;
-        string region = loc[character.ServerId / 1000 == 2 ? "Checklist.RegionAsmodian" : "Checklist.RegionElyos"];
-        var stack = new StackPanel();
-        stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
-        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
-        Grid grid = NumberGrid(1);
-        int row = 0;
-        AddTableRow(grid, row++, string.Format(CultureInfo.CurrentCulture, loc["Checklist.DailyTasks"], region), done, Aion2Tickets.MissionsPerDay, stale, countsUp: true);
-        if (done >= Aion2Tickets.MissionsPerDay)
-        {
-            TextBlock tick = Label("\u2713", "Brush.Accent", 15, bold: true);
-            tick.Margin = new Thickness(14, 0, 0, 0);
-            Grid.SetColumn(tick, 4);
-            grid.Children.Add(tick);
-        }
-
-        stack.Children.Add(grid);
-        _body.Children.Add(Card(stack));
-    }
-
-    /// <summary>The weekly part: the entries of the "Daily Dungeon" (the name is misleading: its counter is weekly; cap 14, extra entries come on top as the bonus behind the count)
-    /// and the scroll purchases at the NPC (counted by hand; the shop limit is per server, so
-    /// the counters are shared by all characters).</summary>
-    private void AddWeekly(string title, TicketCharacter character, DateTime seenAt, DateTime now, string language)
-    {
-        LocalizationManager loc = LocalizationManager.Instance;
-        ChecklistManual.State shared = ChecklistManual.Get(ChecklistManual.SharedKey, now);
-        var stack = new StackPanel();
-        stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
-        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
-        Grid grid = NumberGrid(0);
-        int row = 0;
-        bool dungeonLocked = Aion2Tickets.IsLocked(character, DailyDungeonTicket);
-        if (Aion2Tickets.Find(DailyDungeonTicket) is { } dungeon && (dungeonLocked || character.Tickets.ContainsKey(dungeon.Id)))
-        {
-            TicketValue value = dungeonLocked ? default : character.Tickets[dungeon.Id];
-            int count = dungeonLocked ? 0 : Aion2Tickets.Expected(dungeon, value.Count, seenAt, now, _premium);
-            AddTableRow(grid, row++, dungeon.ShortIn(language), count, Math.Max(dungeon.Max, count), count != value.Count, countsUp: false, bonus: value.Bonus);
-        }
-
-        AddTableRow(grid, row++, ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), ChecklistManual.VerteronCount(shared), ChecklistManual.VerteronMax, false, countsUp: true);
-        AddTableRow(grid, row++, ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), ChecklistManual.AbyssCount(shared), ChecklistManual.AbyssMax, false, countsUp: true);
-        // the purchase counter of the trade guild comes from the game; an older reset time means the week is over
-        // (4 a week per character and 16 per server, 20 together; each counts only while its reset time lies ahead)
-        long nowMs = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero).ToUnixTimeMilliseconds();
-        int bought = 0;
-        foreach ((int id, int limit) in new[] { (Aion2Tickets.ShopOdyleId, Aion2Tickets.ShopOdylePerCharacter), (Aion2Tickets.ShopOdyleServerId, Aion2Tickets.ShopOdylePerServer) })
-        {
-            if (character.Tickets.TryGetValue(id, out TicketValue shop) && shop.TimeMs > nowMs)
+            else if (r.Key == "daily:missions" && r.Count >= Aion2Tickets.MissionsPerDay)
             {
-                bought += Math.Min(shop.Count, limit);
+                extra = Label("\u2713", "Brush.Accent", 15, bold: true);
+                ((TextBlock)extra).Margin = new Thickness(14, 0, 0, 0);
             }
+
+            if (extra is not null)
+            {
+                Grid.SetRow(extra, i);
+                Grid.SetColumn(extra, 5);
+                grid.Children.Add(extra);
+            }
+
+            i++;
         }
 
-        AddTableRow(grid, row++, loc["Checklist.ShopOdyle"], bought, Aion2Tickets.ShopOdyleMax, false, countsUp: true);
-
-        // the week's points of the season missions (frame 0x8356 at login): points of 8,000; one that the game last changed more than a week ago is of a week long past
-        if (character.Tickets.TryGetValue(Aion2Tickets.WeeklyPointsId, out TicketValue weekly))
-        {
-            int points = nowMs - weekly.TimeMs < 7L * 24 * 3600 * 1000 ? Math.Min(weekly.Count, Aion2Tickets.WeeklyPointsMax) : 0;
-            AddTableRow(grid, row++, loc["Checklist.WeeklyPoints"], points, Aion2Tickets.WeeklyPointsMax, false, countsUp: true);
-        }
-
-        // the two conversions come from the game (frames 0x8f8d at the login and 0x8b8d after a conversion); the hand tick (click = +1, right click = -1) stays for what the meter did not see
-        ChecklistManual.State own = ChecklistManual.Get(character.Name, now);
-        int convertBig = own.ConvertBig;
-        int convertSmall = own.ConvertSmall;
-        if (character.Tickets.TryGetValue(Aion2Tickets.ConvertServerId, out TicketValue serverConvert) && serverConvert.TimeMs > nowMs)
-        {
-            convertBig = Math.Max(convertBig, Math.Min(serverConvert.Count, ChecklistManual.ConvertBigMax));
-        }
-
-        if (character.Tickets.TryGetValue(Aion2Tickets.ConvertCharacterId, out TicketValue characterConvert) && characterConvert.TimeMs > nowMs)
-        {
-            convertSmall = Math.Max(convertSmall, Math.Min(characterConvert.Count, ChecklistManual.ConvertSmallMax));
-        }
-
-        AddTableRow(grid, row++, loc["Checklist.ConvertBig"], convertBig, ChecklistManual.ConvertBigMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertBig, d));
-        AddTableRow(grid, row++, loc["Checklist.ConvertSmall"], convertSmall, ChecklistManual.ConvertSmallMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertSmall, d));
         stack.Children.Add(grid);
-        _body.Children.Add(Card(stack));
+        return Card(stack);
     }
 
     private void StepManual(string character, ChecklistManual.Counter counter, int delta)
     {
         ChecklistManual.Step(character, counter, delta, DateTime.Now);
         Render();
-    }
-
-    /// <summary>One table row: name, number (one under the other) and, for the hand-counted ones, a click area (left click +1, right click -1).</summary>
-    private static void AddTableRow(Grid grid, int row, string name, int count, int cap, bool estimated, bool countsUp, int bonus = 0, Action<int>? step = null)
-    {
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        bool open = countsUp ? count < cap : count > 0;
-        TextBlock label = Label(name, open ? "Brush.Text" : "Brush.TextSubtle", 13);
-        label.Margin = new Thickness(0, 1, 0, 1);
-        Grid.SetRow(label, row);
-        grid.Children.Add(label);
-        AddNumberCells(grid, row, 1, count, cap, estimated, open, bonus);
-        if (step is not null)
-        {
-            var hit = new Border { Background = Brushes.Transparent, Cursor = Cursors.Hand, ToolTip = "+1: left click / -1: right click" };
-            Grid.SetRow(hit, row);
-            Grid.SetColumnSpan(hit, 4);
-            hit.MouseLeftButtonDown += (_, e) => { step(1); e.Handled = true; };
-            hit.MouseRightButtonDown += (_, e) => { step(-1); e.Handled = true; };
-            grid.Children.Add(hit);
-        }
     }
 
     /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>
@@ -508,7 +451,7 @@ public sealed class ChecklistWindow : Window
     private static readonly TimeSpan SoonLeft = TimeSpan.FromDays(3);
 
     /// <summary>The time left as days and hours ("11 d 23 h"), as hours under a day.</summary>
-    private static string LeftText(TimeSpan left)
+    internal static string LeftText(TimeSpan left)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         return left.TotalDays >= 1
@@ -535,12 +478,16 @@ public sealed class ChecklistWindow : Window
     }
 
     /// <summary>One line of the membership card: the name left, the time right (with a triangle when it runs out soon), and under it small lines.</summary>
-    private static void AddSubscriptionRow(StackPanel stack, string name, string right, string rightBrush, string? warnBrush, bool muted, params string[] notes)
+    private static void AddSubscriptionRow(StackPanel stack, string key, string name, string right, string rightBrush, string? warnBrush, bool muted, params string[] notes)
     {
         var grid = new Grid { Margin = new Thickness(0, 3, 0, 0) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        CheckBox pick = Pick(key);
+        grid.Children.Add(pick);
         TextBlock label = Label(name, muted ? "Brush.TextSubtle" : "Brush.Text", 13);
+        Grid.SetColumn(label, 1);
         var value = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         if (warnBrush is not null)
         {
@@ -550,7 +497,7 @@ public sealed class ChecklistWindow : Window
         }
 
         value.Children.Add(Label(right, rightBrush, 13, bold: true));
-        Grid.SetColumn(value, 1);
+        Grid.SetColumn(value, 2);
         grid.Children.Add(label);
         grid.Children.Add(value);
         stack.Children.Add(grid);
@@ -558,7 +505,7 @@ public sealed class ChecklistWindow : Window
         {
             TextBlock line = Label(note, warnBrush == "Brush.Danger" ? "Brush.Danger" : "Brush.TextSubtle", 11);
             line.TextWrapping = TextWrapping.Wrap;
-            line.Margin = new Thickness(0, 1, 0, 0);
+            line.Margin = new Thickness(24, 1, 0, 0);
             stack.Children.Add(line);
         }
     }
@@ -589,12 +536,12 @@ public sealed class ChecklistWindow : Window
             if (left > TimeSpan.Zero)
             {
                 bool soon = left < SoonLeft;
-                AddSubscriptionRow(stack, loc["Checklist.Premium"], LeftText(left), soon ? "Brush.Danger" : "Brush.Accent", soon ? "Brush.Danger" : null, false,
+                AddSubscriptionRow(stack, "sub:premium", loc["Checklist.Premium"], LeftText(left), soon ? "Brush.Danger" : "Brush.Accent", soon ? "Brush.Danger" : null, false,
                     string.Format(CultureInfo.CurrentCulture, loc["Checklist.Until"], end.ToString("g", CultureInfo.CurrentCulture)) + "  ·  " + gone);
             }
             else
             {
-                AddSubscriptionRow(stack, loc["Checklist.Premium"], string.Format(CultureInfo.CurrentCulture, loc["Checklist.PremiumEnded"], end.ToString("d", CultureInfo.CurrentCulture)), "Brush.Danger", "Brush.Danger", false,
+                AddSubscriptionRow(stack, "sub:premium", loc["Checklist.Premium"], string.Format(CultureInfo.CurrentCulture, loc["Checklist.PremiumEnded"], end.ToString("d", CultureInfo.CurrentCulture)), "Brush.Danger", "Brush.Danger", false,
                     loc["Checklist.PremiumNow"]);
             }
         }
@@ -607,12 +554,12 @@ public sealed class ChecklistWindow : Window
             if (loot.TimeMs > 0 && left > TimeSpan.Zero)
             {
                 bool soon = left < SoonLeft;
-                AddSubscriptionRow(stack, lootName, LeftText(left), "Brush.Accent", soon ? "Brush.Warning" : null, false,
+                AddSubscriptionRow(stack, "sub:autoloot", lootName, LeftText(left), "Brush.Accent", soon ? "Brush.Warning" : null, false,
                     string.Format(CultureInfo.CurrentCulture, loc["Checklist.Until"], end.ToString("g", CultureInfo.CurrentCulture)) + "  ·  " + loc["Checklist.AutoLootNote"]);
             }
             else
             {
-                AddSubscriptionRow(stack, lootName, loc["Checklist.AutoLootNone"], "Brush.TextSubtle", null, true);
+                AddSubscriptionRow(stack, "sub:autoloot", lootName, loc["Checklist.AutoLootNone"], "Brush.TextSubtle", null, true);
             }
         }
 
@@ -620,7 +567,7 @@ public sealed class ChecklistWindow : Window
         {
             TimeSpan left = Aion2Tickets.IsLocked(character, def.Id) || !character.Tickets.TryGetValue(def.Id, out TicketValue timeValue) ? TimeSpan.Zero : TimeSpan.FromMilliseconds(timeValue.TimeMs);
             bool open = left > TimeSpan.Zero;
-            AddSubscriptionRow(stack, def.NameIn(language), $"{(int)left.TotalHours}:{left.Minutes:00}", open ? "Brush.Accent" : "Brush.TextSubtle", null, !open);
+            AddSubscriptionRow(stack, "time:" + def.Id, def.NameIn(language), $"{(int)left.TotalHours}:{left.Minutes:00}", open ? "Brush.Accent" : "Brush.TextSubtle", null, !open);
         }
 
         _body.Children.Add(Card(stack));
@@ -645,12 +592,16 @@ public sealed class ChecklistWindow : Window
             int week = Math.Min(value.Bonus, pass.WeeklyLimit);
             bool full = value.Bonus >= pass.WeeklyLimit;
             var head = new Grid { Margin = new Thickness(0, 6, 0, 0) };
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            head.Children.Add(Label(loc[pass.NameKeyFor(character.ServerId)], "Brush.Text", 13, bold: true));
+            head.Children.Add(Pick("pass:" + pass.TicketId));
+            TextBlock passName = Label(loc[pass.NameKeyFor(character.ServerId)], "Brush.Text", 13, bold: true);
+            Grid.SetColumn(passName, 1);
+            head.Children.Add(passName);
             bool ended = DateTime.Now >= pass.End;
             TextBlock end = Label(string.Format(CultureInfo.CurrentCulture, loc[ended ? "Checklist.PassEnded" : "Checklist.PassEnds"], pass.End.ToString("g", CultureInfo.CurrentCulture)), "Brush.TextSubtle", 11);
-            Grid.SetColumn(end, 1);
+            Grid.SetColumn(end, 2);
             head.Children.Add(end);
             stack.Children.Add(head);
 
@@ -681,7 +632,7 @@ public sealed class ChecklistWindow : Window
 
     /// <summary>The item name of the weekly mandatory scroll as the game's own text has it in the language (assets/aion2/tickets/scrolls.json, built by
     /// Tools/aion2-dat/build_tickets.py); the table's text where the client has none for the language (the Chinese ones).</summary>
-    private static string ScrollName(string kind, string language, string fallback)
+    internal static string ScrollName(string kind, string language, string fallback)
     {
         if (_scrollNames is null)
         {

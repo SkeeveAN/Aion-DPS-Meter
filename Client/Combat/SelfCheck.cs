@@ -34,6 +34,7 @@ public static class SelfCheck
         ok &= SelfCheckSessions.Run();
         ok &= SelfCheckCombatOverlay.Run();
         ok &= SelfCheckPvp.Run();
+        ok &= SelfCheckNews.Run();
         ok &= SelfCheckRotation.Run();
         ok &= SelfCheckBuffUpload.Run();
         ok &= SelfCheckDummy.Run();
