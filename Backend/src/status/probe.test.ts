@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:net";
-import { probeEndpoint } from "./serverStatus.js";
+import { probeEndpoint, homeAddressOf } from "./serverStatus.js";
 
 const listen = (onConn: (s: import("node:net").Socket) => void) =>
   new Promise<{ port: number; close: () => void }>((resolve) => {
@@ -29,4 +29,15 @@ test("probe: nothing listening is down", async () => {
   const c = await probeEndpoint("127.0.0.1", port);
   assert.equal(c.up, false);
   assert.equal(c.behavior, null);
+});
+
+test("home addresses count up with the server id (checked against the uploads)", () => {
+  assert.equal(homeAddressOf(1301), "193.202.112.94");
+  assert.equal(homeAddressOf(1304), "193.202.112.97");
+  assert.equal(homeAddressOf(1318), "193.202.112.111");
+  assert.equal(homeAddressOf(1319), "193.202.112.229");
+  assert.equal(homeAddressOf(2301), "193.202.112.112");
+  assert.equal(homeAddressOf(2318), "193.202.112.129");
+  assert.equal(homeAddressOf(2321), "193.202.112.55");
+  assert.equal(homeAddressOf(1324), null);
 });
