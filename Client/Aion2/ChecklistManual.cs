@@ -39,6 +39,12 @@ public static class ChecklistManual
 
         /// <summary>Corridors the game gave no usage time at the Abyss join (0 with the refill reason): not available to this character for the period (the game says "Unavailable").</summary>
         public List<CorridorEntry> CorridorClosed { get; set; } = new();
+
+        /// <summary>Which side of the Abyss matchup holds each artifact of the lower level (Zone = artifact id 1001-1003, Side = 1 or 2), as the game sent it when the character entered the lower Abyss.</summary>
+        public List<OwnerEntry> CorridorOwners { get; set; } = new();
+
+        /// <summary>The side (1 or 2) this character's server fights on, learned from a corridor that was open to it (0 = not known yet); the corridors of the artifacts the other side holds are unavailable.</summary>
+        public int OurSide { get; set; }
     }
 
     /// <summary>One visit of an Abyss Corridor: when (Unix ms) and which one (zone id 503001 and up).</summary>
@@ -72,6 +78,7 @@ public static class ChecklistManual
             long ms = Ms(now);
             state.CorridorEntries.RemoveAll(e => e.Ms < ms - (long)CorridorKeep.TotalMilliseconds);
             state.CorridorEntries.Add(new CorridorEntry { Ms = ms, Zone = zone });
+            Calibrate(state, zone, now);
             Save();
         }
 
@@ -86,6 +93,77 @@ public static class ChecklistManual
         (503002, new() { ["en"] = "Archipelago of Siel's Wings", ["de"] = "Siels Schwingen-Archipel", ["fr"] = "Archipel des ailes de Siel", ["es"] = "Archipiélago Alas de Siel", ["ru"] = "Архипелаг крыльев Сиэль", ["pt"] = "Arquipélago de Asas de Siel", ["ja"] = "シエルの翼の群島", ["ko"] = "시엘의 날개 군도" }),
         (503003, new() { ["en"] = "Reshanta's Root", ["de"] = "Wurzel von Reshanta", ["fr"] = "Racines de Reshanta", ["es"] = "Raíces de Reshanta", ["ru"] = "Корни Арэшурата", ["pt"] = "Raiz de Reshanta", ["ja"] = "エレシュランタの根", ["ko"] = "에레슈란타의 뿌리" }),
     };
+
+    /// <summary>The holder of one artifact (see <see cref="State.CorridorOwners"/>).</summary>
+    public sealed class OwnerEntry
+    {
+        public long Ms { get; set; }
+        public int Artifact { get; set; }
+        public int Side { get; set; }
+    }
+
+    /// <summary>The artifact whose capture opens a corridor (ticket 10000002 = Sulfur Tree Island = artifact 1002, and so on, in the order of the client's artifact list).</summary>
+    public static int ArtifactOfZone(int zone) => zone switch { 503001 => 1002, 503002 => 1003, 503003 => 1001, _ => 0 };
+
+    /// <summary>The game sent the holders of the three artifacts of the lower Abyss (frame 0xe305, at every entry of the lower Abyss). The side of the character is learned from the corridors that were open to it.</summary>
+    public static void NoteCorridorOwners(string character, IReadOnlyList<(int Artifact, int Side)> owners, IReadOnlyDictionary<int, long> ticketTimes, DateTime now)
+    {
+        bool changed = false;
+        lock (Gate)
+        {
+            State state = Get(character, now);
+            long ms = Ms(now);
+            var fresh = owners.Select(o => new OwnerEntry { Ms = ms, Artifact = o.Artifact, Side = o.Side }).ToList();
+            changed = !state.CorridorOwners.Select(e => (e.Artifact, e.Side)).SequenceEqual(fresh.Select(e => (e.Artifact, e.Side))) || state.CorridorOwners.Any(e => e.Ms < Ms(LastCorridorReset(now)));
+            state.CorridorOwners = fresh;
+            // a corridor that is open (full time) is one of ours, whatever the tickets said at the login before
+            foreach ((int zone, _) in Corridors)
+            {
+                int ticket = zone switch { 503001 => 10000002, 503002 => 10000003, _ => 10000001 };
+                if (ticketTimes.TryGetValue(ticket, out long remaining) && remaining >= CorridorFullMs)
+                {
+                    changed |= Calibrate(state, zone, now);
+                }
+            }
+
+            changed |= CalibrateFromHistory(state, now);
+            if (changed)
+            {
+                Save();
+            }
+        }
+
+        if (changed)
+        {
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>The corridor was open to the character (a grant, a visit): the side holding its artifact is the character's side.</summary>
+    private static bool Calibrate(State state, int zone, DateTime now)
+    {
+        int artifact = ArtifactOfZone(zone);
+        OwnerEntry? owner = state.CorridorOwners.FirstOrDefault(o => o.Artifact == artifact && o.Ms >= Ms(LastCorridorReset(now)));
+        if (owner is null || owner.Side == state.OurSide)
+        {
+            return false;
+        }
+
+        state.OurSide = owner.Side;
+        return true;
+    }
+
+    private static bool CalibrateFromHistory(State state, DateTime now)
+    {
+        long from = Ms(LastCorridorReset(now));
+        bool changed = false;
+        foreach (CorridorEntry e in state.CorridorGrants.Concat(state.CorridorEntries).Where(e => e.Ms >= from))
+        {
+            changed |= Calibrate(state, e.Zone, now);
+        }
+
+        return changed;
+    }
 
     /// <summary>The usage time every corridor holds per period (the game's ticket: 130 seconds).</summary>
     public const long CorridorFullMs = 130_000;
@@ -121,6 +199,7 @@ public static class ChecklistManual
                 if (!state.CorridorGrants.Any(g => g.Ms >= from && g.Zone == zone))
                 {
                     state.CorridorGrants.Add(new CorridorEntry { Ms = Ms(now), Zone = zone });
+                    Calibrate(state, zone, now);
                     changed = true;
                 }
             }
@@ -150,7 +229,16 @@ public static class ChecklistManual
         lock (Gate)
         {
             long from = Ms(LastCorridorReset(now));
-            return Get(character, now).CorridorClosed.Any(g => g.Ms >= from && g.Zone == zone);
+            State state = Get(character, now);
+            if (state.CorridorClosed.Any(g => g.Ms >= from && g.Zone == zone))
+            {
+                return true;
+            }
+
+            // the other side holds the artifact of this corridor
+            int artifact = ArtifactOfZone(zone);
+            OwnerEntry? owner = state.CorridorOwners.FirstOrDefault(o => o.Artifact == artifact && o.Ms >= from);
+            return state.OurSide != 0 && owner is not null && owner.Side != state.OurSide;
         }
     }
 

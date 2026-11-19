@@ -78,6 +78,8 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>The achievements and season missions of the login (the week's points are read from it).</summary>
     private const int AchievementsOpcode = 0x8356;
+    /// <summary>The holders of the artifacts of one Abyss level, sent at every entry of the level (bytes 05 e3): <c>zone (23 bytes: flag, zone id u32 = 1001 for the lower Abyss, count, kind, start u64, end u64) | n | n x (artifact id u32, object u32, side u8, 8 bytes)</c>.</summary>
+    private const int AbyssArtifactZoneOpcode = 0x05e3;
     private const int MissionListOpcode = 0x1c8d;
     private const int MembershipOpcode = 0x3be3;
     /// <summary>The Daeva pass state (<see cref="Aion2Tickets.TryParsePass"/>): at login with both passes, later one entry per change.</summary>
@@ -984,6 +986,28 @@ public sealed class Aion2FrameDecoder
         if (opcode == Aion2Recipes.Opcode)
         {
             Aion2Recipes.Note(frame);
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == AbyssArtifactZoneOpcode)
+        {
+            if (Aion2Tickets.TryParseAbyssOwners(frame, out List<(int Artifact, int Side)> owners) && Aion2Tickets.CurrentName is { Length: > 0 } who)
+            {
+                var times = new Dictionary<int, long>();
+                if (Aion2Tickets.Snapshot().FirstOrDefault(c => c.Name == who) is { } known)
+                {
+                    foreach (int id in new[] { 10000001, 10000002, 10000003 })
+                    {
+                        if (known.Tickets.TryGetValue(id, out TicketValue value))
+                        {
+                            times[id] = value.TimeMs;
+                        }
+                    }
+                }
+
+                ChecklistManual.NoteCorridorOwners(who, owners, times, DateTime.Now);
+            }
+
             return Array.Empty<DamageEvent>();
         }
 

@@ -305,7 +305,13 @@ public static class SelfCheckTickets
         bool partUsed = ChecklistManual.CorridorEntered("Nunzio", 503002, thu.AddHours(2));
         ChecklistManual.NoteCorridorTime("Nunzio", 10000001, 0, thu.AddHours(2), atJoin: true);
         bool closedAtJoin = ChecklistManual.CorridorClosed("Nunzio", 503003, thu.AddHours(2)) && !ChecklistManual.CorridorClosed("Nunzio", 503003, new DateTime(2026, 11, 21, 21, 31, 0));
-        corridorKept = corridorKept && closedAtJoin && openNotEntered && usedUp && zeroAlone && partUsed;
+        // the holders of the artifacts (a frame from the recording of 20 November: 1001 held by side 2, 1002 and 1003 by side 1) and a corridor that was open (full time) = our side is 1, so the Roots of Reshanta are closed
+        bool ownersRead = Aion2Tickets.TryParseAbyssOwners(Convert.FromHexString("05e301e9030000030190667af5a1010000c0e1baffa101000003e9030000f1c81000020000000000000000ea030000f3c81000010000000000000000eb030000f5c81000010000000000000000"), out var owners)
+            && owners.Count == 3 && owners[0] == (1001, 2) && owners[1] == (1002, 1);
+        ChecklistManual.NoteCorridorTime("Chumley", 10000002, 130000, thu.AddHours(3));
+        ChecklistManual.NoteCorridorOwners("Chumley", owners, new Dictionary<int, long>(), thu.AddHours(3));
+        bool ownerClosed = ChecklistManual.CorridorClosed("Chumley", 503003, thu.AddHours(3)) && !ChecklistManual.CorridorClosed("Chumley", 503001, thu.AddHours(3)) && !ChecklistManual.CorridorClosed("Chumley", 503002, thu.AddHours(3));
+        corridorKept = corridorKept && ownersRead && ownerClosed && closedAtJoin && openNotEntered && usedUp && zeroAlone && partUsed;
         Console.WriteLine($"  -> abyss corridor entries per character, kept after reload={corridorKept}");
         ChecklistManual.PathOverride = null;
         ChecklistManual.Reset();

@@ -141,6 +141,38 @@ public static class Aion2Tickets
         return false;
     }
 
+    /// <summary>The frame <c>0xe305</c> (entering the lower Abyss): which side holds each of the three artifacts. The frame must read to its last byte.</summary>
+    public static bool TryParseAbyssOwners(ReadOnlySpan<byte> frame, out List<(int Artifact, int Side)> owners)
+    {
+        owners = new List<(int, int)>();
+        const int Head = 2 + 23;
+        if (frame.Length < Head + 1 || BinaryPrimitives.ReadUInt32LittleEndian(frame[3..]) != 1001)
+        {
+            return false;
+        }
+
+        int count = frame[Head];
+        if (count is < 1 or > 6 || frame.Length != Head + 1 + 17 * count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            int p = Head + 1 + 17 * i;
+            int artifact = (int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]);
+            int side = frame[p + 8];
+            if (artifact is < 1001 or > 1003 || side is < 1 or > 2)
+            {
+                return false;
+            }
+
+            owners.Add((artifact, side));
+        }
+
+        return true;
+    }
+
     private sealed class Saved
     {
         public List<SavedCharacter> Characters { get; set; } = new();
