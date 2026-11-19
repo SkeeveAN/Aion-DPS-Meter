@@ -78,7 +78,7 @@ public static class Aion2Tickets
     /// <summary>Since November the shop sells the Odyle energy as two goods: 4 a week per character (counter 1209) and 16 a week per server (counter 1210), 20 together (the old counter 100134 is gone).
     /// The server one is a ticket of our own as well (it is the same in the list of every character).</summary>
     public const int ShopOdyleCounter = 1209;
-    public const int ShopOdyleServerId = 99000004;
+    public const int ShopOdyleServerId = 99000008;
     public const int ShopOdyleServerCounter = 1210;
     /// <summary>The two weekly conversions of Odyle energy (recipe 31070001 / 32070001 = 16 a week per server, 31070002 / 32070002 = 4 a week per character; Elyos / Asmodians): tickets of our own again,
     /// the reset time is the next Wednesday 16:00 Korean time (the game does not send one).</summary>
@@ -91,7 +91,7 @@ public static class Aion2Tickets
 
     /// <summary>The week's points of the season missions (the weekly reward steps 1,500 / 3,000 / 4,500 / 6,000 / 8,000) as a ticket of our own: count = points, time = when the game
     /// last changed it (ms since 1970). The id is no game id; the game's own achievement id is <see cref="WeeklyPointsAchievement"/>.</summary>
-    public const int WeeklyPointsId = 99000004;
+    public const int WeeklyPointsId = 99000007;
     public const int WeeklyPointsAchievement = 210000100;
     public const int WeeklyPointsMax = 8000;
 
