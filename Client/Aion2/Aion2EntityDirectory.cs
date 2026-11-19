@@ -3325,13 +3325,42 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             {
                 // The roster's leftover name is safe here: the local player is not named yet, so its
                 // own name is still among the leftovers, and a single leftover is it.
-                registered = _configuredLocalName
-                    ?? (_character is { Restored: true } saved && saved.Name.Length > 0 ? saved.Name : null)
-                    ?? LocalRosterName();
+                // A remembered name that is not in the known group cannot be the one being played (a twink of the
+                // same account is never in the same instance), so it is never put on a row then.
+                registered = OwnNameInParty()
+                    ?? (RememberedOwnName() is { } remembered && (_party.Count <= 1 || _party.Contains(remembered))
+                        ? remembered
+                        : LocalRosterName());
             }
         }
 
         return registered ?? (ClassOf(id) is not null ? $"Player #{id}" : null);
+    }
+
+    // Called under _gate. The name remembered from an earlier session (Settings or the saved character record).
+    private string? RememberedOwnName()
+        => _configuredLocalName ?? (_character is { Restored: true } saved && saved.Name.Length > 0 ? saved.Name : null);
+
+    // Called under _gate. The character of the own account (the login's character list) that stands in the current group,
+    // when exactly one does: that is the one being played, whatever name was remembered from the last session
+    // (a twink of the same account is never in the same group at once).
+    private string? OwnNameInParty()
+    {
+        string? found = null;
+        foreach (string name in _party)
+        {
+            if (_accountLegions.ContainsKey(name))
+            {
+                if (found is not null)
+                {
+                    return null;
+                }
+
+                found = name;
+            }
+        }
+
+        return found;
     }
 
     // Called under _gate. True when something other than `id` is the local player: the explicit id
@@ -3343,7 +3372,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             return _explicitLocalId != id;
         }
 
-        string? own = _configuredLocalName ?? (_character is { Restored: true } saved ? saved.Name : null);
+        string? own = OwnNameInParty() ?? _configuredLocalName ?? (_character is { Restored: true } saved ? saved.Name : null);
         return own is not null && _ids.TryGetValue(own, out int owner) && owner != id;
     }
 
