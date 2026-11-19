@@ -902,6 +902,13 @@
      "Backend"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Checklist: a small on/off switch in front of every element (Odyle energy, entry counters, daily and weekly counters, membership, access times, Daeva passes) chooses what the checklist widget and its overlay show, the Odyle energy reads like on the guild list (60 (+1.595) (+3.880)), the widget is called Checklist",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },
