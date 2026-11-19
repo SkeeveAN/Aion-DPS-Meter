@@ -476,7 +476,7 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
   );
 
   const worldBoss = isWorldBossId(bossId);
-  let best: { encounterId: number; similarity: number } | null = null;
+  let best: { encounterId: number; similarity: number; shiftMs: number } | null = null;
   for (const candidate of timeCandidates) {
     const existingRoster = db
       .select({ name: players.name, totalDamage: encounterParticipants.totalDamage })
@@ -500,7 +500,8 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
           return other !== undefined && withinRelativeTolerance(other, p.totalDamage, DAMAGE_MATCH_TOLERANCE);
         });
       if (identical && (!best || best.similarity < 1)) {
-        best = { encounterId: candidate.id, similarity: 1 };
+        // the upload's clock is off: its times are moved onto the encounter's (start to start) before it is merged, or the run would grow by the offset
+        best = { encounterId: candidate.id, similarity: 1, shiftMs: Date.parse(candidate.startedAt) - startedAtMs };
       }
       continue;
     }
@@ -514,11 +515,11 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
       worldBoss && payload.bossMaxHp !== undefined && candidate.bossMaxHp === payload.bossMaxHp ? 1 : 0,
     );
     if (similarity >= ROSTER_SIMILARITY_THRESHOLD && (!best || similarity > best.similarity)) {
-      best = { encounterId: candidate.id, similarity };
+      best = { encounterId: candidate.id, similarity, shiftMs: 0 };
     }
   }
 
-  return best?.encounterId ?? null;
+  return best ? { encounterId: best.encounterId, shiftMs: best.shiftMs } : null;
 }
 
 /** Shared by insertParticipant/overwriteParticipant for both the damage and heal skill lists -
@@ -1129,9 +1130,18 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
   if (!isWorldBossId(bossId)) {
     learnSpawnHp(payload.bossNpcId, payload.bossSpawnMaxHp);
   }
-  const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
+  const candidate = findCandidateEncounter(bossId, serverId, payload);
 
-  if (candidateEncounterId) {
+  if (candidate) {
+    const candidateEncounterId = candidate.encounterId;
+    if (candidate.shiftMs !== 0) {
+      payload = {
+        ...payload,
+        startedAt: new Date(Date.parse(payload.startedAt) + candidate.shiftMs).toISOString(),
+        endedAt: new Date(Date.parse(payload.endedAt) + candidate.shiftMs).toISOString(),
+      };
+      uploadOrigin = payload.startedAt;
+    }
     mergeIntoEncounter(candidateEncounterId, serverId, bossId, payload);
     storeBossHp(candidateEncounterId, payload.bossHp ?? []);
     storeBossDebuffs(candidateEncounterId, payload.bossDebuffs ?? []);

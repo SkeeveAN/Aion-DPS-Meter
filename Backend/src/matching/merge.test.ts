@@ -96,6 +96,9 @@ test("an upload with a clock 20 s off still merges when the roster and every pla
   const shifted = processUpload(three({ startedAt: "2026-03-01T20:06:29.900Z", endedAt: "2026-03-01T20:09:44.700Z" }));
   assert.equal(shifted.status, "merged");
   assert.equal(shifted.encounterId, first.encounterId);
+  const stored = db.select({ ended: encounters.endedAt, started: encounters.startedAt }).from(encounters).where(eq(encounters.id, first.encounterId)).get();
+  assert.ok(Math.abs(Date.parse(stored!.ended) - Date.parse("2026-03-01T20:09:24.500Z")) < 1500, "the shifted end does not stretch the run");
+  assert.ok(Math.abs(Date.parse(stored!.started) - Date.parse("2026-03-01T20:06:09.000Z")) < 1500);
 });
 
 test("a shifted upload does not merge when the damage differs or a name is missing", () => {
