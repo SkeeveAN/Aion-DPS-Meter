@@ -4683,6 +4683,20 @@ button.cmp-mem { cursor: pointer; }
 .status-tile.down { --c: var(--color-danger); }
 .status-tile b { display: block; font-size: 19px; }
 .status-tile small { color: var(--color-text-muted); font-size: 11px; }
+.sv-cols { display: grid; gap: 22px; align-items: start; margin-top: 18px; }
+.sv-col { min-width: 0; --fc: var(--color-text-muted); }
+.sv-col .status-sec { display: block; margin: 0 0 6px; }
+.sv-col .status-sec strong { display: block; font-size: 15px; }
+.sv-col .status-sec small { display: block; margin-top: 1px; }
+.sv-col .status-sec .status-meter { max-width: none; width: 100%; margin-top: 7px; }
+.sv-sub { display: flex; align-items: center; gap: 6px; height: 20px; margin: 2px 0 10px; font-size: 12px; white-space: nowrap; color: var(--color-text-muted); }
+.sv-info { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--color-text-muted); font: italic 700 10px/1 serif; cursor: help; }
+.sv-col .status-tile { width: calc((100% - 6px * (var(--n) - 1)) / var(--n)); box-sizing: border-box; min-width: 0; border-left: 4px solid var(--fc); }
+.sv-col-elyos { --fc: #6fb7ff; }
+.sv-col-asmodian { --fc: #ff9b6a; }
+.sv-col-instance { --fc: #e0b84a; }
+.sv-name { display: block; margin: 1px 0 2px; font-size: 12.5px; font-style: normal; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: color-mix(in srgb, var(--fc) 70%, var(--color-text)); }
+.sv-col-unknown .sv-name { font-weight: 400; color: var(--color-text-muted); }
 .status-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0; font-size: 13px; color: var(--color-text-muted); }
 .status-legend span { display: inline-flex; align-items: center; gap: 6px; }
 

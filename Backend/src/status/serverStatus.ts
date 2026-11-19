@@ -1,6 +1,7 @@
 import { connect } from "node:net";
 import { sqlite } from "../db/client.js";
 import { env } from "../env.js";
+import { baseNameOf } from "../content/aion2Servers.js";
 import { maintenanceNotice, refreshMaintenance, type MaintenanceNotice } from "./maintenance.js";
 
 export type Kind = "login" | "game";
@@ -9,6 +10,8 @@ export type State = "up" | "down" | "unknown" | "maintenance";
 export type Behavior = "open" | "reset";
 
 export type Region = "eu" | "latam" | "nae" | "naw" | "asia";
+/** What an address is: the home server of one world, a server shared by all worlds (dungeons, transcendence, Ludra, Abyss ...), or not (yet) told. */
+export type Role = "home" | "instance" | "unknown";
 
 interface Endpoint {
   kind: Kind;
@@ -16,6 +19,9 @@ interface Endpoint {
   port: number;
   /** Game addresses only: the region of the players who connected to it (null when unknown). */
   region?: Region | null;
+  role?: Role;
+  /** Home addresses only: the id of the world (1301 = Siel, Elyos; 2301 = Israphel, Asmodian). */
+  serverId?: number | null;
 }
 
 interface Sample {
@@ -29,6 +35,12 @@ export interface EndpointStatus {
   kind: Kind;
   address: string;
   region: Region | null;
+  /** Game addresses: home server, shared (instance) server or unknown; login addresses: null. */
+  role: Role | null;
+  serverId: number | null;
+  /** The world's own name (English, as in the database; the site shows the reader's language) and its faction. */
+  serverName: string | null;
+  faction: "elyos" | "asmodian" | null;
   state: State;
   latencyMs: number | null;
   checkedAt: string | null;
@@ -41,7 +53,7 @@ export interface EndpointStatus {
 const PROBE_INTERVAL_MS = 60_000;
 const PROBE_TIMEOUT_MS = 4_000;
 const KEEP_SAMPLES = 1_440;
-const MAX_GAME_ENDPOINTS = 150;
+const MAX_GAME_ENDPOINTS = 200;
 const HOLD_MS = 1_500;
 // The game servers answer on this port and live in these two NCSoft ranges (every address seen in the uploads so far).
 // The address in an upload comes from the client, so only an address inside the known ranges is ever probed.
@@ -55,6 +67,21 @@ const REGION_DIGITS: Record<string, Region> = { "1": "nae", "2": "naw", "3": "eu
 export function regionOfServerId(id: number | null): Region | null {
   return id === null || id < 1000 || id > 9999 ? null : (REGION_DIGITS[String(id)[1]] ?? null);
 }
+
+// European home servers have one fixed address each, counted up with the server id (found in the uploads: for 52 ids the address with most uploads
+// belongs to this id alone). Elyos 1301-1318 sit on .94-.111, 1319-1323 on .229-.233; Asmodians 2301-2318 on .112-.129, 2319-2323 on .53-.57.
+// These addresses are always checked, also when no upload named them in the last 14 days.
+const HOME_BLOCK = "193.202.112.";
+export function homeAddressOf(id: number): string | null {
+  if (id >= 1301 && id <= 1318) return `${HOME_BLOCK}${93 + id - 1300}`;
+  if (id >= 1319 && id <= 1323) return `${HOME_BLOCK}${229 + id - 1319}`;
+  if (id >= 2301 && id <= 2318) return `${HOME_BLOCK}${111 + id - 2300}`;
+  if (id >= 2319 && id <= 2323) return `${HOME_BLOCK}${34 + id - 2300}`;
+  return null;
+}
+const HOME_IDS = [...Array.from({ length: 23 }, (_, i) => 1301 + i), ...Array.from({ length: 23 }, (_, i) => 2301 + i)];
+/** An address that served uploads of this many different worlds is shared by them. */
+const SHARED_MIN_WORLDS = 3;
 
 const history = new Map<string, Sample[]>();
 let started = false;
@@ -74,34 +101,60 @@ function loginEndpoints(): Endpoint[] {
     });
 }
 
-/** Game server addresses the clients reported in the last 14 days. Which world sits behind an address is not known, so none is claimed. */
-function gameEndpoints(): Endpoint[] {
+/** Game server addresses: the known home addresses plus the ones the clients reported in the last 14 days (shared ones are told by the worlds they served). */
+function buildGameEndpoints(): Endpoint[] {
   const rows = sqlite
     .prepare(
       `select game_server addr, client_server_id sid, count(*) n from uploads
        where game_server is not null and received_at >= datetime('now', '-14 days') group by game_server, client_server_id`,
     )
     .all() as { addr: string; sid: number | null; n: number }[];
-  const byAddr = new Map<string, { n: number; regions: Map<Region, number> }>();
+  // How many different worlds an address ever served (all time: a shared server stays shared when it was quiet for two weeks).
+  const worlds = new Map(
+    (
+      sqlite
+        .prepare(`select game_server addr, count(distinct client_server_id) c from uploads where game_server is not null group by game_server`)
+        .all() as { addr: string; c: number }[]
+    ).map((r) => [r.addr, r.c]),
+  );
+  const home = new Map<string, number>();
+  for (const id of HOME_IDS) {
+    const ip = homeAddressOf(id);
+    if (ip) home.set(`${ip}:${GAME_PORT}`, id);
+  }
+  const byAddr = new Map<string, Map<Region, number>>();
   for (const r of rows) {
-    const e = byAddr.get(r.addr) ?? { n: 0, regions: new Map() };
-    e.n += r.n;
+    const regions = byAddr.get(r.addr) ?? new Map<Region, number>();
     const region = regionOfServerId(r.sid);
     if (region) {
-      e.regions.set(region, (e.regions.get(region) ?? 0) + r.n);
+      regions.set(region, (regions.get(region) ?? 0) + r.n);
     }
-    byAddr.set(r.addr, e);
+    byAddr.set(r.addr, regions);
+  }
+  for (const addr of home.keys()) {
+    if (!byAddr.has(addr)) byAddr.set(addr, new Map());
   }
   const out: Endpoint[] = [];
-  for (const [addr, e] of byAddr) {
+  for (const [addr, regions] of byAddr) {
     const m = /^(\d{1,3}(?:\.\d{1,3}){3}):(\d{1,5})$/.exec(addr);
     if (!m || Number(m[2]) !== GAME_PORT || !GAME_RANGES.some((re) => re.test(m[1]))) {
       continue;
     }
-    const region = [...e.regions.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-    out.push({ kind: "game", host: m[1], port: GAME_PORT, region });
+    const serverId = home.get(addr) ?? null;
+    const role: Role = serverId !== null ? "home" : (worlds.get(addr) ?? 0) >= SHARED_MIN_WORLDS ? "instance" : "unknown";
+    const region = serverId !== null ? "eu" : ([...regions.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null);
+    out.push({ kind: "game", host: m[1], port: GAME_PORT, region, role, serverId });
   }
   return out.sort((a, b) => a.host.localeCompare(b.host, "en", { numeric: true })).slice(0, MAX_GAME_ENDPOINTS);
+}
+
+// The list changes slowly; the snapshot (one request per visitor) and every probe round read it, so it is built at most every five minutes.
+let gameCache: { at: number; list: Endpoint[] } | null = null;
+function gameEndpoints(): Endpoint[] {
+  if (!gameCache || Date.now() - gameCache.at > 300_000) {
+    gameCache = { at: Date.now(), list: buildGameEndpoints() };
+  }
+  return gameCache.list;
 }
 
 function endpoints(): Endpoint[] {
@@ -197,6 +250,10 @@ export function statusSnapshot(now = Date.now()): {
       kind: e.kind,
       address: keyOf(e),
       region: e.region ?? null,
+      role: e.kind === "game" ? (e.role ?? "unknown") : null,
+      serverId: e.serverId ?? null,
+      serverName: e.serverId ? baseNameOf(e.serverId) : null,
+      faction: e.serverId ? (e.serverId < 2000 ? "elyos" : "asmodian") : null,
       state,
       latencyMs: last?.up ? last.ms : null,
       checkedAt: last ? new Date(last.at).toISOString() : null,

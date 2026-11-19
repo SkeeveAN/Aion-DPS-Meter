@@ -1710,35 +1710,42 @@ async function renderStatus() {
       ]);
     }));
 
-    // The chosen region: one tile per address, grouped by network block.
-    const blocks = new Map();
-    for (const sv of inRegion(statusRegion)) {
-      const key = sv.address.split(".").slice(0, 3).join(".");
-      blocks.set(key, [...(blocks.get(key) ?? []), sv]);
-    }
+    // The chosen region in columns: the home servers of the Elyos and of the Asmodians (one fixed address per world, with the world's name), the servers
+    // shared by all worlds (dungeons, transcendence, Abyss ...) and the addresses not told yet. Each column is as wide as its number of tiles per row.
+    const inChosen = statusRegion ? inRegion(statusRegion) : [];
+    const roleOf = (x) => x.role ?? "unknown";
+    const columns = [
+      { key: "elyos", title: "Elyos", sub: t("status.subHome"), info: t("status.infoHome"), n: 3, list: inChosen.filter((x) => roleOf(x) === "home" && x.faction === "elyos").sort((a, b) => a.serverId - b.serverId) },
+      { key: "asmodian", title: "Asmodian", sub: t("status.subHome"), info: t("status.infoHome"), n: 3, list: inChosen.filter((x) => roleOf(x) === "home" && x.faction === "asmodian").sort((a, b) => a.serverId - b.serverId) },
+      { key: "instance", title: t("status.colShared"), sub: t("status.subShared"), info: t("status.infoShared"), n: 5, list: inChosen.filter((x) => roleOf(x) === "instance") },
+      { key: "unknown", title: t("status.unknown"), sub: t("status.subUnknown"), info: t("status.infoUnknown"), n: 1, list: inChosen.filter((x) => roleOf(x) === "unknown" || (roleOf(x) === "home" && !x.faction)) },
+    ].filter((c) => c.list.length);
+    const tileOf = (sv, col) => el("div", {
+      className: `status-tile ${sv.state} sv-${col.key}`,
+      title: `${sv.serverName ? `${serverLabel(sv.serverName)} · ` : ""}${sv.address} · ${label[sv.state]} · ${t("status.colUptime")} ${pct(sv.uptime24h)} · ${ago(sv.checkedAt)}${sv.behavior ? ` · ${t(`status.behavior.${sv.behavior}`)}` : ""}`,
+    }, [
+      el("b", { textContent: `.${sv.address.split(":")[0].split(".")[3]}` }),
+      el("em", { className: "sv-name", textContent: sv.serverName ? serverLabel(sv.serverName) : col.key === "instance" ? t("status.colShared") : t("status.unknown") }),
+      el("small", { textContent: sv.latencyMs === null ? label[sv.state] : `${sv.latencyMs} ms` }),
+    ]);
     const panel = statusRegion
       ? el("section", { className: "status-panel" }, [
           el("div", { className: "status-panel-head" }, [
             el("h3", { textContent: regionName(statusRegion) }),
-            el("span", { textContent: t("status.panelCount", { n: inRegion(statusRegion).length, blocks: blocks.size }) }),
+            el("span", { textContent: t("status.panelCount", { n: inChosen.length }) }),
           ]),
-          ...[...blocks.entries()].sort((a, b) => a[0].localeCompare(b[0], "en", { numeric: true })).flatMap(([key, list]) => {
-            const ok = list.filter(reached).length;
-            return [
+          el("div", { className: "sv-cols", style: `grid-template-columns:${columns.map((c) => `${c.n}fr`).join(" ")}` }, columns.map((col) => {
+            const ok = col.list.filter(reached).length;
+            return el("div", { className: `sv-col sv-col-${col.key}`, style: `--n:${col.n}` }, [
               el("div", { className: "status-sec" }, [
-                el("strong", { textContent: `${key}.x` }),
-                el("small", { textContent: t("status.blockCount", { up: ok, total: list.length }) }),
-                el("div", { className: `status-meter ${worst(list)}` }, [el("span", { style: `width:${Math.round((ok / list.length) * 100)}%` })]),
+                el("strong", { textContent: col.title }),
+                el("small", { textContent: t("status.blockCount", { up: ok, total: col.list.length }) }),
+                el("div", { className: `status-meter ${worst(col.list)}` }, [el("span", { style: `width:${Math.round((ok / col.list.length) * 100)}%` })]),
               ]),
-              el("div", { className: "status-tiles" }, list.map((sv) => el("div", {
-                className: `status-tile ${sv.state}`,
-                title: `${sv.address} · ${label[sv.state]} · ${t("status.colUptime")} ${pct(sv.uptime24h)} · ${ago(sv.checkedAt)}${sv.behavior ? ` · ${t(`status.behavior.${sv.behavior}`)}` : ""}`,
-              }, [
-                el("b", { textContent: `.${sv.address.split(":")[0].split(".")[3]}` }),
-                el("small", { textContent: sv.latencyMs === null ? label[sv.state] : `${sv.latencyMs} ms` }),
-              ]))),
-            ];
-          }),
+              el("p", { className: "sv-sub" }, [el("span", { textContent: col.sub }), el("i", { className: "sv-info", tabIndex: 0, title: col.info, textContent: "i" })]),
+              el("div", { className: "status-tiles" }, col.list.map((sv) => tileOf(sv, col))),
+            ]);
+          })),
         ])
       : el("p", { className: "empty", textContent: t("status.gameNone") });
 

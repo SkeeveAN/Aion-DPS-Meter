@@ -25,6 +25,17 @@ const REGIONS: Record<number, { name: string; perFaction: number }> = {
   5: { name: "Asia", perFaction: 10 },
 };
 
+/** The server's own name without the region ("Kaisinel"), or null when the id is not on the list. Same table as nameOf. */
+export function baseNameOf(serverId: number): string | null {
+  const faction = Math.floor(serverId / 1000);
+  const block = Math.floor(serverId / 100) % 10;
+  const index = (serverId % 100) - 1;
+  if ((faction !== 1 && faction !== 2) || index < 0 || block > 5) {
+    return null;
+  }
+  return (faction === 1 ? (block === 0 ? ELYOS_10 : ELYOS_13) : block === 0 ? ASMO_20 : ASMO_23)[index] ?? null;
+}
+
 export function nameOf(serverId: number): string | null {
   const faction = Math.floor(serverId / 1000);
   const block = Math.floor(serverId / 100) % 10;
