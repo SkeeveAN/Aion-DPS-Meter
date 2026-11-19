@@ -36,6 +36,27 @@ public static class ChecklistRows
         settings.Save();
     }
 
+    /// <summary>The entries of Shugofesta, the Dimensional Invasion and the daily dungeon are one counter for the whole account (the game's ticket says "per server"): every character of the account shows the
+    /// reading of the one that was seen last, with the time of that reading, so a character that has not been in game for days no longer shows its old number.</summary>
+    private static (Aion2.TicketValue Value, DateTime SeenAt, bool Found) AccountReading(Aion2.TicketCharacter character, Aion2.TicketDef def, DateTime seenAt)
+    {
+        bool own = character.Tickets.TryGetValue(def.Id, out Aion2.TicketValue ownValue);
+        if (!def.PerServer || character.Account is not { Length: > 0 } account)
+        {
+            return (ownValue, seenAt, own);
+        }
+
+        Aion2.TicketCharacter? best = Aion2.Aion2Tickets.Snapshot()
+            .Where(c => c.Account == account && c.Tickets.ContainsKey(def.Id))
+            .OrderByDescending(c => c.SavedAt).FirstOrDefault();
+        if (best is not null && (!own || best.SavedAt > seenAt))
+        {
+            return (best.Tickets[def.Id], best.SavedAt, true);
+        }
+
+        return (ownValue, seenAt, own);
+    }
+
     public static List<ChecklistRow> Build(Aion2.TicketCharacter character, DateTime seenAt, DateTime now, bool premium, string language)
     {
         LocalizationManager loc = LocalizationManager.Instance;
@@ -44,14 +65,20 @@ public static class ChecklistRows
 
         foreach (int id in OverviewIds)
         {
-            if (Aion2.Aion2Tickets.Find(id) is not { } def || !(character.Tickets.ContainsKey(id) || Aion2.Aion2Tickets.IsLocked(character, id)))
+            if (Aion2.Aion2Tickets.Find(id) is not { } def)
+            {
+                continue;
+            }
+
+            (Aion2.TicketValue reading, DateTime readAt, bool has) = AccountReading(character, def, seenAt);
+            if (!(has || Aion2.Aion2Tickets.IsLocked(character, id)))
             {
                 continue;
             }
 
             bool locked = Aion2.Aion2Tickets.IsLocked(character, id); // the level is too low: grey, 0 / cap
-            Aion2.TicketValue own = locked || !character.Tickets.TryGetValue(id, out Aion2.TicketValue found) ? default : found;
-            int count = locked ? 0 : Aion2.Aion2Tickets.Expected(def, own.Count, seenAt, now, premium);
+            Aion2.TicketValue own = locked || !has ? default : reading;
+            int count = locked ? 0 : Aion2.Aion2Tickets.Expected(def, own.Count, readAt, now, premium);
             rows.Add(new ChecklistRow("ticket:" + id, ChecklistGroup.Overview, def.ShortIn(language), count, Math.Max(CapOf(def), count + own.Bonus), count != own.Count, true, own.Bonus, def));
         }
 
@@ -92,10 +119,10 @@ public static class ChecklistRows
         // weekly: the "Daily Dungeon" counter (cap 14, extra entries behind it as the bonus), the scroll purchases, the trade guild, the season points, the conversions
         Aion2.ChecklistManual.State shared = Aion2.ChecklistManual.Get(Aion2.ChecklistManual.SharedKey, now);
         bool dungeonLocked = Aion2.Aion2Tickets.IsLocked(character, DailyDungeonTicket);
-        if (Aion2.Aion2Tickets.Find(DailyDungeonTicket) is { } dungeon && (dungeonLocked || character.Tickets.ContainsKey(dungeon.Id)))
+        if (Aion2.Aion2Tickets.Find(DailyDungeonTicket) is { } dungeon && AccountReading(character, dungeon, seenAt) is var (dungeonReading, dungeonAt, dungeonHas) && (dungeonLocked || dungeonHas))
         {
-            Aion2.TicketValue value = dungeonLocked ? default : character.Tickets[dungeon.Id];
-            int count = dungeonLocked ? 0 : Aion2.Aion2Tickets.Expected(dungeon, value.Count, seenAt, now, premium);
+            Aion2.TicketValue value = dungeonLocked ? default : dungeonReading;
+            int count = dungeonLocked ? 0 : Aion2.Aion2Tickets.Expected(dungeon, value.Count, dungeonAt, now, premium);
             rows.Add(new ChecklistRow("ticket:" + DailyDungeonTicket, ChecklistGroup.Weekly, dungeon.ShortIn(language), count, Math.Max(dungeon.Max, count), count != value.Count, false, value.Bonus, dungeon));
         }
 
