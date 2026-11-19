@@ -178,5 +178,13 @@
  "Shugofesta, the Dimensional Invasion and the daily dungeon count for the whole account on the checklist": {
   "en": "Checklist: entries counted per account",
   "de": "Checkliste: Einträge pro Account gezählt"
+ },
+ "Tools without settings of their own show their page directly: no Settings tab that only says there is nothing to set, and no tab bar for a single tab": {
+  "en": "Tools without settings show their page without tabs",
+  "de": "Tools ohne Einstellungen zeigen ihre Seite ohne Tabs"
+ },
+ "Shugofesta, the Dimensional Invasion and the daily dungeon count for the whole account on the checklist, and tools without settings show their page without a tab bar": {
+  "en": "Checklist counts per account, no empty settings tabs",
+  "de": "Checkliste pro Account, keine leeren Einstellungen-Tabs"
  }
 }

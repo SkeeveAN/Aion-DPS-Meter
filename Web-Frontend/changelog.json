@@ -1,10 +1,17 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.0.4",
   "date": "2026-11-20",
   "items": [
    {
     "text": "Tools without settings of their own show their page directly: no Settings tab that only says there is nothing to set, and no tab bar for a single tab",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "Shugofesta, the Dimensional Invasion and the daily dungeon count for the whole account on the checklist, and tools without settings show their page without a tab bar",
     "areas": [
      "Client"
     ],
