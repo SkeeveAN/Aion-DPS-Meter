@@ -31,6 +31,13 @@ import { askAboutRenamed, noteClassHint, noteLevelHint, checkPlayers, noteClient
 const TIME_TOLERANCE_SECONDS = 20;
 /** The START may differ more: an uploader who joined late or whose first hit came later saw the fight begin up to half a minute after the others (three runs 20-22 s apart were not merged). */
 const START_TOLERANCE_SECONDS = 60;
+/**
+ * An upload whose clock is off (a computer that runs 20 s fast: start and end both shifted, the length right) falls outside the windows above. It still counts as the same fight
+ * when the roster is exactly the same and every player's damage agrees - that is a stronger sign than the time - within this wider window (shorter than two real runs apart).
+ */
+const IDENTICAL_FIGHT_WINDOW_SECONDS = 180;
+/** The identical-fight rule needs at least this many names, so a solo run is never taken for a copy of another one by time alone. */
+const IDENTICAL_FIGHT_MIN_NAMES = 3;
 /** Jaccard similarity above which a roster counts as "the same group". */
 const ROSTER_SIMILARITY_THRESHOLD = 0.5;
 /**
@@ -432,19 +439,20 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
   // serverId first: two different servers must never be candidates for the same encounter even if
   // boss, timing and roster all happen to coincide (per the user, gear standards differ completely
   // between servers, so a merge across them would be actively misleading, not just imprecise).
+  const inNormalWindow = (e: { startedAt: string; endedAt: string }) =>
+    Math.abs(Date.parse(e.startedAt) - startedAtMs) <= START_TOLERANCE_SECONDS * 1000 &&
+    Math.abs(Date.parse(e.endedAt) - endedAtMs) <= TIME_TOLERANCE_SECONDS * 1000;
   const timeCandidates = db
     .select()
     .from(encounters)
     .where(and(eq(encounters.serverId, serverId), eq(encounters.bossId, bossId), eq(encounters.mode, payload.mode)))
     .all()
-    .filter((e) => {
-      const existingStartMs = Date.parse(e.startedAt);
-      const existingEndMs = Date.parse(e.endedAt);
-      return (
-        Math.abs(existingStartMs - startedAtMs) <= START_TOLERANCE_SECONDS * 1000 &&
-        Math.abs(existingEndMs - endedAtMs) <= TIME_TOLERANCE_SECONDS * 1000
-      );
-    });
+    .filter(
+      (e) =>
+        inNormalWindow(e) ||
+        (Math.abs(Date.parse(e.startedAt) - startedAtMs) <= IDENTICAL_FIGHT_WINDOW_SECONDS * 1000 &&
+          Math.abs(Date.parse(e.endedAt) - endedAtMs) <= IDENTICAL_FIGHT_WINDOW_SECONDS * 1000),
+    );
 
   if (timeCandidates.length === 0) {
     return null;
@@ -471,12 +479,31 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
   let best: { encounterId: number; similarity: number } | null = null;
   for (const candidate of timeCandidates) {
     const existingRoster = db
-      .select({ name: players.name })
+      .select({ name: players.name, totalDamage: encounterParticipants.totalDamage })
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .where(eq(encounterParticipants.encounterId, candidate.id))
       .all();
     const existingNames = new Set(existingRoster.map((r) => normalizeName(r.name)));
+
+    if (!inNormalWindow(candidate)) {
+      // Only the identical-fight rule may take it: same roster to the name, nobody doubled, every player's damage within tolerance.
+      const damageOf = new Map(existingRoster.map((r) => [normalizeName(r.name), r.totalDamage]));
+      const identical =
+        !worldBoss &&
+        uploadRosterNamesWithSelf.size >= IDENTICAL_FIGHT_MIN_NAMES &&
+        payload.participants.length === uploadRosterNamesWithSelf.size &&
+        existingRoster.length === existingNames.size &&
+        uploadRosterNamesWithSelf.size === existingNames.size &&
+        payload.participants.every((p) => {
+          const other = damageOf.get(normalizeName(p.name));
+          return other !== undefined && withinRelativeTolerance(other, p.totalDamage, DAMAGE_MATCH_TOLERANCE);
+        });
+      if (identical && (!best || best.similarity < 1)) {
+        best = { encounterId: candidate.id, similarity: 1 };
+      }
+      continue;
+    }
 
     const similarity = Math.max(
       jaccardSimilarity(uploadRosterNamesWithoutSelf, existingNames),

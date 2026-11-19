@@ -87,6 +87,33 @@ test("two uploads of the same fight merge into one encounter, not two", () => {
   assert.equal(second.encounterId, first.encounterId);
 });
 
+test("an upload with a clock 20 s off still merges when the roster and every player's damage are identical", () => {
+  const three = (over: Partial<Parameters<typeof processUpload>[0]>) => {
+    const payload = basePayload({ bossNpcName: "Clock Boss", ...over });
+    return { ...payload, participants: [...payload.participants, { ...payload.participants[0], name: "Cara", isSelf: false }] };
+  };
+  const first = processUpload(three({ startedAt: "2026-03-01T20:06:09.000Z", endedAt: "2026-03-01T20:09:24.500Z" }));
+  const shifted = processUpload(three({ startedAt: "2026-03-01T20:06:29.900Z", endedAt: "2026-03-01T20:09:44.700Z" }));
+  assert.equal(shifted.status, "merged");
+  assert.equal(shifted.encounterId, first.encounterId);
+});
+
+test("a shifted upload does not merge when the damage differs or a name is missing", () => {
+  const three = (over: Partial<Parameters<typeof processUpload>[0]>, damage = 800_000, drop = false) => {
+    const payload = basePayload({ bossNpcName: "Clock Boss Two", ...over });
+    const all = [...payload.participants, { ...payload.participants[0], name: "Cara", isSelf: false }];
+    return { ...payload, participants: all.map((p, i) => (i === 0 ? { ...p, totalDamage: damage } : p)).slice(0, drop ? 2 : 3) };
+  };
+  const first = processUpload(three({ startedAt: "2026-04-01T20:06:09.000Z", endedAt: "2026-04-01T20:09:24.500Z" }));
+  const otherDamage = processUpload(three({ startedAt: "2026-04-01T20:06:29.900Z", endedAt: "2026-04-01T20:09:44.700Z" }, 300_000));
+  assert.equal(otherDamage.status, "created");
+  assert.notEqual(first.encounterId, otherDamage.encounterId);
+  const base = processUpload(three({ bossNpcName: "Clock Boss Three", startedAt: "2026-05-01T20:06:09.000Z", endedAt: "2026-05-01T20:09:24.500Z" }));
+  const fewer = processUpload(three({ bossNpcName: "Clock Boss Three", startedAt: "2026-05-01T20:06:30.000Z", endedAt: "2026-05-01T20:09:45.000Z" }, 800_000, true));
+  assert.equal(fewer.status, "created", "a missing name is no identical roster");
+  assert.notEqual(base.encounterId, fewer.encounterId);
+});
+
 test("the stagger of a fight is kept per player and in all, the most any upload of it saw", () => {
   const withStagger = (stagger: number[], staggerTotal: number, over: Partial<Parameters<typeof processUpload>[0]> = {}) => {
     const payload = basePayload(over);
