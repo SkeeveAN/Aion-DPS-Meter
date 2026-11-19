@@ -887,6 +887,13 @@
      "Client"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Own character no longer gets the name remembered from the last session (a twink of the same account) when it is not in the current group: the account's character in the group is taken instead",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },
