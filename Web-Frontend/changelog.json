@@ -909,6 +909,20 @@
      "Client"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Release 2.0.0-beta.35: the announcements window is bigger and shows the whole text of each notice with its line breaks (the first lines on the card, \"Show more\" opens the rest, \"Open in browser\" goes to NC's page; the text can be copied), and the Twitch Drops window shows who streams AION 2 with drops right now (channels, viewers, language, title, \"Open on Twitch\"), the claim deadline, and folds the rewards of finished campaigns away behind \"Show more\"",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
+   },
+   {
+    "text": "Release 2.0.0-beta.36: the checklist has a small on/off switch in front of every element (Odyle energy, entry counters, daily and weekly counters, membership, access times, Daeva passes) that chooses what the checklist widget and its overlay show, the Odyle energy reads like on the guild list, the widget is called Checklist",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },
