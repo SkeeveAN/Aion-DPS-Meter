@@ -732,7 +732,7 @@ public sealed class HubWindow : Window
     {
         _section = section;
         _menu.Children.Clear();
-        _menu.Margin = _collapsed ? new Thickness(10, 16, 10, 10) : new Thickness(10, 16, 10, 10);
+        _menu.Margin = _collapsed ? new Thickness(4, 16, 4, 10) : new Thickness(10, 16, 10, 10);
         bool first = true;
         MeterSettings foldSettings = MeterSettings.Load();
         int groupNumber = -1;
@@ -781,7 +781,7 @@ public sealed class HubWindow : Window
             foreach (Entry entry in group.Entries)
             {
                 Entry e = entry;
-                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e, _collapsed), Margin = new Thickness(e.Sub && !_collapsed ? 22 : 0, 0, 0, 3) };
+                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Padding = _collapsed ? new Thickness(6, 10, 6, 10) : new Thickness(14, 10, 12, 10), Content = MenuContent(section.Id, e, _collapsed), Margin = new Thickness(0, 0, 0, 3) };
                 if (e.Id == "sessions")
                 {
                     item.ToolTip = LocalizationManager.Instance["Hub.Sessions.Tip"];
@@ -873,7 +873,7 @@ public sealed class HubWindow : Window
         }
 
         var row = new StackPanel { Orientation = Orientation.Horizontal };
-        row.Children.Add(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 18, Width = 28, TextAlignment = TextAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
+        row.Children.Add(new TextBlock { Text = symbol, FontFamily = new FontFamily("Segoe UI Symbol"), FontSize = 18, Width = 28, TextAlignment = TextAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, iconsOnly ? 0 : 8, 0) });
         if (!iconsOnly)
         {
             row.Children.Add(new TextBlock { Text = text, FontSize = 14.5, VerticalAlignment = VerticalAlignment.Center });
@@ -887,7 +887,7 @@ public sealed class HubWindow : Window
         var border = new FrameworkElementFactory(typeof(Border));
         border.Name = "Bd";
         border.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
-        border.SetValue(Border.PaddingProperty, new Thickness(14, 10, 12, 10));
+        border.SetValue(Border.PaddingProperty, new TemplateBindingExtension(Control.PaddingProperty));
         border.SetValue(Border.BorderThicknessProperty, new Thickness(2, 0, 0, 0));
         border.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
         border.SetValue(Border.BackgroundProperty, Brushes.Transparent);

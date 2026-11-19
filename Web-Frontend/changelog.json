@@ -930,6 +930,13 @@
      "Client"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Release 2.0.0-beta.38: the enemy alert in the Tools menu is no longer indented, and the menu folded to symbols shows its symbols whole again (they were cut off when the list was longer than the window)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },
