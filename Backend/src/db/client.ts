@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
+import { unpackJson } from "./packedJson.js";
 import { env } from "../env.js";
 
 // better-sqlite3 does not create the containing directory itself, and git
@@ -32,5 +33,9 @@ sqlite.pragma("arch.journal_mode = WAL");
 sqlite.pragma("arch.synchronous = NORMAL");
 sqlite.pragma("arch.cache_size = -8192");
 sqlite.exec("create table if not exists arch.payloads (upload_id integer primary key, gz blob not null)");
+
+// SQL side of the packed JSON columns (packedJson.ts): `unpack_json(col)` gives the text of a column whether it is stored plain or gzipped, for the few
+// raw queries that read inside such a column (json_each over the skill lists).
+sqlite.function("unpack_json", { deterministic: true }, (value) => (value === null ? null : unpackJson(value as string | Buffer)));
 
 export const db = drizzle(sqlite, { schema });

@@ -264,7 +264,7 @@ function skillExtras(scope: SQL | undefined) {
     from ${encounterParticipants}
     inner join ${encounters} on ${encounterParticipants.encounterId} = ${encounters.id}
     inner join ${playerProfiles} on ${playerProfiles.playerId} = ${encounterParticipants.playerId},
-    json_each(${playerProfiles.skillsJson}) j
+    json_each(unpack_json(${playerProfiles.skillsJson})) j
     where ${and(scope, EXACT_PARTICIPANT)} and ${playerProfiles.skillsJson} <> '[]' and json_extract(j.value, '$.level') > 0
     group by ${encounterParticipants.className}, json_extract(j.value, '$.id')`);
   for (const l of levels) {

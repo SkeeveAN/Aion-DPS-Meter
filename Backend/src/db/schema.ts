@@ -9,6 +9,7 @@ import {
   primaryKey,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import { packedJson } from "./packedJson.js";
 
 // Defined here rather than imported from constants.ts: drizzle-kit loads this file through its
 // own bundler, which cannot resolve project-local ".js" imports. constants.ts re-exports these.
@@ -352,11 +353,11 @@ export const playerProfiles = sqliteTable("player_profiles", {
   classBits: integer("class_bits"),
   // Gear score ("Ausrüstungswert") as the game's character window shows it; known only for players whose window an uploader opened.
   gearScore: integer("gear_score"),
-  gearJson: text("gear_json").notNull().default("[]"),
-  skillsJson: text("skills_json").notNull().default("[]"),
+  gearJson: packedJson("gear_json").notNull().default("[]"),
+  skillsJson: packedJson("skills_json").notNull().default("[]"),
   // The skill presets of the own character as last seen ([{index, active, seenAt, skills}]); skillsJson is the active one.
   presetsJson: text("presets_json").notNull().default("[]"),
-  daevanionJson: text("daevanion_json").notNull().default("[]"),
+  daevanionJson: packedJson("daevanion_json").notNull().default("[]"),
   // Species knowledge (Cognia, Fera, Natura, Varia, Specia): level, progress and analysed effects; own character only.
   speciesJson: text("species_json").notNull().default("[]"),
   // Worn titles ([{slot, titleId}]), pet circles ([{species, level, kinds}]) and the activated node count per Daevanion
@@ -870,7 +871,7 @@ export const profileSetups = sqliteTable(
     /** SHA-256 of the normalised content: equal hash = same state. */
     hash: text("hash").notNull(),
     /** The stored list as the profile keeps it (daevanion_json or skills_json at the time). */
-    dataJson: text("data_json").notNull(),
+    dataJson: packedJson("data_json").notNull(),
     /** The class the state belongs to, for the later search by class. */
     classId: integer("class_id"),
     /** Thumbs on this state (a copy of the number of rows in setup_votes). */
