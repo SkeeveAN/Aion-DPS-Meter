@@ -190,5 +190,9 @@
  "Checklist: the client learns which Abyss Corridors are unavailable by itself - the game names the holder of each artifact at every entry of the lower Abyss, and a corridor whose artifact the other side holds shows as unavailable (0 / 0)": {
   "en": "Checklist: unavailable Abyss Corridors are detected automatically",
   "de": "Checkliste: nicht verfügbare Abysskorridore werden automatisch erkannt"
+ },
+ "the checklist recognises by itself which Abyss Corridors are unavailable to a character and shows them as 0 / 0": {
+  "en": "Checklist: unavailable Abyss Corridors shown as 0 / 0",
+  "de": "Checkliste: nicht verfügbare Korridore als 0 / 0"
  }
 }
