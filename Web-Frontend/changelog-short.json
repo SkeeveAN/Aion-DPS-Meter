@@ -170,5 +170,13 @@
  "the checklist remembers at the Abyss join which Abyss Corridors are open for each character until the next reset (Thursday and Saturday 21:30), and shows a closed one as unavailable": {
   "en": "Checklist: open Abyss Corridors are remembered until the reset",
   "de": "Checkliste: offene Abysskorridore bis zum Reset gemerkt"
+ },
+ "Checklist: the entries of Shugofesta, the Dimensional Invasion and the daily dungeon are one counter for the whole account, so every character of the account shows the reading seen last": {
+  "en": "Checklist: Shugofesta, Invasion and daily dungeon count per account",
+  "de": "Checkliste: Shugofesta, Invasion, Täglicher Dungeon gelten pro Account"
+ },
+ "Shugofesta, the Dimensional Invasion and the daily dungeon count for the whole account on the checklist": {
+  "en": "Checklist: entries counted per account",
+  "de": "Checkliste: Einträge pro Account gezählt"
  }
 }
