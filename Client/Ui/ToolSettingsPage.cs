@@ -16,6 +16,11 @@ public static class ToolSettingsPage
             return PanelTab(panelOf(tool == "petmap.pets" ? "PanelPets" : "PanelGather"), () => cleanupExtra?.Invoke());
         }
 
+        if (tool == "combat.pvp")
+        {
+            return new ToolPage { Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Content = new StackPanel { Margin = new Thickness(14, 10, 14, 14), Children = { ToolConfigs.PvpAlerts(applied) } } }, Cleanup = cleanupExtra };
+        }
+
         var loc = LocalizationManager.Instance;
         var c = new ConfigControls(applied);
         string nameKey = ToolSwitch.All.First(t => t.Id == tool).NameKey, descKey = ToolSwitch.All.First(t => t.Id == tool).DescKey;

@@ -923,6 +923,13 @@
      "Client"
     ],
     "date": "2026-11-19"
+   },
+   {
+    "text": "Release 2.0.0-beta.37: the enemy alert is its own page right under Boss fight in the Tools menu (before it was hidden inside Boss fight), the design editor moved to the end of the Client group, and the groups of the menu can be folded by a click on their heading (the program remembers which ones)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-19"
    }
   ]
  },

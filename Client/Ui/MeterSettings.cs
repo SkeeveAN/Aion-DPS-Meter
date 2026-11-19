@@ -461,6 +461,9 @@ public sealed class MeterSettings
     /// <summary>The navigation of the hub shows only symbols (the three lines at the left of the header).</summary>
     public bool HubNavCollapsed { get; set; }
 
+    /// <summary>The groups of the hub menu that are folded ("section/number of the group"); the program remembers them.</summary>
+    public List<string> HubFoldedGroups { get; set; } = new();
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 

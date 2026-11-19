@@ -20,7 +20,7 @@ public sealed record HubStatus(bool GameOn, string? CharacterName, string? Class
 /// </summary>
 public sealed class HubWindow : Window
 {
-    private sealed record Entry(string Id, string Title, string Kind, string Target);
+    private sealed record Entry(string Id, string Title, string Kind, string Target, bool Sub = false);
 
     private sealed record Group(string? Title, Entry[] Entries);
 
@@ -271,9 +271,9 @@ public sealed class HubWindow : Window
                     new Entry("client.install", loc["Settings.Nav.Capture"], "tool", "hub.client.NavInstall"),
                     new Entry("client.hotkeys", loc["Settings.Hotkeys"], "tool", "hub.client.NavHotkeys"),
                     new Entry("client.updates", loc["Settings.Nav.System"], "tool", "hub.client.NavUpdates"),
-                }),
+                }.Concat(Tools("theme")).ToArray()),
                 new Group(loc["Hub.Group.World"], Tools("loot", "craft", "petmap", "timetable", "boss")),
-                new Group(loc["Hub.Group.Combat"], Tools("combat", "assist", "stream", "network", "theme")),
+                new Group(loc["Hub.Group.Combat"], Tools("combat").Append(new Entry("combat.pvp", loc["Settings.PvpAlerts.Tab"], "tool", "hub.cfg.combat.pvp", Sub: true)).Concat(Tools("assist", "stream", "network")).ToArray()),
             }),
         };
     }
@@ -734,8 +734,14 @@ public sealed class HubWindow : Window
         _menu.Children.Clear();
         _menu.Margin = _collapsed ? new Thickness(10, 16, 10, 10) : new Thickness(10, 16, 10, 10);
         bool first = true;
+        MeterSettings foldSettings = MeterSettings.Load();
+        int groupNumber = -1;
         foreach (Group group in section.Groups.Where(g => g.Entries.Length > 0))
         {
+            groupNumber++;
+            string foldKey = section.Id + "/" + groupNumber;
+            bool folded = !_collapsed && foldSettings.HubFoldedGroups.Contains(foldKey);
+            var members = new List<RadioButton>();
             if (_collapsed)
             {
                 // no heading over the symbols, a thin line between the groups
@@ -746,18 +752,36 @@ public sealed class HubWindow : Window
             }
             else
             {
-                _menu.Children.Add(new TextBlock
+                var arrow = new TextBlock { Text = folded ? "\u25B8" : "\u25BE", Width = 14, Foreground = Frozen("#62788a"), FontSize = 11 };
+                var heading = new StackPanel { Orientation = Orientation.Horizontal, Cursor = Cursors.Hand, Background = Brushes.Transparent, Margin = new Thickness(12, first ? 0 : 22, 0, 8) };
+                heading.Children.Add(arrow);
+                heading.Children.Add(new TextBlock { Text = (group.Title ?? "").ToUpperInvariant(), FontSize = 11, Foreground = Frozen("#62788a"), FontWeight = FontWeights.SemiBold });
+                heading.MouseLeftButtonUp += (_, _) =>
                 {
-                    Text = (group.Title ?? "").ToUpperInvariant(), FontSize = 11, Foreground = Frozen("#62788a"), FontWeight = FontWeights.SemiBold,
-                    Margin = new Thickness(12, first ? 0 : 22, 0, 8),
-                });
+                    folded = !folded;
+                    arrow.Text = folded ? "\u25B8" : "\u25BE";
+                    foreach (RadioButton member in members)
+                    {
+                        member.Visibility = folded ? Visibility.Collapsed : Visibility.Visible;
+                    }
+
+                    MeterSettings s = MeterSettings.Load();
+                    s.HubFoldedGroups.Remove(foldKey);
+                    if (folded)
+                    {
+                        s.HubFoldedGroups.Add(foldKey);
+                    }
+
+                    s.Save();
+                };
+                _menu.Children.Add(heading);
             }
 
             first = false;
             foreach (Entry entry in group.Entries)
             {
                 Entry e = entry;
-                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e, _collapsed), Margin = new Thickness(0, 0, 0, 3) };
+                var item = new RadioButton { GroupName = "HubMenu", Foreground = Muted, Cursor = Cursors.Hand, Tag = e, Template = MenuTemplate(), Content = MenuContent(section.Id, e, _collapsed), Margin = new Thickness(e.Sub && !_collapsed ? 22 : 0, 0, 0, 3) };
                 if (e.Id == "sessions")
                 {
                     item.ToolTip = LocalizationManager.Instance["Hub.Sessions.Tip"];
@@ -791,6 +815,12 @@ public sealed class HubWindow : Window
                     };
                 }
 
+                if (folded)
+                {
+                    item.Visibility = Visibility.Collapsed;
+                }
+
+                members.Add(item);
                 _menu.Children.Add(item);
             }
         }
@@ -805,7 +835,7 @@ public sealed class HubWindow : Window
             return;
         }
 
-        var first1 = _menu.Children.OfType<RadioButton>().FirstOrDefault(r => ((Entry)r.Tag).Kind != "action");
+        var first1 = _menu.Children.OfType<RadioButton>().FirstOrDefault(r => ((Entry)r.Tag).Kind != "action" && r.Visibility == Visibility.Visible);
         if (first1 is not null)
         {
             first1.IsChecked = true;
@@ -826,7 +856,7 @@ public sealed class HubWindow : Window
     {
         ["client.general"] = "\u2699", ["client.meter"] = "\u2694", ["client.install"] = "\u2B06", ["client.hotkeys"] = "\u2328", ["client.updates"] = "\u2318",
         ["loot"] = "\u25C6", ["craft"] = "\u2692", ["petmap"] = "\u2316", ["timetable"] = "\u25F7", ["boss"] = "\u265C",
-        ["combat"] = "\u265B", ["assist"] = "\u2726", ["stream"] = "\u25C9", ["network"] = "\u21C5", ["theme"] = "\u270E",
+        ["combat"] = "\u265B", ["combat.pvp"] = "\u2694", ["assist"] = "\u2726", ["stream"] = "\u25C9", ["network"] = "\u21C5", ["theme"] = "\u270E",
         // the pages of the other tabs: Dashboard, Combat & Analysis, Character
         ["overview"] = "\u2302", ["fights"] = "\u2694", ["best"] = "\u2605", ["updates"] = "\u2B06", ["news"] = "\u2709",
         ["live"] = "\u26A1", ["sessions"] = "\u25A4", ["compare"] = "\u21C4", ["replay"] = "\u25B6", ["dummy"] = "\u25CE",

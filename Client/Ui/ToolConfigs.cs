@@ -173,6 +173,26 @@ public static class ToolConfigs
         return Page(cast, target, Speech(c));
     }
 
+    /// <summary>The enemy alert (Abyss): when an enemy comes near or targets you, the volume, and a button for each sound.</summary>
+    public static UIElement PvpAlerts(Action<MeterSettings> applied)
+    {
+        var c = new ConfigControls(applied);
+        var loc = LocalizationManager.Instance;
+        var near = new Button { Content = "\u25B6 1", Width = 40, Height = 26, Padding = new Thickness(0), Margin = new Thickness(0, 0, 4, 0) };
+        near.Click += (_, _) => NotifySounds.PlayPvpNear(MeterSettings.Load().PvpAlertVolume);
+        var targeted = new Button { Content = "\u25B6 2", Width = 40, Height = 26, Padding = new Thickness(0) };
+        targeted.Click += (_, _) => NotifySounds.PlayPvpTargeted(MeterSettings.Load().PvpAlertVolume);
+        var tests = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
+        tests.Children.Add(near);
+        tests.Children.Add(targeted);
+        return Page(ConfigControls.Card(loc["Settings.PvpAlerts.Title"],
+            c.Switch(loc["Settings.PvpAlertNear"], null, s => s.PvpAlertNear, (s, v) => s.PvpAlertNear = v),
+            c.Switch(loc["Settings.PvpAlertTargeted"], null, s => s.PvpAlertTargeted, (s, v) => s.PvpAlertTargeted = v),
+            c.Slider(loc["Settings.PvpAlertVolume"].TrimEnd(':'), null, 0, 100, 5, s => Math.Clamp(s.PvpAlertVolume, 0, 100), (s, v) => s.PvpAlertVolume = v, v => v + " %"),
+            tests,
+            ConfigControls.Note(loc["Settings.PvpAlerts.Hint"])));
+    }
+
     private static UIElement Speech(ConfigControls c)
     {
         var loc = LocalizationManager.Instance;
