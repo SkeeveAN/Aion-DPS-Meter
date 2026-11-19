@@ -117,3 +117,92 @@ test("restrictedCount: the number in the restriction details of every language",
   assert.equal(restrictedCount("■ Cuentas restringidas: [4996]"), 4996);
   assert.equal(restrictedCount("Hey, Daevas, we restricted a number of accounts."), null);
 });
+
+test("htmlToText: paragraphs, line breaks, lists, entities and images of NC's HTML", async () => {
+  const { htmlToText, MAX_BODY } = await import("./announcements.js");
+  const html =
+    '<div class="a"><p>Hello Daevas,&nbsp;</p><p>Thank you &amp; welcome.<br>Second line&hellip;<br/>Third</p><img src="x.png" alt="y">' +
+    "<h3>Details</h3><ul><li>Date: <b>Oct 20</b></li><li>Time: 18:00 PDT</li></ul>" +
+    "<p>■ Accounts restricted: [15,380]&nbsp;</p><p></p><p></p><p>&#9731; Done</p><style>.x{color:red}</style></div>";
+  assert.equal(
+    htmlToText(html),
+    "Hello Daevas,\n\nThank you & welcome.\nSecond line…\nThird\n\nDetails\n\n• Date: Oct 20\n• Time: 18:00 PDT\n\n■ Accounts restricted: [15,380]\n\n☃ Done",
+  );
+  assert.equal(htmlToText("<p>a</p>\n\n\n\n<p>b</p>"), "a\n\nb");
+  assert.equal(htmlToText("<script>alert(1)</script>Text"), "Text");
+  const long = htmlToText(`<p>${"x".repeat(MAX_BODY + 500)}</p>`);
+  assert.equal(long.length, MAX_BODY);
+  assert.ok(long.endsWith("…"));
+});
+
+test("the full text comes with the list as body, summary stays, an account notice keeps its number", async () => {
+  const { refreshAnnouncements, ANNOUNCEMENTS_FILE } = await import("./announcements.js");
+  resetStore();
+  const idA = "a".repeat(24);
+  const idB = "b".repeat(24);
+  const requested: string[] = [];
+  const fakeFetch = (async (input: URL | string) => {
+    const url = String(input);
+    requested.push(url);
+    const m = /\/notice_(\w+)\/article(?:\/([0-9a-f]{24}))?$/.exec(url);
+    if (!m) {
+      return new Response("{}", { status: 404 });
+    }
+    if (!m[2]) {
+      const list =
+        m[1] === "en"
+          ? { contentList: [
+              { id: idA, title: "[Notice] Maintenance", summary: "Hello Daevas, maintenance.", timestamps: { postedEpoch: 5000 }, snow: { contentId: 2 } },
+              { id: idB, title: "Account Restrictions: Policy", summary: "Hello Daevas, accounts.", timestamps: { postedEpoch: 4000 }, snow: { contentId: 1 } },
+            ], hasMore: false }
+          : { contentList: [] };
+      return new Response(JSON.stringify(list), { status: 200 });
+    }
+    const html = m[2] === idA ? "<p>Hello Daevas,</p><p>Maintenance.<br>Line two</p><ul><li>One</li></ul>" : "<p>Dear</p><p>■ Accounts restricted: [1,234]</p>";
+    return new Response(JSON.stringify({ article: { content: { content: html } } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  await refreshAnnouncements(fakeFetch, 1_000_000, 0);
+  const items = announcementList("en").items;
+  assert.equal(items.length, 2);
+  assert.equal(items[0].summary, "Hello Daevas, maintenance.");
+  assert.equal(items[0].body, "Hello Daevas,\n\nMaintenance.\nLine two\n\n• One");
+  assert.equal(items[1].restricted, 1234);
+  assert.equal(items[1].body, "Dear\n\n■ Accounts restricted: [1,234]");
+  // the next run asks for nothing more: both are read, the lists alone carry the text on (merged by title and summary)
+  const before = requested.filter((u) => /article\/[0-9a-f]{24}$/.test(u)).length;
+  await refreshAnnouncements(fakeFetch, 1_000_001, 0);
+  assert.equal(requested.filter((u) => /article\/[0-9a-f]{24}$/.test(u)).length, before);
+  assert.equal(announcementList("en").items[0].body, "Hello Daevas,\n\nMaintenance.\nLine two\n\n• One");
+  // an item without a read text gives no body (the client takes the summary)
+  resetStore();
+  mergeItems([item("en", idA, 5000, "Maintenance")]);
+  assert.equal("body" in announcementList("en").items[0], false);
+  resetStore();
+  void ANNOUNCEMENTS_FILE;
+});
+
+test("the first fill reads at most DETAIL_REQUESTS_PER_RUN articles per run, newest first", async () => {
+  const { refreshAnnouncements, DETAIL_REQUESTS_PER_RUN } = await import("./announcements.js");
+  resetStore();
+  const ids = Array.from({ length: 25 }, (_, i) => i.toString(16).padStart(24, "0"));
+  let articleRequests = 0;
+  const fakeFetch = (async (input: URL | string) => {
+    const url = String(input);
+    const m = /\/notice_(\w+)\/article(?:\/([0-9a-f]{24}))?$/.exec(url);
+    if (!m) {
+      return new Response("{}", { status: 404 });
+    }
+    if (!m[2]) {
+      return new Response(JSON.stringify({ contentList: m[1] === "en" ? ids.map((id, i) => ({ id, title: `Notice ${i}`, summary: "s", timestamps: { postedEpoch: 1000 + i }, snow: { contentId: i + 1 } })) : [], hasMore: false }), { status: 200 });
+    }
+    articleRequests++;
+    return new Response(JSON.stringify({ article: { content: { content: `<p>Text ${m[2]}</p>` } } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  await refreshAnnouncements(fakeFetch, 1_000_000, 0);
+  assert.equal(articleRequests, DETAIL_REQUESTS_PER_RUN);
+  const items = announcementList("en").items;
+  assert.equal(items.filter((x) => x.body).length, DETAIL_REQUESTS_PER_RUN);
+  assert.ok(items[0].body, "the newest comes first");
+  assert.equal(items[DETAIL_REQUESTS_PER_RUN].body, undefined);
+  resetStore();
+});
