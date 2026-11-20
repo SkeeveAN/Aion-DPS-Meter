@@ -1,5 +1,32 @@
 [
  {
+  "version": "2.1.0",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Checklist: counters a character cannot use yet (level, item level) are not shown, the level hints behind the names are gone",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "Designs: Emerald, Amethyst, Graphite, Northern Lights and Sandstone join the design list, the dark design is now called Abyss, and the menus and tabs follow the chosen design",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "five new designs (Emerald, Amethyst, Graphite, Northern Lights, Sandstone) and a checklist that hides what a character cannot use yet",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.0.7",
   "date": "2026-11-20",
   "items": [
