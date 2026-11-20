@@ -1,5 +1,25 @@
 [
  {
+  "version": "2.1.4",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Speech settings: a play button behind each volume slider speaks a sample announcement at that volume",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "the speech settings have a play button for each volume, to hear how loud an announcement is",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.1.3",
   "date": "2026-11-20",
   "items": [
