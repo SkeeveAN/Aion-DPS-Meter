@@ -53,6 +53,14 @@ if ! cmp -s "$REPO_DIR/Backend/deploy/journald-aiondps.conf" /etc/systemd/journa
   systemctl restart systemd-journald || true
 fi
 
+# Read the database into the file cache while the OLD backend still answers: the restart then finds it there and the pause is a few seconds,
+# not the 5-8 minutes a cold read of the 2.4 GB file takes at 200 IOPS (all API calls got a 502 meanwhile). A failed read must not stop the deploy.
+echo "==> Lese die Datenbank vor (das alte Backend laeuft weiter)..."
+DB_FILE="$REPO_DIR/Backend/data/dpsmeter.sqlite"
+for f in "$DB_FILE" "$DB_FILE-wal"; do
+  [[ -f "$f" ]] && dd if="$f" of=/dev/null bs=4M status=none || true
+done
+
 echo "==> Starte Service neu..."
 systemctl restart "$SERVICE_NAME"
 sleep 2
