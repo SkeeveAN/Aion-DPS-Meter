@@ -198,5 +198,13 @@
  "ability macros are uploaded again after a character switch": {
   "en": "Ability macros are uploaded again after a character switch",
   "de": "Fähigkeiten-Makros werden nach einem Charakterwechsel wieder hochgeladen"
+ },
+ "Checklist: new layout that uses the width of the window - energy, subscriptions and Daeva passes on top, entries and corridors side by side, daily and weekly side by side, the numbers with their slashes under each other, a hint behind each counter that needs a level or item level, and a short legend for the switch and the signs": {
+  "en": "Checklist: new layout using the window width",
+  "de": "Checkliste: neues Layout, das die Fensterbreite nutzt"
+ },
+ "Daeva passes come from a list the server delivers, so a new season or event pass shows up on the checklist without a release; the new event pass \"Prelude to Flight\" is the first one": {
+  "en": "Daeva passes: new passes without a release",
+  "de": "Daeva-Pässe: neue Pässe ohne Release"
  }
 }

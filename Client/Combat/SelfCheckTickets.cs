@@ -181,8 +181,14 @@ public static class SelfCheckTickets
             && asmoReadings.Count == 2
             && asmoReadings.Single(r => r.Id == Aion2Tickets.Passes[0].TicketId).Value is { Count: 110670, Bonus: 47330 }
             && asmoReadings.Single(r => r.Id == Aion2Tickets.Passes[1].TicketId).Value is { Count: 38770, Bonus: 15000 }
-            && Aion2Tickets.Passes[0].NameKeyFor(2321) == "Checklist.PassDark1" && Aion2Tickets.Passes[0].NameKeyFor(1304) == "Checklist.PassLight1"
-            && Aion2Tickets.Passes[1].NameKeyFor(2303) == "Checklist.PassDark2" && Aion2Tickets.Passes[1].NameKeyFor(0) == "Checklist.PassLight2";
+            && Aion2Tickets.Passes[0].NameFor(2321, "de") == "Söldner von Ishalgen" && Aion2Tickets.Passes[0].NameFor(1304, "de") == "Legion der Morgenröte"
+            && Aion2Tickets.Passes[1].NameFor(2303, "en") == "Planet's Call" && Aion2Tickets.Passes[1].NameFor(0, "xx") == "Planet's Call";
+        // the pass of the event after "Planet's Call" (entry 10047, "Prelude to Flight", weekly limit 15,000) from the login frame of Aahz on 20 November 2026: recognised from the list, with its name and end
+        bool eventPass = Aion2Tickets.TryParsePass(Convert.FromHexString("24E3023C270000CAE905009A9200002E0A42F6A1010000804556A7F00000000236870100378701000236870100653787010065023687010090DD05003787010090DD05000A010000003F270000344D0100983A0000AF48FEF0A1010000808D696D2BFFFFFF024AA607004BA60700024AA60700334BA6070033024AA60700084C01004BA60700084C010001000000"), out List<TicketReading> eventReadings)
+            && Aion2Tickets.Passes.FirstOrDefault(p => p.FrameId == 10047) is { WeeklyLimit: 15000 } third
+            && eventReadings.Single(r => r.Id == third.TicketId).Value is { Count: 85300, Bonus: 15000 }
+            && third.NameFor(1304, "de") == "Auftakt zum Höhenflug" && third.End.Year == 2026 && third.End.Month == 12 && Aion2Tickets.PassLevelOf(third.TicketId, 85300) is null;
+        passFrame = passFrame && eventPass;
         passFrame = passFrame && asmodianPass;
         // the account key of the character list: Elyos (2a 00 00 00 01 02 01) and Asmodian (2c 00 00 00 02 02 01) heads cut from real lists of 19 and 20 October 2026
         static byte[] ListHead(string hex) => Convert.FromHexString(hex).Concat(new byte[40]).ToArray();

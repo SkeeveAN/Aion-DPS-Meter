@@ -1,5 +1,25 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Checklist: new layout that uses the width of the window - energy, subscriptions and Daeva passes on top, entries and corridors side by side, daily and weekly side by side, the numbers with their slashes under each other, a hint behind each counter that needs a level or item level, and a short legend for the switch and the signs",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "Daeva passes come from a list the server delivers, so a new season or event pass shows up on the checklist without a release; the new event pass \"Prelude to Flight\" is the first one",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.0.6",
   "date": "2026-11-20",
   "items": [

@@ -1,0 +1,130 @@
+{
+ "passes": [
+  {
+   "ticket": 99000010,
+   "light": 10044,
+   "dark": 20044,
+   "limit": 50000,
+   "end": "2026-12-16T09:00",
+   "names": {
+    "light": {
+     "en": "Dawn Legion",
+     "de": "Legion der Morgenröte",
+     "fr": "Légion de l'Aube",
+     "es": "Legión del Alba",
+     "ru": "Легион рассвета",
+     "pt": "Legião da Alvorada",
+     "ja": "暁のレギオン",
+     "ko": "새벽의 레기온"
+    },
+    "dark": {
+     "en": "Ishalgen Mercenary",
+     "de": "Söldner von Ishalgen",
+     "fr": "Mercenaire d'Ishalgen",
+     "es": "Mercenario de Ishalgen",
+     "ru": "Наемник Исхальгена",
+     "pt": "Mercenário de Ishalgen",
+     "ja": "イスハルゲンの傭兵",
+     "ko": "이스할겐의 용병"
+    }
+   },
+   "levels": {
+    "first": 400,
+    "step": 1600,
+    "known": 24400
+   }
+  },
+  {
+   "ticket": 99000011,
+   "light": 10045,
+   "dark": 20045,
+   "limit": 15000,
+   "end": "2026-10-28T09:00",
+   "names": {
+    "light": {
+     "en": "Planet's Call",
+     "de": "Ruf der Welt",
+     "fr": "Appel du Monde",
+     "es": "Llamada del mundo",
+     "ru": "Зов мира",
+     "pt": "Chamado do Mundo",
+     "ja": "世界の呼びかけ",
+     "ko": "세계의 부름"
+    },
+    "dark": {
+     "en": "Planet's Call",
+     "de": "Ruf der Welt",
+     "fr": "Appel du Monde",
+     "es": "Llamada del mundo",
+     "ru": "Зов мира",
+     "pt": "Chamado do Mundo",
+     "ja": "世界の呼びかけ",
+     "ko": "세계의 부름"
+    }
+   },
+   "levels": {
+    "first": 700,
+    "step": 700,
+    "known": 10500
+   }
+  },
+  {
+   "ticket": 99000012,
+   "light": 10046,
+   "dark": 20046,
+   "limit": 50000,
+   "end": "2027-03-10T09:00",
+   "names": {
+    "light": {
+     "en": "New Tide",
+     "de": "Neue Welle",
+     "fr": "Nouvelle Vague",
+     "es": "Nueva onda",
+     "ru": "Новая волна",
+     "pt": "Nova Onda",
+     "ja": "新たな波",
+     "ko": "새로운 물결"
+    },
+    "dark": {
+     "en": "New Tide",
+     "de": "Neue Welle",
+     "fr": "Nouvelle Vague",
+     "es": "Nueva onda",
+     "ru": "Новая волна",
+     "pt": "Nova Onda",
+     "ja": "新たな波",
+     "ko": "새로운 물결"
+    }
+   }
+  },
+  {
+   "ticket": 99000013,
+   "light": 10047,
+   "dark": 20047,
+   "limit": 15000,
+   "end": "2026-12-02T09:00",
+   "names": {
+    "light": {
+     "en": "Prelude to Flight",
+     "de": "Auftakt zum Höhenflug",
+     "fr": "Prélude à l'envol",
+     "es": "Prólogo de vuelo",
+     "ru": "Зов высоты",
+     "pt": "Prelúdio da Ascensão",
+     "ja": "飛翔の序章",
+     "ko": "비상의 서막"
+    },
+    "dark": {
+     "en": "Prelude to Flight",
+     "de": "Auftakt zum Höhenflug",
+     "fr": "Prélude à l'envol",
+     "es": "Prólogo de vuelo",
+     "ru": "Зов высоты",
+     "pt": "Prelúdio da Ascensão",
+     "ja": "飛翔の序章",
+     "ko": "비상의 서막"
+    }
+   }
+  }
+ ]
+}

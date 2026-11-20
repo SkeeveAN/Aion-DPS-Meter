@@ -291,7 +291,7 @@ public static class HubDashboard
         foreach (Aion2Tickets.PassDef pass in Aion2Tickets.Passes.Where(p => me.Tickets.ContainsKey(p.TicketId)))
         {
             int week = Math.Min(me.Tickets[pass.TicketId].Bonus, pass.WeeklyLimit);
-            rows.Add(("pass:" + pass.TicketId, loc[pass.NameKeyFor(me.ServerId)], $"{week:N0} / {pass.WeeklyLimit:N0}", week < pass.WeeklyLimit));
+            rows.Add(("pass:" + pass.TicketId, pass.NameFor(me.ServerId, loc.Language), $"{week:N0} / {pass.WeeklyLimit:N0}", week < pass.WeeklyLimit));
         }
 
         return rows;

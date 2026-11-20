@@ -1,6 +1,8 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using AionDPS.Ui;
 using AionDPS.Update;
 
 namespace AionDPS.Aion2;
@@ -393,23 +395,109 @@ public static class Aion2Tickets
         return readings.Count > 0;
     }
 
-    /// <summary>One Daeva pass as the game counts it: the id of its entry in the pass frame <c>0x24e3</c>, the id of the ticket of our own that holds it
-    /// (count = all experience, bonus = experience of this week, time = when it was last gained), the weekly limit and the end of the pass.</summary>
-    public sealed record PassDef(int TicketId, int FrameId, string NameKey, int WeeklyLimit, DateTime End, int AsmodianFrameId = 0, string? AsmodianNameKey = null)
+    /// <summary>The cost of the levels of a pass where it is known: the first level, each next one, and the experience below which the level can be worked out.</summary>
+    public sealed record PassLevels(int First, int Step, int Known);
+
+    /// <summary>One Daeva pass as the game counts it: the id of its entry in the pass frame <c>0x24e3</c> (Elyos and Asmodian side), the id of the ticket of our own that holds it
+    /// (count = all experience, bonus = experience of this week, time = when it was last gained), the weekly limit, the end of the pass (on the clock the game shows) and its
+    /// names. The list comes from <c>aion2/tickets/passes.json</c> (see <see cref="Passes"/>), so a new pass needs no release.</summary>
+    public sealed record PassDef(int TicketId, int FrameId, int AsmodianFrameId, int WeeklyLimit, DateTime End, Dictionary<string, string> LightNames, Dictionary<string, string> DarkNames,
+        PassLevels? Levels = null, string? NameKey = null, string? AsmodianNameKey = null)
     {
-        /// <summary>The text key of the pass' name for a character of a faction (the server id's thousands: 2 = Asmodian).</summary>
-        public string NameKeyFor(int serverId) => serverId / 1000 == 2 && AsmodianNameKey is not null ? AsmodianNameKey : NameKey;
+        /// <summary>The name of the pass for a character of a faction (the server id's thousands: 2 = Asmodian) in a language: the game's own text, English where the language has none.</summary>
+        public string NameFor(int serverId, string language)
+        {
+            bool dark = serverId / 1000 == 2;
+            Dictionary<string, string> names = dark && DarkNames.Count > 0 ? DarkNames : LightNames;
+            if (names.TryGetValue(language, out string? text) && !string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            if (names.TryGetValue("en", out text) && !string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            string? key = dark ? AsmodianNameKey ?? NameKey : NameKey;
+            return key is null ? "?" : LocalizationManager.Instance[key];
+        }
+
+        /// <summary>The text key of the pass' name for a character of a faction, for the passes the code knows by itself (the fallback without the list).</summary>
+        public string NameKeyFor(int serverId) => serverId / 1000 == 2 && AsmodianNameKey is not null ? AsmodianNameKey : NameKey ?? "";
     }
 
-    /// <summary>The two passes of the first season: "Dawn Legion" (<c>String_UI_BATTLEPASSGROUP_LIGHT_S1_1</c>, entry 10044) and "Planet's Call" (<c>..._LIGHT_S1_2</c>, 10045) on
-    /// the Elyos side, "Ishalgen Mercenary" (<c>..._DARK_S1_1</c>, 20044) and "Planet's Call" (<c>..._DARK_S1_2</c>, 20045) on the Asmodian side. The limits and the ends are the
-    /// same for both sides in the game's table (BattlePassGroup: 50,000 / 15,000 a week, 16 December and 28 October 2026 16:00 UTC) and are those the game showed on
-    /// 19 October 2026 (the ends are on the player's clock). The Asmodian ids were read from two Asmodian recordings of 20 October 2026.</summary>
-    public static readonly PassDef[] Passes =
+    private static volatile PassDef[]? _passes;
+
+    /// <summary>A passes list taken from the server counts at once: the next reader loads it again (no restart).</summary>
+    private static readonly Action<string> PassesWatcher = AssetStoreWatch();
+
+    private static Action<string> AssetStoreWatch()
     {
-        new(99000010, 10044, "Checklist.PassLight1", 50000, new DateTime(2026, 12, 16, 9, 0, 0, DateTimeKind.Local), 20044, "Checklist.PassDark1"),
-        new(99000011, 10045, "Checklist.PassLight2", 15000, new DateTime(2026, 10, 28, 9, 0, 0, DateTimeKind.Local), 20045, "Checklist.PassDark2"),
-    };
+        Action<string> handler = path =>
+        {
+            if (path == "aion2/tickets/passes.json")
+            {
+                _passes = null;
+            }
+        };
+        AssetStore.Changed += handler;
+        return handler;
+    }
+
+    /// <summary>The passes of the global server: the list of <c>aion2/tickets/passes.json</c> (built from the game's table BattlePassGroup by Tools/aion2-dat/build_passes.py and delivered
+    /// by the data update, so a new season or event pass is recognised without a release; a file taken from the server counts from the next start), the first two passes of the
+    /// first season where there is no readable list. The ends are on the player's clock as the game shows them (16 December and 28 October 2026 16:00 UTC), the limits are those of the game's table.</summary>
+    public static PassDef[] Passes => _passes ??= LoadPasses();
+
+    private static PassDef[] LoadPasses()
+    {
+        var list = new List<PassDef>();
+        try
+        {
+            string path = AssetStore.Path("aion2", "tickets", "passes.json");
+            if (File.Exists(path))
+            {
+                using var doc = JsonDocument.Parse(File.ReadAllText(path));
+                foreach (JsonElement p in doc.RootElement.GetProperty("passes").EnumerateArray())
+                {
+                    PassLevels? levels = null;
+                    if (p.TryGetProperty("levels", out JsonElement l))
+                    {
+                        levels = new PassLevels(l.GetProperty("first").GetInt32(), l.GetProperty("step").GetInt32(), l.GetProperty("known").GetInt32());
+                    }
+
+                    JsonElement names = p.GetProperty("names");
+                    list.Add(new PassDef(p.GetProperty("ticket").GetInt32(), p.GetProperty("light").GetInt32(), p.GetProperty("dark").GetInt32(), p.GetProperty("limit").GetInt32(),
+                        DateTime.SpecifyKind(DateTime.ParseExact(p.GetProperty("end").GetString()!, "yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture), DateTimeKind.Local),
+                        ReadNames(names.GetProperty("light")), ReadNames(names.GetProperty("dark")), levels));
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException or KeyNotFoundException or FormatException or InvalidOperationException)
+        {
+            list.Clear();
+        }
+
+        if (list.Count == 0)
+        {
+            list.Add(new PassDef(99000010, 10044, 20044, 50000, new DateTime(2026, 12, 16, 9, 0, 0, DateTimeKind.Local), new(), new(), new PassLevels(400, 1600, 24400), "Checklist.PassLight1", "Checklist.PassDark1"));
+            list.Add(new PassDef(99000011, 10045, 20045, 15000, new DateTime(2026, 10, 28, 9, 0, 0, DateTimeKind.Local), new(), new(), new PassLevels(700, 700, 10500), "Checklist.PassLight2", "Checklist.PassDark2"));
+        }
+
+        return list.ToArray();
+    }
+
+    private static Dictionary<string, string> ReadNames(JsonElement element)
+    {
+        var names = new Dictionary<string, string>();
+        foreach (JsonProperty n in element.EnumerateObject())
+        {
+            names[n.Name] = n.Value.GetString() ?? "";
+        }
+
+        return names;
+    }
 
     /// <summary>The pass frame <c>0x24e3</c> (at login with both passes, later with the one that changed): an entry is <c>id u32 | all experience u32 |
     /// experience of this week u32 | time of the last gain u64 | ...</c>. Checked on the 40 login dumps of 19 October 2026 and against the numbers the game showed
@@ -444,29 +532,17 @@ public static class Aion2Tickets
     /// <summary>A pass level worked out from all experience: the level, the experience in it and what it needs.</summary>
     public readonly record struct PassLevel(int Level, int Into, int Need);
 
-    /// <summary>The level of a pass for all experience, or null where the cost of the levels is not known: the first pass costs 400 for the first level and 1,600 for
-    /// the next ones, the second 700 each (both checked up to the level 16 and 15 on 19 October 2026); higher levels cost more (level 82: 2,300, level 51: 5,000),
-    /// the table between is not known.</summary>
+    /// <summary>The level of a pass for all experience, or null where the cost of the levels is not known (<see cref="PassDef.Levels"/>): the first pass costs 400 for the first level and
+    /// 1,600 for the next ones, the second 700 each (both checked up to the level 16 and 15 on 19 October 2026); higher levels cost more (level 82: 2,300, level 51: 5,000), the table between is not known.</summary>
     public static PassLevel? PassLevelOf(int ticketId, int all)
     {
-        if (ticketId == Passes[0].TicketId)
+        PassDef? pass = Passes.FirstOrDefault(p => p.TicketId == ticketId);
+        if (pass?.Levels is not { } levels || all >= levels.Known)
         {
-            const int FirstLevel = 400, Level = 1600, KnownUntil = FirstLevel + 15 * Level;
-            if (all < FirstLevel)
-            {
-                return new PassLevel(1, all, FirstLevel);
-            }
-
-            return all < KnownUntil ? new PassLevel(2 + (all - FirstLevel) / Level, (all - FirstLevel) % Level, Level) : null;
+            return null;
         }
 
-        if (ticketId == Passes[1].TicketId)
-        {
-            const int Level = 700, KnownUntil = 15 * Level;
-            return all < KnownUntil ? new PassLevel(1 + all / Level, all % Level, Level) : null;
-        }
-
-        return null;
+        return all < levels.First ? new PassLevel(1, all, levels.First) : new PassLevel(2 + (all - levels.First) / levels.Step, (all - levels.First) % levels.Step, levels.Step);
     }
 
     /// <summary>How much of what the next daily refill brings is lost because the counter is full: <c>count + refill - cap</c>, at most the refill, 0 where

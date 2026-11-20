@@ -45,10 +45,10 @@ public sealed class ChecklistWindow : Window
     {
         LocalizationManager loc = LocalizationManager.Instance;
         Title = loc["Checklist.Title"];
-        Width = 700;
+        Width = 1180;
         SizeToContent = SizeToContent.Height;
         MaxHeight = SystemParameters.WorkArea.Height - 40;
-        MinWidth = 640;
+        MinWidth = 900;
         MinHeight = 400;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
@@ -247,66 +247,102 @@ public sealed class ChecklistWindow : Window
         DateTime seenAt = character.SavedAt.ToLocalTime();
         _seen.Text = string.Format(CultureInfo.CurrentCulture, loc["Checklist.Seen"], seenAt.ToString("g", CultureInfo.CurrentCulture));
 
+        List<ChecklistRow> rows = ChecklistRows.Build(character, seenAt, now, _premium, language);
+        // the three weekly counters of the Odyle energy (bought in the trade guild, converted) belong to the energy card; the rest of the weekly list stays below
+        ChecklistRow[] odyleRows = rows.Where(r => r.Key is "weekly:shopodyle" or "weekly:convertbig" or "weekly:convertsmall").ToArray();
+        ChecklistRow[] entries = rows.Where(r => r.Group == ChecklistGroup.Overview && !r.Key.StartsWith("corridor:", StringComparison.Ordinal)).ToArray();
+        ChecklistRow[] corridors = rows.Where(r => r.Key.StartsWith("corridor:", StringComparison.Ordinal)).ToArray();
+        ChecklistRow[] daily = rows.Where(r => r.Group == ChecklistGroup.Daily).ToArray();
+        ChecklistRow[] weekly = rows.Where(r => r.Group == ChecklistGroup.Weekly && !odyleRows.Contains(r)).ToArray();
+
+        // the numbers of the left halves (entries, daily) and of the right halves (corridors, weekly) share their column widths, so the slashes stand under each other in both cards
+        RowLook left = Look(entries.Concat(daily), bar: true, warnColumn: true);
+        RowLook right = Look(corridors.Concat(weekly), bar: true, warnColumn: false);
+        RowLook plain = Look(odyleRows, bar: false, warnColumn: false, minValue: 46, minCap: 34);
+
+        // the top row: Odyle energy, subscriptions and tickets, Daeva passes
+        var top = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+        top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.25, GridUnitType.Star) });
+        top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.4, GridUnitType.Star) });
+        top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.8, GridUnitType.Star) });
         bool odyleLocked = Aion2Tickets.IsLocked(character, Aion2Tickets.OdyleId);
         if ((odyleLocked || character.Tickets.ContainsKey(Aion2Tickets.OdyleId)) && Aion2Tickets.Find(Aion2Tickets.OdyleId) is { } odyleDef)
         {
-            _body.Children.Add(OdyleCard(odyleDef, odyleLocked ? default : character.Tickets[Aion2Tickets.OdyleId], language, odyleLocked, _premium, character.Name));
+            UIElement card = OdyleCard(odyleDef, odyleLocked ? default : character.Tickets[Aion2Tickets.OdyleId], language, odyleLocked, _premium, character.Name, odyleRows, plain, character);
+            ((FrameworkElement)card).Margin = new Thickness(0, 0, 6, 0);
+            top.Children.Add(card);
         }
 
-        List<ChecklistRow> rows = ChecklistRows.Build(character, seenAt, now, _premium, language);
-        foreach ((ChecklistGroup group, string title) in new[] { (ChecklistGroup.Overview, loc["Checklist.Overall"]), (ChecklistGroup.Daily, loc["Checklist.Daily"]), (ChecklistGroup.Weekly, loc["Checklist.Weekly"]) })
+        UIElement? subs = BuildSubscriptions(loc["Checklist.Subs"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
+        if (subs is not null)
         {
-            ChecklistRow[] part = rows.Where(r => r.Group == group).ToArray();
-            if (part.Length > 0)
-            {
-                _body.Children.Add(SectionCard(title, part, character, group == ChecklistGroup.Overview));
-            }
+            Grid.SetColumn(subs, 1);
+            ((FrameworkElement)subs).Margin = new Thickness(0, 0, 6, 0);
+            top.Children.Add(subs);
         }
 
-        AddSubscriptions(loc["Checklist.Subs"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
-        AddPass(loc["Checklist.DaevaPass"], character, language);
+        UIElement? pass = BuildPass(loc["Checklist.DaevaPass"], character, language);
+        if (pass is not null)
+        {
+            Grid.SetColumn(pass, 2);
+            ((FrameworkElement)pass).Margin = new Thickness(0);
+            top.Children.Add(pass);
+        }
 
-        var note = Label(loc["Checklist.Note"], "Brush.TextSubtle", 11);
-        note.TextWrapping = TextWrapping.Wrap;
-        note.Margin = new Thickness(4, 4, 4, 0);
-        _body.Children.Add(note);
-        var legend = Label(loc["Checklist.WarnLegend"], "Brush.TextSubtle", 11);
-        legend.TextWrapping = TextWrapping.Wrap;
-        legend.Margin = new Thickness(4, 2, 4, 0);
-        _body.Children.Add(legend);
+        _body.Children.Add(top);
+
+        if (entries.Length + corridors.Length > 0)
+        {
+            _body.Children.Add(SplitCard(loc["Checklist.Entries"], (null, entries, left), (null, corridors, right), character));
+        }
+
+        if (daily.Length + weekly.Length > 0)
+        {
+            _body.Children.Add(SplitCard(null, (loc["Checklist.Daily"], daily, left), (loc["Checklist.Weekly"], weekly, right), character));
+        }
+
+        _body.Children.Add(Legend(loc));
     }
 
-    /// <summary>The Odyle energy as the game's tooltip shows it: the basic energy (cap 840 with the subscription) and the charged energy (cap 2000).</summary>
-    private static UIElement OdyleCard(TicketDef def, TicketValue value, string language, bool locked, bool premium, string characterName)
+    /// <summary>The Odyle energy as the game's tooltip shows it: the basic energy (cap 840 with the subscription) and the charged energy (cap 2000), then its three weekly counters.</summary>
+    private UIElement OdyleCard(TicketDef def, TicketValue value, string language, bool locked, bool premium, string characterName, ChecklistRow[] weeklyRows, RowLook weeklyLook, TicketCharacter character)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         var stack = new StackPanel();
         // a small switch in front of the title: whether the checklist widget shows the energy
-        var head = new DockPanel { Margin = new Thickness(0, 0, 0, 4) };
+        var head = new DockPanel { Margin = new Thickness(0, 0, 0, 2) };
         CheckBox pick = Pick("odyle");
         pick.Margin = new Thickness(0, 0, 10, 0);
         DockPanel.SetDock(pick, Dock.Left);
         head.Children.Add(pick);
-        head.Children.Add(Label(def.NameIn(language), locked ? "Brush.TextSubtle" : "Brush.Text", 16, bold: true));
+        head.Children.Add(Label(def.NameIn(language), locked ? "Brush.TextSubtle" : "Brush.Text", 15, bold: true));
         stack.Children.Add(head);
         if (!locked)
         {
             // as the guild list shows it: now (+ already charged) (+ still in items); the items are known for the character in the game only
             int? items = string.Equals(characterName, Aion2Tickets.CurrentName, StringComparison.OrdinalIgnoreCase) ? Aion2.Aion2Stock.OdyleItemEnergy() : null;
-            TextBlock summary = HubDashboard.OdyleSummary(value.Count, value.Bonus, items, 14);
-            summary.Margin = new Thickness(0, 0, 0, 4);
+            TextBlock summary = HubDashboard.OdyleSummary(value.Count, value.Bonus, items, 19);
+            summary.Margin = new Thickness(0, 0, 0, 3);
             summary.ToolTip = loc["Checklist.OdyleSummaryHint"];
             stack.Children.Add(summary);
         }
 
-        stack.Children.Add(OdyleLine(loc["Checklist.OdyleBase"], value.Count, Math.Max(premium ? def.SubscribeMax : def.Max, value.Count), locked));
-        stack.Children.Add(OdyleLine(loc["Checklist.OdyleCharged"], value.Bonus, Math.Max(OdyleChargedMax, value.Bonus), locked));
+        int baseCap = Math.Max(premium ? def.SubscribeMax : def.Max, value.Count);
+        int chargedCap = Math.Max(OdyleChargedMax, value.Bonus);
+        RowLook bars = weeklyLook;
+        stack.Children.Add(OdyleLine(loc["Checklist.OdyleBase"], value.Count, baseCap, bars, locked));
+        stack.Children.Add(OdyleLine(loc["Checklist.OdyleCharged"], value.Bonus, chargedCap, bars, locked));
+        foreach (ChecklistRow r in weeklyRows)
+        {
+            stack.Children.Add(Row(r, character, weeklyLook, withTopLine: true));
+        }
+
         return Card(stack);
     }
 
     private const int OdyleChargedMax = 2000;
 
-    private static UIElement OdyleLine(string label, int value, int cap, bool locked = false)
+    private static UIElement OdyleLine(string label, int value, int cap, RowLook look, bool locked = false)
     {
         var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -314,7 +350,7 @@ public sealed class ChecklistWindow : Window
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         TextBlock name = Label(label, locked ? "Brush.TextSubtle" : "Brush.Text", 13);
-        TextBlock numbers = Label($"{value:N0} / {cap:N0}", value > 0 && !locked ? "Brush.Accent" : "Brush.TextSubtle", 13, bold: true);
+        UIElement numbers = NumberBlock(value.ToString("N0", CultureInfo.CurrentCulture), cap.ToString("N0", CultureInfo.CurrentCulture), value > 0 && !locked, look);
         Grid.SetColumn(numbers, 1);
         var bar = new ProgressBar { Minimum = 0, Maximum = Math.Max(1, cap), Value = Math.Min(value, cap), Height = 6, Margin = new Thickness(0, 3, 0, 0) };
         bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
@@ -328,39 +364,40 @@ public sealed class ChecklistWindow : Window
         return grid;
     }
 
-    /// <summary>The number of a row as three cells so the numbers stand one under the other: the count right-aligned, the slash, the maximum left-aligned.</summary>
-    private static void AddNumberCells(Grid grid, int row, int firstColumn, int count, int cap, bool estimated, bool open, int bonus = 0)
+    /// <summary>How a group of rows is laid out: with a small bar and a column for the warning, and the widths of the two number cells (all rows of a group share them, so the slashes stand under each other).</summary>
+    internal sealed record RowLook(bool Bar, bool WarnColumn, double ValueWidth, double CapWidth);
+
+    /// <summary>The width of a number cell for a text of that many characters (13 px semibold digits).</summary>
+    private static double NumberWidth(int characters) => Math.Max(14, characters * 8.1 + 4);
+
+    private static string ValueText(ChecklistRow r) => (r.Estimated ? "~" : "") + r.Count.ToString("N0", CultureInfo.CurrentCulture) + (r.Bonus > 0 ? $" (+{r.Bonus.ToString("N0", CultureInfo.CurrentCulture)})" : "");
+
+    private static RowLook Look(IEnumerable<ChecklistRow> rows, bool bar, bool warnColumn, double minValue = 14, double minCap = 14)
     {
-        string brush = open ? "Brush.Accent" : "Brush.TextSubtle";
-        TextBlock now = Label((estimated ? "~" : "") + count.ToString(CultureInfo.CurrentCulture) + (bonus > 0 ? $" (+{bonus.ToString(CultureInfo.CurrentCulture)})" : ""), brush, 13, bold: true);
-        now.HorizontalAlignment = HorizontalAlignment.Right;
-        now.Margin = new Thickness(0, 1, 0, 1);
-        TextBlock slash = Label(" / ", "Brush.TextSubtle", 13);
-        slash.Margin = new Thickness(0, 1, 0, 1);
-        TextBlock max = Label(cap.ToString(CultureInfo.CurrentCulture), brush, 13, bold: true);
-        max.HorizontalAlignment = HorizontalAlignment.Left;
-        max.Margin = new Thickness(0, 1, 0, 1);
-        foreach ((TextBlock block, int offset) in new[] { (now, 0), (slash, 1), (max, 2) })
-        {
-            Grid.SetRow(block, row);
-            Grid.SetColumn(block, firstColumn + offset);
-            grid.Children.Add(block);
-        }
+        ChecklistRow[] list = rows.ToArray();
+        double value = list.Length == 0 ? minValue : Math.Max(minValue, NumberWidth(list.Max(r => ValueText(r).Length)));
+        double cap = list.Length == 0 ? minCap : Math.Max(minCap, NumberWidth(list.Max(r => r.Cap.ToString("N0", CultureInfo.CurrentCulture).Length)));
+        return new RowLook(bar, warnColumn, value, cap);
     }
 
-    private static Grid NumberGrid(int extraColumns)
+    /// <summary>The number of a row as three cells so the numbers stand one under the other: the count right-aligned, the slash, the maximum left-aligned.</summary>
+    private static UIElement NumberBlock(string count, string cap, bool open, RowLook look)
     {
-        var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });  // the switch for the widget
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(270) }); // name
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(62) });  // count with its bonus (right-aligned)
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // slash
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });  // maximum (left-aligned)
-        for (int i = 0; i < extraColumns; i++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        }
-
+        string brush = open ? "Brush.Accent" : "Brush.TextSubtle";
+        var grid = new Grid { HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(look.ValueWidth) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(look.CapWidth) });
+        TextBlock now = Label(count, brush, 13, bold: true);
+        now.HorizontalAlignment = HorizontalAlignment.Right;
+        TextBlock slash = Label(" / ", "Brush.TextSubtle", 13);
+        TextBlock max = Label(cap, brush, 13, bold: true);
+        max.HorizontalAlignment = HorizontalAlignment.Left;
+        Grid.SetColumn(slash, 1);
+        Grid.SetColumn(max, 2);
+        grid.Children.Add(now);
+        grid.Children.Add(slash);
+        grid.Children.Add(max);
         return grid;
     }
 
@@ -378,45 +415,79 @@ public sealed class ChecklistWindow : Window
         return box;
     }
 
-    /// <summary>One counter row: switch, name, the number (one under the other), behind it the warning of a refill that would run over the cap or the tick of a finished day.</summary>
-    private void AddRow(Grid grid, int row, ChecklistRow r, TicketCharacter character)
+    /// <summary>The level (and item level) from which a counter exists: shown behind its name, so a lower character knows why it is missing or 0.</summary>
+    private static (int Level, int ItemLevel)? Requirement(string key) => key switch
     {
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        bool open = r.CountsUp ? r.Count < r.Cap : r.Count > 0;
-        CheckBox pick = Pick(r.Key);
-        Grid.SetRow(pick, row);
-        grid.Children.Add(pick);
-        TextBlock label = Label(r.Label, open ? "Brush.Text" : "Brush.TextSubtle", 13);
-        label.Margin = new Thickness(0, 1, 0, 1);
-        Grid.SetRow(label, row);
-        Grid.SetColumn(label, 1);
-        grid.Children.Add(label);
-        AddNumberCells(grid, row, 2, r.Count, r.Cap, r.Estimated, open, r.Bonus);
-        if (r.Manual is { } counter)
-        {
-            var hit = new Border { Background = Brushes.Transparent, Cursor = Cursors.Hand, ToolTip = "+1: left click / -1: right click" };
-            Grid.SetRow(hit, row);
-            Grid.SetColumn(hit, 1);
-            Grid.SetColumnSpan(hit, 4);
-            hit.MouseLeftButtonDown += (_, e) => { StepManual(character.Name, counter, 1); e.Handled = true; };
-            hit.MouseRightButtonDown += (_, e) => { StepManual(character.Name, counter, -1); e.Handled = true; };
-            grid.Children.Add(hit);
-        }
-    }
+        "ticket:101" => (30, 0),
+        "ticket:4" or "ticket:80000001" or "daily:missions" or "weekly:verteron" => (45, 0),
+        "weekly:abyss" => (45, 1000),
+        _ when key.StartsWith("corridor:", StringComparison.Ordinal) => (45, 1000),
+        _ => null,
+    };
 
-    private UIElement SectionCard(string title, IEnumerable<ChecklistRow> rows, TicketCharacter character, bool withExtras)
+    private static UIElement RequirementChip((int Level, int ItemLevel) need)
     {
         LocalizationManager loc = LocalizationManager.Instance;
-        var stack = new StackPanel();
-        stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
-        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
-        Grid grid = NumberGrid(1);
-        int i = 0;
-        foreach (ChecklistRow r in rows)
+        string text = need.ItemLevel > 0
+            ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.FromLevelItem"], need.Level, need.ItemLevel.ToString("N0", CultureInfo.CurrentCulture))
+            : string.Format(CultureInfo.CurrentCulture, loc["Checklist.FromLevel"], need.Level);
+        var chip = new Border { BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Padding = new Thickness(5, 0, 5, 1), Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Child = Label(text, "Brush.TextMuted", 9.5) };
+        chip.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        return chip;
+    }
+
+    /// <summary>One counter row: switch, name (with its level hint), a small bar, where there is one the warning of a refill that would run over the cap or the tick of a finished day, and the number.</summary>
+    private UIElement Row(ChecklistRow r, TicketCharacter character, RowLook look, bool withTopLine = false)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        bool open = r.CountsUp ? r.Count < r.Cap : r.Count > 0;
+        var grid = new Grid { MinHeight = 27 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        int col = 2;
+        int barColumn = -1, warnColumn = -1;
+        if (look.Bar)
         {
-            AddRow(grid, i, r, character);
+            barColumn = col++;
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+        }
+
+        if (look.WarnColumn)
+        {
+            warnColumn = col++;
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(76) });
+        }
+
+        int numberColumn = col;
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        CheckBox pick = Pick(r.Key);
+        grid.Children.Add(pick);
+        var name = new WrapPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 2, 6, 2) };
+        TextBlock title = Label(r.Label, open ? "Brush.Text" : "Brush.TextSubtle", 13);
+        title.TextWrapping = TextWrapping.Wrap;
+        name.Children.Add(title);
+        if (Requirement(r.Key) is { } need)
+        {
+            name.Children.Add(RequirementChip(need));
+        }
+
+        Grid.SetColumn(name, 1);
+        grid.Children.Add(name);
+        if (barColumn >= 0)
+        {
+            var bar = new ProgressBar { Minimum = 0, Maximum = Math.Max(1, r.Cap), Value = Math.Min(r.Count, r.Cap), Height = 5, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+            bar.SetResourceReference(Control.ForegroundProperty, open ? "Brush.Accent" : "Brush.TextSubtle");
+            bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
+            bar.SetResourceReference(Control.BorderBrushProperty, "Brush.Border");
+            Grid.SetColumn(bar, barColumn);
+            grid.Children.Add(bar);
+        }
+
+        if (warnColumn >= 0)
+        {
             UIElement? extra = null;
-            if (withExtras && r.Def is { } def)
+            if (r.Def is { } def && r.Group == ChecklistGroup.Overview)
             {
                 // the next daily refill would run over the cap: part of it is lost tomorrow
                 int lost = Aion2Tickets.IsLocked(character, def.Id) ? 0 : Aion2Tickets.LostAtNextRefill(def, r.Count, _premium);
@@ -428,21 +499,121 @@ public sealed class ChecklistWindow : Window
             else if (r.Key == "daily:missions" && r.Count >= Aion2Tickets.MissionsPerDay)
             {
                 extra = Label("\u2713", "Brush.Accent", 15, bold: true);
-                ((TextBlock)extra).Margin = new Thickness(14, 0, 0, 0);
             }
 
-            if (extra is not null)
+            if (extra is FrameworkElement shown)
             {
-                Grid.SetRow(extra, i);
-                Grid.SetColumn(extra, 5);
-                grid.Children.Add(extra);
+                shown.HorizontalAlignment = HorizontalAlignment.Right;
+                shown.Margin = new Thickness(0, 0, 8, 0);
+                Grid.SetColumn(shown, warnColumn);
+                grid.Children.Add(shown);
             }
-
-            i++;
         }
 
-        stack.Children.Add(grid);
-        return Card(stack);
+        UIElement numbers = NumberBlock(r.Estimated ? "~" + r.Count.ToString("N0", CultureInfo.CurrentCulture) + (r.Bonus > 0 ? $" (+{r.Bonus.ToString("N0", CultureInfo.CurrentCulture)})" : "") : ValueText(r), r.Cap.ToString("N0", CultureInfo.CurrentCulture), open, look);
+        Grid.SetColumn(numbers, numberColumn);
+        grid.Children.Add(numbers);
+        if (r.Manual is { } counter)
+        {
+            var hit = new Border { Background = Brushes.Transparent, Cursor = Cursors.Hand, ToolTip = "+1: left click / -1: right click" };
+            Grid.SetColumn(hit, 1);
+            Grid.SetColumnSpan(hit, numberColumn);
+            hit.MouseLeftButtonDown += (_, e) => { StepManual(character.Name, counter, 1); e.Handled = true; };
+            hit.MouseRightButtonDown += (_, e) => { StepManual(character.Name, counter, -1); e.Handled = true; };
+            grid.Children.Add(hit);
+        }
+
+        if (!withTopLine)
+        {
+            return grid;
+        }
+
+        var line = new Border { BorderThickness = new Thickness(0, 1, 0, 0), Child = grid };
+        line.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        return line;
+    }
+
+    /// <summary>A card with two equal halves (so what is on the right stands in one line in every such card), each with its own rows and, where given, a heading.</summary>
+    private UIElement SplitCard(string? title, (string? Heading, ChecklistRow[] Rows, RowLook Look) left, (string? Heading, ChecklistRow[] Rows, RowLook Look) right, TicketCharacter character)
+    {
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        int index = 0;
+        foreach ((string? heading, ChecklistRow[] rows, RowLook look) in new[] { left, right })
+        {
+            var half = new StackPanel();
+            if (heading is not null)
+            {
+                TextBlock h = Label(heading, "Brush.Text", 14, bold: true);
+                h.Margin = new Thickness(0, 0, 0, 3);
+                half.Children.Add(h);
+            }
+
+            bool first = true;
+            foreach (ChecklistRow r in rows)
+            {
+                half.Children.Add(Row(r, character, look, withTopLine: !first));
+                first = false;
+            }
+
+            Grid.SetColumn(half, index * 2);
+            grid.Children.Add(half);
+            index++;
+        }
+
+        var card = new StackPanel();
+        if (title is not null)
+        {
+            TextBlock t = Label(title, "Brush.Text", 14, bold: true);
+            t.Margin = new Thickness(0, 0, 0, 4);
+            card.Children.Add(t);
+        }
+
+        card.Children.Add(grid);
+        Border border = Card(card);
+        return border;
+    }
+
+    /// <summary>What the switches and the signs mean, as short lines: three left, three right.</summary>
+    private static UIElement Legend(LocalizationManager loc)
+    {
+        var grid = new Grid { Margin = new Thickness(4, 2, 4, 0) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        var leftColumn = new StackPanel();
+        var rightColumn = new StackPanel { Margin = new Thickness(18, 0, 0, 0) };
+        Grid.SetColumn(rightColumn, 1);
+
+        var pick = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 2) };
+        var pill = new Border { Width = 22, Height = 11, CornerRadius = new CornerRadius(6), Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center, Child = new System.Windows.Shapes.Ellipse { Width = 7, Height = 7, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 2, 0) } };
+        pill.SetResourceReference(Border.BackgroundProperty, "Brush.Accent");
+        ((System.Windows.Shapes.Ellipse)pill.Child).SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Brush.Window");
+        pick.Children.Add(pill);
+        pick.Children.Add(Label(loc["Checklist.PickHint"], "Brush.TextSubtle", 11));
+        leftColumn.Children.Add(pick);
+        foreach (string key in new[] { "Checklist.LegendNumbers", "Checklist.LegendEstimate" })
+        {
+            leftColumn.Children.Add(LegendLine(loc[key]));
+        }
+
+        foreach (string key in new[] { "Checklist.LegendMissions", "Checklist.LegendPurchases", "Checklist.WarnLegend" })
+        {
+            rightColumn.Children.Add(LegendLine(loc[key]));
+        }
+
+        grid.Children.Add(leftColumn);
+        grid.Children.Add(rightColumn);
+        return grid;
+    }
+
+    private static TextBlock LegendLine(string text)
+    {
+        TextBlock line = Label(text, "Brush.TextSubtle", 11);
+        line.TextWrapping = TextWrapping.Wrap;
+        line.Margin = new Thickness(0, 0, 0, 2);
+        return line;
     }
 
     private void StepManual(string character, ChecklistManual.Counter counter, int delta)
@@ -484,6 +655,43 @@ public sealed class ChecklistWindow : Window
         return panel;
     }
 
+    /// <summary>A time left as cells so the units stand under each other ("10 d 3 h" over "10 d 13 h"); a text of another shape ("6:14") stands right-aligned on the same edge.</summary>
+    private static UIElement TimeCell(string text, string brush)
+    {
+        var grid = new Grid { Width = 96, HorizontalAlignment = HorizontalAlignment.Right };
+        System.Text.RegularExpressions.Match m = System.Text.RegularExpressions.Regex.Match(text, @"^(\d+)\s(\D+?)\s(\d+)\s(\D+)$");
+        if (!m.Success)
+        {
+            TextBlock raw = Label(text, brush, 13, bold: true);
+            raw.HorizontalAlignment = HorizontalAlignment.Right;
+            grid.Children.Add(raw);
+            return grid;
+        }
+
+        foreach (double width in new[] { 22, 22, 22, 30 })
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(width) });
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            TextBlock cell = Label(m.Groups[i + 1].Value, brush, 13, bold: true);
+            if (i % 2 == 0)
+            {
+                cell.HorizontalAlignment = HorizontalAlignment.Right;
+            }
+            else
+            {
+                cell.Margin = new Thickness(4, 0, 0, 0);
+            }
+
+            Grid.SetColumn(cell, i);
+            grid.Children.Add(cell);
+        }
+
+        return grid;
+    }
+
     /// <summary>One line of the membership card: the name left, the time right (with a triangle when it runs out soon), and under it small lines.</summary>
     private static void AddSubscriptionRow(StackPanel stack, string key, string name, string right, string rightBrush, string? warnBrush, bool muted, params string[] notes)
     {
@@ -494,6 +702,8 @@ public sealed class ChecklistWindow : Window
         CheckBox pick = Pick(key);
         grid.Children.Add(pick);
         TextBlock label = Label(name, muted ? "Brush.TextSubtle" : "Brush.Text", 13);
+        label.TextWrapping = TextWrapping.Wrap;
+        label.Margin = new Thickness(0, 0, 6, 0);
         Grid.SetColumn(label, 1);
         var value = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         if (warnBrush is not null)
@@ -503,7 +713,7 @@ public sealed class ChecklistWindow : Window
             value.Children.Add(badge);
         }
 
-        value.Children.Add(Label(right, rightBrush, 13, bold: true));
+        value.Children.Add(TimeCell(right, rightBrush));
         Grid.SetColumn(value, 2);
         grid.Children.Add(label);
         grid.Children.Add(value);
@@ -518,7 +728,7 @@ public sealed class ChecklistWindow : Window
     }
 
     /// <summary>Membership, pet auto-loot and the access times: when they run out, and what is gone then.</summary>
-    private void AddSubscriptions(string title, IEnumerable<TicketDef> defs, TicketCharacter character, string language)
+    private UIElement? BuildSubscriptions(string title, IEnumerable<TicketDef> defs, TicketCharacter character, string language)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         TicketDef[] times = defs.ToArray();
@@ -527,7 +737,7 @@ public sealed class ChecklistWindow : Window
         bool hasLoot = character.Tickets.TryGetValue(Aion2Tickets.AutoLootId, out TicketValue loot);
         if (times.Length == 0 && !hasMember && !hasLoot)
         {
-            return;
+            return null;
         }
 
         var stack = new StackPanel();
@@ -577,17 +787,17 @@ public sealed class ChecklistWindow : Window
             AddSubscriptionRow(stack, "time:" + def.Id, def.NameIn(language), $"{(int)left.TotalHours}:{left.Minutes:00}", open ? "Brush.Accent" : "Brush.TextSubtle", null, !open);
         }
 
-        _body.Children.Add(Card(stack));
+        return Card(stack);
     }
 
     /// <summary>The Daeva passes of the character: level (where the cost of the levels is known), experience of the week against the weekly limit, end of the pass.</summary>
-    private void AddPass(string title, TicketCharacter character, string language)
+    private UIElement? BuildPass(string title, TicketCharacter character, string language)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         var found = Aion2Tickets.Passes.Where(p => character.Tickets.ContainsKey(p.TicketId)).ToArray();
         if (found.Length == 0)
         {
-            return;
+            return null;
         }
 
         var stack = new StackPanel();
@@ -598,41 +808,44 @@ public sealed class ChecklistWindow : Window
             TicketValue value = character.Tickets[pass.TicketId];
             int week = Math.Min(value.Bonus, pass.WeeklyLimit);
             bool full = value.Bonus >= pass.WeeklyLimit;
-            var head = new Grid { Margin = new Thickness(0, 6, 0, 0) };
-            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
+            var head = new Grid { Margin = new Thickness(0, found[0] == pass ? 4 : 10, 0, 0) };
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            head.Children.Add(Pick("pass:" + pass.TicketId));
-            TextBlock passName = Label(loc[pass.NameKeyFor(character.ServerId)], "Brush.Text", 13, bold: true);
+            head.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            head.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            CheckBox passPick = Pick("pass:" + pass.TicketId);
+            Grid.SetRowSpan(passPick, 2);
+            head.Children.Add(passPick);
+            TextBlock passName = Label(pass.NameFor(character.ServerId, language), "Brush.Text", 13, bold: true);
             Grid.SetColumn(passName, 1);
             head.Children.Add(passName);
             bool ended = DateTime.Now >= pass.End;
             TextBlock end = Label(string.Format(CultureInfo.CurrentCulture, loc[ended ? "Checklist.PassEnded" : "Checklist.PassEnds"], pass.End.ToString("g", CultureInfo.CurrentCulture)), "Brush.TextSubtle", 11);
-            Grid.SetColumn(end, 2);
+            Grid.SetColumn(end, 1);
+            Grid.SetRow(end, 1);
             head.Children.Add(end);
             stack.Children.Add(head);
 
-            var line = new Grid { Margin = new Thickness(0, 1, 0, 0) };
-            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            Aion2Tickets.PassLevel? level = Aion2Tickets.PassLevelOf(pass.TicketId, value.Count);
-            string levelText = level is { } l
-                ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassLevel"], l.Level, l.Into.ToString("N0", CultureInfo.CurrentCulture), l.Need.ToString("N0", CultureInfo.CurrentCulture))
-                : string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassTotal"], value.Count.ToString("N0", CultureInfo.CurrentCulture));
-            line.Children.Add(Label(levelText, "Brush.TextSubtle", 12));
-            TextBlock weekText = Label(string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassWeek"], week.ToString("N0", CultureInfo.CurrentCulture), pass.WeeklyLimit.ToString("N0", CultureInfo.CurrentCulture)), full ? "Brush.Heal" : "Brush.Accent", 12, bold: true);
-            Grid.SetColumn(weekText, 1);
-            line.Children.Add(weekText);
-            stack.Children.Add(line);
+            // the week first (the number that matters), its bar, then what the pass holds in total (the level where the cost of the levels is known)
+            TextBlock weekText = Label(string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassWeek"], week.ToString("N0", CultureInfo.CurrentCulture), pass.WeeklyLimit.ToString("N0", CultureInfo.CurrentCulture)), full ? "Brush.Heal" : "Brush.Accent", 14, bold: true);
+            weekText.Margin = new Thickness(32, 3, 0, 0);
+            stack.Children.Add(weekText);
 
-            var bar = new ProgressBar { Minimum = 0, Maximum = pass.WeeklyLimit, Value = week, Height = 5, Margin = new Thickness(0, 3, 0, 0) };
+            var bar = new ProgressBar { Minimum = 0, Maximum = pass.WeeklyLimit, Value = week, Height = 5, Margin = new Thickness(32, 4, 0, 0) };
             bar.SetResourceReference(Control.ForegroundProperty, full ? "Brush.Heal" : "Brush.Accent");
             bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
             bar.SetResourceReference(Control.BorderBrushProperty, "Brush.Border");
             stack.Children.Add(bar);
+            Aion2Tickets.PassLevel? level = Aion2Tickets.PassLevelOf(pass.TicketId, value.Count);
+            string levelText = level is { } l
+                ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassLevel"], l.Level, l.Into.ToString("N0", CultureInfo.CurrentCulture), l.Need.ToString("N0", CultureInfo.CurrentCulture))
+                : string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassTotal"], value.Count.ToString("N0", CultureInfo.CurrentCulture));
+            TextBlock total = Label(levelText, "Brush.TextSubtle", 12);
+            total.Margin = new Thickness(32, 3, 0, 0);
+            stack.Children.Add(total);
         }
 
-        _body.Children.Add(Card(stack));
+        return Card(stack);
     }
 
     private static Dictionary<string, Dictionary<string, string>>? _scrollNames;

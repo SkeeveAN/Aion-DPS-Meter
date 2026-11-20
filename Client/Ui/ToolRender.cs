@@ -229,6 +229,14 @@ public static class ToolRender
     /// <summary>The checklist with made-up tickets of two characters, the way the render-checklist picture has it.</summary>
     private static ToolPage ChecklistPage()
     {
+        if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_REAL") is { Length: > 0 } real)
+        {
+            // the saved tickets of the data folder (AIONDPS_DATA_DIR holds a copy of the real ones) and the character named: the real numbers instead of the made-up ones
+            Aion2.Aion2Tickets.EnablePersistence();
+            Aion2.Aion2Tickets.NoteCharacter(real, 1304, DateTime.Now);
+            return new ToolPage { Content = ThemedChrome.TakeContent(new ChecklistWindow()) ?? new Grid() };
+        }
+
         Aion2.Aion2Tickets.Reset();
         Aion2.Aion2Tickets.TryParseList(Convert.FromHexString(Combat.SelfCheckTickets.SampleLogin), out var entries);
         var t0 = DateTime.Now;

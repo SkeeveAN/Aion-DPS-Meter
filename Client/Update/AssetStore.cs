@@ -96,6 +96,9 @@ public static class AssetStore
         set { lock (Gate) { Load().ManifestEtag = value; } }
     }
 
+    /// <summary>Raised (with the relative path) when a file taken from the server starts or stops counting, so a reader that keeps what it read can read it again without a restart.</summary>
+    public static event Action<string>? Changed;
+
     internal static void SetEntry(string relative, Entry entry)
     {
         lock (Gate)
@@ -103,6 +106,8 @@ public static class AssetStore
             Load().Files[relative] = entry;
             Resolved.Remove(relative);
         }
+
+        Changed?.Invoke(relative);
     }
 
     internal static void RemoveEntry(string relative)
@@ -112,6 +117,8 @@ public static class AssetStore
             Load().Files.Remove(relative);
             Resolved.Remove(relative);
         }
+
+        Changed?.Invoke(relative);
     }
 
     internal static IReadOnlyList<string> IndexedPaths()
