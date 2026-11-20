@@ -21,6 +21,14 @@
      "Backend"
     ],
     "date": "2026-11-20"
+   },
+   {
+    "text": "Backend: groundwork for comparing a character with the best of its class - stored group results per class (Top 10, Top 25, Top 10 %, all) rebuilt every night, and a read-only API for them and for one character against a group; no page or client uses it yet",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-20"
    }
   ]
  },
