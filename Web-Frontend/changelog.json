@@ -1,5 +1,25 @@
 [
  {
+  "version": "2.1.5",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Boss fight settings: the play buttons for the speech volumes are on the new page too, and the cube out-of-sight sound can be tried",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "the play buttons for the speech volumes now show on the boss fight page, and the out-of-sight sound of a cube can be tried",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.1.4",
   "date": "2026-11-20",
   "items": [
