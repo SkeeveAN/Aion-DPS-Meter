@@ -11277,6 +11277,11 @@
     "ja": "出現する場合あり",
     "ko": "나올 수 있음"
   },
+  "Settings.Gather.CubeLeft": {
+    "en": "Out-of-sight sound: a falling tone when a cube leaves your range (same switch and volume)",
+    "de": "Ton bei verlorenem Kubus: ein fallender Ton, wenn ein Kubus außer Reichweite geht (gleicher Schalter und gleiche Lautstärke)",
+    "fr": "Son de cube perdu : un son descendant quand un cube sort de votre portée (même interrupteur et même volume)"
+  },
   "Settings.Gather.CubeArrival": {
     "en": "Arrival chime: three rising notes as soon as a cube appears (same switch and volume)",
     "de": "Ankunftston: drei aufsteigende Töne, sobald ein Kubus auftaucht (gleicher Schalter und gleiche Lautstärke)",

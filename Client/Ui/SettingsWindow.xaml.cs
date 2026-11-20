@@ -1727,6 +1727,8 @@ public partial class SettingsWindow : Window
         CubeSoundTest.Click += TestCubeSound;
         CubeArrivalTest.Click -= TestCubeArrival;
         CubeArrivalTest.Click += TestCubeArrival;
+        CubeLeftTest.Click -= TestCubeLeft;
+        CubeLeftTest.Click += TestCubeLeft;
         ShowMapOnCubeBox.IsChecked = settings.ShowMapOnCube;
         PvpAlertNearBox.IsChecked = settings.PvpAlertNear;
         PvpAlertTargetedBox.IsChecked = settings.PvpAlertTargeted;
@@ -1742,6 +1744,8 @@ public partial class SettingsWindow : Window
     private void TestPvpTargeted(object sender, RoutedEventArgs e) => NotifySounds.PlayPvpTargeted((int)PvpAlertVolumeSlider.Value);
 
     private void TestCubeArrival(object sender, RoutedEventArgs e) => NotifySounds.PlayCubeArrival((int)CubeVolumeSlider.Value);
+
+    private void TestCubeLeft(object sender, RoutedEventArgs e) => NotifySounds.PlayCubeLeft((int)CubeVolumeSlider.Value);
 
     private void TestCubeSound(object sender, RoutedEventArgs e) =>
         NotifySounds.Play((CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping", (int)CubeVolumeSlider.Value);

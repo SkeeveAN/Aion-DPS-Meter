@@ -193,6 +193,24 @@ public static class ToolConfigs
             ConfigControls.Note(loc["Settings.PvpAlerts.Hint"])));
     }
 
+    private static readonly CastSpeech SampleSpeech = new();
+
+    /// <summary>The play button of a volume row: a sample announcement of that kind at the slider's volume as it stands now (the kind's own switch does not matter, the volume is what is tried).</summary>
+    private static void PlaySpeechSample(string kind, double volume)
+    {
+        var loc = LocalizationManager.Instance;
+        MeterSettings s = MeterSettings.Load();
+        s.SpeechOnYou = s.SpeechOnAll = s.SpeechLethalYou = s.SpeechLethalAll = true;
+        bool lethal = kind.Contains("Lethal");
+        bool atYou = kind.EndsWith("You");
+        string skill = loc[lethal ? "Speech.SampleDeath" : "Speech.SampleIce"];
+        string? say = CastSpeech.Sentence(s, skill, atYou, !atYou, lethal, CastSpeech.WordsLanguage(s));
+        if (say is not null)
+        {
+            SampleSpeech.Speak(say, s.SpeechVoiceId, volume, AudioOutput.DeviceId);
+        }
+    }
+
     private static UIElement Speech(ConfigControls c)
     {
         var loc = LocalizationManager.Instance;
@@ -232,7 +250,10 @@ public static class ToolConfigs
             var name = new TextBlock { Text = loc[k.Key], TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
             name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
             var vol = c.SliderControl(0, 100, 5, k.Vol(now), v => c.Change(s => k.SetVol(s, v)), v => v + " %");
-            rows.Add(ConfigControls.ListRow(on, name, (vol, 270)));
+            var slider = (Slider)vol.Children[0];
+            var play = new Button { Content = "▶", Width = 28, Height = 26, Padding = new Thickness(0), Margin = new Thickness(8, 0, 0, 0), ToolTip = loc["Settings.Speech.PlayVolume"], IsEnabled = voices.Count > 0 };
+            play.Click += (_, _) => PlaySpeechSample(k.Key, slider.Value / 100.0);
+            rows.Add(ConfigControls.ListRow(on, name, (vol, 270), (play, 0)));
         }
 
         rows.Add(ConfigControls.Note(loc["Settings.Speech.Note"]));
