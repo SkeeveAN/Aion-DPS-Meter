@@ -32,14 +32,15 @@
 - Classements de boss et profils publics de personnages sur aiondps.com (envoi facultatif, désactivé par défaut)
 - Carte interactive, calendrier d'événements, minuteurs de boss mondiaux et surcouche réseau
 - Incantations de boss annoncées par la voix, journal de butin, outil d'attributs, calculateur de craft et checklist quotidienne
-- Passif : capture de paquets uniquement, aucune lecture de la mémoire, aucune injection, rien envoyé au jeu
+- Passif : capture de paquets uniquement, aucune lecture de la mémoire, aucune injection, aucune donnée de jeu envoyée au jeu
 - Gratuit, open source (MIT) et se met à jour tout seul
 
 Fonctionne avec la version mondiale d'AION 2 : toutes les régions lancées par NCSOFT le 5 octobre 2026. La Corée et Taïwan ont quelques versions d'avance, la reconnaissance des compétences peut donc y être incomplète.
 
 Un compteur de dégâts/soins et une boîte à outils pour **Aion 2**. Il lit le trafic réseau du jeu sur votre machine
-grâce au pilote [Npcap](https://npcap.com) — passivement : il n'envoie jamais de paquet et ne touche ni le
-processus du jeu ni sa mémoire. Rien de votre partie ne quitte votre machine, sauf si vous l'envoyez (voir
+grâce au pilote [Npcap](https://npcap.com) — passivement : il n'envoie aucune donnée de jeu et ne touche ni le
+processus du jeu ni sa mémoire. La seule chose qu'il peut envoyer vers le serveur de jeu est un petit ping, et seulement si vous
+activez vous-même l'overlay réseau ou la page réseau (voir [Overlay réseau](#overlay-réseau)). Rien de votre partie ne quitte votre machine, sauf si vous l'envoyez (voir
 [Envois](#envois)) ; l'autre chose qu'il envoie est une vérification des mises à jour, qui demande à GitHub si une
 version plus récente existe et peut être désactivée ; voir [Mises à jour](#mises-à-jour).
 
@@ -61,6 +62,12 @@ version plus récente existe et peut être désactivée ; voir [Mises à jour](#
 
 ## Ce qu'il fait
 
+### L'interface 2.0 : tableau de bord, widgets et concepteur d'overlays
+
+Le programme s'ouvre dans une seule fenêtre avec les onglets **Tableau de bord**, **Combat & analyse** et **Personnage**, et les outils regroupés sous **Outils** (Planification, Monde, Combat & streaming et **Client** pour les réglages du programme lui-même). Chaque page d'outil a un onglet **Affichage** et un onglet **Configuration**. Le **tableau de bord** est un plateau que vous disposez vous-même : déplacez un widget par son titre, redimensionnez-le par le coin, retirez-le avec la croix et remettez-le avec le plus ; la checklist, les boss mondiaux, les chiffres clés, le dernier combat de boss, la mise à jour, les annonces et les Twitch Drops sont des widgets, et chaque page de l'application peut en devenir un. Vous pouvez garder plusieurs tableaux de bord. Chaque widget peut aussi se poser sur le jeu comme overlay.
+
+Appuyez sur **Ctrl+Alt+D** pour ouvrir le **concepteur d'overlays** : il assombrit l'écran et vous laisse glisser, redimensionner et ancrer chaque overlay et chaque widget (commutateurs de grille et d'ancrage dans sa barre), et un engrenage sur chaque overlay ouvre sa couleur de fond, son opacité de fond et son opacité de texte. **Échap** le quitte.
+
 ### Dégâts et soins en direct pour tout le monde
 
 Chaque joueur de votre groupe ou raid avec son nom, ses dégâts totaux, son DPS et une barre de part ; faction et
@@ -71,8 +78,8 @@ marque une tentative après laquelle le boss a retrouvé toute sa vie).
 
 ### Cinq vues, à un clic d'écart
 
-**Dégâts**, **Soins**, **Dégâts reçus** et deux vues **Tout en un**. Changez avec le raccourci (par défaut
-**Ctrl+Alt+M**) ou en cliquant sur le libellé du mode dans l'overlay. *Tout en un* affiche côte à côte dégâts
+**Dégâts**, **Soins**, **Dégâts reçus** et deux vues **Tout en un**. Changez avec les pastilles
+de mode de la page du meter en direct (et du widget du meter pendant que le concepteur d'overlays est ouvert). *Tout en un* affiche côte à côte dégâts
 reçus, soins et total ; *All in One Compact* garde les colonnes DPS et total habituelles et place les soins et les
 dégâts reçus dans une petite seconde ligne sous le nom.
 
@@ -83,11 +90,11 @@ dégâts reçus dans une petite seconde ligne sous le nom.
 
 ### Un overlay traversable
 
-**Hide UI** transforme la fenêtre en petites pastilles (ou en panneau compact) posées sur Aion 2 sans intercepter
+Le widget du meter en direct se pose sur Aion 2 en petites pastilles (ou en liste compacte) sans intercepter
 le moindre clic. Opacité, barres de part de dégâts, vie du boss et dégâts reçus par joueur sont des options.
-Le panneau compact peut, en option, laisser passer les clics de la souris vers le jeu. L'overlay ne s'affiche que lorsque le jeu est au premier plan. Activez-le de n'importe où avec un raccourci.
+Le panneau compact peut, en option, laisser passer les clics de la souris vers le jeu. L'overlay ne s'affiche que lorsque le jeu est au premier plan. Affichez les overlays et masquez la fenêtre de n'importe où avec **Ctrl+Alt+H**.
 
-Facultatif (**Paramètres → Interface → Masquer pendant les menus du jeu**, désactivé par défaut) : le compteur et ses overlays s'effacent tant qu'un menu du jeu est ouvert (carte, inventaire, légion, boutique, Échap ...) et reviennent quand tu le fermes. Cela repose sur le curseur de la souris : dans le mode de contrôle qui masque le curseur pendant que tu joues, le jeu l'affiche à l'ouverture d'un menu ; maintenir la touche d'affichage du curseur (Alt par défaut) garde le compteur visible pour que tu puisses cliquer dessus, et **Ctrl+Alt+J** affiche les overlays pendant le menu ouvert. Dans le mode de contrôle classique, le curseur est toujours affiché, donc les menus ne se distinguent pas ; le compteur le remarque pendant le combat et reste simplement affiché.
+Facultatif (**Outils → Client**, masquer pendant les menus du jeu, désactivé par défaut) : le compteur et ses overlays s'effacent tant qu'un menu du jeu est ouvert (carte, inventaire, légion, boutique, Échap ...) et reviennent quand tu le fermes. Cela repose sur le curseur de la souris : dans le mode de contrôle qui masque le curseur pendant que tu joues, le jeu l'affiche à l'ouverture d'un menu ; maintenir la touche d'affichage du curseur (Alt par défaut) garde le compteur visible pour que tu puisses cliquer dessus, et le raccourci des overlays les affiche pendant le menu ouvert. Dans le mode de contrôle classique, le curseur est toujours affiché, donc les menus ne se distinguent pas ; le compteur le remarque pendant le combat et reste simplement affiché.
 
 ### Détail des compétences pour chaque joueur
 
@@ -168,9 +175,11 @@ affichent les leurs une fois que vous y êtes passé. Son et volume se règlent 
 
 ### Overlay réseau
 
+Si vous l'activez, l'outil envoie aussi un petit ping par seconde à votre routeur, à 1.1.1.1 et au serveur de jeu (une requête d'écho sans aucun contenu) pour déterminer d'où vient un gel ; avec l'overlay et la page réseau désactivés, rien n'est envoyé.
+
 Ping, gigue, trafic, perte de paquets et temps passé en ligne, mesurés à partir du trafic que votre PC reçoit
 déjà. Les valeurs passent du vert au rouge quand la connexion se dégrade. Choisissez les lignes souhaitées,
-verrouillez-le en place, activez-le ou désactivez-le avec un raccourci.
+verrouillez-le en place, activez-le ou désactivez-le avec son interrupteur.
 
 <p align="center">
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="L'overlay réseau : ping, gigue, trafic et perte de paquets">
@@ -191,7 +200,7 @@ Un cadre transparent avec jusqu'à trois éléments, que tu places et dimensionn
 - **Barre d'incantation du boss :** dès qu'un boss commence une compétence, tu vois son nom, une barre qui se vide avec le temps restant et qui elle vise (toi en rouge). Une compétence qui a touché plusieurs joueurs est marquée **ZONE** ; **MORTEL** signifie que le coup le plus fort que tu en as reçu jusqu'ici est au moins égal à ta santé actuelle. Le compteur apprend chaque compétence (de zone ou non, quand ses dégâts arrivent) et s'en souvient d'une session à l'autre.
 - **Cible de la cible :** un bloc qui se déplace, se redimensionne et se met à l'échelle d'un seul tenant, avec des éléments que tu peux aussi placer séparément à l'intérieur. Si la cible sélectionnée avec Tab vise elle-même quelqu'un, tu vois qui : un boss avec son image et son nom, un joueur avec l'emblème de classe et son nom. La **barre du soigneur** (facultative) ajoute au bloc la barre de vie de cette cible et ses debuffs (ou buffs).
 
-Déverrouille l'overlay dans **Paramètres → Combat de boss** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. La voix Windows choisie peut aussi **annoncer les incantations de boss** à voix haute (avec ou sans le nom de la compétence, vers toi, vers tout le monde, mortelle), même avec l'overlay désactivé tant qu'Aion est au premier plan ; les paramètres proposent des phrases d'exemple à écouter. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
+Organise-le dans le concepteur d'overlays (**Ctrl+Alt+D**) : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. La voix Windows choisie peut aussi **annoncer les incantations de boss** à voix haute (avec ou sans le nom de la compétence, vers toi, vers tout le monde, mortelle), même avec l'overlay désactivé tant qu'Aion est au premier plan ; les paramètres proposent des phrases d'exemple à écouter. Le raccourci *overlays affichés / masqués* (**Ctrl+Alt+H**) l'affiche et le masque avec les autres.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="L'overlay de combat de boss : deux incantations de boss avec barre de temps et le bloc « Cible de la cible » avec image, nom, barre de vie et debuffs">
@@ -199,11 +208,11 @@ Déverrouille l'overlay dans **Paramètres → Combat de boss** pour l'organiser
 
 ### Butin, attributs et checklist quotidienne
 
-La fenêtre **Outils** les liste à gauche. L'outil **Butin** montre ce que tu ramasses au sol, par session et par carte, sous forme de page et d'overlay (**Ctrl+Alt+L**). L'outil **Attributs** montre l'anneau des attributs avec tes points, ce que fait chaque attribut et chaque valeur de Seigneur (0,1 % par point), tous les bonus additionnés, et un onglet de statistiques qui explique chaque statistique avec sa part venant de l'anneau. La **checklist** garde tes tâches quotidiennes et hebdomadaires, lit dans le jeu les quêtes quotidiennes obligatoires et l'achat hebdomadaire d'énergie d'Odyle, et laisse le reste à cocher à la main. Chaque outil mémorise sa propre largeur et sa propre hauteur.
+Ce sont des outils sous **Outils**. L'outil **Butin** montre ce que tu ramasses au sol, par session et par carte, sous forme de page et d'overlay. L'outil **Attributs** montre l'anneau des attributs avec tes points, ce que fait chaque attribut et chaque valeur de Seigneur (0,1 % par point), tous les bonus additionnés, et un onglet de statistiques qui explique chaque statistique avec sa part venant de l'anneau. La **checklist** garde tes tâches quotidiennes et hebdomadaires, lit dans le jeu les quêtes quotidiennes obligatoires et l'achat hebdomadaire d'énergie d'Odyle, et laisse le reste à cocher à la main. Chaque outil mémorise sa propre largeur et sa propre hauteur.
 
 ### Calculateur de craft
 
-Marque les recettes que tu veux fabriquer et combien de fois (pour tout le compte, afin que tes seconds personnages les voient aussi, ou pour un seul personnage), et le **calculateur de craft** liste, recette par recette, les matériaux qui te manquent encore. Les produits intermédiaires sont décomposés en ce que tu dois vraiment récolter : trois marteaux de forgeron demandent 18 lingots, soit 36 minerais, et les lingots que tu possèdes déjà comptent en premier. Le stock est lu dans le jeu, depuis l'inventaire, l'entrepôt du personnage et l'entrepôt du compte, et un matériau qui se trouve dans un entrepôt l'indique. Laisse la page ouverte sur un deuxième écran ou affiche la même liste en overlay dans le jeu (**Ctrl+Alt+R**). Les recettes viennent des tables du jeu ; l'ordre de ta liste décide quelle recette reçoit le stock en premier. Connecte-toi une fois pour que le stock soit lu ; ce que tu déplaces entre l'inventaire et un entrepôt apparaît après le prochain tri.
+Marque les recettes que tu veux fabriquer et combien de fois (pour tout le compte, afin que tes seconds personnages les voient aussi, ou pour un seul personnage), et le **calculateur de craft** liste, recette par recette, les matériaux qui te manquent encore. Les produits intermédiaires sont décomposés en ce que tu dois vraiment récolter : trois marteaux de forgeron demandent 18 lingots, soit 36 minerais, et les lingots que tu possèdes déjà comptent en premier. Le stock est lu dans le jeu, depuis l'inventaire, l'entrepôt du personnage et l'entrepôt du compte, et un matériau qui se trouve dans un entrepôt l'indique. Laisse la page ouverte sur un deuxième écran ou affiche la même liste en overlay dans le jeu. Les recettes viennent des tables du jeu ; l'ordre de ta liste décide quelle recette reçoit le stock en premier. Connecte-toi une fois pour que le stock soit lu ; ce que tu déplaces entre l'inventaire et un entrepôt apparaît après le prochain tri.
 
 ### Annonces et Twitch Drops
 
@@ -220,9 +229,13 @@ moment. Une pastille *Nouveau* s'affiche quand quelque chose est plus récent qu
 
 ### Le meter dans votre stream (OBS, Streamlabs)
 
-Affichez le meter en direct par-dessus votre jeu sans filmer sa fenêtre : activez **Paramètres → Streaming → Overlay de stream pour OBS activé**, puis utilisez **Copier le lien pour OBS** (ou, dans l'icône de la zone de notification, *Copier le lien de l'overlay de stream (OBS)*), ajoutez une source **Navigateur** dans OBS ou Streamlabs, collez le lien et réglez la taille de la source. La page suit le meter en direct : la vue actuelle (dégâts, soins, dégâts subis, le tout en une), les joueurs avec icône de classe et barres, et la santé du boss. Ajoutez `?scale=1.5` ou `?rows=5` au lien pour l'agrandir ou afficher moins de lignes.
+Affichez le meter en direct par-dessus votre jeu sans filmer sa fenêtre : activez **Overlay de stream pour OBS activé** dans l'onglet Configuration de l'outil Streaming, puis utilisez **Copier le lien pour OBS** (ou, dans l'icône de la zone de notification, *Copier le lien de l'overlay de stream (OBS)*), ajoutez une source **Navigateur** dans OBS ou Streamlabs, collez le lien et réglez la taille de la source. La page suit le meter en direct : la vue actuelle (dégâts, soins, dégâts subis, le tout en une), les joueurs avec icône de classe et barres, et la santé du boss. Ajoutez `?scale=1.5` ou `?rows=5` au lien pour l'agrandir ou afficher moins de lignes.
 
 Il fonctionne aussi avec **deux PC** (le jeu sur l'un, OBS sur l'autre) : copiez le lien sur le PC de streaming, il contient l'adresse du PC de jeu dans votre réseau. Seul votre propre réseau peut y accéder, jamais Internet ; le lien contient une clé aléatoire (**Nouvelle clé** invalide l'ancien lien), seul `GET` est servi, la page ne charge rien d'ailleurs et rien n'est envoyé à personne. Windows peut demander une fois d'autoriser le compteur dans le pare-feu : autorisez-le pour les réseaux privés. Les noms des joueurs sont **désactivés par défaut** - chacun apparaît avec sa classe, comme dans les envois - et peuvent être activés dans la même carte de paramètres.
+
+### Historique et statistiques
+
+Vos combats, vos personnages et les compteurs de la checklist sont conservés dans une base de données sur votre PC (les entrées de plus de 90 jours sont éclaircies) ; rien n'en est envoyé. L'onglet **Personnage** montre vos instances, vos victoires sur des boss avec le meilleur DPS, l'évolution du score d'équipement et de la puissance de combat dans le temps, l'anneau des attributs et une carte de statistiques disposée comme la fenêtre de stats du jeu, et — si vous autorisez la requête — ce que aiondps.com détient sur votre personnage d'après les envois de tous.
 
 ### Sessions
 
@@ -241,9 +254,8 @@ pendant une pause sont perdus, la reprise ne rejoue donc jamais un combat que vo
 
 - **Copy** place un classement d'une ligne, prêt pour le chat, dans le presse-papiers (`Nom 1.234.567 (890), …`) ;
   **Copy All** donne un tableau Markdown pour Discord.
-- L'apparence se règle sous **Paramètres → Interface** : thème (sombre/clair), taille de police, langue, aspect et
-  opacité de l'overlay, démarrage avec Windows.
-- Vos réglages survivent à un plantage : le fichier de réglages est écrit en une seule fois, et une copie du dernier démarrage est conservée à côté. Si le fichier est un jour endommagé, cette copie est restaurée (le fichier endommagé est conservé à côté). **Paramètres → Général → Réinitialiser tous les réglages** demande confirmation deux fois et peut être annulé pendant 30 secondes ; vos choix d'envoi et de confidentialité, la vérification des mises à jour et votre personnage restent tels quels.
+- L'apparence se règle sous **Outils → Client** : thème (sombre/clair), taille de police, langue, démarrage avec Windows ; l'aspect et l'opacité de chaque overlay se règlent dans le concepteur d'overlays.
+- Vos réglages survivent à un plantage : le fichier de réglages est écrit en une seule fois, et une copie du dernier démarrage est conservée à côté. Si le fichier est un jour endommagé, cette copie est restaurée (le fichier endommagé est conservé à côté). **Outils → Client → Réinitialiser tous les réglages** demande confirmation deux fois et peut être annulé pendant 30 secondes ; vos choix d'envoi et de confidentialité, la vérification des mises à jour et votre personnage restent tels quels.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Paramètres : interface, overlay et comportement">
@@ -252,47 +264,36 @@ pendant une pause sont perdus, la reprise ne rejoue donc jamais un combat que vo
 
 ## Raccourcis clavier
 
-Valables partout, même quand le jeu a le focus. Cliquez sur un champ dans **Paramètres → Raccourcis clavier**,
+Valables partout, même quand le jeu a le focus. Cliquez sur un champ dans **Outils → Client → Raccourcis clavier**,
 appuyez sur la combinaison voulue (elle exige Ctrl, Alt, Maj ou Win) ; **×** la supprime. Ils remplacent les
 commandes de chat, qui ne peuvent pas fonctionner car le chat d'Aion 2 n'est pas lisible dans le trafic réseau.
 
 | Par défaut | Action |
 |---|---|
-| **Ctrl+Alt+H** | Overlay (masquer la fenêtre, afficher les pastilles) |
+| **Ctrl+Alt+D** | Concepteur d'overlays |
+| **Ctrl+Alt+H** | Overlays affichés / masqués (la fenêtre disparaît et les overlays restent, ou la fenêtre revient et ils disparaissent) |
 | **Ctrl+Alt+P** | Pause / reprise |
-| **Ctrl+Alt+D** | Copier le classement des dégâts |
-| **Ctrl+Alt+Shift+X** | Vider la session |
+| **Ctrl+Alt+X** | Vider la session |
 | **Ctrl+Alt+U** | Envoyer les dégâts du boss |
-| **Ctrl+Alt+M** | Mode suivant (cinq vues) |
-| **Ctrl+Alt+T** | Overlay des horaires |
-| **Ctrl+Alt+K** | Carte interactive activée / désactivée |
-| **Ctrl+Alt+E** / **Ctrl+Alt+G** | Flèches au bord pour les pets / les ressources |
-| **Ctrl+Alt+B** | Overlay des boss du monde |
-| **Ctrl+Alt+N** | Overlay réseau |
-| **Ctrl+Alt+C** | Overlay de combat |
-| **Ctrl+Alt+L** | Overlay de butin |
-| **Ctrl+Alt+R** | Overlay de craft |
-| **Ctrl+Alt+J** | Afficher les overlays pendant ce menu |
-| **Ctrl+Alt+O** | Overlay des raccourcis (une liste déplaçable des raccourcis) |
-| **Ctrl+Alt+A** | Tous les overlays activés / désactivés |
+| **Ctrl+Alt+C** | Copier le classement des dégâts (suit le mode choisi) |
 
 ## Envois
 
-- **Les combats de boss** sont envoyés quand vous cliquez sur envoyer (bouton de la barre d'outils, menu Session ou
+- **Les combats de boss** sont envoyés quand vous cliquez sur envoyer (le bouton d'envoi ou
   **Ctrl+Alt+U**) : le boss, les joueurs présents, dégâts, soins, dégâts reçus et compétences. Seuls les boss
   annoncés par le jeu et connus du catalogue sont acceptés. L'envoi automatique est disponible et **désactivé par
   défaut**.
 - **Votre propre profil de personnage** (nom, classe, niveau, équipement, compétences, Daevanion, légion, serveur,
-  faction) peut être envoyé automatiquement quelques secondes après la connexion, pour que l'on vous trouve sur le
-  site. C'est **désactivé par défaut** ; à activer dans les **Paramètres**.
-- Sans envoi, rien ne quitte votre machine.
+  classements, Panthéon, titres, familiers, ailes, attributs, préréglages de compétences avec barres d'action et macros, énergie d'Odyle et un hachage de la clé de votre compte) peut être envoyé automatiquement quelques secondes après la connexion, pour que l'on vous trouve sur le
+  site. C'est **désactivé par défaut** ; à activer sous **Outils → Client → Capture et envoi**. Les profils des autres joueurs ne sont envoyés qu'avec une seconde option, distincte.
+- Sans envoi, seules la vérification des mises à jour et les requêtes énumérées dans la [politique de confidentialité](https://aiondps.com/privacy) quittent votre machine.
 
 ## Mises à jour
 
 Le compteur se met à jour tout seul. Il demande à GitHub une version plus récente au démarrage puis toutes les
 cinq minutes pendant qu'il tourne, la télécharge en arrière-plan et l'installe au prochain démarrage — ni
 installateur ni UAC. Quand une mise à jour est prête, une ligne verte apparaît dans la barre d'état (et une pastille
-sur l'overlay transparent) ; un clic propose de redémarrer tout de suite. **App → Rechercher des mises à jour** fait
+sur l'overlay transparent) ; un clic propose de redémarrer tout de suite. Le bouton de mise à jour de l'en-tête et la vérification du pied de page font
 de même à la demande. Une ancienne version continue d'envoyer pendant 72 heures après la sortie de sa successeure,
 puis doit être mise à jour.
 
@@ -302,12 +303,12 @@ La vérification lit une seule URL et n'envoie rien d'autre que la requête :
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Désactivable sous **Paramètres → Mises à jour** ; l'élément de menu fonctionne quand même.
+Désactivable sous **Outils → Client** ; la vérification manuelle fonctionne quand même.
 
 ## Langues
 
 Anglais, allemand, français, espagnol, russe, chinois (simplifié et traditionnel), portugais (Brésil), japonais et
-coréen — à régler sous **Paramètres → Interface → Langue**. Ce README existe aussi en
+coréen — à régler sous **Outils → Client**. Ce README existe aussi en
 [Deutsch](README.de.md), [Español](README.es.md), [Français](README.fr.md), [Русский](README.ru.md),
 [中文](README.zh.md), [繁體中文](README.zh-TW.md), [Português (Brasil)](README.pt.md),
 [日本語](README.ja.md) et [한국어](README.ko.md).
@@ -327,7 +328,7 @@ Windows uniquement (WPF). `Tools/aion2-dat` lit les tables de texte du jeu (noms
 
 ## Remarque sur les règles des serveurs
 
-NCSOFT n'a pas approuvé cet outil. Sa politique d'exploitation sanctionne les « programmes non autorisés » : programmes ou dispositifs qui contournent les protections techniques ou perturbent le fonctionnement normal, par exemple des programmes qui permettent des actions dont les joueurs normaux sont incapables, ainsi que la création ou la diffusion de tels programmes et la modification des programmes client ou serveur. Les bots sont cités à part, et un avis sur le statut de confiance d'un compte mentionne des « logiciels suspects » sans les définir. NCSOFT nomme des comportements, pas des programmes précis ; les compteurs de dégâts et la lecture passive du trafic réseau n'y figurent pas et ne sont pas expressément interdits, mais la liste n'est pas exhaustive. Le compteur ne joue rien à votre place, n'automatise rien, n'augmente ni les dégâts ni la vitesse, ne lit pas la mémoire du jeu, ne modifie ni le client ni le serveur et n'envoie aucun paquet au jeu ; qu'il sorte de cette définition est notre lecture, pas une déclaration de NCSOFT. Consultez [les règles en vigueur](https://aion2.plaync.com/de-de/board/rules/list) et utilisez-le sous votre propre responsabilité.
+NCSOFT n'a pas approuvé cet outil. Sa politique d'exploitation sanctionne les « programmes non autorisés » : programmes ou dispositifs qui contournent les protections techniques ou perturbent le fonctionnement normal, par exemple des programmes qui permettent des actions dont les joueurs normaux sont incapables, ainsi que la création ou la diffusion de tels programmes et la modification des programmes client ou serveur. Les bots sont cités à part, et un avis sur le statut de confiance d'un compte mentionne des « logiciels suspects » sans les définir. NCSOFT nomme des comportements, pas des programmes précis ; les compteurs de dégâts et la lecture passive du trafic réseau n'y figurent pas et ne sont pas expressément interdits, mais la liste n'est pas exhaustive. Le compteur ne joue rien à votre place, n'automatise rien, n'augmente ni les dégâts ni la vitesse, ne lit pas la mémoire du jeu, ne modifie ni le client ni le serveur et n'envoie aucune donnée de jeu au jeu (le ping de l'outil réseau, que vous activez vous-même, ne contient aucun contenu de jeu) ; qu'il sorte de cette définition est notre lecture, pas une déclaration de NCSOFT. Consultez [les règles en vigueur](https://aion2.plaync.com/de-de/board/rules/list) et utilisez-le sous votre propre responsabilité.
 
 ## Avertissement et licence
 

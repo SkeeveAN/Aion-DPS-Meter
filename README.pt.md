@@ -32,14 +32,15 @@
 - Rankings de chefes e perfis públicos de personagens em aiondps.com (envio opcional, desativado por padrão)
 - Mapa interativo, agenda de eventos, temporizadores de chefes mundiais e sobreposição de rede
 - Conjurações de chefes anunciadas por voz, um registro de saque, uma ferramenta de atributos, uma calculadora de crafting e uma lista de tarefas diárias
-- Passivo: apenas captura de pacotes, sem ler a memória, sem injetar código, nada enviado ao jogo
+- Passivo: apenas captura de pacotes, sem ler a memória, sem injetar código, nenhum dado de jogo enviado ao jogo
 - Gratuito, de código aberto (MIT) e se atualiza sozinho
 
 Funciona com a versão global de AION 2 — todas as regiões lançadas pela NCSOFT em 5 de outubro de 2026. Coreia e Taiwan estão algumas versões à frente, então o reconhecimento de habilidades pode ser incompleto lá.
 
 Um medidor de dano/cura e conjunto de ferramentas para **Aion 2**. Ele lê o tráfego de rede do próprio jogo na sua máquina
-por meio do driver [Npcap](https://npcap.com) — de forma passiva: nunca envia um pacote e nunca toca no
-processo do jogo nem na sua memória. Nada sobre a sua partida sai da sua máquina a menos que você o envie (veja
+por meio do driver [Npcap](https://npcap.com) — de forma passiva: não envia dados de jogo e nunca toca no
+processo do jogo nem na sua memória. A única coisa que ele pode enviar em direção ao servidor do jogo é um pequeno ping, e só se você
+ligar o overlay de rede ou a página de rede por conta própria (veja [Overlay de rede](#overlay-de-rede)). Nada sobre a sua partida sai da sua máquina a menos que você o envie (veja
 [Envio](#envio)); a única outra coisa que ele envia é a verificação de atualizações, que pergunta ao GitHub se existe uma versão
 mais nova e pode ser desativada; veja [Atualizações](#atualizações).
 
@@ -60,6 +61,12 @@ mais nova e pode ser desativada; veja [Atualizações](#atualizações).
 
 ## O que ele faz
 
+### A interface do 2.0: painel, widgets e designer de overlays
+
+O programa abre como uma única janela com as abas **Painel**, **Combate e análise** e **Personagem**, e as ferramentas agrupadas em **Ferramentas** (Planejamento, Mundo, Combate e streaming e **Cliente**, para as configurações do próprio programa). Cada página de ferramenta tem uma aba **Exibição** e uma aba **Configuração**. O **painel** é um quadro que você organiza sozinho: mova um widget pelo título, redimensione-o pelo canto, retire-o com a cruz e coloque-o de volta com o sinal de mais; a lista de tarefas, os chefes mundiais, os números-chave, a última luta de chefe, a atualização, os anúncios e os Twitch Drops são widgets, e cada página do aplicativo pode virar um. Você pode ter vários painéis. Cada widget também pode ficar sobre o jogo como um overlay.
+
+Pressione **Ctrl+Alt+D** para abrir o **designer de overlays**: ele escurece a tela e permite arrastar, redimensionar e encaixar cada overlay e widget (as opções de grade e encaixe ficam na barra dele), e uma engrenagem em cada overlay abre a cor de fundo, a opacidade do fundo e a opacidade do texto. **Esc** o fecha.
+
 ### Dano e cura ao vivo para todos
 
 Cada jogador do seu grupo ou raide com nome, dano total, DPS e uma barra de participação; facção e classe são
@@ -70,8 +77,8 @@ após a qual o chefe voltou à vida cheia).
 
 ### Cinco visualizações, a um clique de distância
 
-**Dano**, **Cura**, **Dano recebido** e duas visualizações **Tudo em Um**. Alterne com o atalho
-(padrão **Ctrl+Alt+M**) ou clicando no rótulo do modo no overlay. *Tudo em Um* mostra dano recebido,
+**Dano**, **Cura**, **Dano recebido** e duas visualizações **Tudo em Um**. Alterne com as fichas
+de modo na página do medidor ao vivo (e no widget do medidor enquanto o designer de overlays está aberto). *Tudo em Um* mostra dano recebido,
 cura e total lado a lado, *Tudo em Um Compacto* mantém as conhecidas colunas de DPS e total e coloca
 cura e dano recebido em uma pequena segunda linha abaixo do nome.
 
@@ -82,11 +89,11 @@ cura e dano recebido em uma pequena segunda linha abaixo do nome.
 
 ### Um overlay que não captura cliques
 
-**Ocultar UI** transforma a janela em pequenas fichas (ou um painel compacto) que ficam sobre o Aion 2 sem
+O widget do medidor ao vivo fica sobre o Aion 2 como pequenas fichas (ou uma lista compacta) sem
 capturar um único clique. Opacidade, barras de participação no dano, a vida do chefe e o dano recebido por jogador
-são opções. O painel compacto pode, opcionalmente, deixar os cliques do mouse passarem para o jogo. O overlay só é desenhado enquanto o jogo está em primeiro plano. Ative-o de qualquer lugar com um atalho.
+são opções. O painel compacto pode, opcionalmente, deixar os cliques do mouse passarem para o jogo. O overlay só é desenhado enquanto o jogo está em primeiro plano. Mostre os overlays e oculte a janela de qualquer lugar com **Ctrl+Alt+H**.
 
-Opcional (**Configurações → Interface → Ocultar durante os menus do jogo**, desligado por padrão): o medidor e seus overlays saem do caminho enquanto um dos menus do jogo está aberto (mapa, inventário, legião, loja, Esc ...) e voltam quando você o fecha. Isso funciona pelo cursor do mouse: no modo de controle que esconde o cursor enquanto você joga, o jogo o mostra quando um menu abre; manter pressionada a tecla de mostrar o cursor (Alt por padrão) mantém o medidor visível para que você possa clicar nele, e **Ctrl+Alt+J** mostra os overlays durante o menu aberto. No modo de controle clássico o cursor está sempre visível, então os menus não podem ser distinguidos; o medidor percebe isso durante a luta e simplesmente continua visível.
+Opcional (**Ferramentas → Cliente**, ocultar durante os menus do jogo, desligado por padrão): o medidor e seus overlays saem do caminho enquanto um dos menus do jogo está aberto (mapa, inventário, legião, loja, Esc ...) e voltam quando você o fecha. Isso funciona pelo cursor do mouse: no modo de controle que esconde o cursor enquanto você joga, o jogo o mostra quando um menu abre; manter pressionada a tecla de mostrar o cursor (Alt por padrão) mantém o medidor visível para que você possa clicar nele, e o atalho dos overlays os mostra durante o menu aberto. No modo de controle clássico o cursor está sempre visível, então os menus não podem ser distinguidos; o medidor percebe isso durante a luta e simplesmente continua visível.
 
 ### Detalhamento de habilidades de cada jogador
 
@@ -165,9 +172,12 @@ depois que você passar por lá. Som e volume são definidos por chefe, agrupado
 
 ### Overlay de rede
 
+Se você o ligar, a ferramenta também envia um pequeno ping por segundo ao seu roteador, a 1.1.1.1 e ao servidor do jogo (um pedido de eco sem nenhum conteúdo) para descobrir de onde vem um travamento; com o overlay e a página de rede desligados, nada é enviado.
+
+
 Ping, jitter, tráfego, perda de pacotes e há quanto tempo você está online, medidos a partir do tráfego que o seu PC
 já recebe. Os valores passam de verde para vermelho conforme a conexão piora. Escolha as linhas que deseja,
-fixe-o no lugar e ative ou desative com um atalho.
+fixe-o no lugar e ative ou desative com o seu interruptor.
 
 <p align="center">
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="O overlay de rede: ping, jitter, tráfego e perda de pacotes">
@@ -188,7 +198,7 @@ Uma moldura transparente com até três elementos, cada um dos quais você posic
 - **Barra de conjuração do chefe:** no momento em que um chefe começa uma habilidade, você vê o nome dela, uma barra que diminui com o tempo restante e em quem ela está mirada (você em vermelho). Uma habilidade que atingiu vários jogadores é marcada como **ÁREA**; **LETAL** significa que o maior golpe que você recebeu dela até agora é pelo menos igual à sua vida atual. O medidor aprende cada habilidade (se é em área ou não, quando o dano dela chega) e a lembra entre as sessões.
 - **Alvo do alvo:** um bloco que se move, redimensiona e escala de uma vez, com partes que você também pode posicionar separadamente dentro dele. Se o alvo que você selecionou com Tab estiver mirando em alguém, você vê em quem: um chefe com imagem e nome, um jogador com o emblema da classe e o nome. A **barra do curandeiro** (opcional) acrescenta ao bloco a barra de vida desse alvo e seus debuffs (ou buffs).
 
-Desbloqueie o overlay em **Configurações → Luta de chefe** para organizá-lo: arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. A voz do Windows escolhida também pode **anunciar as conjurações de chefes** por voz (com ou sem o nome da habilidade, em você, em todos, letal), mesmo com o overlay desligado enquanto o Aion está em primeiro plano; as configurações têm frases de exemplo para ouvir. **Ctrl+Alt+C** o liga e desliga, assim como o atalho *Todos os overlays ligados / desligados*.
+Organize-o no designer de overlays (**Ctrl+Alt+D**): arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. A voz do Windows escolhida também pode **anunciar as conjurações de chefes** por voz (com ou sem o nome da habilidade, em você, em todos, letal), mesmo com o overlay desligado enquanto o Aion está em primeiro plano; as configurações têm frases de exemplo para ouvir. O atalho *overlays mostrados / ocultos* (**Ctrl+Alt+H**) o mostra e oculta junto com os outros.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="O overlay de luta de chefe: duas conjurações de chefe com barra de tempo e o bloco «Alvo do alvo» com imagem, nome, barra de vida e debuffs">
@@ -196,11 +206,11 @@ Desbloqueie o overlay em **Configurações → Luta de chefe** para organizá-lo
 
 ### Saque, atributos e a lista de tarefas diárias
 
-A janela **Ferramentas** os lista à esquerda. A ferramenta **Saque** mostra o que você pega do chão, por sessão e mapa, como uma página e como um overlay (**Ctrl+Alt+L**). A ferramenta **Atributos** mostra o anel de atributos com os seus pontos, o que cada atributo e valor de Lorde faz (0,1 % por ponto), todos os bônus somados e uma aba de estatísticas que explica cada estatística com a sua parte vinda do anel. A **lista de tarefas** guarda as suas tarefas diárias e semanais, lê do jogo as missões diárias obrigatórias e a compra semanal de energia de Odyle e deixa o resto para marcar à mão. Cada ferramenta lembra a sua própria largura e altura.
+Estas são ferramentas em **Ferramentas**. A ferramenta **Saque** mostra o que você pega do chão, por sessão e mapa, como uma página e como um overlay. A ferramenta **Atributos** mostra o anel de atributos com os seus pontos, o que cada atributo e valor de Lorde faz (0,1 % por ponto), todos os bônus somados e uma aba de estatísticas que explica cada estatística com a sua parte vinda do anel. A **lista de tarefas** guarda as suas tarefas diárias e semanais, lê do jogo as missões diárias obrigatórias e a compra semanal de energia de Odyle e deixa o resto para marcar à mão. Cada ferramenta lembra a sua própria largura e altura.
 
 ### Calculadora de crafting
 
-Marque as receitas que você quer fabricar e quantas vezes (para a conta toda, assim seus personagens secundários também as veem, ou para um só personagem), e a **calculadora de crafting** lista, receita por receita, quais materiais ainda faltam. Os intermediários são decompostos no que você realmente precisa coletar: três martelos de ferreiro precisam de 18 barras, ou seja, 36 de minério, e as barras que você já tem contam primeiro. O estoque é lido do jogo, do inventário, do armazém do personagem e do armazém da conta, e um material que está em um armazém diz isso. Deixe a página aberta em um segundo monitor ou mostre a mesma lista como overlay no jogo (**Ctrl+Alt+R**). As receitas vêm das tabelas do próprio jogo; a ordem da sua lista decide qual receita recebe o estoque primeiro. Entre uma vez para o estoque ser lido; o que você move entre o inventário e um armazém aparece depois da próxima ordenação.
+Marque as receitas que você quer fabricar e quantas vezes (para a conta toda, assim seus personagens secundários também as veem, ou para um só personagem), e a **calculadora de crafting** lista, receita por receita, quais materiais ainda faltam. Os intermediários são decompostos no que você realmente precisa coletar: três martelos de ferreiro precisam de 18 barras, ou seja, 36 de minério, e as barras que você já tem contam primeiro. O estoque é lido do jogo, do inventário, do armazém do personagem e do armazém da conta, e um material que está em um armazém diz isso. Deixe a página aberta em um segundo monitor ou mostre a mesma lista como overlay no jogo. As receitas vêm das tabelas do próprio jogo; a ordem da sua lista decide qual receita recebe o estoque primeiro. Entre uma vez para o estoque ser lido; o que você move entre o inventário e um armazém aparece depois da próxima ordenação.
 
 ### Anúncios e Twitch Drops
 
@@ -217,9 +227,13 @@ algo é mais recente que a sua última visita.
 
 ### O medidor na sua stream (OBS, Streamlabs)
 
-Mostre o medidor ao vivo sobre o seu jogo sem filmar a janela dele: ative **Configurações → Streaming → Overlay de stream para OBS ligado**, depois use **Copiar link para o OBS** (ou, no ícone da bandeja, *Copiar link do overlay de stream (OBS)*), adicione uma fonte **Navegador** no OBS ou no Streamlabs, cole o link e defina o tamanho da fonte. A página acompanha o medidor ao vivo: a visualização atual (dano, cura, dano recebido, tudo em uma), os jogadores com ícone de classe e barras e a vida do chefe. Adicione `?scale=1.5` ou `?rows=5` ao link para ampliá-la ou mostrar menos linhas.
+Mostre o medidor ao vivo sobre o seu jogo sem filmar a janela dele: ative **Overlay de stream para OBS** na aba Configuração da ferramenta Streaming, depois use **Copiar link para o OBS** (ou, no ícone da bandeja, *Copiar link do overlay de stream (OBS)*), adicione uma fonte **Navegador** no OBS ou no Streamlabs, cole o link e defina o tamanho da fonte. A página acompanha o medidor ao vivo: a visualização atual (dano, cura, dano recebido, tudo em uma), os jogadores com ícone de classe e barras e a vida do chefe. Adicione `?scale=1.5` ou `?rows=5` ao link para ampliá-la ou mostrar menos linhas.
 
 Também funciona com **dois PCs** (o jogo em um, o OBS no outro): copie o link para o PC de streaming, ele contém o endereço do PC do jogo na sua rede. Só a sua própria rede acessa, nunca a internet; o link tem uma chave aleatória (**Nova chave** invalida o link antigo), só `GET` é atendido, a página não carrega nada de outro lugar e nada é enviado a ninguém. O Windows pode perguntar uma vez se permite o medidor no firewall: permita para redes privadas. Os nomes dos jogadores ficam **desligados por padrão** - todos aparecem pela classe, como nos envios - e podem ser ligados no mesmo cartão de configurações.
+
+### Histórico e estatísticas
+
+Os seus combates, personagens e os contadores da lista de tarefas ficam guardados num banco de dados no seu PC (as entradas mais antigas são reduzidas após 90 dias); nada disso é enviado. A aba **Personagem** mostra as suas instâncias, as mortes de chefes com o melhor DPS, a evolução do nível de equipamento e do poder de combate ao longo do tempo, o anel de atributos e um cartão de estatísticas montado como a janela de estatísticas do jogo e — se você permitir a consulta — o que o aiondps.com guarda sobre o seu personagem a partir dos envios de todos.
 
 ### Sessões
 
@@ -238,9 +252,8 @@ durante uma pausa são ignorados de vez, então retomar nunca reproduz uma luta 
 
 - **Copiar** coloca na área de transferência um ranking de uma linha, pronto para o chat (`Nome 1.234.567 (890), …`); **Copiar tudo**
   gera uma tabela em markdown do Discord.
-- A aparência é definida em **Configurações → Interface**: tema (escuro/claro), tamanho da fonte, idioma, aparência do overlay
-  e opacidade, iniciar com o Windows.
-- Suas configurações sobrevivem a uma falha: o arquivo de configurações é gravado de uma só vez, e uma cópia da última inicialização fica ao lado dele. Se o arquivo for danificado, essa cópia é restaurada (o arquivo danificado é mantido ao lado). **Configurações → Geral → Redefinir todas as configurações** pergunta duas vezes e pode ser desfeito por 30 segundos; suas escolhas de envio e privacidade, a verificação de atualizações e seu personagem permanecem como estão.
+- A aparência é definida em **Ferramentas → Cliente**: tema (escuro/claro), tamanho da fonte, idioma, iniciar com o Windows; a aparência e a opacidade de cada overlay são definidas no designer de overlays.
+- Suas configurações sobrevivem a uma falha: o arquivo de configurações é gravado de uma só vez, e uma cópia da última inicialização fica ao lado dele. Se o arquivo for danificado, essa cópia é restaurada (o arquivo danificado é mantido ao lado). **Ferramentas → Cliente → Redefinir todas as configurações** pergunta duas vezes e pode ser desfeito por 30 segundos; suas escolhas de envio e privacidade, a verificação de atualizações e seu personagem permanecem como estão.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Configurações: interface, overlay e comportamento">
@@ -249,46 +262,35 @@ durante uma pausa são ignorados de vez, então retomar nunca reproduz uma luta 
 
 ## Atalhos de teclado
 
-Em todo o sistema, também enquanto o jogo está em foco. Clique em um campo em **Configurações → Atalhos de teclado**, pressione a
+Em todo o sistema, também enquanto o jogo está em foco. Clique em um campo em **Ferramentas → Cliente → Atalhos de teclado**, pressione a
 combinação desejada (ela precisa de Ctrl, Alt, Shift ou Win); **×** a remove. Eles substituem os comandos de chat,
 que não podem funcionar porque o chat do Aion 2 não é legível a partir do fluxo de rede.
 
 | Padrão | Ação |
 |---|---|
-| **Ctrl+Alt+H** | Overlay (oculta a janela, mostra fichas) |
+| **Ctrl+Alt+D** | Designer de overlays |
+| **Ctrl+Alt+H** | Overlays mostrados / ocultos (a janela some e os overlays ficam, ou a janela volta e eles somem) |
 | **Ctrl+Alt+P** | Pausar / retomar |
-| **Ctrl+Alt+D** | Copiar o ranking de dano |
-| **Ctrl+Alt+Shift+X** | Limpar a sessão |
+| **Ctrl+Alt+X** | Limpar a sessão |
 | **Ctrl+Alt+U** | Enviar dano do chefe |
-| **Ctrl+Alt+M** | Próximo modo (cinco visualizações) |
-| **Ctrl+Alt+T** | Overlay de horários |
-| **Ctrl+Alt+K** | Mapa interativo ligado / desligado |
-| **Ctrl+Alt+E** / **Ctrl+Alt+G** | Setas de borda para mascotes / itens coletáveis |
-| **Ctrl+Alt+B** | Overlay de chefes mundiais |
-| **Ctrl+Alt+N** | Overlay de rede |
-| **Ctrl+Alt+C** | Overlay de combate |
-| **Ctrl+Alt+L** | Overlay de saque |
-| **Ctrl+Alt+R** | Overlay de crafting |
-| **Ctrl+Alt+J** | Mostrar overlays durante este menu |
-| **Ctrl+Alt+O** | Overlay de atalhos (uma lista móvel dos atalhos) |
-| **Ctrl+Alt+A** | Todos os overlays ligados / desligados |
+| **Ctrl+Alt+C** | Copiar o ranking de dano (segue o modo escolhido) |
 
 ## Envio
 
-- **Lutas contra chefes** são enviadas quando você clica em enviar (botão da barra de ferramentas, menu Sessão ou **Ctrl+Alt+U**): o
+- **Lutas contra chefes** são enviadas quando você clica em enviar (o botão de envio ou **Ctrl+Alt+U**): o
   chefe, os jogadores que participaram, dano, cura, dano recebido e habilidades. Só são aceitos os chefes que o jogo
   anunciou e que o catálogo conhece. O envio automático está disponível e **desativado por padrão**.
-- **O perfil do seu próprio personagem** (nome, classe, nível, equipamento, habilidades, Daevanion, legião, servidor, facção) pode
+- **O perfil do seu próprio personagem** (nome, classe, nível, equipamento, habilidades, Daevanion, legião, servidor, classificações, Panteão, títulos, mascotes, asas, atributos, predefinições de habilidades com barras de ação e macros, energia de Odyle e um hash da chave da sua conta) pode
   ser enviado automaticamente alguns segundos após o login, para que você possa ser encontrado no site. Isso está
-  **desativado por padrão**; ative em **Configurações**.
-- Sem um envio, nada sai da sua máquina.
+  **desativado por padrão**; ative em **Ferramentas → Cliente → Captura e envio**. Os perfis de outros jogadores só são enviados com um segundo interruptor, separado.
+- Sem um envio, só a verificação de atualizações e os pedidos listados na [política de privacidade](https://aiondps.com/privacy) saem da sua máquina.
 
 ## Atualizações
 
 O medidor se atualiza sozinho. Ele pergunta ao GitHub por uma versão mais nova na inicialização e a cada cinco minutos enquanto
 está em execução, baixa-a em segundo plano e a ativa na próxima inicialização — sem instalador, sem aviso do
 UAC. Quando uma atualização está pronta, uma linha verde aparece na linha de status (e um selo no
-overlay transparente); clicar nela oferece reiniciar imediatamente. **App → Verificar atualizações** faz o mesmo sob demanda.
+overlay transparente); clicar nela oferece reiniciar imediatamente. O botão de atualização no cabeçalho e a verificação no rodapé fazem o mesmo sob demanda.
 Uma versão antiga continua enviando por 72 horas depois que a sucessora foi lançada, e depois precisa ser atualizada.
 
 A verificação lê uma única URL e não envia nada além da própria requisição:
@@ -297,12 +299,12 @@ A verificação lê uma única URL e não envia nada além da própria requisiç
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Desative em **Configurações → Atualizações**; o item de menu continua funcionando quando está desativado.
+Desative em **Ferramentas → Cliente**; a verificação manual continua funcionando quando está desativada.
 
 ## Idiomas
 
 Inglês, alemão, francês, espanhol, russo, chinês (simplificado e tradicional), português (Brasil),
-japonês e coreano — definido em **Configurações → Interface → Idioma**. Este README também está disponível em
+japonês e coreano — definido em **Ferramentas → Cliente**. Este README também está disponível em
 [Deutsch](README.de.md), [Español](README.es.md), [Français](README.fr.md), [Русский](README.ru.md),
 [中文](README.zh.md), [繁體中文](README.zh-TW.md), [Português (Brasil)](README.pt.md),
 [日本語](README.ja.md) e [한국어](README.ko.md).
@@ -322,7 +324,7 @@ Somente Windows (WPF). `Tools/aion2-dat` lê as tabelas de texto do jogo (nomes 
 
 ## Uma observação sobre as regras dos servidores
 
-A NCSOFT não aprovou esta ferramenta. A política de operação sanciona «programas não autorizados»: programas ou dispositivos que contornam proteções técnicas ou prejudicam o funcionamento normal, por exemplo programas que permitem ações que jogadores normais não conseguem realizar, bem como a criação ou distribuição desses programas e a modificação do software do cliente ou do servidor. Bots são citados à parte, e um aviso sobre o status de confiança da conta menciona «software suspeito» sem defini-lo. A NCSOFT cita comportamentos, não programas específicos; medidores de dano e a leitura passiva do tráfego de rede não constam nem são expressamente proibidos, mas a lista não é exaustiva. O medidor não joga por você, não automatiza nada, não aumenta dano nem velocidade, não lê a memória do jogo, não altera cliente nem servidor e não envia nenhum pacote ao jogo; que ele esteja fora da definição é a nossa leitura, não uma declaração da NCSOFT. Confira [as regras atuais](https://aion2.plaync.com/de-de/board/rules/list) e use por sua conta e risco.
+A NCSOFT não aprovou esta ferramenta. A política de operação sanciona «programas não autorizados»: programas ou dispositivos que contornam proteções técnicas ou prejudicam o funcionamento normal, por exemplo programas que permitem ações que jogadores normais não conseguem realizar, bem como a criação ou distribuição desses programas e a modificação do software do cliente ou do servidor. Bots são citados à parte, e um aviso sobre o status de confiança da conta menciona «software suspeito» sem defini-lo. A NCSOFT cita comportamentos, não programas específicos; medidores de dano e a leitura passiva do tráfego de rede não constam nem são expressamente proibidos, mas a lista não é exaustiva. O medidor não joga por você, não automatiza nada, não aumenta dano nem velocidade, não lê a memória do jogo, não altera cliente nem servidor e não envia dados de jogo ao jogo (o ping da ferramenta de rede, que você mesmo liga, não leva nenhum conteúdo do jogo); que ele esteja fora da definição é a nossa leitura, não uma declaração da NCSOFT. Confira [as regras atuais](https://aion2.plaync.com/de-de/board/rules/list) e use por sua conta e risco.
 
 ## Aviso legal e licença
 
