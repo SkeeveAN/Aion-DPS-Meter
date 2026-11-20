@@ -783,6 +783,7 @@ public sealed class MeterSettings
         }
 
         OverlayDesigner.Override(s);
+        s.ReplaceChecklistPage();
         if (!s.CombatMasterMigrated)
         {
             // an older file: the master switch decided whether the three combat overlays stood at all - when it was off, none of them was on
@@ -819,6 +820,32 @@ public sealed class MeterSettings
     }
 
     /// <summary>The settings exactly as the file has them.</summary>
+    /// <summary>
+    /// The checklist page ("page:checklist") is no widget any more: it brought the whole window of the checklist and bypassed its on/off switches. Where a dashboard or an
+    /// overlay still has it, the small checklist widget ("todo") takes its place (position kept, size of the small widget); one that already has "todo" just loses the page.
+    /// </summary>
+    private void ReplaceChecklistPage()
+    {
+        const string old = "page:checklist";
+        foreach (DashboardSet set in Dashboards)
+        {
+            if (set.Widgets.Remove(old, out DashboardPlace? place) && !set.Widgets.ContainsKey("todo"))
+            {
+                var (w, h) = WidgetKind.SizeOf("todo");
+                place.W = w;
+                place.H = h;
+                set.Widgets["todo"] = place;
+            }
+        }
+
+        if (WidgetOverlays.Remove(old, out WidgetOverlayPlace? overlay) && !WidgetOverlays.ContainsKey("todo"))
+        {
+            overlay.Width = null;
+            overlay.Height = null;
+            WidgetOverlays["todo"] = overlay;
+        }
+    }
+
     public static MeterSettings LoadRaw()
     {
         string path = File.Exists(SettingsPath) ? SettingsPath

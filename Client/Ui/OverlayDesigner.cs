@@ -310,7 +310,7 @@ public static class OverlayDesigner
         string toolsGroup = loc["Main.MenuTools"];
         foreach (HubPageInfo page in WidgetKind.Pages?.Invoke() ?? Array.Empty<HubPageInfo>())
         {
-            if (page.Group != toolsGroup)
+            if (page.Group != toolsGroup && page.Id != "checklist") // the checklist page is replaced by the small checklist widget ("todo")
             {
                 AddWidget("page:" + page.Id, page.Title, 2);
             }

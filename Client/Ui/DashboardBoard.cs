@@ -934,7 +934,8 @@ public sealed class DashboardBoard : DockPanel
         }
 
         // every window of the app can stand on a dashboard: the pages of the tabs, grouped as the tabs are
-        foreach (var group in _src.Pages().GroupBy(p => p.Group))
+        // the checklist page is not offered: it would bring the whole window and bypass the on/off switches of the checklist widget ("todo")
+        foreach (var group in _src.Pages().Where(p => p.Id != "checklist").GroupBy(p => p.Group))
         {
             list.Children.Add(Group(group.Key));
             foreach (HubPageInfo page in group)
