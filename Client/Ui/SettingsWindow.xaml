@@ -1066,6 +1066,7 @@
                                         <Slider Grid.Column="1" x:Name="SpeechVolumeOnYouSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
                                                 SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
                                         <TextBlock Grid.Column="2" x:Name="SpeechVolumeOnYouValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                        <Button Grid.Column="3" Content="▶" Tag="you" Padding="12,2" Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip="{local:Loc Settings.Speech.PlayVolume}" Click="OnSpeechVolumePlay"/>
                                     </Grid>
                                     <Grid Margin="0,2,0,0">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
@@ -1073,6 +1074,7 @@
                                         <Slider Grid.Column="1" x:Name="SpeechVolumeOnAllSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
                                                 SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
                                         <TextBlock Grid.Column="2" x:Name="SpeechVolumeOnAllValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                        <Button Grid.Column="3" Content="▶" Tag="all" Padding="12,2" Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip="{local:Loc Settings.Speech.PlayVolume}" Click="OnSpeechVolumePlay"/>
                                     </Grid>
                                     <Grid Margin="0,2,0,0">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
@@ -1080,6 +1082,7 @@
                                         <Slider Grid.Column="1" x:Name="SpeechVolumeLethalYouSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
                                                 SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
                                         <TextBlock Grid.Column="2" x:Name="SpeechVolumeLethalYouValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                        <Button Grid.Column="3" Content="▶" Tag="lethalyou" Padding="12,2" Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip="{local:Loc Settings.Speech.PlayVolume}" Click="OnSpeechVolumePlay"/>
                                     </Grid>
                                     <Grid Margin="0,2,0,0">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
@@ -1087,6 +1090,7 @@
                                         <Slider Grid.Column="1" x:Name="SpeechVolumeLethalAllSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
                                                 SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
                                         <TextBlock Grid.Column="2" x:Name="SpeechVolumeLethalAllValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                        <Button Grid.Column="3" Content="▶" Tag="lethalall" Padding="12,2" Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip="{local:Loc Settings.Speech.PlayVolume}" Click="OnSpeechVolumePlay"/>
                                     </Grid>
                                     <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Speech.Note}" Margin="0,6,0,0"/>
                                     <TextBlock Text="{local:Loc Settings.Speech.Examples}" Margin="0,22,0,4"/>

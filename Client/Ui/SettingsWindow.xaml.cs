@@ -1528,6 +1528,32 @@ public partial class SettingsWindow : Window
         }
     }
 
+    /// <summary>The play button of a volume row: a sample announcement of that kind, spoken at the slider's volume as it stands now (the row's own switch does not matter, the volume is what is tried).</summary>
+    private void OnSpeechVolumePlay(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string kind } || SpeechVoiceCombo.SelectedItem is null)
+        {
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        MeterSettings s = SpeechPreviewSettings();
+        s.SpeechOnYou = s.SpeechOnAll = s.SpeechLethalYou = s.SpeechLethalAll = true;
+        (bool atYou, bool all, bool lethal, Slider slider) = kind switch
+        {
+            "you" => (true, false, false, SpeechVolumeOnYouSlider),
+            "all" => (false, true, false, SpeechVolumeOnAllSlider),
+            "lethalyou" => (true, false, true, SpeechVolumeLethalYouSlider),
+            _ => (false, true, true, SpeechVolumeLethalAllSlider),
+        };
+        string skill = loc[lethal ? "Speech.SampleDeath" : "Speech.SampleIce"];
+        string? say = CastSpeech.Sentence(s, skill, atYou, all, lethal, CastSpeech.WordsLanguage(s));
+        if (say is not null)
+        {
+            _speech.Speak(say, Chosen(SpeechVoiceCombo, ""), slider.Value / 100.0, Chosen(AudioDeviceCombo, ""));
+        }
+    }
+
     private void OnSpeechOptionChanged(object sender, RoutedEventArgs e)
     {
         if (!_speechLoading && SpeechExamples is not null)

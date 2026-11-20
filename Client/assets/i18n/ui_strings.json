@@ -11235,6 +11235,11 @@
     "de": "Lautstärke je Ansage",
     "fr": "Volume par annonce"
   },
+  "Settings.Speech.PlayVolume": {
+    "en": "Play a sample at this volume",
+    "de": "Beispiel in dieser Lautstärke abspielen",
+    "fr": "Lire un exemple à ce volume"
+  },
   "Settings.Audio.Title": {
     "en": "Audio output",
     "de": "Audio-Ausgabe",
