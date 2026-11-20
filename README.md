@@ -32,14 +32,15 @@
 - Boss leaderboards and public character profiles on aiondps.com (optional upload, off by default)
 - Interactive map, event timetable, world boss timers and a network overlay
 - Boss casts announced by voice, a loot log, an attributes tool, a crafting calculator and a daily checklist
-- Passive: packet capture only, no memory reading, no injection, nothing sent to the game
+- Passive: packet capture only, no memory reading, no injection, no game data sent to the game
 - Free, open source (MIT) and updates itself
 
 Works with the global release of AION 2 — every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.
 
 A damage/heal meter and toolkit for **Aion 2**. It reads the game's own network traffic on your machine
-through the [Npcap](https://npcap.com) driver — passively: it never sends a packet and never touches the
-game process or its memory. Nothing about your play leaves your machine unless you upload it (see
+through the [Npcap](https://npcap.com) driver — passively: it sends no game data and never touches the
+game process or its memory. The one thing it can send towards the game server is a small ping, and only if you
+switch on the network overlay or network page yourself (see [Network overlay](#network-overlay)). Nothing about your play leaves your machine unless you upload it (see
 [Uploads](#uploads)); the other thing it sends is an update check, which asks GitHub whether a newer
 release exists and can be switched off; see [Updates](#updates).
 
@@ -60,6 +61,12 @@ release exists and can be switched off; see [Updates](#updates).
 
 ## What it does
 
+### The 2.0 interface: dashboard, widgets and overlay designer
+
+The program opens as one window with the tabs **Dashboard**, **Combat & Analysis** and **Character**, and the tools grouped under **Tools** (World, Combat & streaming and **Client** for the program's own settings). Planning (Checklist, Main Stats, Stat calculator) sits in the Character tab. Every tool page has a **Display** and a **Configuration** tab. The **dashboard** is a board you arrange yourself: move a widget by its title, size it by the corner, take it off with the cross and put it back with the plus; the checklist, world bosses, key figures, the last boss fight, update, announcements and Twitch drops are widgets, and every page of the app can become one. You can keep several dashboards. Every widget can also stand over the game as an overlay.
+
+Press **Ctrl+Alt+D** to open the **overlay designer**: it dims the screen and lets you drag, scale and dock every overlay and widget (grid and docking switches in its bar), and a gear on each overlay opens its background colour, background opacity and text opacity. **Esc** leaves it.
+
 ### Live damage and healing for everyone
 
 Every player in your group or raid with name, total damage, DPS and a share bar; faction and class are
@@ -70,8 +77,8 @@ which the boss went back to full health).
 
 ### Five views, one click apart
 
-**Damage**, **Heal**, **Damage taken** and two **All in One** views. Switch with the hotkey
-(default **Ctrl+Alt+M**) or by clicking the mode label in the overlay. *All in One* shows damage taken,
+**Damage**, **Heal**, **Damage taken** and two **All in One** views. Switch with the mode
+chips on the live meter page (and on the meter widget while the overlay designer is open). *All in One* shows damage taken,
 healing and total side by side, *All in One Compact* keeps the familiar DPS and total columns and puts
 healing and damage taken in a small second line under the name.
 
@@ -82,11 +89,11 @@ healing and damage taken in a small second line under the name.
 
 ### A click-through overlay
 
-**Hide UI** turns the window into small chips (or a compact panel) that sit on top of Aion 2 without
+The live meter widget sits on top of Aion 2 as small chips (or a compact list) without
 taking a single click. Opacity, damage-share bars, the boss's health and damage taken per player are
-options. The compact panel can optionally let mouse clicks through to the game. The overlay only draws while the game is in front. Toggle it from anywhere with a hotkey.
+options. The compact panel can optionally let mouse clicks through to the game. The overlay only draws while the game is in front. Show the overlays and hide the window from anywhere with **Ctrl+Alt+H**.
 
-Optional (**Settings → Interface → Hide during game menus**, off by default): the meter and its overlays step aside while one of the game's menus is open (map, inventory, legion, shop, Esc ...) and come back when you close it. It works by the mouse cursor: in the control mode that hides the cursor while you play, the game shows it when a menu opens; holding the show-cursor key (Alt by default) keeps the meter up so you can click it, and **Ctrl+Alt+J** shows the overlays for the menu that is open. In the classic control mode the cursor is always shown, so menus cannot be told apart; the meter notices that while you fight and simply stays up.
+Optional (**Tools → Client → General**, hide during game menus, off by default): the meter and its overlays step aside while one of the game's menus is open (map, inventory, legion, shop, Esc ...) and come back when you close it. It works by the mouse cursor: in the control mode that hides the cursor while you play, the game shows it when a menu opens; holding the show-cursor key (Alt by default) keeps the meter up so you can click it, and the overlay hotkey shows them for the menu that is open. In the classic control mode the cursor is always shown, so menus cannot be told apart; the meter notices that while you fight and simply stays up.
 
 ### Skill breakdown for every player
 
@@ -165,9 +172,12 @@ once you have been there. Sound and volume are set per boss, grouped by region.
 
 ### Network overlay
 
+If you switch it on, the tool also sends one small ping per second to your router, to 1.1.1.1 and to the game server (an echo request without any content) to tell where a freeze comes from; with the overlay and the network page off, nothing is sent.
+
+
 Ping, jitter, traffic, packet loss and how long you have been online, measured from the traffic your PC
 already receives. Values turn from green to red as the connection gets worse. Choose the lines you want,
-lock it in place, switch it on and off with a hotkey.
+lock it in place, switch it on and off with its switch.
 
 <p align="center">
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="The network overlay: ping, jitter, traffic and packet loss">
@@ -188,7 +198,7 @@ One transparent frame with up to three elements, each of which you place and siz
 - **Boss cast bar:** the moment a boss starts a skill, its name, a bar that runs down with the time left, and whom it is aimed at (you in red). A skill that has hit several players is marked **AREA**; **LETHAL** means the highest hit you took from it so far is at least your current health. The meter learns each skill (area or not, when its damage lands) and remembers it between sessions.
 - **Target of the target:** one block that moves, resizes and scales as a whole, with parts you can also place on their own inside it. If the target you selected with Tab is itself aiming at someone, you see who: a boss with its picture and name, a player with the class emblem and name. The **healer bar** (optional) adds that target's health bar and its debuffs (or buffs) to the block.
 
-Unlock the overlay in **Settings → Boss fight** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. The chosen Windows voice can also **announce boss casts** by voice (with or without the skill name, at you, at everyone, lethal), even with the overlay switched off while Aion is in front; the settings have example sentences to listen to. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
+Arrange it in the overlay designer (**Ctrl+Alt+D**): drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. The chosen Windows voice can also **announce boss casts** by voice (with or without the skill name, at you, at everyone, lethal), even with the overlay switched off while Aion is in front; the settings have example sentences to listen to. The *overlays shown / hidden* hotkey (**Ctrl+Alt+H**) shows and hides it together with the others.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="The boss fight overlay: two boss casts with a time bar and the target of the target block with picture, name, health bar and debuffs">
@@ -196,11 +206,11 @@ Unlock the overlay in **Settings → Boss fight** to arrange it: drag an element
 
 ### Loot, attributes and the daily checklist
 
-The **Tools** window lists these on the left. The **Loot** tool shows what you pick up from the ground, by session and map, as a page and as an overlay (**Ctrl+Alt+L**). The **Attributes** tool shows the attribute ring with your points, what each attribute and Lord value does (0.1 % per point), all bonuses added up, and a stat tab that explains every stat with its share from the ring. The **checklist** keeps your daily and weekly tasks, reads the mandatory daily quests and the weekly Odyle energy purchase from the game, and leaves the rest to tick by hand. Every tool remembers its own width and height.
+These are tools under **Tools**. The **Loot** tool shows what you pick up from the ground, by session and map, as a page and as an overlay. The **Attributes** tool shows the attribute ring with your points, what each attribute and Lord value does (0.1 % per point), all bonuses added up, and a stat tab that explains every stat with its share from the ring. The **checklist** keeps your daily and weekly tasks, reads the mandatory daily quests and the weekly Odyle energy purchase from the game, and leaves the rest to tick by hand. Every tool remembers its own width and height.
 
 ### Crafting calculator
 
-Mark the recipes you want to craft and how often (for the whole account, so your twinks see them too, or for one character), and the **Crafting calculator** lists, recipe by recipe, which materials you still lack. Intermediates are broken down into what you really have to gather: three smithing hammers need 18 ingots, which means 36 ore, and ingots you already own count first. The stock is read from the game, from the inventory, the character storage and the account storage, and a material that lies in a storage says so. Keep the page open on a second screen or show the same list as an overlay in the game (**Ctrl+Alt+R**). The recipes come from the game's own tables; the order of your list decides which recipe gets the stock first. Log in once so the stock is read; what you move between the inventory and a storage shows up after the next sort.
+Mark the recipes you want to craft and how often (for the whole account, so your twinks see them too, or for one character), and the **Crafting calculator** lists, recipe by recipe, which materials you still lack. Intermediates are broken down into what you really have to gather: three smithing hammers need 18 ingots, which means 36 ore, and ingots you already own count first. The stock is read from the game, from the inventory, the character storage and the account storage, and a material that lies in a storage says so. Keep the page open on a second screen or show the same list as an overlay in the game. The recipes come from the game's own tables; the order of your list decides which recipe gets the stock first. Log in once so the stock is read; what you move between the inventory and a storage shows up after the next sort.
 
 ### Announcements and Twitch Drops
 
@@ -217,9 +227,13 @@ something is newer than your last visit.
 
 ### The meter in your stream (OBS, Streamlabs)
 
-Show the meter live over your game without filming its window: switch on **Settings → Streaming → Stream overlay for OBS**, then use **Copy link for OBS** (or the tray icon's *Copy stream overlay link*), add a **Browser** source in OBS or Streamlabs, paste the link and set the source's size. The page follows the meter live: the current view (damage, heal, damage taken, all in one), the players with class icon and bars, and the boss's health. Add `?scale=1.5` or `?rows=5` to the link to enlarge it or show fewer rows.
+Show the meter live over your game without filming its window: switch on **Stream overlay for OBS** in the Configuration tab of the Streaming tool, then use **Copy link for OBS** (or the tray icon's *Copy stream overlay link*), add a **Browser** source in OBS or Streamlabs, paste the link and set the source's size. The page follows the meter live: the current view (damage, heal, damage taken, all in one), the players with class icon and bars, and the boss's health. Add `?scale=1.5` or `?rows=5` to the link to enlarge it or show fewer rows.
 
 It also works with **two PCs** (the game on one, OBS on the other): copy the link to the streaming PC, it holds the game PC's address in your network. Only your own network can reach it, never the internet; the link carries a random key (**New key** makes the old link stop working), only `GET` is served, the page loads nothing from anywhere else, and nothing is sent to anyone. Windows may ask once to allow the meter in the firewall: allow it for private networks. Player names are **off by default** - everyone is shown by their class, like in the uploads - and can be switched on in the same settings card.
+
+### History and statistics
+
+Your fights, characters and the checklist counters are kept in a database on your PC (older entries are thinned out after 90 days); nothing of it is uploaded. The **Character** tab shows your instances, boss kills with the best DPS, the development of gear score and combat power over time, the attribute ring and a stat card laid out like the game's stat window, and — if you allow the lookup — what aiondps.com holds for your character from everyone's uploads.
 
 ### Sessions
 
@@ -238,9 +252,8 @@ during a pause are skipped for good, so resuming never replays a fight you sat o
 
 - **Copy** puts a one-line, chat-ready ranking on the clipboard (`Name 1.234.567 (890), …`); **Copy All**
   gives you a Discord markdown table.
-- Appearance is set under **Settings → Interface**: theme (dark/light), font size, language, overlay look
-  and opacity, start with Windows.
-- Your settings survive a crash: the settings file is written in one go, and a copy of the last start is kept next to it. If the file is ever damaged, that copy is restored (the damaged file is kept beside it). **Settings → General → Reset all settings to defaults** asks twice and can be undone for 30 seconds; your upload and privacy choices, the update check and your character stay as they are.
+- Appearance is set under **Tools → Client → General**: theme (dark/light), font size, language, start with Windows; each overlay's look and opacity are set in the overlay designer.
+- Your settings survive a crash: the settings file is written in one go, and a copy of the last start is kept next to it. If the file is ever damaged, that copy is restored (the damaged file is kept beside it). **Tools → Client → System → Reset all settings to defaults** asks twice and can be undone for 30 seconds; your upload and privacy choices, the update check and your character stay as they are.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Settings: interface, overlay and behavior">
@@ -249,46 +262,35 @@ during a pause are skipped for good, so resuming never replays a fight you sat o
 
 ## Hotkeys
 
-System-wide, also while the game has the focus. Click a field in **Settings → Hotkeys**, press the
+System-wide, also while the game has the focus. Click a field in **Tools → Client → Hotkeys**, press the
 combination you want (it needs Ctrl, Alt, Shift or Win); **×** removes it. They replace chat commands,
 which cannot work because Aion 2's chat is not readable from the network stream.
 
 | Default | Action |
 |---|---|
-| **Ctrl+Alt+H** | Overlay (hide the window, show chips) |
+| **Ctrl+Alt+D** | Overlay designer |
+| **Ctrl+Alt+H** | Overlays shown / hidden (the window goes away and the overlays stand, or the window is back and they are gone) |
 | **Ctrl+Alt+P** | Pause / resume |
-| **Ctrl+Alt+D** | Copy the damage ranking |
-| **Ctrl+Alt+Shift+X** | Clear the session |
+| **Ctrl+Alt+X** | Clear the session |
 | **Ctrl+Alt+U** | Upload boss damage |
-| **Ctrl+Alt+M** | Next mode (five views) |
-| **Ctrl+Alt+T** | Timetable overlay |
-| **Ctrl+Alt+K** | Interactive map on / off |
-| **Ctrl+Alt+E** / **Ctrl+Alt+G** | Edge arrows for pets / gatherables |
-| **Ctrl+Alt+B** | World boss overlay |
-| **Ctrl+Alt+N** | Network overlay |
-| **Ctrl+Alt+C** | Combat overlay |
-| **Ctrl+Alt+L** | Loot overlay |
-| **Ctrl+Alt+R** | Crafting overlay |
-| **Ctrl+Alt+J** | Show the overlays during the open game menu |
-| **Ctrl+Alt+O** | Hotkey overlay (a movable list of the hotkeys) |
-| **Ctrl+Alt+A** | All overlays on / off |
+| **Ctrl+Alt+C** | Copy the damage ranking (follows the chosen mode) |
 
 ## Uploads
 
-- **Boss fights** are uploaded when you click upload (toolbar button, Session menu or **Ctrl+Alt+U**): the
+- **Boss fights** are uploaded when you click upload (the upload button or **Ctrl+Alt+U**): the
   boss, the players who took part, damage, healing, damage taken and skills. Only bosses the game
   announced and the catalog knows are accepted. Automatic upload is available and **off by default**.
-- **Your own character profile** (name, class, level, gear, skills, Daevanion, legion, server, faction) can
+- **Your own character profile** (name, class, level, gear, skills, Daevanion, legion, server, ranks, Pantheon, titles, pets, wings, attributes, skill presets with action bars and macros, Odyle energy and a hash of your account key) can
   be uploaded automatically a few seconds after you log in, so you can be found on the website. This is
-  **off by default**; switch it on under **Settings**.
-- Without an upload nothing leaves your machine.
+  **off by default**; switch it on under **Tools → Client → Capture & upload**. Profiles of other players are sent only with a second, separate switch.
+- Without an upload only the update check and the requests listed in the [privacy policy](https://aiondps.com/privacy) leave your machine.
 
 ## Updates
 
 The meter updates itself. It asks GitHub for a newer release at startup and every five minutes while
 it runs, downloads it in the background and swaps it in on the next start — no installer, no UAC
 prompt. When an update is ready a green line appears in the status row (and a badge on the transparent
-overlay); clicking it offers to restart right away. **App → Check for updates** does the same on demand.
+overlay); clicking it offers to restart right away. The update button in the header and the check in the footer do the same on demand.
 An old version keeps uploading for 72 hours after its successor came out, then must update.
 
 The check reads one URL and sends nothing but the request itself:
@@ -297,12 +299,12 @@ The check reads one URL and sends nothing but the request itself:
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Turn it off under **Settings → Updates**; the menu item keeps working when it is off.
+Turn it off under **Tools → Client → System**; checking by hand keeps working when it is off.
 
 ## Languages
 
 English, German, French, Spanish, Russian, Chinese (simplified and traditional), Portuguese (Brazil),
-Japanese and Korean — set under **Settings → Interface → Language**. This README is also available in
+Japanese and Korean — set under **Tools → Client → General**. This README is also available in
 [Deutsch](README.de.md), [Español](README.es.md), [Français](README.fr.md), [Русский](README.ru.md),
 [中文](README.zh.md), [繁體中文](README.zh-TW.md), [Português (Brasil)](README.pt.md),
 [日本語](README.ja.md) and [한국어](README.ko.md).
@@ -322,7 +324,7 @@ Windows only (WPF). `Tools/aion2-dat` reads the game's text tables (names in eig
 
 ## A note on server rules
 
-NCSOFT has not approved this tool. Its operating policy sanctions "unauthorized programs": programs or devices that bypass technical protection or impair normal operation, for example programs that enable actions regular players cannot perform, and the creation or distribution of such programs or changes to client or server software. Bots are listed separately, and a notice on the account trust status mentions "suspicious software" without defining it. NCSOFT names behaviors, not individual programs; damage meters and the passive reading of network traffic are neither listed nor prohibited by name, but the list is not exhaustive. The meter plays nothing for you, automates nothing, raises no damage or speed, reads no game memory, changes neither client nor server and sends no packet to the game; that it falls outside the definition is our reading, not a statement from NCSOFT. Check [the current rules](https://aion2.plaync.com/de-de/board/rules/list) and use it at your own responsibility.
+NCSOFT has not approved this tool. Its operating policy sanctions "unauthorized programs": programs or devices that bypass technical protection or impair normal operation, for example programs that enable actions regular players cannot perform, and the creation or distribution of such programs or changes to client or server software. Bots are listed separately, and a notice on the account trust status mentions "suspicious software" without defining it. NCSOFT names behaviors, not individual programs; damage meters and the passive reading of network traffic are neither listed nor prohibited by name, but the list is not exhaustive. The meter plays nothing for you, automates nothing, raises no damage or speed, reads no game memory, changes neither client nor server and sends no game data to the game (the ping of the network tool, which you switch on yourself, carries no game content); that it falls outside the definition is our reading, not a statement from NCSOFT. Check [the current rules](https://aion2.plaync.com/de-de/board/rules/list) and use it at your own responsibility.
 
 ## Disclaimer and license
 
