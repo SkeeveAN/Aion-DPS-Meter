@@ -224,6 +224,8 @@ public sealed class MeterSettings
     /// <summary>Assist window and overlay: list the effects with the least time left first (renewed auras, which never run out, come last). Off: in the order they first appeared.</summary>
     public bool AssistSortByTime { get; set; }
 
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool NetworkOverlayLocked { get; set; } = true;
 
     public List<string> NetworkOverlayHidden { get; set; } = new();
@@ -231,6 +233,8 @@ public sealed class MeterSettings
     /// <summary>The loot overlay (see LootOverlayWindow): what the player picked up in the running session, kept in the Loot tool. Off until switched on. Locked (default): click-through; unlocked: it can be moved and scaled.</summary>
     public bool ShowLootOverlay { get; set; }
 
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool LootOverlayLocked { get; set; } = true;
     public double? LootOverlayLeft { get; set; }
     public double? LootOverlayTop { get; set; }
@@ -346,11 +350,17 @@ public sealed class MeterSettings
     [System.Text.Json.Serialization.JsonIgnore]
     public bool CombatOverlayAny => ShowBossHp || CombatShowBossCast || CombatShowTargetOfTarget;
 
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool CombatOverlayLocked { get; set; } = true;
 
     /// <summary>The cast bar and the health bar are positioned each on their own; null (a settings file from before) follows <see cref="CombatOverlayLocked"/>.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool? CombatCastOverlayLocked { get; set; }
 
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool? CombatHpOverlayLocked { get; set; }
 
     /// <summary>How opaque the target of the target is, 0 to 1.</summary>
@@ -535,6 +545,8 @@ public sealed class MeterSettings
     public Dictionary<string, WidgetOverlayPlace> WidgetOverlays { get; set; } = new();
 
     /// <summary>The widget overlays are click-through and without handles (the overlay designer unlocks them like the others).</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool WidgetOverlaysLocked { get; set; } = true;
     /// <summary>World boss overlay on / off.</summary>
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
@@ -594,15 +606,23 @@ public sealed class MeterSettings
     public bool ShowPetFarm { get; set; }
 
     /// <summary>Locked (default): the pet farming overlay is click-through. Unlocked: it can be clicked, moved and scaled.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool PetFarmLocked { get; set; } = true;
 
     /// <summary>Locked (default): the small pet counter of the targeted monster is click-through. Unlocked: it can be moved and scaled. Independent of the map's lock.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool PetInfoLocked { get; set; } = true;
 
     /// <summary>Locked (default): the world boss overlay is click-through. Unlocked: it can be clicked, moved and scaled. Independent of the pet overlays' lock.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool BossOverlayLocked { get; set; } = true;
 
     /// <summary>Locked (default): the timetable overlay is click-through (no header, no grip). Unlocked: it can be moved and scaled.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool TimetableLocked { get; set; } = true;
 
     public double PetFarmScale { get; set; } = 1.0;
@@ -619,9 +639,13 @@ public sealed class MeterSettings
     public bool PetMapShowList { get; set; }
 
     /// <summary>The list is positioned on its own; null (a settings file from before) follows <see cref="PetFarmLocked"/>, as the map does.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool? PetListLocked { get; set; }
 
     /// <summary>The hotkey overlay is positioned on its own; null (a settings file from before) follows <see cref="PetFarmLocked"/>, as it did.</summary>
+    /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool? HotkeyOverlayLocked { get; set; }
 
     public int PetMapRadius { get; set; } = 150;
