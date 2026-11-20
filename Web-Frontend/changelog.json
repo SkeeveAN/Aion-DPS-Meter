@@ -1,6 +1,26 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.1.2",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Overlays: the lock is no longer stored, an overlay is unlocked only while the designer runs, so an old file can no longer leave the map framed and the menu hiding paused",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "an overlay left unlocked by an old settings file no longer keeps its frame or stops the menus hiding the overlays",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
+  "version": "2.1.1",
   "date": "2026-11-20",
   "items": [
    {
@@ -31,16 +51,37 @@
     "date": "2026-11-20"
    },
    {
-    "text": "Design change: the new interface only rebuilds itself when the look really changed - applying the settings over and over (every change, every save) no longer redraws the main window",
+    "text": "Design change: the new interface only rebuilds itself when the look really changed",
     "areas": [
      "Client"
     ],
     "date": "2026-11-20"
    },
    {
-    "text": "Deploy: the install script reads the database into the file cache while the old backend still answers, so a restart takes seconds instead of 5-8 minutes of failing requests",
+    "text": "Deploy: the install script reads the database into the file cache while the old backend still answers, so the restart takes seconds instead of 5-8 minutes of 502 errors",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "Dashboard: the checklist page is no widget any more, an existing one becomes the small checklist widget",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "Checklist: Enhance Stones of every character (inventory, storage, account storage) as a card under Subscriptions, with a widget switch",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "the checklist shows the Enhance Stones of each character, in the inventory and both storages",
+    "areas": [
+     "Client"
     ],
     "date": "2026-11-20"
    }
