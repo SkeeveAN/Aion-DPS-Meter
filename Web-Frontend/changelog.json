@@ -36,6 +36,13 @@
      "Client"
     ],
     "date": "2026-11-20"
+   },
+   {
+    "text": "Deploy: the install script reads the database into the file cache while the old backend still answers, so a restart takes seconds instead of 5-8 minutes of failing requests",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-20"
    }
   ]
  },
