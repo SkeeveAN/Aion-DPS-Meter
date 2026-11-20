@@ -247,7 +247,10 @@ public sealed class ChecklistWindow : Window
         DateTime seenAt = character.SavedAt.ToLocalTime();
         _seen.Text = string.Format(CultureInfo.CurrentCulture, loc["Checklist.Seen"], seenAt.ToString("g", CultureInfo.CurrentCulture));
 
-        List<ChecklistRow> rows = ChecklistRows.Build(character, seenAt, now, _premium, language);
+        List<ChecklistRow> rows = ChecklistRows.Build(character, seenAt, now, _premium, language)
+            .Where(r => Requirement(r.Key) is not { } need
+                || ((character.Level <= 0 || character.Level >= need.Level) && (character.ItemLevel <= 0 || character.ItemLevel >= need.ItemLevel)))
+            .ToList();
         // the three weekly counters of the Odyle energy (bought in the trade guild, converted) belong to the energy card; the rest of the weekly list stays below
         ChecklistRow[] odyleRows = rows.Where(r => r.Key is "weekly:shopodyle" or "weekly:convertbig" or "weekly:convertsmall").ToArray();
         ChecklistRow[] entries = rows.Where(r => r.Group == ChecklistGroup.Overview && !r.Key.StartsWith("corridor:", StringComparison.Ordinal)).ToArray();
@@ -415,7 +418,7 @@ public sealed class ChecklistWindow : Window
         return box;
     }
 
-    /// <summary>The level (and item level) from which a counter exists: shown behind its name, so a lower character knows why it is missing or 0.</summary>
+    /// <summary>The level (and item level) from which a counter exists: a character below it does not see the counter at all (an unknown level or item level hides nothing).</summary>
     private static (int Level, int ItemLevel)? Requirement(string key) => key switch
     {
         "ticket:101" => (30, 0),
@@ -425,18 +428,7 @@ public sealed class ChecklistWindow : Window
         _ => null,
     };
 
-    private static UIElement RequirementChip((int Level, int ItemLevel) need)
-    {
-        LocalizationManager loc = LocalizationManager.Instance;
-        string text = need.ItemLevel > 0
-            ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.FromLevelItem"], need.Level, need.ItemLevel.ToString("N0", CultureInfo.CurrentCulture))
-            : string.Format(CultureInfo.CurrentCulture, loc["Checklist.FromLevel"], need.Level);
-        var chip = new Border { BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Padding = new Thickness(5, 0, 5, 1), Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Child = Label(text, "Brush.TextMuted", 9.5) };
-        chip.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-        return chip;
-    }
-
-    /// <summary>One counter row: switch, name (with its level hint), a small bar, where there is one the warning of a refill that would run over the cap or the tick of a finished day, and the number.</summary>
+    /// <summary>One counter row: switch, name, a small bar, where there is one the warning of a refill that would run over the cap or the tick of a finished day, and the number.</summary>
     private UIElement Row(ChecklistRow r, TicketCharacter character, RowLook look, bool withTopLine = false)
     {
         LocalizationManager loc = LocalizationManager.Instance;
@@ -467,11 +459,6 @@ public sealed class ChecklistWindow : Window
         TextBlock title = Label(r.Label, open ? "Brush.Text" : "Brush.TextSubtle", 13);
         title.TextWrapping = TextWrapping.Wrap;
         name.Children.Add(title);
-        if (Requirement(r.Key) is { } need)
-        {
-            name.Children.Add(RequirementChip(need));
-        }
-
         Grid.SetColumn(name, 1);
         grid.Children.Add(name);
         if (barColumn >= 0)
