@@ -1,5 +1,30 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Undo the files of other work that slipped into the previous commit; only the short changelog lines stay",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "Documents match the 2.0 client in all ten languages: the privacy policy lists everything the profile upload sends (skill bars and macros, Odyle energy, titles, pets, wings, attributes, an account-key hash), the update check at GitHub, the network tool's ping (only when you switch it on yourself), the history on your PC and the pet overlay's screen reading; the terms, the how-it-works article, the comparison, the features page and the readmes follow the real hotkeys, menus and numbers",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.1.0",
   "date": "2026-11-20",
   "items": [
