@@ -194,5 +194,9 @@
  "the checklist recognises by itself which Abyss Corridors are unavailable to a character and shows them as 0 / 0": {
   "en": "Checklist: unavailable Abyss Corridors shown as 0 / 0",
   "de": "Checkliste: nicht verfügbare Korridore als 0 / 0"
+ },
+ "ability macros are uploaded again after a character switch": {
+  "en": "Ability macros are uploaded again after a character switch",
+  "de": "Fähigkeiten-Makros werden nach einem Charakterwechsel wieder hochgeladen"
  }
 }

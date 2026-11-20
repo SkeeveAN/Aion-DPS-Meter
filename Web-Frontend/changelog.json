@@ -1,5 +1,25 @@
 [
  {
+  "version": "2.0.6",
+  "date": "2026-11-20",
+  "items": [
+   {
+    "text": "Ability macros: when a twink logs in, the macros the game sends first in the login are kept (the character record follows about four seconds later and wiped them), so the player page shows the macros again",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   },
+   {
+    "text": "ability macros are uploaded again after a character switch",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
   "version": "2.0.5",
   "date": "2026-11-20",
   "items": [
