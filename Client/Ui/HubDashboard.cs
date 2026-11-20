@@ -267,6 +267,12 @@ public static class HubDashboard
     private static List<(string Key, string Label, string Text, bool Open)> TimeRows(TicketCharacter me, DateTime now, LocalizationManager loc)
     {
         var rows = new List<(string, string, string, bool)>();
+        if (Aion2Stones.Get(me.Name) is { } stones)
+        {
+            long total = stones.Inventory + stones.CharacterStorage + (Aion2Stones.AccountStorage() ?? stones.AccountStorage);
+            rows.Add(("stones", Aion2.Protocol.Aion2ItemNames.NameOf(Aion2Stones.ItemId, loc.Language) ?? "Enhance Stone", total.ToString("N0", System.Globalization.CultureInfo.CurrentCulture), true));
+        }
+
         if (me.Tickets.TryGetValue(Aion2Tickets.PremiumId, out TicketValue member) && member.TimeMs > 0)
         {
             TimeSpan left = DateTimeOffset.FromUnixTimeMilliseconds(member.TimeMs).LocalDateTime - now;

@@ -7262,6 +7262,7 @@ public partial class MainWindow : Window
             return;
         }
 
+        Aion2.Aion2Stones.Capture(own.Name); // the Enhance Stones of this character, for the checklist
         ProfileOdyleUpload? odyle = BuildOdyleUpload(own.Name);
         string signature = odyle is null ? "" : $"{odyle.Count}/{odyle.Bonus}/{odyle.Complete}/" + string.Join(",", odyle.Stacks.Select(x => $"{x.Item}:{x.Quantity}:{x.Place}:{x.ExpiresMs}"));
         if (signature == _odyleSignature)

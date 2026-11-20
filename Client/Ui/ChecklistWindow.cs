@@ -277,11 +277,23 @@ public sealed class ChecklistWindow : Window
         }
 
         UIElement? subs = BuildSubscriptions(loc["Checklist.Subs"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
-        if (subs is not null)
+        // the Enhance Stones sit under the subscriptions, in the same column (there is room below the list)
+        UIElement? stones = StonesCard(character.Name, language);
+        if (subs is not null || stones is not null)
         {
-            Grid.SetColumn(subs, 1);
-            ((FrameworkElement)subs).Margin = new Thickness(0, 0, 6, 0);
-            top.Children.Add(subs);
+            var middle = new StackPanel { Margin = new Thickness(0, 0, 6, 0) };
+            if (subs is not null)
+            {
+                middle.Children.Add(subs);
+            }
+
+            if (stones is not null)
+            {
+                middle.Children.Add(stones);
+            }
+
+            Grid.SetColumn(middle, 1);
+            top.Children.Add(middle);
         }
 
         UIElement? pass = BuildPass(loc["Checklist.DaevaPass"], character, language);
@@ -344,6 +356,40 @@ public sealed class ChecklistWindow : Window
     }
 
     private const int OdyleChargedMax = 2000;
+
+    /// <summary>The Enhance Stones of the character: the sum and where they lie (inventory, character storage, account storage). Null while no login of the character was read.</summary>
+    private static UIElement? StonesCard(string characterName, string language)
+    {
+        if (Aion2Stones.Get(characterName) is not { } stones)
+        {
+            return null;
+        }
+
+        LocalizationManager loc = LocalizationManager.Instance;
+        // the account storage is one for all characters: the newest reading of any of them
+        long account = Aion2Stones.AccountStorage() ?? stones.AccountStorage;
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var title = new StackPanel();
+        // a small switch in front of the title: whether the checklist widget shows the stones
+        var head = new DockPanel();
+        CheckBox pick = Pick("stones");
+        pick.Margin = new Thickness(0, 0, 10, 0);
+        DockPanel.SetDock(pick, Dock.Left);
+        head.Children.Add(pick);
+        head.Children.Add(Label(Aion2.Protocol.Aion2ItemNames.NameOf(Aion2Stones.ItemId, language) ?? "Enhance Stone", "Brush.Text", 15, bold: true));
+        title.Children.Add(head);
+        TextBlock where = Label(string.Format(CultureInfo.CurrentCulture, "{0}: {1:N0}   ·   {2}: {3:N0}   ·   {4}: {5:N0}",
+            loc["Checklist.StonesInventory"], stones.Inventory, loc["Checklist.StonesStorage"], stones.CharacterStorage, loc["Checklist.StonesAccount"], account), "Brush.TextMuted", 12);
+        where.Margin = new Thickness(0, 2, 0, 0); // (the line under the title)
+        title.Children.Add(where);
+        TextBlock total = Label((stones.Inventory + stones.CharacterStorage + account).ToString("N0", CultureInfo.CurrentCulture), "Brush.Accent", 22, bold: true);
+        Grid.SetColumn(total, 1);
+        grid.Children.Add(title);
+        grid.Children.Add(total);
+        return Card(grid);
+    }
 
     private static UIElement OdyleLine(string label, int value, int cap, RowLook look, bool locked = false)
     {

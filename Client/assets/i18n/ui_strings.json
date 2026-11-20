@@ -11860,6 +11860,42 @@
     "zh": "计入账号仓库",
     "zh-TW": "計入帳號倉庫"
   },
+  "Checklist.StonesInventory": {
+    "en": "Inventory",
+    "de": "Inventar",
+    "fr": "Inventaire",
+    "es": "Inventario",
+    "ru": "Инвентарь",
+    "pt": "Inventário",
+    "ja": "インベントリ",
+    "ko": "인벤토리",
+    "zh": "背包",
+    "zh-TW": "背包"
+  },
+  "Checklist.StonesStorage": {
+    "en": "Storage",
+    "de": "Lager",
+    "fr": "Entrepôt",
+    "es": "Almacén",
+    "ru": "Хранилище",
+    "pt": "Armazém",
+    "ja": "倉庫",
+    "ko": "창고",
+    "zh": "仓库",
+    "zh-TW": "倉庫"
+  },
+  "Checklist.StonesAccount": {
+    "en": "Account storage",
+    "de": "Serverlager",
+    "fr": "Entrepôt du compte",
+    "es": "Almacén de la cuenta",
+    "ru": "Хранилище аккаунта",
+    "pt": "Armazém da conta",
+    "ja": "アカウント倉庫",
+    "ko": "계정 창고",
+    "zh": "账号仓库",
+    "zh-TW": "帳號倉庫"
+  },
   "Config.Save": {
     "en": "Save",
     "de": "Speichern",
