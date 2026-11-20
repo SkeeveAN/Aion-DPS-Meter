@@ -137,7 +137,13 @@ public sealed class CraftConfigWindow : Window
             page.AddHandler(System.Windows.Controls.Primitives.ToggleButton.CheckedEvent, new RoutedEventHandler((_, _) => Changed()));
             page.AddHandler(System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, new RoutedEventHandler((_, _) => Changed()));
             page.AddHandler(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent, new SelectionChangedEventHandler((_, _) => Changed()));
-            page.AddHandler(System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent, new RoutedPropertyChangedEventHandler<double>((_, _) => Changed()));
+            page.AddHandler(System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent, new RoutedPropertyChangedEventHandler<double>((_, e) =>
+            {
+                if (e.OriginalSource is Slider) // not a scroll bar or a progress bar
+                {
+                    Changed();
+                }
+            }));
         }
 
         return page;

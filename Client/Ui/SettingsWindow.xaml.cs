@@ -694,7 +694,13 @@ public partial class SettingsWindow : Window
         root.AddHandler(System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, new RoutedEventHandler((_, _) => Changed()));
         root.AddHandler(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent, new SelectionChangedEventHandler((_, _) => Changed()));
         root.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent, new TextChangedEventHandler((_, _) => Changed()));
-        root.AddHandler(System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent, new RoutedPropertyChangedEventHandler<double>((_, _) => Changed()));
+        root.AddHandler(System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent, new RoutedPropertyChangedEventHandler<double>((_, e) =>
+        {
+            if (e.OriginalSource is Slider) // not the bars and scroll bars of a page, they move without anyone changing a setting
+            {
+                Changed();
+            }
+        }));
     }
 
     public UIElement? TakePanel(string name)

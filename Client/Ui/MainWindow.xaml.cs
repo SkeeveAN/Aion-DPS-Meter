@@ -6584,6 +6584,12 @@ public partial class MainWindow : Window
         save.Tick += (_, _) => Save();
         void Changed(object sender, RoutedEventArgs e)
         {
+            // ValueChanged also comes from the bars and scroll bars of a page (the live rows of the DPS meter page change theirs with every hit): only a slider is a setting
+            if (e.RoutedEvent == System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent && e.OriginalSource is not Slider)
+            {
+                return;
+            }
+
             save.Stop();
             save.Start();
         }
