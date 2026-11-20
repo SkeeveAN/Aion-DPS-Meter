@@ -29,6 +29,13 @@
      "Database"
     ],
     "date": "2026-11-20"
+   },
+   {
+    "text": "Design change: the new interface only rebuilds itself when the look really changed - applying the settings over and over (every change, every save) no longer redraws the main window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-20"
    }
   ]
  },
