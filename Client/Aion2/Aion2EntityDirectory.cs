@@ -232,7 +232,13 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _titles = null;
                 _pantheon = null;
                 _actionBars = null;
-                _macros = null;
+                // The settings frame (with the macros) comes first in a login, the character record a few seconds later (measured: 3.9 s):
+                // macros that arrived within the last 30 s are the new character's own.
+                if (DateTime.UtcNow - _macrosAt > TimeSpan.FromSeconds(30))
+                {
+                    _macros = null;
+                }
+
                 _attributes = null;
                 _stats = null;
                 _wing = null;
@@ -1295,6 +1301,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private Aion2Pantheon? _pantheon;
     private Aion2ActionBars? _actionBars;
     private Dictionary<int, IReadOnlyList<Aion2MacroStep>>? _macros;
+    private DateTime _macrosAt = DateTime.MinValue;
 
     /// <summary>The own ability macros per skill preset (page 1..3): the steps in order; null before the login sent them.</summary>
     public IReadOnlyDictionary<int, IReadOnlyList<Aion2MacroStep>>? LocalMacros
@@ -1314,6 +1321,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _macros = macros;
+            _macrosAt = DateTime.UtcNow;
             _listsAt = DateTime.UtcNow;
         }
 
