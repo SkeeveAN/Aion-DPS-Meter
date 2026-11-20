@@ -14,7 +14,10 @@ namespace AionDPS.Ui;
 /// </summary>
 public static class ThemeManager
 {
-    public static readonly IReadOnlyList<string> Themes = new[] { "Dark", "Light", "Midnight", "Elyos", "Asmodian", "HighContrast" };
+    public static readonly IReadOnlyList<string> Themes = new[] { "Dark", "Light", "Midnight", "Elyos", "Asmodian", "HighContrast", "Smaragd", "Amethyst", "Graphit", "Nordlicht", "Sandstein" };
+
+    /// <summary>The built-in designs the Settings list offers (the others of <see cref="Themes"/> stay unlisted), in this order.</summary>
+    public static readonly IReadOnlyList<string> Offered = new[] { "Dark", "Smaragd", "Amethyst", "Graphit", "Nordlicht", "Sandstein" };
 
     public const string DefaultTheme = "Dark";
 
@@ -27,6 +30,18 @@ public static class ThemeManager
     };
 
     private static ResourceDictionary? _active;
+
+    /// <summary>Counts the applied looks: a window that paints itself once from the theme (the main window of the new interface) compares it to know it must be built again.</summary>
+    public static int Version { get; private set; }
+
+    /// <summary>A copy of a colour of the active theme that cannot change any more (a painted window keeps it until it is built again).</summary>
+    public static Brush Resolve(string key, Color fallback)
+    {
+        Color c = Application.Current?.TryFindResource(key) is SolidColorBrush b ? b.Color : fallback;
+        var copy = new SolidColorBrush(c);
+        copy.Freeze();
+        return copy;
+    }
 
     /// <summary>Unknown names (a settings file from a build with different themes) fall back to Dark
     /// rather than leaving every brush unresolved - an unresolved DynamicResource renders as nothing.</summary>
@@ -59,6 +74,7 @@ public static class ThemeManager
 
         app.Resources.MergedDictionaries.Add(dictionary);
         _active = dictionary;
+        Version++;
         double size = FontPointsFor(fontSize, fontPoints);
         app.Resources["FontSize.Base"] = size;
         AddOverlayFontSizes(app.Resources, size);

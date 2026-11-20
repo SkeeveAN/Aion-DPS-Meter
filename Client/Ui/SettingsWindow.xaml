@@ -483,9 +483,7 @@
                                 <Grid Margin="0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
                                     <TextBlock Text="{local:Loc Settings.Theme}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <ComboBox Grid.Column="1" x:Name="ThemeBox" Margin="0,2" HorizontalAlignment="Stretch">
-                                        <ComboBoxItem Content="{local:Loc Settings.ThemeDark}" Tag="Dark"/>
-                                    </ComboBox>
+                                    <ComboBox Grid.Column="1" x:Name="ThemeBox" Margin="0,2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                                 <Grid Margin="0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>

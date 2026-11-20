@@ -6259,7 +6259,7 @@ public partial class MainWindow : Window
     /// <summary>The language changed: when the open new interface was built in another one it is built again (a moment later, never inside the event that changed it, and not while the first-start wizard is open).</summary>
     private void OnLanguageChangedForHub(bool afterSave = false)
     {
-        if (_hubWindow is not { } hub || hub.BuiltLanguage == LocalizationManager.Instance.Language || _hubLanguageQueued || _firstStartWizardOpen)
+        if (_hubWindow is not { } hub || (hub.BuiltLanguage == LocalizationManager.Instance.Language && hub.BuiltTheme == ThemeManager.Version) || _hubLanguageQueued || _firstStartWizardOpen)
         {
             return;
         }
@@ -6274,7 +6274,7 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(new Action(() =>
         {
             _hubLanguageQueued = false;
-            if (_hubWindow is { } open && open.BuiltLanguage != LocalizationManager.Instance.Language)
+            if (_hubWindow is { } open && (open.BuiltLanguage != LocalizationManager.Instance.Language || open.BuiltTheme != ThemeManager.Version))
             {
                 ReopenHub();
             }
@@ -7084,6 +7084,7 @@ public partial class MainWindow : Window
         Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
         Aion2.Capture.LoginCapture.Enabled = settings.ShareLoginWithLegion;
         ThemeManager.Apply(Application.Current, settings); // repaints every open window
+        OnLanguageChangedForHub(afterSave: true); // the shell of the new interface paints itself once: built again when the look changed
         foreach (PlayerRow row in _rows)
         {
             row.RefreshClassBrush(); // the own bar colour may have changed

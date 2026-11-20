@@ -176,9 +176,14 @@ public partial class SettingsWindow : Window
         SelectComboItem(LanguageBox, LocalizationManager.Instance.Language);
     }
 
-    /// <summary>Dark and every theme file saved from the editor.</summary>
+    /// <summary>The built-in designs and every theme file saved from the editor.</summary>
     private void PopulateThemes(string selected)
     {
+        foreach (string builtIn in ThemeManager.Offered)
+        {
+            ThemeBox.Items.Add(new ComboBoxItem { Content = LocalizationManager.Instance["Settings.Theme" + builtIn], Tag = builtIn });
+        }
+
         foreach (string name in ThemeFile.List())
         {
             ThemeBox.Items.Add(new ComboBoxItem { Content = name, Tag = ThemeFile.SelectionFor(name) });

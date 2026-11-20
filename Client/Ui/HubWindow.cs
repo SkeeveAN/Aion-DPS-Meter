@@ -26,14 +26,15 @@ public sealed class HubWindow : Window
 
     private sealed record Section(string Id, string Title, Group[] Groups);
 
-    private static readonly Brush Navy = Frozen("#08121b");
-    private static readonly Brush NavyBar = Frozen("#09121b");
-    private static readonly Brush Line = Frozen("#294557");
-    private static readonly Brush Accent = Frozen("#ffba42");
-    private static readonly Brush Muted = Frozen("#9db3c2");
-    private static readonly Brush Light = Frozen("#eaf2f8");
-    private static readonly Brush Selected = Frozen("#26405a");
-    private static readonly Brush Hover = Frozen("#1a2b38");
+    // the look of the shell follows the design: the colours of the Abyss design are the fallbacks
+    private static Brush Navy => ThemeManager.Resolve("Brush.TitleBar", Color.FromRgb(0x08, 0x12, 0x1b));
+    private static Brush NavyBar => ThemeManager.Resolve("Brush.TitleBar", Color.FromRgb(0x09, 0x12, 0x1b));
+    private static Brush Line => ThemeManager.Resolve("Brush.Border", Color.FromRgb(0x29, 0x45, 0x57));
+    private static Brush Accent => ThemeManager.Resolve("Brush.Accent", Color.FromRgb(0xff, 0xba, 0x42));
+    private static Brush Muted => ThemeManager.Resolve("Brush.TextSubtle", Color.FromRgb(0x9d, 0xb3, 0xc2));
+    private static Brush Light => ThemeManager.Resolve("Brush.Text", Color.FromRgb(0xea, 0xf2, 0xf8));
+    private static Brush Selected => ThemeManager.Resolve("Brush.ControlHoverStrong", Color.FromRgb(0x26, 0x40, 0x5a));
+    private static Brush Hover => ThemeManager.Resolve("Brush.Control", Color.FromRgb(0x1a, 0x2b, 0x38));
 
     private readonly Func<string, ToolPage?> _build;
     private readonly Action<string> _openOwn;
@@ -51,6 +52,9 @@ public sealed class HubWindow : Window
 
     /// <summary>The language the texts of this window were built in (they are read once; a window built before a change of language is built again).</summary>
     internal string BuiltLanguage { get; } = LocalizationManager.Instance.Language;
+
+    /// <summary>The look the window was painted in (<see cref="ThemeManager.Version"/>).</summary>
+    internal int BuiltTheme { get; } = ThemeManager.Version;
 
     /// <summary>The tab and the page that are shown, to come back to them after the window was built again.</summary>
     internal string SectionId => _section.Id;
@@ -376,7 +380,7 @@ public sealed class HubWindow : Window
     private Border Pill(UIElement child) => new()
     {
         Height = 44, CornerRadius = new CornerRadius(22), Padding = new Thickness(16, 0, 16, 0), Margin = new Thickness(8, 0, 0, 0),
-        BorderBrush = Frozen("#2f4a60"), BorderThickness = new Thickness(1), Background = Frozen("#0c1823"), Child = child,
+        BorderBrush = Line, BorderThickness = new Thickness(1), Background = ThemeManager.Resolve("Brush.Panel", Color.FromRgb(0x0c, 0x18, 0x23)), Child = child,
     };
 
     private Border? _pin;
@@ -752,10 +756,10 @@ public sealed class HubWindow : Window
             }
             else
             {
-                var arrow = new TextBlock { Text = folded ? "\u25B8" : "\u25BE", Width = 14, Foreground = Frozen("#62788a"), FontSize = 11 };
+                var arrow = new TextBlock { Text = folded ? "\u25B8" : "\u25BE", Width = 14, Foreground = ThemeManager.Resolve("Brush.TextMuted", Color.FromRgb(0x62, 0x78, 0x8a)), FontSize = 11 };
                 var heading = new StackPanel { Orientation = Orientation.Horizontal, Cursor = Cursors.Hand, Background = Brushes.Transparent, Margin = new Thickness(12, first ? 0 : 22, 0, 8) };
                 heading.Children.Add(arrow);
-                heading.Children.Add(new TextBlock { Text = (group.Title ?? "").ToUpperInvariant(), FontSize = 11, Foreground = Frozen("#62788a"), FontWeight = FontWeights.SemiBold });
+                heading.Children.Add(new TextBlock { Text = (group.Title ?? "").ToUpperInvariant(), FontSize = 11, Foreground = ThemeManager.Resolve("Brush.TextMuted", Color.FromRgb(0x62, 0x78, 0x8a)), FontWeight = FontWeights.SemiBold });
                 heading.MouseLeftButtonUp += (_, _) =>
                 {
                     folded = !folded;

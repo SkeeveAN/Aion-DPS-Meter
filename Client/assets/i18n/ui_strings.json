@@ -648,16 +648,16 @@
     "ko": "이름 뒤에 전투력 표시 (파티원)"
   },
   "Settings.ThemeDark": {
-    "en": "Dark",
-    "de": "Dunkel",
-    "fr": "Sombre",
-    "es": "Oscuro",
-    "ru": "Тёмная",
-    "zh": "深色",
-    "zh-TW": "深色",
-    "pt": "Escuro",
-    "ja": "ダーク",
-    "ko": "어두움"
+    "en": "Abyss",
+    "de": "Abyss",
+    "fr": "Abysse",
+    "es": "Abismo",
+    "ru": "Бездна",
+    "zh": "深渊",
+    "zh-TW": "深淵",
+    "pt": "Abismo",
+    "ja": "アビス",
+    "ko": "어비스"
   },
   "Settings.SizeSmall": {
     "en": "Small",
@@ -17558,30 +17558,6 @@
     "ja": "入場と挑戦回数",
     "ko": "입장 및 도전 횟수"
   },
-  "Checklist.FromLevel": {
-    "en": "from level {0}",
-    "de": "ab Stufe {0}",
-    "fr": "dès le niveau {0}",
-    "es": "desde el nivel {0}",
-    "ru": "с уровня {0}",
-    "zh": "{0}级起",
-    "zh-TW": "{0}級起",
-    "pt": "a partir do nível {0}",
-    "ja": "Lv.{0}から",
-    "ko": "{0}레벨부터"
-  },
-  "Checklist.FromLevelItem": {
-    "en": "from level {0} · IL {1}",
-    "de": "ab Stufe {0} · GS {1}",
-    "fr": "dès le niveau {0} · NO {1}",
-    "es": "desde el nivel {0} · NO {1}",
-    "ru": "с уровня {0} · УП {1}",
-    "zh": "{0}级起 · 装等{1}",
-    "zh-TW": "{0}級起 · 裝等{1}",
-    "pt": "a partir do nível {0} · NI {1}",
-    "ja": "Lv.{0}から · IL {1}",
-    "ko": "{0}레벨부터 · 아이템 레벨 {1}"
-  },
   "Checklist.LegendNumbers": {
     "en": "Numbers from the game are those of the last login or change.",
     "de": "Zahlen aus dem Spiel sind die des letzten Logins oder der letzten Änderung.",
@@ -17629,5 +17605,65 @@
     "pt": "As compras de pergaminhos vêm do contador que o jogo envia ao comprar e ao abrir a loja.",
     "ja": "巻物の購入数は、購入時とショップを開いた時にゲームが送る購入カウンターから取得します。",
     "ko": "두루마리 구매 수는 구매하거나 상점을 열 때 게임이 보내는 구매 카운터에서 가져옵니다."
+  },
+  "Settings.ThemeSmaragd": {
+    "en": "Emerald",
+    "de": "Smaragd",
+    "fr": "Émeraude",
+    "es": "Esmeralda",
+    "ru": "Изумруд",
+    "zh": "祖母绿",
+    "zh-TW": "祖母綠",
+    "pt": "Esmeralda",
+    "ja": "エメラルド",
+    "ko": "에메랄드"
+  },
+  "Settings.ThemeAmethyst": {
+    "en": "Amethyst",
+    "de": "Amethyst",
+    "fr": "Améthyste",
+    "es": "Amatista",
+    "ru": "Аметист",
+    "zh": "紫水晶",
+    "zh-TW": "紫水晶",
+    "pt": "Ametista",
+    "ja": "アメジスト",
+    "ko": "자수정"
+  },
+  "Settings.ThemeGraphit": {
+    "en": "Graphite",
+    "de": "Graphit",
+    "fr": "Graphite",
+    "es": "Grafito",
+    "ru": "Графит",
+    "zh": "石墨",
+    "zh-TW": "石墨",
+    "pt": "Grafite",
+    "ja": "グラファイト",
+    "ko": "그래파이트"
+  },
+  "Settings.ThemeNordlicht": {
+    "en": "Northern Lights",
+    "de": "Nordlicht",
+    "fr": "Aurore boréale",
+    "es": "Aurora boreal",
+    "ru": "Северное сияние",
+    "zh": "极光",
+    "zh-TW": "極光",
+    "pt": "Aurora boreal",
+    "ja": "オーロラ",
+    "ko": "오로라"
+  },
+  "Settings.ThemeSandstein": {
+    "en": "Sandstone",
+    "de": "Sandstein",
+    "fr": "Grès",
+    "es": "Arenisca",
+    "ru": "Песчаник",
+    "zh": "砂岩",
+    "zh-TW": "砂岩",
+    "pt": "Arenito",
+    "ja": "砂岩",
+    "ko": "사암"
   }
 }

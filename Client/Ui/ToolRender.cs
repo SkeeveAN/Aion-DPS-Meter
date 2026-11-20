@@ -8,7 +8,7 @@ namespace AionDPS.Ui;
 
 /// <summary>
 /// Test mode <c>render-tool &lt;png&gt; &lt;tools|dummy|timetable|stream|hotkeys&gt;</c>: draws the tools window (with its list of tools and the checklist), the page of a tool inside that window, or the hotkey help into a picture, never showing a window.
-/// Set AIONDPS_DATA_DIR to a throw-away folder; AIONDPS_LANG picks the language, AIONDPS_RENDER_SCALE=2 makes the picture sharp, AIONDPS_RENDER_HEIGHT sets the height of a tool page picture.
+/// Set AIONDPS_DATA_DIR to a throw-away folder; AIONDPS_LANG picks the language, AIONDPS_THEME picks a design, AIONDPS_RENDER_SCALE=2 makes the picture sharp, AIONDPS_RENDER_HEIGHT sets the height of a tool page picture.
 /// </summary>
 public static class ToolRender
 {
@@ -19,6 +19,11 @@ public static class ToolRender
         MeterSettings settings = MeterSettings.Load();
         string? forced = Environment.GetEnvironmentVariable("AIONDPS_LANG");
         LocalizationManager.Instance.Language = !string.IsNullOrEmpty(forced) ? forced : settings.Language.Length > 0 ? settings.Language : "en";
+        if (Environment.GetEnvironmentVariable("AIONDPS_THEME") is { Length: > 0 } themeName)
+        {
+            settings.Theme = themeName; // pictures of one design
+        }
+
         ThemeManager.Apply(app, settings);
         MainWindow.Headless = true;
         int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) && sc is >= 1 and <= 4 ? sc : 1;
