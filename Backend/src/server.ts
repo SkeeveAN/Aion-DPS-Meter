@@ -18,9 +18,6 @@ import { bossRoutes } from "./routes/bosses.js";
 import { encounterRoutes } from "./routes/encounters.js";
 import { playerRoutes } from "./routes/players.js";
 import { setupRoutes } from "./routes/setups.js";
-import { buildStatsRoutes } from "./routes/buildStats.js";
-import { startBuildStats } from "./buildStats.js";
-import { sqlite } from "./db/client.js";
 import { compareRoutes } from "./routes/compare.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
@@ -91,7 +88,6 @@ export async function buildServer() {
   await app.register(networkReportRoutes);
   startLoginDumpPurge();
   startUploadArchive(app.log);
-  startBuildStats(sqlite, app.log);
   await app.register(adminUploadRoutes);
   await app.register(feedbackRoutes);
   await app.register(instanceRoutes);
@@ -99,7 +95,6 @@ export async function buildServer() {
   await app.register(encounterRoutes);
   await app.register(playerRoutes);
   await app.register(setupRoutes);
-  await app.register(buildStatsRoutes);
   await app.register(compareRoutes);
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);

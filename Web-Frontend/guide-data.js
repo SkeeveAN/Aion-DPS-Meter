@@ -24,7 +24,7 @@ const OURS = {
 const NOIA2 = {
   name: "NOIA2", url: "https://github.com/ZDYoung0519/NOIA2",
   cells: {
-    license: "GPL-3.0", stars: "59", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
+    license: "GPL-3.0", stars: "58", price: "$free", platform: "$windows", reads: "$passiveNpcap", driver: "$npcap",
     regions: "$regionsNoia", overlay: "$yes", skills: "$yes", cooldown: "$na", history: "$yes", rankings: "$rankNoia",
     obs: "$na", update: "$yes", languages: "$langNoia", rdps: "$na", extras: "$extrasNoia",
   },
@@ -60,7 +60,7 @@ const AION2FLOW = {
 const A2TOOLS = {
   name: "A2Tools", url: "https://github.com/taengu/A2Tools-DPS-Meter",
   cells: {
-    license: "GPL-3.0", stars: "98", price: "$freeDonate", platform: "$windowsLinux", reads: "$passiveNpcap", driver: "$npcapCompat",
+    license: "GPL-3.0", stars: "91", price: "$freeDonate", platform: "$windowsLinux", reads: "$passiveNpcap", driver: "$npcapCompat",
     regions: "$regionsA2", overlay: "$yes", skills: "$skillsTimeline", cooldown: "$cooldownA2", history: "$yes",
     rankings: "$rankA2", obs: "$yes", update: "$yes", languages: "10", rdps: "$na", extras: "$extrasA2",
   },
