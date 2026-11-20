@@ -909,3 +909,37 @@ export const setupVotes = sqliteTable(
     byVoter: index("setup_votes_voter_idx").on(t.voterHash),
   }),
 );
+
+// "What do the best use?" (buildStats.ts): the stored answers per class, ranking and group, rebuilt as a whole by the job (the stand-in for a materialized view).
+// topic/key/option say what was counted (e.g. skill_level / skill id / level 15); n and w are the characters and their weight (older data counts less), base_n and base_w
+// the characters the question could be asked of. A cell that fewer than three characters share is not stored.
+export const buildStats = sqliteTable(
+  "build_stats",
+  {
+    classId: integer("class_id").notNull(),
+    metric: text("metric").notNull(),
+    grp: text("grp").notNull(),
+    topic: text("topic").notNull(),
+    key: text("key").notNull(),
+    option: text("option").notNull(),
+    n: integer("n").notNull(),
+    w: real("w").notNull(),
+    baseN: integer("base_n").notNull(),
+    baseW: real("base_w").notNull(),
+    detail: text("detail"),
+  },
+  (t) => ({ pk: primaryKey({ columns: [t.classId, t.metric, t.grp, t.topic, t.key, t.option] }) }),
+);
+
+export const buildStatsMeta = sqliteTable(
+  "build_stats_meta",
+  {
+    classId: integer("class_id").notNull(),
+    metric: text("metric").notNull(),
+    grp: text("grp").notNull(),
+    size: integer("size").notNull(),
+    weight: real("weight").notNull(),
+    builtAt: text("built_at").notNull(),
+  },
+  (t) => ({ pk: primaryKey({ columns: [t.classId, t.metric, t.grp] }) }),
+);
