@@ -30,6 +30,7 @@ public static class ThemeManager
     };
 
     private static ResourceDictionary? _active;
+    private static string _signature = "";
 
     /// <summary>Counts the applied looks: a window that paints itself once from the theme (the main window of the new interface) compares it to know it must be built again.</summary>
     public static int Version { get; private set; }
@@ -74,7 +75,14 @@ public static class ThemeManager
 
         app.Resources.MergedDictionaries.Add(dictionary);
         _active = dictionary;
-        Version++;
+        // only a look that really differs counts: the settings are applied over and over (every change, every save) and a new look rebuilds the shell
+        string signature = string.Join(",", new[] { "Window", "TitleBar", "Panel", "Border", "Accent", "Text", "TextMuted", "TextSubtle", "Control", "ControlHoverStrong" }.Select(t => dictionary["Color." + t]));
+        if (signature != _signature)
+        {
+            _signature = signature;
+            Version++;
+        }
+
         double size = FontPointsFor(fontSize, fontPoints);
         app.Resources["FontSize.Base"] = size;
         AddOverlayFontSizes(app.Resources, size);
