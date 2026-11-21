@@ -1,5 +1,18 @@
 [
  {
+  "version": "2.1.6",
+  "date": "2026-11-21",
+  "items": [
+   {
+    "text": "the checklist drops a character that is missing from the login's character list, also when it already has counters (deleted or renamed characters no longer stay in it)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-21"
+   }
+  ]
+ },
+ {
   "version": "2.1.5",
   "date": "2026-11-20",
   "items": [
