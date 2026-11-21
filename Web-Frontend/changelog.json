@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-21",
+  "items": [
+   {
+    "text": "Website: the ability macro block on the player page is just called \"Makro\" in German, so the block gets narrower",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-21"
+   }
+  ]
+ },
+ {
   "version": "2.1.8",
   "date": "2026-11-21",
   "items": [
