@@ -1822,12 +1822,31 @@ public static class SelfCheckAion2
         macroSource.Ingest(Segment(900, settingsWire.ToArray()));
         bool macroLive = ((Aion2EntityDirectory)macroSource.Entities).LocalMacros is { } macros && macros.Count == 3 && macros[2][1].DelayMs == 25;
         Console.WriteLine($"  -> the settings frame reaches the character's data: {macroLive}");
+        // the game changed this frame's opcode (0xf9a8 on 2026-11-21; here another one the stream framing accepts): it is found by what it carries
+        byte[] movedBody = SettingsFrame(settings);
+        movedBody[0] = 0x45;
+        movedBody[1] = 0x36;
+        movedBody = movedBody.Concat(new byte[1000]).ToArray(); // the real frame is 1.2-2.7 KB
+        var movedWire = new List<byte>();
+        int movedLength = movedBody.Length + 4;
+        while (movedLength >= 0x80)
+        {
+            movedWire.Add((byte)(movedLength & 0x7f | 0x80));
+            movedLength >>= 7;
+        }
+
+        movedWire.Add((byte)movedLength);
+        movedWire.AddRange(movedBody);
+        using var movedSource = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        movedSource.Ingest(Segment(900, movedWire.ToArray()));
+        bool macroMoved = ((Aion2EntityDirectory)movedSource.Entities).LocalMacros is { } movedMacros && movedMacros.Count == 3 && movedMacros[2][1].DelayMs == 25;
+        Console.WriteLine($"  -> the settings frame is found under another opcode too: {macroMoved}");
         var savedMacro = JsonSerializer.Deserialize<Aion2SavedCharacter>(JsonSerializer.Serialize(new Aion2SavedCharacter { Macros = new() { new(2, new() { new(1, 10), new(7, 25) }) } }));
         bool macroDisk = savedMacro?.Macros is { Count: 1 } sm && sm[0].Steps[1].DelayMs == 25 && older is { Macros: null };
         string macroSent = JsonSerializer.Serialize(new AionDPS.Upload.ProfileActionPageUpload(2, Array.Empty<AionDPS.Upload.ProfileActionSlotUpload>(), new[] { new AionDPS.Upload.ProfileMacroStepUpload(7, 25) }), uploadJson);
         bool macroUpload = macroSent == "{\"page\":2,\"slots\":[],\"macro\":[{\"slot\":7,\"delayMs\":25}]}";
         Console.WriteLine($"  -> saved with the character file, sent with the page of its preset: {macroDisk && macroUpload}");
-        return aahzOk && nunzioOk && strict && live && disk && upload && macroOk && macroNone && macroLive && macroDisk && macroUpload;
+        return aahzOk && nunzioOk && strict && live && disk && upload && macroOk && macroNone && macroLive && macroMoved && macroDisk && macroUpload;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

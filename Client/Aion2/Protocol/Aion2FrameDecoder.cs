@@ -614,7 +614,10 @@ public sealed class Aion2FrameDecoder
     /// </summary>
     private void NoteMacros(int opcode, ReadOnlySpan<byte> frame)
     {
-        if (opcode == 0x2036 && TryReadMacros(frame, out var macros))
+        // The game's opcode for this frame changed (0x2036 in October, 0xf9a8 on 2026-11-21), so it is also recognised by what it carries: a frame of
+        // roughly the size of the settings that holds the zlib-packed settings JSON (TryReadMacros checks for "KeySetting"). The bundle around it is skipped, its nested frame is read.
+        bool settingsSized = frame.Length is > 1000 and < 8000 && opcode != _protocol.BundleOpcode;
+        if ((opcode == 0x2036 || settingsSized) && TryReadMacros(frame, out var macros))
         {
             _entities.SetMacros(macros);
         }
