@@ -1,5 +1,18 @@
 [
  {
+  "version": "2.1.7",
+  "date": "2026-11-21",
+  "items": [
+   {
+    "text": "the arrows on the edge of the interactive map sit on the real edge when the map is cropped, not in the middle of the view (pets, gatherables and militia guards)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-21"
+   }
+  ]
+ },
+ {
   "version": "2.1.6",
   "date": "2026-11-21",
   "items": [
