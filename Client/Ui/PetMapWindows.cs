@@ -205,6 +205,9 @@ public abstract class MovableOverlay : Window
 
     protected double BodyHeight => _bodyHost.ActualHeight;
 
+    /// <summary>How far the content is pushed against the visible part of the body (a map cropped from the left or top edge): the visible part starts at minus this in the content's own coordinates.</summary>
+    protected (double X, double Y) BodyShift => (_shift.X, _shift.Y);
+
     /// <summary>Takes the content out of a window that is never shown, to put it into a tool's own window (a live view): the window keeps rendering into it.</summary>
     public UIElement? DetachBody()
     {
@@ -923,6 +926,8 @@ public sealed class PetMapWindow : MovableOverlay
 
         // a chosen pet with nothing in view: an arrow on the edge, in its colour, towards its nearest spawn point
         int arrow = 0;
+        // the edge is the edge of the visible part: it lies at minus the shift of the content, so the vectors to the points are taken from the middle of the visible part
+        var (sx, sy) = BodyShift;
         double halfX = cx, halfY = cy, reachX = halfX - 13, reachY = halfY - 13;
         // one pass over all points (not one pass per pet): per pet whether one is in view, and the nearest one out of view
         var seen = new Dictionary<int, (bool Visible, double BestSq, double Bx, double By)>();
@@ -943,7 +948,8 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
-            if (Math.Abs(dx) < halfX - 5 && Math.Abs(dy) < halfY - 5)
+            double ex = dx + sx, ey = dy + sy; // from the middle of the visible part
+            if (Math.Abs(ex) < halfX - 5 && Math.Abs(ey) < halfY - 5)
             {
                 st.Visible = true;
             }
@@ -953,8 +959,8 @@ public sealed class PetMapWindow : MovableOverlay
                 if (sq < st.BestSq)
                 {
                     st.BestSq = sq;
-                    st.Bx = dx;
-                    st.By = dy;
+                    st.Bx = ex;
+                    st.By = ey;
                 }
             }
 
@@ -984,8 +990,8 @@ public sealed class PetMapWindow : MovableOverlay
             var ar = _edgeArrows[arrow++];
             ar.Fill = PetMapPalette.BrushOf(color);
             ar.RenderTransform = new RotateTransform(Math.Atan2(by, bx) * 180 / Math.PI);
-            Canvas.SetLeft(ar, halfX + bx * t);
-            Canvas.SetTop(ar, halfY + by * t);
+            Canvas.SetLeft(ar, halfX - sx + bx * t);
+            Canvas.SetTop(ar, halfY - sy + by * t);
             ar.Visibility = Visibility.Visible;
         }
 
@@ -1024,13 +1030,14 @@ public sealed class PetMapWindow : MovableOverlay
                 }
 
                 double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
-                if (Math.Abs(dx) < halfX - 5 && Math.Abs(dy) < halfY - 5)
+                double ex = dx + sx, ey = dy + sy;
+                if (Math.Abs(ex) < halfX - 5 && Math.Abs(ey) < halfY - 5)
                 {
                     st.Visible = true;
                 }
                 else if (dx * dx + dy * dy < st.BestSq)
                 {
-                    st = (false, dx * dx + dy * dy, dx, dy);
+                    st = (false, dx * dx + dy * dy, ex, ey);
                 }
 
                 kinds[kind] = st;
@@ -1130,7 +1137,8 @@ public sealed class PetMapWindow : MovableOverlay
             used++;
             double dx = (gx - worldX) * ppu, dy = (gy - worldY) * ppu;
             double px = cx + dx, py = cy + dy;
-            if (px >= 8 && py >= 8 && px <= vw - 8 && py <= vh - 8)
+            var (sx, sy) = BodyShift;
+            if (px + sx >= 8 && py + sy >= 8 && px + sx <= vw - 8 && py + sy <= vh - 8)
             {
                 double zone = Math.Max(14, Aion2Guards.ZoneMetres * 100 * ppu);
                 mark.Zone.Width = mark.Zone.Height = zone * 2;
@@ -1147,9 +1155,10 @@ public sealed class PetMapWindow : MovableOverlay
 
             // out of view: the arrow on the edge, the distance beside it (towards the middle)
             double reachX = cx - 13, reachY = cy - 13;
-            double t = Math.Min(reachX / Math.Max(Math.Abs(dx), 1e-6), reachY / Math.Max(Math.Abs(dy), 1e-6));
-            double angle = Math.Atan2(dy, dx);
-            double tipX = cx + dx * t, tipY = cy + dy * t;
+            double ex = dx + sx, ey = dy + sy; // from the middle of the visible part, which lies at minus the shift of the content
+            double t = Math.Min(reachX / Math.Max(Math.Abs(ex), 1e-6), reachY / Math.Max(Math.Abs(ey), 1e-6));
+            double angle = Math.Atan2(ey, ex);
+            double tipX = cx - sx + ex * t, tipY = cy - sy + ey * t;
             mark.Arrow.RenderTransform = new RotateTransform(angle * 180 / Math.PI);
             Canvas.SetLeft(mark.Arrow, tipX);
             Canvas.SetTop(mark.Arrow, tipY);
@@ -1157,8 +1166,8 @@ public sealed class PetMapWindow : MovableOverlay
             mark.Label.Text = string.Format(System.Globalization.CultureInfo.CurrentCulture, "\u2620 {0:0} m", metres);
             mark.LabelBack.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             Size size = mark.LabelBack.DesiredSize;
-            double lx = Math.Clamp(tipX - 28 * Math.Cos(angle) - size.Width / 2, 3, Math.Max(3, vw - size.Width - 3));
-            double ly = Math.Clamp(tipY - 28 * Math.Sin(angle) - size.Height / 2, 3, Math.Max(3, vh - size.Height - 3));
+            double lx = Math.Clamp(tipX - 28 * Math.Cos(angle) - size.Width / 2, 3 - sx, Math.Max(3, vw - size.Width - 3) - sx);
+            double ly = Math.Clamp(tipY - 28 * Math.Sin(angle) - size.Height / 2, 3 - sy, Math.Max(3, vh - size.Height - 3) - sy);
             Canvas.SetLeft(mark.LabelBack, lx);
             Canvas.SetTop(mark.LabelBack, ly);
             mark.Zone.Visibility = mark.Badge.Visibility = mark.Skull.Visibility = Visibility.Collapsed;
