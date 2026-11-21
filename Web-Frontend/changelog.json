@@ -4,6 +4,13 @@
   "date": "2026-11-21",
   "items": [
    {
+    "text": "Ability macros are read again: the game gave the login settings frame a new opcode (0xf9a8), so the macros never reached the profile; the frame is now also found by what it carries",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-21"
+   },
+   {
     "text": "Ability macros stay on a profile when an upload brings none (the game sends them only at login, so a client that missed the login no longer wipes them)",
     "areas": [
      "Backend"
