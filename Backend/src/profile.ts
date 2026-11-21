@@ -291,11 +291,21 @@ export function mergePantheon(storedJson: string | undefined, fresh: Partial<Pan
 type ActionBarsData = { pages: { page: number; slots: { slot: number; skill: number; fallbacks: number[] }[]; macro?: { slot: number; delayMs: number }[] }[] };
 
 /** The action bars as they are stored: always the three pages in order (an unused preset has no slots), the slots of a page in order. */
-export function storedActionBars(fresh: { pages: { page: number; slots: { slot: number; skill: number; fallbacks?: number[] }[]; macro?: { slot: number; delayMs: number }[] }[] }): ActionBarsData {
+export function storedActionBars(fresh: { pages: { page: number; slots: { slot: number; skill: number; fallbacks?: number[] }[]; macro?: { slot: number; delayMs: number }[] }[] }, storedJson?: string): ActionBarsData {
+  // The macros only come with the game's login. An upload in which no page has any means the client did not see them this time (not that
+  // the player deleted them all), so the stored ones stay; as soon as one page has macros, the upload is a full reading and replaces them.
+  let kept: ActionBarsData["pages"] = [];
+  if (!fresh.pages.some((p) => (p.macro?.length ?? 0) > 0) && storedJson) {
+    try {
+      kept = (JSON.parse(storedJson) as ActionBarsData).pages ?? [];
+    } catch {
+      kept = [];
+    }
+  }
   return {
     pages: [1, 2, 3].map((page) => {
       const fromClient = fresh.pages.find((p) => p.page === page);
-      const macro = fromClient?.macro?.map((m) => ({ slot: m.slot, delayMs: m.delayMs })) ?? [];
+      const macro = fromClient?.macro?.map((m) => ({ slot: m.slot, delayMs: m.delayMs })) ?? kept.find((p) => p.page === page)?.macro ?? [];
       return {
         page,
         slots: (fromClient?.slots ?? []).map((k) => ({ slot: k.slot, skill: k.skill, fallbacks: k.fallbacks ?? [] })).sort((a, b) => a.slot - b.slot),
@@ -398,7 +408,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     // The Pantheon (own character): a setup replaces the stored one of its preset, the others stay; a list of owned decorations replaces the stored one.
     pantheonJson: profile.source === "self" && profile.pantheon ? JSON.stringify(mergePantheon(existing?.pantheonJson, profile.pantheon)) : (existing?.pantheonJson ?? "{}"),
     // The action bars (own character): the login always carries all three pages, so the newest reading replaces the stored one.
-    actionBarsJson: profile.source === "self" && profile.actionBars ? JSON.stringify(storedActionBars(profile.actionBars)) : (existing?.actionBarsJson ?? "{}"),
+    actionBarsJson: profile.source === "self" && profile.actionBars ? JSON.stringify(storedActionBars(profile.actionBars, existing?.actionBarsJson)) : (existing?.actionBarsJson ?? "{}"),
     // The Odyle energy (own character): the newest reading replaces the stored one.
     odyleJson: profile.source === "self" && profile.odyle ? JSON.stringify(storedOdyle(profile.odyle)) : (existing?.odyleJson ?? "{}"),
     // Character window (own character): an upload without attributes, wing or pet (older client, window not read) keeps what is stored.

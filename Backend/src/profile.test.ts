@@ -642,6 +642,13 @@ test("own action bars: replaced at every login, a page without slots is an unuse
   assert.deepEqual(buildProfileView(id)!.actionBars?.pages.map((p) => [p.page, p.slots.length]), [[1, 1], [2, 0], [3, 0]]);
   upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2 }));
   assert.equal(buildProfileView(id)!.actionBars?.pages[0]!.slots[0]!.slot, 3);
+  // the macros come with the login only: an upload whose pages carry none keeps the stored ones, an upload with macros replaces them all
+  const bar = (macro?: { slot: number; delayMs: number }[]) => ({ source: "self", level: 45, classId: 1, classBits: 2, actionBars: { pages: [{ page: 1, slots: [{ slot: 3, skill: 11290000, fallbacks: [] }], ...(macro ? { macro } : {}) }] } });
+  upsertProfile(id, profileSchema.parse(bar([{ slot: 3, delayMs: 10 }])));
+  upsertProfile(id, profileSchema.parse(bar()));
+  assert.equal(buildProfileView(id)!.actionBars?.pages[0]!.macro.length, 1);
+  upsertProfile(id, profileSchema.parse(bar([{ slot: 3, delayMs: 25 }, { slot: 3, delayMs: 10 }])));
+  assert.equal(buildProfileView(id)!.actionBars?.pages[0]!.macro.length, 2);
   assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 4, slots: [] }] } }));
   assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [{ slot: 24, skill: 1 }] }] } }));
   assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [{ slot: 1, skill: 1, fallbacks: [1, 2, 3, 4] }] }] } }));
@@ -670,9 +677,11 @@ test("ability macro per preset: the quick slots in the order pressed, the view n
   assert.equal(pages[1]!.macro[1]!.skill?.level, 21); // the level comes from the preset's skill list
   assert.equal(pages[1]!.macro[0]!.skill?.names?.de, "Furorausbruch");
   assert.deepEqual(pages[2]!.macro.map((m) => [m.slot, m.skill?.id ?? null]), [[1, 11100000], [21, null]]); // slot 21 is empty in this preset's bar
-  // the next login replaces the macros together with the bars; nonsense is rejected
+  // an upload without any macro (the client did not see the login) keeps the stored ones; one with macros replaces them all; nonsense is rejected
   upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2, actionBars: { pages: [{ page: 2, slots: [{ slot: 1, skill: 11390000 }] }] } }));
-  assert.deepEqual(buildProfileView(id)!.actionBars!.pages.map((p) => p.macro.length), [0, 0, 0]);
+  assert.deepEqual(buildProfileView(id)!.actionBars!.pages.map((p) => p.macro.length), [0, 2, 2]);
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 45, classId: 1, classBits: 2, actionBars: { pages: [{ page: 2, slots: [{ slot: 1, skill: 11390000 }], macro: [{ slot: 1, delayMs: 10 }] }] } }));
+  assert.deepEqual(buildProfileView(id)!.actionBars!.pages.map((p) => p.macro.length), [0, 1, 0]);
   assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [], macro: [{ slot: 24, delayMs: 10 }] }] } }));
   assert.throws(() => profileSchema.parse({ source: "self", actionBars: { pages: [{ page: 1, slots: [], macro: [{ slot: 1, delayMs: -1 }] }] } }));
 });
