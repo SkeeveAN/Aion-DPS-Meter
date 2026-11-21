@@ -218,5 +218,9 @@
  "Checklist: counters a character cannot use yet (level, item level) are not shown, the level hints behind the names are gone": {
   "en": "Checklist hides counters a character cannot use yet",
   "de": "Checkliste blendet aus, was ein Charakter noch nicht nutzen kann"
+ },
+ "Ability macros are read again: the game gave the login settings frame a new opcode (0xf9a8), so the macros never reached the profile; the frame is now also found by what it carries": {
+  "en": "Ability macros are read again (the game changed the login frame they come in)",
+  "de": "Fähigkeiten-Makros werden wieder gelesen (das Spiel hat den Login-Frame geändert, in dem sie kommen)"
  }
 }
