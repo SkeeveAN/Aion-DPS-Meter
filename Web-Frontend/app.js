@@ -4326,7 +4326,7 @@ const RANK_STATS = ["kill_count", "death_count", "assist_count", "play_count", "
 function renderRanksTab(profile) {
   const rows = profile.ranks.map((r) => {
     const name = t(`ranks.type.${RANK_TYPES[r.type] ?? "other"}`, { n: r.type });
-    const scope = t(r.scope === 2 ? "ranks.scopeClass" : "ranks.scopeAll");
+    const scope = t(r.scope === 0 ? "ranks.scopeAll" : "ranks.scopeClass");
     const change = r.change === 0 ? "–" : r.change > 0 ? `▲ ${formatNumber(r.change)}` : `▼ ${formatNumber(-r.change)}`;
     const stats = r.stats ? RANK_STATS.filter((k) => k in r.stats).map((k) => `${t(`ranks.stat.${k}`)} ${formatNumber(r.stats[k])}`).join(" · ") : "";
     return el("tr", {}, [
