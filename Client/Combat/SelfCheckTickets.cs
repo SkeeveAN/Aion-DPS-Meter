@@ -378,8 +378,8 @@ public static class SelfCheckTickets
             && account[0] is { Name: "Aahz", ClassCode: 6, Faction: 1, Level: 45, ItemLevel: 2661, Legion: "Akatsuki", ServerId: 1304, CharacterId: 211765, LastOnlineMs: 1792420276830, CreatedMs: 1790777603553 }
             && account[1] is { Name: "Skeeve", ClassCode: 26, Faction: 1, Level: 22, ItemLevel: 318, Legion: "Akatsuki", ServerId: 1304, CharacterId: 246742, LastOnlineMs: 1792412366280, CreatedMs: 1791102961177 }
             && AccountCharacterList.Parse(Convert.FromHexString("26360000000000")).Count == 0;
-        // the list gives every character of the account an entry in the checklist (without counters); a deleted one that only the list showed goes again,
-        // one that has counters stays; a login keeps what the list told
+        // the list gives every character of the account an entry in the checklist (without counters); a deleted one goes again (also one with counters),
+        // a login keeps what the list told
         Aion2Tickets.Reset();
         Aion2Tickets.NoteListedCharacters("acct", account);
         IReadOnlyList<TicketCharacter> listed = Aion2Tickets.Snapshot();
@@ -390,9 +390,9 @@ public static class SelfCheckTickets
         Aion2Tickets.ReceiveList(new[] { new TicketReading(Aion2Tickets.PremiumId, new TicketValue(0, 0, 1_800_000_000_000)) }, loginAt);
         Aion2Tickets.NoteCharacter("Aahz", 1304, loginAt.AddSeconds(4), 45);
         TicketCharacter loggedIn = Aion2Tickets.Snapshot().Single(c => c.Name == "Aahz");
-        Aion2Tickets.NoteListedCharacters("acct", new[] { account[1] }); // Aahz has counters now: stays although this list lacks him
-        bool listKept = loggedIn.Tickets.Count == 1 && loggedIn.ClassCode == 6 && loggedIn.ItemLevel == 2661
-            && Aion2Tickets.Snapshot().Select(c => c.Name).OrderBy(n => n, StringComparer.Ordinal).SequenceEqual(new[] { "Aahz", "Skeeve" });
+        bool listKept = loggedIn.Tickets.Count == 1 && loggedIn.ClassCode == 6 && loggedIn.ItemLevel == 2661;
+        Aion2Tickets.NoteListedCharacters("acct", new[] { account[1] }); // Aahz has counters but this list lacks him: he is deleted
+        listKept = listKept && Aion2Tickets.Snapshot().Select(c => c.Name).SequenceEqual(new[] { "Skeeve" });
         Console.WriteLine($"  -> character list read (two real entries: class, level, item level, legion, times, server, character id)={listRead}, entries for characters without counters={listedEntries}, deleted one goes={deletedGone}, login keeps the list's basics={listKept}");
         // what the server answers for another character (GET /api/players/:id, shaped like the real answer for Namì): the profile and NC's character view are read together
         const string serverAnswer = """

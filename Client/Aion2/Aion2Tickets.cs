@@ -1099,7 +1099,7 @@ public static class Aion2Tickets
 
     /// <summary>The character list of a login: every character of the account gets an entry (for the checklist's character switch), also those that never logged in
     /// with the meter and so have no counters yet. Basics (class, level, item level, legion, last online) are refreshed for all of them; an entry that
-    /// only the list ever showed and that is gone from the list (deleted) is removed again.</summary>
+    /// is gone from the list (deleted) is removed again.</summary>
     public static void NoteListedCharacters(string? account, IReadOnlyList<AccountCharacter> listed)
     {
         bool changed = false;
@@ -1133,9 +1133,13 @@ public static class Aion2Tickets
                 }
             }
 
-            if (account is not null)
+            if (account is not null && listed.Count > 0)
             {
-                foreach (TicketCharacter gone in Characters.Values.Where(c => c.Account == account && c.Tickets.Count == 0 && !names.Contains(c.Name)).ToList())
+                // The login list is the complete account: whatever is missing there is deleted (or renamed), also when it has counters. Entries without an account are
+                // those a login created while no list was known; on a server this list covers they are removed too (they are re-created by a login if still alive).
+                var servers = new HashSet<int>(listed.Select(c => c.ServerId).Where(s => s > 0));
+                foreach (TicketCharacter gone in Characters.Values.Where(c => !names.Contains(c.Name)
+                    && (c.Account == account || (c.Account is null && servers.Contains(c.ServerId)))).ToList())
                 {
                     Characters.Remove(gone.Name);
                     changed = true;
