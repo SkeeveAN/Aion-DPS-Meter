@@ -4,6 +4,13 @@
   "date": "2026-11-21",
   "items": [
    {
+    "text": "Ability macros stay on a profile when an upload brings none (the game sends them only at login, so a client that missed the login no longer wipes them)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-11-21"
+   },
+   {
     "text": "Website: the class rank on a profile's ranking tab is labelled \"Own class\" for every class (it showed \"All classes\" twice for classes other than Gladiator)",
     "areas": [
      "Website"
