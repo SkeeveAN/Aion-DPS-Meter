@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-21",
+  "items": [
+   {
+    "text": "Website: the class rank on a profile's ranking tab is labelled \"Own class\" for every class (it showed \"All classes\" twice for classes other than Gladiator)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-21"
+   }
+  ]
+ },
+ {
   "version": "2.1.7",
   "date": "2026-11-21",
   "items": [
