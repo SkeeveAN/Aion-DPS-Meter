@@ -4,6 +4,13 @@
   "date": "2026-11-21",
   "items": [
    {
+    "text": "Pet list: the Krao Cave is shown as \"Kraohöhle\" without the word \"Eroberung\" in brackets (the same in every language)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-22"
+   },
+   {
     "text": "Website: the footer on a phone is one centred column (logo, privacy and terms under it, the download button, the other links, the social icons) and nothing sticks out of the card any more",
     "areas": [
      "Website"
