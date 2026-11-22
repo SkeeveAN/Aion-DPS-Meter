@@ -201,18 +201,22 @@ public abstract class MovableOverlay : Window
     }
 
     /// <summary>The size the body really has (in its own units, the frame's scaling excluded).</summary>
-    protected double BodyWidth => _bodyHost.ActualWidth;
+    protected double BodyWidth => _detached is FrameworkElement taken ? taken.ActualWidth : _bodyHost.ActualWidth;
 
-    protected double BodyHeight => _bodyHost.ActualHeight;
+    protected double BodyHeight => _detached is FrameworkElement taken ? taken.ActualHeight : _bodyHost.ActualHeight;
 
     /// <summary>How far the content is pushed against the visible part of the body (a map cropped from the left or top edge): the visible part starts at minus this in the content's own coordinates.</summary>
-    protected (double X, double Y) BodyShift => (_shift.X, _shift.Y);
+    protected (double X, double Y) BodyShift => _detached is null ? (_shift.X, _shift.Y) : (0, 0);
+
+    /// <summary>The content once a tool window has taken it out (see <see cref="DetachBody"/>): its size is the size it has THERE, the never shown window around it has none, and the shift and crop of that window do not apply to it.</summary>
+    private UIElement? _detached;
 
     /// <summary>Takes the content out of a window that is never shown, to put it into a tool's own window (a live view): the window keeps rendering into it.</summary>
     public UIElement? DetachBody()
     {
         UIElement? body = _shiftHost.Child;
         _shiftHost.Child = null;
+        _detached = body;
         return body;
     }
 
