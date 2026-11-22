@@ -261,6 +261,9 @@ public static class Aion2PetRare
         return Regex.Replace(last, "(?<=[a-z])(?=[A-Z])|_", " ").Trim();
     }
 
+    // The client names the Krao Cave "Kraohöhle (Eroberung)"; the pet list only needs the place, so the word in brackets is left off (in every language).
+    private static readonly Regex ConquestSuffix = new(@"\s*[(（](Eroberung|Conquest|Conquête|Conquista|Завоевание|征服|정복)[)）]$", RegexOptions.Compiled);
+
     private static Dictionary<string, Dictionary<string, string>> LoadInstanceNames()
     {
         var result = new Dictionary<string, Dictionary<string, string>>();
@@ -272,7 +275,7 @@ public static class Aion2PetRare
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));
                 foreach (var map in doc.RootElement.GetProperty("maps").EnumerateObject())
                 {
-                    result[map.Name] = map.Value.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.GetString() ?? "");
+                    result[map.Name] = map.Value.EnumerateObject().ToDictionary(n => n.Name, n => ConquestSuffix.Replace(n.Value.GetString() ?? "", ""));
                 }
             }
         }
