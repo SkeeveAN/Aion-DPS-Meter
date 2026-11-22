@@ -4,6 +4,13 @@
   "date": "2026-11-21",
   "items": [
    {
+    "text": "Website: the footer on a phone is one centred column (logo, privacy and terms under it, the download button, the other links, the social icons) and nothing sticks out of the card any more",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-22"
+   },
+   {
     "text": "Website: the ability macro block on the player page is just called \"Makro\" in German, so the block gets narrower",
     "areas": [
      "Website"
