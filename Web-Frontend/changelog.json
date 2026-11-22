@@ -4,6 +4,13 @@
   "date": "2026-11-21",
   "items": [
    {
+    "text": "Interactive map in the tools window: the player's marker, the pets and the edge arrows sit where they belong (the map took the size of the window that is never shown, 40 pixels, and so put the middle in the top left corner)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-22"
+   },
+   {
     "text": "Pet list: the Krao Cave is shown as \"Kraohöhle\" without the word \"Eroberung\" in brackets (the same in every language)",
     "areas": [
      "Client"
