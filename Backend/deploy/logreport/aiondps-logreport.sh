@@ -3,7 +3,11 @@
 # Served by nginx from /var/www/aiondps-logreport under a secret URL (see README.md). Runs via cron.
 set -euo pipefail
 
-LOGS="/var/log/nginx/aiondps.com/https_access.log /var/log/nginx/daevasuite.com/https_access.log /var/log/nginx/daevaspowersuite.com/https_access.log"
+# logrotate rotates daily and keeps 14 days (.1 plain, .2+ gzipped); read all of them, oldest first
+LOGS=""
+for d in aiondps.com daevasuite.com daevaspowersuite.com; do
+  LOGS="$LOGS $(ls -v /var/log/nginx/$d/https_access.log* 2>/dev/null | tac | tr '\n' ' ')"
+done
 OUT=/var/www/aiondps-logreport
 HERE=$(dirname "$(readlink -f "$0")")
 WORK=$(mktemp -d)
@@ -11,7 +15,7 @@ trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$OUT"
 
 # Our own monitoring scrapes /metrics constantly; it would drown everything else.
-cat $LOGS | grep -v '"GET /metrics' > "$WORK/log"
+zcat -f $LOGS | grep -v '"GET /metrics' > "$WORK/log"
 
 goaccess "$WORK/log" --no-progress \
   --log-format='%h %^[%d:%t %^] "%r" %s %b "%R" "%u" rt=%T urt=%^' \
