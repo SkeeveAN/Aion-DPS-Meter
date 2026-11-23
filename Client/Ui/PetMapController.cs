@@ -501,11 +501,15 @@ public sealed class PetMapController : IDisposable
         }
 
         // without a known map the list names everything chosen (no distances); with one, only what stands on it
-        var petsHere = _current is null ? chosen.OrderBy(i => i).ToList() : _points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
-        var colors = petsHere.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => PetMapPalette.Of(t.i));
         var live = known
             ? directory!.LiveMobs().SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList()
             : new List<(int PetId, float X, float Y)>();
+        // a chosen pet whose monster the game announces next to the player is listed even when the map files hold no spawn point for it
+        // (the Schleuderer of the Horn Den: the dungeon sets it by script)
+        var petsHere = _current is null
+            ? chosen.OrderBy(i => i).ToList()
+            : _points.Select(p => p.PetId).Concat(live.Select(l => l.Item1)).Distinct().OrderBy(i => i).ToList();
+        var colors = petsHere.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => PetMapPalette.Of(t.i));
         // within the range the game announces monsters in, a spawn point without a monster is empty (killed, not respawned, or never there): only the announced monsters count there
         _pointsShown = known ? _points.Where(p => (p.X - tx) * (double)(p.X - tx) + (p.Y - ty) * (double)(p.Y - ty) >= MobRange * MobRange).ToList() : _points;
         // the Hidden Cubes in range (the game announces them only when the player is near): large gold dots like the live monsters, when the map shows cubes
