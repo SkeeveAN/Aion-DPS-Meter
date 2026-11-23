@@ -1,12 +1,19 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-11-21",
+  "date": "2026-11-23",
   "items": [
    {
-    "text": "Interactive map in the tools window: the player's marker, the pets and the edge arrows sit where they belong (the map took the size of the window that is never shown, 40 pixels, and so put the middle in the top left corner)",
+    "text": "Website: the ability macro block on the player page is just called \"Makro\" in German, so the block gets narrower",
     "areas": [
-     "Client"
+     "Website"
+    ],
+    "date": "2026-11-21"
+   },
+   {
+    "text": "Website: the footer on a phone is one centred column (logo, privacy and terms under it, the download button, the other links, the social icons) and nothing sticks out of the card any more",
+    "areas": [
+     "Website"
     ],
     "date": "2026-11-22"
    },
@@ -18,18 +25,25 @@
     "date": "2026-11-22"
    },
    {
-    "text": "Website: the footer on a phone is one centred column (logo, privacy and terms under it, the download button, the other links, the social icons) and nothing sticks out of the card any more",
+    "text": "Interactive map in the tools window: the player's marker, the pets and the edge arrows sit where they belong (the map took the size of the window that is never shown, 40 pixels, and so put the middle in the top left corner)",
     "areas": [
-     "Website"
+     "Client"
     ],
     "date": "2026-11-22"
    },
    {
-    "text": "Website: the ability macro block on the player page is just called \"Makro\" in German, so the block gets narrower",
+    "text": "Pet list: a chosen pet whose monster the game announces next to you is listed even when the map has no spawn point for it (the Duduka Slinger in the Ferocious Horn Den was missing)",
     "areas": [
-     "Website"
+     "Client"
     ],
-    "date": "2026-11-21"
+    "date": "2026-11-23"
+   },
+   {
+    "text": "Pet spawn points the game's map files lack, taken from recordings: the Duduka in the Ferocious Horn Den, the Queen Bee and Nepenthes on Vakron's Sky Island, the fire spirits in the Fire Temple, and more in the Uruguguschlucht, Draupnir, Strigik Altar and Verteron, so they show on the map and in the Region list",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-23"
    }
   ]
  },
@@ -38,9 +52,9 @@
   "date": "2026-11-21",
   "items": [
    {
-    "text": "Ability macros are read again: the game gave the login settings frame a new opcode (0xf9a8), so the macros never reached the profile; the frame is now also found by what it carries",
+    "text": "Website: the class rank on a profile's ranking tab is labelled \"Own class\" for every class (it showed \"All classes\" twice for classes other than Gladiator)",
     "areas": [
-     "Client"
+     "Website"
     ],
     "date": "2026-11-21"
    },
@@ -52,9 +66,16 @@
     "date": "2026-11-21"
    },
    {
-    "text": "Website: the class rank on a profile's ranking tab is labelled \"Own class\" for every class (it showed \"All classes\" twice for classes other than Gladiator)",
+    "text": "Ability macros are read again: the game gave the login settings frame a new opcode (0xf9a8), so the macros never reached the profile; the frame is now also found by what it carries",
     "areas": [
-     "Website"
+     "Client"
+    ],
+    "date": "2026-11-21"
+   },
+   {
+    "text": "ability macros are read again after the game changed the login settings frame, and a profile keeps its macros when an upload brings none",
+    "areas": [
+     "Client"
     ],
     "date": "2026-11-21"
    }
@@ -65,7 +86,7 @@
   "date": "2026-11-21",
   "items": [
    {
-    "text": "the arrows on the edge of the interactive map sit on the real edge when the map is cropped, not in the middle of the view (pets, gatherables and militia guards)",
+    "text": "the arrows on the edge of the interactive map sit on the real edge when the map is cropped, not in the middle of the view",
     "areas": [
      "Client"
     ],
@@ -78,7 +99,7 @@
   "date": "2026-11-21",
   "items": [
    {
-    "text": "the checklist drops a character that is missing from the login's character list, also when it already has counters (deleted or renamed characters no longer stay in it)",
+    "text": "the checklist drops a character that is missing from the login's character list, also when it has counters",
     "areas": [
      "Client"
     ],
