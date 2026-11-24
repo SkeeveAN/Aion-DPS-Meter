@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-24",
+  "items": [
+   {
+    "text": "More pet spawn points in the open world, taken from recordings: the places a monster was seen at that the map files lack (the Coradon at the Fronarbeiter's Rest had 2 of 9, 163 more for 41 monsters such as the Sparkie, Withered Agrint and Shadow Spirit), so they show on the map and in the pet list",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
+   }
+  ]
+ },
+ {
   "version": "2.1.10",
   "date": "2026-11-24",
   "items": [
