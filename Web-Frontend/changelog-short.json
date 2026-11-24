@@ -246,5 +246,13 @@
  "pet list and map show the monsters the game's map files lack, and Rahu's skills in the Abyssal Forge are called by name": {
   "en": "Pet monsters the map files lack are shown, and Rahu's skills are named",
   "de": "Fehlende Haustier-Monster werden gezeigt, Rahus Skills haben Namen"
+ },
+ "Checklist: the week's season points of a login go to the character that logs in, not to the one logged in before (the game sends the achievements frame just before the ticket list of that login)": {
+  "en": "Season points of the week go to the right character after a relog",
+  "de": "Saisonpunkte der Woche gehören nach dem Umloggen zum richtigen Charakter"
+ },
+ "the season points of the week are shown for the right character after a relog": {
+  "en": "Season points of the week are shown for the right character",
+  "de": "Saisonpunkte der Woche stehen beim richtigen Charakter"
  }
 }
