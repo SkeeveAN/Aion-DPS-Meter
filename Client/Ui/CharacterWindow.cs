@@ -2129,7 +2129,8 @@ public sealed class CharacterWindow : Window
 
             bool maxed = k.Progress == 0 && k.Level >= 10;
             stack.Children.Add(Text(maxed ? "Max." : $"Progress: {k.Progress:N0}", 11.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 6, 0, 8)));
-            foreach (Aion2SpeciesEffect effect in k.Effects.OrderBy(e => e.Page).ThenBy(e => e.Slot))
+            // Only the first page: the nine analysis slots the game shows (a second page the game sends is not shown in the game).
+            foreach (Aion2SpeciesEffect effect in k.Effects.Where(e => e.Page == 1).OrderBy(e => e.Slot))
             {
                 (string name, bool percent) = Aion2Artwork.SpeciesStat(effect.StatId, language);
                 var row = new Grid { Margin = new Thickness(0, 0, 0, 0) };

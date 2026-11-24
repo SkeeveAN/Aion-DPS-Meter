@@ -16,6 +16,14 @@
      "Client"
     ],
     "date": "2026-11-24"
+   },
+   {
+    "text": "Species knowledge in the profile (client and website) shows only the nine analysis effects the game shows, no longer a second page of nine more rows the game sends but does not show",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-11-24"
    }
   ]
  },

@@ -282,5 +282,9 @@
  "The Outer Abyss map is named \"Chaotic Outer Reshanta\" (in the other languages as the game names it) where the game's own map names are shown, not the older \"Upper Reshanta\"": {
   "en": "Outer Abyss map name as in the game",
   "de": "Name der Karte Äußeres Abyss wie im Spiel"
+ },
+ "Species knowledge in the profile (client and website) shows only the nine analysis effects the game shows, no longer a second page of nine more rows the game sends but does not show": {
+  "en": "Species knowledge shows only the nine effects of the game",
+  "de": "Spezieskenntnis zeigt nur die neun Effekte des Spiels"
  }
 }

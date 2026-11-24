@@ -5072,7 +5072,8 @@ function renderSpeciesTab(profile) {
   const locale = getLocale();
   const cards = profile.species.map((k) => {
     const maxed = k.progress === 0 && k.level >= 10;
-    const rows = k.effects.map((e) =>
+    // Only the first page: the nine analysis slots the game shows (a second page the game sends is not shown in the game).
+    const rows = k.effects.filter((e) => (e.page ?? 1) === 1).map((e) =>
       el("li", {}, [
         el("span", { className: `pf-sp-stat q${e.kind ?? 0}`, textContent: (e.names?.[locale] ?? e.names?.en ?? e.name) }),
         el("strong", { textContent: speciesValue(e) }),
