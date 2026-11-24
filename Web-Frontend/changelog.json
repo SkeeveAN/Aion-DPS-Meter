@@ -1,7 +1,7 @@
 [
  {
-  "version": "Unreleased",
-  "date": "2026-11-23",
+  "version": "2.1.9",
+  "date": "2026-11-24",
   "items": [
    {
     "text": "Website: the ability macro block on the player page is just called \"Makro\" in German, so the block gets narrower",
@@ -44,6 +44,21 @@
      "Client"
     ],
     "date": "2026-11-23"
+   },
+   {
+    "text": "Boss skill names in the Abyssal Forge (Rahu, Ludra): Stack – Ring Wave, Run – Acid Rain and Room Split instead of a plain \"Attack\", in all eight languages, so the cast speech and the skill bars call them by name",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-11-24"
+   },
+   {
+    "text": "pet list and map show the monsters the game's map files lack, and Rahu's skills in the Abyssal Forge are called by name",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
    }
   ]
  },

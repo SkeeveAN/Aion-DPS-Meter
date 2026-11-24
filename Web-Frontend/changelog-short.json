@@ -222,5 +222,29 @@
  "Ability macros are read again: the game gave the login settings frame a new opcode (0xf9a8), so the macros never reached the profile; the frame is now also found by what it carries": {
   "en": "Ability macros are read again (the game changed the login frame they come in)",
   "de": "Fähigkeiten-Makros werden wieder gelesen (das Spiel hat den Login-Frame geändert, in dem sie kommen)"
+ },
+ "Pet list: the Krao Cave is shown as \"Kraohöhle\" without the word \"Eroberung\" in brackets (the same in every language)": {
+  "en": "Pet list: the Krao Cave is shown without \"Eroberung\"",
+  "de": "Haustier-Liste: Kraohöhle ohne den Zusatz „Eroberung“"
+ },
+ "Interactive map in the tools window: the player's marker, the pets and the edge arrows sit where they belong (the map took the size of the window that is never shown, 40 pixels, and so put the middle in the top left corner)": {
+  "en": "Interactive map: marker, pets and edge arrows sit where they belong",
+  "de": "Interaktive Karte: Markierung, Haustiere und Randpfeile sitzen richtig"
+ },
+ "Pet list: a chosen pet whose monster the game announces next to you is listed even when the map has no spawn point for it (the Duduka Slinger in the Ferocious Horn Den was missing)": {
+  "en": "Pet list shows a chosen pet announced next to you even without a map spawn point",
+  "de": "Haustier-Liste zeigt ein gewähltes Haustier, das neben dir erscheint, auch ohne Spawnpunkt"
+ },
+ "Pet spawn points the game's map files lack, taken from recordings: the Duduka in the Ferocious Horn Den, the Queen Bee and Nepenthes on Vakron's Sky Island, the fire spirits in the Fire Temple, and more in the Uruguguschlucht, Draupnir, Strigik Altar and Verteron, so they show on the map and in the Region list": {
+  "en": "More pet spawn points on the map (Horn Den, Sky Island, Fire Temple and more)",
+  "de": "Mehr Haustier-Spawnpunkte auf der Karte (Grimmhornhöhle, Luftinsel, Feuertempel u. a.)"
+ },
+ "Boss skill names in the Abyssal Forge (Rahu, Ludra): Stack – Ring Wave, Run – Acid Rain and Room Split instead of a plain \"Attack\", in all eight languages, so the cast speech and the skill bars call them by name": {
+  "en": "Rahu's skills are named: Stack – Ring Wave, Run – Acid Rain, Room Split",
+  "de": "Rahus Skills haben Namen: Stack – Ringwelle, Renn – Säure-Regen, Raumteilung"
+ },
+ "pet list and map show the monsters the game's map files lack, and Rahu's skills in the Abyssal Forge are called by name": {
+  "en": "Pet monsters the map files lack are shown, and Rahu's skills are named",
+  "de": "Fehlende Haustier-Monster werden gezeigt, Rahus Skills haben Namen"
  }
 }
