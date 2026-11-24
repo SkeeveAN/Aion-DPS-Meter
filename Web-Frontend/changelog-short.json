@@ -277,18 +277,98 @@
  },
  "The Outer Abyss (Abyss Outland, open since 24 November) has its own map with roads and its pet monsters' spawn points in the map and the pet list; the old map is called Lower Abyss and the new one Outer Abyss, in all languages": {
   "en": "New map: the Outer Abyss, with pet spawn points",
-  "de": "Neue Karte: Äußeres Abyss, mit Haustier-Spawnpunkten"
+  "de": "Neue Karte: Äußeres Abyss, mit Haustier-Spawnpunkten",
+  "fr": "Nouvelle carte : l'Abysse extérieur, avec les points d'apparition des familiers",
+  "es": "Nuevo mapa: el Abismo exterior, con puntos de aparición de mascotas",
+  "ru": "Новая карта: Внешняя Бездна, с точками появления питомцев",
+  "zh": "新地图:外层深渊,含宠物刷新点",
+  "zh-TW": "新地圖:外層深淵,含寵物出現點",
+  "pt": "Novo mapa: o Abismo Exterior, com pontos de surgimento de mascotes",
+  "ja": "新マップ:外郭アビス(ペット出現地点つき)",
+  "ko": "새 지도: 표층 어비스, 펫 출현 지점 포함"
  },
  "The Outer Abyss map is named \"Chaotic Outer Reshanta\" (in the other languages as the game names it) where the game's own map names are shown, not the older \"Upper Reshanta\"": {
   "en": "Outer Abyss map name as in the game",
-  "de": "Name der Karte Äußeres Abyss wie im Spiel"
+  "de": "Name der Karte Äußeres Abyss wie im Spiel",
+  "fr": "Nom de la carte de l'Abysse extérieur comme dans le jeu",
+  "es": "Nombre del mapa del Abismo exterior como en el juego",
+  "ru": "Название карты Внешней Бездны как в игре",
+  "zh": "外层深渊地图名称与游戏一致",
+  "zh-TW": "外層深淵地圖名稱與遊戲一致",
+  "pt": "Nome do mapa do Abismo Exterior como no jogo",
+  "ja": "外郭アビスのマップ名がゲームどおりに",
+  "ko": "표층 어비스 지도 이름을 게임과 동일하게"
  },
  "Species knowledge in the profile (client and website) shows only the nine analysis effects the game shows, no longer a second page of nine more rows the game sends but does not show": {
   "en": "Species knowledge shows only the nine effects of the game",
-  "de": "Spezieskenntnis zeigt nur die neun Effekte des Spiels"
+  "de": "Spezieskenntnis zeigt nur die neun Effekte des Spiels",
+  "fr": "La connaissance des espèces n'affiche que les neuf effets du jeu",
+  "es": "El conocimiento de especies muestra solo los nueve efectos del juego",
+  "ru": "Знание видов показывает только девять эффектов игры",
+  "zh": "物种知识只显示游戏中的九个效果",
+  "zh-TW": "物種知識只顯示遊戲中的九個效果",
+  "pt": "O conhecimento de espécies mostra só os nove efeitos do jogo",
+  "ja": "種族知識はゲームの9効果だけを表示",
+  "ko": "종족 지식은 게임의 9개 효과만 표시"
  },
  "The farm map: works out from your own pet progress where to farm the pets you still lack, with one picture per map (Verteron, Altgard, Lower and Outer Abyss, instances) kept away from guards and elite monsters, saved to a folder with its list or offered as an overlay and a widget (the map and its list as text, changing with the map you enter)": {
   "en": "Farm map: where to farm the pets you still lack, as pictures, overlay and widget",
-  "de": "Farm-Karte: wo du fehlende Pets farmst, als Bilder, Overlay und Widget"
+  "de": "Farm-Karte: wo du fehlende Pets farmst, als Bilder, Overlay und Widget",
+  "fr": "Carte de farm : où farmer les familiers manquants, en images, overlay et widget",
+  "es": "Mapa de farmeo: dónde farmear las mascotas que faltan, en imágenes, overlay y widget",
+  "ru": "Карта фарма: где добыть недостающих питомцев, картинки, оверлей и виджет",
+  "zh": "刷宠地图:缺少的宠物在哪里刷,图片、悬浮窗和小组件",
+  "zh-TW": "刷寵地圖:缺少的寵物在哪裡刷,圖片、浮動層和小工具",
+  "pt": "Mapa de farm: onde farmar os mascotes que faltam, em imagens, overlay e widget",
+  "ja": "ファームマップ:足りないペットの集め場所を画像・オーバーレイ・ウィジェットで",
+  "ko": "파밍 지도: 부족한 펫을 어디서 잡을지 이미지·오버레이·위젯으로"
+ },
+ "The weekly points line of the checklist counts a stand only when it is from this week (it showed last week's points for up to seven days after the reset)": {
+  "en": "Weekly points line counts only this week's stand",
+  "de": "Wochenpunkte-Zeile zählt nur den Stand dieser Woche",
+  "fr": "Ligne des points hebdo : seul l'état de cette semaine compte",
+  "es": "Línea de puntos semanales: solo cuenta el estado de esta semana",
+  "ru": "Строка очков недели учитывает только эту неделю",
+  "zh": "每周积分行只计入本周的数值",
+  "zh-TW": "每週積分列只計入本週的數值",
+  "pt": "Linha de pontos semanais: só conta o valor desta semana",
+  "ja": "週間ポイント行は今週の値のみ数える",
+  "ko": "주간 포인트 줄은 이번 주 값만 계산"
+ },
+ "Week points page under Planning, below the checklist: the points of the weekly season-mission reward, the rewards that are finished but not collected yet, the time to the weekly reset and a plan for the time you have with the missions that bring the most points per minute, leaving out those whose boss or siege comes too late for the reset; the boss lists of the Lower Abyss are read now too": {
+  "en": "Week points page: what to play before the reset for the most points",
+  "de": "Wochenpunkte-Seite: was vor dem Reset die meisten Punkte bringt",
+  "fr": "Page Points de la semaine : que jouer avant la réinitialisation pour le plus de points",
+  "es": "Página de puntos semanales: qué jugar antes del reinicio para más puntos",
+  "ru": "Страница «Очки недели»: что сыграть до сброса ради максимума очков",
+  "zh": "每周积分页面:重置前玩什么积分最多",
+  "zh-TW": "每週積分頁面:重置前玩什麼積分最多",
+  "pt": "Página de pontos semanais: o que jogar antes da reinicialização para mais pontos",
+  "ja": "週間ポイントページ:リセット前に何をすれば最も稼げるか",
+  "ko": "주간 포인트 페이지: 초기화 전에 무엇을 해야 가장 많이 얻는지"
+ },
+ "The season mission names and texts of the week points page are in all ten languages (the game's client has eight, the Chinese ones are ours)": {
+  "en": "Season mission names in all ten languages",
+  "de": "Namen der Saisonmissionen in allen zehn Sprachen",
+  "fr": "Noms des missions de saison dans les dix langues",
+  "es": "Nombres de las misiones de temporada en los diez idiomas",
+  "ru": "Названия сезонных заданий на всех десяти языках",
+  "zh": "赛季任务名称提供全部十种语言",
+  "zh-TW": "賽季任務名稱提供全部十種語言",
+  "pt": "Nomes das missões da temporada nos dez idiomas",
+  "ja": "シーズンミッション名が10言語に対応",
+  "ko": "시즌 미션 이름 10개 언어 지원"
+ },
+ "The changelog (website page, latest changes on the download page and the update window's list with its server feed) is available in all ten languages instead of English and German only, with English where an entry is not translated yet": {
+  "en": "Changelog in all ten languages",
+  "de": "Änderungsprotokoll in allen zehn Sprachen",
+  "fr": "Journal des modifications dans les dix langues",
+  "es": "Registro de cambios en los diez idiomas",
+  "ru": "Список изменений на всех десяти языках",
+  "zh": "更新日志提供全部十种语言",
+  "zh-TW": "更新日誌提供全部十種語言",
+  "pt": "Registro de alterações nos dez idiomas",
+  "ja": "変更履歴が10言語に対応",
+  "ko": "변경 내역 10개 언어 지원"
  }
 }
