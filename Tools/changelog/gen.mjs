@@ -7,7 +7,7 @@
 // Backend (Backend/) and Database (Backend/drizzle, Backend/src/db). No commit convention needed.
 // A "Release X.Y.Z: <text>" subject contributes its text; bare version bumps and merges nothing.
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const out = fileURLToPath(new URL("../../Web-Frontend/changelog.json", import.meta.url));
@@ -126,18 +126,5 @@ const de = JSON.parse(readFileSync(fileURLToPath(new URL("../../Web-Frontend/cha
 const untranslated = [...new Set(releases.flatMap((r) => r.items.map((i) => i.text)))].filter((t) => !(t in de));
 if (untranslated.length) {
   console.log(`${untranslated.length} entries without a German text:\n- ${untranslated.join("\n- ")}`);
-}
-// the other languages of the site and the client: each has its own file with the entries translated so far (German has all of them, the others the entries from
-// 24 November 2026 on, the older ones show in English there)
-let listed = false;
-for (const code of ["fr", "es", "ru", "zh", "zh-TW", "pt", "ja", "ko"]) {
-  const file = fileURLToPath(new URL(`../../Web-Frontend/changelog.${code}.json`, import.meta.url));
-  const texts = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : {};
-  const recent = releases.filter((r) => r.version === "Unreleased").flatMap((r) => r.items.map((i) => i.text));
-  const missing = [...new Set(recent)].filter((t) => !(t in texts));
-  if (missing.length) {
-    console.log(`${code}: ${missing.length} unreleased entries without a text${listed ? "" : ":\n- " + missing.join("\n- ")}`);
-    listed = true;
-  }
 }
 console.log(`${releases.length} releases, ${releases.reduce((n, r) => n + r.items.length, 0)} entries -> ${out}`);

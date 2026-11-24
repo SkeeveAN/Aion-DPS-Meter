@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildChangelogFeed, changelogFeed, changelogLanguage, isVersion, shortenText } from "./changelogFeed.js";
+import { buildChangelogFeed, changelogFeed, isVersion, shortenText } from "./changelogFeed.js";
 
 const releases = [
   { version: "Unreleased", date: "2026-11-01", items: [{ text: "Client: something not out yet", areas: ["Client"] }] },
@@ -63,29 +60,4 @@ test("feed: the site's own files give the 1.18.2 changes with short lines", () =
   assert.equal(feed[0].version, "1.18.2");
   assert.ok(feed[0].items.length >= 5);
   assert.ok(feed[0].items.every((line) => line.length <= 110));
-});
-
-test("feed: every client language has its short line, a missing one falls back to the shortened English text, an unknown language is English", () => {
-  const many = { "Tools: a new window (the long part of the entry goes on and on)": { en: "Tools: a new window", de: "Tools: ein neues Fenster", ja: "ツール:新しいウィンドウ" } };
-  assert.equal(buildChangelogFeed(releases, {}, many, "1.1.0", undefined, "ja")[0].items[0], "ツール:新しいウィンドウ");
-  // a language without a short line takes the full text it has (here none), then the English text, shortened
-  assert.equal(buildChangelogFeed(releases, {}, many, "1.1.0", undefined, "fr")[0].items[0], "Tools: a new window");
-  assert.equal(changelogLanguage("zh-TW"), "zh-TW");
-  assert.equal(changelogLanguage("xx"), "en");
-  assert.equal(changelogLanguage(undefined), "en");
-  assert.equal(changelogLanguage("../etc"), "en");
-});
-
-test("the site's files hold the week points entry in all ten languages (full text and short line)", () => {
-  const site = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "Web-Frontend");
-  const shortsOfSite = JSON.parse(readFileSync(path.join(site, "changelog-short.json"), "utf8")) as Record<string, Record<string, string>>;
-  const key = Object.keys(shortsOfSite).find((k) => k.startsWith("Week points page under Planning"));
-  assert.ok(key, "short line entry exists");
-  for (const lang of ["en", "de", "fr", "es", "ru", "zh", "zh-TW", "pt", "ja", "ko"]) {
-    assert.ok(shortsOfSite[key!][lang]?.length > 0, `short line in ${lang}`);
-    if (lang !== "en") {
-      const texts = JSON.parse(readFileSync(path.join(site, `changelog.${lang}.json`), "utf8")) as Record<string, string>;
-      assert.ok(texts[key!]?.length > 0, `full text in ${lang}`);
-    }
-  }
 });

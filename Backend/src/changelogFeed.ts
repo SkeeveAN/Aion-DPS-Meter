@@ -3,14 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 type Release = { version: string; date: string; items: { text: string; areas?: string[] }[] };
-type ShortTexts = Record<string, Record<string, string | undefined>>;
-
-/** The languages of the client and the site: a short line and a full text exist per language (English is the key itself, the other languages are looked up). */
-export const CHANGELOG_LANGUAGES = ["de", "fr", "es", "ru", "zh", "zh-TW", "pt", "ja", "ko"] as const;
-
-export function changelogLanguage(value: unknown): string {
-  return typeof value === "string" && (CHANGELOG_LANGUAGES as readonly string[]).includes(value) ? value : "en";
-}
+type ShortTexts = Record<string, { en?: string; de?: string }>;
 
 export type ChangelogFeedVersion = { version: string; date: string; items: string[] };
 
@@ -41,7 +34,7 @@ export function shortenText(text: string): string {
 /**
  * What the client shows in its update window: the client changes of every release after `from` up to and including `to`, newest first, one short
  * line per change. A release's last client entry is the release line that sums the others up, so it is left out when there are others (unless it has a short text of its own); a change
- * with no short text in changelog-short.json gets its first clause, one with an empty short text is left out. In `lang` (one of CHANGELOG_LANGUAGES, else English); the full entry in that language is the fallback of a missing short line.
+ * with no short text in changelog-short.json gets its first clause, one with an empty short text is left out. German when `lang` is "de" (the German text of the full entry for the fallback).
  */
 export function buildChangelogFeed(releases: Release[], german: Record<string, string>, shorts: ShortTexts, from: string, to: string | undefined, lang: string): ChangelogFeedVersion[] {
   const low = parseVersion(from);
@@ -50,7 +43,7 @@ export function buildChangelogFeed(releases: Release[], german: Record<string, s
     return [];
   }
 
-  const translated = lang !== "en";
+  const de = lang === "de";
   const feed: ChangelogFeedVersion[] = [];
   for (const release of releases) {
     const version = parseVersion(release.version);
@@ -67,7 +60,7 @@ export function buildChangelogFeed(releases: Release[], german: Record<string, s
 
     // an empty short text hides an entry from the list (a detail only a developer cares about)
     const lines = items
-      .map((item) => (translated ? shorts[item.text]?.[lang] : shorts[item.text]?.en) ?? shortenText(translated ? (german[item.text] ?? item.text) : item.text))
+      .map((item) => (de ? shorts[item.text]?.de : shorts[item.text]?.en) ?? shortenText(de ? (german[item.text] ?? item.text) : item.text))
       .filter((line) => line.length > 0);
     if (lines.length > 0) {
       feed.push({ version: release.version, date: release.date, items: lines });
@@ -97,11 +90,11 @@ function loadJson<T>(file: string, fallback: T): T {
   }
 }
 
-/** The feed from the site's own files (changelog.json, changelog.<language>.json, changelog-short.json), read again when one of them changes. */
+/** The feed from the site's own files (changelog.json, changelog.de.json, changelog-short.json), read again when one of them changes. */
 export function changelogFeed(from: string, to: string | undefined, lang: string): ChangelogFeedVersion[] {
   return buildChangelogFeed(
     loadJson<Release[]>("changelog.json", []),
-    lang !== "en" ? loadJson<Record<string, string>>(`changelog.${lang}.json`, {}) : {},
+    lang === "de" ? loadJson<Record<string, string>>("changelog.de.json", {}) : {},
     loadJson<ShortTexts>("changelog-short.json", {}),
     from,
     to,

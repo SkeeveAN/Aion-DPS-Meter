@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { changelogFeed, changelogLanguage, isVersion } from "../changelogFeed.js";
+import { changelogFeed, isVersion } from "../changelogFeed.js";
 
 export async function changelogRoutes(app: FastifyInstance) {
   // What the client's update window shows: the client changes after ?from= (the installed version) up to ?to= (the offered one), one line each, in ?lang=
-  // (one of the client's languages, English when it is none). Plain GET without any identifier; part of the permission to update, so it is asked in restricted mode too.
+  // (German or English). Plain GET without any identifier; part of the permission to update, so it is asked in restricted mode too.
   app.get<{ Querystring: { from?: string; to?: string; lang?: string } }>("/api/changelog", async (request, reply) => {
     const { from, to, lang } = request.query;
     if (!isVersion(from) || (to !== undefined && !isVersion(to))) {
@@ -11,6 +11,6 @@ export async function changelogRoutes(app: FastifyInstance) {
     }
 
     reply.header("Cache-Control", "public, max-age=300");
-    return { versions: changelogFeed(from, to, changelogLanguage(lang)) };
+    return { versions: changelogFeed(from, to, lang === "de" ? "de" : "en") };
   });
 }
