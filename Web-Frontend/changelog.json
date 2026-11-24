@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-24",
+  "items": [
+   {
+    "text": "The Outer Abyss (Abyss Outland, open since 24 November) has its own map with roads and its pet monsters' spawn points in the map and the pet list; the old map is called Lower Abyss and the new one Outer Abyss, in all languages",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
+   }
+  ]
+ },
+ {
   "version": "2.1.11",
   "date": "2026-11-24",
   "items": [

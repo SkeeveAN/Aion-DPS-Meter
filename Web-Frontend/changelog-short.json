@@ -274,5 +274,9 @@
  "many more pet spawn points on the map and in the pet list, and the Junges-Hornursus at its mother's places": {
   "en": "Many more pet spawn points on the map and in the pet list",
   "de": "Viele weitere Haustier-Spawnpunkte auf Karte und Liste"
+ },
+ "The Outer Abyss (Abyss Outland, open since 24 November) has its own map with roads and its pet monsters' spawn points in the map and the pet list; the old map is called Lower Abyss and the new one Outer Abyss, in all languages": {
+  "en": "New map: the Outer Abyss, with pet spawn points",
+  "de": "Neue Karte: Äußeres Abyss, mit Haustier-Spawnpunkten"
  }
 }
