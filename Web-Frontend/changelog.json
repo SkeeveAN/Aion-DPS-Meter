@@ -54,15 +54,6 @@
      "Client"
     ],
     "date": "2026-11-24"
-   },
-   {
-    "text": "The changelog (website page, latest changes on the download page and the update window's list with its server feed) is available in all ten languages instead of English and German only, with English where an entry is not translated yet",
-    "areas": [
-     "Client",
-     "Website",
-     "Backend"
-    ],
-    "date": "2026-11-24"
    }
   ]
  },
