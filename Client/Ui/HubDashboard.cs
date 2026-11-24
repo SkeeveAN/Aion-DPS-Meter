@@ -86,6 +86,8 @@ public static class HubDashboard
         new("announcements", "Hub.Dash.Announcements", null, 420, 170, true),
         new("drops", "Hub.Dash.Drops", null, 420, 170, true),
         new("targetpower", "Hub.Dash.TargetPower", null, 380, 64, false),
+        new("farmmap", "Settings.FarmMap.Title", null, 560, 460, false),
+        new("farmlegend", "Settings.FarmMap.LegendTitle", null, 380, 460, false),
     };
 
     /// <summary>The body of one widget, drawn from the live data.</summary>
@@ -96,6 +98,8 @@ public static class HubDashboard
         {
             case "meter": return src.MeterView?.Invoke() ?? new TextBlock { Text = "–" };
             case "targetpower": return TargetPowerView.Body(TargetPowerView.Provider?.Invoke(), loc);
+            case "farmmap": return FarmMapView.Body();
+            case "farmlegend": return FarmMapView.LegendBody();
             case "connection": return Connection(src.Status(), loc);
             case "todo": return Todo(loc, src.OpenTool);
             case "soon":

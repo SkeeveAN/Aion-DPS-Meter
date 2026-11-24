@@ -556,6 +556,15 @@ public sealed class MeterSettings
     /// <summary>The arrows on the edge of the interactive map pointing at pets / gatherables that are out of view (one switch each); on by default.</summary>
     public bool ShowPetArrows { get; set; } = true;
     public bool ShowGatherArrows { get; set; } = true;
+    /// <summary>The farm map (which maps are worked out, and whether the overlay / widget follows the map the player enters). Verteron, Altgard and the Abyss maps on, the instances off.</summary>
+    public bool FarmMapVerteron { get; set; } = true;
+    public bool FarmMapAltgard { get; set; } = true;
+    public bool FarmMapInstances { get; set; }
+    public bool FarmMapAbyssLower { get; set; } = true;
+    public bool FarmMapAbyssOuter { get; set; } = true;
+    public bool FarmMapAutoSwitch { get; set; } = true;
+    /// <summary>The folder the farm map pictures were saved to last (shown in the result block).</summary>
+    public string FarmMapSaveDir { get; set; } = "";
     /// <summary>A sound when a Hidden Cube appears in range (the game announces it only when the player is near): switch, sound id (see <see cref="NotifySounds.All"/>), volume 0 to 100. Off until switched on.</summary>
     public bool CubeSoundEnabled { get; set; }
     /// <summary>A Hidden Cube coming into range brings the pet map back when it is hidden (the hotkey, the module's switch or the map's own switch), until 10 seconds after the last cube is gone, without saving the switch (Stacy's idea, 17 October 2026). Only where the map shows cubes. Off by default.</summary>

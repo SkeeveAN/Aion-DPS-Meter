@@ -1226,6 +1226,66 @@
                                 <CheckBox x:Name="ShowPetArrowsBox" Content="{local:Loc Settings.Pet.Arrows}" ToolTip="{local:Loc Settings.Pet.Arrows.Tip}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
+<Grid>
+<Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.FarmMap.Title}"/>
+                                <TextBlock Text="{local:Loc Settings.FarmMap.Desc}" TextWrapping="Wrap" Margin="0,0,0,10" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <TextBlock Text="{local:Loc Settings.FarmMap.Elyos}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,4"/>
+                                        <CheckBox x:Name="FarmVerteronBox" Content="{local:Loc Settings.FarmMap.Verteron}" Margin="0,2,0,0"/>
+                                        <CheckBox x:Name="FarmEltnenBox" Content="{local:Loc Settings.FarmMap.Eltnen}" IsEnabled="False" IsChecked="False" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                        <TextBlock Text="{local:Loc Settings.FarmMap.Asmodians}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,4"/>
+                                        <CheckBox x:Name="FarmAltgardBox" Content="{local:Loc Settings.FarmMap.Altgard}" Margin="0,2,0,0"/>
+                                        <CheckBox x:Name="FarmMorheimBox" Content="{local:Loc Settings.FarmMap.Morheim}" IsEnabled="False" IsChecked="False" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                                        <TextBlock Text="{local:Loc Settings.FarmMap.Abyss}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,4"/>
+                                        <CheckBox x:Name="FarmAbyssLowerBox" Content="{local:Loc Settings.FarmMap.AbyssLower}" Margin="0,2,0,0"/>
+                                        <CheckBox x:Name="FarmAbyssOuterBox" Content="{local:Loc Settings.FarmMap.AbyssOuter}" Margin="0,2,0,0"/>
+                                        <CheckBox x:Name="FarmAbyssThirdBox" Content="{local:Loc Settings.FarmMap.AbyssThird}" IsEnabled="False" IsChecked="False" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3">
+                                        <TextBlock Text="{local:Loc Settings.FarmMap.Instances}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,4"/>
+                                        <CheckBox x:Name="FarmInstancesBox" Content="{local:Loc Settings.FarmMap.Instances}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource Brush.Border}" Margin="0,10,0,0" Padding="0,10,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="FarmAutoSwitchBox" Content="{local:Loc Settings.FarmMap.AutoSwitch}" VerticalAlignment="Center"/>
+                                        <Button x:Name="FarmGenerateButton" Grid.Column="1" Content="{local:Loc Settings.FarmMap.Generate}" Padding="16,4" Margin="10,0,0,0" Click="OnFarmGenerateClicked"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+<Border x:Name="FarmResultCard" Grid.Column="1" Width="236" Style="{StaticResource SettingsCard}" Visibility="Collapsed">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.FarmMap.Result}"/>
+                                    <Border Width="16" Height="16" CornerRadius="8" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="Help"
+                                            BorderBrush="{DynamicResource Brush.TextSubtle}" Background="Transparent" ToolTipService.InitialShowDelay="150" ToolTipService.ShowDuration="20000"
+                                            ToolTip="{local:Loc Settings.FarmMap.ResultHint}">
+                                        <TextBlock Text="i" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                    </Border>
+                                </Grid>
+                                <TextBlock x:Name="FarmResultText" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                <TextBlock Text="{local:Loc Settings.FarmMap.WhatNext}" Margin="0,6,0,6" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                <StackPanel>
+                                    <Button Content="{local:Loc Settings.FarmMap.Save}" Padding="14,4" Margin="0,0,0,6" Click="OnFarmSaveClicked"/>
+                                    <Button x:Name="FarmOverlayButton" Content="{local:Loc Settings.FarmMap.AsOverlay}" Padding="14,4" Margin="0,0,0,6" Click="OnFarmOverlayClicked"/>
+                                    <Button x:Name="FarmWidgetButton" Content="{local:Loc Settings.FarmMap.AsWidget}" Padding="14,4" Margin="0,0,0,6" Click="OnFarmWidgetClicked"/>
+                                </StackPanel>
+                                <TextBlock x:Name="FarmSavedPathText" Visibility="Collapsed" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0" Foreground="{DynamicResource Brush.Accent}"/>
+                                
+                            </StackPanel>
+                        </Border>
+</Grid>
 <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetMap.Mobs}"/>

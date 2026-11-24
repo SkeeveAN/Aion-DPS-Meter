@@ -6328,6 +6328,8 @@ public partial class MainWindow : Window
         _hubWindow.ConfirmClose = HubMayClose;
         _hubWindow.MeterView = BuildMeterView;
         _hubWindow.ToggleDesigner = StartDesignerFromHub;
+        FarmMapLinks.OpenDesigner = StartDesignerFromHub;
+        FarmMapLinks.ShowDashboard = () => _hubWindow?.GoTo("dashboard", "overview");
         _hubWindow.OpenFeedback = () => OnFeedbackClicked(this, new RoutedEventArgs());
         _hubWindow.PageChanged = () => OnLanguageChangedForHub();
         _hubWindow.SetDashboardSources(() => _sessions.Sessions, AppVersion.Text);

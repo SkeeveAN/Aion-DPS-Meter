@@ -93,16 +93,27 @@ public static class WidgetKind
         private readonly Border _place;
         private UIElement? _kept;
         private ToolPage? _page;
+        private readonly bool _overlay;
+        private readonly Action? _follow;
 
-        public Host(string id, DashboardSources sources, Border place)
+        public Host(string id, DashboardSources sources, Border place, bool overlay = false)
         {
             _id = id;
             _sources = sources;
             _place = place;
+            _overlay = overlay;
+            if (id is FarmMapView.Id or FarmMapView.LegendId)
+            {
+                // the farm map and its list follow its pictures at once (a click on ‹ ›, a new set, the designer coming on or off)
+                _follow = () => place.Dispatcher.BeginInvoke(new Action(Refresh));
+                FarmMapView.Changed += _follow;
+                OverlayDesigner.ActiveChanged += _follow;
+            }
         }
 
         public void Refresh()
         {
+            FarmMapView.ForOverlay = _overlay;
             bool page = _id.StartsWith("page:", StringComparison.Ordinal);
             HubDashboard.Widget? builtIn = page ? null : HubDashboard.Widgets.FirstOrDefault(w => w.Id == _id);
             if (page || builtIn is { Static: true })
@@ -128,7 +139,15 @@ public static class WidgetKind
             _place.Child = HubDashboard.WidgetBody(_id, _sources, DateTime.Now);
         }
 
-        public void Stop() => _page?.Cleanup?.Invoke();
+        public void Stop()
+        {
+            _page?.Cleanup?.Invoke();
+            if (_follow is not null)
+            {
+                FarmMapView.Changed -= _follow;
+                OverlayDesigner.ActiveChanged -= _follow;
+            }
+        }
     }
 }
 
@@ -159,7 +178,7 @@ public sealed class WidgetOverlayWindow : MovableOverlay
             body.CornerRadius = new CornerRadius(6);
         }
         Body = body;
-        _host = new WidgetKind.Host(id, sources, content);
+        _host = new WidgetKind.Host(id, sources, content, true);
         _timer.Tick += (_, _) => _host.Refresh();
         IsVisibleChanged += (_, _) =>
         {

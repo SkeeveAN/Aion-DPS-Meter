@@ -276,6 +276,18 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 2 && args[0] == "render-farmview")
+        {
+            RunRenderFarmView(args[1], args[2], args.Length > 3 ? args[3] : null);
+            return;
+        }
+
+        if (args.Length > 1 && args[0] == "render-farmmap")
+        {
+            RunRenderFarmMap(args[1], args.Skip(2).ToArray()); // the farm map pictures of the saved character (no window)
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-settings")
         {
             if (args.Length < 2)
@@ -2259,6 +2271,77 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    private static void RunRenderFarmMap(string outDir, string[] keys)
+    {
+        _ = new System.Windows.Application();
+        Ui.LocalizationManager.Instance.Language = Environment.GetEnvironmentVariable("AIONDPS_LANG") ?? "de";
+        var states = (Aion2.Aion2CharacterStore.Load(Aion2.Aion2CharacterStore.DefaultPath)?.Pets ?? new())
+            .ToDictionary(p => p.Id, p => new Aion2.Protocol.Aion2PetState(p.Id, p.Level, p.Progress));
+        string? faction = Aion2.Protocol.Aion2Gather.OwnFaction();
+        Directory.CreateDirectory(outDir);
+        var maps = Aion2.Protocol.Aion2Maps.All.Concat(Aion2.Protocol.Aion2Maps.Instances).Where(m => keys.Length == 0 ? !m.Instance : keys.Contains(m.Key)).ToList();
+        var stored = new List<Ui.FarmMade>();
+        foreach (var map in maps)
+        {
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            var plan = Ui.FarmMapEngine.Plan(map, states, faction, Ui.LocalizationManager.Instance.Language, Ui.FarmMapRenderer.LandTest(map));
+            if (plan.Spots.Count == 0)
+            {
+                Console.WriteLine($"{map.Key}: nothing to farm");
+                continue;
+            }
+
+            string name = Ui.FarmMapRenderer.NameOf(map);
+            string subtitle = $"{plan.MissingPets} pets · {DateTime.Now:dd.MM.yyyy HH:mm}";
+            byte[] full = Ui.FarmMapRenderer.Render(plan, name, subtitle, true);
+            File.WriteAllBytes(Path.Combine(outDir, map.Key + ".png"), full);
+            stored.Add(new Ui.FarmMade(map.Key, name, Ui.FarmMapRenderer.Render(plan, name, subtitle, false), full, Ui.FarmMapStore.LegendOf(plan, subtitle)));
+            Console.WriteLine($"{map.Key}: {plan.Spots.Count} spots, {plan.Points.Count} points, {plan.Guards.Count} guards, {plan.Elites.Count} elites, {timer.ElapsedMilliseconds} ms ({faction})");
+        }
+
+        if (stored.Count > 0)
+        {
+            Ui.FarmMapStore.Replace(stored); // the overlay / widget picture check reads these
+        }
+
+        Environment.Exit(0);
+    }
+
+    /// <summary>Layout check of the farm map widget / overlay: draws its body (the pictures of the last run in the data folder) into a picture; "designer" shows the header the overlay has while the designer is on.</summary>
+    private static void RunRenderFarmView(string path, string kind, string? key)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add((System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        Ui.LocalizationManager.Instance.Language = Environment.GetEnvironmentVariable("AIONDPS_LANG") ?? "de";
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        if (key is not null)
+        {
+            Ui.FarmMapView.ShowKey(key);
+        }
+
+        Ui.FarmMapView.ForOverlay = kind is "overlay" or "designer" or "legend";
+        Ui.OverlayDesigner.ShowAsActiveForPicture(kind == "designer");
+        double width = kind == "legend" ? 380 : 560, height = 460;
+        var content = new System.Windows.Controls.Border { CornerRadius = new System.Windows.CornerRadius(8), Padding = new System.Windows.Thickness(12, 8, 12, 8), Child = kind == "legend" ? Ui.FarmMapView.LegendBody() : Ui.FarmMapView.Body() };
+        content.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "Brush.Panel");
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-farmview: wrote " + path);
+        Environment.Exit(0);
+    }
+
     private static void RunRenderSettingsMode(string path, string tab)
     {
         var app = new System.Windows.Application();
@@ -2302,6 +2385,11 @@ internal static class Program
         if (Environment.GetEnvironmentVariable("AIONDPS_LONGEST_PETS") is { Length: > 0 } longest && int.TryParse(longest, out int longestCount))
         {
             window.ShowLongestPetNames(longestCount); // layout check: the pets with the longest names in this language
+        }
+
+        if (Environment.GetEnvironmentVariable("AIONDPS_FARM_RESULT") is { Length: > 0 } farmResult)
+        {
+            window.ShowFarmResult(farmResult, Environment.GetEnvironmentVariable("AIONDPS_FARM_OVERLAY") == "1", Environment.GetEnvironmentVariable("AIONDPS_FARM_WIDGET") == "1", Environment.GetEnvironmentVariable("AIONDPS_FARM_PATH") ?? ""); // layout check: the result block of the farm map
         }
 
         if (Environment.GetEnvironmentVariable("AIONDPS_PET_REGION") is { Length: > 0 })

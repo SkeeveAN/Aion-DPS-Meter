@@ -42,9 +42,49 @@ public sealed class DashboardBoard : DockPanel
         return w is null ? null : new Spec(id, LocalizationManager.Instance[w.TitleKey], w.Opens, w.W, w.H, w.Static);
     }
 
+    private static WeakReference<DashboardBoard>? _current;
+
+    /// <summary>Whether a widget stands on any dashboard.</summary>
+    public static bool Has(string id) => MeterSettings.Load().Dashboards.Any(d => d.Widgets.ContainsKey(id));
+
+    /// <summary>Puts a widget on the dashboard that is shown (a free place; the board draws it at once when it is open, else it stands there when the dashboard is built).</summary>
+    public static void AddToActive(string id)
+    {
+        if (_current is not null && _current.TryGetTarget(out DashboardBoard? board))
+        {
+            board.AddHere(id);
+            return;
+        }
+
+        MeterSettings s = MeterSettings.Load();
+        if (s.Dashboards.Count == 0)
+        {
+            return; // the board builds its sets at its first start; nothing to add to yet
+        }
+
+        DashboardSet set = s.Dashboards[Math.Clamp(s.DashboardActive, 0, s.Dashboards.Count - 1)];
+        if (!set.Widgets.ContainsKey(id) && HubDashboard.Widgets.FirstOrDefault(w => w.Id == id) is { } w)
+        {
+            double bottom = set.Widgets.Values.Select(p => p.Y + p.H).DefaultIfEmpty(0).Max();
+            set.Widgets[id] = new DashboardPlace { X = 8, Y = bottom + 8, W = w.W, H = w.H };
+            s.Save();
+        }
+    }
+
+    private void AddHere(string id)
+    {
+        if (!_places.ContainsKey(id) && SpecOf(id) is { } spec)
+        {
+            _places[id] = Slot(spec.W, spec.H);
+            Save();
+            Build();
+        }
+    }
+
     public DashboardBoard(DashboardSources src)
     {
         _src = src;
+        _current = new WeakReference<DashboardBoard>(this);
         var loc = LocalizationManager.Instance;
         MeterSettings settings = MeterSettings.Load();
         _sets = settings.Dashboards;

@@ -407,6 +407,11 @@ public sealed class PetMapController : IDisposable
             else if (found is not null && found != _current)
             {
                 _current = found;
+                if (settings.FarmMapAutoSwitch)
+                {
+                    FarmMapView.ShowKey(found.Key); // the farm map overlay / widget follows the map the player enters
+                }
+
                 _haveView = false;
                 _pointsKey = "";
             }

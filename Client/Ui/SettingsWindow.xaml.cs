@@ -724,6 +724,7 @@ public partial class SettingsWindow : Window
             s.PetInfoLocked = !(PetInfoLockedBox.IsChecked ?? false);
             s.OverlayOpacities[OverlayPlaces.PetInfo] = PetInfoOpacity.Fraction;
             s.ShowPetArrows = ShowPetArrowsBox.IsChecked ?? true;
+            ReadFarmMap(s);
             s.PetMapPets = _petPicked.OrderBy(i => i).ToList();
             s.PetRegionListWidth = PetRegionLeftColumn.Width.Value;
             s.PetRareMax = (int)PetRareMaxSlider.Value;
@@ -913,6 +914,7 @@ public partial class SettingsWindow : Window
         _settings.HotkeyPetArrows = (string?)HotkeyPetArrowsBox.Tag ?? "";
         _settings.HotkeyGatherArrows = (string?)HotkeyGatherArrowsBox.Tag ?? "";
         _settings.ShowPetArrows = ShowPetArrowsBox.IsChecked ?? true;
+        ReadFarmMap(_settings);
         _settings.ShowGatherArrows = ShowGatherArrowsBox.IsChecked ?? true;
         _settings.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
         _settings.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
@@ -1267,6 +1269,7 @@ public partial class SettingsWindow : Window
         PetRegionLeftColumn.Width = new GridLength(Math.Clamp(settings.PetRegionListWidth, 120, 600));
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
         ShowPetArrowsBox.IsChecked = settings.ShowPetArrows;
+        ShowFarmMap(settings);
         ShowGatherArrowsBox.IsChecked = settings.ShowGatherArrows;
         ShowGuardsBox.IsChecked = settings.ShowGuards;
         LoadCubeSound(settings);
@@ -1693,6 +1696,7 @@ public partial class SettingsWindow : Window
         ShowLootOverlayBox.IsChecked = s.ShowLootOverlay;
         ShowCombatOverlayBox.IsChecked = s.ShowCombatOverlay;
         ShowPetArrowsBox.IsChecked = s.ShowPetArrows;
+        ShowFarmMap(s);
         ShowGatherArrowsBox.IsChecked = s.ShowGatherArrows;
     }
 
