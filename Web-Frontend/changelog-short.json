@@ -306,5 +306,9 @@
  "The changelog (website page, latest changes on the download page and the update window's list with its server feed) is available in all ten languages instead of English and German only, with English where an entry is not translated yet": {
   "en": "Changelog in all ten languages",
   "de": "Änderungsprotokoll in allen zehn Sprachen"
+ },
+ "Zone 600081 (Abyssal Forge: Ludra) was missing from the zone table and showed as a bare number in the session list and the plausibility check": {
+  "en": "Ludra instance 600081 now shows its name in the session list",
+  "de": "Ludra-Instanz 600081 zeigt ihren Namen in der Sitzungsliste"
  }
 }

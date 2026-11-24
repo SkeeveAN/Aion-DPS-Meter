@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-24",
+  "items": [
+   {
+    "text": "Zone 600081 (Abyssal Forge: Ludra) was missing from the zone table and showed as a bare number in the session list and the plausibility check",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
+   }
+  ]
+ },
+ {
   "version": "2.2.0",
   "date": "2026-11-24",
   "items": [
