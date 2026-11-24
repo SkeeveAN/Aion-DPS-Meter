@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.1.11",
   "date": "2026-11-24",
   "items": [
    {
@@ -19,6 +19,20 @@
    },
    {
     "text": "Pet spawn points: the Junges-Hornursus can appear at every place its mother, the Ursus of the Southern Tolbas Forest, spawns (the game sets it by script next to an Ursus), plus the places seen in recordings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
+   },
+   {
+    "text": "More pet spawn points in the open world from the latest recordings (the Coradon between the Fronarbeiter's Rest and the Tolbas Forest, more places of the Ursus and the Junges-Hornursus)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
+   },
+   {
+    "text": "many more pet spawn points on the map and in the pet list, and the Junges-Hornursus at its mother's places",
     "areas": [
      "Client"
     ],

@@ -254,5 +254,25 @@
  "the season points of the week are shown for the right character after a relog": {
   "en": "Season points of the week are shown for the right character",
   "de": "Saisonpunkte der Woche stehen beim richtigen Charakter"
+ },
+ "More pet spawn points in the open world, taken from recordings: the places a monster was seen at that the map files lack (the Coradon at the Fronarbeiter's Rest had 2 of 9, 163 more for 41 monsters such as the Sparkie, Withered Agrint and Shadow Spirit), so they show on the map and in the pet list": {
+  "en": "163 more pet spawn points in the open world (Sparkie, Agrint, Coradon and more)",
+  "de": "163 weitere Haustier-Spawnpunkte in der Welt (Sparkie, Agrint, Coradon u. a.)"
+ },
+ "Pet spawn points of the Junges-Hornursus in the Southern Tolbas Forest, taken from recordings, so the Ursusjunges soul has places on the map and in the pet list": {
+  "en": "Junges-Hornursus has places in the Southern Tolbas Forest",
+  "de": "Junges-Hornursus hat Orte im Südlichen Tolbaswald"
+ },
+ "Pet spawn points: the Junges-Hornursus can appear at every place its mother, the Ursus of the Southern Tolbas Forest, spawns (the game sets it by script next to an Ursus), plus the places seen in recordings": {
+  "en": "Junges-Hornursus appears at every place of its mother, the Ursus",
+  "de": "Junges-Hornursus erscheint an allen Orten seiner Mutter, des Ursus"
+ },
+ "More pet spawn points in the open world from the latest recordings (the Coradon between the Fronarbeiter's Rest and the Tolbas Forest, more places of the Ursus and the Junges-Hornursus)": {
+  "en": "More pet spawn points: Coradon, Ursus and Junges-Hornursus",
+  "de": "Mehr Haustier-Spawnpunkte: Coradon, Ursus und Junges-Hornursus"
+ },
+ "many more pet spawn points on the map and in the pet list, and the Junges-Hornursus at its mother's places": {
+  "en": "Many more pet spawn points on the map and in the pet list",
+  "de": "Viele weitere Haustier-Spawnpunkte auf Karte und Liste"
  }
 }
