@@ -191,12 +191,22 @@ export function worldBosses(lang: Lang) {
 }
 
 export function maps(lang: Lang) {
-  return load<FieldFile>(assetDir("bosses", "field_bosses.json")).maps.map((m) => ({
+  const listed = load<FieldFile>(assetDir("bosses", "field_bosses.json")).maps;
+  const list = listed.map((m) => ({
     key: m.key,
     id: m.id,
     name: pick(m.names, lang),
     bosses: m.bosses.map((b) => ({ npcId: b.npc, name: pick(b.names, lang), x: b.x, y: b.y, ...timing(b) })),
   }));
+  // Open maps without a world boss (the Outer Abyss) are listed too, with their name from the pet map names and an empty boss list.
+  const petMaps = load<PetMapNames>(assetDir("pets", "instances.json")).maps;
+  for (const table of Object.keys(load<SpawnsFile>(assetDir("pets", "spawns.json")).maps)) {
+    const key = table.split("/").pop() ?? table;
+    if (key.startsWith("Abyss_Reshanta_") && !listed.some((m) => m.key === key) && petMaps[table]) {
+      list.push({ key, id: 0, name: pick(petMaps[table], lang), bosses: [] });
+    }
+  }
+  return list;
 }
 
 // ---- item exchanges ----

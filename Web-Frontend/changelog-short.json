@@ -278,5 +278,9 @@
  "The Outer Abyss (Abyss Outland, open since 24 November) has its own map with roads and its pet monsters' spawn points in the map and the pet list; the old map is called Lower Abyss and the new one Outer Abyss, in all languages": {
   "en": "New map: the Outer Abyss, with pet spawn points",
   "de": "Neue Karte: Äußeres Abyss, mit Haustier-Spawnpunkten"
+ },
+ "The Outer Abyss map is named \"Chaotic Outer Reshanta\" (in the other languages as the game names it) where the game's own map names are shown, not the older \"Upper Reshanta\"": {
+  "en": "Outer Abyss map name as in the game",
+  "de": "Name der Karte Äußeres Abyss wie im Spiel"
  }
 }
