@@ -15,7 +15,9 @@
    "ru": "Бездна",
    "pt": "Abismo",
    "ja": "アビス",
-   "ko": "어비스"
+   "ko": "어비스",
+   "zh": "深渊",
+   "zh-TW": "深淵"
   },
   "Arena": {
    "en": "Arena",
@@ -25,7 +27,9 @@
    "ru": "Арена",
    "pt": "Arena",
    "ja": "闘技場",
-   "ko": "투기장"
+   "ko": "투기장",
+   "zh": "竞技场",
+   "zh-TW": "競技場"
   },
   "PartyChallenge": {
    "en": "Transcendence",
@@ -35,7 +39,9 @@
    "ru": "Возвышение",
    "pt": "Transcendência",
    "ja": "超越",
-   "ko": "초월"
+   "ko": "초월",
+   "zh": "超越",
+   "zh-TW": "超越"
   },
   "Nightmare": {
    "en": "Nightmare",
@@ -45,7 +51,9 @@
    "ru": "Кошмар",
    "pt": "Pesadelo",
    "ja": "悪夢",
-   "ko": "악몽"
+   "ko": "악몽",
+   "zh": "噩梦",
+   "zh-TW": "惡夢"
   },
   "Thema": {
    "en": "Challenge",
@@ -55,7 +63,9 @@
    "ru": "Испытание",
    "pt": "Desafio",
    "ja": "挑戦",
-   "ko": "도전"
+   "ko": "도전",
+   "zh": "挑战",
+   "zh-TW": "挑戰"
   }
  },
  "events": {
@@ -88,7 +98,9 @@
       "ru": "Любимая родина",
       "pt": "Minha Terra do Meu Coração",
       "ja": "我が心の故郷",
-      "ko": "내 마음의 고향"
+      "ko": "내 마음의 고향",
+      "zh": "我心之乡",
+      "zh-TW": "我心之鄉"
      },
      "text": {
       "en": "Spend 1 hours in Abyss",
@@ -98,7 +110,9 @@
       "ru": "Проведите 1 час в Бездне",
       "pt": "Permanecer 1h no Abismo",
       "ja": "アビスに1時間滞在",
-      "ko": "어비스에서 1시간 체류"
+      "ko": "어비스에서 1시간 체류",
+      "zh": "在深渊停留1小时",
+      "zh-TW": "在深淵停留1小時"
      }
     }
    ]
@@ -121,7 +135,9 @@
       "ru": "Минимум морали Ⅰ",
       "pt": "Mínimo de Moral Ⅰ",
       "ja": "最低限の道徳I",
-      "ko": "최소한의 도덕 Ⅰ"
+      "ko": "최소한의 도덕 Ⅰ",
+      "zh": "最低限度的道德 I",
+      "zh-TW": "最低限度的道德 I"
      },
      "text": {
       "en": "Kill 5 opposing camp players",
@@ -131,7 +147,9 @@
       "ru": "Убить 5 игроков из лагеря врага",
       "pt": "Abater 5 jogadores de facção adversária",
       "ja": "敵陣営のプレイヤー5回KILL",
-      "ko": "상대 진영 플레이어 5회 KILL"
+      "ko": "상대 진영 플레이어 5회 KILL",
+      "zh": "击败5名敌对阵营玩家",
+      "zh-TW": "擊敗5名敵對陣營玩家"
      }
     },
     {
@@ -146,7 +164,9 @@
       "ru": "Минимум морали Ⅱ",
       "pt": "Mínimo de Moral Ⅱ",
       "ja": "最低限の道徳II",
-      "ko": "최소한의 도덕 Ⅱ"
+      "ko": "최소한의 도덕 Ⅱ",
+      "zh": "最低限度的道德 II",
+      "zh-TW": "最低限度的道德 II"
      },
      "text": {
       "en": "Kill 10 opposing camp players",
@@ -156,7 +176,9 @@
       "ru": "Убить 10 игроков из лагеря врага",
       "pt": "Abater 10 jogadores de facção adversária",
       "ja": "敵陣営のプレイヤー10回KILL",
-      "ko": "상대 진영 플레이어 10회 KILL"
+      "ko": "상대 진영 플레이어 10회 KILL",
+      "zh": "击败10名敌对阵营玩家",
+      "zh-TW": "擊敗10名敵對陣營玩家"
      }
     },
     {
@@ -171,7 +193,9 @@
       "ru": "Минимум морали Ⅲ",
       "pt": "Mínimo de Moral Ⅲ",
       "ja": "最低限の道徳III",
-      "ko": "최소한의 도덕 Ⅲ"
+      "ko": "최소한의 도덕 Ⅲ",
+      "zh": "最低限度的道德 III",
+      "zh-TW": "最低限度的道德 III"
      },
      "text": {
       "en": "Kill 20 opposing camp players",
@@ -181,7 +205,9 @@
       "ru": "Убить 20 игроков из лагеря врага",
       "pt": "Abater 20 jogadores de facção adversária",
       "ja": "敵陣営のプレイヤー20回KILL",
-      "ko": "상대 진영 플레이어 20회 KILL"
+      "ko": "상대 진영 플레이어 20회 KILL",
+      "zh": "击败20名敌对阵营玩家",
+      "zh-TW": "擊敗20名敵對陣營玩家"
      }
     }
    ]
@@ -204,7 +230,9 @@
       "ru": "Операция по очищению Арэшурата Ⅰ",
       "pt": "Operação de Purificação de Reshanta Ⅰ",
       "ja": "エレシュランタ浄化作戦I",
-      "ko": "에레슈란타 정화 작전 Ⅰ"
+      "ko": "에레슈란타 정화 작전 Ⅰ",
+      "zh": "净化 Reshanta I",
+      "zh-TW": "淨化 Reshanta I"
      },
      "text": {
       "en": "Hunt 200 monsters in Abyss",
@@ -214,7 +242,9 @@
       "ru": "Уничтожить 200 монстров в Бездне",
       "pt": "Caçar 200 monstros no Abismo",
       "ja": "アビスでモンスター200体狩る",
-      "ko": "어비스에서 몬스터 200마리 사냥"
+      "ko": "어비스에서 몬스터 200마리 사냥",
+      "zh": "在深渊狩猎200只怪物",
+      "zh-TW": "在深淵狩獵200隻怪物"
      }
     },
     {
@@ -229,7 +259,9 @@
       "ru": "Операция по очищению Арэшурата Ⅱ",
       "pt": "Operação de Purificação de Reshanta Ⅱ",
       "ja": "エレシュランタ浄化作戦II",
-      "ko": "에레슈란타 정화 작전 Ⅱ"
+      "ko": "에레슈란타 정화 작전 Ⅱ",
+      "zh": "净化 Reshanta II",
+      "zh-TW": "淨化 Reshanta II"
      },
      "text": {
       "en": "Hunt 400 monsters in Abyss",
@@ -239,7 +271,9 @@
       "ru": "Уничтожить 400 монстров в Бездне",
       "pt": "Caçar 400 monstros no Abismo",
       "ja": "アビスでモンスター400体狩る",
-      "ko": "어비스에서 몬스터 400마리 사냥"
+      "ko": "어비스에서 몬스터 400마리 사냥",
+      "zh": "在深渊狩猎400只怪物",
+      "zh-TW": "在深淵狩獵400隻怪物"
      }
     },
     {
@@ -254,7 +288,9 @@
       "ru": "Операция по очищению Арэшурата Ⅲ",
       "pt": "Operação de Purificação de Reshanta Ⅲ",
       "ja": "エレシュランタ浄化作戦III",
-      "ko": "에레슈란타 정화 작전 Ⅲ"
+      "ko": "에레슈란타 정화 작전 Ⅲ",
+      "zh": "净化 Reshanta III",
+      "zh-TW": "淨化 Reshanta III"
      },
      "text": {
       "en": "Hunt 600 monsters in Abyss",
@@ -264,7 +300,9 @@
       "ru": "Уничтожить 600 монстров в Бездне",
       "pt": "Caçar 600 monstros no Abismo",
       "ja": "アビスでモンスター600体狩る",
-      "ko": "어비스에서 몬스터 600마리 사냥"
+      "ko": "어비스에서 몬스터 600마리 사냥",
+      "zh": "在深渊狩猎600只怪物",
+      "zh-TW": "在深淵狩獵600隻怪物"
      }
     },
     {
@@ -279,7 +317,9 @@
       "ru": "Операция по очищению Арэшурата Ⅳ",
       "pt": "Operação de Purificação de Reshanta Ⅳ",
       "ja": "エレシュランタ浄化作戦IV",
-      "ko": "에레슈란타 정화 작전 Ⅳ"
+      "ko": "에레슈란타 정화 작전 Ⅳ",
+      "zh": "净化 Reshanta IV",
+      "zh-TW": "淨化 Reshanta IV"
      },
      "text": {
       "en": "Hunt 800 monsters in Abyss",
@@ -289,7 +329,9 @@
       "ru": "Уничтожить 800 монстров в Бездне",
       "pt": "Caçar 800 monstros no Abismo",
       "ja": "アビスでモンスター800体狩る",
-      "ko": "어비스에서 몬스터 800마리 사냥"
+      "ko": "어비스에서 몬스터 800마리 사냥",
+      "zh": "在深渊狩猎800只怪物",
+      "zh-TW": "在深淵狩獵800隻怪物"
      }
     },
     {
@@ -304,7 +346,9 @@
       "ru": "Операция по очищению Арэшурата Ⅴ",
       "pt": "Operação de Purificação de Reshanta Ⅴ",
       "ja": "エレシュランタ浄化作戦V",
-      "ko": "에레슈란타 정화 작전 Ⅴ"
+      "ko": "에레슈란타 정화 작전 Ⅴ",
+      "zh": "净化 Reshanta V",
+      "zh-TW": "淨化 Reshanta V"
      },
      "text": {
       "en": "Hunt 1,000 monsters in Abyss",
@@ -314,7 +358,9 @@
       "ru": "Уничтожить 1000 монстров в Бездне",
       "pt": "Caçar 1.000 monstros no Abismo",
       "ja": "アビスでモンスター1,000体狩る",
-      "ko": "어비스에서 몬스터 1000마리 사냥"
+      "ko": "어비스에서 몬스터 1000마리 사냥",
+      "zh": "在深渊狩猎1,000只怪物",
+      "zh-TW": "在深淵狩獵1,000隻怪物"
      }
     },
     {
@@ -329,7 +375,9 @@
       "ru": "Операция по очищению Арэшурата Ⅵ",
       "pt": "Operação de Purificação de Reshanta Ⅵ",
       "ja": "エレシュランタ浄化作戦VI",
-      "ko": "에레슈란타 정화 작전 Ⅵ"
+      "ko": "에레슈란타 정화 작전 Ⅵ",
+      "zh": "净化 Reshanta VI",
+      "zh-TW": "淨化 Reshanta VI"
      },
      "text": {
       "en": "Hunt 1,200 monsters in Abyss",
@@ -339,7 +387,9 @@
       "ru": "Уничтожить 1200 монстров в Бездне",
       "pt": "Caçar 1.200 monstros no Abismo",
       "ja": "アビスでモンスター1,200体狩る",
-      "ko": "어비스에서 몬스터 1200마리 사냥"
+      "ko": "어비스에서 몬스터 1200마리 사냥",
+      "zh": "在深渊狩猎1,200只怪物",
+      "zh-TW": "在深淵狩獵1,200隻怪物"
      }
     },
     {
@@ -354,7 +404,9 @@
       "ru": "Операция по очищению Арэшурата Ⅶ",
       "pt": "Operação de Purificação de Reshanta Ⅶ",
       "ja": "エレシュランタ浄化作戦VII",
-      "ko": "에레슈란타 정화 작전 Ⅶ"
+      "ko": "에레슈란타 정화 작전 Ⅶ",
+      "zh": "净化 Reshanta VII",
+      "zh-TW": "淨化 Reshanta VII"
      },
      "text": {
       "en": "Hunt 1,400 monsters in Abyss",
@@ -364,7 +416,9 @@
       "ru": "Уничтожить 1400 монстров в Бездне",
       "pt": "Caçar 1.400 monstros no Abismo",
       "ja": "アビスでモンスター1,400体狩る",
-      "ko": "어비스에서 몬스터 1400마리 사냥"
+      "ko": "어비스에서 몬스터 1400마리 사냥",
+      "zh": "在深渊狩猎1,400只怪物",
+      "zh-TW": "在深淵狩獵1,400隻怪物"
      }
     },
     {
@@ -379,7 +433,9 @@
       "ru": "Операция по очищению Арэшурата Ⅷ",
       "pt": "Operação de Purificação de Reshanta Ⅷ",
       "ja": "エレシュランタ浄化作戦VIII",
-      "ko": "에레슈란타 정화 작전 Ⅷ"
+      "ko": "에레슈란타 정화 작전 Ⅷ",
+      "zh": "净化 Reshanta VIII",
+      "zh-TW": "淨化 Reshanta VIII"
      },
      "text": {
       "en": "Hunt 1,600 monsters in Abyss",
@@ -389,7 +445,9 @@
       "ru": "Уничтожить 1600 монстров в Бездне",
       "pt": "Caçar 1.600 monstros no Abismo",
       "ja": "アビスでモンスター1,600体狩る",
-      "ko": "어비스에서 몬스터 1600마리 사냥"
+      "ko": "어비스에서 몬스터 1600마리 사냥",
+      "zh": "在深渊狩猎1,600只怪物",
+      "zh-TW": "在深淵狩獵1,600隻怪物"
      }
     },
     {
@@ -404,7 +462,9 @@
       "ru": "Операция по очищению Арэшурата Ⅸ",
       "pt": "Operação de Purificação de Reshanta Ⅸ",
       "ja": "エレシュランタ浄化作戦IX",
-      "ko": "에레슈란타 정화 작전 Ⅸ"
+      "ko": "에레슈란타 정화 작전 Ⅸ",
+      "zh": "净化 Reshanta IX",
+      "zh-TW": "淨化 Reshanta IX"
      },
      "text": {
       "en": "Hunt 1,800 monsters in Abyss",
@@ -414,7 +474,9 @@
       "ru": "Уничтожить 1800 монстров в Бездне",
       "pt": "Caçar 1.800 monstros no Abismo",
       "ja": "アビスでモンスター1,800体狩る",
-      "ko": "어비스에서 몬스터 1800마리 사냥"
+      "ko": "어비스에서 몬스터 1800마리 사냥",
+      "zh": "在深渊狩猎1,800只怪物",
+      "zh-TW": "在深淵狩獵1,800隻怪物"
      }
     },
     {
@@ -429,7 +491,9 @@
       "ru": "Операция по очищению Арэшурата Ⅹ",
       "pt": "Operação de Purificação de Reshanta Ⅹ",
       "ja": "エレシュランタ浄化作戦X",
-      "ko": "에레슈란타 정화 작전 Ⅹ"
+      "ko": "에레슈란타 정화 작전 Ⅹ",
+      "zh": "净化 Reshanta X",
+      "zh-TW": "淨化 Reshanta X"
      },
      "text": {
       "en": "Hunt 2,000 monsters in Abyss",
@@ -439,7 +503,9 @@
       "ru": "Уничтожить 2000 монстров в Бездне",
       "pt": "Caçar 2.000 monstros no Abismo",
       "ja": "アビスでモンスター2,000体狩る",
-      "ko": "어비스에서 몬스터 2000마리 사냥"
+      "ko": "어비스에서 몬스터 2000마리 사냥",
+      "zh": "在深渊狩猎2,000只怪物",
+      "zh-TW": "在深淵狩獵2,000隻怪物"
      }
     }
    ]
@@ -462,7 +528,9 @@
       "ru": "Дозорный Кайра Ⅰ",
       "pt": "Vigilante Kairah Ⅰ",
       "ja": "監視者カイラI",
-      "ko": "감시자 카이라 Ⅰ"
+      "ko": "감시자 카이라 Ⅰ",
+      "zh": "监视者 Kaira I",
+      "zh-TW": "監視者 Kaira I"
      },
      "text": {
       "en": "Defeat the boss Watcher Kaira 1 time",
@@ -472,7 +540,9 @@
       "ru": "Победить Дозорщика Кайру (босс) 1 раз",
       "pt": "Derrotar chefe Vigilante Kairah 1x",
       "ja": "ボス監視者カイラ1回討伐",
-      "ko": "보스 감시자 카이라 1회 처치"
+      "ko": "보스 감시자 카이라 1회 처치",
+      "zh": "击败首领监视者 Kaira 1次",
+      "zh-TW": "擊敗首領監視者 Kaira 1次"
      }
     },
     {
@@ -487,7 +557,9 @@
       "ru": "Дозорный Кайра Ⅱ",
       "pt": "Vigilante Kairah Ⅱ",
       "ja": "監視者カイラII",
-      "ko": "감시자 카이라 Ⅱ"
+      "ko": "감시자 카이라 Ⅱ",
+      "zh": "监视者 Kaira II",
+      "zh-TW": "監視者 Kaira II"
      },
      "text": {
       "en": "Defeat the boss Watcher Kaira 5 times",
@@ -497,7 +569,9 @@
       "ru": "Победите Дозорного Кайра 5 раз",
       "pt": "Derrotar chefe Vigilante Kairah 5x",
       "ja": "ボス監視者カイラ5回討伐",
-      "ko": "보스 감시자 카이라 5회 처치"
+      "ko": "보스 감시자 카이라 5회 처치",
+      "zh": "击败首领监视者 Kaira 5次",
+      "zh-TW": "擊敗首領監視者 Kaira 5次"
      }
     },
     {
@@ -512,7 +586,9 @@
       "ru": "Дозорный Кайра Ⅲ",
       "pt": "Vigilante Kairah Ⅲ",
       "ja": "監視者カイラIII",
-      "ko": "감시자 카이라 Ⅲ"
+      "ko": "감시자 카이라 Ⅲ",
+      "zh": "监视者 Kaira III",
+      "zh-TW": "監視者 Kaira III"
      },
      "text": {
       "en": "Defeat the boss Watcher Kaira 10 times",
@@ -522,7 +598,9 @@
       "ru": "Победите Дозорного Кайра 10 раз",
       "pt": "Derrotar chefe Vigilante Kairah 10x",
       "ja": "ボス監視者カイラ10回討伐",
-      "ko": "보스 감시자 카이라 10회 처치"
+      "ko": "보스 감시자 카이라 10회 처치",
+      "zh": "击败首领监视者 Kaira 10次",
+      "zh-TW": "擊敗首領監視者 Kaira 10次"
      }
     }
    ],
@@ -549,7 +627,9 @@
       "ru": "Король духов Агро Ⅰ",
       "pt": "Argo, Rei dos Espíritos I",
       "ja": "精霊王アグロI",
-      "ko": "정령왕 아그로 Ⅰ"
+      "ko": "정령왕 아그로 Ⅰ",
+      "zh": "灵魂之王 Argo I",
+      "zh-TW": "靈魂之王 Argo I"
      },
      "text": {
       "en": "Defeat the boss Argo, the Spirit King 1 time",
@@ -559,7 +639,9 @@
       "ru": "Победите Короля духов Агро 1 раз",
       "pt": "Derrotar chefe Argo, Rei dos Espíritos 1x",
       "ja": "ボス精霊王アグロ1回討伐",
-      "ko": "보스 정령왕 아그로 1회 처치"
+      "ko": "보스 정령왕 아그로 1회 처치",
+      "zh": "击败首领灵魂之王 Argo 1次",
+      "zh-TW": "擊敗首領靈魂之王 Argo 1次"
      }
     },
     {
@@ -574,7 +656,9 @@
       "ru": "Король духов Агро Ⅱ",
       "pt": "Argo, Rei dos Espíritos II",
       "ja": "精霊王アグロII",
-      "ko": "정령왕 아그로 Ⅱ"
+      "ko": "정령왕 아그로 Ⅱ",
+      "zh": "灵魂之王 Argo II",
+      "zh-TW": "靈魂之王 Argo II"
      },
      "text": {
       "en": "Defeat the boss Argo, the Spirit King 3 times",
@@ -584,7 +668,9 @@
       "ru": "Победить Короля духов Агро (босс) 3 раза",
       "pt": "Derrotar chefe Argo, Rei dos Espíritos 3x",
       "ja": "ボス精霊王アグロ3回討伐",
-      "ko": "보스 정령왕 아그로 3회 처치"
+      "ko": "보스 정령왕 아그로 3회 처치",
+      "zh": "击败首领灵魂之王 Argo 3次",
+      "zh-TW": "擊敗首領靈魂之王 Argo 3次"
      }
     }
    ],
@@ -611,7 +697,9 @@
       "ru": "Лорд-хранитель Нахма",
       "pt": "Senhor Guardião Nahma",
       "ja": "守護神将ナフマ",
-      "ko": "수호신장 나흐마"
+      "ko": "수호신장 나흐마",
+      "zh": "守护之神 Nahma",
+      "zh-TW": "守護之神 Nahma"
      },
      "text": {
       "en": "Defeat the boss Guardian Lord Nahma 1 time",
@@ -621,7 +709,9 @@
       "ru": "Победите Лорда-хранитель Нахма 1 раз",
       "pt": "Derrotar chefe Senhor Guardião Nahma 1x",
       "ja": "ボス守護神将ナフマ1回討伐",
-      "ko": "보스 수호신장 나흐마 1회 처치"
+      "ko": "보스 수호신장 나흐마 1회 처치",
+      "zh": "击败首领守护之神 Nahma 1次",
+      "zh-TW": "擊敗首領守護之神 Nahma 1次"
      }
     }
    ],
@@ -654,7 +744,9 @@
       "ru": "Захват территории Ⅰ",
       "pt": "Disputa Territorial Ⅰ",
       "ja": "陣取りゲームI",
-      "ko": "땅따먹기 Ⅰ"
+      "ko": "땅따먹기 Ⅰ",
+      "zh": "领土争夺 I",
+      "zh-TW": "領土爭奪 I"
      },
      "text": {
       "en": "Participate in Artifact Siege 1 time by its end",
@@ -664,7 +756,9 @@
       "ru": "Принять участие в захвате артефактов до конца 1 р.",
       "pt": "Participar até o fim do Cerco de Artefatos 1x",
       "ja": "アーティファクト占領戦1回終了時点まで参加",
-      "ko": "아티팩트 점령전 1회 종료 시점까지 참여"
+      "ko": "아티팩트 점령전 1회 종료 시점까지 참여",
+      "zh": "参加神器攻城战直至结束1次",
+      "zh-TW": "參加神器攻城戰直至結束1次"
      }
     },
     {
@@ -679,7 +773,9 @@
       "ru": "Захват территории Ⅱ",
       "pt": "Disputa Territorial Ⅱ",
       "ja": "陣取りゲームII",
-      "ko": "땅따먹기 Ⅱ"
+      "ko": "땅따먹기 Ⅱ",
+      "zh": "领土争夺 II",
+      "zh-TW": "領土爭奪 II"
      },
      "text": {
       "en": "Participate in Artifact Siege 2 times by its end",
@@ -689,7 +785,9 @@
       "ru": "Принять участие в Захвате артефактов до конца 2 р.",
       "pt": "Participar até o fim do Cerco de Artefatos 2x",
       "ja": "アーティファクト占領戦2回終了時点まで参加",
-      "ko": "아티팩트 점령전 2회 종료 시점까지 참여"
+      "ko": "아티팩트 점령전 2회 종료 시점까지 참여",
+      "zh": "参加神器攻城战直至结束2次",
+      "zh-TW": "參加神器攻城戰直至結束2次"
      }
     }
    ],
@@ -713,7 +811,9 @@
       "ru": "До последнего",
       "pt": "Até o Final",
       "ja": "最後の一つまで",
-      "ko": "마지막 하나까지"
+      "ko": "마지막 하나까지",
+      "zh": "直到最后一人",
+      "zh-TW": "直到最後一人"
      },
      "text": {
       "en": "Win Artifact Siege 1 time",
@@ -723,7 +823,9 @@
       "ru": "Победить в Захвате артефактов 1 р.",
       "pt": "Vencer o Cerco de Artefatos 1x",
       "ja": "アーティファクト占領戦1回勝利",
-      "ko": "아티팩트 점령전 1회 승리"
+      "ko": "아티팩트 점령전 1회 승리",
+      "zh": "赢得神器攻城战1次",
+      "zh-TW": "贏得神器攻城戰1次"
      }
     }
    ],
@@ -747,7 +849,9 @@
       "ru": "Повелитель нижнего уровня Бездны",
       "pt": "Dominador do Piso Inferior",
       "ja": "下層の支配者",
-      "ko": "하층의 지배자"
+      "ko": "하층의 지배자",
+      "zh": "下层深渊的支配者",
+      "zh-TW": "下層深淵的支配者"
      },
      "text": {
       "en": "Defeat 1 Dominator of Lower Abyss after Artifact Siege",
@@ -757,7 +861,9 @@
       "ru": "Победите 1 повелителя нижнего уровня Бездны после захвата артефактов",
       "pt": "Derrotar 1 Dominador do Piso Inferior após o fim do Cerco de Artefatos",
       "ja": "アーティファクト占領戦終了後に下層の支配者1体討伐",
-      "ko": "아티팩트 점령전 종료 후 하층의 지배자 1마리 처치"
+      "ko": "아티팩트 점령전 종료 후 하층의 지배자 1마리 처치",
+      "zh": "神器攻城战后击败1名下层深渊的支配者",
+      "zh-TW": "神器攻城戰後擊敗1名下層深淵的支配者"
      }
     }
    ],
@@ -785,7 +891,9 @@
       "ru": "Повторение — мать учения I",
       "pt": "Poder do Combate Constante Ⅰ",
       "ja": "地道な実戦の力I",
-      "ko": "꾸준한 실전의 힘 Ⅰ"
+      "ko": "꾸준한 실전의 힘 Ⅰ",
+      "zh": "持之以恒 I",
+      "zh-TW": "持之以恆 I"
      },
      "text": {
       "en": "Participate in Arena 3 times",
@@ -795,7 +903,9 @@
       "ru": "Участие на арене 3 р.",
       "pt": "Participar da Arena 3x",
       "ja": "闘技場3回参加",
-      "ko": "투기장 3회 참여"
+      "ko": "투기장 3회 참여",
+      "zh": "参加竞技场3次",
+      "zh-TW": "參加競技場3次"
      }
     },
     {
@@ -810,7 +920,9 @@
       "ru": "Повторение — мать учения Ⅱ",
       "pt": "Poder do Combate Constante Ⅱ",
       "ja": "地道な実戦の力II",
-      "ko": "꾸준한 실전의 힘 Ⅱ"
+      "ko": "꾸준한 실전의 힘 Ⅱ",
+      "zh": "持之以恒 II",
+      "zh-TW": "持之以恆 II"
      },
      "text": {
       "en": "Participate in Arena 7 times",
@@ -820,7 +932,9 @@
       "ru": "Участие на арене 7 р.",
       "pt": "Participar da Arena 7x",
       "ja": "闘技場7回参加",
-      "ko": "투기장 7회 참여"
+      "ko": "투기장 7회 참여",
+      "zh": "参加竞技场7次",
+      "zh-TW": "參加競技場7次"
      }
     },
     {
@@ -835,7 +949,9 @@
       "ru": "Повторение — мать учения Ⅲ",
       "pt": "Poder do Combate Constante Ⅲ",
       "ja": "地道な実戦の力III",
-      "ko": "꾸준한 실전의 힘 Ⅲ"
+      "ko": "꾸준한 실전의 힘 Ⅲ",
+      "zh": "持之以恒 III",
+      "zh-TW": "持之以恆 III"
      },
      "text": {
       "en": "Participate in Arena 10 times",
@@ -845,7 +961,9 @@
       "ru": "Сражайтесь на арене 10 раз",
       "pt": "Participar da Arena 10x",
       "ja": "闘技場10回参加",
-      "ko": "투기장 10회 참여"
+      "ko": "투기장 10회 참여",
+      "zh": "参加竞技场10次",
+      "zh-TW": "參加競技場10次"
      }
     }
    ]
@@ -868,7 +986,9 @@
       "ru": "Превзойти самого себя I",
       "pt": "Além de Mim Mesmo Ⅰ",
       "ja": "俺を超えた、俺I",
-      "ko": "나를 넘어선, 나 Ⅰ"
+      "ko": "나를 넘어선, 나 Ⅰ",
+      "zh": "超越自我 I",
+      "zh-TW": "超越自我 I"
      },
      "text": {
       "en": "Win 1 time in Arena",
@@ -878,7 +998,9 @@
       "ru": "Победа на арене 1 р.",
       "pt": "Vencer a Arena 1x",
       "ja": "闘技場1回勝利",
-      "ko": "투기장 1회 승리"
+      "ko": "투기장 1회 승리",
+      "zh": "在竞技场获胜1次",
+      "zh-TW": "在競技場獲勝1次"
      }
     },
     {
@@ -893,7 +1015,9 @@
       "ru": "Превзойти самого себя Ⅱ",
       "pt": "Além de Mim Mesmo Ⅱ",
       "ja": "俺を超えた、俺II",
-      "ko": "나를 넘어선, 나 Ⅱ"
+      "ko": "나를 넘어선, 나 Ⅱ",
+      "zh": "超越自我 II",
+      "zh-TW": "超越自我 II"
      },
      "text": {
       "en": "Win 3 times in Arena",
@@ -903,7 +1027,9 @@
       "ru": "Пробеда на арене 3 раза",
       "pt": "Vencer a Arena 3x",
       "ja": "闘技場3回勝利",
-      "ko": "투기장 3회 승리"
+      "ko": "투기장 3회 승리",
+      "zh": "在竞技场获胜3次",
+      "zh-TW": "在競技場獲勝3次"
      }
     },
     {
@@ -918,7 +1044,9 @@
       "ru": "Превзойти самого себя Ⅲ",
       "pt": "Além de Mim Mesmo Ⅲ",
       "ja": "俺を超えた、俺III",
-      "ko": "나를 넘어선, 나 Ⅲ"
+      "ko": "나를 넘어선, 나 Ⅲ",
+      "zh": "超越自我 III",
+      "zh-TW": "超越自我 III"
      },
      "text": {
       "en": "Win 5 times in Arena",
@@ -928,7 +1056,9 @@
       "ru": "Победа на арене 5 р.",
       "pt": "Vencer a Arena 5x",
       "ja": "闘技場5回勝利",
-      "ko": "투기장 5회 승리"
+      "ko": "투기장 5회 승리",
+      "zh": "在竞技场获胜5次",
+      "zh-TW": "在競技場獲勝5次"
      }
     }
    ]
@@ -951,7 +1081,9 @@
       "ru": "Путь возвышенных Ⅰ",
       "pt": "Trajetória dos Transcendidos Ⅰ",
       "ja": "超越した者たちのI",
-      "ko": "초월한 자들의 행보 Ⅰ"
+      "ko": "초월한 자들의 행보 Ⅰ",
+      "zh": "超越者之路 I",
+      "zh-TW": "超越者之路 I"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 3 times",
@@ -961,7 +1093,9 @@
       "ru": "Пройти подземелье Возвышения 3 р.",
       "pt": "Concluir Masmorra da Transcendência 3x",
       "ja": "超越ダンジョン3回クリア",
-      "ko": "초월 던전 3번 클리어"
+      "ko": "초월 던전 3번 클리어",
+      "zh": "通关超越地下城3次",
+      "zh-TW": "通關超越地城3次"
      }
     },
     {
@@ -976,7 +1110,9 @@
       "ru": "Путь возвышенных Ⅱ",
       "pt": "Trajetória dos Transcendidos Ⅱ",
       "ja": "超越した者たちのII",
-      "ko": "초월한 자들의 행보 Ⅱ"
+      "ko": "초월한 자들의 행보 Ⅱ",
+      "zh": "超越者之路 II",
+      "zh-TW": "超越者之路 II"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 6 times",
@@ -986,7 +1122,9 @@
       "ru": "Пройти подземелье Возвышения 6 раз",
       "pt": "Concluir Masmorra da Transcendência 6x",
       "ja": "超越ダンジョン6回クリア",
-      "ko": "초월 던전 6번 클리어"
+      "ko": "초월 던전 6번 클리어",
+      "zh": "通关超越地下城6次",
+      "zh-TW": "通關超越地城6次"
      }
     },
     {
@@ -1001,7 +1139,9 @@
       "ru": "Путь возвышенных Ⅲ",
       "pt": "Trajetória dos Transcendidos Ⅲ",
       "ja": "超越した者たちのIII",
-      "ko": "초월한 자들의 행보 Ⅲ"
+      "ko": "초월한 자들의 행보 Ⅲ",
+      "zh": "超越者之路 III",
+      "zh-TW": "超越者之路 III"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 10 times",
@@ -1011,7 +1151,9 @@
       "ru": "Пройти подземелье Возвышения 10 раз",
       "pt": "Concluir Masmorra da Transcendência 10x",
       "ja": "超越ダンジョン10回クリア",
-      "ko": "초월 던전 10번 클리어"
+      "ko": "초월 던전 10번 클리어",
+      "zh": "通关超越地下城10次",
+      "zh-TW": "通關超越地城10次"
      }
     }
    ]
@@ -1034,7 +1176,9 @@
       "ru": "Перевоплощение после смерти Ⅰ",
       "pt": "Mutação ao Morrer Ⅰ",
       "ja": "死亡時に変異しますI",
-      "ko": "사망 시, 변이됩니다 Ⅰ"
+      "ko": "사망 시, 변이됩니다 Ⅰ",
+      "zh": "死亡时变异 I",
+      "zh-TW": "死亡時變異 I"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 1 time without dying",
@@ -1044,7 +1188,9 @@
       "ru": "Пройти подземелье Возвышения 1 раз, не погибнув",
       "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 1x",
       "ja": "超越ダンジョン死なずに1回クリア",
-      "ko": "초월 던전 한번도 죽지 않고 1번 클리어"
+      "ko": "초월 던전 한번도 죽지 않고 1번 클리어",
+      "zh": "不死亡通关超越地下城1次",
+      "zh-TW": "不死亡通關超越地城1次"
      }
     },
     {
@@ -1059,7 +1205,9 @@
       "ru": "Перевоплощение после смерти Ⅱ",
       "pt": "Mutação ao Morrer Ⅱ",
       "ja": "死亡時に変異しますII",
-      "ko": "사망 시, 변이됩니다 Ⅱ"
+      "ko": "사망 시, 변이됩니다 Ⅱ",
+      "zh": "死亡时变异 II",
+      "zh-TW": "死亡時變異 II"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 3 times without dying",
@@ -1069,7 +1217,9 @@
       "ru": "Пройти подземелье Возвышения 3 р., не погибнув",
       "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 3x",
       "ja": "超越ダンジョン死なずに3回クリア",
-      "ko": "초월 던전 한번도 죽지 않고 3번 클리어"
+      "ko": "초월 던전 한번도 죽지 않고 3번 클리어",
+      "zh": "不死亡通关超越地下城3次",
+      "zh-TW": "不死亡通關超越地城3次"
      }
     }
    ]
@@ -1092,7 +1242,9 @@
       "ru": "Прохождение Возвышения на скорость Ⅰ",
       "pt": "Contra o Tempo na Transcendência Ⅰ",
       "ja": "超越をスピードランI",
-      "ko": "초월 스피드런 Ⅰ"
+      "ko": "초월 스피드런 Ⅰ",
+      "zh": "超越速通 I",
+      "zh-TW": "超越速通 I"
      },
      "text": {
       "en": "Clear Transcendence Dungeon within 15 minutes",
@@ -1102,7 +1254,9 @@
       "ru": "Пройти подземелье Возвышения за 15 минут",
       "pt": "Concluir Masmorra da Transcendência em até 15min",
       "ja": "超越ダンジョン15分以内にクリア",
-      "ko": "초월 던전 15분 이내 클리어"
+      "ko": "초월 던전 15분 이내 클리어",
+      "zh": "在15分钟内通关超越地下城",
+      "zh-TW": "在15分鐘內通關超越地城"
      }
     },
     {
@@ -1117,7 +1271,9 @@
       "ru": "Прохождение Возвышения на скорость Ⅱ",
       "pt": "Contra o Tempo na Transcendência Ⅱ",
       "ja": "超越をスピードランII",
-      "ko": "초월 스피드런 Ⅱ"
+      "ko": "초월 스피드런 Ⅱ",
+      "zh": "超越速通 II",
+      "zh-TW": "超越速通 II"
      },
      "text": {
       "en": "Clear Transcendence Dungeon within 7 minutes",
@@ -1127,7 +1283,9 @@
       "ru": "Пройти подземелье Возвышения за 7 мин.",
       "pt": "Concluir Masmorra da Transcendência em até 7min",
       "ja": "超越ダンジョン7分以内にクリア",
-      "ko": "초월 던전 7분 이내 클리어"
+      "ko": "초월 던전 7분 이내 클리어",
+      "zh": "在7分钟内通关超越地下城",
+      "zh-TW": "在7分鐘內通關超越地城"
      }
     }
    ]
@@ -1150,7 +1308,9 @@
       "ru": "Возвращение обратно",
       "pt": "Volte de Onde Veio!",
       "ja": "来た場所へ戻れ",
-      "ko": "왔던 곳으로 돌아가"
+      "ko": "왔던 곳으로 돌아가",
+      "zh": "该回家了",
+      "zh-TW": "該回家了"
      },
      "text": {
       "en": "Defeat 10 Mini-Bosses in Transcendence Dungeon",
@@ -1160,7 +1320,9 @@
       "ru": "Победить мини-босса в подземелье Возвышения 10 р.",
       "pt": "Derrotar 10 Chefes Intermediários na Masmorra da Transcendência",
       "ja": "超越ダンジョンで中間ボス10体討伐",
-      "ko": "초월 던전에서 중간 보스 10마리 처치"
+      "ko": "초월 던전에서 중간 보스 10마리 처치",
+      "zh": "在超越地下城击败10个中型首领",
+      "zh-TW": "在超越地城擊敗10個中型首領"
      }
     }
    ],
@@ -1209,7 +1371,9 @@
       "ru": "К большему могуществу Ⅰ",
       "pt": "Em Busca de Um Poder Maior Ⅰ",
       "ja": "より大きな力へI",
-      "ko": "더 큰 힘을 향해 Ⅰ"
+      "ko": "더 큰 힘을 향해 Ⅰ",
+      "zh": "迈向更强大的力量 I",
+      "zh-TW": "邁向更強大的力量 I"
      },
      "text": {
       "en": "Extract 10 Arcana",
@@ -1219,7 +1383,9 @@
       "ru": "Извлечь 10 аркан",
       "pt": "Extrair Arcana x10",
       "ja": "アルカナ10個抽出する",
-      "ko": "아르카나 10개 추출하기"
+      "ko": "아르카나 10개 추출하기",
+      "zh": "提取10个 Arcana",
+      "zh-TW": "提取10個 Arcana"
      }
     },
     {
@@ -1234,7 +1400,9 @@
       "ru": "К большему могуществу II",
       "pt": "Em Busca de Um Poder Maior Ⅱ",
       "ja": "より大きな力へII",
-      "ko": "더 큰 힘을 향해 Ⅱ"
+      "ko": "더 큰 힘을 향해 Ⅱ",
+      "zh": "迈向更强大的力量 II",
+      "zh-TW": "邁向更強大的力量 II"
      },
      "text": {
       "en": "Transmute 1 Arcana",
@@ -1244,7 +1412,9 @@
       "ru": "Синтезировать 1 аркан",
       "pt": "Sintetizar Arcana x1",
       "ja": "アルカナ1個錬成する",
-      "ko": "아르카나 1개 연성하기"
+      "ko": "아르카나 1개 연성하기",
+      "zh": "转化1个 Arcana",
+      "zh-TW": "轉化1個 Arcana"
      }
     }
    ]
@@ -1267,7 +1437,9 @@
       "ru": "Особые обстоятельства I",
       "pt": "Cada Um com Sua História Ⅰ",
       "ja": "ワケありの仲間たちI",
-      "ko": "사연 있는 친구들 Ⅰ"
+      "ko": "사연 있는 친구들 Ⅰ",
+      "zh": "有故事的朋友 I",
+      "zh-TW": "有故事的朋友 I"
      },
      "text": {
       "en": "Defeat Nightmare Boss 5 times",
@@ -1277,7 +1449,9 @@
       "ru": "Победить босса Кошмара 5 раз",
       "pt": "Derrotar Chefe do Pesadelo 5x",
       "ja": "悪夢ボス5回討伐",
-      "ko": "악몽 보스 5회 처치"
+      "ko": "악몽 보스 5회 처치",
+      "zh": "击败噩梦首领5次",
+      "zh-TW": "擊敗惡夢首領5次"
      }
     },
     {
@@ -1292,7 +1466,9 @@
       "ru": "Друзья со своей историей Ⅱ",
       "pt": "Cada Um com Sua História Ⅱ",
       "ja": "ワケありの仲間たちII",
-      "ko": "사연 있는 친구들 Ⅱ"
+      "ko": "사연 있는 친구들 Ⅱ",
+      "zh": "有故事的朋友 II",
+      "zh-TW": "有故事的朋友 II"
      },
      "text": {
       "en": "Defeat Nightmare Boss 10 times",
@@ -1302,7 +1478,9 @@
       "ru": "Победить босса Кошмара 10 раз",
       "pt": "Derrotar Chefe do Pesadelo 10x",
       "ja": "悪夢ボス10回討伐",
-      "ko": "악몽 보스 10회 처치"
+      "ko": "악몽 보스 10회 처치",
+      "zh": "击败噩梦首领10次",
+      "zh-TW": "擊敗惡夢首領10次"
      }
     }
    ]
@@ -1325,7 +1503,9 @@
       "ru": "За фрагментами сна Ⅰ",
       "pt": "Reunindo Pedaços de Sonho Ⅰ",
       "ja": "夢の欠片を集めてI",
-      "ko": "꿈의 조각을 모아 Ⅰ"
+      "ko": "꿈의 조각을 모아 Ⅰ",
+      "zh": "收集梦之碎片 I",
+      "zh-TW": "收集夢之碎片 I"
      },
      "text": {
       "en": "Obtain 1,000 Phantasmal Fragments",
@@ -1335,7 +1515,9 @@
       "ru": "Собрать осколки видения x1000",
       "pt": "Obter Fragmento Onírico x1.000",
       "ja": "夢幻の破片1,000個獲得",
-      "ko": "몽환의 파편 1000개 획득"
+      "ko": "몽환의 파편 1000개 획득",
+      "zh": "获得1,000个幻影碎片",
+      "zh-TW": "獲得1,000個幻影碎片"
      }
     },
     {
@@ -1350,7 +1532,9 @@
       "ru": "За фрагментами сна Ⅱ",
       "pt": "Reunindo Pedaços de Sonho Ⅱ",
       "ja": "夢の欠片を集めてII",
-      "ko": "꿈의 조각을 모아 Ⅱ"
+      "ko": "꿈의 조각을 모아 Ⅱ",
+      "zh": "收集梦之碎片 II",
+      "zh-TW": "收集夢之碎片 II"
      },
      "text": {
       "en": "Obtain 3,000 Phantasmal Fragments",
@@ -1360,7 +1544,9 @@
       "ru": "Собрать осколки видения x3000",
       "pt": "Obter Fragmento Onírico x3.000",
       "ja": "夢幻の破片3,000個獲得",
-      "ko": "몽환의 파편 3000개 획득"
+      "ko": "몽환의 파편 3000개 획득",
+      "zh": "获得3,000个幻影碎片",
+      "zh-TW": "獲得3,000個幻影碎片"
      }
     }
    ]
@@ -1383,7 +1569,9 @@
       "ru": "Кошмар за 3 мин.",
       "pt": "3 Minutos de Pesadelo",
       "ja": "3分ナイトメア",
-      "ko": "3분 나이트메어"
+      "ko": "3분 나이트메어",
+      "zh": "三分钟噩梦",
+      "zh-TW": "三分鐘惡夢"
      },
      "text": {
       "en": "Defeat Nightmare Boss within 3 minutes",
@@ -1393,7 +1581,9 @@
       "ru": "Победить босса Кошмара за 3 мин.",
       "pt": "Derrotar Chefe do Pesadelo em até 3min",
       "ja": "悪夢ボスを3分以内に討伐",
-      "ko": "악몽 보스 3분 이내 처치"
+      "ko": "악몽 보스 3분 이내 처치",
+      "zh": "在3分钟内击败噩梦首领",
+      "zh-TW": "在3分鐘內擊敗惡夢首領"
      }
     }
    ]
@@ -1416,7 +1606,9 @@
       "ru": "Укротитель Кошмара",
       "pt": "Solucionador de Pesadelos",
       "ja": "悪夢解決士",
-      "ko": "악몽 해결사"
+      "ko": "악몽 해결사",
+      "zh": "噩梦克星",
+      "zh-TW": "惡夢剋星"
      },
      "text": {
       "en": "Defeat Nightmare Boss within 2 minutes",
@@ -1426,7 +1618,9 @@
       "ru": "Победить босса Кошмара за 2 мин.",
       "pt": "Derrotar Chefe do Pesadelo em até 2min",
       "ja": "悪夢ボスを2分以内に討伐",
-      "ko": "악몽 보스 2분 이내 처치"
+      "ko": "악몽 보스 2분 이내 처치",
+      "zh": "在2分钟内击败噩梦首领",
+      "zh-TW": "在2分鐘內擊敗惡夢首領"
      }
     }
    ]
@@ -1449,7 +1643,9 @@
       "ru": "Вечный покой",
       "pt": "Descanso Eterno",
       "ja": "永遠の安息",
-      "ko": "영원한 안식"
+      "ko": "영원한 안식",
+      "zh": "永恒安息",
+      "zh-TW": "永恆安息"
      },
      "text": {
       "en": "Defeat Nightmare Boss within 1 minute",
@@ -1459,7 +1655,9 @@
       "ru": "Победить босса Кошмара за 1 мин.",
       "pt": "Derrotar Chefe do Pesadelo em até 1min",
       "ja": "悪夢ボスを1分以内に討伐",
-      "ko": "악몽 보스 1분 이내 처치"
+      "ko": "악몽 보스 1분 이내 처치",
+      "zh": "在1分钟内击败噩梦首领",
+      "zh-TW": "在1分鐘內擊敗惡夢首領"
      }
     }
    ]
@@ -1482,7 +1680,9 @@
       "ru": "Первые шаги Ⅰ",
       "pt": "Pássaro Saído do Ovo Ⅰ",
       "ja": "卵を割って出てきた鳥I",
-      "ko": "알을 깨고 나온 새 Ⅰ"
+      "ko": "알을 깨고 나온 새 Ⅰ",
+      "zh": "破壳而出 I",
+      "zh-TW": "破殼而出 I"
      },
      "text": {
       "en": "Clear Ascension Trial 1 time",
@@ -1492,7 +1692,9 @@
       "ru": "Пройти Битву пробуждения 1 р.",
       "pt": "Concluir Rito de Ascensão 1x",
       "ja": "覚醒戦1回クリア",
-      "ko": "각성전 1회 클리어"
+      "ko": "각성전 1회 클리어",
+      "zh": "通关飞升试炼1次",
+      "zh-TW": "通關飛升試煉1次"
      }
     },
     {
@@ -1507,7 +1709,9 @@
       "ru": "Первые шаги Ⅱ",
       "pt": "Pássaro Saído do Ovo Ⅱ",
       "ja": "卵を割って出てきた鳥II",
-      "ko": "알을 깨고 나온 새 Ⅱ"
+      "ko": "알을 깨고 나온 새 Ⅱ",
+      "zh": "破壳而出 II",
+      "zh-TW": "破殼而出 II"
      },
      "text": {
       "en": "Clear Ascension Trial 2 times",
@@ -1517,7 +1721,9 @@
       "ru": "Пройти Битву пробуждения 2 раза",
       "pt": "Concluir Rito de Ascensão 2x",
       "ja": "覚醒戦2回クリア",
-      "ko": "각성전 2회 클리어"
+      "ko": "각성전 2회 클리어",
+      "zh": "通关飞升试炼2次",
+      "zh-TW": "通關飛升試煉2次"
      }
     },
     {
@@ -1532,7 +1738,9 @@
       "ru": "Первые шаги Ⅲ",
       "pt": "Pássaro Saído do Ovo Ⅲ",
       "ja": "卵を割って出てきた鳥III",
-      "ko": "알을 깨고 나온 새 Ⅲ"
+      "ko": "알을 깨고 나온 새 Ⅲ",
+      "zh": "破壳而出 III",
+      "zh-TW": "破殼而出 III"
      },
      "text": {
       "en": "Clear Ascension Trial 3 times",
@@ -1542,7 +1750,9 @@
       "ru": "Пройти Битву пробуждения 3 раза",
       "pt": "Concluir Rito de Ascensão 3x",
       "ja": "覚醒戦3回クリア",
-      "ko": "각성전 3회 클리어"
+      "ko": "각성전 3회 클리어",
+      "zh": "通关飞升试炼3次",
+      "zh-TW": "通關飛升試煉3次"
      }
     }
    ]
@@ -1565,7 +1775,9 @@
       "ru": "За звездами Ⅰ",
       "pt": "Vamos Colher Estrelas Ⅰ",
       "ja": "星を取りに行こうI",
-      "ko": "별 따러 가세 Ⅰ"
+      "ko": "별 따러 가세 Ⅰ",
+      "zh": "追逐星辰 I",
+      "zh-TW": "追逐星辰 I"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 2 times",
@@ -1575,7 +1787,9 @@
       "ru": "Убить офицеров 1-5 ранга 2 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 2x",
       "ja": "[一星～五星将校]2回KILL",
-      "ko": "[1성~5성 장교] 2회 KILL"
+      "ko": "[1성~5성 장교] 2회 KILL",
+      "zh": "击杀[1至5星军官]2次",
+      "zh-TW": "擊殺[1至5星軍官]2次"
      }
     },
     {
@@ -1590,7 +1804,9 @@
       "ru": "За звездами Ⅱ",
       "pt": "Vamos Colher Estrelas Ⅱ",
       "ja": "星を取りに行こうII",
-      "ko": "별 따러 가세 Ⅱ"
+      "ko": "별 따러 가세 Ⅱ",
+      "zh": "追逐星辰 II",
+      "zh-TW": "追逐星辰 II"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 4 times",
@@ -1600,7 +1816,9 @@
       "ru": "Убить офицеров 1-5 ранга 4 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 4x",
       "ja": "[一星～五星将校]4回KILL",
-      "ko": "[1성~5성 장교] 4회 KILL"
+      "ko": "[1성~5성 장교] 4회 KILL",
+      "zh": "击杀[1至5星军官]4次",
+      "zh-TW": "擊殺[1至5星軍官]4次"
      }
     },
     {
@@ -1615,7 +1833,9 @@
       "ru": "За звездами Ⅲ",
       "pt": "Vamos Colher Estrelas Ⅲ",
       "ja": "星を取りに行こうIII",
-      "ko": "별 따러 가세 Ⅲ"
+      "ko": "별 따러 가세 Ⅲ",
+      "zh": "追逐星辰 III",
+      "zh-TW": "追逐星辰 III"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 6 times",
@@ -1625,7 +1845,9 @@
       "ru": "Убить офицеров 1-5 ранга 6 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 6x",
       "ja": "[一星～五星将校]6回KILL",
-      "ko": "[1성~5성 장교] 6회 KILL"
+      "ko": "[1성~5성 장교] 6회 KILL",
+      "zh": "击杀[1至5星军官]6次",
+      "zh-TW": "擊殺[1至5星軍官]6次"
      }
     },
     {
@@ -1640,7 +1862,9 @@
       "ru": "За звездами Ⅳ",
       "pt": "Vamos Colher Estrelas Ⅳ",
       "ja": "星を取りに行こうIV",
-      "ko": "별 따러 가세 Ⅳ"
+      "ko": "별 따러 가세 Ⅳ",
+      "zh": "追逐星辰 IV",
+      "zh-TW": "追逐星辰 IV"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 8 times",
@@ -1650,7 +1874,9 @@
       "ru": "Убить офицеров 1-5 ранга 8 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 8x",
       "ja": "[一星～五星将校]8回KILL",
-      "ko": "[1성~5성 장교] 8회 KILL"
+      "ko": "[1성~5성 장교] 8회 KILL",
+      "zh": "击杀[1至5星军官]8次",
+      "zh-TW": "擊殺[1至5星軍官]8次"
      }
     },
     {
@@ -1665,7 +1891,9 @@
       "ru": "За звездами Ⅴ",
       "pt": "Vamos Colher Estrelas Ⅴ",
       "ja": "星を取りに行こうV",
-      "ko": "별 따러 가세 Ⅴ"
+      "ko": "별 따러 가세 Ⅴ",
+      "zh": "追逐星辰 V",
+      "zh-TW": "追逐星辰 V"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 10 times",
@@ -1675,7 +1903,9 @@
       "ru": "Убить офицеров 1-5 ранга 10 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 10x",
       "ja": "[一星～五星将校]10回KILL",
-      "ko": "[1성~5성 장교] 10회 KILL"
+      "ko": "[1성~5성 장교] 10회 KILL",
+      "zh": "击杀[1至5星军官]10次",
+      "zh-TW": "擊殺[1至5星軍官]10次"
      }
     },
     {
@@ -1690,7 +1920,9 @@
       "ru": "За звездами Ⅵ",
       "pt": "Vamos Colher Estrelas Ⅵ",
       "ja": "星を取りに行こうVI",
-      "ko": "별 따러 가세 Ⅵ"
+      "ko": "별 따러 가세 Ⅵ",
+      "zh": "追逐星辰 VI",
+      "zh-TW": "追逐星辰 VI"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 12 times",
@@ -1700,7 +1932,9 @@
       "ru": "Убить офицеров 1-5 ранга 12 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 12x",
       "ja": "[一星～五星将校]12回KILL",
-      "ko": "[1성~5성 장교] 12회 KILL"
+      "ko": "[1성~5성 장교] 12회 KILL",
+      "zh": "击杀[1至5星军官]12次",
+      "zh-TW": "擊殺[1至5星軍官]12次"
      }
     },
     {
@@ -1715,7 +1949,9 @@
       "ru": "За звездами Ⅶ",
       "pt": "Vamos Colher Estrelas Ⅶ",
       "ja": "星を取りに行こうVII",
-      "ko": "별 따러 가세 Ⅶ"
+      "ko": "별 따러 가세 Ⅶ",
+      "zh": "追逐星辰 VII",
+      "zh-TW": "追逐星辰 VII"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 14 times",
@@ -1725,7 +1961,9 @@
       "ru": "Убить офицеров 1-5 ранга 14 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 14x",
       "ja": "[一星～五星将校]14回KILL",
-      "ko": "[1성~5성 장교] 14회 KILL"
+      "ko": "[1성~5성 장교] 14회 KILL",
+      "zh": "击杀[1至5星军官]14次",
+      "zh-TW": "擊殺[1至5星軍官]14次"
      }
     },
     {
@@ -1740,7 +1978,9 @@
       "ru": "За звездами Ⅷ",
       "pt": "Vamos Colher Estrelas Ⅷ",
       "ja": "星を取りに行こうVIII",
-      "ko": "별 따러 가세 Ⅷ"
+      "ko": "별 따러 가세 Ⅷ",
+      "zh": "追逐星辰 VIII",
+      "zh-TW": "追逐星辰 VIII"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 16 times",
@@ -1750,7 +1990,9 @@
       "ru": "Убить офицеров 1-5 ранга 16 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 16x",
       "ja": "[一星～五星将校]16回KILL",
-      "ko": "[1성~5성 장교] 16회 KILL"
+      "ko": "[1성~5성 장교] 16회 KILL",
+      "zh": "击杀[1至5星军官]16次",
+      "zh-TW": "擊殺[1至5星軍官]16次"
      }
     },
     {
@@ -1765,7 +2007,9 @@
       "ru": "За звездами Ⅸ",
       "pt": "Vamos Colher Estrelas Ⅸ",
       "ja": "星を取りに行こうIX",
-      "ko": "별 따러 가세 Ⅸ"
+      "ko": "별 따러 가세 Ⅸ",
+      "zh": "追逐星辰 IX",
+      "zh-TW": "追逐星辰 IX"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 18 times",
@@ -1775,7 +2019,9 @@
       "ru": "Убить офицеров 1-5 ранга 18 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 18x",
       "ja": "[一星～五星将校]18回KILL",
-      "ko": "[1성~5성 장교] 18회 KILL"
+      "ko": "[1성~5성 장교] 18회 KILL",
+      "zh": "击杀[1至5星军官]18次",
+      "zh-TW": "擊殺[1至5星軍官]18次"
      }
     },
     {
@@ -1790,7 +2036,9 @@
       "ru": "За звездами Ⅹ",
       "pt": "Vamos Colher Estrelas Ⅹ",
       "ja": "星を取りに行こうX",
-      "ko": "별 따러 가세 Ⅹ"
+      "ko": "별 따러 가세 Ⅹ",
+      "zh": "追逐星辰 X",
+      "zh-TW": "追逐星辰 X"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 20 times",
@@ -1800,7 +2048,9 @@
       "ru": "Убить офицеров 1-5 ранга 20 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 20x",
       "ja": "[一星～五星将校]20回KILL",
-      "ko": "[1성~5성 장교] 20회 KILL"
+      "ko": "[1성~5성 장교] 20회 KILL",
+      "zh": "击杀[1至5星军官]20次",
+      "zh-TW": "擊殺[1至5星軍官]20次"
      }
     }
    ]
@@ -1823,7 +2073,9 @@
       "ru": "Боевое крещение Ⅰ",
       "pt": "Recepção dos Brotos Verdejantes Ⅰ",
       "ja": "みずみずしい新芽の到来I",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅰ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅰ",
+      "zh": "火的洗礼 I",
+      "zh-TW": "火的洗禮 I"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 6 times",
@@ -1833,7 +2085,9 @@
       "ru": "Убить воинов 1-9-го ранга 6 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 6x",
       "ja": "[一等～九等兵]6回KILL",
-      "ko": "[1급~9급병] 6회 KILL"
+      "ko": "[1급~9급병] 6회 KILL",
+      "zh": "击杀[一等至九等士兵]6次",
+      "zh-TW": "擊殺[一等至九等士兵]6次"
      }
     },
     {
@@ -1848,7 +2102,9 @@
       "ru": "Боевое крещение Ⅱ",
       "pt": "Recepção dos Brotos Verdejantes Ⅱ",
       "ja": "みずみずしい新芽の到来II",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅱ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅱ",
+      "zh": "火的洗礼 II",
+      "zh-TW": "火的洗禮 II"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 12 times",
@@ -1858,7 +2114,9 @@
       "ru": "Убить воинов 1-9-го ранга 12 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 12x",
       "ja": "[一等～九等兵]12回KILL",
-      "ko": "[1급~9급병] 12회 KILL"
+      "ko": "[1급~9급병] 12회 KILL",
+      "zh": "击杀[一等至九等士兵]12次",
+      "zh-TW": "擊殺[一等至九等士兵]12次"
      }
     },
     {
@@ -1873,7 +2131,9 @@
       "ru": "Боевое крещение Ⅲ",
       "pt": "Recepção dos Brotos Verdejantes Ⅲ",
       "ja": "みずみずしい新芽の到来III",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅲ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅲ",
+      "zh": "火的洗礼 III",
+      "zh-TW": "火的洗禮 III"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 18 times",
@@ -1883,7 +2143,9 @@
       "ru": "Убить воинов 1-9-го ранга 18 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 18x",
       "ja": "[一等～九等兵]18回KILL",
-      "ko": "[1급~9급병] 18회 KILL"
+      "ko": "[1급~9급병] 18회 KILL",
+      "zh": "击杀[一等至九等士兵]18次",
+      "zh-TW": "擊殺[一等至九等士兵]18次"
      }
     },
     {
@@ -1898,7 +2160,9 @@
       "ru": "Боевое крещение Ⅳ",
       "pt": "Recepção dos Brotos Verdejantes Ⅳ",
       "ja": "みずみずしい新芽の到来IV",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅳ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅳ",
+      "zh": "火的洗礼 IV",
+      "zh-TW": "火的洗禮 IV"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 24 times",
@@ -1908,7 +2172,9 @@
       "ru": "Убить воинов 1-9-го ранга 24 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 24x",
       "ja": "[一等～九等兵]24回KILL",
-      "ko": "[1급~9급병] 24회 KILL"
+      "ko": "[1급~9급병] 24회 KILL",
+      "zh": "击杀[一等至九等士兵]24次",
+      "zh-TW": "擊殺[一等至九等士兵]24次"
      }
     },
     {
@@ -1923,7 +2189,9 @@
       "ru": "Боевое крещение Ⅴ",
       "pt": "Recepção dos Brotos Verdejantes Ⅴ",
       "ja": "みずみずしい新芽の到来V",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅴ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅴ",
+      "zh": "火的洗礼 V",
+      "zh-TW": "火的洗禮 V"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 30 times",
@@ -1933,7 +2201,9 @@
       "ru": "Убить воинов 1-9-го ранга 30 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 30x",
       "ja": "[一等～九等兵]30回KILL",
-      "ko": "[1급~9급병] 30회 KILL"
+      "ko": "[1급~9급병] 30회 KILL",
+      "zh": "击杀[一等至九等士兵]30次",
+      "zh-TW": "擊殺[一等至九等士兵]30次"
      }
     },
     {
@@ -1948,7 +2218,9 @@
       "ru": "Боевое крещение Ⅵ",
       "pt": "Recepção dos Brotos Verdejantes Ⅵ",
       "ja": "みずみずしい新芽の到来VI",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅵ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅵ",
+      "zh": "火的洗礼 VI",
+      "zh-TW": "火的洗禮 VI"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 36 times",
@@ -1958,7 +2230,9 @@
       "ru": "Убить воинов 1-9-го ранга 36 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 36x",
       "ja": "[一等～九等兵]36回KILL",
-      "ko": "[1급~9급병] 36회 KILL"
+      "ko": "[1급~9급병] 36회 KILL",
+      "zh": "击杀[一等至九等士兵]36次",
+      "zh-TW": "擊殺[一等至九等士兵]36次"
      }
     },
     {
@@ -1973,7 +2247,9 @@
       "ru": "Боевое крещение Ⅶ",
       "pt": "Recepção dos Brotos Verdejantes Ⅶ",
       "ja": "みずみずしい新芽の到来VII",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅶ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅶ",
+      "zh": "火的洗礼 VII",
+      "zh-TW": "火的洗禮 VII"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 42 times",
@@ -1983,7 +2259,9 @@
       "ru": "Убить воинов 1-9-го ранга 42 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 42x",
       "ja": "[一等～九等兵]42回KILL",
-      "ko": "[1급~9급병] 42회 KILL"
+      "ko": "[1급~9급병] 42회 KILL",
+      "zh": "击杀[一等至九等士兵]42次",
+      "zh-TW": "擊殺[一等至九等士兵]42次"
      }
     },
     {
@@ -1998,7 +2276,9 @@
       "ru": "Боевое крещение Ⅷ",
       "pt": "Recepção dos Brotos Verdejantes Ⅷ",
       "ja": "みずみずしい新芽の到来VIII",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅷ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅷ",
+      "zh": "火的洗礼 VIII",
+      "zh-TW": "火的洗禮 VIII"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 48 times",
@@ -2008,7 +2288,9 @@
       "ru": "Убить воинов 1-9-го ранга 48 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 48x",
       "ja": "[一等～九等兵]48回KILL",
-      "ko": "[1급~9급병] 48회 KILL"
+      "ko": "[1급~9급병] 48회 KILL",
+      "zh": "击杀[一等至九等士兵]48次",
+      "zh-TW": "擊殺[一等至九等士兵]48次"
      }
     },
     {
@@ -2023,7 +2305,9 @@
       "ru": "Боевое крещение Ⅸ",
       "pt": "Recepção dos Brotos Verdejantes Ⅸ",
       "ja": "みずみずしい新芽の到来IX",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅸ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅸ",
+      "zh": "火的洗礼 IX",
+      "zh-TW": "火的洗禮 IX"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 54 times",
@@ -2033,7 +2317,9 @@
       "ru": "Убить воинов 1-9-го ранга 54 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 54x",
       "ja": "[一等～九等兵]54回KILL",
-      "ko": "[1급~9급병] 54회 KILL"
+      "ko": "[1급~9급병] 54회 KILL",
+      "zh": "击杀[一等至九等士兵]54次",
+      "zh-TW": "擊殺[一等至九等士兵]54次"
      }
     },
     {
@@ -2048,7 +2334,9 @@
       "ru": "Боевое крещение Ⅹ",
       "pt": "Recepção dos Brotos Verdejantes Ⅹ",
       "ja": "みずみずしい新芽の到来X",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅹ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅹ",
+      "zh": "火的洗礼 X",
+      "zh-TW": "火的洗禮 X"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 60 times",
@@ -2058,7 +2346,9 @@
       "ru": "Убить воинов 1-9-го ранга 60 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 60x",
       "ja": "[一等～九等兵]60回KILL",
-      "ko": "[1급~9급병] 60회 KILL"
+      "ko": "[1급~9급병] 60회 KILL",
+      "zh": "击杀[一等至九等士兵]60次",
+      "zh-TW": "擊殺[一等至九等士兵]60次"
      }
     }
    ]
@@ -2081,7 +2371,9 @@
       "ru": "Гордость Элиоса Ⅰ",
       "pt": "Orgulho do Exército Elyseano Ⅰ",
       "ja": "天軍の自慢I",
-      "ko": "천군의 자랑 Ⅰ"
+      "ko": "천군의 자랑 Ⅰ",
+      "zh": "天族的骄傲 I",
+      "zh-TW": "天族的驕傲 I"
      },
      "text": {
       "en": "Kill 5 Asmodian players in Altgard",
@@ -2091,7 +2383,9 @@
       "ru": "Уничтожить 5 игроков-асмодиан в Альтгарде",
       "pt": "Abater 5 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー5回KILL",
-      "ko": "알트가르드에서 마족 플레이어 5회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 5회 KILL",
+      "zh": "在 Altgard 击败5名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗5名魔族玩家"
      }
     },
     {
@@ -2106,7 +2400,9 @@
       "ru": "Гордость Элиоса II",
       "pt": "Orgulho do Exército Elyseano Ⅱ",
       "ja": "天軍の自慢II",
-      "ko": "천군의 자랑 Ⅱ"
+      "ko": "천군의 자랑 Ⅱ",
+      "zh": "天族的骄傲 II",
+      "zh-TW": "天族的驕傲 II"
      },
      "text": {
       "en": "Kill 10 Asmodian players in Altgard",
@@ -2116,7 +2412,9 @@
       "ru": "Убить игрока-асмодианина в Альтгарде 10 р.",
       "pt": "Abater 10 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー10回KILL",
-      "ko": "알트가르드에서 마족 플레이어 10회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 10회 KILL",
+      "zh": "在 Altgard 击败10名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗10名魔族玩家"
      }
     },
     {
@@ -2131,7 +2429,9 @@
       "ru": "Гордость Элиоса Ⅲ",
       "pt": "Orgulho do Exército Elyseano Ⅲ",
       "ja": "天軍の自慢III",
-      "ko": "천군의 자랑 Ⅲ"
+      "ko": "천군의 자랑 Ⅲ",
+      "zh": "天族的骄傲 III",
+      "zh-TW": "天族的驕傲 III"
      },
      "text": {
       "en": "Kill 15 Asmodian players in Altgard",
@@ -2141,7 +2441,9 @@
       "ru": "Уничтожить 15 игроков-асмодиан в Альтгарде",
       "pt": "Abater 15 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー15回KILL",
-      "ko": "알트가르드에서 마족 플레이어 15회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 15회 KILL",
+      "zh": "在 Altgard 击败15名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗15名魔族玩家"
      }
     },
     {
@@ -2156,7 +2458,9 @@
       "ru": "Гордость Элиоса IV",
       "pt": "Orgulho do Exército Elyseano Ⅳ",
       "ja": "天軍の自慢IV",
-      "ko": "천군의 자랑 Ⅳ"
+      "ko": "천군의 자랑 Ⅳ",
+      "zh": "天族的骄傲 IV",
+      "zh-TW": "天族的驕傲 IV"
      },
      "text": {
       "en": "Kill 20 Asmodian players in Altgard",
@@ -2166,7 +2470,9 @@
       "ru": "Убить 20 игроков-асмодиан в Альтгарде",
       "pt": "Abater 20 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー20回KILL",
-      "ko": "알트가르드에서 마족 플레이어 20회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 20회 KILL",
+      "zh": "在 Altgard 击败20名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗20名魔族玩家"
      }
     },
     {
@@ -2181,7 +2487,9 @@
       "ru": "Гордость Элиоса V",
       "pt": "Orgulho do Exército Elyseano Ⅴ",
       "ja": "天軍の自慢V",
-      "ko": "천군의 자랑 Ⅴ"
+      "ko": "천군의 자랑 Ⅴ",
+      "zh": "天族的骄傲 V",
+      "zh-TW": "天族的驕傲 V"
      },
      "text": {
       "en": "Kill 25 Asmodian players in Altgard",
@@ -2191,7 +2499,9 @@
       "ru": "Уничтожить 25 игроков-асмодиан в Альтгарде",
       "pt": "Abater 25 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー25回KILL",
-      "ko": "알트가르드에서 마족 플레이어 25회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 25회 KILL",
+      "zh": "在 Altgard 击败25名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗25名魔族玩家"
      }
     },
     {
@@ -2206,7 +2516,9 @@
       "ru": "Гордость Элиоса Ⅵ",
       "pt": "Orgulho do Exército Elyseano Ⅵ",
       "ja": "天軍の自慢VI",
-      "ko": "천군의 자랑 Ⅵ"
+      "ko": "천군의 자랑 Ⅵ",
+      "zh": "天族的骄傲 VI",
+      "zh-TW": "天族的驕傲 VI"
      },
      "text": {
       "en": "Kill 30 Asmodian players in Altgard",
@@ -2216,7 +2528,9 @@
       "ru": "Убить 30 игроков-асмодиан в Альтгарде",
       "pt": "Abater 30 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー30回KILL",
-      "ko": "알트가르드에서 마족 플레이어 30회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 30회 KILL",
+      "zh": "在 Altgard 击败30名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗30名魔族玩家"
      }
     },
     {
@@ -2231,7 +2545,9 @@
       "ru": "Гордость Элиоса Ⅶ",
       "pt": "Orgulho do Exército Elyseano Ⅶ",
       "ja": "天軍の自慢VII",
-      "ko": "천군의 자랑 Ⅶ"
+      "ko": "천군의 자랑 Ⅶ",
+      "zh": "天族的骄傲 VII",
+      "zh-TW": "天族的驕傲 VII"
      },
      "text": {
       "en": "Kill 35 Asmodian players in Altgard",
@@ -2241,7 +2557,9 @@
       "ru": "Уничтожить 35 игроков-асмодиан в Альтгарде",
       "pt": "Abater 35 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー35回KILL",
-      "ko": "알트가르드에서 마족 플레이어 35회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 35회 KILL",
+      "zh": "在 Altgard 击败35名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗35名魔族玩家"
      }
     },
     {
@@ -2256,7 +2574,9 @@
       "ru": "Гордость Элиоса Ⅷ",
       "pt": "Orgulho do Exército Elyseano Ⅷ",
       "ja": "天軍の自慢VIII",
-      "ko": "천군의 자랑 Ⅷ"
+      "ko": "천군의 자랑 Ⅷ",
+      "zh": "天族的骄傲 VIII",
+      "zh-TW": "天族的驕傲 VIII"
      },
      "text": {
       "en": "Kill 40 Asmodian players in Altgard",
@@ -2266,7 +2586,9 @@
       "ru": "Убейте 40 игроков-асмодиан в Альтгарде",
       "pt": "Abater 40 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー40回KILL",
-      "ko": "알트가르드에서 마족 플레이어 40회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 40회 KILL",
+      "zh": "在 Altgard 击败40名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗40名魔族玩家"
      }
     },
     {
@@ -2281,7 +2603,9 @@
       "ru": "Гордость Элиоса Ⅸ",
       "pt": "Orgulho do Exército Elyseano Ⅸ",
       "ja": "天軍の自慢IX",
-      "ko": "천군의 자랑 Ⅸ"
+      "ko": "천군의 자랑 Ⅸ",
+      "zh": "天族的骄傲 IX",
+      "zh-TW": "天族的驕傲 IX"
      },
      "text": {
       "en": "Kill 45 Asmodian players in Altgard",
@@ -2291,7 +2615,9 @@
       "ru": "Уничтожить 45 игроков-асмодиан в Альтгарде",
       "pt": "Abater 45 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー45回KILL",
-      "ko": "알트가르드에서 마족 플레이어 45회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 45회 KILL",
+      "zh": "在 Altgard 击败45名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗45名魔族玩家"
      }
     },
     {
@@ -2306,7 +2632,9 @@
       "ru": "Гордость Элиоса X",
       "pt": "Orgulho do Exército Elyseano Ⅹ",
       "ja": "天軍の自慢X",
-      "ko": "천군의 자랑 Ⅹ"
+      "ko": "천군의 자랑 Ⅹ",
+      "zh": "天族的骄傲 X",
+      "zh-TW": "天族的驕傲 X"
      },
      "text": {
       "en": "Kill 50 Asmodian players in Altgard",
@@ -2316,7 +2644,9 @@
       "ru": "Убить игрока-асмодианина в Альтгарде 50 р.",
       "pt": "Abater 50 jogadores Asmodianos em Altgard",
       "ja": "アルトガルドで魔族プレイヤー50回KILL",
-      "ko": "알트가르드에서 마족 플레이어 50회 KILL"
+      "ko": "알트가르드에서 마족 플레이어 50회 KILL",
+      "zh": "在 Altgard 击败50名魔族玩家",
+      "zh-TW": "在 Altgard 擊敗50名魔族玩家"
      }
     }
    ]
@@ -2339,7 +2669,9 @@
       "ru": "Под белым флагом Ⅰ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅰ",
       "ja": "白旗を掲げてI",
-      "ko": "백색 깃발 휘날리며 Ⅰ"
+      "ko": "백색 깃발 휘날리며 Ⅰ",
+      "zh": "在天族旗帜下前进 I",
+      "zh-TW": "在天族旗幟下前進 I"
      },
      "text": {
       "en": "Kill 5 Asmodian players in Verteron",
@@ -2349,7 +2681,9 @@
       "ru": "Убить 5 игроков-асмодиан в Бертроне",
       "pt": "Abater 5 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー5回KILL",
-      "ko": "베르테론에서 마족 플레이어 5회 KILL"
+      "ko": "베르테론에서 마족 플레이어 5회 KILL",
+      "zh": "在 Verteron 击败5名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗5名魔族玩家"
      }
     },
     {
@@ -2364,7 +2698,9 @@
       "ru": "Под белым флагом Ⅱ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅱ",
       "ja": "白旗を掲げてII",
-      "ko": "백색 깃발 휘날리며 Ⅱ"
+      "ko": "백색 깃발 휘날리며 Ⅱ",
+      "zh": "在天族旗帜下前进 II",
+      "zh-TW": "在天族旗幟下前進 II"
      },
      "text": {
       "en": "Kill 10 Asmodian players in Verteron",
@@ -2374,7 +2710,9 @@
       "ru": "Уничтожить 10 игроков-асмодиан в Бертроне",
       "pt": "Abater 10 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー10回KILL",
-      "ko": "베르테론에서 마족 플레이어 10회 KILL"
+      "ko": "베르테론에서 마족 플레이어 10회 KILL",
+      "zh": "在 Verteron 击败10名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗10名魔族玩家"
      }
     },
     {
@@ -2389,7 +2727,9 @@
       "ru": "Под белым флагом Ⅲ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅲ",
       "ja": "白旗を掲げてIII",
-      "ko": "백색 깃발 휘날리며 Ⅲ"
+      "ko": "백색 깃발 휘날리며 Ⅲ",
+      "zh": "在天族旗帜下前进 III",
+      "zh-TW": "在天族旗幟下前進 III"
      },
      "text": {
       "en": "Kill 15 Asmodian players in Verteron",
@@ -2399,7 +2739,9 @@
       "ru": "Убить 15 игроков-асмодиан в Бертроне",
       "pt": "Abater 15 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー15回KILL",
-      "ko": "베르테론에서 마족 플레이어 15회 KILL"
+      "ko": "베르테론에서 마족 플레이어 15회 KILL",
+      "zh": "在 Verteron 击败15名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗15名魔族玩家"
      }
     },
     {
@@ -2414,7 +2756,9 @@
       "ru": "Под белым флагом Ⅳ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅳ",
       "ja": "白旗を掲げてIV",
-      "ko": "백색 깃발 휘날리며 Ⅳ"
+      "ko": "백색 깃발 휘날리며 Ⅳ",
+      "zh": "在天族旗帜下前进 IV",
+      "zh-TW": "在天族旗幟下前進 IV"
      },
      "text": {
       "en": "Kill 20 Asmodian players in Verteron",
@@ -2424,7 +2768,9 @@
       "ru": "Убить 20 игроков-асмодиан в Бертроне",
       "pt": "Abater 20 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー20回KILL",
-      "ko": "베르테론에서 마족 플레이어 20회 KILL"
+      "ko": "베르테론에서 마족 플레이어 20회 KILL",
+      "zh": "在 Verteron 击败20名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗20名魔族玩家"
      }
     },
     {
@@ -2439,7 +2785,9 @@
       "ru": "Под белым флагом Ⅴ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅴ",
       "ja": "白旗を掲げてV",
-      "ko": "백색 깃발 휘날리며 Ⅴ"
+      "ko": "백색 깃발 휘날리며 Ⅴ",
+      "zh": "在天族旗帜下前进 V",
+      "zh-TW": "在天族旗幟下前進 V"
      },
      "text": {
       "en": "Kill 25 Asmodian players in Verteron",
@@ -2449,7 +2797,9 @@
       "ru": "Убить 25 игроков-асмодиан в Бертроне",
       "pt": "Abater 25 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー25回KILL",
-      "ko": "베르테론에서 마족 플레이어 25회 KILL"
+      "ko": "베르테론에서 마족 플레이어 25회 KILL",
+      "zh": "在 Verteron 击败25名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗25名魔族玩家"
      }
     },
     {
@@ -2464,7 +2814,9 @@
       "ru": "Под белым флагом Ⅵ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅵ",
       "ja": "白旗を掲げてVI",
-      "ko": "백색 깃발 휘날리며 Ⅵ"
+      "ko": "백색 깃발 휘날리며 Ⅵ",
+      "zh": "在天族旗帜下前进 VI",
+      "zh-TW": "在天族旗幟下前進 VI"
      },
      "text": {
       "en": "Kill 30 Asmodian players in Verteron",
@@ -2474,7 +2826,9 @@
       "ru": "Уничтожить 30 игроков-асмодиан в Бертроне",
       "pt": "Abater 30 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー30回KILL",
-      "ko": "베르테론에서 마족 플레이어 30회 KILL"
+      "ko": "베르테론에서 마족 플레이어 30회 KILL",
+      "zh": "在 Verteron 击败30名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗30名魔族玩家"
      }
     },
     {
@@ -2489,7 +2843,9 @@
       "ru": "Под белым флагом Ⅶ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅶ",
       "ja": "白旗を掲げてVII",
-      "ko": "백색 깃발 휘날리며 Ⅶ"
+      "ko": "백색 깃발 휘날리며 Ⅶ",
+      "zh": "在天族旗帜下前进 VII",
+      "zh-TW": "在天族旗幟下前進 VII"
      },
      "text": {
       "en": "Kill 35 Asmodian players in Verteron",
@@ -2499,7 +2855,9 @@
       "ru": "Убеть 35 игроков-асмодиан в Бертроне",
       "pt": "Abater 35 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー35回KILL",
-      "ko": "베르테론에서 마족 플레이어 35회 KILL"
+      "ko": "베르테론에서 마족 플레이어 35회 KILL",
+      "zh": "在 Verteron 击败35名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗35名魔族玩家"
      }
     },
     {
@@ -2514,7 +2872,9 @@
       "ru": "Под белым флагом Ⅷ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅷ",
       "ja": "白旗を掲げてVIII",
-      "ko": "백색 깃발 휘날리며 Ⅷ"
+      "ko": "백색 깃발 휘날리며 Ⅷ",
+      "zh": "在天族旗帜下前进 VIII",
+      "zh-TW": "在天族旗幟下前進 VIII"
      },
      "text": {
       "en": "Kill 40 Asmodian players in Verteron",
@@ -2524,7 +2884,9 @@
       "ru": "Убейте 40 игроков-асмодиан в Бертроне",
       "pt": "Abater 40 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー40回KILL",
-      "ko": "베르테론에서 마족 플레이어 40회 KILL"
+      "ko": "베르테론에서 마족 플레이어 40회 KILL",
+      "zh": "在 Verteron 击败40名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗40名魔族玩家"
      }
     },
     {
@@ -2539,7 +2901,9 @@
       "ru": "Под белым флагом Ⅸ",
       "pt": "Marchando sob o Estandarte Elyseano Ⅸ",
       "ja": "白旗を掲げてIX",
-      "ko": "백색 깃발 휘날리며 Ⅸ"
+      "ko": "백색 깃발 휘날리며 Ⅸ",
+      "zh": "在天族旗帜下前进 IX",
+      "zh-TW": "在天族旗幟下前進 IX"
      },
      "text": {
       "en": "Kill 45 Asmodian players in Verteron",
@@ -2549,7 +2913,9 @@
       "ru": "Убить 45 игроков-асмодиан в Бертроне",
       "pt": "Abater 45 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー45回KILL",
-      "ko": "베르테론에서 마족 플레이어 45회 KILL"
+      "ko": "베르테론에서 마족 플레이어 45회 KILL",
+      "zh": "在 Verteron 击败45名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗45名魔族玩家"
      }
     },
     {
@@ -2564,7 +2930,9 @@
       "ru": "Под белым флагом X",
       "pt": "Marchando sob o Estandarte Elyseano Ⅹ",
       "ja": "白旗を掲げてX",
-      "ko": "백색 깃발 휘날리며 Ⅹ"
+      "ko": "백색 깃발 휘날리며 Ⅹ",
+      "zh": "在天族旗帜下前进 X",
+      "zh-TW": "在天族旗幟下前進 X"
      },
      "text": {
       "en": "Kill 50 Asmodian players in Verteron",
@@ -2574,7 +2942,9 @@
       "ru": "Убить 50 игроков-асмодиан в Бертроне",
       "pt": "Abater 50 jogadores Asmodianos em Verteron",
       "ja": "ベルテロンで魔族プレイヤー50回KILL",
-      "ko": "베르테론에서 마족 플레이어 50회 KILL"
+      "ko": "베르테론에서 마족 플레이어 50회 KILL",
+      "zh": "在 Verteron 击败50名魔族玩家",
+      "zh-TW": "在 Verteron 擊敗50名魔族玩家"
      }
     }
    ]
@@ -2597,7 +2967,9 @@
       "ru": "Даэв великих свершений Ⅰ",
       "pt": "Daeva da Proeza Inabalável Ⅰ",
       "ja": "堅固な実績のディーヴァI",
-      "ko": "굳건한 업적의 데바 Ⅰ"
+      "ko": "굳건한 업적의 데바 Ⅰ",
+      "zh": "持久功绩的 Daeva I",
+      "zh-TW": "持久功績的 Daeva I"
      },
      "text": {
       "en": "Gather 10 Odyle in Abyss",
@@ -2607,7 +2979,9 @@
       "ru": "Собрать эфир в Бездне 10 раз",
       "pt": "Coletar 10 Ods do Abismo",
       "ja": "アビスでオード10個採集",
-      "ko": "어비스에서 오드 10개 채집"
+      "ko": "어비스에서 오드 10개 채집",
+      "zh": "在深渊采集10个奥迪尔",
+      "zh-TW": "在深淵採集10個奧迪爾"
      }
     },
     {
@@ -2622,7 +2996,9 @@
       "ru": "Даэв великих свершений Ⅱ",
       "pt": "Daeva da Proeza Inabalável Ⅱ",
       "ja": "堅固な実績のディーヴァII",
-      "ko": "굳건한 업적의 데바 Ⅱ"
+      "ko": "굳건한 업적의 데바 Ⅱ",
+      "zh": "持久功绩的 Daeva II",
+      "zh-TW": "持久功績的 Daeva II"
      },
      "text": {
       "en": "Gather 20 Odyle in Abyss",
@@ -2632,7 +3008,9 @@
       "ru": "Собрать эфир в Бездне 20 раз",
       "pt": "Coletar 20 Ods do Abismo",
       "ja": "アビスでオード20個採集",
-      "ko": "어비스에서 오드 20개 채집"
+      "ko": "어비스에서 오드 20개 채집",
+      "zh": "在深渊采集20个奥迪尔",
+      "zh-TW": "在深淵採集20個奧迪爾"
      }
     },
     {
@@ -2647,7 +3025,9 @@
       "ru": "Даэв великих свершений Ⅲ",
       "pt": "Daeva da Proeza Inabalável Ⅲ",
       "ja": "堅固な実績のディーヴァIII",
-      "ko": "굳건한 업적의 데바 Ⅲ"
+      "ko": "굳건한 업적의 데바 Ⅲ",
+      "zh": "持久功绩的 Daeva III",
+      "zh-TW": "持久功績的 Daeva III"
      },
      "text": {
       "en": "Gather 30 Odyle in Abyss",
@@ -2657,7 +3037,9 @@
       "ru": "Соберите эфир в Бездне 30 раз",
       "pt": "Coletar 30 Ods do Abismo",
       "ja": "アビスでオード30個採集",
-      "ko": "어비스에서 오드 30개 채집"
+      "ko": "어비스에서 오드 30개 채집",
+      "zh": "在深渊采集30个奥迪尔",
+      "zh-TW": "在深淵採集30個奧迪爾"
      }
     }
    ]
@@ -2680,7 +3062,9 @@
       "ru": "Даэв славных поступков I",
       "pt": "Daeva da Proeza Brilhante Ⅰ",
       "ja": "光る実績のディーヴァI",
-      "ko": "빛나는 업적의 데바 Ⅰ"
+      "ko": "빛나는 업적의 데바 Ⅰ",
+      "zh": "辉煌功绩的 Daeva I",
+      "zh-TW": "輝煌功績的 Daeva I"
      },
      "text": {
       "en": "Complete 3 Abyss commands",
@@ -2690,7 +3074,9 @@
       "ru": "Пройдите свиток приказа Бездны 3 раза",
       "pt": "Concluir Pergaminho de Ordem do Abismo x3",
       "ja": "アビス指令書3個クリア",
-      "ko": "어비스 지령서 3개 클리어"
+      "ko": "어비스 지령서 3개 클리어",
+      "zh": "完成3个深渊指令",
+      "zh-TW": "完成3個深淵指令"
      }
     },
     {
@@ -2705,7 +3091,9 @@
       "ru": "Даэв славных поступков II",
       "pt": "Daeva da Proeza Brilhante Ⅱ",
       "ja": "光る実績のディーヴァII",
-      "ko": "빛나는 업적의 데바 Ⅱ"
+      "ko": "빛나는 업적의 데바 Ⅱ",
+      "zh": "辉煌功绩的 Daeva II",
+      "zh-TW": "輝煌功績的 Daeva II"
      },
      "text": {
       "en": "Complete 6 Abyss commands",
@@ -2715,7 +3103,9 @@
       "ru": "Пройдите свиток приказа Бездны 6 раз",
       "pt": "Concluir Pergaminho de Ordem do Abismo x6",
       "ja": "アビス指令書6個クリア",
-      "ko": "어비스 지령서 6개 클리어"
+      "ko": "어비스 지령서 6개 클리어",
+      "zh": "完成6个深渊指令",
+      "zh-TW": "完成6個深淵指令"
      }
     },
     {
@@ -2730,7 +3120,9 @@
       "ru": "Даэв славных поступков III",
       "pt": "Daeva da Proeza Brilhante Ⅲ",
       "ja": "光る実績のディーヴァIII",
-      "ko": "빛나는 업적의 데바 Ⅲ"
+      "ko": "빛나는 업적의 데바 Ⅲ",
+      "zh": "辉煌功绩的 Daeva III",
+      "zh-TW": "輝煌功績的 Daeva III"
      },
      "text": {
       "en": "Complete 10 Abyss commands",
@@ -2740,7 +3132,9 @@
       "ru": "Выполнить задания свитка приказа 10 р.",
       "pt": "Concluir Pergaminho de Ordem do Abismo x10",
       "ja": "アビス指令書10個クリア",
-      "ko": "어비스 지령서 10개 클리어"
+      "ko": "어비스 지령서 10개 클리어",
+      "zh": "完成10个深渊指令",
+      "zh-TW": "完成10個深淵指令"
      }
     }
    ]
@@ -2763,7 +3157,9 @@
       "ru": "Выдающийся даэв I",
       "pt": "Daeva de Proezas Extraordinárias Ⅰ",
       "ja": "卓越した実績のディーヴァI",
-      "ko": "탁월한 업적의 데바 Ⅰ"
+      "ko": "탁월한 업적의 데바 Ⅰ",
+      "zh": "非凡功绩的 Daeva I",
+      "zh-TW": "非凡功績的 Daeva I"
      },
      "text": {
       "en": "Defeat 1 Abyss boss monster",
@@ -2773,7 +3169,9 @@
       "ru": "Победить 1 босса Бездны",
       "pt": "Derrotar 1 monstro chefe do Abismo",
       "ja": "アビス ボス モンスター1体討伐",
-      "ko": "어비스 보스 몬스터 1마리 처치"
+      "ko": "어비스 보스 몬스터 1마리 처치",
+      "zh": "击败1只深渊首领怪物",
+      "zh-TW": "擊敗1隻深淵首領怪物"
      }
     },
     {
@@ -2788,7 +3186,9 @@
       "ru": "Выдающийся даэв Ⅱ",
       "pt": "Daeva de Proezas Extraordinárias Ⅱ",
       "ja": "卓越した実績のディーヴァII",
-      "ko": "탁월한 업적의 데바 Ⅱ"
+      "ko": "탁월한 업적의 데바 Ⅱ",
+      "zh": "非凡功绩的 Daeva II",
+      "zh-TW": "非凡功績的 Daeva II"
      },
      "text": {
       "en": "Defeat 3 Abyss boss monsters",
@@ -2798,7 +3198,9 @@
       "ru": "Победить босса Бездны 3 р.",
       "pt": "Derrotar 3 monstros chefes do Abismo",
       "ja": "アビス ボス モンスター3体討伐",
-      "ko": "어비스 보스 몬스터 3마리 처치"
+      "ko": "어비스 보스 몬스터 3마리 처치",
+      "zh": "击败3只深渊首领怪物",
+      "zh-TW": "擊敗3隻深淵首領怪物"
      }
     },
     {
@@ -2813,7 +3215,9 @@
       "ru": "Выдающийся даэв Ⅲ",
       "pt": "Daeva de Proezas Extraordinárias Ⅲ",
       "ja": "卓越した実績のディーヴァIII",
-      "ko": "탁월한 업적의 데바 Ⅲ"
+      "ko": "탁월한 업적의 데바 Ⅲ",
+      "zh": "非凡功绩的 Daeva III",
+      "zh-TW": "非凡功績的 Daeva III"
      },
      "text": {
       "en": "Defeat 5 Abyss boss monsters",
@@ -2823,7 +3227,9 @@
       "ru": "Уничтожить босса Бездны 5 р.",
       "pt": "Derrotar 5 monstros chefes do Abismo",
       "ja": "アビス ボス モンスター5体討伐",
-      "ko": "어비스 보스 몬스터 5마리 처치"
+      "ko": "어비스 보스 몬스터 5마리 처치",
+      "zh": "击败5只深渊首领怪物",
+      "zh-TW": "擊敗5隻深淵首領怪物"
      }
     }
    ],
@@ -2862,7 +3268,9 @@
       "ru": "Книга даэвов I",
       "pt": "Daeva do Campo de Batalha I",
       "ja": "戦場のディーヴァI",
-      "ko": "전장의 데바 Ⅰ"
+      "ko": "전장의 데바 Ⅰ",
+      "zh": "Daeva 之书 I",
+      "zh-TW": "Daeva 之書 I"
      },
      "text": {
       "en": "Participate in Battlefield 1 time",
@@ -2872,7 +3280,9 @@
       "ru": "Участвуйте на арене 1 раз",
       "pt": "Participe do Campo de Batalha 1x",
       "ja": "戦場1回参加",
-      "ko": "전장 1회 참여"
+      "ko": "전장 1회 참여",
+      "zh": "参加战场1次",
+      "zh-TW": "參加戰場1次"
      }
     },
     {
@@ -2887,7 +3297,9 @@
       "ru": "Книга даэвов II",
       "pt": "Daeva do Campo de Batalha II",
       "ja": "戦場のディーヴァII",
-      "ko": "전장의 데바 Ⅱ"
+      "ko": "전장의 데바 Ⅱ",
+      "zh": "Daeva 之书 II",
+      "zh-TW": "Daeva 之書 II"
      },
      "text": {
       "en": "Participate in Battlefield 2 times",
@@ -2897,7 +3309,9 @@
       "ru": "Участвуйте на арене 2 раза",
       "pt": "Participar do Campo de Batalha 2x",
       "ja": "戦場2回参加",
-      "ko": "전장 2회 참여"
+      "ko": "전장 2회 참여",
+      "zh": "参加战场2次",
+      "zh-TW": "參加戰場2次"
      }
     },
     {
@@ -2912,7 +3326,9 @@
       "ru": "Книга даэвов III",
       "pt": "Daeva do Campo de Batalha III",
       "ja": "戦場のディーヴァIII",
-      "ko": "전장의 데바 Ⅲ"
+      "ko": "전장의 데바 Ⅲ",
+      "zh": "Daeva 之书 III",
+      "zh-TW": "Daeva 之書 III"
      },
      "text": {
       "en": "Participate in Battlefield 3 times",
@@ -2922,7 +3338,9 @@
       "ru": "Участвуйте на арене 3 раза",
       "pt": "Participe do Campo de Batalha 3x",
       "ja": "戦場3回参加",
-      "ko": "전장 3회 참여"
+      "ko": "전장 3회 참여",
+      "zh": "参加战场3次",
+      "zh-TW": "參加戰場3次"
      }
     }
    ]
@@ -2945,7 +3363,9 @@
       "ru": "Любимая родина",
       "pt": "Minha Terra do Meu Coração",
       "ja": "我が心の故郷",
-      "ko": "내 마음의 고향"
+      "ko": "내 마음의 고향",
+      "zh": "我心之乡",
+      "zh-TW": "我心之鄉"
      },
      "text": {
       "en": "Spend 1 hours in Abyss",
@@ -2955,7 +3375,9 @@
       "ru": "Проведите 1 час в Бездне",
       "pt": "Permanecer 1h no Abismo",
       "ja": "アビスに1時間滞在",
-      "ko": "어비스에서 1시간 체류"
+      "ko": "어비스에서 1시간 체류",
+      "zh": "在深渊停留1小时",
+      "zh-TW": "在深淵停留1小時"
      }
     }
    ]
@@ -2978,7 +3400,9 @@
       "ru": "Минимум морали Ⅰ",
       "pt": "Mínimo de Moral Ⅰ",
       "ja": "最低限の道徳I",
-      "ko": "최소한의 도덕 Ⅰ"
+      "ko": "최소한의 도덕 Ⅰ",
+      "zh": "最低限度的道德 I",
+      "zh-TW": "最低限度的道德 I"
      },
      "text": {
       "en": "Kill 5 opposing camp players",
@@ -2988,7 +3412,9 @@
       "ru": "Убить 5 игроков из лагеря врага",
       "pt": "Abater 5 jogadores de facção adversária",
       "ja": "敵陣営のプレイヤー5回KILL",
-      "ko": "상대 진영 플레이어 5회 KILL"
+      "ko": "상대 진영 플레이어 5회 KILL",
+      "zh": "击败5名敌对阵营玩家",
+      "zh-TW": "擊敗5名敵對陣營玩家"
      }
     },
     {
@@ -3003,7 +3429,9 @@
       "ru": "Минимум морали Ⅱ",
       "pt": "Mínimo de Moral Ⅱ",
       "ja": "最低限の道徳II",
-      "ko": "최소한의 도덕 Ⅱ"
+      "ko": "최소한의 도덕 Ⅱ",
+      "zh": "最低限度的道德 II",
+      "zh-TW": "最低限度的道德 II"
      },
      "text": {
       "en": "Kill 10 opposing camp players",
@@ -3013,7 +3441,9 @@
       "ru": "Убить 10 игроков из лагеря врага",
       "pt": "Abater 10 jogadores de facção adversária",
       "ja": "敵陣営のプレイヤー10回KILL",
-      "ko": "상대 진영 플레이어 10회 KILL"
+      "ko": "상대 진영 플레이어 10회 KILL",
+      "zh": "击败10名敌对阵营玩家",
+      "zh-TW": "擊敗10名敵對陣營玩家"
      }
     },
     {
@@ -3028,7 +3458,9 @@
       "ru": "Минимум морали Ⅲ",
       "pt": "Mínimo de Moral Ⅲ",
       "ja": "最低限の道徳III",
-      "ko": "최소한의 도덕 Ⅲ"
+      "ko": "최소한의 도덕 Ⅲ",
+      "zh": "最低限度的道德 III",
+      "zh-TW": "最低限度的道德 III"
      },
      "text": {
       "en": "Kill 20 opposing camp players",
@@ -3038,7 +3470,9 @@
       "ru": "Убить 20 игроков из лагеря врага",
       "pt": "Abater 20 jogadores de facção adversária",
       "ja": "敵陣営のプレイヤー20回KILL",
-      "ko": "상대 진영 플레이어 20회 KILL"
+      "ko": "상대 진영 플레이어 20회 KILL",
+      "zh": "击败20名敌对阵营玩家",
+      "zh-TW": "擊敗20名敵對陣營玩家"
      }
     }
    ]
@@ -3061,7 +3495,9 @@
       "ru": "Операция по очищению Арэшурата Ⅰ",
       "pt": "Operação de Purificação de Reshanta Ⅰ",
       "ja": "エレシュランタ浄化作戦I",
-      "ko": "에레슈란타 정화 작전 Ⅰ"
+      "ko": "에레슈란타 정화 작전 Ⅰ",
+      "zh": "净化 Reshanta I",
+      "zh-TW": "淨化 Reshanta I"
      },
      "text": {
       "en": "Hunt 200 monsters in Abyss",
@@ -3071,7 +3507,9 @@
       "ru": "Уничтожить 200 монстров в Бездне",
       "pt": "Caçar 200 monstros no Abismo",
       "ja": "アビスでモンスター200体狩る",
-      "ko": "어비스에서 몬스터 200마리 사냥"
+      "ko": "어비스에서 몬스터 200마리 사냥",
+      "zh": "在深渊狩猎200只怪物",
+      "zh-TW": "在深淵狩獵200隻怪物"
      }
     },
     {
@@ -3086,7 +3524,9 @@
       "ru": "Операция по очищению Арэшурата Ⅱ",
       "pt": "Operação de Purificação de Reshanta Ⅱ",
       "ja": "エレシュランタ浄化作戦II",
-      "ko": "에레슈란타 정화 작전 Ⅱ"
+      "ko": "에레슈란타 정화 작전 Ⅱ",
+      "zh": "净化 Reshanta II",
+      "zh-TW": "淨化 Reshanta II"
      },
      "text": {
       "en": "Hunt 400 monsters in Abyss",
@@ -3096,7 +3536,9 @@
       "ru": "Уничтожить 400 монстров в Бездне",
       "pt": "Caçar 400 monstros no Abismo",
       "ja": "アビスでモンスター400体狩る",
-      "ko": "어비스에서 몬스터 400마리 사냥"
+      "ko": "어비스에서 몬스터 400마리 사냥",
+      "zh": "在深渊狩猎400只怪物",
+      "zh-TW": "在深淵狩獵400隻怪物"
      }
     },
     {
@@ -3111,7 +3553,9 @@
       "ru": "Операция по очищению Арэшурата Ⅲ",
       "pt": "Operação de Purificação de Reshanta Ⅲ",
       "ja": "エレシュランタ浄化作戦III",
-      "ko": "에레슈란타 정화 작전 Ⅲ"
+      "ko": "에레슈란타 정화 작전 Ⅲ",
+      "zh": "净化 Reshanta III",
+      "zh-TW": "淨化 Reshanta III"
      },
      "text": {
       "en": "Hunt 600 monsters in Abyss",
@@ -3121,7 +3565,9 @@
       "ru": "Уничтожить 600 монстров в Бездне",
       "pt": "Caçar 600 monstros no Abismo",
       "ja": "アビスでモンスター600体狩る",
-      "ko": "어비스에서 몬스터 600마리 사냥"
+      "ko": "어비스에서 몬스터 600마리 사냥",
+      "zh": "在深渊狩猎600只怪物",
+      "zh-TW": "在深淵狩獵600隻怪物"
      }
     },
     {
@@ -3136,7 +3582,9 @@
       "ru": "Операция по очищению Арэшурата Ⅳ",
       "pt": "Operação de Purificação de Reshanta Ⅳ",
       "ja": "エレシュランタ浄化作戦IV",
-      "ko": "에레슈란타 정화 작전 Ⅳ"
+      "ko": "에레슈란타 정화 작전 Ⅳ",
+      "zh": "净化 Reshanta IV",
+      "zh-TW": "淨化 Reshanta IV"
      },
      "text": {
       "en": "Hunt 800 monsters in Abyss",
@@ -3146,7 +3594,9 @@
       "ru": "Уничтожить 800 монстров в Бездне",
       "pt": "Caçar 800 monstros no Abismo",
       "ja": "アビスでモンスター800体狩る",
-      "ko": "어비스에서 몬스터 800마리 사냥"
+      "ko": "어비스에서 몬스터 800마리 사냥",
+      "zh": "在深渊狩猎800只怪物",
+      "zh-TW": "在深淵狩獵800隻怪物"
      }
     },
     {
@@ -3161,7 +3611,9 @@
       "ru": "Операция по очищению Арэшурата Ⅴ",
       "pt": "Operação de Purificação de Reshanta Ⅴ",
       "ja": "エレシュランタ浄化作戦V",
-      "ko": "에레슈란타 정화 작전 Ⅴ"
+      "ko": "에레슈란타 정화 작전 Ⅴ",
+      "zh": "净化 Reshanta V",
+      "zh-TW": "淨化 Reshanta V"
      },
      "text": {
       "en": "Hunt 1,000 monsters in Abyss",
@@ -3171,7 +3623,9 @@
       "ru": "Уничтожить 1000 монстров в Бездне",
       "pt": "Caçar 1.000 monstros no Abismo",
       "ja": "アビスでモンスター1,000体狩る",
-      "ko": "어비스에서 몬스터 1000마리 사냥"
+      "ko": "어비스에서 몬스터 1000마리 사냥",
+      "zh": "在深渊狩猎1,000只怪物",
+      "zh-TW": "在深淵狩獵1,000隻怪物"
      }
     },
     {
@@ -3186,7 +3640,9 @@
       "ru": "Операция по очищению Арэшурата Ⅵ",
       "pt": "Operação de Purificação de Reshanta Ⅵ",
       "ja": "エレシュランタ浄化作戦VI",
-      "ko": "에레슈란타 정화 작전 Ⅵ"
+      "ko": "에레슈란타 정화 작전 Ⅵ",
+      "zh": "净化 Reshanta VI",
+      "zh-TW": "淨化 Reshanta VI"
      },
      "text": {
       "en": "Hunt 1,200 monsters in Abyss",
@@ -3196,7 +3652,9 @@
       "ru": "Уничтожить 1200 монстров в Бездне",
       "pt": "Caçar 1.200 monstros no Abismo",
       "ja": "アビスでモンスター1,200体狩る",
-      "ko": "어비스에서 몬스터 1200마리 사냥"
+      "ko": "어비스에서 몬스터 1200마리 사냥",
+      "zh": "在深渊狩猎1,200只怪物",
+      "zh-TW": "在深淵狩獵1,200隻怪物"
      }
     },
     {
@@ -3211,7 +3669,9 @@
       "ru": "Операция по очищению Арэшурата Ⅶ",
       "pt": "Operação de Purificação de Reshanta Ⅶ",
       "ja": "エレシュランタ浄化作戦VII",
-      "ko": "에레슈란타 정화 작전 Ⅶ"
+      "ko": "에레슈란타 정화 작전 Ⅶ",
+      "zh": "净化 Reshanta VII",
+      "zh-TW": "淨化 Reshanta VII"
      },
      "text": {
       "en": "Hunt 1,400 monsters in Abyss",
@@ -3221,7 +3681,9 @@
       "ru": "Уничтожить 1400 монстров в Бездне",
       "pt": "Caçar 1.400 monstros no Abismo",
       "ja": "アビスでモンスター1,400体狩る",
-      "ko": "어비스에서 몬스터 1400마리 사냥"
+      "ko": "어비스에서 몬스터 1400마리 사냥",
+      "zh": "在深渊狩猎1,400只怪物",
+      "zh-TW": "在深淵狩獵1,400隻怪物"
      }
     },
     {
@@ -3236,7 +3698,9 @@
       "ru": "Операция по очищению Арэшурата Ⅷ",
       "pt": "Operação de Purificação de Reshanta Ⅷ",
       "ja": "エレシュランタ浄化作戦VIII",
-      "ko": "에레슈란타 정화 작전 Ⅷ"
+      "ko": "에레슈란타 정화 작전 Ⅷ",
+      "zh": "净化 Reshanta VIII",
+      "zh-TW": "淨化 Reshanta VIII"
      },
      "text": {
       "en": "Hunt 1,600 monsters in Abyss",
@@ -3246,7 +3710,9 @@
       "ru": "Уничтожить 1600 монстров в Бездне",
       "pt": "Caçar 1.600 monstros no Abismo",
       "ja": "アビスでモンスター1,600体狩る",
-      "ko": "어비스에서 몬스터 1600마리 사냥"
+      "ko": "어비스에서 몬스터 1600마리 사냥",
+      "zh": "在深渊狩猎1,600只怪物",
+      "zh-TW": "在深淵狩獵1,600隻怪物"
      }
     },
     {
@@ -3261,7 +3727,9 @@
       "ru": "Операция по очищению Арэшурата Ⅸ",
       "pt": "Operação de Purificação de Reshanta Ⅸ",
       "ja": "エレシュランタ浄化作戦IX",
-      "ko": "에레슈란타 정화 작전 Ⅸ"
+      "ko": "에레슈란타 정화 작전 Ⅸ",
+      "zh": "净化 Reshanta IX",
+      "zh-TW": "淨化 Reshanta IX"
      },
      "text": {
       "en": "Hunt 1,800 monsters in Abyss",
@@ -3271,7 +3739,9 @@
       "ru": "Уничтожить 1800 монстров в Бездне",
       "pt": "Caçar 1.800 monstros no Abismo",
       "ja": "アビスでモンスター1,800体狩る",
-      "ko": "어비스에서 몬스터 1800마리 사냥"
+      "ko": "어비스에서 몬스터 1800마리 사냥",
+      "zh": "在深渊狩猎1,800只怪物",
+      "zh-TW": "在深淵狩獵1,800隻怪物"
      }
     },
     {
@@ -3286,7 +3756,9 @@
       "ru": "Операция по очищению Арэшурата Ⅹ",
       "pt": "Operação de Purificação de Reshanta Ⅹ",
       "ja": "エレシュランタ浄化作戦X",
-      "ko": "에레슈란타 정화 작전 Ⅹ"
+      "ko": "에레슈란타 정화 작전 Ⅹ",
+      "zh": "净化 Reshanta X",
+      "zh-TW": "淨化 Reshanta X"
      },
      "text": {
       "en": "Hunt 2,000 monsters in Abyss",
@@ -3296,7 +3768,9 @@
       "ru": "Уничтожить 2000 монстров в Бездне",
       "pt": "Caçar 2.000 monstros no Abismo",
       "ja": "アビスでモンスター2,000体狩る",
-      "ko": "어비스에서 몬스터 2000마리 사냥"
+      "ko": "어비스에서 몬스터 2000마리 사냥",
+      "zh": "在深渊狩猎2,000只怪物",
+      "zh-TW": "在深淵狩獵2,000隻怪物"
      }
     }
    ]
@@ -3319,7 +3793,9 @@
       "ru": "Дозорный Кайра Ⅰ",
       "pt": "Vigilante Kairah Ⅰ",
       "ja": "監視者カイラI",
-      "ko": "감시자 카이라 Ⅰ"
+      "ko": "감시자 카이라 Ⅰ",
+      "zh": "监视者 Kaira I",
+      "zh-TW": "監視者 Kaira I"
      },
      "text": {
       "en": "Defeat the boss Watcher Kaira 1 time",
@@ -3329,7 +3805,9 @@
       "ru": "Победить Дозорщика Кайру (босс) 1 раз",
       "pt": "Derrotar chefe Vigilante Kairah 1x",
       "ja": "ボス監視者カイラ1回討伐",
-      "ko": "보스 감시자 카이라 1회 처치"
+      "ko": "보스 감시자 카이라 1회 처치",
+      "zh": "击败首领监视者 Kaira 1次",
+      "zh-TW": "擊敗首領監視者 Kaira 1次"
      }
     },
     {
@@ -3344,7 +3822,9 @@
       "ru": "Дозорный Кайра Ⅱ",
       "pt": "Vigilante Kairah Ⅱ",
       "ja": "監視者カイラII",
-      "ko": "감시자 카이라 Ⅱ"
+      "ko": "감시자 카이라 Ⅱ",
+      "zh": "监视者 Kaira II",
+      "zh-TW": "監視者 Kaira II"
      },
      "text": {
       "en": "Defeat the boss Watcher Kaira 5 times",
@@ -3354,7 +3834,9 @@
       "ru": "Победите Дозорного Кайра 5 раз",
       "pt": "Derrotar chefe Vigilante Kairah 5x",
       "ja": "ボス監視者カイラ5回討伐",
-      "ko": "보스 감시자 카이라 5회 처치"
+      "ko": "보스 감시자 카이라 5회 처치",
+      "zh": "击败首领监视者 Kaira 5次",
+      "zh-TW": "擊敗首領監視者 Kaira 5次"
      }
     },
     {
@@ -3369,7 +3851,9 @@
       "ru": "Дозорный Кайра Ⅲ",
       "pt": "Vigilante Kairah Ⅲ",
       "ja": "監視者カイラIII",
-      "ko": "감시자 카이라 Ⅲ"
+      "ko": "감시자 카이라 Ⅲ",
+      "zh": "监视者 Kaira III",
+      "zh-TW": "監視者 Kaira III"
      },
      "text": {
       "en": "Defeat the boss Watcher Kaira 10 times",
@@ -3379,7 +3863,9 @@
       "ru": "Победите Дозорного Кайра 10 раз",
       "pt": "Derrotar chefe Vigilante Kairah 10x",
       "ja": "ボス監視者カイラ10回討伐",
-      "ko": "보스 감시자 카이라 10회 처치"
+      "ko": "보스 감시자 카이라 10회 처치",
+      "zh": "击败首领监视者 Kaira 10次",
+      "zh-TW": "擊敗首領監視者 Kaira 10次"
      }
     }
    ],
@@ -3406,7 +3892,9 @@
       "ru": "Король духов Агро Ⅰ",
       "pt": "Argo, Rei dos Espíritos I",
       "ja": "精霊王アグロI",
-      "ko": "정령왕 아그로 Ⅰ"
+      "ko": "정령왕 아그로 Ⅰ",
+      "zh": "灵魂之王 Argo I",
+      "zh-TW": "靈魂之王 Argo I"
      },
      "text": {
       "en": "Defeat the boss Argo, the Spirit King 1 time",
@@ -3416,7 +3904,9 @@
       "ru": "Победите Короля духов Агро 1 раз",
       "pt": "Derrotar chefe Argo, Rei dos Espíritos 1x",
       "ja": "ボス精霊王アグロ1回討伐",
-      "ko": "보스 정령왕 아그로 1회 처치"
+      "ko": "보스 정령왕 아그로 1회 처치",
+      "zh": "击败首领灵魂之王 Argo 1次",
+      "zh-TW": "擊敗首領靈魂之王 Argo 1次"
      }
     },
     {
@@ -3431,7 +3921,9 @@
       "ru": "Король духов Агро Ⅱ",
       "pt": "Argo, Rei dos Espíritos II",
       "ja": "精霊王アグロII",
-      "ko": "정령왕 아그로 Ⅱ"
+      "ko": "정령왕 아그로 Ⅱ",
+      "zh": "灵魂之王 Argo II",
+      "zh-TW": "靈魂之王 Argo II"
      },
      "text": {
       "en": "Defeat the boss Argo, the Spirit King 3 times",
@@ -3441,7 +3933,9 @@
       "ru": "Победить Короля духов Агро (босс) 3 раза",
       "pt": "Derrotar chefe Argo, Rei dos Espíritos 3x",
       "ja": "ボス精霊王アグロ3回討伐",
-      "ko": "보스 정령왕 아그로 3회 처치"
+      "ko": "보스 정령왕 아그로 3회 처치",
+      "zh": "击败首领灵魂之王 Argo 3次",
+      "zh-TW": "擊敗首領靈魂之王 Argo 3次"
      }
     }
    ],
@@ -3468,7 +3962,9 @@
       "ru": "Лорд-хранитель Нахма",
       "pt": "Senhor Guardião Nahma",
       "ja": "守護神将ナフマ",
-      "ko": "수호신장 나흐마"
+      "ko": "수호신장 나흐마",
+      "zh": "守护之神 Nahma",
+      "zh-TW": "守護之神 Nahma"
      },
      "text": {
       "en": "Defeat the boss Guardian Lord Nahma 1 time",
@@ -3478,7 +3974,9 @@
       "ru": "Победите Лорда-хранитель Нахма 1 раз",
       "pt": "Derrotar chefe Senhor Guardião Nahma 1x",
       "ja": "ボス守護神将ナフマ1回討伐",
-      "ko": "보스 수호신장 나흐마 1회 처치"
+      "ko": "보스 수호신장 나흐마 1회 처치",
+      "zh": "击败首领守护之神 Nahma 1次",
+      "zh-TW": "擊敗首領守護之神 Nahma 1次"
      }
     }
    ],
@@ -3511,7 +4009,9 @@
       "ru": "Захват территории Ⅰ",
       "pt": "Disputa Territorial Ⅰ",
       "ja": "陣取りゲームI",
-      "ko": "땅따먹기 Ⅰ"
+      "ko": "땅따먹기 Ⅰ",
+      "zh": "领土争夺 I",
+      "zh-TW": "領土爭奪 I"
      },
      "text": {
       "en": "Participate in Artifact Siege 1 time by its end",
@@ -3521,7 +4021,9 @@
       "ru": "Принять участие в захвате артефактов до конца 1 р.",
       "pt": "Participar até o fim do Cerco de Artefatos 1x",
       "ja": "アーティファクト占領戦1回終了時点まで参加",
-      "ko": "아티팩트 점령전 1회 종료 시점까지 참여"
+      "ko": "아티팩트 점령전 1회 종료 시점까지 참여",
+      "zh": "参加神器攻城战直至结束1次",
+      "zh-TW": "參加神器攻城戰直至結束1次"
      }
     },
     {
@@ -3536,7 +4038,9 @@
       "ru": "Захват территории Ⅱ",
       "pt": "Disputa Territorial Ⅱ",
       "ja": "陣取りゲームII",
-      "ko": "땅따먹기 Ⅱ"
+      "ko": "땅따먹기 Ⅱ",
+      "zh": "领土争夺 II",
+      "zh-TW": "領土爭奪 II"
      },
      "text": {
       "en": "Participate in Artifact Siege 2 times by its end",
@@ -3546,7 +4050,9 @@
       "ru": "Принять участие в Захвате артефактов до конца 2 р.",
       "pt": "Participar até o fim do Cerco de Artefatos 2x",
       "ja": "アーティファクト占領戦2回終了時点まで参加",
-      "ko": "아티팩트 점령전 2회 종료 시점까지 참여"
+      "ko": "아티팩트 점령전 2회 종료 시점까지 참여",
+      "zh": "参加神器攻城战直至结束2次",
+      "zh-TW": "參加神器攻城戰直至結束2次"
      }
     }
    ],
@@ -3570,7 +4076,9 @@
       "ru": "До последнего",
       "pt": "Até o Final",
       "ja": "最後の一つまで",
-      "ko": "마지막 하나까지"
+      "ko": "마지막 하나까지",
+      "zh": "直到最后一人",
+      "zh-TW": "直到最後一人"
      },
      "text": {
       "en": "Win Artifact Siege 1 time",
@@ -3580,7 +4088,9 @@
       "ru": "Победить в Захвате артефактов 1 р.",
       "pt": "Vencer o Cerco de Artefatos 1x",
       "ja": "アーティファクト占領戦1回勝利",
-      "ko": "아티팩트 점령전 1회 승리"
+      "ko": "아티팩트 점령전 1회 승리",
+      "zh": "赢得神器攻城战1次",
+      "zh-TW": "贏得神器攻城戰1次"
      }
     }
    ],
@@ -3604,7 +4114,9 @@
       "ru": "Повелитель нижнего уровня Бездны",
       "pt": "Dominador do Piso Inferior",
       "ja": "下層の支配者",
-      "ko": "하층의 지배자"
+      "ko": "하층의 지배자",
+      "zh": "下层深渊的支配者",
+      "zh-TW": "下層深淵的支配者"
      },
      "text": {
       "en": "Defeat 1 Dominator of Lower Abyss after Artifact Siege",
@@ -3614,7 +4126,9 @@
       "ru": "Победите 1 повелителя нижнего уровня Бездны после захвата артефактов",
       "pt": "Derrotar 1 Dominador do Piso Inferior após o fim do Cerco de Artefatos",
       "ja": "アーティファクト占領戦終了後に下層の支配者1体討伐",
-      "ko": "아티팩트 점령전 종료 후 하층의 지배자 1마리 처치"
+      "ko": "아티팩트 점령전 종료 후 하층의 지배자 1마리 처치",
+      "zh": "神器攻城战后击败1名下层深渊的支配者",
+      "zh-TW": "神器攻城戰後擊敗1名下層深淵的支配者"
      }
     }
    ],
@@ -3642,7 +4156,9 @@
       "ru": "Повторение — мать учения I",
       "pt": "Poder do Combate Constante Ⅰ",
       "ja": "地道な実戦の力I",
-      "ko": "꾸준한 실전의 힘 Ⅰ"
+      "ko": "꾸준한 실전의 힘 Ⅰ",
+      "zh": "持之以恒 I",
+      "zh-TW": "持之以恆 I"
      },
      "text": {
       "en": "Participate in Arena 3 times",
@@ -3652,7 +4168,9 @@
       "ru": "Участие на арене 3 р.",
       "pt": "Participar da Arena 3x",
       "ja": "闘技場3回参加",
-      "ko": "투기장 3회 참여"
+      "ko": "투기장 3회 참여",
+      "zh": "参加竞技场3次",
+      "zh-TW": "參加競技場3次"
      }
     },
     {
@@ -3667,7 +4185,9 @@
       "ru": "Повторение — мать учения Ⅱ",
       "pt": "Poder do Combate Constante Ⅱ",
       "ja": "地道な実戦の力II",
-      "ko": "꾸준한 실전의 힘 Ⅱ"
+      "ko": "꾸준한 실전의 힘 Ⅱ",
+      "zh": "持之以恒 II",
+      "zh-TW": "持之以恆 II"
      },
      "text": {
       "en": "Participate in Arena 7 times",
@@ -3677,7 +4197,9 @@
       "ru": "Участие на арене 7 р.",
       "pt": "Participar da Arena 7x",
       "ja": "闘技場7回参加",
-      "ko": "투기장 7회 참여"
+      "ko": "투기장 7회 참여",
+      "zh": "参加竞技场7次",
+      "zh-TW": "參加競技場7次"
      }
     },
     {
@@ -3692,7 +4214,9 @@
       "ru": "Повторение — мать учения Ⅲ",
       "pt": "Poder do Combate Constante Ⅲ",
       "ja": "地道な実戦の力III",
-      "ko": "꾸준한 실전의 힘 Ⅲ"
+      "ko": "꾸준한 실전의 힘 Ⅲ",
+      "zh": "持之以恒 III",
+      "zh-TW": "持之以恆 III"
      },
      "text": {
       "en": "Participate in Arena 10 times",
@@ -3702,7 +4226,9 @@
       "ru": "Сражайтесь на арене 10 раз",
       "pt": "Participar da Arena 10x",
       "ja": "闘技場10回参加",
-      "ko": "투기장 10회 참여"
+      "ko": "투기장 10회 참여",
+      "zh": "参加竞技场10次",
+      "zh-TW": "參加競技場10次"
      }
     }
    ]
@@ -3725,7 +4251,9 @@
       "ru": "Превзойти самого себя I",
       "pt": "Além de Mim Mesmo Ⅰ",
       "ja": "俺を超えた、俺I",
-      "ko": "나를 넘어선, 나 Ⅰ"
+      "ko": "나를 넘어선, 나 Ⅰ",
+      "zh": "超越自我 I",
+      "zh-TW": "超越自我 I"
      },
      "text": {
       "en": "Win 1 time in Arena",
@@ -3735,7 +4263,9 @@
       "ru": "Победа на арене 1 р.",
       "pt": "Vencer a Arena 1x",
       "ja": "闘技場1回勝利",
-      "ko": "투기장 1회 승리"
+      "ko": "투기장 1회 승리",
+      "zh": "在竞技场获胜1次",
+      "zh-TW": "在競技場獲勝1次"
      }
     },
     {
@@ -3750,7 +4280,9 @@
       "ru": "Превзойти самого себя Ⅱ",
       "pt": "Além de Mim Mesmo Ⅱ",
       "ja": "俺を超えた、俺II",
-      "ko": "나를 넘어선, 나 Ⅱ"
+      "ko": "나를 넘어선, 나 Ⅱ",
+      "zh": "超越自我 II",
+      "zh-TW": "超越自我 II"
      },
      "text": {
       "en": "Win 3 times in Arena",
@@ -3760,7 +4292,9 @@
       "ru": "Пробеда на арене 3 раза",
       "pt": "Vencer a Arena 3x",
       "ja": "闘技場3回勝利",
-      "ko": "투기장 3회 승리"
+      "ko": "투기장 3회 승리",
+      "zh": "在竞技场获胜3次",
+      "zh-TW": "在競技場獲勝3次"
      }
     },
     {
@@ -3775,7 +4309,9 @@
       "ru": "Превзойти самого себя Ⅲ",
       "pt": "Além de Mim Mesmo Ⅲ",
       "ja": "俺を超えた、俺III",
-      "ko": "나를 넘어선, 나 Ⅲ"
+      "ko": "나를 넘어선, 나 Ⅲ",
+      "zh": "超越自我 III",
+      "zh-TW": "超越自我 III"
      },
      "text": {
       "en": "Win 5 times in Arena",
@@ -3785,7 +4321,9 @@
       "ru": "Победа на арене 5 р.",
       "pt": "Vencer a Arena 5x",
       "ja": "闘技場5回勝利",
-      "ko": "투기장 5회 승리"
+      "ko": "투기장 5회 승리",
+      "zh": "在竞技场获胜5次",
+      "zh-TW": "在競技場獲勝5次"
      }
     }
    ]
@@ -3808,7 +4346,9 @@
       "ru": "Путь возвышенных Ⅰ",
       "pt": "Trajetória dos Transcendidos Ⅰ",
       "ja": "超越した者たちのI",
-      "ko": "초월한 자들의 행보 Ⅰ"
+      "ko": "초월한 자들의 행보 Ⅰ",
+      "zh": "超越者之路 I",
+      "zh-TW": "超越者之路 I"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 3 times",
@@ -3818,7 +4358,9 @@
       "ru": "Пройти подземелье Возвышения 3 р.",
       "pt": "Concluir Masmorra da Transcendência 3x",
       "ja": "超越ダンジョン3回クリア",
-      "ko": "초월 던전 3번 클리어"
+      "ko": "초월 던전 3번 클리어",
+      "zh": "通关超越地下城3次",
+      "zh-TW": "通關超越地城3次"
      }
     },
     {
@@ -3833,7 +4375,9 @@
       "ru": "Путь возвышенных Ⅱ",
       "pt": "Trajetória dos Transcendidos Ⅱ",
       "ja": "超越した者たちのII",
-      "ko": "초월한 자들의 행보 Ⅱ"
+      "ko": "초월한 자들의 행보 Ⅱ",
+      "zh": "超越者之路 II",
+      "zh-TW": "超越者之路 II"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 6 times",
@@ -3843,7 +4387,9 @@
       "ru": "Пройти подземелье Возвышения 6 раз",
       "pt": "Concluir Masmorra da Transcendência 6x",
       "ja": "超越ダンジョン6回クリア",
-      "ko": "초월 던전 6번 클리어"
+      "ko": "초월 던전 6번 클리어",
+      "zh": "通关超越地下城6次",
+      "zh-TW": "通關超越地城6次"
      }
     },
     {
@@ -3858,7 +4404,9 @@
       "ru": "Путь возвышенных Ⅲ",
       "pt": "Trajetória dos Transcendidos Ⅲ",
       "ja": "超越した者たちのIII",
-      "ko": "초월한 자들의 행보 Ⅲ"
+      "ko": "초월한 자들의 행보 Ⅲ",
+      "zh": "超越者之路 III",
+      "zh-TW": "超越者之路 III"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 10 times",
@@ -3868,7 +4416,9 @@
       "ru": "Пройти подземелье Возвышения 10 раз",
       "pt": "Concluir Masmorra da Transcendência 10x",
       "ja": "超越ダンジョン10回クリア",
-      "ko": "초월 던전 10번 클리어"
+      "ko": "초월 던전 10번 클리어",
+      "zh": "通关超越地下城10次",
+      "zh-TW": "通關超越地城10次"
      }
     }
    ]
@@ -3891,7 +4441,9 @@
       "ru": "Перевоплощение после смерти Ⅰ",
       "pt": "Mutação ao Morrer Ⅰ",
       "ja": "死亡時に変異しますI",
-      "ko": "사망 시, 변이됩니다 Ⅰ"
+      "ko": "사망 시, 변이됩니다 Ⅰ",
+      "zh": "死亡时变异 I",
+      "zh-TW": "死亡時變異 I"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 1 time without dying",
@@ -3901,7 +4453,9 @@
       "ru": "Пройти подземелье Возвышения 1 раз, не погибнув",
       "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 1x",
       "ja": "超越ダンジョン死なずに1回クリア",
-      "ko": "초월 던전 한번도 죽지 않고 1번 클리어"
+      "ko": "초월 던전 한번도 죽지 않고 1번 클리어",
+      "zh": "不死亡通关超越地下城1次",
+      "zh-TW": "不死亡通關超越地城1次"
      }
     },
     {
@@ -3916,7 +4470,9 @@
       "ru": "Перевоплощение после смерти Ⅱ",
       "pt": "Mutação ao Morrer Ⅱ",
       "ja": "死亡時に変異しますII",
-      "ko": "사망 시, 변이됩니다 Ⅱ"
+      "ko": "사망 시, 변이됩니다 Ⅱ",
+      "zh": "死亡时变异 II",
+      "zh-TW": "死亡時變異 II"
      },
      "text": {
       "en": "Clear Transcendence Dungeon 3 times without dying",
@@ -3926,7 +4482,9 @@
       "ru": "Пройти подземелье Возвышения 3 р., не погибнув",
       "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 3x",
       "ja": "超越ダンジョン死なずに3回クリア",
-      "ko": "초월 던전 한번도 죽지 않고 3번 클리어"
+      "ko": "초월 던전 한번도 죽지 않고 3번 클리어",
+      "zh": "不死亡通关超越地下城3次",
+      "zh-TW": "不死亡通關超越地城3次"
      }
     }
    ]
@@ -3949,7 +4507,9 @@
       "ru": "Прохождение Возвышения на скорость Ⅰ",
       "pt": "Contra o Tempo na Transcendência Ⅰ",
       "ja": "超越をスピードランI",
-      "ko": "초월 스피드런 Ⅰ"
+      "ko": "초월 스피드런 Ⅰ",
+      "zh": "超越速通 I",
+      "zh-TW": "超越速通 I"
      },
      "text": {
       "en": "Clear Transcendence Dungeon within 15 minutes",
@@ -3959,7 +4519,9 @@
       "ru": "Пройти подземелье Возвышения за 15 минут",
       "pt": "Concluir Masmorra da Transcendência em até 15min",
       "ja": "超越ダンジョン15分以内にクリア",
-      "ko": "초월 던전 15분 이내 클리어"
+      "ko": "초월 던전 15분 이내 클리어",
+      "zh": "在15分钟内通关超越地下城",
+      "zh-TW": "在15分鐘內通關超越地城"
      }
     },
     {
@@ -3974,7 +4536,9 @@
       "ru": "Прохождение Возвышения на скорость Ⅱ",
       "pt": "Contra o Tempo na Transcendência Ⅱ",
       "ja": "超越をスピードランII",
-      "ko": "초월 스피드런 Ⅱ"
+      "ko": "초월 스피드런 Ⅱ",
+      "zh": "超越速通 II",
+      "zh-TW": "超越速通 II"
      },
      "text": {
       "en": "Clear Transcendence Dungeon within 7 minutes",
@@ -3984,7 +4548,9 @@
       "ru": "Пройти подземелье Возвышения за 7 мин.",
       "pt": "Concluir Masmorra da Transcendência em até 7min",
       "ja": "超越ダンジョン7分以内にクリア",
-      "ko": "초월 던전 7분 이내 클리어"
+      "ko": "초월 던전 7분 이내 클리어",
+      "zh": "在7分钟内通关超越地下城",
+      "zh-TW": "在7分鐘內通關超越地城"
      }
     }
    ]
@@ -4007,7 +4573,9 @@
       "ru": "Возвращение обратно",
       "pt": "Volte de Onde Veio!",
       "ja": "来た場所へ戻れ",
-      "ko": "왔던 곳으로 돌아가"
+      "ko": "왔던 곳으로 돌아가",
+      "zh": "该回家了",
+      "zh-TW": "該回家了"
      },
      "text": {
       "en": "Defeat 10 Mini-Bosses in Transcendence Dungeon",
@@ -4017,7 +4585,9 @@
       "ru": "Победить мини-босса в подземелье Возвышения 10 р.",
       "pt": "Derrotar 10 Chefes Intermediários na Masmorra da Transcendência",
       "ja": "超越ダンジョンで中間ボス10体討伐",
-      "ko": "초월 던전에서 중간 보스 10마리 처치"
+      "ko": "초월 던전에서 중간 보스 10마리 처치",
+      "zh": "在超越地下城击败10个中型首领",
+      "zh-TW": "在超越地城擊敗10個中型首領"
      }
     }
    ],
@@ -4066,7 +4636,9 @@
       "ru": "К большему могуществу Ⅰ",
       "pt": "Em Busca de Um Poder Maior Ⅰ",
       "ja": "より大きな力へI",
-      "ko": "더 큰 힘을 향해 Ⅰ"
+      "ko": "더 큰 힘을 향해 Ⅰ",
+      "zh": "迈向更强大的力量 I",
+      "zh-TW": "邁向更強大的力量 I"
      },
      "text": {
       "en": "Extract 10 Arcana",
@@ -4076,7 +4648,9 @@
       "ru": "Извлечь 10 аркан",
       "pt": "Extrair Arcana x10",
       "ja": "アルカナ10個抽出する",
-      "ko": "아르카나 10개 추출하기"
+      "ko": "아르카나 10개 추출하기",
+      "zh": "提取10个 Arcana",
+      "zh-TW": "提取10個 Arcana"
      }
     },
     {
@@ -4091,7 +4665,9 @@
       "ru": "К большему могуществу II",
       "pt": "Em Busca de Um Poder Maior Ⅱ",
       "ja": "より大きな力へII",
-      "ko": "더 큰 힘을 향해 Ⅱ"
+      "ko": "더 큰 힘을 향해 Ⅱ",
+      "zh": "迈向更强大的力量 II",
+      "zh-TW": "邁向更強大的力量 II"
      },
      "text": {
       "en": "Transmute 1 Arcana",
@@ -4101,7 +4677,9 @@
       "ru": "Синтезировать 1 аркан",
       "pt": "Sintetizar Arcana x1",
       "ja": "アルカナ1個錬成する",
-      "ko": "아르카나 1개 연성하기"
+      "ko": "아르카나 1개 연성하기",
+      "zh": "转化1个 Arcana",
+      "zh-TW": "轉化1個 Arcana"
      }
     }
    ]
@@ -4124,7 +4702,9 @@
       "ru": "Особые обстоятельства I",
       "pt": "Cada Um com Sua História Ⅰ",
       "ja": "ワケありの仲間たちI",
-      "ko": "사연 있는 친구들 Ⅰ"
+      "ko": "사연 있는 친구들 Ⅰ",
+      "zh": "有故事的朋友 I",
+      "zh-TW": "有故事的朋友 I"
      },
      "text": {
       "en": "Defeat Nightmare Boss 5 times",
@@ -4134,7 +4714,9 @@
       "ru": "Победить босса Кошмара 5 раз",
       "pt": "Derrotar Chefe do Pesadelo 5x",
       "ja": "悪夢ボス5回討伐",
-      "ko": "악몽 보스 5회 처치"
+      "ko": "악몽 보스 5회 처치",
+      "zh": "击败噩梦首领5次",
+      "zh-TW": "擊敗惡夢首領5次"
      }
     },
     {
@@ -4149,7 +4731,9 @@
       "ru": "Друзья со своей историей Ⅱ",
       "pt": "Cada Um com Sua História Ⅱ",
       "ja": "ワケありの仲間たちII",
-      "ko": "사연 있는 친구들 Ⅱ"
+      "ko": "사연 있는 친구들 Ⅱ",
+      "zh": "有故事的朋友 II",
+      "zh-TW": "有故事的朋友 II"
      },
      "text": {
       "en": "Defeat Nightmare Boss 10 times",
@@ -4159,7 +4743,9 @@
       "ru": "Победить босса Кошмара 10 раз",
       "pt": "Derrotar Chefe do Pesadelo 10x",
       "ja": "悪夢ボス10回討伐",
-      "ko": "악몽 보스 10회 처치"
+      "ko": "악몽 보스 10회 처치",
+      "zh": "击败噩梦首领10次",
+      "zh-TW": "擊敗惡夢首領10次"
      }
     }
    ]
@@ -4182,7 +4768,9 @@
       "ru": "За фрагментами сна Ⅰ",
       "pt": "Reunindo Pedaços de Sonho Ⅰ",
       "ja": "夢の欠片を集めてI",
-      "ko": "꿈의 조각을 모아 Ⅰ"
+      "ko": "꿈의 조각을 모아 Ⅰ",
+      "zh": "收集梦之碎片 I",
+      "zh-TW": "收集夢之碎片 I"
      },
      "text": {
       "en": "Obtain 1,000 Phantasmal Fragments",
@@ -4192,7 +4780,9 @@
       "ru": "Собрать осколки видения x1000",
       "pt": "Obter Fragmento Onírico x1.000",
       "ja": "夢幻の破片1,000個獲得",
-      "ko": "몽환의 파편 1000개 획득"
+      "ko": "몽환의 파편 1000개 획득",
+      "zh": "获得1,000个幻影碎片",
+      "zh-TW": "獲得1,000個幻影碎片"
      }
     },
     {
@@ -4207,7 +4797,9 @@
       "ru": "За фрагментами сна Ⅱ",
       "pt": "Reunindo Pedaços de Sonho Ⅱ",
       "ja": "夢の欠片を集めてII",
-      "ko": "꿈의 조각을 모아 Ⅱ"
+      "ko": "꿈의 조각을 모아 Ⅱ",
+      "zh": "收集梦之碎片 II",
+      "zh-TW": "收集夢之碎片 II"
      },
      "text": {
       "en": "Obtain 3,000 Phantasmal Fragments",
@@ -4217,7 +4809,9 @@
       "ru": "Собрать осколки видения x3000",
       "pt": "Obter Fragmento Onírico x3.000",
       "ja": "夢幻の破片3,000個獲得",
-      "ko": "몽환의 파편 3000개 획득"
+      "ko": "몽환의 파편 3000개 획득",
+      "zh": "获得3,000个幻影碎片",
+      "zh-TW": "獲得3,000個幻影碎片"
      }
     }
    ]
@@ -4240,7 +4834,9 @@
       "ru": "Кошмар за 3 мин.",
       "pt": "3 Minutos de Pesadelo",
       "ja": "3分ナイトメア",
-      "ko": "3분 나이트메어"
+      "ko": "3분 나이트메어",
+      "zh": "三分钟噩梦",
+      "zh-TW": "三分鐘惡夢"
      },
      "text": {
       "en": "Defeat Nightmare Boss within 3 minutes",
@@ -4250,7 +4846,9 @@
       "ru": "Победить босса Кошмара за 3 мин.",
       "pt": "Derrotar Chefe do Pesadelo em até 3min",
       "ja": "悪夢ボスを3分以内に討伐",
-      "ko": "악몽 보스 3분 이내 처치"
+      "ko": "악몽 보스 3분 이내 처치",
+      "zh": "在3分钟内击败噩梦首领",
+      "zh-TW": "在3分鐘內擊敗惡夢首領"
      }
     }
    ]
@@ -4273,7 +4871,9 @@
       "ru": "Укротитель Кошмара",
       "pt": "Solucionador de Pesadelos",
       "ja": "悪夢解決士",
-      "ko": "악몽 해결사"
+      "ko": "악몽 해결사",
+      "zh": "噩梦克星",
+      "zh-TW": "惡夢剋星"
      },
      "text": {
       "en": "Defeat Nightmare Boss within 2 minutes",
@@ -4283,7 +4883,9 @@
       "ru": "Победить босса Кошмара за 2 мин.",
       "pt": "Derrotar Chefe do Pesadelo em até 2min",
       "ja": "悪夢ボスを2分以内に討伐",
-      "ko": "악몽 보스 2분 이내 처치"
+      "ko": "악몽 보스 2분 이내 처치",
+      "zh": "在2分钟内击败噩梦首领",
+      "zh-TW": "在2分鐘內擊敗惡夢首領"
      }
     }
    ]
@@ -4306,7 +4908,9 @@
       "ru": "Вечный покой",
       "pt": "Descanso Eterno",
       "ja": "永遠の安息",
-      "ko": "영원한 안식"
+      "ko": "영원한 안식",
+      "zh": "永恒安息",
+      "zh-TW": "永恆安息"
      },
      "text": {
       "en": "Defeat Nightmare Boss within 1 minute",
@@ -4316,7 +4920,9 @@
       "ru": "Победить босса Кошмара за 1 мин.",
       "pt": "Derrotar Chefe do Pesadelo em até 1min",
       "ja": "悪夢ボスを1分以内に討伐",
-      "ko": "악몽 보스 1분 이내 처치"
+      "ko": "악몽 보스 1분 이내 처치",
+      "zh": "在1分钟内击败噩梦首领",
+      "zh-TW": "在1分鐘內擊敗惡夢首領"
      }
     }
    ]
@@ -4339,7 +4945,9 @@
       "ru": "Первые шаги Ⅰ",
       "pt": "Pássaro Saído do Ovo Ⅰ",
       "ja": "卵を割って出てきた鳥I",
-      "ko": "알을 깨고 나온 새 Ⅰ"
+      "ko": "알을 깨고 나온 새 Ⅰ",
+      "zh": "破壳而出 I",
+      "zh-TW": "破殼而出 I"
      },
      "text": {
       "en": "Clear Ascension Trial 1 time",
@@ -4349,7 +4957,9 @@
       "ru": "Пройти Битву пробуждения 1 р.",
       "pt": "Concluir Rito de Ascensão 1x",
       "ja": "覚醒戦1回クリア",
-      "ko": "각성전 1회 클리어"
+      "ko": "각성전 1회 클리어",
+      "zh": "通关飞升试炼1次",
+      "zh-TW": "通關飛升試煉1次"
      }
     },
     {
@@ -4364,7 +4974,9 @@
       "ru": "Первые шаги Ⅱ",
       "pt": "Pássaro Saído do Ovo Ⅱ",
       "ja": "卵を割って出てきた鳥II",
-      "ko": "알을 깨고 나온 새 Ⅱ"
+      "ko": "알을 깨고 나온 새 Ⅱ",
+      "zh": "破壳而出 II",
+      "zh-TW": "破殼而出 II"
      },
      "text": {
       "en": "Clear Ascension Trial 2 times",
@@ -4374,7 +4986,9 @@
       "ru": "Пройти Битву пробуждения 2 раза",
       "pt": "Concluir Rito de Ascensão 2x",
       "ja": "覚醒戦2回クリア",
-      "ko": "각성전 2회 클리어"
+      "ko": "각성전 2회 클리어",
+      "zh": "通关飞升试炼2次",
+      "zh-TW": "通關飛升試煉2次"
      }
     },
     {
@@ -4389,7 +5003,9 @@
       "ru": "Первые шаги Ⅲ",
       "pt": "Pássaro Saído do Ovo Ⅲ",
       "ja": "卵を割って出てきた鳥III",
-      "ko": "알을 깨고 나온 새 Ⅲ"
+      "ko": "알을 깨고 나온 새 Ⅲ",
+      "zh": "破壳而出 III",
+      "zh-TW": "破殼而出 III"
      },
      "text": {
       "en": "Clear Ascension Trial 3 times",
@@ -4399,7 +5015,9 @@
       "ru": "Пройти Битву пробуждения 3 раза",
       "pt": "Concluir Rito de Ascensão 3x",
       "ja": "覚醒戦3回クリア",
-      "ko": "각성전 3회 클리어"
+      "ko": "각성전 3회 클리어",
+      "zh": "通关飞升试炼3次",
+      "zh-TW": "通關飛升試煉3次"
      }
     }
    ]
@@ -4422,7 +5040,9 @@
       "ru": "За звездами Ⅰ",
       "pt": "Vamos Colher Estrelas Ⅰ",
       "ja": "星を取りに行こうI",
-      "ko": "별 따러 가세 Ⅰ"
+      "ko": "별 따러 가세 Ⅰ",
+      "zh": "追逐星辰 I",
+      "zh-TW": "追逐星辰 I"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 2 times",
@@ -4432,7 +5052,9 @@
       "ru": "Убить офицеров 1-5 ранга 2 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 2x",
       "ja": "[一星～五星将校]2回KILL",
-      "ko": "[1성~5성 장교] 2회 KILL"
+      "ko": "[1성~5성 장교] 2회 KILL",
+      "zh": "击杀[1至5星军官]2次",
+      "zh-TW": "擊殺[1至5星軍官]2次"
      }
     },
     {
@@ -4447,7 +5069,9 @@
       "ru": "За звездами Ⅱ",
       "pt": "Vamos Colher Estrelas Ⅱ",
       "ja": "星を取りに行こうII",
-      "ko": "별 따러 가세 Ⅱ"
+      "ko": "별 따러 가세 Ⅱ",
+      "zh": "追逐星辰 II",
+      "zh-TW": "追逐星辰 II"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 4 times",
@@ -4457,7 +5081,9 @@
       "ru": "Убить офицеров 1-5 ранга 4 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 4x",
       "ja": "[一星～五星将校]4回KILL",
-      "ko": "[1성~5성 장교] 4회 KILL"
+      "ko": "[1성~5성 장교] 4회 KILL",
+      "zh": "击杀[1至5星军官]4次",
+      "zh-TW": "擊殺[1至5星軍官]4次"
      }
     },
     {
@@ -4472,7 +5098,9 @@
       "ru": "За звездами Ⅲ",
       "pt": "Vamos Colher Estrelas Ⅲ",
       "ja": "星を取りに行こうIII",
-      "ko": "별 따러 가세 Ⅲ"
+      "ko": "별 따러 가세 Ⅲ",
+      "zh": "追逐星辰 III",
+      "zh-TW": "追逐星辰 III"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 6 times",
@@ -4482,7 +5110,9 @@
       "ru": "Убить офицеров 1-5 ранга 6 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 6x",
       "ja": "[一星～五星将校]6回KILL",
-      "ko": "[1성~5성 장교] 6회 KILL"
+      "ko": "[1성~5성 장교] 6회 KILL",
+      "zh": "击杀[1至5星军官]6次",
+      "zh-TW": "擊殺[1至5星軍官]6次"
      }
     },
     {
@@ -4497,7 +5127,9 @@
       "ru": "За звездами Ⅳ",
       "pt": "Vamos Colher Estrelas Ⅳ",
       "ja": "星を取りに行こうIV",
-      "ko": "별 따러 가세 Ⅳ"
+      "ko": "별 따러 가세 Ⅳ",
+      "zh": "追逐星辰 IV",
+      "zh-TW": "追逐星辰 IV"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 8 times",
@@ -4507,7 +5139,9 @@
       "ru": "Убить офицеров 1-5 ранга 8 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 8x",
       "ja": "[一星～五星将校]8回KILL",
-      "ko": "[1성~5성 장교] 8회 KILL"
+      "ko": "[1성~5성 장교] 8회 KILL",
+      "zh": "击杀[1至5星军官]8次",
+      "zh-TW": "擊殺[1至5星軍官]8次"
      }
     },
     {
@@ -4522,7 +5156,9 @@
       "ru": "За звездами Ⅴ",
       "pt": "Vamos Colher Estrelas Ⅴ",
       "ja": "星を取りに行こうV",
-      "ko": "별 따러 가세 Ⅴ"
+      "ko": "별 따러 가세 Ⅴ",
+      "zh": "追逐星辰 V",
+      "zh-TW": "追逐星辰 V"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 10 times",
@@ -4532,7 +5168,9 @@
       "ru": "Убить офицеров 1-5 ранга 10 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 10x",
       "ja": "[一星～五星将校]10回KILL",
-      "ko": "[1성~5성 장교] 10회 KILL"
+      "ko": "[1성~5성 장교] 10회 KILL",
+      "zh": "击杀[1至5星军官]10次",
+      "zh-TW": "擊殺[1至5星軍官]10次"
      }
     },
     {
@@ -4547,7 +5185,9 @@
       "ru": "За звездами Ⅵ",
       "pt": "Vamos Colher Estrelas Ⅵ",
       "ja": "星を取りに行こうVI",
-      "ko": "별 따러 가세 Ⅵ"
+      "ko": "별 따러 가세 Ⅵ",
+      "zh": "追逐星辰 VI",
+      "zh-TW": "追逐星辰 VI"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 12 times",
@@ -4557,7 +5197,9 @@
       "ru": "Убить офицеров 1-5 ранга 12 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 12x",
       "ja": "[一星～五星将校]12回KILL",
-      "ko": "[1성~5성 장교] 12회 KILL"
+      "ko": "[1성~5성 장교] 12회 KILL",
+      "zh": "击杀[1至5星军官]12次",
+      "zh-TW": "擊殺[1至5星軍官]12次"
      }
     },
     {
@@ -4572,7 +5214,9 @@
       "ru": "За звездами Ⅶ",
       "pt": "Vamos Colher Estrelas Ⅶ",
       "ja": "星を取りに行こうVII",
-      "ko": "별 따러 가세 Ⅶ"
+      "ko": "별 따러 가세 Ⅶ",
+      "zh": "追逐星辰 VII",
+      "zh-TW": "追逐星辰 VII"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 14 times",
@@ -4582,7 +5226,9 @@
       "ru": "Убить офицеров 1-5 ранга 14 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 14x",
       "ja": "[一星～五星将校]14回KILL",
-      "ko": "[1성~5성 장교] 14회 KILL"
+      "ko": "[1성~5성 장교] 14회 KILL",
+      "zh": "击杀[1至5星军官]14次",
+      "zh-TW": "擊殺[1至5星軍官]14次"
      }
     },
     {
@@ -4597,7 +5243,9 @@
       "ru": "За звездами Ⅷ",
       "pt": "Vamos Colher Estrelas Ⅷ",
       "ja": "星を取りに行こうVIII",
-      "ko": "별 따러 가세 Ⅷ"
+      "ko": "별 따러 가세 Ⅷ",
+      "zh": "追逐星辰 VIII",
+      "zh-TW": "追逐星辰 VIII"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 16 times",
@@ -4607,7 +5255,9 @@
       "ru": "Убить офицеров 1-5 ранга 16 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 16x",
       "ja": "[一星～五星将校]16回KILL",
-      "ko": "[1성~5성 장교] 16회 KILL"
+      "ko": "[1성~5성 장교] 16회 KILL",
+      "zh": "击杀[1至5星军官]16次",
+      "zh-TW": "擊殺[1至5星軍官]16次"
      }
     },
     {
@@ -4622,7 +5272,9 @@
       "ru": "За звездами Ⅸ",
       "pt": "Vamos Colher Estrelas Ⅸ",
       "ja": "星を取りに行こうIX",
-      "ko": "별 따러 가세 Ⅸ"
+      "ko": "별 따러 가세 Ⅸ",
+      "zh": "追逐星辰 IX",
+      "zh-TW": "追逐星辰 IX"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 18 times",
@@ -4632,7 +5284,9 @@
       "ru": "Убить офицеров 1-5 ранга 18 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 18x",
       "ja": "[一星～五星将校]18回KILL",
-      "ko": "[1성~5성 장교] 18회 KILL"
+      "ko": "[1성~5성 장교] 18회 KILL",
+      "zh": "击杀[1至5星军官]18次",
+      "zh-TW": "擊殺[1至5星軍官]18次"
      }
     },
     {
@@ -4647,7 +5301,9 @@
       "ru": "За звездами Ⅹ",
       "pt": "Vamos Colher Estrelas Ⅹ",
       "ja": "星を取りに行こうX",
-      "ko": "별 따러 가세 Ⅹ"
+      "ko": "별 따러 가세 Ⅹ",
+      "zh": "追逐星辰 X",
+      "zh-TW": "追逐星辰 X"
      },
      "text": {
       "en": "Kill [1-5 Star Officer] 20 times",
@@ -4657,7 +5313,9 @@
       "ru": "Убить офицеров 1-5 ранга 20 р.",
       "pt": "Abater [Oficial de 1 a 5 Estrelas] 20x",
       "ja": "[一星～五星将校]20回KILL",
-      "ko": "[1성~5성 장교] 20회 KILL"
+      "ko": "[1성~5성 장교] 20회 KILL",
+      "zh": "击杀[1至5星军官]20次",
+      "zh-TW": "擊殺[1至5星軍官]20次"
      }
     }
    ]
@@ -4680,7 +5338,9 @@
       "ru": "Боевое крещение Ⅰ",
       "pt": "Recepção dos Brotos Verdejantes Ⅰ",
       "ja": "みずみずしい新芽の到来I",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅰ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅰ",
+      "zh": "火的洗礼 I",
+      "zh-TW": "火的洗禮 I"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 6 times",
@@ -4690,7 +5350,9 @@
       "ru": "Убить воинов 1-9-го ранга 6 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 6x",
       "ja": "[一等～九等兵]6回KILL",
-      "ko": "[1급~9급병] 6회 KILL"
+      "ko": "[1급~9급병] 6회 KILL",
+      "zh": "击杀[一等至九等士兵]6次",
+      "zh-TW": "擊殺[一等至九等士兵]6次"
      }
     },
     {
@@ -4705,7 +5367,9 @@
       "ru": "Боевое крещение Ⅱ",
       "pt": "Recepção dos Brotos Verdejantes Ⅱ",
       "ja": "みずみずしい新芽の到来II",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅱ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅱ",
+      "zh": "火的洗礼 II",
+      "zh-TW": "火的洗禮 II"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 12 times",
@@ -4715,7 +5379,9 @@
       "ru": "Убить воинов 1-9-го ранга 12 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 12x",
       "ja": "[一等～九等兵]12回KILL",
-      "ko": "[1급~9급병] 12회 KILL"
+      "ko": "[1급~9급병] 12회 KILL",
+      "zh": "击杀[一等至九等士兵]12次",
+      "zh-TW": "擊殺[一等至九等士兵]12次"
      }
     },
     {
@@ -4730,7 +5396,9 @@
       "ru": "Боевое крещение Ⅲ",
       "pt": "Recepção dos Brotos Verdejantes Ⅲ",
       "ja": "みずみずしい新芽の到来III",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅲ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅲ",
+      "zh": "火的洗礼 III",
+      "zh-TW": "火的洗禮 III"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 18 times",
@@ -4740,7 +5408,9 @@
       "ru": "Убить воинов 1-9-го ранга 18 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 18x",
       "ja": "[一等～九等兵]18回KILL",
-      "ko": "[1급~9급병] 18회 KILL"
+      "ko": "[1급~9급병] 18회 KILL",
+      "zh": "击杀[一等至九等士兵]18次",
+      "zh-TW": "擊殺[一等至九等士兵]18次"
      }
     },
     {
@@ -4755,7 +5425,9 @@
       "ru": "Боевое крещение Ⅳ",
       "pt": "Recepção dos Brotos Verdejantes Ⅳ",
       "ja": "みずみずしい新芽の到来IV",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅳ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅳ",
+      "zh": "火的洗礼 IV",
+      "zh-TW": "火的洗禮 IV"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 24 times",
@@ -4765,7 +5437,9 @@
       "ru": "Убить воинов 1-9-го ранга 24 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 24x",
       "ja": "[一等～九等兵]24回KILL",
-      "ko": "[1급~9급병] 24회 KILL"
+      "ko": "[1급~9급병] 24회 KILL",
+      "zh": "击杀[一等至九等士兵]24次",
+      "zh-TW": "擊殺[一等至九等士兵]24次"
      }
     },
     {
@@ -4780,7 +5454,9 @@
       "ru": "Боевое крещение Ⅴ",
       "pt": "Recepção dos Brotos Verdejantes Ⅴ",
       "ja": "みずみずしい新芽の到来V",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅴ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅴ",
+      "zh": "火的洗礼 V",
+      "zh-TW": "火的洗禮 V"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 30 times",
@@ -4790,7 +5466,9 @@
       "ru": "Убить воинов 1-9-го ранга 30 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 30x",
       "ja": "[一等～九等兵]30回KILL",
-      "ko": "[1급~9급병] 30회 KILL"
+      "ko": "[1급~9급병] 30회 KILL",
+      "zh": "击杀[一等至九等士兵]30次",
+      "zh-TW": "擊殺[一等至九等士兵]30次"
      }
     },
     {
@@ -4805,7 +5483,9 @@
       "ru": "Боевое крещение Ⅵ",
       "pt": "Recepção dos Brotos Verdejantes Ⅵ",
       "ja": "みずみずしい新芽の到来VI",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅵ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅵ",
+      "zh": "火的洗礼 VI",
+      "zh-TW": "火的洗禮 VI"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 36 times",
@@ -4815,7 +5495,9 @@
       "ru": "Убить воинов 1-9-го ранга 36 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 36x",
       "ja": "[一等～九等兵]36回KILL",
-      "ko": "[1급~9급병] 36회 KILL"
+      "ko": "[1급~9급병] 36회 KILL",
+      "zh": "击杀[一等至九等士兵]36次",
+      "zh-TW": "擊殺[一等至九等士兵]36次"
      }
     },
     {
@@ -4830,7 +5512,9 @@
       "ru": "Боевое крещение Ⅶ",
       "pt": "Recepção dos Brotos Verdejantes Ⅶ",
       "ja": "みずみずしい新芽の到来VII",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅶ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅶ",
+      "zh": "火的洗礼 VII",
+      "zh-TW": "火的洗禮 VII"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 42 times",
@@ -4840,7 +5524,9 @@
       "ru": "Убить воинов 1-9-го ранга 42 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 42x",
       "ja": "[一等～九等兵]42回KILL",
-      "ko": "[1급~9급병] 42회 KILL"
+      "ko": "[1급~9급병] 42회 KILL",
+      "zh": "击杀[一等至九等士兵]42次",
+      "zh-TW": "擊殺[一等至九等士兵]42次"
      }
     },
     {
@@ -4855,7 +5541,9 @@
       "ru": "Боевое крещение Ⅷ",
       "pt": "Recepção dos Brotos Verdejantes Ⅷ",
       "ja": "みずみずしい新芽の到来VIII",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅷ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅷ",
+      "zh": "火的洗礼 VIII",
+      "zh-TW": "火的洗禮 VIII"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 48 times",
@@ -4865,7 +5553,9 @@
       "ru": "Убить воинов 1-9-го ранга 48 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 48x",
       "ja": "[一等～九等兵]48回KILL",
-      "ko": "[1급~9급병] 48회 KILL"
+      "ko": "[1급~9급병] 48회 KILL",
+      "zh": "击杀[一等至九等士兵]48次",
+      "zh-TW": "擊殺[一等至九等士兵]48次"
      }
     },
     {
@@ -4880,7 +5570,9 @@
       "ru": "Боевое крещение Ⅸ",
       "pt": "Recepção dos Brotos Verdejantes Ⅸ",
       "ja": "みずみずしい新芽の到来IX",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅸ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅸ",
+      "zh": "火的洗礼 IX",
+      "zh-TW": "火的洗禮 IX"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 54 times",
@@ -4890,7 +5582,9 @@
       "ru": "Убить воинов 1-9-го ранга 54 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 54x",
       "ja": "[一等～九等兵]54回KILL",
-      "ko": "[1급~9급병] 54회 KILL"
+      "ko": "[1급~9급병] 54회 KILL",
+      "zh": "击杀[一等至九等士兵]54次",
+      "zh-TW": "擊殺[一等至九等士兵]54次"
      }
     },
     {
@@ -4905,7 +5599,9 @@
       "ru": "Боевое крещение Ⅹ",
       "pt": "Recepção dos Brotos Verdejantes Ⅹ",
       "ja": "みずみずしい新芽の到来X",
-      "ko": "푸릇푸릇 새싹 맞이 Ⅹ"
+      "ko": "푸릇푸릇 새싹 맞이 Ⅹ",
+      "zh": "火的洗礼 X",
+      "zh-TW": "火的洗禮 X"
      },
      "text": {
       "en": "Kill [First-Class to Ninth-Class Soldier] 60 times",
@@ -4915,7 +5611,9 @@
       "ru": "Убить воинов 1-9-го ранга 60 р.",
       "pt": "Abater [Soldado de Classe 1 a 9] 60x",
       "ja": "[一等～九等兵]60回KILL",
-      "ko": "[1급~9급병] 60회 KILL"
+      "ko": "[1급~9급병] 60회 KILL",
+      "zh": "击杀[一等至九等士兵]60次",
+      "zh-TW": "擊殺[一等至九等士兵]60次"
      }
     }
    ]
@@ -4938,7 +5636,9 @@
       "ru": "Гордость Асмодеи I",
       "pt": "Orgulho do Exército Asmodiano Ⅰ",
       "ja": "魔軍の自慢I",
-      "ko": "마군의 자랑 Ⅰ"
+      "ko": "마군의 자랑 Ⅰ",
+      "zh": "魔族的骄傲 I",
+      "zh-TW": "魔族的驕傲 I"
      },
      "text": {
       "en": "Kill 5 Elyos players in Verteron",
@@ -4948,7 +5648,9 @@
       "ru": "Убить игрока-элийца в Бертроне 5 р.",
       "pt": "Abater 5 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー5回KILL",
-      "ko": "베르테론에서 천족 플레이어 5회 KILL"
+      "ko": "베르테론에서 천족 플레이어 5회 KILL",
+      "zh": "在 Verteron 击败5名天族玩家",
+      "zh-TW": "在 Verteron 擊敗5名天族玩家"
      }
     },
     {
@@ -4963,7 +5665,9 @@
       "ru": "Гордость Асмодеи Ⅱ",
       "pt": "Orgulho do Exército Asmodiano Ⅱ",
       "ja": "魔軍の自慢II",
-      "ko": "마군의 자랑 Ⅱ"
+      "ko": "마군의 자랑 Ⅱ",
+      "zh": "魔族的骄傲 II",
+      "zh-TW": "魔族的驕傲 II"
      },
      "text": {
       "en": "Kill 10 Elyos players in Verteron",
@@ -4973,7 +5677,9 @@
       "ru": "Убить игрока-элийца в Бертроне 10 р.",
       "pt": "Abater 10 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー10回KILL",
-      "ko": "베르테론에서 천족 플레이어 10회 KILL"
+      "ko": "베르테론에서 천족 플레이어 10회 KILL",
+      "zh": "在 Verteron 击败10名天族玩家",
+      "zh-TW": "在 Verteron 擊敗10名天族玩家"
      }
     },
     {
@@ -4988,7 +5694,9 @@
       "ru": "Гордость Асмодеи Ⅲ",
       "pt": "Orgulho do Exército Asmodiano Ⅲ",
       "ja": "魔軍の自慢III",
-      "ko": "마군의 자랑 Ⅲ"
+      "ko": "마군의 자랑 Ⅲ",
+      "zh": "魔族的骄傲 III",
+      "zh-TW": "魔族的驕傲 III"
      },
      "text": {
       "en": "Kill 15 Elyos players in Verteron",
@@ -4998,7 +5706,9 @@
       "ru": "Убить игрока-элийца в Бертроне 15 р.",
       "pt": "Abater 15 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー15回KILL",
-      "ko": "베르테론에서 천족 플레이어 15회 KILL"
+      "ko": "베르테론에서 천족 플레이어 15회 KILL",
+      "zh": "在 Verteron 击败15名天族玩家",
+      "zh-TW": "在 Verteron 擊敗15名天族玩家"
      }
     },
     {
@@ -5013,7 +5723,9 @@
       "ru": "Гордость Асмодеи Ⅳ",
       "pt": "Orgulho do Exército Asmodiano Ⅳ",
       "ja": "魔軍の自慢IV",
-      "ko": "마군의 자랑 Ⅳ"
+      "ko": "마군의 자랑 Ⅳ",
+      "zh": "魔族的骄傲 IV",
+      "zh-TW": "魔族的驕傲 IV"
      },
      "text": {
       "en": "Kill 20 Elyos players in Verteron",
@@ -5023,7 +5735,9 @@
       "ru": "Убить игрока-элийца в Бертроне 20 р.",
       "pt": "Abater 20 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー20回KILL",
-      "ko": "베르테론에서 천족 플레이어 20회 KILL"
+      "ko": "베르테론에서 천족 플레이어 20회 KILL",
+      "zh": "在 Verteron 击败20名天族玩家",
+      "zh-TW": "在 Verteron 擊敗20名天族玩家"
      }
     },
     {
@@ -5038,7 +5752,9 @@
       "ru": "Гордость Асмодеи Ⅴ",
       "pt": "Orgulho do Exército Asmodiano Ⅴ",
       "ja": "魔軍の自慢V",
-      "ko": "마군의 자랑 Ⅴ"
+      "ko": "마군의 자랑 Ⅴ",
+      "zh": "魔族的骄傲 V",
+      "zh-TW": "魔族的驕傲 V"
      },
      "text": {
       "en": "Kill 25 Elyos players in Verteron",
@@ -5048,7 +5764,9 @@
       "ru": "Убить игрока-элийца в Бертроне 25 р.",
       "pt": "Abater 25 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー25回KILL",
-      "ko": "베르테론에서 천족 플레이어 25회 KILL"
+      "ko": "베르테론에서 천족 플레이어 25회 KILL",
+      "zh": "在 Verteron 击败25名天族玩家",
+      "zh-TW": "在 Verteron 擊敗25名天族玩家"
      }
     },
     {
@@ -5063,7 +5781,9 @@
       "ru": "Гордость Асмодеи Ⅵ",
       "pt": "Orgulho do Exército Asmodiano Ⅵ",
       "ja": "魔軍の自慢VI",
-      "ko": "마군의 자랑 Ⅵ"
+      "ko": "마군의 자랑 Ⅵ",
+      "zh": "魔族的骄傲 VI",
+      "zh-TW": "魔族的驕傲 VI"
      },
      "text": {
       "en": "Kill 30 Elyos players in Verteron",
@@ -5073,7 +5793,9 @@
       "ru": "Убить игрока-элийца в Бертроне 30 р.",
       "pt": "Abater 30 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー30回KILL",
-      "ko": "베르테론에서 천족 플레이어 30회 KILL"
+      "ko": "베르테론에서 천족 플레이어 30회 KILL",
+      "zh": "在 Verteron 击败30名天族玩家",
+      "zh-TW": "在 Verteron 擊敗30名天族玩家"
      }
     },
     {
@@ -5088,7 +5810,9 @@
       "ru": "Гордость Асмодеи Ⅶ",
       "pt": "Orgulho do Exército Asmodiano Ⅶ",
       "ja": "魔軍の自慢VII",
-      "ko": "마군의 자랑 Ⅶ"
+      "ko": "마군의 자랑 Ⅶ",
+      "zh": "魔族的骄傲 VII",
+      "zh-TW": "魔族的驕傲 VII"
      },
      "text": {
       "en": "Kill 35 Elyos players in Verteron",
@@ -5098,7 +5822,9 @@
       "ru": "Убейте 35 игроков-элийцев в Бертроне",
       "pt": "Abater 35 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー35回KILL",
-      "ko": "베르테론에서 천족 플레이어 35회 KILL"
+      "ko": "베르테론에서 천족 플레이어 35회 KILL",
+      "zh": "在 Verteron 击败35名天族玩家",
+      "zh-TW": "在 Verteron 擊敗35名天族玩家"
      }
     },
     {
@@ -5113,7 +5839,9 @@
       "ru": "Гордость Асмодеи Ⅷ",
       "pt": "Orgulho do Exército Asmodiano Ⅷ",
       "ja": "魔軍の自慢VIII",
-      "ko": "마군의 자랑 Ⅷ"
+      "ko": "마군의 자랑 Ⅷ",
+      "zh": "魔族的骄傲 VIII",
+      "zh-TW": "魔族的驕傲 VIII"
      },
      "text": {
       "en": "Kill 40 Elyos players in Verteron",
@@ -5123,7 +5851,9 @@
       "ru": "Убить игрока-элийца в Бертроне 40 р.",
       "pt": "Abater 40 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー40回KILL",
-      "ko": "베르테론에서 천족 플레이어 40회 KILL"
+      "ko": "베르테론에서 천족 플레이어 40회 KILL",
+      "zh": "在 Verteron 击败40名天族玩家",
+      "zh-TW": "在 Verteron 擊敗40名天族玩家"
      }
     },
     {
@@ -5138,7 +5868,9 @@
       "ru": "Гордость Асмодеи Ⅸ",
       "pt": "Orgulho do Exército Asmodiano Ⅸ",
       "ja": "魔軍の自慢IX",
-      "ko": "마군의 자랑 Ⅸ"
+      "ko": "마군의 자랑 Ⅸ",
+      "zh": "魔族的骄傲 IX",
+      "zh-TW": "魔族的驕傲 IX"
      },
      "text": {
       "en": "Kill 45 Elyos players in Verteron",
@@ -5148,7 +5880,9 @@
       "ru": "Убить игрока-элийца в Бертроне 45 р.",
       "pt": "Abater 45 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー45回KILL",
-      "ko": "베르테론에서 천족 플레이어 45회 KILL"
+      "ko": "베르테론에서 천족 플레이어 45회 KILL",
+      "zh": "在 Verteron 击败45名天族玩家",
+      "zh-TW": "在 Verteron 擊敗45名天族玩家"
      }
     },
     {
@@ -5163,7 +5897,9 @@
       "ru": "Гордость Асмодеи Ⅹ",
       "pt": "Orgulho do Exército Asmodiano Ⅹ",
       "ja": "魔軍の自慢X",
-      "ko": "마군의 자랑 Ⅹ"
+      "ko": "마군의 자랑 Ⅹ",
+      "zh": "魔族的骄傲 X",
+      "zh-TW": "魔族的驕傲 X"
      },
      "text": {
       "en": "Kill 50 Elyos players in Verteron",
@@ -5173,7 +5909,9 @@
       "ru": "Убить игрока-элийца в Бертроне 50 р.",
       "pt": "Abater 50 jogadores Elyseanos em Verteron",
       "ja": "ベルテロンで天族プレイヤー50回KILL",
-      "ko": "베르테론에서 천족 플레이어 50회 KILL"
+      "ko": "베르테론에서 천족 플레이어 50회 KILL",
+      "zh": "在 Verteron 击败50名天族玩家",
+      "zh-TW": "在 Verteron 擊敗50名天族玩家"
      }
     }
    ]
@@ -5196,7 +5934,9 @@
       "ru": "Под черным флагом Ⅰ",
       "pt": "Bandeira Preta ao Vento Ⅰ",
       "ja": "黒旗を掲げてI",
-      "ko": "흑색 깃발 휘날리며 Ⅰ"
+      "ko": "흑색 깃발 휘날리며 Ⅰ",
+      "zh": "在魔族旗帜下前进 I",
+      "zh-TW": "在魔族旗幟下前進 I"
      },
      "text": {
       "en": "Kill 5 Elyos players in Altgard",
@@ -5206,7 +5946,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 5 р.",
       "pt": "Abater 5 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー5回KILL",
-      "ko": "알트가르드에서 천족 플레이어 5회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 5회 KILL",
+      "zh": "在 Altgard 击败5名天族玩家",
+      "zh-TW": "在 Altgard 擊敗5名天族玩家"
      }
     },
     {
@@ -5221,7 +5963,9 @@
       "ru": "Под черным флагом Ⅱ",
       "pt": "Bandeira Preta ao Vento Ⅱ",
       "ja": "黒旗を掲げてII",
-      "ko": "흑색 깃발 휘날리며 Ⅱ"
+      "ko": "흑색 깃발 휘날리며 Ⅱ",
+      "zh": "在魔族旗帜下前进 II",
+      "zh-TW": "在魔族旗幟下前進 II"
      },
      "text": {
       "en": "Kill 10 Elyos players in Altgard",
@@ -5231,7 +5975,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 10 р.",
       "pt": "Abater 10 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー10回KILL",
-      "ko": "알트가르드에서 천족 플레이어 10회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 10회 KILL",
+      "zh": "在 Altgard 击败10名天族玩家",
+      "zh-TW": "在 Altgard 擊敗10名天族玩家"
      }
     },
     {
@@ -5246,7 +5992,9 @@
       "ru": "Под черным флагом Ⅲ",
       "pt": "Bandeira Preta ao Vento Ⅲ",
       "ja": "黒旗を掲げてIII",
-      "ko": "흑색 깃발 휘날리며 Ⅲ"
+      "ko": "흑색 깃발 휘날리며 Ⅲ",
+      "zh": "在魔族旗帜下前进 III",
+      "zh-TW": "在魔族旗幟下前進 III"
      },
      "text": {
       "en": "Kill 15 Elyos players in Altgard",
@@ -5256,7 +6004,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 15 р.",
       "pt": "Abater 15 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー15回KILL",
-      "ko": "알트가르드에서 천족 플레이어 15회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 15회 KILL",
+      "zh": "在 Altgard 击败15名天族玩家",
+      "zh-TW": "在 Altgard 擊敗15名天族玩家"
      }
     },
     {
@@ -5271,7 +6021,9 @@
       "ru": "Под черным флагом Ⅳ",
       "pt": "Bandeira Preta ao Vento Ⅳ",
       "ja": "黒旗を掲げてIV",
-      "ko": "흑색 깃발 휘날리며 Ⅳ"
+      "ko": "흑색 깃발 휘날리며 Ⅳ",
+      "zh": "在魔族旗帜下前进 IV",
+      "zh-TW": "在魔族旗幟下前進 IV"
      },
      "text": {
       "en": "Kill 20 Elyos players in Altgard",
@@ -5281,7 +6033,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 20 р.",
       "pt": "Abater 20 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー20回KILL",
-      "ko": "알트가르드에서 천족 플레이어 20회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 20회 KILL",
+      "zh": "在 Altgard 击败20名天族玩家",
+      "zh-TW": "在 Altgard 擊敗20名天族玩家"
      }
     },
     {
@@ -5296,7 +6050,9 @@
       "ru": "Под черным флагом Ⅴ",
       "pt": "Bandeira Preta ao Vento Ⅴ",
       "ja": "黒旗を掲げてV",
-      "ko": "흑색 깃발 휘날리며 Ⅴ"
+      "ko": "흑색 깃발 휘날리며 Ⅴ",
+      "zh": "在魔族旗帜下前进 V",
+      "zh-TW": "在魔族旗幟下前進 V"
      },
      "text": {
       "en": "Kill 25 Elyos players in Altgard",
@@ -5306,7 +6062,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 25 р.",
       "pt": "Abater 25 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー25回KILL",
-      "ko": "알트가르드에서 천족 플레이어 25회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 25회 KILL",
+      "zh": "在 Altgard 击败25名天族玩家",
+      "zh-TW": "在 Altgard 擊敗25名天族玩家"
      }
     },
     {
@@ -5321,7 +6079,9 @@
       "ru": "Под черным флагом Ⅵ",
       "pt": "Bandeira Preta ao Vento Ⅵ",
       "ja": "黒旗を掲げてVI",
-      "ko": "흑색 깃발 휘날리며 Ⅵ"
+      "ko": "흑색 깃발 휘날리며 Ⅵ",
+      "zh": "在魔族旗帜下前进 VI",
+      "zh-TW": "在魔族旗幟下前進 VI"
      },
      "text": {
       "en": "Kill 30 Elyos players in Altgard",
@@ -5331,7 +6091,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 30 р.",
       "pt": "Abater 30 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー30回KILL",
-      "ko": "알트가르드에서 천족 플레이어 30회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 30회 KILL",
+      "zh": "在 Altgard 击败30名天族玩家",
+      "zh-TW": "在 Altgard 擊敗30名天族玩家"
      }
     },
     {
@@ -5346,7 +6108,9 @@
       "ru": "Под черным флагом Ⅶ",
       "pt": "Bandeira Preta ao Vento Ⅶ",
       "ja": "黒旗を掲げてVII",
-      "ko": "흑색 깃발 휘날리며 Ⅶ"
+      "ko": "흑색 깃발 휘날리며 Ⅶ",
+      "zh": "在魔族旗帜下前进 VII",
+      "zh-TW": "在魔族旗幟下前進 VII"
      },
      "text": {
       "en": "Kill 35 Elyos players in Altgard",
@@ -5356,7 +6120,9 @@
       "ru": "Убить 35 игроков-элийцев в Альтгарде",
       "pt": "Abater 35 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー35回KILL",
-      "ko": "알트가르드에서 천족 플레이어 35회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 35회 KILL",
+      "zh": "在 Altgard 击败35名天族玩家",
+      "zh-TW": "在 Altgard 擊敗35名天族玩家"
      }
     },
     {
@@ -5371,7 +6137,9 @@
       "ru": "Под черным флагом Ⅷ",
       "pt": "Bandeira Preta ao Vento Ⅷ",
       "ja": "黒旗を掲げてVIII",
-      "ko": "흑색 깃발 휘날리며 Ⅷ"
+      "ko": "흑색 깃발 휘날리며 Ⅷ",
+      "zh": "在魔族旗帜下前进 VIII",
+      "zh-TW": "在魔族旗幟下前進 VIII"
      },
      "text": {
       "en": "Kill 40 Elyos players in Altgard",
@@ -5381,7 +6149,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 40 р.",
       "pt": "Abater 40 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー40回KILL",
-      "ko": "알트가르드에서 천족 플레이어 40회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 40회 KILL",
+      "zh": "在 Altgard 击败40名天族玩家",
+      "zh-TW": "在 Altgard 擊敗40名天族玩家"
      }
     },
     {
@@ -5396,7 +6166,9 @@
       "ru": "Под черным флагом Ⅸ",
       "pt": "Bandeira Preta ao Vento Ⅸ",
       "ja": "黒旗を掲げてIX",
-      "ko": "흑색 깃발 휘날리며 Ⅸ"
+      "ko": "흑색 깃발 휘날리며 Ⅸ",
+      "zh": "在魔族旗帜下前进 IX",
+      "zh-TW": "在魔族旗幟下前進 IX"
      },
      "text": {
       "en": "Kill 45 Elyos players in Altgard",
@@ -5406,7 +6178,9 @@
       "ru": "Убейте 45 игроков-элийцев в Альтгарде",
       "pt": "Abater 45 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー45回KILL",
-      "ko": "알트가르드에서 천족 플레이어 45회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 45회 KILL",
+      "zh": "在 Altgard 击败45名天族玩家",
+      "zh-TW": "在 Altgard 擊敗45名天族玩家"
      }
     },
     {
@@ -5421,7 +6195,9 @@
       "ru": "Под черным флагом Ⅹ",
       "pt": "Bandeira Preta ao Vento Ⅹ",
       "ja": "黒旗を掲げてX",
-      "ko": "흑색 깃발 휘날리며 Ⅹ"
+      "ko": "흑색 깃발 휘날리며 Ⅹ",
+      "zh": "在魔族旗帜下前进 X",
+      "zh-TW": "在魔族旗幟下前進 X"
      },
      "text": {
       "en": "Kill 50 Elyos players in Altgard",
@@ -5431,7 +6207,9 @@
       "ru": "Убить игрока-элийца в Альтгарде 50 р.",
       "pt": "Abater 50 jogadores Elyseanos em Altgard",
       "ja": "アルトガルドで天族プレイヤー50回KILL",
-      "ko": "알트가르드에서 천족 플레이어 50회 KILL"
+      "ko": "알트가르드에서 천족 플레이어 50회 KILL",
+      "zh": "在 Altgard 击败50名天族玩家",
+      "zh-TW": "在 Altgard 擊敗50名天族玩家"
      }
     }
    ]
@@ -5454,7 +6232,9 @@
       "ru": "Даэв великих свершений Ⅰ",
       "pt": "Daeva da Proeza Inabalável Ⅰ",
       "ja": "堅固な実績のディーヴァI",
-      "ko": "굳건한 업적의 데바 Ⅰ"
+      "ko": "굳건한 업적의 데바 Ⅰ",
+      "zh": "持久功绩的 Daeva I",
+      "zh-TW": "持久功績的 Daeva I"
      },
      "text": {
       "en": "Gather 10 Odyle in Abyss",
@@ -5464,7 +6244,9 @@
       "ru": "Собрать эфир в Бездне 10 раз",
       "pt": "Coletar 10 Ods do Abismo",
       "ja": "アビスでオード10個採集",
-      "ko": "어비스에서 오드 10개 채집"
+      "ko": "어비스에서 오드 10개 채집",
+      "zh": "在深渊采集10个奥迪尔",
+      "zh-TW": "在深淵採集10個奧迪爾"
      }
     },
     {
@@ -5479,7 +6261,9 @@
       "ru": "Даэв великих свершений Ⅱ",
       "pt": "Daeva da Proeza Inabalável Ⅱ",
       "ja": "堅固な実績のディーヴァII",
-      "ko": "굳건한 업적의 데바 Ⅱ"
+      "ko": "굳건한 업적의 데바 Ⅱ",
+      "zh": "持久功绩的 Daeva II",
+      "zh-TW": "持久功績的 Daeva II"
      },
      "text": {
       "en": "Gather 20 Odyle in Abyss",
@@ -5489,7 +6273,9 @@
       "ru": "Собрать эфир в Бездне 20 раз",
       "pt": "Coletar 20 Ods do Abismo",
       "ja": "アビスでオード20個採集",
-      "ko": "어비스에서 오드 20개 채집"
+      "ko": "어비스에서 오드 20개 채집",
+      "zh": "在深渊采集20个奥迪尔",
+      "zh-TW": "在深淵採集20個奧迪爾"
      }
     },
     {
@@ -5504,7 +6290,9 @@
       "ru": "Даэв великих свершений Ⅲ",
       "pt": "Daeva da Proeza Inabalável Ⅲ",
       "ja": "堅固な実績のディーヴァIII",
-      "ko": "굳건한 업적의 데바 Ⅲ"
+      "ko": "굳건한 업적의 데바 Ⅲ",
+      "zh": "持久功绩的 Daeva III",
+      "zh-TW": "持久功績的 Daeva III"
      },
      "text": {
       "en": "Gather 30 Odyle in Abyss",
@@ -5514,7 +6302,9 @@
       "ru": "Соберите эфир в Бездне 30 раз",
       "pt": "Coletar 30 Ods do Abismo",
       "ja": "アビスでオード30個採集",
-      "ko": "어비스에서 오드 30개 채집"
+      "ko": "어비스에서 오드 30개 채집",
+      "zh": "在深渊采集30个奥迪尔",
+      "zh-TW": "在深淵採集30個奧迪爾"
      }
     }
    ]
@@ -5537,7 +6327,9 @@
       "ru": "Даэв славных поступков I",
       "pt": "Daeva da Proeza Brilhante Ⅰ",
       "ja": "光る実績のディーヴァI",
-      "ko": "빛나는 업적의 데바 Ⅰ"
+      "ko": "빛나는 업적의 데바 Ⅰ",
+      "zh": "辉煌功绩的 Daeva I",
+      "zh-TW": "輝煌功績的 Daeva I"
      },
      "text": {
       "en": "Complete 3 Abyss commands",
@@ -5547,7 +6339,9 @@
       "ru": "Пройдите свиток приказа Бездны 3 раза",
       "pt": "Concluir Pergaminho de Ordem do Abismo x3",
       "ja": "アビス指令書3個クリア",
-      "ko": "어비스 지령서 3개 클리어"
+      "ko": "어비스 지령서 3개 클리어",
+      "zh": "完成3个深渊指令",
+      "zh-TW": "完成3個深淵指令"
      }
     },
     {
@@ -5562,7 +6356,9 @@
       "ru": "Даэв славных поступков II",
       "pt": "Daeva da Proeza Brilhante Ⅱ",
       "ja": "光る実績のディーヴァII",
-      "ko": "빛나는 업적의 데바 Ⅱ"
+      "ko": "빛나는 업적의 데바 Ⅱ",
+      "zh": "辉煌功绩的 Daeva II",
+      "zh-TW": "輝煌功績的 Daeva II"
      },
      "text": {
       "en": "Complete 6 Abyss commands",
@@ -5572,7 +6368,9 @@
       "ru": "Пройдите свиток приказа Бездны 6 раз",
       "pt": "Concluir Pergaminho de Ordem do Abismo x6",
       "ja": "アビス指令書6個クリア",
-      "ko": "어비스 지령서 6개 클리어"
+      "ko": "어비스 지령서 6개 클리어",
+      "zh": "完成6个深渊指令",
+      "zh-TW": "完成6個深淵指令"
      }
     },
     {
@@ -5587,7 +6385,9 @@
       "ru": "Даэв славных поступков III",
       "pt": "Daeva da Proeza Brilhante Ⅲ",
       "ja": "光る実績のディーヴァIII",
-      "ko": "빛나는 업적의 데바 Ⅲ"
+      "ko": "빛나는 업적의 데바 Ⅲ",
+      "zh": "辉煌功绩的 Daeva III",
+      "zh-TW": "輝煌功績的 Daeva III"
      },
      "text": {
       "en": "Complete 10 Abyss commands",
@@ -5597,7 +6397,9 @@
       "ru": "Выполнить задания свитка приказа 10 р.",
       "pt": "Concluir Pergaminho de Ordem do Abismo x10",
       "ja": "アビス指令書10個クリア",
-      "ko": "어비스 지령서 10개 클리어"
+      "ko": "어비스 지령서 10개 클리어",
+      "zh": "完成10个深渊指令",
+      "zh-TW": "完成10個深淵指令"
      }
     }
    ]
@@ -5620,7 +6422,9 @@
       "ru": "Выдающийся даэв I",
       "pt": "Daeva de Proezas Extraordinárias Ⅰ",
       "ja": "卓越した実績のディーヴァI",
-      "ko": "탁월한 업적의 데바 Ⅰ"
+      "ko": "탁월한 업적의 데바 Ⅰ",
+      "zh": "非凡功绩的 Daeva I",
+      "zh-TW": "非凡功績的 Daeva I"
      },
      "text": {
       "en": "Defeat 1 Abyss boss monster",
@@ -5630,7 +6434,9 @@
       "ru": "Победить 1 босса Бездны",
       "pt": "Derrotar 1 monstro chefe do Abismo",
       "ja": "アビス ボス モンスター1体討伐",
-      "ko": "어비스 보스 몬스터 1마리 처치"
+      "ko": "어비스 보스 몬스터 1마리 처치",
+      "zh": "击败1只深渊首领怪物",
+      "zh-TW": "擊敗1隻深淵首領怪物"
      }
     },
     {
@@ -5645,7 +6451,9 @@
       "ru": "Выдающийся даэв Ⅱ",
       "pt": "Daeva de Proezas Extraordinárias Ⅱ",
       "ja": "卓越した実績のディーヴァII",
-      "ko": "탁월한 업적의 데바 Ⅱ"
+      "ko": "탁월한 업적의 데바 Ⅱ",
+      "zh": "非凡功绩的 Daeva II",
+      "zh-TW": "非凡功績的 Daeva II"
      },
      "text": {
       "en": "Defeat 3 Abyss boss monsters",
@@ -5655,7 +6463,9 @@
       "ru": "Победить босса Бездны 3 р.",
       "pt": "Derrotar 3 monstros chefes do Abismo",
       "ja": "アビス ボス モンスター3体討伐",
-      "ko": "어비스 보스 몬스터 3마리 처치"
+      "ko": "어비스 보스 몬스터 3마리 처치",
+      "zh": "击败3只深渊首领怪物",
+      "zh-TW": "擊敗3隻深淵首領怪物"
      }
     },
     {
@@ -5670,7 +6480,9 @@
       "ru": "Выдающийся даэв Ⅲ",
       "pt": "Daeva de Proezas Extraordinárias Ⅲ",
       "ja": "卓越した実績のディーヴァIII",
-      "ko": "탁월한 업적의 데바 Ⅲ"
+      "ko": "탁월한 업적의 데바 Ⅲ",
+      "zh": "非凡功绩的 Daeva III",
+      "zh-TW": "非凡功績的 Daeva III"
      },
      "text": {
       "en": "Defeat 5 Abyss boss monsters",
@@ -5680,7 +6492,9 @@
       "ru": "Уничтожить босса Бездны 5 р.",
       "pt": "Derrotar 5 monstros chefes do Abismo",
       "ja": "アビス ボス モンスター5体討伐",
-      "ko": "어비스 보스 몬스터 5마리 처치"
+      "ko": "어비스 보스 몬스터 5마리 처치",
+      "zh": "击败5只深渊首领怪物",
+      "zh-TW": "擊敗5隻深淵首領怪物"
      }
     }
    ],
@@ -5719,7 +6533,9 @@
       "ru": "Книга даэвов I",
       "pt": "Daeva do Campo de Batalha I",
       "ja": "戦場のディーヴァI",
-      "ko": "전장의 데바 Ⅰ"
+      "ko": "전장의 데바 Ⅰ",
+      "zh": "Daeva 之书 I",
+      "zh-TW": "Daeva 之書 I"
      },
      "text": {
       "en": "Participate in Battlefield 1 time",
@@ -5729,7 +6545,9 @@
       "ru": "Участвуйте на арене 1 раз",
       "pt": "Participe do Campo de Batalha 1x",
       "ja": "戦場1回参加",
-      "ko": "전장 1회 참여"
+      "ko": "전장 1회 참여",
+      "zh": "参加战场1次",
+      "zh-TW": "參加戰場1次"
      }
     },
     {
@@ -5744,7 +6562,9 @@
       "ru": "Книга даэвов II",
       "pt": "Daeva do Campo de Batalha II",
       "ja": "戦場のディーヴァII",
-      "ko": "전장의 데바 Ⅱ"
+      "ko": "전장의 데바 Ⅱ",
+      "zh": "Daeva 之书 II",
+      "zh-TW": "Daeva 之書 II"
      },
      "text": {
       "en": "Participate in Battlefield 2 times",
@@ -5754,7 +6574,9 @@
       "ru": "Участвуйте на арене 2 раза",
       "pt": "Participar do Campo de Batalha 2x",
       "ja": "戦場2回参加",
-      "ko": "전장 2회 참여"
+      "ko": "전장 2회 참여",
+      "zh": "参加战场2次",
+      "zh-TW": "參加戰場2次"
      }
     },
     {
@@ -5769,7 +6591,9 @@
       "ru": "Книга даэвов III",
       "pt": "Daeva do Campo de Batalha III",
       "ja": "戦場のディーヴァIII",
-      "ko": "전장의 데바 Ⅲ"
+      "ko": "전장의 데바 Ⅲ",
+      "zh": "Daeva 之书 III",
+      "zh-TW": "Daeva 之書 III"
      },
      "text": {
       "en": "Participate in Battlefield 3 times",
@@ -5779,7 +6603,9 @@
       "ru": "Участвуйте на арене 3 раза",
       "pt": "Participe do Campo de Batalha 3x",
       "ja": "戦場3回参加",
-      "ko": "전장 3회 참여"
+      "ko": "전장 3회 참여",
+      "zh": "参加战场3次",
+      "zh-TW": "參加戰場3次"
      }
     }
    ]
