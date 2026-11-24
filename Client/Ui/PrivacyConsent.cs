@@ -35,7 +35,7 @@ public static class PrivacyConsent
     public static bool NeedsAsking(MeterSettings s) => s.PrivacyDecision == NotAsked || (s.PrivacyDecision == Accepted && s.PrivacyVersion < Version);
 
     /// <summary>The tools that stay in the restricted mode (the others need uploads, the server or other players' data).</summary>
-    public static readonly IReadOnlySet<string> RestrictedTools = new HashSet<string> { "checklist", "attributes", "statcalc", "loot", "craft", "timetable", "theme", "network" };
+    public static readonly IReadOnlySet<string> RestrictedTools = new HashSet<string> { "checklist", "weekpoints", "attributes", "statcalc", "loot", "craft", "timetable", "theme", "network" };
 
     /// <summary>The answer was written by somebody else (the first-start wizard): the main window re-reads it.</summary>
     public static void NotifyChanged() => Changed?.Invoke();

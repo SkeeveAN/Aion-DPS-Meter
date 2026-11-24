@@ -90,7 +90,7 @@ public static class ToolRender
                     System.Threading.Thread.Sleep(7000);
                 }
 
-                var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, PanelOfSettings, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
+                var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "weekpoints" ? WeekPointsPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, PanelOfSettings, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
                     () => new HubStatus(parts.Length < 4 || parts[3] != "off", "Aahz", "Gladiator", "Kaisinel (EU)"));
                 if (Environment.GetEnvironmentVariable("AIONDPS_HUB_SIZE") is { Length: > 0 } size && size.Split('x') is { Length: 2 } wh)
                 {
@@ -248,6 +248,42 @@ public static class ToolRender
         Aion2.Aion2Tickets.ReceiveList(entries, t0);
         Aion2.Aion2Tickets.NoteCharacter("Chumley", 1304, t0.AddSeconds(4));
         return new ToolPage { Content = ThemedChrome.TakeContent(new ChecklistWindow()) ?? new Grid() };
+    }
+
+    /// <summary>
+    /// The week points page with made-up counters of a character (values of a Tuesday evening, as a player reads them off the season missions window) and boss times
+    /// of the lower Abyss like a recording has them.
+    /// </summary>
+    private static ToolPage WeekPointsPage()
+    {
+        Aion2.Aion2Tickets.Reset();
+        Aion2.Aion2Tickets.TryParseList(Convert.FromHexString(Combat.SelfCheckTickets.SampleLogin), out var entries);
+        var t0 = DateTime.Now;
+        Aion2.Aion2Tickets.ReceiveList(entries, t0);
+        Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(4));
+        long fresh = new DateTimeOffset(t0.AddHours(-3)).ToUnixTimeMilliseconds();
+        var counters = new Dictionary<int, (int Count, int Level)> { [230211100] = (38, 0), [231210800] = (3, 0) };
+        var readings = new List<Aion2.TicketReading>();
+        foreach (Aion2.WeeklyMission mission in Aion2.Aion2Missions.Missions.Where(m => m.Race == "L"))
+        {
+            (int count, int level) = counters.GetValueOrDefault(mission.Id);
+            readings.Add(new Aion2.TicketReading(mission.Id, new Aion2.TicketValue(count, level, count > 0 ? fresh : 0)));
+        }
+
+        readings.Add(new Aion2.TicketReading(Aion2.Aion2Tickets.WeeklyPointsId, new Aion2.TicketValue(2160, 0, fresh)));
+        Aion2.Aion2Tickets.ReceiveUpdates(readings, t0.AddSeconds(10));
+        long Ms(DateTime local) => new DateTimeOffset(local).ToUnixTimeMilliseconds();
+        DateTime thursday = t0.Date.AddDays(((int)DayOfWeek.Thursday - (int)t0.DayOfWeek + 7) % 7).AddHours(21).AddMinutes(40);
+        DateTime sunday = t0.Date.AddDays(((int)DayOfWeek.Sunday - (int)t0.DayOfWeek + 7) % 7).AddHours(21).AddMinutes(10);
+        var slots = new List<Aion2.Aion2FieldBosses.Slot>();
+        for (int n = 1; n <= 8; n++)
+        {
+            long time = n is 6 or 7 or 8 ? Ms(thursday) : n is 3 or 4 or 5 ? Ms(sunday) : 0;
+            slots.Add(new Aion2.Aion2FieldBosses.Slot(n, false, 0, 0, time));
+        }
+
+        Aion2.Aion2FieldBosses.Update(20, slots);
+        return new ToolPage { Content = ThemedChrome.TakeContent(new WeekPointsWindow()) ?? new Grid() };
     }
 
     private static ToolPage DummyPage(bool madeUp, bool analyse)

@@ -102,7 +102,7 @@ public sealed class ChecklistWindow : Window
     /// One character of the column on the left: the class icon, the name in the class colour (a dot when it is the one logged in), the class, level and server below and, in
     /// small type, when it was last online. The form is Stacy's (her fork, 17 October 2026: alts with close names were hard to tell apart); smaller type than hers.
     /// </summary>
-    private static UIElement CharacterCard(TicketCharacter c, bool active, bool online, Action choose)
+    internal static UIElement CharacterCard(TicketCharacter c, bool active, bool online, Action choose)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         string language = loc.Language;

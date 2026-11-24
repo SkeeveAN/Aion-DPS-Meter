@@ -63,6 +63,11 @@ public static class GameLog
 
                     foreach (var (id, value) in c.Tickets)
                     {
+                        if (Aion2.Aion2Missions.IsMission(id))
+                        {
+                            continue; // the weekly missions' counters change with every kill: the plan keeps the last state, no history of it
+                        }
+
                         bool same;
                         using (SqliteCommand latest = db.CreateCommand())
                         {

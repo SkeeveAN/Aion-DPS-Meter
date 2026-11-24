@@ -1,0 +1,5788 @@
+{
+ "tabs": [
+  "Abyss",
+  "Arena",
+  "PartyChallenge",
+  "Nightmare",
+  "Thema"
+ ],
+ "tabNames": {
+  "Abyss": {
+   "en": "Abyss",
+   "de": "Abyss",
+   "fr": "Abysse",
+   "es": "Abismo",
+   "ru": "Бездна",
+   "pt": "Abismo",
+   "ja": "アビス",
+   "ko": "어비스"
+  },
+  "Arena": {
+   "en": "Arena",
+   "de": "Arena",
+   "fr": "Arène",
+   "es": "Arena",
+   "ru": "Арена",
+   "pt": "Arena",
+   "ja": "闘技場",
+   "ko": "투기장"
+  },
+  "PartyChallenge": {
+   "en": "Transcendence",
+   "de": "Transzendenz",
+   "fr": "Transcendance",
+   "es": "Trascendencia",
+   "ru": "Возвышение",
+   "pt": "Transcendência",
+   "ja": "超越",
+   "ko": "초월"
+  },
+  "Nightmare": {
+   "en": "Nightmare",
+   "de": "Albtraum",
+   "fr": "Cauchemar",
+   "es": "Pesadilla",
+   "ru": "Кошмар",
+   "pt": "Pesadelo",
+   "ja": "悪夢",
+   "ko": "악몽"
+  },
+  "Thema": {
+   "en": "Challenge",
+   "de": "Herausforderung",
+   "fr": "Défi",
+   "es": "Desafío",
+   "ru": "Испытание",
+   "pt": "Desafio",
+   "ja": "挑戦",
+   "ko": "도전"
+  }
+ },
+ "events": {
+  "abyss_ar1_artifactwar": {
+   "days": [
+    4,
+    6
+   ],
+   "at": [
+    21.0
+   ]
+  }
+ },
+ "missions": [
+  {
+   "id": 230210900,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "ElapsedTime",
+   "steps": [
+    {
+     "step": 1,
+     "count": 60,
+     "points": 140,
+     "title": {
+      "en": "Hometown of My Heart",
+      "de": "Heimat meines Herzens",
+      "fr": "Ma terre natale",
+      "es": "La tierra de mi corazón",
+      "ru": "Любимая родина",
+      "pt": "Minha Terra do Meu Coração",
+      "ja": "我が心の故郷",
+      "ko": "내 마음의 고향"
+     },
+     "text": {
+      "en": "Spend 1 hours in Abyss",
+      "de": "Verbringe 1 Stunde im Abyss",
+      "fr": "Passez 1 heure dans l'Abysse",
+      "es": "Permanece 1 hora en el Abismo",
+      "ru": "Проведите 1 час в Бездне",
+      "pt": "Permanecer 1h no Abismo",
+      "ja": "アビスに1時間滞在",
+      "ko": "어비스에서 1시간 체류"
+     }
+    }
+   ]
+  },
+  {
+   "id": 230211000,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "KillPC",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 180,
+     "title": {
+      "en": "Bare Minimum Morality I",
+      "de": "Minimale Moral Ⅰ",
+      "fr": "Un semblant de morale Ⅰ",
+      "es": "Moralidad mínima Ⅰ",
+      "ru": "Минимум морали Ⅰ",
+      "pt": "Mínimo de Moral Ⅰ",
+      "ja": "最低限の道徳I",
+      "ko": "최소한의 도덕 Ⅰ"
+     },
+     "text": {
+      "en": "Kill 5 opposing camp players",
+      "de": "Besiege 5 Spieler vom gegnerischen Lager",
+      "fr": "Tuez 5 joueurs du camp adverse",
+      "es": "Elimina a 5 jugadores de la facción contraria",
+      "ru": "Убить 5 игроков из лагеря врага",
+      "pt": "Abater 5 jogadores de facção adversária",
+      "ja": "敵陣営のプレイヤー5回KILL",
+      "ko": "상대 진영 플레이어 5회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 260,
+     "title": {
+      "en": "Bare Minimum Morality II",
+      "de": "Minimale Moral Ⅱ",
+      "fr": "Un semblant de morale Ⅱ",
+      "es": "Moralidad mínima Ⅱ",
+      "ru": "Минимум морали Ⅱ",
+      "pt": "Mínimo de Moral Ⅱ",
+      "ja": "最低限の道徳II",
+      "ko": "최소한의 도덕 Ⅱ"
+     },
+     "text": {
+      "en": "Kill 10 opposing camp players",
+      "de": "Besiege 10 Spieler vom gegnerischen Lager",
+      "fr": "Tuez 10 joueurs du camp adverse",
+      "es": "Elimina a 10 jugadores de la facción contraria",
+      "ru": "Убить 10 игроков из лагеря врага",
+      "pt": "Abater 10 jogadores de facção adversária",
+      "ja": "敵陣営のプレイヤー10回KILL",
+      "ko": "상대 진영 플레이어 10회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 20,
+     "points": 330,
+     "title": {
+      "en": "Bare Minimum Morality III",
+      "de": "Minimale Moral Ⅲ",
+      "fr": "Un semblant de morale Ⅲ",
+      "es": "Moralidad mínima Ⅲ",
+      "ru": "Минимум морали Ⅲ",
+      "pt": "Mínimo de Moral Ⅲ",
+      "ja": "最低限の道徳III",
+      "ko": "최소한의 도덕 Ⅲ"
+     },
+     "text": {
+      "en": "Kill 20 opposing camp players",
+      "de": "Besiege 20 Spieler vom gegnerischen Lager",
+      "fr": "Tuez 20 joueurs du camp adverse",
+      "es": "Elimina a 20 jugadores de la facción contraria",
+      "ru": "Убить 20 игроков из лагеря врага",
+      "pt": "Abater 20 jogadores de facção adversária",
+      "ja": "敵陣営のプレイヤー20回KILL",
+      "ko": "상대 진영 플레이어 20회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 230211100,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "KillNpcAll",
+   "steps": [
+    {
+     "step": 1,
+     "count": 200,
+     "points": 110,
+     "title": {
+      "en": "Purify Reshanta I",
+      "de": "Läuterung von Reshanta Ⅰ",
+      "fr": "Opération de purification de Reshanta Ⅰ",
+      "es": "Operación de purificación de Reshanta Ⅰ",
+      "ru": "Операция по очищению Арэшурата Ⅰ",
+      "pt": "Operação de Purificação de Reshanta Ⅰ",
+      "ja": "エレシュランタ浄化作戦I",
+      "ko": "에레슈란타 정화 작전 Ⅰ"
+     },
+     "text": {
+      "en": "Hunt 200 monsters in Abyss",
+      "de": "Jage 200 Monster im Abyss",
+      "fr": "Chassez 200 monstres dans l'Abysse",
+      "es": "Caza 200 monstruos en el Abismo",
+      "ru": "Уничтожить 200 монстров в Бездне",
+      "pt": "Caçar 200 monstros no Abismo",
+      "ja": "アビスでモンスター200体狩る",
+      "ko": "어비스에서 몬스터 200마리 사냥"
+     }
+    },
+    {
+     "step": 2,
+     "count": 400,
+     "points": 160,
+     "title": {
+      "en": "Purify Reshanta II",
+      "de": "Läuterung von Reshanta Ⅱ",
+      "fr": "Opération de purification de Reshanta Ⅱ",
+      "es": "Operación de purificación de Reshanta Ⅱ",
+      "ru": "Операция по очищению Арэшурата Ⅱ",
+      "pt": "Operação de Purificação de Reshanta Ⅱ",
+      "ja": "エレシュランタ浄化作戦II",
+      "ko": "에레슈란타 정화 작전 Ⅱ"
+     },
+     "text": {
+      "en": "Hunt 400 monsters in Abyss",
+      "de": "Jage 400 Monster im Abyss",
+      "fr": "Chassez 400 monstres dans l'Abysse",
+      "es": "Caza 400 monstruos en el Abismo",
+      "ru": "Уничтожить 400 монстров в Бездне",
+      "pt": "Caçar 400 monstros no Abismo",
+      "ja": "アビスでモンスター400体狩る",
+      "ko": "어비스에서 몬스터 400마리 사냥"
+     }
+    },
+    {
+     "step": 3,
+     "count": 600,
+     "points": 200,
+     "title": {
+      "en": "Purify Reshanta III",
+      "de": "Läuterung von Reshanta Ⅲ",
+      "fr": "Opération de purification de Reshanta Ⅲ",
+      "es": "Operación de purificación de Reshanta Ⅲ",
+      "ru": "Операция по очищению Арэшурата Ⅲ",
+      "pt": "Operação de Purificação de Reshanta Ⅲ",
+      "ja": "エレシュランタ浄化作戦III",
+      "ko": "에레슈란타 정화 작전 Ⅲ"
+     },
+     "text": {
+      "en": "Hunt 600 monsters in Abyss",
+      "de": "Jage 600 Monster im Abyss",
+      "fr": "Chassez 600 monstres dans l'Abysse",
+      "es": "Caza 600 monstruos en el Abismo",
+      "ru": "Уничтожить 600 монстров в Бездне",
+      "pt": "Caçar 600 monstros no Abismo",
+      "ja": "アビスでモンスター600体狩る",
+      "ko": "어비스에서 몬스터 600마리 사냥"
+     }
+    },
+    {
+     "step": 4,
+     "count": 800,
+     "points": 260,
+     "title": {
+      "en": "Purify Reshanta IV",
+      "de": "Läuterung von Reshanta Ⅳ",
+      "fr": "Opération de purification de Reshanta Ⅳ",
+      "es": "Operación de purificación de Reshanta Ⅳ",
+      "ru": "Операция по очищению Арэшурата Ⅳ",
+      "pt": "Operação de Purificação de Reshanta Ⅳ",
+      "ja": "エレシュランタ浄化作戦IV",
+      "ko": "에레슈란타 정화 작전 Ⅳ"
+     },
+     "text": {
+      "en": "Hunt 800 monsters in Abyss",
+      "de": "Jage 800 Monster im Abyss",
+      "fr": "Chassez 800 monstres dans l'Abysse",
+      "es": "Caza 800 monstruos en el Abismo",
+      "ru": "Уничтожить 800 монстров в Бездне",
+      "pt": "Caçar 800 monstros no Abismo",
+      "ja": "アビスでモンスター800体狩る",
+      "ko": "어비스에서 몬스터 800마리 사냥"
+     }
+    },
+    {
+     "step": 5,
+     "count": 1000,
+     "points": 310,
+     "title": {
+      "en": "Purify Reshanta V",
+      "de": "Läuterung von Reshanta Ⅴ",
+      "fr": "Opération de purification de Reshanta Ⅴ",
+      "es": "Operación de purificación de Reshanta Ⅴ",
+      "ru": "Операция по очищению Арэшурата Ⅴ",
+      "pt": "Operação de Purificação de Reshanta Ⅴ",
+      "ja": "エレシュランタ浄化作戦V",
+      "ko": "에레슈란타 정화 작전 Ⅴ"
+     },
+     "text": {
+      "en": "Hunt 1,000 monsters in Abyss",
+      "de": "Jage 1.000 Monster im Abyss",
+      "fr": "Chassez 1 000 monstres dans l'Abysse",
+      "es": "Caza 1000 monstruos en el Abismo",
+      "ru": "Уничтожить 1000 монстров в Бездне",
+      "pt": "Caçar 1.000 monstros no Abismo",
+      "ja": "アビスでモンスター1,000体狩る",
+      "ko": "어비스에서 몬스터 1000마리 사냥"
+     }
+    },
+    {
+     "step": 6,
+     "count": 1200,
+     "points": 340,
+     "title": {
+      "en": "Purify Reshanta VI",
+      "de": "Läuterung von Reshanta Ⅵ",
+      "fr": "Opération de purification de Reshanta Ⅵ",
+      "es": "Operación de purificación de Reshanta Ⅵ",
+      "ru": "Операция по очищению Арэшурата Ⅵ",
+      "pt": "Operação de Purificação de Reshanta Ⅵ",
+      "ja": "エレシュランタ浄化作戦VI",
+      "ko": "에레슈란타 정화 작전 Ⅵ"
+     },
+     "text": {
+      "en": "Hunt 1,200 monsters in Abyss",
+      "de": "Jage 1.200 Monster im Abyss",
+      "fr": "Chassez 1 200 monstres dans l'Abysse",
+      "es": "Caza 1200 monstruos en el Abismo",
+      "ru": "Уничтожить 1200 монстров в Бездне",
+      "pt": "Caçar 1.200 monstros no Abismo",
+      "ja": "アビスでモンスター1,200体狩る",
+      "ko": "어비스에서 몬스터 1200마리 사냥"
+     }
+    },
+    {
+     "step": 7,
+     "count": 1400,
+     "points": 370,
+     "title": {
+      "en": "Purify Reshanta VII",
+      "de": "Läuterung von Reshanta Ⅶ",
+      "fr": "Opération de purification de Reshanta Ⅶ",
+      "es": "Operación de purificación de Reshanta Ⅶ",
+      "ru": "Операция по очищению Арэшурата Ⅶ",
+      "pt": "Operação de Purificação de Reshanta Ⅶ",
+      "ja": "エレシュランタ浄化作戦VII",
+      "ko": "에레슈란타 정화 작전 Ⅶ"
+     },
+     "text": {
+      "en": "Hunt 1,400 monsters in Abyss",
+      "de": "Jage 1.400 Monster im Abyss",
+      "fr": "Chassez 1 400 monstres dans l'Abysse",
+      "es": "Caza 1400 monstruos en el Abismo",
+      "ru": "Уничтожить 1400 монстров в Бездне",
+      "pt": "Caçar 1.400 monstros no Abismo",
+      "ja": "アビスでモンスター1,400体狩る",
+      "ko": "어비스에서 몬스터 1400마리 사냥"
+     }
+    },
+    {
+     "step": 8,
+     "count": 1600,
+     "points": 410,
+     "title": {
+      "en": "Purify Reshanta VIII",
+      "de": "Läuterung von Reshanta Ⅷ",
+      "fr": "Opération de purification de Reshanta Ⅷ",
+      "es": "Operación de purificación de Reshanta Ⅷ",
+      "ru": "Операция по очищению Арэшурата Ⅷ",
+      "pt": "Operação de Purificação de Reshanta Ⅷ",
+      "ja": "エレシュランタ浄化作戦VIII",
+      "ko": "에레슈란타 정화 작전 Ⅷ"
+     },
+     "text": {
+      "en": "Hunt 1,600 monsters in Abyss",
+      "de": "Jage 1.600 Monster im Abyss",
+      "fr": "Chassez 1 600 monstres dans l'Abysse",
+      "es": "Caza 1600 monstruos en el Abismo",
+      "ru": "Уничтожить 1600 монстров в Бездне",
+      "pt": "Caçar 1.600 monstros no Abismo",
+      "ja": "アビスでモンスター1,600体狩る",
+      "ko": "어비스에서 몬스터 1600마리 사냥"
+     }
+    },
+    {
+     "step": 9,
+     "count": 1800,
+     "points": 450,
+     "title": {
+      "en": "Purify Reshanta IX",
+      "de": "Läuterung von Reshanta Ⅸ",
+      "fr": "Opération de purification de Reshanta Ⅸ",
+      "es": "Operación de purificación de Reshanta Ⅸ",
+      "ru": "Операция по очищению Арэшурата Ⅸ",
+      "pt": "Operação de Purificação de Reshanta Ⅸ",
+      "ja": "エレシュランタ浄化作戦IX",
+      "ko": "에레슈란타 정화 작전 Ⅸ"
+     },
+     "text": {
+      "en": "Hunt 1,800 monsters in Abyss",
+      "de": "Jage 1.800 Monster im Abyss",
+      "fr": "Chassez 1 800 monstres dans l'Abysse",
+      "es": "Caza 1800 monstruos en el Abismo",
+      "ru": "Уничтожить 1800 монстров в Бездне",
+      "pt": "Caçar 1.800 monstros no Abismo",
+      "ja": "アビスでモンスター1,800体狩る",
+      "ko": "어비스에서 몬스터 1800마리 사냥"
+     }
+    },
+    {
+     "step": 10,
+     "count": 2000,
+     "points": 500,
+     "title": {
+      "en": "Purify Reshanta X",
+      "de": "Läuterung von Reshanta Ⅹ",
+      "fr": "Opération de purification de Reshanta Ⅹ",
+      "es": "Operación de purificación de Reshanta Ⅹ",
+      "ru": "Операция по очищению Арэшурата Ⅹ",
+      "pt": "Operação de Purificação de Reshanta Ⅹ",
+      "ja": "エレシュランタ浄化作戦X",
+      "ko": "에레슈란타 정화 작전 Ⅹ"
+     },
+     "text": {
+      "en": "Hunt 2,000 monsters in Abyss",
+      "de": "Jage 2.000 Monster im Abyss",
+      "fr": "Chassez 2 000 monstres dans l'Abysse",
+      "es": "Caza 2000 monstruos en el Abismo",
+      "ru": "Уничтожить 2000 монстров в Бездне",
+      "pt": "Caçar 2.000 monstros no Abismo",
+      "ja": "アビスでモンスター2,000体狩る",
+      "ko": "어비스에서 몬스터 2000마리 사냥"
+     }
+    }
+   ]
+  },
+  {
+   "id": 230211200,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Watcher Kaira I",
+      "de": "Aufseherin Kaira Ⅰ",
+      "fr": "Kaira la veilleuse Ⅰ",
+      "es": "Vigilante Kaira Ⅰ",
+      "ru": "Дозорный Кайра Ⅰ",
+      "pt": "Vigilante Kairah Ⅰ",
+      "ja": "監視者カイラI",
+      "ko": "감시자 카이라 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat the boss Watcher Kaira 1 time",
+      "de": "Besiege den Boss Aufseherin Kaira (1-mal)",
+      "fr": "Éliminez le boss Kaira la veilleuse 1 fois",
+      "es": "Derrota al jefe Vigilante Kaira 1 vez",
+      "ru": "Победить Дозорщика Кайру (босс) 1 раз",
+      "pt": "Derrotar chefe Vigilante Kairah 1x",
+      "ja": "ボス監視者カイラ1回討伐",
+      "ko": "보스 감시자 카이라 1회 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 5,
+     "points": 190,
+     "title": {
+      "en": "Watcher Kaira II",
+      "de": "Aufseherin Kaira Ⅱ",
+      "fr": "Kaira la veilleuse Ⅱ",
+      "es": "Vigilante Kaira Ⅱ",
+      "ru": "Дозорный Кайра Ⅱ",
+      "pt": "Vigilante Kairah Ⅱ",
+      "ja": "監視者カイラII",
+      "ko": "감시자 카이라 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat the boss Watcher Kaira 5 times",
+      "de": "Besiege den Boss Aufseherin Kaira (5-mal)",
+      "fr": "Éliminez le boss Kaira la veilleuse 5 fois",
+      "es": "Derrota al jefe Vigilante Kaira 5 veces",
+      "ru": "Победите Дозорного Кайра 5 раз",
+      "pt": "Derrotar chefe Vigilante Kairah 5x",
+      "ja": "ボス監視者カイラ5回討伐",
+      "ko": "보스 감시자 카이라 5회 처치"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 330,
+     "title": {
+      "en": "Watcher Kaira III",
+      "de": "Aufseherin Kaira Ⅲ",
+      "fr": "Kaira la veilleuse Ⅲ",
+      "es": "Vigilante Kaira Ⅲ",
+      "ru": "Дозорный Кайра Ⅲ",
+      "pt": "Vigilante Kairah Ⅲ",
+      "ja": "監視者カイラIII",
+      "ko": "감시자 카이라 Ⅲ"
+     },
+     "text": {
+      "en": "Defeat the boss Watcher Kaira 10 times",
+      "de": "Besiege den Boss Aufseherin Kaira (10-mal)",
+      "fr": "Éliminez le boss Kaira la veilleuse 10 fois",
+      "es": "Derrota al jefe Vigilante Kaira 10 veces",
+      "ru": "Победите Дозорного Кайра 10 раз",
+      "pt": "Derrotar chefe Vigilante Kairah 10x",
+      "ja": "ボス監視者カイラ10回討伐",
+      "ko": "보스 감시자 카이라 10회 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600089,
+    2600098
+   ]
+  },
+  {
+   "id": 230211300,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Argo, the Spirit King I",
+      "de": "Geisterfürst Agro Ⅰ",
+      "fr": "Agro le roi des esprits Ⅰ",
+      "es": "Rey Espíritu Agro Ⅰ",
+      "ru": "Король духов Агро Ⅰ",
+      "pt": "Argo, Rei dos Espíritos I",
+      "ja": "精霊王アグロI",
+      "ko": "정령왕 아그로 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat the boss Argo, the Spirit King 1 time",
+      "de": "Besiege den Boss Geisterfürst Agro (1-mal)",
+      "fr": "Éliminez le boss Agro le roi des esprits 1 fois",
+      "es": "Derrota al jefe Rey Espíritu Agro 1 vez",
+      "ru": "Победите Короля духов Агро 1 раз",
+      "pt": "Derrotar chefe Argo, Rei dos Espíritos 1x",
+      "ja": "ボス精霊王アグロ1回討伐",
+      "ko": "보스 정령왕 아그로 1회 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 190,
+     "title": {
+      "en": "Argo, the Spirit King II",
+      "de": "Geisterfürst Agro Ⅱ",
+      "fr": "Agro le roi des esprits Ⅱ",
+      "es": "Rey Espíritu Agro Ⅱ",
+      "ru": "Король духов Агро Ⅱ",
+      "pt": "Argo, Rei dos Espíritos II",
+      "ja": "精霊王アグロII",
+      "ko": "정령왕 아그로 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat the boss Argo, the Spirit King 3 times",
+      "de": "Besiege den Boss Geisterfürst Agro (3-mal)",
+      "fr": "Éliminez le boss Agro le roi des esprits 3 fois",
+      "es": "Derrota al jefe Rey Espíritu Agro 3 veces",
+      "ru": "Победить Короля духов Агро (босс) 3 раза",
+      "pt": "Derrotar chefe Argo, Rei dos Espíritos 3x",
+      "ja": "ボス精霊王アグロ3回討伐",
+      "ko": "보스 정령왕 아그로 3회 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600068,
+    2600097
+   ]
+  },
+  {
+   "id": 230211400,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 180,
+     "title": {
+      "en": "Guardian Lord Nahma",
+      "de": "Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien",
+      "es": "Señor guardián Nahma",
+      "ru": "Лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma",
+      "ja": "守護神将ナフマ",
+      "ko": "수호신장 나흐마"
+     },
+     "text": {
+      "en": "Defeat the boss Guardian Lord Nahma 1 time",
+      "de": "Besiege den Boss Wächtergott Nahma (1-mal)",
+      "fr": "Éliminez le boss Nahma le seigneur gardien 1 fois",
+      "es": "Derrota al jefe Señor guardián Nahma 1 vez",
+      "ru": "Победите Лорда-хранитель Нахма 1 раз",
+      "pt": "Derrotar chefe Senhor Guardião Nahma 1x",
+      "ja": "ボス守護神将ナフマ1回討伐",
+      "ko": "보스 수호신장 나흐마 1회 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600084,
+    2600093,
+    2600094,
+    2600150,
+    2600156,
+    2600478,
+    2600479,
+    2600480
+   ]
+  },
+  {
+   "id": 230211500,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "AbyssArtifactEventComplete",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Land Grabs I",
+      "de": "Gebietseroberung Ⅰ",
+      "fr": "Conquête territoriale Ⅰ",
+      "es": "Conquista territorial Ⅰ",
+      "ru": "Захват территории Ⅰ",
+      "pt": "Disputa Territorial Ⅰ",
+      "ja": "陣取りゲームI",
+      "ko": "땅따먹기 Ⅰ"
+     },
+     "text": {
+      "en": "Participate in Artifact Siege 1 time by its end",
+      "de": "Nimm an einer Artefakt-Belagerung bis zum Ende teil (1-mal)",
+      "fr": "Participez au Siège d'artefact jusqu'à la fin 1 fois",
+      "es": "Participa 1 vez en el Asedio de artefactos hasta su finalización",
+      "ru": "Принять участие в захвате артефактов до конца 1 р.",
+      "pt": "Participar até o fim do Cerco de Artefatos 1x",
+      "ja": "アーティファクト占領戦1回終了時点まで参加",
+      "ko": "아티팩트 점령전 1회 종료 시점까지 참여"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 190,
+     "title": {
+      "en": "Land Grabs II",
+      "de": "Gebietseroberung Ⅱ",
+      "fr": "Conquête territoriale Ⅱ",
+      "es": "Conquista territorial Ⅱ",
+      "ru": "Захват территории Ⅱ",
+      "pt": "Disputa Territorial Ⅱ",
+      "ja": "陣取りゲームII",
+      "ko": "땅따먹기 Ⅱ"
+     },
+     "text": {
+      "en": "Participate in Artifact Siege 2 times by its end",
+      "de": "Nimm an einer Artefakt-Belagerung bis zum Ende teil (2-mal)",
+      "fr": "Participez au Siège d'artefact jusqu'à la fin 2 fois",
+      "es": "Participa 2 veces en el Asedio de artefactos hasta su finalización",
+      "ru": "Принять участие в Захвате артефактов до конца 2 р.",
+      "pt": "Participar até o fim do Cerco de Artefatos 2x",
+      "ja": "アーティファクト占領戦2回終了時点まで参加",
+      "ko": "아티팩트 점령전 2회 종료 시점까지 참여"
+     }
+    }
+   ],
+   "event": "abyss_ar1_artifactwar"
+  },
+  {
+   "id": 230211600,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "AbyssArtifactEventWin",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Down to the Last One",
+      "de": "Bis zum Letzten",
+      "fr": "Jusqu'au dernier",
+      "es": "Hasta el último",
+      "ru": "До последнего",
+      "pt": "Até o Final",
+      "ja": "最後の一つまで",
+      "ko": "마지막 하나까지"
+     },
+     "text": {
+      "en": "Win Artifact Siege 1 time",
+      "de": "Gewinne eine Artefakt-Belagerung (1-mal)",
+      "fr": "Remportez un Siège d'artefact 1 fois",
+      "es": "Gana en el Asedio de artefacto 1 vez",
+      "ru": "Победить в Захвате артефактов 1 р.",
+      "pt": "Vencer o Cerco de Artefatos 1x",
+      "ja": "アーティファクト占領戦1回勝利",
+      "ko": "아티팩트 점령전 1회 승리"
+     }
+    }
+   ],
+   "event": "abyss_ar1_artifactwar"
+  },
+  {
+   "id": 230211700,
+   "race": "L",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 150,
+     "title": {
+      "en": "Dominator of Lower Abyss",
+      "de": "Bezwinger des unteren Abyss",
+      "fr": "Dominateur de l'Abysse inférieur",
+      "es": "Dominador del Abismo Inferior",
+      "ru": "Повелитель нижнего уровня Бездны",
+      "pt": "Dominador do Piso Inferior",
+      "ja": "下層の支配者",
+      "ko": "하층의 지배자"
+     },
+     "text": {
+      "en": "Defeat 1 Dominator of Lower Abyss after Artifact Siege",
+      "de": "Besiege 1 Bezwinger des unteren Abyss nach einer Artefakt-Belagerung",
+      "fr": "Éliminez 1 Dominateur de l'Abysse inférieur après un Siège d'artefact",
+      "es": "Derrota a 1 Dominador del Abismo Inferior tras finalizar el Asedio de artefactos",
+      "ru": "Победите 1 повелителя нижнего уровня Бездны после захвата артефактов",
+      "pt": "Derrotar 1 Dominador do Piso Inferior após o fim do Cerco de Artefatos",
+      "ja": "アーティファクト占領戦終了後に下層の支配者1体討伐",
+      "ko": "아티팩트 점령전 종료 후 하층의 지배자 1마리 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600096,
+    2600097,
+    2600098
+   ]
+  },
+  {
+   "id": 231210800,
+   "race": "L",
+   "tab": "Arena",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 3,
+     "points": 140,
+     "title": {
+      "en": "Steady Efforts I",
+      "de": "Beständige Bemühungen Ⅰ",
+      "fr": "Efforts constants Ⅰ",
+      "es": "Poder de la práctica constante Ⅰ",
+      "ru": "Повторение — мать учения I",
+      "pt": "Poder do Combate Constante Ⅰ",
+      "ja": "地道な実戦の力I",
+      "ko": "꾸준한 실전의 힘 Ⅰ"
+     },
+     "text": {
+      "en": "Participate in Arena 3 times",
+      "de": "Nimm an der Arena teil (3-mal)",
+      "fr": "Participez 3 fois à l'Arène",
+      "es": "Participa en la Arena 3 veces",
+      "ru": "Участие на арене 3 р.",
+      "pt": "Participar da Arena 3x",
+      "ja": "闘技場3回参加",
+      "ko": "투기장 3회 참여"
+     }
+    },
+    {
+     "step": 2,
+     "count": 7,
+     "points": 190,
+     "title": {
+      "en": "Steady Efforts II",
+      "de": "Beständige Bemühungen Ⅱ",
+      "fr": "Efforts constants Ⅱ",
+      "es": "Poder de la práctica constante Ⅱ",
+      "ru": "Повторение — мать учения Ⅱ",
+      "pt": "Poder do Combate Constante Ⅱ",
+      "ja": "地道な実戦の力II",
+      "ko": "꾸준한 실전의 힘 Ⅱ"
+     },
+     "text": {
+      "en": "Participate in Arena 7 times",
+      "de": "Nimm an der Arena teil (7-mal)",
+      "fr": "Participez 7 fois à l'Arène",
+      "es": "Participa en la Arena 7 veces",
+      "ru": "Участие на арене 7 р.",
+      "pt": "Participar da Arena 7x",
+      "ja": "闘技場7回参加",
+      "ko": "투기장 7회 참여"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 250,
+     "title": {
+      "en": "Steady Efforts III",
+      "de": "Beständige Bemühungen Ⅲ",
+      "fr": "Efforts constants Ⅲ",
+      "es": "Poder de la práctica constante Ⅲ",
+      "ru": "Повторение — мать учения Ⅲ",
+      "pt": "Poder do Combate Constante Ⅲ",
+      "ja": "地道な実戦の力III",
+      "ko": "꾸준한 실전의 힘 Ⅲ"
+     },
+     "text": {
+      "en": "Participate in Arena 10 times",
+      "de": "Nimm an der Arena teil (10-mal)",
+      "fr": "Participez à l'Arène 10 fois",
+      "es": "Participa en la Arena 10 veces",
+      "ru": "Сражайтесь на арене 10 раз",
+      "pt": "Participar da Arena 10x",
+      "ja": "闘技場10回参加",
+      "ko": "투기장 10회 참여"
+     }
+    }
+   ]
+  },
+  {
+   "id": 231210900,
+   "race": "L",
+   "tab": "Arena",
+   "kind": "ArenaWin",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 230,
+     "title": {
+      "en": "Me, Beyond Myself I",
+      "de": "Über mich hinaus Ⅰ",
+      "fr": "Se surpasser Ⅰ",
+      "es": "Más allá de mí mismo Ⅰ",
+      "ru": "Превзойти самого себя I",
+      "pt": "Além de Mim Mesmo Ⅰ",
+      "ja": "俺を超えた、俺I",
+      "ko": "나를 넘어선, 나 Ⅰ"
+     },
+     "text": {
+      "en": "Win 1 time in Arena",
+      "de": "Gewinne in der Arena (1-mal)",
+      "fr": "Remportez 1 victoire dans l'Arène",
+      "es": "Gana en la Arena 1 vez",
+      "ru": "Победа на арене 1 р.",
+      "pt": "Vencer a Arena 1x",
+      "ja": "闘技場1回勝利",
+      "ko": "투기장 1회 승리"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 320,
+     "title": {
+      "en": "Me, Beyond Myself II",
+      "de": "Über mich hinaus Ⅱ",
+      "fr": "Se surpasser Ⅱ",
+      "es": "Más allá de mí mismo Ⅱ",
+      "ru": "Превзойти самого себя Ⅱ",
+      "pt": "Além de Mim Mesmo Ⅱ",
+      "ja": "俺を超えた、俺II",
+      "ko": "나를 넘어선, 나 Ⅱ"
+     },
+     "text": {
+      "en": "Win 3 times in Arena",
+      "de": "Gewinne in der Arena (3-mal)",
+      "fr": "Remportez 3 victoires dans l'Arène",
+      "es": "Gana en la Arena 3 veces",
+      "ru": "Пробеда на арене 3 раза",
+      "pt": "Vencer a Arena 3x",
+      "ja": "闘技場3回勝利",
+      "ko": "투기장 3회 승리"
+     }
+    },
+    {
+     "step": 3,
+     "count": 5,
+     "points": 410,
+     "title": {
+      "en": "Me, Beyond Myself III",
+      "de": "Über mich hinaus Ⅲ",
+      "fr": "Se surpasser Ⅲ",
+      "es": "Más allá de mí mismo Ⅲ",
+      "ru": "Превзойти самого себя Ⅲ",
+      "pt": "Além de Mim Mesmo Ⅲ",
+      "ja": "俺を超えた、俺III",
+      "ko": "나를 넘어선, 나 Ⅲ"
+     },
+     "text": {
+      "en": "Win 5 times in Arena",
+      "de": "Siege in der Arena (5-mal)",
+      "fr": "Remportez 5 victoires dans l'Arène",
+      "es": "Gana en la Arena 5 veces",
+      "ru": "Победа на арене 5 р.",
+      "pt": "Vencer a Arena 5x",
+      "ja": "闘技場5回勝利",
+      "ko": "투기장 5회 승리"
+     }
+    }
+   ]
+  },
+  {
+   "id": 232210900,
+   "race": "L",
+   "tab": "PartyChallenge",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 3,
+     "points": 360,
+     "title": {
+      "en": "Way of the Transcended I",
+      "de": "Pfad der Transzendierten Ⅰ",
+      "fr": "La voie des transcendés Ⅰ",
+      "es": "Camino de los Trascendidos Ⅰ",
+      "ru": "Путь возвышенных Ⅰ",
+      "pt": "Trajetória dos Transcendidos Ⅰ",
+      "ja": "超越した者たちのI",
+      "ko": "초월한 자들의 행보 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 3 times",
+      "de": "Schließe den Transzendenz-Dungeon ab (3-mal)",
+      "fr": "Terminez le donjon de la Transcendance 3 fois",
+      "es": "Completa la mazmorra de Trascendencia 3 veces",
+      "ru": "Пройти подземелье Возвышения 3 р.",
+      "pt": "Concluir Masmorra da Transcendência 3x",
+      "ja": "超越ダンジョン3回クリア",
+      "ko": "초월 던전 3번 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 6,
+     "points": 510,
+     "title": {
+      "en": "Way of the Transcended II",
+      "de": "Pfad der Transzendierten Ⅱ",
+      "fr": "La voie des transcendés Ⅱ",
+      "es": "Camino de los Trascendidos Ⅱ",
+      "ru": "Путь возвышенных Ⅱ",
+      "pt": "Trajetória dos Transcendidos Ⅱ",
+      "ja": "超越した者たちのII",
+      "ko": "초월한 자들의 행보 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 6 times",
+      "de": "Schließe den Transzendenz-Dungeon ab (6-mal)",
+      "fr": "Terminez le donjon de la Transcendance 6 fois",
+      "es": "Completa la Mazmorra de Trascendencia 6 veces",
+      "ru": "Пройти подземелье Возвышения 6 раз",
+      "pt": "Concluir Masmorra da Transcendência 6x",
+      "ja": "超越ダンジョン6回クリア",
+      "ko": "초월 던전 6번 클리어"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 650,
+     "title": {
+      "en": "Way of the Transcended III",
+      "de": "Pfad der Transzendierten Ⅲ",
+      "fr": "La voie des transcendés Ⅲ",
+      "es": "Camino de los Trascendidos Ⅲ",
+      "ru": "Путь возвышенных Ⅲ",
+      "pt": "Trajetória dos Transcendidos Ⅲ",
+      "ja": "超越した者たちのIII",
+      "ko": "초월한 자들의 행보 Ⅲ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 10 times",
+      "de": "Schließe den Transzendenz-Dungeon ab (10-mal)",
+      "fr": "Terminez le donjon de la Transcendance 10 fois",
+      "es": "Completa la Mazmorra de Trascendencia 10 veces",
+      "ru": "Пройти подземелье Возвышения 10 раз",
+      "pt": "Concluir Masmorra da Transcendência 10x",
+      "ja": "超越ダンジョン10回クリア",
+      "ko": "초월 던전 10번 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 232211000,
+   "race": "L",
+   "tab": "PartyChallenge",
+   "kind": "ClearDungeonLimitDeath",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 180,
+     "title": {
+      "en": "Transforms Upon Death I",
+      "de": "Mutation beim Tod Ⅰ",
+      "fr": "Transformation à la mort Ⅰ",
+      "es": "Transformación al morir Ⅰ",
+      "ru": "Перевоплощение после смерти Ⅰ",
+      "pt": "Mutação ao Morrer Ⅰ",
+      "ja": "死亡時に変異しますI",
+      "ko": "사망 시, 변이됩니다 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 1 time without dying",
+      "de": "Schließe den Transzendenz-Dungeon ab, ohne zu sterben (1-mal)",
+      "fr": "Terminez le donjon de la Transcendance 1 fois sans mourir",
+      "es": "Completa la mazmorra de Trascendencia 1 vez sin haber muerto ni una vez",
+      "ru": "Пройти подземелье Возвышения 1 раз, не погибнув",
+      "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 1x",
+      "ja": "超越ダンジョン死なずに1回クリア",
+      "ko": "초월 던전 한번도 죽지 않고 1번 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 260,
+     "title": {
+      "en": "Transforms Upon Death II",
+      "de": "Mutation beim Tod Ⅱ",
+      "fr": "Transformation à la mort Ⅱ",
+      "es": "Transformación al morir Ⅱ",
+      "ru": "Перевоплощение после смерти Ⅱ",
+      "pt": "Mutação ao Morrer Ⅱ",
+      "ja": "死亡時に変異しますII",
+      "ko": "사망 시, 변이됩니다 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 3 times without dying",
+      "de": "Schließe den Transzendenz-Dungeon ab, ohne zu sterben (3-mal)",
+      "fr": "Terminez le donjon de la Transcendance 3 fois sans mourir",
+      "es": "Completa la mazmorra de Trascendencia 3 veces sin haber muerto ni una vez",
+      "ru": "Пройти подземелье Возвышения 3 р., не погибнув",
+      "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 3x",
+      "ja": "超越ダンジョン死なずに3回クリア",
+      "ko": "초월 던전 한번도 죽지 않고 3번 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 232211100,
+   "race": "L",
+   "tab": "PartyChallenge",
+   "kind": "ClearAchievement",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 180,
+     "title": {
+      "en": "Transcendence Speed Run I",
+      "de": "Schnelldurchlauf: Transzendenz Ⅰ",
+      "fr": "Course à la Transcendance Ⅰ",
+      "es": "Contrarreloj de Trascendencia Ⅰ",
+      "ru": "Прохождение Возвышения на скорость Ⅰ",
+      "pt": "Contra o Tempo na Transcendência Ⅰ",
+      "ja": "超越をスピードランI",
+      "ko": "초월 스피드런 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon within 15 minutes",
+      "de": "Schließe den Transzendenz-Dungeon innerhalb von 15 Min. ab",
+      "fr": "Terminez le donjon de la Transcendance en moins de 15 min",
+      "es": "Completa la mazmorra de Trascendencia en menos de 15 minutos",
+      "ru": "Пройти подземелье Возвышения за 15 минут",
+      "pt": "Concluir Masmorra da Transcendência em até 15min",
+      "ja": "超越ダンジョン15分以内にクリア",
+      "ko": "초월 던전 15분 이내 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 260,
+     "title": {
+      "en": "Transcendence Speed Run II",
+      "de": "Schnelldurchlauf: Transzendenz Ⅱ",
+      "fr": "Course à la Transcendance Ⅱ",
+      "es": "Contrarreloj de Trascendencia Ⅱ",
+      "ru": "Прохождение Возвышения на скорость Ⅱ",
+      "pt": "Contra o Tempo na Transcendência Ⅱ",
+      "ja": "超越をスピードランII",
+      "ko": "초월 스피드런 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon within 7 minutes",
+      "de": "Schließe den Transzendenz-Dungeon innerhalb von 7 Min. ab",
+      "fr": "Terminez le donjon de la Transcendance en moins de 7 minutes",
+      "es": "Completa la mazmorra de Trascendencia en menos de 7 minutos",
+      "ru": "Пройти подземелье Возвышения за 7 мин.",
+      "pt": "Concluir Masmorra da Transcendência em até 7min",
+      "ja": "超越ダンジョン7分以内にクリア",
+      "ko": "초월 던전 7분 이내 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 232211200,
+   "race": "L",
+   "tab": "PartyChallenge",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 10,
+     "points": 270,
+     "title": {
+      "en": "Time to Go Home",
+      "de": "Kehre zurück",
+      "fr": "Il est temps de rentrer",
+      "es": "Regresa por donde viniste",
+      "ru": "Возвращение обратно",
+      "pt": "Volte de Onde Veio!",
+      "ja": "来た場所へ戻れ",
+      "ko": "왔던 곳으로 돌아가"
+     },
+     "text": {
+      "en": "Defeat 10 Mini-Bosses in Transcendence Dungeon",
+      "de": "Besiege 10 Zwischenbosse im Transzendenz-Dungeon",
+      "fr": "Éliminez 10 mini-boss dans le donjon de la Transcendance",
+      "es": "Derrota a 10 minijefes en una Mazmorra de Trascendencia",
+      "ru": "Победить мини-босса в подземелье Возвышения 10 р.",
+      "pt": "Derrotar 10 Chefes Intermediários na Masmorra da Transcendência",
+      "ja": "超越ダンジョンで中間ボス10体討伐",
+      "ko": "초월 던전에서 중간 보스 10마리 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2300001,
+    2300002,
+    2300016,
+    2300017,
+    2300031,
+    2300032,
+    2301502,
+    2301503,
+    2320615,
+    2320616,
+    2330708,
+    2330709,
+    2340615,
+    2340616,
+    2343615,
+    2343616,
+    2346615,
+    2346616,
+    2350708,
+    2350709,
+    2353708,
+    2353709,
+    2356708,
+    2356709
+   ]
+  },
+  {
+   "id": 232211300,
+   "race": "L",
+   "tab": "PartyChallenge",
+   "kind": "ClearAchievement",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Toward Greater Power I",
+      "de": "Auf dem Weg zu mehr Macht Ⅰ",
+      "fr": "Vers plus de puissance Ⅰ",
+      "es": "Hacia un mayor poder Ⅰ",
+      "ru": "К большему могуществу Ⅰ",
+      "pt": "Em Busca de Um Poder Maior Ⅰ",
+      "ja": "より大きな力へI",
+      "ko": "더 큰 힘을 향해 Ⅰ"
+     },
+     "text": {
+      "en": "Extract 10 Arcana",
+      "de": "Extrahiere 10 Arkana",
+      "fr": "Extrayez 10 arcanes",
+      "es": "Extrae 10 Arcanas",
+      "ru": "Извлечь 10 аркан",
+      "pt": "Extrair Arcana x10",
+      "ja": "アルカナ10個抽出する",
+      "ko": "아르카나 10개 추출하기"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 260,
+     "title": {
+      "en": "Toward Greater Power II",
+      "de": "Auf dem Weg zu mehr Macht Ⅱ",
+      "fr": "Vers plus de puissance Ⅱ",
+      "es": "Hacia un mayor poder Ⅱ",
+      "ru": "К большему могуществу II",
+      "pt": "Em Busca de Um Poder Maior Ⅱ",
+      "ja": "より大きな力へII",
+      "ko": "더 큰 힘을 향해 Ⅱ"
+     },
+     "text": {
+      "en": "Transmute 1 Arcana",
+      "de": "Veredle 1 Arkana",
+      "fr": "Transmutez 1 arcane",
+      "es": "Transmuta 1 Arcana",
+      "ru": "Синтезировать 1 аркан",
+      "pt": "Sintetizar Arcana x1",
+      "ja": "アルカナ1個錬成する",
+      "ko": "아르카나 1개 연성하기"
+     }
+    }
+   ]
+  },
+  {
+   "id": 233210700,
+   "race": "L",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 180,
+     "title": {
+      "en": "Friends With a Story I",
+      "de": "Freunde mit Geschichte Ⅰ",
+      "fr": "Des amis, une histoire Ⅰ",
+      "es": "Amigos con historia Ⅰ",
+      "ru": "Особые обстоятельства I",
+      "pt": "Cada Um com Sua História Ⅰ",
+      "ja": "ワケありの仲間たちI",
+      "ko": "사연 있는 친구들 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss 5 times",
+      "de": "Besiege 5 Albtraum-Bosse",
+      "fr": "Éliminez le boss du Cauchemar 5 fois",
+      "es": "Derrota al jefe de Pesadilla 5 veces",
+      "ru": "Победить босса Кошмара 5 раз",
+      "pt": "Derrotar Chefe do Pesadelo 5x",
+      "ja": "悪夢ボス5回討伐",
+      "ko": "악몽 보스 5회 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 380,
+     "title": {
+      "en": "Friends With a Story II",
+      "de": "Freunde mit Geschichte Ⅱ",
+      "fr": "Des amis, une histoire Ⅱ",
+      "es": "Amigos con historia Ⅱ",
+      "ru": "Друзья со своей историей Ⅱ",
+      "pt": "Cada Um com Sua História Ⅱ",
+      "ja": "ワケありの仲間たちII",
+      "ko": "사연 있는 친구들 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss 10 times",
+      "de": "Besiege 10 Albtraum-Bosse",
+      "fr": "Éliminez le boss du Cauchemar 10 fois",
+      "es": "Derrota al jefe de Pesadilla 10 veces",
+      "ru": "Победить босса Кошмара 10 раз",
+      "pt": "Derrotar Chefe do Pesadelo 10x",
+      "ja": "悪夢ボス10回討伐",
+      "ko": "악몽 보스 10회 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 233210800,
+   "race": "L",
+   "tab": "Nightmare",
+   "kind": "GetItem",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1000,
+     "points": 90,
+     "title": {
+      "en": "Collecting Dream Shards I",
+      "de": "Traumfragmente sammeln Ⅰ",
+      "fr": "Collecte de fragments de rêve Ⅰ",
+      "es": "Reuniendo pedazos oníricos Ⅰ",
+      "ru": "За фрагментами сна Ⅰ",
+      "pt": "Reunindo Pedaços de Sonho Ⅰ",
+      "ja": "夢の欠片を集めてI",
+      "ko": "꿈의 조각을 모아 Ⅰ"
+     },
+     "text": {
+      "en": "Obtain 1,000 Phantasmal Fragments",
+      "de": "Erhalte 1.000 Phantomfragmente",
+      "fr": "Obtenez 1 000 Fragments oniriques",
+      "es": "Obtén 1000 Fragmentos de ensueño",
+      "ru": "Собрать осколки видения x1000",
+      "pt": "Obter Fragmento Onírico x1.000",
+      "ja": "夢幻の破片1,000個獲得",
+      "ko": "몽환의 파편 1000개 획득"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3000,
+     "points": 130,
+     "title": {
+      "en": "Collecting Dream Shards II",
+      "de": "Traumfragmente sammeln Ⅱ",
+      "fr": "Collecte de fragments de rêve Ⅱ",
+      "es": "Reuniendo pedazos oníricos Ⅱ",
+      "ru": "За фрагментами сна Ⅱ",
+      "pt": "Reunindo Pedaços de Sonho Ⅱ",
+      "ja": "夢の欠片を集めてII",
+      "ko": "꿈의 조각을 모아 Ⅱ"
+     },
+     "text": {
+      "en": "Obtain 3,000 Phantasmal Fragments",
+      "de": "Erhalte 3.000 Phantomfragmente",
+      "fr": "Obtenez 3 000 Fragments oniriques",
+      "es": "Obtén 3000 Fragmentos de ensueño",
+      "ru": "Собрать осколки видения x3000",
+      "pt": "Obter Fragmento Onírico x3.000",
+      "ja": "夢幻の破片3,000個獲得",
+      "ko": "몽환의 파편 3000개 획득"
+     }
+    }
+   ]
+  },
+  {
+   "id": 233210900,
+   "race": "L",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "3 Minutes of Nightmare",
+      "de": "3-Minuten-Albtraum",
+      "fr": "3 minutes de cauchemar",
+      "es": "3 minutos de pesadilla",
+      "ru": "Кошмар за 3 мин.",
+      "pt": "3 Minutos de Pesadelo",
+      "ja": "3分ナイトメア",
+      "ko": "3분 나이트메어"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss within 3 minutes",
+      "de": "Besiege den Albtraum-Boss innerhalb von 3 Min.",
+      "fr": "Éliminez le boss du Cauchemar en moins de 3 minutes",
+      "es": "Derrota al Jefe de Pesadilla en menos de 3 minutos",
+      "ru": "Победить босса Кошмара за 3 мин.",
+      "pt": "Derrotar Chefe do Pesadelo em até 3min",
+      "ja": "悪夢ボスを3分以内に討伐",
+      "ko": "악몽 보스 3분 이내 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 233211000,
+   "race": "L",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 190,
+     "title": {
+      "en": "Nightmare Buster",
+      "de": "Albtraum-Bezwinger",
+      "fr": "Redresseur de torts du Cauchemar",
+      "es": "Cazador de Pesadilla",
+      "ru": "Укротитель Кошмара",
+      "pt": "Solucionador de Pesadelos",
+      "ja": "悪夢解決士",
+      "ko": "악몽 해결사"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss within 2 minutes",
+      "de": "Besiege den Albtraum-Boss innerhalb von 2 Min.",
+      "fr": "Éliminez le boss du Cauchemar en moins de 2 minutes",
+      "es": "Derrota al Jefe de Pesadilla en menos de 2 minutos",
+      "ru": "Победить босса Кошмара за 2 мин.",
+      "pt": "Derrotar Chefe do Pesadelo em até 2min",
+      "ja": "悪夢ボスを2分以内に討伐",
+      "ko": "악몽 보스 2분 이내 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 233211100,
+   "race": "L",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 330,
+     "title": {
+      "en": "Eternal Rest",
+      "de": "Ewige Ruhe",
+      "fr": "Repos éternel",
+      "es": "Descanso eterno",
+      "ru": "Вечный покой",
+      "pt": "Descanso Eterno",
+      "ja": "永遠の安息",
+      "ko": "영원한 안식"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss within 1 minute",
+      "de": "Besiege einen Albtraum-Boss innerhalb von 1 Min.",
+      "fr": "Éliminez le boss du Cauchemar en moins d'une minute",
+      "es": "Derrota al Jefe de Pesadilla en menos de 1 minuto",
+      "ru": "Победить босса Кошмара за 1 мин.",
+      "pt": "Derrotar Chefe do Pesadelo em até 1min",
+      "ja": "悪夢ボスを1分以内に討伐",
+      "ko": "악몽 보스 1분 이내 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234210800,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Hatched Bird I",
+      "de": "Aus dem Ei geschlüpft Ⅰ",
+      "fr": "L'oiseau sorti de sa coquille Ⅰ",
+      "es": "Ave que rompió el cascarón Ⅰ",
+      "ru": "Первые шаги Ⅰ",
+      "pt": "Pássaro Saído do Ovo Ⅰ",
+      "ja": "卵を割って出てきた鳥I",
+      "ko": "알을 깨고 나온 새 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Ascension Trial 1 time",
+      "de": "Schließe Aszensusritus ab (1-mal)",
+      "fr": "Terminez l'Épreuve d'éveil 1 fois",
+      "es": "Completa la Prueba de ascenso 1 vez",
+      "ru": "Пройти Битву пробуждения 1 р.",
+      "pt": "Concluir Rito de Ascensão 1x",
+      "ja": "覚醒戦1回クリア",
+      "ko": "각성전 1회 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 190,
+     "title": {
+      "en": "Hatched Bird II",
+      "de": "Aus dem Ei geschlüpft Ⅱ",
+      "fr": "L'oiseau sorti de sa coquille Ⅱ",
+      "es": "Ave que rompió el cascarón Ⅱ",
+      "ru": "Первые шаги Ⅱ",
+      "pt": "Pássaro Saído do Ovo Ⅱ",
+      "ja": "卵を割って出てきた鳥II",
+      "ko": "알을 깨고 나온 새 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Ascension Trial 2 times",
+      "de": "Schließe Aszensusritus ab (2-mal)",
+      "fr": "Terminez l'Épreuve d'éveil 2 fois",
+      "es": "Completa la Prueba de ascenso 2 veces",
+      "ru": "Пройти Битву пробуждения 2 раза",
+      "pt": "Concluir Rito de Ascensão 2x",
+      "ja": "覚醒戦2回クリア",
+      "ko": "각성전 2회 클리어"
+     }
+    },
+    {
+     "step": 3,
+     "count": 3,
+     "points": 250,
+     "title": {
+      "en": "Hatched Bird III",
+      "de": "Aus dem Ei geschlüpft Ⅲ",
+      "fr": "L'oiseau sorti de sa coquille Ⅲ",
+      "es": "Ave que rompió el cascarón Ⅲ",
+      "ru": "Первые шаги Ⅲ",
+      "pt": "Pássaro Saído do Ovo Ⅲ",
+      "ja": "卵を割って出てきた鳥III",
+      "ko": "알을 깨고 나온 새 Ⅲ"
+     },
+     "text": {
+      "en": "Clear Ascension Trial 3 times",
+      "de": "Schließe Aszensusritus ab (3-mal)",
+      "fr": "Terminez l'Épreuve d'éveil 3 fois",
+      "es": "Completa Prueba de ascenso 3 veces",
+      "ru": "Пройти Битву пробуждения 3 раза",
+      "pt": "Concluir Rito de Ascensão 3x",
+      "ja": "覚醒戦3回クリア",
+      "ko": "각성전 3회 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234210900,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "KillPCAbyssGrade",
+   "steps": [
+    {
+     "step": 1,
+     "count": 2,
+     "points": 180,
+     "title": {
+      "en": "Shooting for the Stars I",
+      "de": "Auf Sternenjagd Ⅰ",
+      "fr": "À la conquête des étoiles Ⅰ",
+      "es": "A por las estrellas Ⅰ",
+      "ru": "За звездами Ⅰ",
+      "pt": "Vamos Colher Estrelas Ⅰ",
+      "ja": "星を取りに行こうI",
+      "ko": "별 따러 가세 Ⅰ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 2 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (2-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 2 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x2",
+      "ru": "Убить офицеров 1-5 ранга 2 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 2x",
+      "ja": "[一星～五星将校]2回KILL",
+      "ko": "[1성~5성 장교] 2회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 4,
+     "points": 190,
+     "title": {
+      "en": "Shooting for the Stars II",
+      "de": "Auf Sternenjagd Ⅱ",
+      "fr": "À la conquête des étoiles Ⅱ",
+      "es": "A por las estrellas Ⅱ",
+      "ru": "За звездами Ⅱ",
+      "pt": "Vamos Colher Estrelas Ⅱ",
+      "ja": "星を取りに行こうII",
+      "ko": "별 따러 가세 Ⅱ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 4 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (4-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 4 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x4",
+      "ru": "Убить офицеров 1-5 ранга 4 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 4x",
+      "ja": "[一星～五星将校]4回KILL",
+      "ko": "[1성~5성 장교] 4회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 6,
+     "points": 190,
+     "title": {
+      "en": "Shooting for the Stars III",
+      "de": "Auf Sternenjagd Ⅲ",
+      "fr": "À la conquête des étoiles Ⅲ",
+      "es": "A por las estrellas Ⅲ",
+      "ru": "За звездами Ⅲ",
+      "pt": "Vamos Colher Estrelas Ⅲ",
+      "ja": "星を取りに行こうIII",
+      "ko": "별 따러 가세 Ⅲ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 6 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (6-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 6 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x6",
+      "ru": "Убить офицеров 1-5 ранга 6 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 6x",
+      "ja": "[一星～五星将校]6回KILL",
+      "ko": "[1성~5성 장교] 6회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 8,
+     "points": 200,
+     "title": {
+      "en": "Shooting for the Stars IV",
+      "de": "Auf Sternenjagd Ⅳ",
+      "fr": "À la conquête des étoiles Ⅳ",
+      "es": "A por las estrellas Ⅳ",
+      "ru": "За звездами Ⅳ",
+      "pt": "Vamos Colher Estrelas Ⅳ",
+      "ja": "星を取りに行こうIV",
+      "ko": "별 따러 가세 Ⅳ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 8 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (8-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 8 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x8",
+      "ru": "Убить офицеров 1-5 ранга 8 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 8x",
+      "ja": "[一星～五星将校]8回KILL",
+      "ko": "[1성~5성 장교] 8회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 10,
+     "points": 200,
+     "title": {
+      "en": "Shooting for the Stars V",
+      "de": "Auf Sternenjagd Ⅴ",
+      "fr": "À la conquête des étoiles Ⅴ",
+      "es": "A por las estrellas Ⅴ",
+      "ru": "За звездами Ⅴ",
+      "pt": "Vamos Colher Estrelas Ⅴ",
+      "ja": "星を取りに行こうV",
+      "ko": "별 따러 가세 Ⅴ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 10 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (10-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 10 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x10",
+      "ru": "Убить офицеров 1-5 ранга 10 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 10x",
+      "ja": "[一星～五星将校]10回KILL",
+      "ko": "[1성~5성 장교] 10회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 12,
+     "points": 210,
+     "title": {
+      "en": "Shooting for the Stars VI",
+      "de": "Auf Sternenjagd Ⅵ",
+      "fr": "À la conquête des étoiles Ⅵ",
+      "es": "A por las estrellas Ⅵ",
+      "ru": "За звездами Ⅵ",
+      "pt": "Vamos Colher Estrelas Ⅵ",
+      "ja": "星を取りに行こうVI",
+      "ko": "별 따러 가세 Ⅵ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 12 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (12-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 12 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x12",
+      "ru": "Убить офицеров 1-5 ранга 12 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 12x",
+      "ja": "[一星～五星将校]12回KILL",
+      "ko": "[1성~5성 장교] 12회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 14,
+     "points": 210,
+     "title": {
+      "en": "Shooting for the Stars VII",
+      "de": "Auf Sternenjagd Ⅶ",
+      "fr": "À la conquête des étoiles Ⅶ",
+      "es": "A por las estrellas Ⅶ",
+      "ru": "За звездами Ⅶ",
+      "pt": "Vamos Colher Estrelas Ⅶ",
+      "ja": "星を取りに行こうVII",
+      "ko": "별 따러 가세 Ⅶ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 14 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (14-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 14 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x14",
+      "ru": "Убить офицеров 1-5 ранга 14 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 14x",
+      "ja": "[一星～五星将校]14回KILL",
+      "ko": "[1성~5성 장교] 14회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 16,
+     "points": 220,
+     "title": {
+      "en": "Shooting for the Stars VIII",
+      "de": "Auf Sternenjagd Ⅷ",
+      "fr": "À la conquête des étoiles Ⅷ",
+      "es": "A por las estrellas Ⅷ",
+      "ru": "За звездами Ⅷ",
+      "pt": "Vamos Colher Estrelas Ⅷ",
+      "ja": "星を取りに行こうVIII",
+      "ko": "별 따러 가세 Ⅷ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 16 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (16-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 16 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x16",
+      "ru": "Убить офицеров 1-5 ранга 16 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 16x",
+      "ja": "[一星～五星将校]16回KILL",
+      "ko": "[1성~5성 장교] 16회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 18,
+     "points": 220,
+     "title": {
+      "en": "Shooting for the Stars IX",
+      "de": "Auf Sternenjagd Ⅸ",
+      "fr": "À la conquête des étoiles Ⅸ",
+      "es": "A por las estrellas Ⅸ",
+      "ru": "За звездами Ⅸ",
+      "pt": "Vamos Colher Estrelas Ⅸ",
+      "ja": "星を取りに行こうIX",
+      "ko": "별 따러 가세 Ⅸ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 18 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (18-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 18 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x18",
+      "ru": "Убить офицеров 1-5 ранга 18 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 18x",
+      "ja": "[一星～五星将校]18回KILL",
+      "ko": "[1성~5성 장교] 18회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 20,
+     "points": 230,
+     "title": {
+      "en": "Shooting for the Stars X",
+      "de": "Auf Sternenjagd Ⅹ",
+      "fr": "À la conquête des étoiles Ⅹ",
+      "es": "A por las estrellas Ⅹ",
+      "ru": "За звездами Ⅹ",
+      "pt": "Vamos Colher Estrelas Ⅹ",
+      "ja": "星を取りに行こうX",
+      "ko": "별 따러 가세 Ⅹ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 20 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (20-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 20 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x20",
+      "ru": "Убить офицеров 1-5 ранга 20 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 20x",
+      "ja": "[一星～五星将校]20回KILL",
+      "ko": "[1성~5성 장교] 20회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234211000,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "KillPCAbyssGrade",
+   "steps": [
+    {
+     "step": 1,
+     "count": 6,
+     "points": 140,
+     "title": {
+      "en": "Baptism of Fire I",
+      "de": "Begrüßung der jungen Sprösslinge Ⅰ",
+      "fr": "Accueil des jeunes pousses Ⅰ",
+      "es": "Recepción de los brotes verdes Ⅰ",
+      "ru": "Боевое крещение Ⅰ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅰ",
+      "ja": "みずみずしい新芽の到来I",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅰ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 6 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (6-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 6 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x6",
+      "ru": "Убить воинов 1-9-го ранга 6 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 6x",
+      "ja": "[一等～九等兵]6回KILL",
+      "ko": "[1급~9급병] 6회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 12,
+     "points": 140,
+     "title": {
+      "en": "Baptism of Fire II",
+      "de": "Begrüßung der jungen Sprösslinge Ⅱ",
+      "fr": "Accueil des jeunes pousses Ⅱ",
+      "es": "Recepción de los brotes verdes Ⅱ",
+      "ru": "Боевое крещение Ⅱ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅱ",
+      "ja": "みずみずしい新芽の到来II",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅱ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 12 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (12-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 12 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x12",
+      "ru": "Убить воинов 1-9-го ранга 12 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 12x",
+      "ja": "[一等～九等兵]12回KILL",
+      "ko": "[1급~9급병] 12회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 18,
+     "points": 150,
+     "title": {
+      "en": "Baptism of Fire III",
+      "de": "Begrüßung der jungen Sprösslinge Ⅲ",
+      "fr": "Accueil des jeunes pousses Ⅲ",
+      "es": "Recepción de los brotes verdes Ⅲ",
+      "ru": "Боевое крещение Ⅲ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅲ",
+      "ja": "みずみずしい新芽の到来III",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅲ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 18 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (18-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 18 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x18",
+      "ru": "Убить воинов 1-9-го ранга 18 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 18x",
+      "ja": "[一等～九等兵]18回KILL",
+      "ko": "[1급~9급병] 18회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 24,
+     "points": 150,
+     "title": {
+      "en": "Baptism of Fire IV",
+      "de": "Begrüßung der jungen Sprösslinge Ⅳ",
+      "fr": "Accueil des jeunes pousses Ⅳ",
+      "es": "Recepción de los brotes verdes Ⅳ",
+      "ru": "Боевое крещение Ⅳ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅳ",
+      "ja": "みずみずしい新芽の到来IV",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅳ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 24 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (24-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 24 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x24",
+      "ru": "Убить воинов 1-9-го ранга 24 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 24x",
+      "ja": "[一等～九等兵]24回KILL",
+      "ko": "[1급~9급병] 24회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 30,
+     "points": 160,
+     "title": {
+      "en": "Baptism of Fire V",
+      "de": "Begrüßung der jungen Sprösslinge Ⅴ",
+      "fr": "Accueil des jeunes pousses Ⅴ",
+      "es": "Recepción de los brotes verdes Ⅴ",
+      "ru": "Боевое крещение Ⅴ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅴ",
+      "ja": "みずみずしい新芽の到来V",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅴ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 30 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (30-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 30 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x30",
+      "ru": "Убить воинов 1-9-го ранга 30 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 30x",
+      "ja": "[一等～九等兵]30回KILL",
+      "ko": "[1급~9급병] 30회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 36,
+     "points": 160,
+     "title": {
+      "en": "Baptism of Fire VI",
+      "de": "Begrüßung der jungen Sprösslinge Ⅵ",
+      "fr": "Accueil des jeunes pousses Ⅵ",
+      "es": "Recepción de los brotes verdes Ⅵ",
+      "ru": "Боевое крещение Ⅵ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅵ",
+      "ja": "みずみずしい新芽の到来VI",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅵ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 36 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (36-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 36 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x36",
+      "ru": "Убить воинов 1-9-го ранга 36 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 36x",
+      "ja": "[一等～九等兵]36回KILL",
+      "ko": "[1급~9급병] 36회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 42,
+     "points": 170,
+     "title": {
+      "en": "Baptism of Fire VII",
+      "de": "Begrüßung der jungen Sprösslinge Ⅶ",
+      "fr": "Accueil des jeunes pousses Ⅶ",
+      "es": "Recepción de los brotes verdes Ⅶ",
+      "ru": "Боевое крещение Ⅶ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅶ",
+      "ja": "みずみずしい新芽の到来VII",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅶ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 42 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (42-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 42 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x42",
+      "ru": "Убить воинов 1-9-го ранга 42 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 42x",
+      "ja": "[一等～九等兵]42回KILL",
+      "ko": "[1급~9급병] 42회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 48,
+     "points": 170,
+     "title": {
+      "en": "Baptism of Fire VIII",
+      "de": "Begrüßung der jungen Sprösslinge Ⅷ",
+      "fr": "Accueil des jeunes pousses Ⅷ",
+      "es": "Recepción de los brotes verdes Ⅷ",
+      "ru": "Боевое крещение Ⅷ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅷ",
+      "ja": "みずみずしい新芽の到来VIII",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅷ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 48 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (48-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 48 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x48",
+      "ru": "Убить воинов 1-9-го ранга 48 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 48x",
+      "ja": "[一等～九等兵]48回KILL",
+      "ko": "[1급~9급병] 48회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 54,
+     "points": 180,
+     "title": {
+      "en": "Baptism of Fire IX",
+      "de": "Begrüßung der jungen Sprösslinge Ⅸ",
+      "fr": "Accueil des jeunes pousses Ⅸ",
+      "es": "Recepción de los brotes verdes Ⅸ",
+      "ru": "Боевое крещение Ⅸ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅸ",
+      "ja": "みずみずしい新芽の到来IX",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅸ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 54 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (54-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 54 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x54",
+      "ru": "Убить воинов 1-9-го ранга 54 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 54x",
+      "ja": "[一等～九等兵]54回KILL",
+      "ko": "[1급~9급병] 54회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 60,
+     "points": 180,
+     "title": {
+      "en": "Baptism of Fire X",
+      "de": "Begrüßung der jungen Sprösslinge Ⅹ",
+      "fr": "Accueil des jeunes pousses Ⅹ",
+      "es": "Recepción de los brotes verdes Ⅹ",
+      "ru": "Боевое крещение Ⅹ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅹ",
+      "ja": "みずみずしい新芽の到来X",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅹ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 60 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (60-mal)",
+      "fr": "Tuez [Soldat 1re à la 9e classe] 60 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x60",
+      "ru": "Убить воинов 1-9-го ранга 60 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 60x",
+      "ja": "[一等～九等兵]60回KILL",
+      "ko": "[1급~9급병] 60회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234211100,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "KillPC",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 160,
+     "title": {
+      "en": "Pride of Elysea I",
+      "de": "Stolz der Elyos Ⅰ",
+      "fr": "Fierté de l'armée Élyséenne I",
+      "es": "Orgullo del Ejército Elyos Ⅰ",
+      "ru": "Гордость Элиоса Ⅰ",
+      "pt": "Orgulho do Exército Elyseano Ⅰ",
+      "ja": "天軍の自慢I",
+      "ko": "천군의 자랑 Ⅰ"
+     },
+     "text": {
+      "en": "Kill 5 Asmodian players in Altgard",
+      "de": "Besiege 5 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 5 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 5 jugadores Asmodianos en Altgard",
+      "ru": "Уничтожить 5 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 5 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー5回KILL",
+      "ko": "알트가르드에서 마족 플레이어 5회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 170,
+     "title": {
+      "en": "Pride of Elysea II",
+      "de": "Stolz der Elyos Ⅱ",
+      "fr": "Fierté de l'armée Élyséenne II",
+      "es": "Orgullo del Ejército Elyos Ⅱ",
+      "ru": "Гордость Элиоса II",
+      "pt": "Orgulho do Exército Elyseano Ⅱ",
+      "ja": "天軍の自慢II",
+      "ko": "천군의 자랑 Ⅱ"
+     },
+     "text": {
+      "en": "Kill 10 Asmodian players in Altgard",
+      "de": "Besiege 10 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 10 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 10 jugadores Asmodianos en Altgard",
+      "ru": "Убить игрока-асмодианина в Альтгарде 10 р.",
+      "pt": "Abater 10 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー10回KILL",
+      "ko": "알트가르드에서 마족 플레이어 10회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 15,
+     "points": 170,
+     "title": {
+      "en": "Pride of Elysea III",
+      "de": "Stolz der Elyos Ⅲ",
+      "fr": "Fierté de l'armée Élyséenne Ⅲ",
+      "es": "Orgullo del Ejército Elyos Ⅲ",
+      "ru": "Гордость Элиоса Ⅲ",
+      "pt": "Orgulho do Exército Elyseano Ⅲ",
+      "ja": "天軍の自慢III",
+      "ko": "천군의 자랑 Ⅲ"
+     },
+     "text": {
+      "en": "Kill 15 Asmodian players in Altgard",
+      "de": "Besiege 15 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 15 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 15 jugadores Asmodianos en Altgard",
+      "ru": "Уничтожить 15 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 15 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー15回KILL",
+      "ko": "알트가르드에서 마족 플레이어 15회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 20,
+     "points": 180,
+     "title": {
+      "en": "Pride of Elysea IV",
+      "de": "Stolz der Elyos Ⅳ",
+      "fr": "Fierté de l'armée Élyséenne Ⅳ",
+      "es": "Orgullo del Ejército Elyos Ⅳ",
+      "ru": "Гордость Элиоса IV",
+      "pt": "Orgulho do Exército Elyseano Ⅳ",
+      "ja": "天軍の自慢IV",
+      "ko": "천군의 자랑 Ⅳ"
+     },
+     "text": {
+      "en": "Kill 20 Asmodian players in Altgard",
+      "de": "Besiege 20 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 20 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 20 jugadores Asmodianos en Altgard",
+      "ru": "Убить 20 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 20 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー20回KILL",
+      "ko": "알트가르드에서 마족 플레이어 20회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 25,
+     "points": 180,
+     "title": {
+      "en": "Pride of Elysea V",
+      "de": "Stolz der Elyos Ⅴ",
+      "fr": "Fierté de l'armée Élyséenne V",
+      "es": "Orgullo del Ejército Elyos Ⅴ",
+      "ru": "Гордость Элиоса V",
+      "pt": "Orgulho do Exército Elyseano Ⅴ",
+      "ja": "天軍の自慢V",
+      "ko": "천군의 자랑 Ⅴ"
+     },
+     "text": {
+      "en": "Kill 25 Asmodian players in Altgard",
+      "de": "Besiege 25 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 25 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 25 jugadores Asmodianos en Altgard",
+      "ru": "Уничтожить 25 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 25 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー25回KILL",
+      "ko": "알트가르드에서 마족 플레이어 25회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 30,
+     "points": 180,
+     "title": {
+      "en": "Pride of Elysea VI",
+      "de": "Stolz der Elyos Ⅵ",
+      "fr": "Fierté de l'armée Élyséenne VI",
+      "es": "Orgullo del Ejército Elyos Ⅵ",
+      "ru": "Гордость Элиоса Ⅵ",
+      "pt": "Orgulho do Exército Elyseano Ⅵ",
+      "ja": "天軍の自慢VI",
+      "ko": "천군의 자랑 Ⅵ"
+     },
+     "text": {
+      "en": "Kill 30 Asmodian players in Altgard",
+      "de": "Besiege 30 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 30 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 30 jugadores Asmodianos en Altgard",
+      "ru": "Убить 30 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 30 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー30回KILL",
+      "ko": "알트가르드에서 마족 플레이어 30회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 35,
+     "points": 190,
+     "title": {
+      "en": "Pride of Elysea VII",
+      "de": "Stolz der Elyos Ⅶ",
+      "fr": "Fierté de l'armée Élyséenne Ⅶ",
+      "es": "Orgullo del Ejército Elyos Ⅶ",
+      "ru": "Гордость Элиоса Ⅶ",
+      "pt": "Orgulho do Exército Elyseano Ⅶ",
+      "ja": "天軍の自慢VII",
+      "ko": "천군의 자랑 Ⅶ"
+     },
+     "text": {
+      "en": "Kill 35 Asmodian players in Altgard",
+      "de": "Besiege 35 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 35 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 35 jugadores Asmodianos en Altgard",
+      "ru": "Уничтожить 35 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 35 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー35回KILL",
+      "ko": "알트가르드에서 마족 플레이어 35회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 40,
+     "points": 190,
+     "title": {
+      "en": "Pride of Elysea VIII",
+      "de": "Stolz der Elyos Ⅷ",
+      "fr": "Fierté de l'armée Élyséenne Ⅷ",
+      "es": "Orgullo del Ejército Elyos Ⅷ",
+      "ru": "Гордость Элиоса Ⅷ",
+      "pt": "Orgulho do Exército Elyseano Ⅷ",
+      "ja": "天軍の自慢VIII",
+      "ko": "천군의 자랑 Ⅷ"
+     },
+     "text": {
+      "en": "Kill 40 Asmodian players in Altgard",
+      "de": "Besiege 40 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 40 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 40 jugadores Asmodianos en Altgard",
+      "ru": "Убейте 40 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 40 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー40回KILL",
+      "ko": "알트가르드에서 마족 플레이어 40회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 45,
+     "points": 200,
+     "title": {
+      "en": "Pride of Elysea IX",
+      "de": "Stolz der Elyos Ⅸ",
+      "fr": "Fierté de l'armée Élyséenne Ⅸ",
+      "es": "Orgullo del Ejército Elyos Ⅸ",
+      "ru": "Гордость Элиоса Ⅸ",
+      "pt": "Orgulho do Exército Elyseano Ⅸ",
+      "ja": "天軍の自慢IX",
+      "ko": "천군의 자랑 Ⅸ"
+     },
+     "text": {
+      "en": "Kill 45 Asmodian players in Altgard",
+      "de": "Besiege 45 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 45 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 45 jugadores Asmodianos en Altgard",
+      "ru": "Уничтожить 45 игроков-асмодиан в Альтгарде",
+      "pt": "Abater 45 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー45回KILL",
+      "ko": "알트가르드에서 마족 플레이어 45회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 50,
+     "points": 210,
+     "title": {
+      "en": "Pride of Elysea X",
+      "de": "Stolz der Elyos Ⅹ",
+      "fr": "Fierté de l'armée Élyséenne X",
+      "es": "Orgullo del Ejército Elyos Ⅹ",
+      "ru": "Гордость Элиоса X",
+      "pt": "Orgulho do Exército Elyseano Ⅹ",
+      "ja": "天軍の自慢X",
+      "ko": "천군의 자랑 Ⅹ"
+     },
+     "text": {
+      "en": "Kill 50 Asmodian players in Altgard",
+      "de": "Besiege 50 Asmodier-Spieler in Altgard",
+      "fr": "Tuez 50 joueurs Asmodiens à Altgard",
+      "es": "Elimina a 50 jugadores Asmodianos en Altgard",
+      "ru": "Убить игрока-асмодианина в Альтгарде 50 р.",
+      "pt": "Abater 50 jogadores Asmodianos em Altgard",
+      "ja": "アルトガルドで魔族プレイヤー50回KILL",
+      "ko": "알트가르드에서 마족 플레이어 50회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234211200,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "KillPC",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 160,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner I",
+      "de": "Marschieren unter dem Banner der Elyos Ⅰ",
+      "fr": "Sous la bannière élyséenne I",
+      "es": "Bandera blanca al viento Ⅰ",
+      "ru": "Под белым флагом Ⅰ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅰ",
+      "ja": "白旗を掲げてI",
+      "ko": "백색 깃발 휘날리며 Ⅰ"
+     },
+     "text": {
+      "en": "Kill 5 Asmodian players in Verteron",
+      "de": "Besiege 5 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 5 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 5 jugadores Asmodianos en Verteron",
+      "ru": "Убить 5 игроков-асмодиан в Бертроне",
+      "pt": "Abater 5 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー5回KILL",
+      "ko": "베르테론에서 마족 플레이어 5회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 170,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner II",
+      "de": "Marschieren unter dem Banner der Elyos Ⅱ",
+      "fr": "Sous la bannière élyséenne Ⅱ",
+      "es": "Bandera blanca al viento Ⅱ",
+      "ru": "Под белым флагом Ⅱ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅱ",
+      "ja": "白旗を掲げてII",
+      "ko": "백색 깃발 휘날리며 Ⅱ"
+     },
+     "text": {
+      "en": "Kill 10 Asmodian players in Verteron",
+      "de": "Besiege 10 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 10 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 10 jugadores Asmodianos en Verteron",
+      "ru": "Уничтожить 10 игроков-асмодиан в Бертроне",
+      "pt": "Abater 10 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー10回KILL",
+      "ko": "베르테론에서 마족 플레이어 10회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 15,
+     "points": 170,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner III",
+      "de": "Marschieren unter dem Banner der Elyos Ⅲ",
+      "fr": "Sous la bannière élyséenne Ⅲ",
+      "es": "Bandera blanca al viento Ⅲ",
+      "ru": "Под белым флагом Ⅲ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅲ",
+      "ja": "白旗を掲げてIII",
+      "ko": "백색 깃발 휘날리며 Ⅲ"
+     },
+     "text": {
+      "en": "Kill 15 Asmodian players in Verteron",
+      "de": "Besiege 15 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 15 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 15 jugadores Asmodianos en Verteron",
+      "ru": "Убить 15 игроков-асмодиан в Бертроне",
+      "pt": "Abater 15 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー15回KILL",
+      "ko": "베르테론에서 마족 플레이어 15회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 20,
+     "points": 180,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner IV",
+      "de": "Marschieren unter dem Banner der Elyos Ⅳ",
+      "fr": "Sous la bannière élyséenne Ⅳ",
+      "es": "Bandera blanca al viento Ⅳ",
+      "ru": "Под белым флагом Ⅳ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅳ",
+      "ja": "白旗を掲げてIV",
+      "ko": "백색 깃발 휘날리며 Ⅳ"
+     },
+     "text": {
+      "en": "Kill 20 Asmodian players in Verteron",
+      "de": "Besiege 20 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 20 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 20 jugadores Asmodianos en Verteron",
+      "ru": "Убить 20 игроков-асмодиан в Бертроне",
+      "pt": "Abater 20 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー20回KILL",
+      "ko": "베르테론에서 마족 플레이어 20회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 25,
+     "points": 180,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner V",
+      "de": "Marschieren unter dem Banner der Elyos Ⅴ",
+      "fr": "Sous la bannière élyséenne V",
+      "es": "Bandera blanca al viento Ⅴ",
+      "ru": "Под белым флагом Ⅴ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅴ",
+      "ja": "白旗を掲げてV",
+      "ko": "백색 깃발 휘날리며 Ⅴ"
+     },
+     "text": {
+      "en": "Kill 25 Asmodian players in Verteron",
+      "de": "Besiege 25 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 25 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 25 jugadores Asmodianos en Verteron",
+      "ru": "Убить 25 игроков-асмодиан в Бертроне",
+      "pt": "Abater 25 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー25回KILL",
+      "ko": "베르테론에서 마족 플레이어 25회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 30,
+     "points": 180,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner VI",
+      "de": "Marschieren unter dem Banner der Elyos Ⅵ",
+      "fr": "Sous la bannière élyséenne VI",
+      "es": "Bandera blanca al viento Ⅵ",
+      "ru": "Под белым флагом Ⅵ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅵ",
+      "ja": "白旗を掲げてVI",
+      "ko": "백색 깃발 휘날리며 Ⅵ"
+     },
+     "text": {
+      "en": "Kill 30 Asmodian players in Verteron",
+      "de": "Besiege 30 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 30 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 30 jugadores Asmodianos en Verteron",
+      "ru": "Уничтожить 30 игроков-асмодиан в Бертроне",
+      "pt": "Abater 30 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー30回KILL",
+      "ko": "베르테론에서 마족 플레이어 30회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 35,
+     "points": 190,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner VII",
+      "de": "Marschieren unter dem Banner der Elyos Ⅶ",
+      "fr": "Sous la bannière élyséenne Ⅶ",
+      "es": "Bandera blanca al viento Ⅶ",
+      "ru": "Под белым флагом Ⅶ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅶ",
+      "ja": "白旗を掲げてVII",
+      "ko": "백색 깃발 휘날리며 Ⅶ"
+     },
+     "text": {
+      "en": "Kill 35 Asmodian players in Verteron",
+      "de": "Besiege 35 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 35 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 35 jugadores Asmodianos en Verteron",
+      "ru": "Убеть 35 игроков-асмодиан в Бертроне",
+      "pt": "Abater 35 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー35回KILL",
+      "ko": "베르테론에서 마족 플레이어 35회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 40,
+     "points": 190,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner VIII",
+      "de": "Marschieren unter dem Banner der Elyos Ⅷ",
+      "fr": "Sous la bannière élyséenne VIII",
+      "es": "Bandera blanca al viento Ⅷ",
+      "ru": "Под белым флагом Ⅷ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅷ",
+      "ja": "白旗を掲げてVIII",
+      "ko": "백색 깃발 휘날리며 Ⅷ"
+     },
+     "text": {
+      "en": "Kill 40 Asmodian players in Verteron",
+      "de": "Besiege 40 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 40 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 40 jugadores Asmodianos en Verteron",
+      "ru": "Убейте 40 игроков-асмодиан в Бертроне",
+      "pt": "Abater 40 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー40回KILL",
+      "ko": "베르테론에서 마족 플레이어 40회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 45,
+     "points": 200,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner IX",
+      "de": "Marschieren unter dem Banner der Elyos Ⅸ",
+      "fr": "Sous la bannière élyséenne Ⅸ",
+      "es": "Bandera blanca al viento Ⅸ",
+      "ru": "Под белым флагом Ⅸ",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅸ",
+      "ja": "白旗を掲げてIX",
+      "ko": "백색 깃발 휘날리며 Ⅸ"
+     },
+     "text": {
+      "en": "Kill 45 Asmodian players in Verteron",
+      "de": "Besiege 45 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 45 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 45 jugadores Asmodianos en Verteron",
+      "ru": "Убить 45 игроков-асмодиан в Бертроне",
+      "pt": "Abater 45 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー45回KILL",
+      "ko": "베르테론에서 마족 플레이어 45회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 50,
+     "points": 210,
+     "title": {
+      "en": "Marching Beneath the Elyos Banner X",
+      "de": "Marschieren unter dem Banner der Elyos Ⅹ",
+      "fr": "Sous la bannière élyséenne X",
+      "es": "Bandera blanca al viento Ⅹ",
+      "ru": "Под белым флагом X",
+      "pt": "Marchando sob o Estandarte Elyseano Ⅹ",
+      "ja": "白旗を掲げてX",
+      "ko": "백색 깃발 휘날리며 Ⅹ"
+     },
+     "text": {
+      "en": "Kill 50 Asmodian players in Verteron",
+      "de": "Besiege 50 Asmodier-Spieler in Verteron",
+      "fr": "Tuez 50 joueurs Asmodiens à Verteron",
+      "es": "Elimina a 50 jugadores Asmodianos en Verteron",
+      "ru": "Убить 50 игроков-асмодиан в Бертроне",
+      "pt": "Abater 50 jogadores Asmodianos em Verteron",
+      "ja": "ベルテロンで魔族プレイヤー50回KILL",
+      "ko": "베르테론에서 마족 플레이어 50회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234211300,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "GatherCategorySuccess",
+   "steps": [
+    {
+     "step": 1,
+     "count": 10,
+     "points": 140,
+     "title": {
+      "en": "Daeva of Enduring Deeds I",
+      "de": "Daeva der beständigen Taten Ⅰ",
+      "fr": "Daeva aux exploits inébranlables Ⅰ",
+      "es": "Daeva de hazañas perdurables Ⅰ",
+      "ru": "Даэв великих свершений Ⅰ",
+      "pt": "Daeva da Proeza Inabalável Ⅰ",
+      "ja": "堅固な実績のディーヴァI",
+      "ko": "굳건한 업적의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Gather 10 Odyle in Abyss",
+      "de": "Sammle 10 Od im Abyss",
+      "fr": "Collectez 10 Od dans l'Abysse",
+      "es": "Recolecta 10 Od en el Abismo",
+      "ru": "Собрать эфир в Бездне 10 раз",
+      "pt": "Coletar 10 Ods do Abismo",
+      "ja": "アビスでオード10個採集",
+      "ko": "어비스에서 오드 10개 채집"
+     }
+    },
+    {
+     "step": 2,
+     "count": 20,
+     "points": 150,
+     "title": {
+      "en": "Daeva of Enduring Deeds II",
+      "de": "Daeva der beständigen Taten Ⅱ",
+      "fr": "Daeva aux exploits inébranlables Ⅱ",
+      "es": "Daeva de hazañas perdurables Ⅱ",
+      "ru": "Даэв великих свершений Ⅱ",
+      "pt": "Daeva da Proeza Inabalável Ⅱ",
+      "ja": "堅固な実績のディーヴァII",
+      "ko": "굳건한 업적의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Gather 20 Odyle in Abyss",
+      "de": "Sammle 20 Od im Abyss",
+      "fr": "Récupérez 20 Od dans l'Abysse",
+      "es": "Recolecta 20 Od en el Abismo",
+      "ru": "Собрать эфир в Бездне 20 раз",
+      "pt": "Coletar 20 Ods do Abismo",
+      "ja": "アビスでオード20個採集",
+      "ko": "어비스에서 오드 20개 채집"
+     }
+    },
+    {
+     "step": 3,
+     "count": 30,
+     "points": 160,
+     "title": {
+      "en": "Daeva of Enduring Deeds III",
+      "de": "Daeva der beständigen Taten Ⅲ",
+      "fr": "Daeva aux exploits inébranlables Ⅲ",
+      "es": "Daeva de hazañas perdurables Ⅲ",
+      "ru": "Даэв великих свершений Ⅲ",
+      "pt": "Daeva da Proeza Inabalável Ⅲ",
+      "ja": "堅固な実績のディーヴァIII",
+      "ko": "굳건한 업적의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Gather 30 Odyle in Abyss",
+      "de": "Sammle 30 Od im Abyss",
+      "fr": "Récupérez 30 Od dans l'Abysse",
+      "es": "Recolecta 30 Od en el Abismo",
+      "ru": "Соберите эфир в Бездне 30 раз",
+      "pt": "Coletar 30 Ods do Abismo",
+      "ja": "アビスでオード30個採集",
+      "ko": "어비스에서 오드 30개 채집"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234211400,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "ClearQuest",
+   "steps": [
+    {
+     "step": 1,
+     "count": 3,
+     "points": 140,
+     "title": {
+      "en": "Daeva of Glorious Deeds I",
+      "de": "Daeva der strahlenden Erfolge Ⅰ",
+      "fr": "Daeva aux exploits glorieux Ⅰ",
+      "es": "Daeva de hazañas gloriosas Ⅰ",
+      "ru": "Даэв славных поступков I",
+      "pt": "Daeva da Proeza Brilhante Ⅰ",
+      "ja": "光る実績のディーヴァI",
+      "ko": "빛나는 업적의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Complete 3 Abyss commands",
+      "de": "Schließe 3 Abyssrollen ab",
+      "fr": "Terminez 3 parchemins de consigne de l'Abysse",
+      "es": "Completa 3 órdenes del Abismo",
+      "ru": "Пройдите свиток приказа Бездны 3 раза",
+      "pt": "Concluir Pergaminho de Ordem do Abismo x3",
+      "ja": "アビス指令書3個クリア",
+      "ko": "어비스 지령서 3개 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 6,
+     "points": 150,
+     "title": {
+      "en": "Daeva of Glorious Deeds II",
+      "de": "Daeva der strahlenden Erfolge Ⅱ",
+      "fr": "Daeva aux exploits glorieux Ⅱ",
+      "es": "Daeva de hazañas gloriosas Ⅱ",
+      "ru": "Даэв славных поступков II",
+      "pt": "Daeva da Proeza Brilhante Ⅱ",
+      "ja": "光る実績のディーヴァII",
+      "ko": "빛나는 업적의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Complete 6 Abyss commands",
+      "de": "Schließe 6 Abyssrollen ab",
+      "fr": "Terminez 6 parchemins de consigne de l'Abysse",
+      "es": "Completa 6 órdenes del Abismo",
+      "ru": "Пройдите свиток приказа Бездны 6 раз",
+      "pt": "Concluir Pergaminho de Ordem do Abismo x6",
+      "ja": "アビス指令書6個クリア",
+      "ko": "어비스 지령서 6개 클리어"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 160,
+     "title": {
+      "en": "Daeva of Glorious Deeds III",
+      "de": "Daeva der strahlenden Erfolge Ⅲ",
+      "fr": "Daeva aux exploits glorieux Ⅲ",
+      "es": "Daeva de hazañas gloriosas Ⅲ",
+      "ru": "Даэв славных поступков III",
+      "pt": "Daeva da Proeza Brilhante Ⅲ",
+      "ja": "光る実績のディーヴァIII",
+      "ko": "빛나는 업적의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Complete 10 Abyss commands",
+      "de": "Schließe 10 Abyssrollen ab",
+      "fr": "Terminez 10 parchemins de consigne de l'Abysse",
+      "es": "Completa 10 órdenes del Abismo",
+      "ru": "Выполнить задания свитка приказа 10 р.",
+      "pt": "Concluir Pergaminho de Ordem do Abismo x10",
+      "ja": "アビス指令書10個クリア",
+      "ko": "어비스 지령서 10개 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 234211500,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Daeva of Extraordinary Deeds I",
+      "de": "Daeva der außergewöhnlichen Taten Ⅰ",
+      "fr": "Daeva aux exploits extraordinaires Ⅰ",
+      "es": "Daeva de hazañas extraordinarias Ⅰ",
+      "ru": "Выдающийся даэв I",
+      "pt": "Daeva de Proezas Extraordinárias Ⅰ",
+      "ja": "卓越した実績のディーヴァI",
+      "ko": "탁월한 업적의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat 1 Abyss boss monster",
+      "de": "Besiege 1 Abyss-Bossmonster",
+      "fr": "Éliminez 1 boss de l'Abysse",
+      "es": "Derrota a 1 Monstruo jefe del Abismo",
+      "ru": "Победить 1 босса Бездны",
+      "pt": "Derrotar 1 monstro chefe do Abismo",
+      "ja": "アビス ボス モンスター1体討伐",
+      "ko": "어비스 보스 몬스터 1마리 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 150,
+     "title": {
+      "en": "Daeva of Extraordinary Deeds II",
+      "de": "Daeva der außergewöhnlichen Taten Ⅱ",
+      "fr": "Daeva aux exploits extraordinaires Ⅱ",
+      "es": "Daeva de hazañas extraordinarias Ⅱ",
+      "ru": "Выдающийся даэв Ⅱ",
+      "pt": "Daeva de Proezas Extraordinárias Ⅱ",
+      "ja": "卓越した実績のディーヴァII",
+      "ko": "탁월한 업적의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat 3 Abyss boss monsters",
+      "de": "Besiege 3 Abyss-Bossmonster",
+      "fr": "Éliminez 3 boss de l'Abysse",
+      "es": "Derrota a 3 monstruos jefe del Abismo",
+      "ru": "Победить босса Бездны 3 р.",
+      "pt": "Derrotar 3 monstros chefes do Abismo",
+      "ja": "アビス ボス モンスター3体討伐",
+      "ko": "어비스 보스 몬스터 3마리 처치"
+     }
+    },
+    {
+     "step": 3,
+     "count": 5,
+     "points": 160,
+     "title": {
+      "en": "Daeva of Extraordinary Deeds III",
+      "de": "Daeva der außergewöhnlichen Taten Ⅲ",
+      "fr": "Daeva aux exploits extraordinaires Ⅲ",
+      "es": "Daeva de hazañas extraordinarias Ⅲ",
+      "ru": "Выдающийся даэв Ⅲ",
+      "pt": "Daeva de Proezas Extraordinárias Ⅲ",
+      "ja": "卓越した実績のディーヴァIII",
+      "ko": "탁월한 업적의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Defeat 5 Abyss boss monsters",
+      "de": "Besiege 5 Abyss-Bossmonster",
+      "fr": "Éliminez 5 boss de l'Abysse",
+      "es": "Derrota a 5 monstruos jefe del Abismo",
+      "ru": "Уничтожить босса Бездны 5 р.",
+      "pt": "Derrotar 5 monstros chefes do Abismo",
+      "ja": "アビス ボス モンスター5体討伐",
+      "ko": "어비스 보스 몬스터 5마리 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600068,
+    2600084,
+    2600089,
+    2600093,
+    2600094,
+    2600096,
+    2600097,
+    2600098,
+    2600478,
+    2600479,
+    2600480,
+    2600520,
+    2600521,
+    2600522
+   ]
+  },
+  {
+   "id": 234211600,
+   "race": "L",
+   "tab": "Thema",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Daeva's Book I",
+      "de": "Daeva des Schlachtfelds I",
+      "fr": "Daeva du champ de bataille Ⅰ",
+      "es": "Daeva del Campo de batalla Ⅰ",
+      "ru": "Книга даэвов I",
+      "pt": "Daeva do Campo de Batalha I",
+      "ja": "戦場のディーヴァI",
+      "ko": "전장의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Participate in Battlefield 1 time",
+      "de": "Nimm am Schlachtfeld teil (1-mal)",
+      "fr": "Participez au champ de bataille 1 fois",
+      "es": "Participa en el Campo de batalla 1 vez",
+      "ru": "Участвуйте на арене 1 раз",
+      "pt": "Participe do Campo de Batalha 1x",
+      "ja": "戦場1回参加",
+      "ko": "전장 1회 참여"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 150,
+     "title": {
+      "en": "Daeva's Book II",
+      "de": "Daeva des Schlachtfelds II",
+      "fr": "Daeva du champ de bataille Ⅱ",
+      "es": "Daeva del Campo de batalla Ⅱ",
+      "ru": "Книга даэвов II",
+      "pt": "Daeva do Campo de Batalha II",
+      "ja": "戦場のディーヴァII",
+      "ko": "전장의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Participate in Battlefield 2 times",
+      "de": "Nimm am Schlachtfeld teil (2-mal)",
+      "fr": "Participez au champ de bataille 2 fois",
+      "es": "Participa en el Campo de batalla 2 veces",
+      "ru": "Участвуйте на арене 2 раза",
+      "pt": "Participar do Campo de Batalha 2x",
+      "ja": "戦場2回参加",
+      "ko": "전장 2회 참여"
+     }
+    },
+    {
+     "step": 3,
+     "count": 3,
+     "points": 160,
+     "title": {
+      "en": "Daeva's Book III",
+      "de": "Daeva des Schlachtfelds III",
+      "fr": "Daeva du champ de bataille Ⅲ",
+      "es": "Daeva del Campo de batalla Ⅲ",
+      "ru": "Книга даэвов III",
+      "pt": "Daeva do Campo de Batalha III",
+      "ja": "戦場のディーヴァIII",
+      "ko": "전장의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Participate in Battlefield 3 times",
+      "de": "Nimm am Schlachtfeld teil (3-mal)",
+      "fr": "Participez au champ de bataille 3 fois",
+      "es": "Participa en el Campo de batalla 3 veces",
+      "ru": "Участвуйте на арене 3 раза",
+      "pt": "Participe do Campo de Batalha 3x",
+      "ja": "戦場3回参加",
+      "ko": "전장 3회 참여"
+     }
+    }
+   ]
+  },
+  {
+   "id": 240210900,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "ElapsedTime",
+   "steps": [
+    {
+     "step": 1,
+     "count": 60,
+     "points": 140,
+     "title": {
+      "en": "Hometown of My Heart",
+      "de": "Heimat meines Herzens",
+      "fr": "Ma terre natale",
+      "es": "La tierra de mi corazón",
+      "ru": "Любимая родина",
+      "pt": "Minha Terra do Meu Coração",
+      "ja": "我が心の故郷",
+      "ko": "내 마음의 고향"
+     },
+     "text": {
+      "en": "Spend 1 hours in Abyss",
+      "de": "Verbringe 1 Stunde im Abyss",
+      "fr": "Passez 1 heure dans l'Abysse",
+      "es": "Permanece 1 hora en el Abismo",
+      "ru": "Проведите 1 час в Бездне",
+      "pt": "Permanecer 1h no Abismo",
+      "ja": "アビスに1時間滞在",
+      "ko": "어비스에서 1시간 체류"
+     }
+    }
+   ]
+  },
+  {
+   "id": 240211000,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "KillPC",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 180,
+     "title": {
+      "en": "Bare Minimum Morality I",
+      "de": "Minimale Moral Ⅰ",
+      "fr": "Un semblant de morale Ⅰ",
+      "es": "Moralidad mínima Ⅰ",
+      "ru": "Минимум морали Ⅰ",
+      "pt": "Mínimo de Moral Ⅰ",
+      "ja": "最低限の道徳I",
+      "ko": "최소한의 도덕 Ⅰ"
+     },
+     "text": {
+      "en": "Kill 5 opposing camp players",
+      "de": "Besiege 5 Spieler vom gegnerischen Lager",
+      "fr": "Tuez 5 joueurs du camp adverse",
+      "es": "Elimina a 5 jugadores de la facción contraria",
+      "ru": "Убить 5 игроков из лагеря врага",
+      "pt": "Abater 5 jogadores de facção adversária",
+      "ja": "敵陣営のプレイヤー5回KILL",
+      "ko": "상대 진영 플레이어 5회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 260,
+     "title": {
+      "en": "Bare Minimum Morality II",
+      "de": "Minimale Moral Ⅱ",
+      "fr": "Un semblant de morale Ⅱ",
+      "es": "Moralidad mínima Ⅱ",
+      "ru": "Минимум морали Ⅱ",
+      "pt": "Mínimo de Moral Ⅱ",
+      "ja": "最低限の道徳II",
+      "ko": "최소한의 도덕 Ⅱ"
+     },
+     "text": {
+      "en": "Kill 10 opposing camp players",
+      "de": "Besiege 10 Spieler vom gegnerischen Lager",
+      "fr": "Tuez 10 joueurs du camp adverse",
+      "es": "Elimina a 10 jugadores de la facción contraria",
+      "ru": "Убить 10 игроков из лагеря врага",
+      "pt": "Abater 10 jogadores de facção adversária",
+      "ja": "敵陣営のプレイヤー10回KILL",
+      "ko": "상대 진영 플레이어 10회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 20,
+     "points": 330,
+     "title": {
+      "en": "Bare Minimum Morality III",
+      "de": "Minimale Moral Ⅲ",
+      "fr": "Un semblant de morale Ⅲ",
+      "es": "Moralidad mínima Ⅲ",
+      "ru": "Минимум морали Ⅲ",
+      "pt": "Mínimo de Moral Ⅲ",
+      "ja": "最低限の道徳III",
+      "ko": "최소한의 도덕 Ⅲ"
+     },
+     "text": {
+      "en": "Kill 20 opposing camp players",
+      "de": "Besiege 20 Spieler vom gegnerischen Lager",
+      "fr": "Tuez 20 joueurs du camp adverse",
+      "es": "Elimina a 20 jugadores de la facción contraria",
+      "ru": "Убить 20 игроков из лагеря врага",
+      "pt": "Abater 20 jogadores de facção adversária",
+      "ja": "敵陣営のプレイヤー20回KILL",
+      "ko": "상대 진영 플레이어 20회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 240211100,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "KillNpcAll",
+   "steps": [
+    {
+     "step": 1,
+     "count": 200,
+     "points": 110,
+     "title": {
+      "en": "Purify Reshanta I",
+      "de": "Läuterung von Reshanta Ⅰ",
+      "fr": "Opération de purification de Reshanta Ⅰ",
+      "es": "Operación de purificación de Reshanta Ⅰ",
+      "ru": "Операция по очищению Арэшурата Ⅰ",
+      "pt": "Operação de Purificação de Reshanta Ⅰ",
+      "ja": "エレシュランタ浄化作戦I",
+      "ko": "에레슈란타 정화 작전 Ⅰ"
+     },
+     "text": {
+      "en": "Hunt 200 monsters in Abyss",
+      "de": "Jage 200 Monster im Abyss",
+      "fr": "Chassez 200 monstres dans l'Abysse",
+      "es": "Caza 200 monstruos en el Abismo",
+      "ru": "Уничтожить 200 монстров в Бездне",
+      "pt": "Caçar 200 monstros no Abismo",
+      "ja": "アビスでモンスター200体狩る",
+      "ko": "어비스에서 몬스터 200마리 사냥"
+     }
+    },
+    {
+     "step": 2,
+     "count": 400,
+     "points": 160,
+     "title": {
+      "en": "Purify Reshanta II",
+      "de": "Läuterung von Reshanta Ⅱ",
+      "fr": "Opération de purification de Reshanta Ⅱ",
+      "es": "Operación de purificación de Reshanta Ⅱ",
+      "ru": "Операция по очищению Арэшурата Ⅱ",
+      "pt": "Operação de Purificação de Reshanta Ⅱ",
+      "ja": "エレシュランタ浄化作戦II",
+      "ko": "에레슈란타 정화 작전 Ⅱ"
+     },
+     "text": {
+      "en": "Hunt 400 monsters in Abyss",
+      "de": "Jage 400 Monster im Abyss",
+      "fr": "Chassez 400 monstres dans l'Abysse",
+      "es": "Caza 400 monstruos en el Abismo",
+      "ru": "Уничтожить 400 монстров в Бездне",
+      "pt": "Caçar 400 monstros no Abismo",
+      "ja": "アビスでモンスター400体狩る",
+      "ko": "어비스에서 몬스터 400마리 사냥"
+     }
+    },
+    {
+     "step": 3,
+     "count": 600,
+     "points": 200,
+     "title": {
+      "en": "Purify Reshanta III",
+      "de": "Läuterung von Reshanta Ⅲ",
+      "fr": "Opération de purification de Reshanta Ⅲ",
+      "es": "Operación de purificación de Reshanta Ⅲ",
+      "ru": "Операция по очищению Арэшурата Ⅲ",
+      "pt": "Operação de Purificação de Reshanta Ⅲ",
+      "ja": "エレシュランタ浄化作戦III",
+      "ko": "에레슈란타 정화 작전 Ⅲ"
+     },
+     "text": {
+      "en": "Hunt 600 monsters in Abyss",
+      "de": "Jage 600 Monster im Abyss",
+      "fr": "Chassez 600 monstres dans l'Abysse",
+      "es": "Caza 600 monstruos en el Abismo",
+      "ru": "Уничтожить 600 монстров в Бездне",
+      "pt": "Caçar 600 monstros no Abismo",
+      "ja": "アビスでモンスター600体狩る",
+      "ko": "어비스에서 몬스터 600마리 사냥"
+     }
+    },
+    {
+     "step": 4,
+     "count": 800,
+     "points": 260,
+     "title": {
+      "en": "Purify Reshanta IV",
+      "de": "Läuterung von Reshanta Ⅳ",
+      "fr": "Opération de purification de Reshanta Ⅳ",
+      "es": "Operación de purificación de Reshanta Ⅳ",
+      "ru": "Операция по очищению Арэшурата Ⅳ",
+      "pt": "Operação de Purificação de Reshanta Ⅳ",
+      "ja": "エレシュランタ浄化作戦IV",
+      "ko": "에레슈란타 정화 작전 Ⅳ"
+     },
+     "text": {
+      "en": "Hunt 800 monsters in Abyss",
+      "de": "Jage 800 Monster im Abyss",
+      "fr": "Chassez 800 monstres dans l'Abysse",
+      "es": "Caza 800 monstruos en el Abismo",
+      "ru": "Уничтожить 800 монстров в Бездне",
+      "pt": "Caçar 800 monstros no Abismo",
+      "ja": "アビスでモンスター800体狩る",
+      "ko": "어비스에서 몬스터 800마리 사냥"
+     }
+    },
+    {
+     "step": 5,
+     "count": 1000,
+     "points": 310,
+     "title": {
+      "en": "Purify Reshanta V",
+      "de": "Läuterung von Reshanta Ⅴ",
+      "fr": "Opération de purification de Reshanta Ⅴ",
+      "es": "Operación de purificación de Reshanta Ⅴ",
+      "ru": "Операция по очищению Арэшурата Ⅴ",
+      "pt": "Operação de Purificação de Reshanta Ⅴ",
+      "ja": "エレシュランタ浄化作戦V",
+      "ko": "에레슈란타 정화 작전 Ⅴ"
+     },
+     "text": {
+      "en": "Hunt 1,000 monsters in Abyss",
+      "de": "Jage 1.000 Monster im Abyss",
+      "fr": "Chassez 1 000 monstres dans l'Abysse",
+      "es": "Caza 1000 monstruos en el Abismo",
+      "ru": "Уничтожить 1000 монстров в Бездне",
+      "pt": "Caçar 1.000 monstros no Abismo",
+      "ja": "アビスでモンスター1,000体狩る",
+      "ko": "어비스에서 몬스터 1000마리 사냥"
+     }
+    },
+    {
+     "step": 6,
+     "count": 1200,
+     "points": 340,
+     "title": {
+      "en": "Purify Reshanta VI",
+      "de": "Läuterung von Reshanta Ⅵ",
+      "fr": "Opération de purification de Reshanta Ⅵ",
+      "es": "Operación de purificación de Reshanta Ⅵ",
+      "ru": "Операция по очищению Арэшурата Ⅵ",
+      "pt": "Operação de Purificação de Reshanta Ⅵ",
+      "ja": "エレシュランタ浄化作戦VI",
+      "ko": "에레슈란타 정화 작전 Ⅵ"
+     },
+     "text": {
+      "en": "Hunt 1,200 monsters in Abyss",
+      "de": "Jage 1.200 Monster im Abyss",
+      "fr": "Chassez 1 200 monstres dans l'Abysse",
+      "es": "Caza 1200 monstruos en el Abismo",
+      "ru": "Уничтожить 1200 монстров в Бездне",
+      "pt": "Caçar 1.200 monstros no Abismo",
+      "ja": "アビスでモンスター1,200体狩る",
+      "ko": "어비스에서 몬스터 1200마리 사냥"
+     }
+    },
+    {
+     "step": 7,
+     "count": 1400,
+     "points": 370,
+     "title": {
+      "en": "Purify Reshanta VII",
+      "de": "Läuterung von Reshanta Ⅶ",
+      "fr": "Opération de purification de Reshanta Ⅶ",
+      "es": "Operación de purificación de Reshanta Ⅶ",
+      "ru": "Операция по очищению Арэшурата Ⅶ",
+      "pt": "Operação de Purificação de Reshanta Ⅶ",
+      "ja": "エレシュランタ浄化作戦VII",
+      "ko": "에레슈란타 정화 작전 Ⅶ"
+     },
+     "text": {
+      "en": "Hunt 1,400 monsters in Abyss",
+      "de": "Jage 1.400 Monster im Abyss",
+      "fr": "Chassez 1 400 monstres dans l'Abysse",
+      "es": "Caza 1400 monstruos en el Abismo",
+      "ru": "Уничтожить 1400 монстров в Бездне",
+      "pt": "Caçar 1.400 monstros no Abismo",
+      "ja": "アビスでモンスター1,400体狩る",
+      "ko": "어비스에서 몬스터 1400마리 사냥"
+     }
+    },
+    {
+     "step": 8,
+     "count": 1600,
+     "points": 410,
+     "title": {
+      "en": "Purify Reshanta VIII",
+      "de": "Läuterung von Reshanta Ⅷ",
+      "fr": "Opération de purification de Reshanta Ⅷ",
+      "es": "Operación de purificación de Reshanta Ⅷ",
+      "ru": "Операция по очищению Арэшурата Ⅷ",
+      "pt": "Operação de Purificação de Reshanta Ⅷ",
+      "ja": "エレシュランタ浄化作戦VIII",
+      "ko": "에레슈란타 정화 작전 Ⅷ"
+     },
+     "text": {
+      "en": "Hunt 1,600 monsters in Abyss",
+      "de": "Jage 1.600 Monster im Abyss",
+      "fr": "Chassez 1 600 monstres dans l'Abysse",
+      "es": "Caza 1600 monstruos en el Abismo",
+      "ru": "Уничтожить 1600 монстров в Бездне",
+      "pt": "Caçar 1.600 monstros no Abismo",
+      "ja": "アビスでモンスター1,600体狩る",
+      "ko": "어비스에서 몬스터 1600마리 사냥"
+     }
+    },
+    {
+     "step": 9,
+     "count": 1800,
+     "points": 450,
+     "title": {
+      "en": "Purify Reshanta IX",
+      "de": "Läuterung von Reshanta Ⅸ",
+      "fr": "Opération de purification de Reshanta Ⅸ",
+      "es": "Operación de purificación de Reshanta Ⅸ",
+      "ru": "Операция по очищению Арэшурата Ⅸ",
+      "pt": "Operação de Purificação de Reshanta Ⅸ",
+      "ja": "エレシュランタ浄化作戦IX",
+      "ko": "에레슈란타 정화 작전 Ⅸ"
+     },
+     "text": {
+      "en": "Hunt 1,800 monsters in Abyss",
+      "de": "Jage 1.800 Monster im Abyss",
+      "fr": "Chassez 1 800 monstres dans l'Abysse",
+      "es": "Caza 1800 monstruos en el Abismo",
+      "ru": "Уничтожить 1800 монстров в Бездне",
+      "pt": "Caçar 1.800 monstros no Abismo",
+      "ja": "アビスでモンスター1,800体狩る",
+      "ko": "어비스에서 몬스터 1800마리 사냥"
+     }
+    },
+    {
+     "step": 10,
+     "count": 2000,
+     "points": 500,
+     "title": {
+      "en": "Purify Reshanta X",
+      "de": "Läuterung von Reshanta Ⅹ",
+      "fr": "Opération de purification de Reshanta Ⅹ",
+      "es": "Operación de purificación de Reshanta Ⅹ",
+      "ru": "Операция по очищению Арэшурата Ⅹ",
+      "pt": "Operação de Purificação de Reshanta Ⅹ",
+      "ja": "エレシュランタ浄化作戦X",
+      "ko": "에레슈란타 정화 작전 Ⅹ"
+     },
+     "text": {
+      "en": "Hunt 2,000 monsters in Abyss",
+      "de": "Jage 2.000 Monster im Abyss",
+      "fr": "Chassez 2 000 monstres dans l'Abysse",
+      "es": "Caza 2000 monstruos en el Abismo",
+      "ru": "Уничтожить 2000 монстров в Бездне",
+      "pt": "Caçar 2.000 monstros no Abismo",
+      "ja": "アビスでモンスター2,000体狩る",
+      "ko": "어비스에서 몬스터 2000마리 사냥"
+     }
+    }
+   ]
+  },
+  {
+   "id": 240211200,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Watcher Kaira I",
+      "de": "Aufseherin Kaira Ⅰ",
+      "fr": "Kaira la veilleuse Ⅰ",
+      "es": "Vigilante Kaira Ⅰ",
+      "ru": "Дозорный Кайра Ⅰ",
+      "pt": "Vigilante Kairah Ⅰ",
+      "ja": "監視者カイラI",
+      "ko": "감시자 카이라 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat the boss Watcher Kaira 1 time",
+      "de": "Besiege den Boss Aufseherin Kaira (1-mal)",
+      "fr": "Éliminez le boss Kaira la veilleuse 1 fois",
+      "es": "Derrota al jefe Vigilante Kaira 1 vez",
+      "ru": "Победить Дозорщика Кайру (босс) 1 раз",
+      "pt": "Derrotar chefe Vigilante Kairah 1x",
+      "ja": "ボス監視者カイラ1回討伐",
+      "ko": "보스 감시자 카이라 1회 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 5,
+     "points": 190,
+     "title": {
+      "en": "Watcher Kaira II",
+      "de": "Aufseherin Kaira Ⅱ",
+      "fr": "Kaira la veilleuse Ⅱ",
+      "es": "Vigilante Kaira Ⅱ",
+      "ru": "Дозорный Кайра Ⅱ",
+      "pt": "Vigilante Kairah Ⅱ",
+      "ja": "監視者カイラII",
+      "ko": "감시자 카이라 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat the boss Watcher Kaira 5 times",
+      "de": "Besiege den Boss Aufseherin Kaira (5-mal)",
+      "fr": "Éliminez le boss Kaira la veilleuse 5 fois",
+      "es": "Derrota al jefe Vigilante Kaira 5 veces",
+      "ru": "Победите Дозорного Кайра 5 раз",
+      "pt": "Derrotar chefe Vigilante Kairah 5x",
+      "ja": "ボス監視者カイラ5回討伐",
+      "ko": "보스 감시자 카이라 5회 처치"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 330,
+     "title": {
+      "en": "Watcher Kaira III",
+      "de": "Aufseherin Kaira Ⅲ",
+      "fr": "Kaira la veilleuse Ⅲ",
+      "es": "Vigilante Kaira Ⅲ",
+      "ru": "Дозорный Кайра Ⅲ",
+      "pt": "Vigilante Kairah Ⅲ",
+      "ja": "監視者カイラIII",
+      "ko": "감시자 카이라 Ⅲ"
+     },
+     "text": {
+      "en": "Defeat the boss Watcher Kaira 10 times",
+      "de": "Besiege den Boss Aufseherin Kaira (10-mal)",
+      "fr": "Éliminez le boss Kaira la veilleuse 10 fois",
+      "es": "Derrota al jefe Vigilante Kaira 10 veces",
+      "ru": "Победите Дозорного Кайра 10 раз",
+      "pt": "Derrotar chefe Vigilante Kairah 10x",
+      "ja": "ボス監視者カイラ10回討伐",
+      "ko": "보스 감시자 카이라 10회 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600089,
+    2600098
+   ]
+  },
+  {
+   "id": 240211300,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Argo, the Spirit King I",
+      "de": "Geisterfürst Agro Ⅰ",
+      "fr": "Agro le roi des esprits Ⅰ",
+      "es": "Rey Espíritu Agro Ⅰ",
+      "ru": "Король духов Агро Ⅰ",
+      "pt": "Argo, Rei dos Espíritos I",
+      "ja": "精霊王アグロI",
+      "ko": "정령왕 아그로 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat the boss Argo, the Spirit King 1 time",
+      "de": "Besiege den Boss Geisterfürst Agro (1-mal)",
+      "fr": "Éliminez le boss Agro le roi des esprits 1 fois",
+      "es": "Derrota al jefe Rey Espíritu Agro 1 vez",
+      "ru": "Победите Короля духов Агро 1 раз",
+      "pt": "Derrotar chefe Argo, Rei dos Espíritos 1x",
+      "ja": "ボス精霊王アグロ1回討伐",
+      "ko": "보스 정령왕 아그로 1회 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 190,
+     "title": {
+      "en": "Argo, the Spirit King II",
+      "de": "Geisterfürst Agro Ⅱ",
+      "fr": "Agro le roi des esprits Ⅱ",
+      "es": "Rey Espíritu Agro Ⅱ",
+      "ru": "Король духов Агро Ⅱ",
+      "pt": "Argo, Rei dos Espíritos II",
+      "ja": "精霊王アグロII",
+      "ko": "정령왕 아그로 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat the boss Argo, the Spirit King 3 times",
+      "de": "Besiege den Boss Geisterfürst Agro (3-mal)",
+      "fr": "Éliminez le boss Agro le roi des esprits 3 fois",
+      "es": "Derrota al jefe Rey Espíritu Agro 3 veces",
+      "ru": "Победить Короля духов Агро (босс) 3 раза",
+      "pt": "Derrotar chefe Argo, Rei dos Espíritos 3x",
+      "ja": "ボス精霊王アグロ3回討伐",
+      "ko": "보스 정령왕 아그로 3회 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600068,
+    2600097
+   ]
+  },
+  {
+   "id": 240211400,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 180,
+     "title": {
+      "en": "Guardian Lord Nahma",
+      "de": "Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien",
+      "es": "Señor guardián Nahma",
+      "ru": "Лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma",
+      "ja": "守護神将ナフマ",
+      "ko": "수호신장 나흐마"
+     },
+     "text": {
+      "en": "Defeat the boss Guardian Lord Nahma 1 time",
+      "de": "Besiege den Boss Wächtergott Nahma (1-mal)",
+      "fr": "Éliminez le boss Nahma le seigneur gardien 1 fois",
+      "es": "Derrota al jefe Señor guardián Nahma 1 vez",
+      "ru": "Победите Лорда-хранитель Нахма 1 раз",
+      "pt": "Derrotar chefe Senhor Guardião Nahma 1x",
+      "ja": "ボス守護神将ナフマ1回討伐",
+      "ko": "보스 수호신장 나흐마 1회 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600084,
+    2600093,
+    2600094,
+    2600150,
+    2600156,
+    2600478,
+    2600479,
+    2600480
+   ]
+  },
+  {
+   "id": 240211500,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "AbyssArtifactEventComplete",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Land Grabs I",
+      "de": "Gebietseroberung Ⅰ",
+      "fr": "Conquête territoriale Ⅰ",
+      "es": "Conquista territorial Ⅰ",
+      "ru": "Захват территории Ⅰ",
+      "pt": "Disputa Territorial Ⅰ",
+      "ja": "陣取りゲームI",
+      "ko": "땅따먹기 Ⅰ"
+     },
+     "text": {
+      "en": "Participate in Artifact Siege 1 time by its end",
+      "de": "Nimm an einer Artefakt-Belagerung bis zum Ende teil (1-mal)",
+      "fr": "Participez au Siège d'artefact jusqu'à la fin 1 fois",
+      "es": "Participa 1 vez en el Asedio de artefactos hasta su finalización",
+      "ru": "Принять участие в захвате артефактов до конца 1 р.",
+      "pt": "Participar até o fim do Cerco de Artefatos 1x",
+      "ja": "アーティファクト占領戦1回終了時点まで参加",
+      "ko": "아티팩트 점령전 1회 종료 시점까지 참여"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 190,
+     "title": {
+      "en": "Land Grabs II",
+      "de": "Gebietseroberung Ⅱ",
+      "fr": "Conquête territoriale Ⅱ",
+      "es": "Conquista territorial Ⅱ",
+      "ru": "Захват территории Ⅱ",
+      "pt": "Disputa Territorial Ⅱ",
+      "ja": "陣取りゲームII",
+      "ko": "땅따먹기 Ⅱ"
+     },
+     "text": {
+      "en": "Participate in Artifact Siege 2 times by its end",
+      "de": "Nimm an einer Artefakt-Belagerung bis zum Ende teil (2-mal)",
+      "fr": "Participez au Siège d'artefact jusqu'à la fin 2 fois",
+      "es": "Participa 2 veces en el Asedio de artefactos hasta su finalización",
+      "ru": "Принять участие в Захвате артефактов до конца 2 р.",
+      "pt": "Participar até o fim do Cerco de Artefatos 2x",
+      "ja": "アーティファクト占領戦2回終了時点まで参加",
+      "ko": "아티팩트 점령전 2회 종료 시점까지 참여"
+     }
+    }
+   ],
+   "event": "abyss_ar1_artifactwar"
+  },
+  {
+   "id": 240211600,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "AbyssArtifactEventWin",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Down to the Last One",
+      "de": "Bis zum Letzten",
+      "fr": "Jusqu'au dernier",
+      "es": "Hasta el último",
+      "ru": "До последнего",
+      "pt": "Até o Final",
+      "ja": "最後の一つまで",
+      "ko": "마지막 하나까지"
+     },
+     "text": {
+      "en": "Win Artifact Siege 1 time",
+      "de": "Gewinne eine Artefakt-Belagerung (1-mal)",
+      "fr": "Remportez un Siège d'artefact 1 fois",
+      "es": "Gana en el Asedio de artefacto 1 vez",
+      "ru": "Победить в Захвате артефактов 1 р.",
+      "pt": "Vencer o Cerco de Artefatos 1x",
+      "ja": "アーティファクト占領戦1回勝利",
+      "ko": "아티팩트 점령전 1회 승리"
+     }
+    }
+   ],
+   "event": "abyss_ar1_artifactwar"
+  },
+  {
+   "id": 240211700,
+   "race": "D",
+   "tab": "Abyss",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 150,
+     "title": {
+      "en": "Dominator of Lower Abyss",
+      "de": "Bezwinger des unteren Abyss",
+      "fr": "Dominateur de l'Abysse inférieur",
+      "es": "Dominador del Abismo Inferior",
+      "ru": "Повелитель нижнего уровня Бездны",
+      "pt": "Dominador do Piso Inferior",
+      "ja": "下層の支配者",
+      "ko": "하층의 지배자"
+     },
+     "text": {
+      "en": "Defeat 1 Dominator of Lower Abyss after Artifact Siege",
+      "de": "Besiege 1 Bezwinger des unteren Abyss nach einer Artefakt-Belagerung",
+      "fr": "Éliminez 1 Dominateur de l'Abysse inférieur après un Siège d'artefact",
+      "es": "Derrota a 1 Dominador del Abismo Inferior tras finalizar el Asedio de artefactos",
+      "ru": "Победите 1 повелителя нижнего уровня Бездны после захвата артефактов",
+      "pt": "Derrotar 1 Dominador do Piso Inferior após o fim do Cerco de Artefatos",
+      "ja": "アーティファクト占領戦終了後に下層の支配者1体討伐",
+      "ko": "아티팩트 점령전 종료 후 하층의 지배자 1마리 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600096,
+    2600097,
+    2600098
+   ]
+  },
+  {
+   "id": 241210800,
+   "race": "D",
+   "tab": "Arena",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 3,
+     "points": 140,
+     "title": {
+      "en": "Steady Efforts I",
+      "de": "Beständige Bemühungen Ⅰ",
+      "fr": "Efforts constants Ⅰ",
+      "es": "Poder de la práctica constante Ⅰ",
+      "ru": "Повторение — мать учения I",
+      "pt": "Poder do Combate Constante Ⅰ",
+      "ja": "地道な実戦の力I",
+      "ko": "꾸준한 실전의 힘 Ⅰ"
+     },
+     "text": {
+      "en": "Participate in Arena 3 times",
+      "de": "Nimm an der Arena teil (3-mal)",
+      "fr": "Participez 3 fois à l'Arène",
+      "es": "Participa en la Arena 3 veces",
+      "ru": "Участие на арене 3 р.",
+      "pt": "Participar da Arena 3x",
+      "ja": "闘技場3回参加",
+      "ko": "투기장 3회 참여"
+     }
+    },
+    {
+     "step": 2,
+     "count": 7,
+     "points": 190,
+     "title": {
+      "en": "Steady Efforts II",
+      "de": "Beständige Bemühungen Ⅱ",
+      "fr": "Efforts constants Ⅱ",
+      "es": "Poder de la práctica constante Ⅱ",
+      "ru": "Повторение — мать учения Ⅱ",
+      "pt": "Poder do Combate Constante Ⅱ",
+      "ja": "地道な実戦の力II",
+      "ko": "꾸준한 실전의 힘 Ⅱ"
+     },
+     "text": {
+      "en": "Participate in Arena 7 times",
+      "de": "Nimm an der Arena teil (7-mal)",
+      "fr": "Participez 7 fois à l'Arène",
+      "es": "Participa en la Arena 7 veces",
+      "ru": "Участие на арене 7 р.",
+      "pt": "Participar da Arena 7x",
+      "ja": "闘技場7回参加",
+      "ko": "투기장 7회 참여"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 250,
+     "title": {
+      "en": "Steady Efforts III",
+      "de": "Beständige Bemühungen Ⅲ",
+      "fr": "Efforts constants Ⅲ",
+      "es": "Poder de la práctica constante Ⅲ",
+      "ru": "Повторение — мать учения Ⅲ",
+      "pt": "Poder do Combate Constante Ⅲ",
+      "ja": "地道な実戦の力III",
+      "ko": "꾸준한 실전의 힘 Ⅲ"
+     },
+     "text": {
+      "en": "Participate in Arena 10 times",
+      "de": "Nimm an der Arena teil (10-mal)",
+      "fr": "Participez à l'Arène 10 fois",
+      "es": "Participa en la Arena 10 veces",
+      "ru": "Сражайтесь на арене 10 раз",
+      "pt": "Participar da Arena 10x",
+      "ja": "闘技場10回参加",
+      "ko": "투기장 10회 참여"
+     }
+    }
+   ]
+  },
+  {
+   "id": 241210900,
+   "race": "D",
+   "tab": "Arena",
+   "kind": "ArenaWin",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 230,
+     "title": {
+      "en": "Me, Beyond Myself I",
+      "de": "Über mich hinaus Ⅰ",
+      "fr": "Se surpasser Ⅰ",
+      "es": "Más allá de mí mismo Ⅰ",
+      "ru": "Превзойти самого себя I",
+      "pt": "Além de Mim Mesmo Ⅰ",
+      "ja": "俺を超えた、俺I",
+      "ko": "나를 넘어선, 나 Ⅰ"
+     },
+     "text": {
+      "en": "Win 1 time in Arena",
+      "de": "Gewinne in der Arena (1-mal)",
+      "fr": "Remportez 1 victoire dans l'Arène",
+      "es": "Gana en la Arena 1 vez",
+      "ru": "Победа на арене 1 р.",
+      "pt": "Vencer a Arena 1x",
+      "ja": "闘技場1回勝利",
+      "ko": "투기장 1회 승리"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 320,
+     "title": {
+      "en": "Me, Beyond Myself II",
+      "de": "Über mich hinaus Ⅱ",
+      "fr": "Se surpasser Ⅱ",
+      "es": "Más allá de mí mismo Ⅱ",
+      "ru": "Превзойти самого себя Ⅱ",
+      "pt": "Além de Mim Mesmo Ⅱ",
+      "ja": "俺を超えた、俺II",
+      "ko": "나를 넘어선, 나 Ⅱ"
+     },
+     "text": {
+      "en": "Win 3 times in Arena",
+      "de": "Gewinne in der Arena (3-mal)",
+      "fr": "Remportez 3 victoires dans l'Arène",
+      "es": "Gana en la Arena 3 veces",
+      "ru": "Пробеда на арене 3 раза",
+      "pt": "Vencer a Arena 3x",
+      "ja": "闘技場3回勝利",
+      "ko": "투기장 3회 승리"
+     }
+    },
+    {
+     "step": 3,
+     "count": 5,
+     "points": 410,
+     "title": {
+      "en": "Me, Beyond Myself III",
+      "de": "Über mich hinaus Ⅲ",
+      "fr": "Se surpasser Ⅲ",
+      "es": "Más allá de mí mismo Ⅲ",
+      "ru": "Превзойти самого себя Ⅲ",
+      "pt": "Além de Mim Mesmo Ⅲ",
+      "ja": "俺を超えた、俺III",
+      "ko": "나를 넘어선, 나 Ⅲ"
+     },
+     "text": {
+      "en": "Win 5 times in Arena",
+      "de": "Siege in der Arena (5-mal)",
+      "fr": "Remportez 5 victoires dans l'Arène",
+      "es": "Gana en la Arena 5 veces",
+      "ru": "Победа на арене 5 р.",
+      "pt": "Vencer a Arena 5x",
+      "ja": "闘技場5回勝利",
+      "ko": "투기장 5회 승리"
+     }
+    }
+   ]
+  },
+  {
+   "id": 242210900,
+   "race": "D",
+   "tab": "PartyChallenge",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 3,
+     "points": 360,
+     "title": {
+      "en": "Way of the Transcended I",
+      "de": "Pfad der Transzendierten Ⅰ",
+      "fr": "La voie des transcendés Ⅰ",
+      "es": "Camino de los Trascendidos Ⅰ",
+      "ru": "Путь возвышенных Ⅰ",
+      "pt": "Trajetória dos Transcendidos Ⅰ",
+      "ja": "超越した者たちのI",
+      "ko": "초월한 자들의 행보 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 3 times",
+      "de": "Schließe den Transzendenz-Dungeon ab (3-mal)",
+      "fr": "Terminez le donjon de la Transcendance 3 fois",
+      "es": "Completa la mazmorra de Trascendencia 3 veces",
+      "ru": "Пройти подземелье Возвышения 3 р.",
+      "pt": "Concluir Masmorra da Transcendência 3x",
+      "ja": "超越ダンジョン3回クリア",
+      "ko": "초월 던전 3번 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 6,
+     "points": 510,
+     "title": {
+      "en": "Way of the Transcended II",
+      "de": "Pfad der Transzendierten Ⅱ",
+      "fr": "La voie des transcendés Ⅱ",
+      "es": "Camino de los Trascendidos Ⅱ",
+      "ru": "Путь возвышенных Ⅱ",
+      "pt": "Trajetória dos Transcendidos Ⅱ",
+      "ja": "超越した者たちのII",
+      "ko": "초월한 자들의 행보 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 6 times",
+      "de": "Schließe den Transzendenz-Dungeon ab (6-mal)",
+      "fr": "Terminez le donjon de la Transcendance 6 fois",
+      "es": "Completa la Mazmorra de Trascendencia 6 veces",
+      "ru": "Пройти подземелье Возвышения 6 раз",
+      "pt": "Concluir Masmorra da Transcendência 6x",
+      "ja": "超越ダンジョン6回クリア",
+      "ko": "초월 던전 6번 클리어"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 650,
+     "title": {
+      "en": "Way of the Transcended III",
+      "de": "Pfad der Transzendierten Ⅲ",
+      "fr": "La voie des transcendés Ⅲ",
+      "es": "Camino de los Trascendidos Ⅲ",
+      "ru": "Путь возвышенных Ⅲ",
+      "pt": "Trajetória dos Transcendidos Ⅲ",
+      "ja": "超越した者たちのIII",
+      "ko": "초월한 자들의 행보 Ⅲ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 10 times",
+      "de": "Schließe den Transzendenz-Dungeon ab (10-mal)",
+      "fr": "Terminez le donjon de la Transcendance 10 fois",
+      "es": "Completa la Mazmorra de Trascendencia 10 veces",
+      "ru": "Пройти подземелье Возвышения 10 раз",
+      "pt": "Concluir Masmorra da Transcendência 10x",
+      "ja": "超越ダンジョン10回クリア",
+      "ko": "초월 던전 10번 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 242211000,
+   "race": "D",
+   "tab": "PartyChallenge",
+   "kind": "ClearDungeonLimitDeath",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 180,
+     "title": {
+      "en": "Transforms Upon Death I",
+      "de": "Mutation beim Tod Ⅰ",
+      "fr": "Transformation à la mort Ⅰ",
+      "es": "Transformación al morir Ⅰ",
+      "ru": "Перевоплощение после смерти Ⅰ",
+      "pt": "Mutação ao Morrer Ⅰ",
+      "ja": "死亡時に変異しますI",
+      "ko": "사망 시, 변이됩니다 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 1 time without dying",
+      "de": "Schließe den Transzendenz-Dungeon ab, ohne zu sterben (1-mal)",
+      "fr": "Terminez le donjon de la Transcendance 1 fois sans mourir",
+      "es": "Completa la mazmorra de Trascendencia 1 vez sin haber muerto ni una vez",
+      "ru": "Пройти подземелье Возвышения 1 раз, не погибнув",
+      "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 1x",
+      "ja": "超越ダンジョン死なずに1回クリア",
+      "ko": "초월 던전 한번도 죽지 않고 1번 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 260,
+     "title": {
+      "en": "Transforms Upon Death II",
+      "de": "Mutation beim Tod Ⅱ",
+      "fr": "Transformation à la mort Ⅱ",
+      "es": "Transformación al morir Ⅱ",
+      "ru": "Перевоплощение после смерти Ⅱ",
+      "pt": "Mutação ao Morrer Ⅱ",
+      "ja": "死亡時に変異しますII",
+      "ko": "사망 시, 변이됩니다 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon 3 times without dying",
+      "de": "Schließe den Transzendenz-Dungeon ab, ohne zu sterben (3-mal)",
+      "fr": "Terminez le donjon de la Transcendance 3 fois sans mourir",
+      "es": "Completa la mazmorra de Trascendencia 3 veces sin haber muerto ni una vez",
+      "ru": "Пройти подземелье Возвышения 3 р., не погибнув",
+      "pt": "Concluir Masmorra da Transcendência sem morrer nem uma vez 3x",
+      "ja": "超越ダンジョン死なずに3回クリア",
+      "ko": "초월 던전 한번도 죽지 않고 3번 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 242211100,
+   "race": "D",
+   "tab": "PartyChallenge",
+   "kind": "ClearAchievement",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 180,
+     "title": {
+      "en": "Transcendence Speed Run I",
+      "de": "Schnelldurchlauf: Transzendenz Ⅰ",
+      "fr": "Course à la Transcendance Ⅰ",
+      "es": "Contrarreloj de Trascendencia Ⅰ",
+      "ru": "Прохождение Возвышения на скорость Ⅰ",
+      "pt": "Contra o Tempo na Transcendência Ⅰ",
+      "ja": "超越をスピードランI",
+      "ko": "초월 스피드런 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon within 15 minutes",
+      "de": "Schließe den Transzendenz-Dungeon innerhalb von 15 Min. ab",
+      "fr": "Terminez le donjon de la Transcendance en moins de 15 min",
+      "es": "Completa la mazmorra de Trascendencia en menos de 15 minutos",
+      "ru": "Пройти подземелье Возвышения за 15 минут",
+      "pt": "Concluir Masmorra da Transcendência em até 15min",
+      "ja": "超越ダンジョン15分以内にクリア",
+      "ko": "초월 던전 15분 이내 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 260,
+     "title": {
+      "en": "Transcendence Speed Run II",
+      "de": "Schnelldurchlauf: Transzendenz Ⅱ",
+      "fr": "Course à la Transcendance Ⅱ",
+      "es": "Contrarreloj de Trascendencia Ⅱ",
+      "ru": "Прохождение Возвышения на скорость Ⅱ",
+      "pt": "Contra o Tempo na Transcendência Ⅱ",
+      "ja": "超越をスピードランII",
+      "ko": "초월 스피드런 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Transcendence Dungeon within 7 minutes",
+      "de": "Schließe den Transzendenz-Dungeon innerhalb von 7 Min. ab",
+      "fr": "Terminez le donjon de la Transcendance en moins de 7 minutes",
+      "es": "Completa la mazmorra de Trascendencia en menos de 7 minutos",
+      "ru": "Пройти подземелье Возвышения за 7 мин.",
+      "pt": "Concluir Masmorra da Transcendência em até 7min",
+      "ja": "超越ダンジョン7分以内にクリア",
+      "ko": "초월 던전 7분 이내 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 242211200,
+   "race": "D",
+   "tab": "PartyChallenge",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 10,
+     "points": 270,
+     "title": {
+      "en": "Time to Go Home",
+      "de": "Kehre zurück",
+      "fr": "Il est temps de rentrer",
+      "es": "Regresa por donde viniste",
+      "ru": "Возвращение обратно",
+      "pt": "Volte de Onde Veio!",
+      "ja": "来た場所へ戻れ",
+      "ko": "왔던 곳으로 돌아가"
+     },
+     "text": {
+      "en": "Defeat 10 Mini-Bosses in Transcendence Dungeon",
+      "de": "Besiege 10 Zwischenbosse im Transzendenz-Dungeon",
+      "fr": "Éliminez 10 mini-boss dans le donjon de la Transcendance",
+      "es": "Derrota a 10 minijefes en una Mazmorra de Trascendencia",
+      "ru": "Победить мини-босса в подземелье Возвышения 10 р.",
+      "pt": "Derrotar 10 Chefes Intermediários na Masmorra da Transcendência",
+      "ja": "超越ダンジョンで中間ボス10体討伐",
+      "ko": "초월 던전에서 중간 보스 10마리 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2300001,
+    2300002,
+    2300016,
+    2300017,
+    2300031,
+    2300032,
+    2301502,
+    2301503,
+    2320615,
+    2320616,
+    2330708,
+    2330709,
+    2340615,
+    2340616,
+    2343615,
+    2343616,
+    2346615,
+    2346616,
+    2350708,
+    2350709,
+    2353708,
+    2353709,
+    2356708,
+    2356709
+   ]
+  },
+  {
+   "id": 242211300,
+   "race": "D",
+   "tab": "PartyChallenge",
+   "kind": "ClearAchievement",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "Toward Greater Power I",
+      "de": "Auf dem Weg zu mehr Macht Ⅰ",
+      "fr": "Vers plus de puissance Ⅰ",
+      "es": "Hacia un mayor poder Ⅰ",
+      "ru": "К большему могуществу Ⅰ",
+      "pt": "Em Busca de Um Poder Maior Ⅰ",
+      "ja": "より大きな力へI",
+      "ko": "더 큰 힘을 향해 Ⅰ"
+     },
+     "text": {
+      "en": "Extract 10 Arcana",
+      "de": "Extrahiere 10 Arkana",
+      "fr": "Extrayez 10 arcanes",
+      "es": "Extrae 10 Arcanas",
+      "ru": "Извлечь 10 аркан",
+      "pt": "Extrair Arcana x10",
+      "ja": "アルカナ10個抽出する",
+      "ko": "아르카나 10개 추출하기"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 260,
+     "title": {
+      "en": "Toward Greater Power II",
+      "de": "Auf dem Weg zu mehr Macht Ⅱ",
+      "fr": "Vers plus de puissance Ⅱ",
+      "es": "Hacia un mayor poder Ⅱ",
+      "ru": "К большему могуществу II",
+      "pt": "Em Busca de Um Poder Maior Ⅱ",
+      "ja": "より大きな力へII",
+      "ko": "더 큰 힘을 향해 Ⅱ"
+     },
+     "text": {
+      "en": "Transmute 1 Arcana",
+      "de": "Veredle 1 Arkana",
+      "fr": "Transmutez 1 arcane",
+      "es": "Transmuta 1 Arcana",
+      "ru": "Синтезировать 1 аркан",
+      "pt": "Sintetizar Arcana x1",
+      "ja": "アルカナ1個錬成する",
+      "ko": "아르카나 1개 연성하기"
+     }
+    }
+   ]
+  },
+  {
+   "id": 243210700,
+   "race": "D",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 180,
+     "title": {
+      "en": "Friends With a Story I",
+      "de": "Freunde mit Geschichte Ⅰ",
+      "fr": "Des amis, une histoire Ⅰ",
+      "es": "Amigos con historia Ⅰ",
+      "ru": "Особые обстоятельства I",
+      "pt": "Cada Um com Sua História Ⅰ",
+      "ja": "ワケありの仲間たちI",
+      "ko": "사연 있는 친구들 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss 5 times",
+      "de": "Besiege 5 Albtraum-Bosse",
+      "fr": "Éliminez le boss du Cauchemar 5 fois",
+      "es": "Derrota al jefe de Pesadilla 5 veces",
+      "ru": "Победить босса Кошмара 5 раз",
+      "pt": "Derrotar Chefe do Pesadelo 5x",
+      "ja": "悪夢ボス5回討伐",
+      "ko": "악몽 보스 5회 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 380,
+     "title": {
+      "en": "Friends With a Story II",
+      "de": "Freunde mit Geschichte Ⅱ",
+      "fr": "Des amis, une histoire Ⅱ",
+      "es": "Amigos con historia Ⅱ",
+      "ru": "Друзья со своей историей Ⅱ",
+      "pt": "Cada Um com Sua História Ⅱ",
+      "ja": "ワケありの仲間たちII",
+      "ko": "사연 있는 친구들 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss 10 times",
+      "de": "Besiege 10 Albtraum-Bosse",
+      "fr": "Éliminez le boss du Cauchemar 10 fois",
+      "es": "Derrota al jefe de Pesadilla 10 veces",
+      "ru": "Победить босса Кошмара 10 раз",
+      "pt": "Derrotar Chefe do Pesadelo 10x",
+      "ja": "悪夢ボス10回討伐",
+      "ko": "악몽 보스 10회 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 243210800,
+   "race": "D",
+   "tab": "Nightmare",
+   "kind": "GetItem",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1000,
+     "points": 90,
+     "title": {
+      "en": "Collecting Dream Shards I",
+      "de": "Traumfragmente sammeln Ⅰ",
+      "fr": "Collecte de fragments de rêve Ⅰ",
+      "es": "Reuniendo pedazos oníricos Ⅰ",
+      "ru": "За фрагментами сна Ⅰ",
+      "pt": "Reunindo Pedaços de Sonho Ⅰ",
+      "ja": "夢の欠片を集めてI",
+      "ko": "꿈의 조각을 모아 Ⅰ"
+     },
+     "text": {
+      "en": "Obtain 1,000 Phantasmal Fragments",
+      "de": "Erhalte 1.000 Phantomfragmente",
+      "fr": "Obtenez 1 000 Fragments oniriques",
+      "es": "Obtén 1000 Fragmentos de ensueño",
+      "ru": "Собрать осколки видения x1000",
+      "pt": "Obter Fragmento Onírico x1.000",
+      "ja": "夢幻の破片1,000個獲得",
+      "ko": "몽환의 파편 1000개 획득"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3000,
+     "points": 130,
+     "title": {
+      "en": "Collecting Dream Shards II",
+      "de": "Traumfragmente sammeln Ⅱ",
+      "fr": "Collecte de fragments de rêve Ⅱ",
+      "es": "Reuniendo pedazos oníricos Ⅱ",
+      "ru": "За фрагментами сна Ⅱ",
+      "pt": "Reunindo Pedaços de Sonho Ⅱ",
+      "ja": "夢の欠片を集めてII",
+      "ko": "꿈의 조각을 모아 Ⅱ"
+     },
+     "text": {
+      "en": "Obtain 3,000 Phantasmal Fragments",
+      "de": "Erhalte 3.000 Phantomfragmente",
+      "fr": "Obtenez 3 000 Fragments oniriques",
+      "es": "Obtén 3000 Fragmentos de ensueño",
+      "ru": "Собрать осколки видения x3000",
+      "pt": "Obter Fragmento Onírico x3.000",
+      "ja": "夢幻の破片3,000個獲得",
+      "ko": "몽환의 파편 3000개 획득"
+     }
+    }
+   ]
+  },
+  {
+   "id": 243210900,
+   "race": "D",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 90,
+     "title": {
+      "en": "3 Minutes of Nightmare",
+      "de": "3-Minuten-Albtraum",
+      "fr": "3 minutes de cauchemar",
+      "es": "3 minutos de pesadilla",
+      "ru": "Кошмар за 3 мин.",
+      "pt": "3 Minutos de Pesadelo",
+      "ja": "3分ナイトメア",
+      "ko": "3분 나이트메어"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss within 3 minutes",
+      "de": "Besiege den Albtraum-Boss innerhalb von 3 Min.",
+      "fr": "Éliminez le boss du Cauchemar en moins de 3 minutes",
+      "es": "Derrota al Jefe de Pesadilla en menos de 3 minutos",
+      "ru": "Победить босса Кошмара за 3 мин.",
+      "pt": "Derrotar Chefe do Pesadelo em até 3min",
+      "ja": "悪夢ボスを3分以内に討伐",
+      "ko": "악몽 보스 3분 이내 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 243211000,
+   "race": "D",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 190,
+     "title": {
+      "en": "Nightmare Buster",
+      "de": "Albtraum-Bezwinger",
+      "fr": "Redresseur de torts du Cauchemar",
+      "es": "Cazador de Pesadilla",
+      "ru": "Укротитель Кошмара",
+      "pt": "Solucionador de Pesadelos",
+      "ja": "悪夢解決士",
+      "ko": "악몽 해결사"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss within 2 minutes",
+      "de": "Besiege den Albtraum-Boss innerhalb von 2 Min.",
+      "fr": "Éliminez le boss du Cauchemar en moins de 2 minutes",
+      "es": "Derrota al Jefe de Pesadilla en menos de 2 minutos",
+      "ru": "Победить босса Кошмара за 2 мин.",
+      "pt": "Derrotar Chefe do Pesadelo em até 2min",
+      "ja": "悪夢ボスを2分以内に討伐",
+      "ko": "악몽 보스 2분 이내 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 243211100,
+   "race": "D",
+   "tab": "Nightmare",
+   "kind": "ClearBossChallenge",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 330,
+     "title": {
+      "en": "Eternal Rest",
+      "de": "Ewige Ruhe",
+      "fr": "Repos éternel",
+      "es": "Descanso eterno",
+      "ru": "Вечный покой",
+      "pt": "Descanso Eterno",
+      "ja": "永遠の安息",
+      "ko": "영원한 안식"
+     },
+     "text": {
+      "en": "Defeat Nightmare Boss within 1 minute",
+      "de": "Besiege einen Albtraum-Boss innerhalb von 1 Min.",
+      "fr": "Éliminez le boss du Cauchemar en moins d'une minute",
+      "es": "Derrota al Jefe de Pesadilla en menos de 1 minuto",
+      "ru": "Победить босса Кошмара за 1 мин.",
+      "pt": "Derrotar Chefe do Pesadelo em até 1min",
+      "ja": "悪夢ボスを1分以内に討伐",
+      "ko": "악몽 보스 1분 이내 처치"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244210800,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Hatched Bird I",
+      "de": "Aus dem Ei geschlüpft Ⅰ",
+      "fr": "L'oiseau sorti de sa coquille Ⅰ",
+      "es": "Ave que rompió el cascarón Ⅰ",
+      "ru": "Первые шаги Ⅰ",
+      "pt": "Pássaro Saído do Ovo Ⅰ",
+      "ja": "卵を割って出てきた鳥I",
+      "ko": "알을 깨고 나온 새 Ⅰ"
+     },
+     "text": {
+      "en": "Clear Ascension Trial 1 time",
+      "de": "Schließe Aszensusritus ab (1-mal)",
+      "fr": "Terminez l'Épreuve d'éveil 1 fois",
+      "es": "Completa la Prueba de ascenso 1 vez",
+      "ru": "Пройти Битву пробуждения 1 р.",
+      "pt": "Concluir Rito de Ascensão 1x",
+      "ja": "覚醒戦1回クリア",
+      "ko": "각성전 1회 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 190,
+     "title": {
+      "en": "Hatched Bird II",
+      "de": "Aus dem Ei geschlüpft Ⅱ",
+      "fr": "L'oiseau sorti de sa coquille Ⅱ",
+      "es": "Ave que rompió el cascarón Ⅱ",
+      "ru": "Первые шаги Ⅱ",
+      "pt": "Pássaro Saído do Ovo Ⅱ",
+      "ja": "卵を割って出てきた鳥II",
+      "ko": "알을 깨고 나온 새 Ⅱ"
+     },
+     "text": {
+      "en": "Clear Ascension Trial 2 times",
+      "de": "Schließe Aszensusritus ab (2-mal)",
+      "fr": "Terminez l'Épreuve d'éveil 2 fois",
+      "es": "Completa la Prueba de ascenso 2 veces",
+      "ru": "Пройти Битву пробуждения 2 раза",
+      "pt": "Concluir Rito de Ascensão 2x",
+      "ja": "覚醒戦2回クリア",
+      "ko": "각성전 2회 클리어"
+     }
+    },
+    {
+     "step": 3,
+     "count": 3,
+     "points": 250,
+     "title": {
+      "en": "Hatched Bird III",
+      "de": "Aus dem Ei geschlüpft Ⅲ",
+      "fr": "L'oiseau sorti de sa coquille Ⅲ",
+      "es": "Ave que rompió el cascarón Ⅲ",
+      "ru": "Первые шаги Ⅲ",
+      "pt": "Pássaro Saído do Ovo Ⅲ",
+      "ja": "卵を割って出てきた鳥III",
+      "ko": "알을 깨고 나온 새 Ⅲ"
+     },
+     "text": {
+      "en": "Clear Ascension Trial 3 times",
+      "de": "Schließe Aszensusritus ab (3-mal)",
+      "fr": "Terminez l'Épreuve d'éveil 3 fois",
+      "es": "Completa Prueba de ascenso 3 veces",
+      "ru": "Пройти Битву пробуждения 3 раза",
+      "pt": "Concluir Rito de Ascensão 3x",
+      "ja": "覚醒戦3回クリア",
+      "ko": "각성전 3회 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244210900,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "KillPCAbyssGrade",
+   "steps": [
+    {
+     "step": 1,
+     "count": 2,
+     "points": 180,
+     "title": {
+      "en": "Shooting for the Stars I",
+      "de": "Auf Sternenjagd Ⅰ",
+      "fr": "À la conquête des étoiles Ⅰ",
+      "es": "A por las estrellas Ⅰ",
+      "ru": "За звездами Ⅰ",
+      "pt": "Vamos Colher Estrelas Ⅰ",
+      "ja": "星を取りに行こうI",
+      "ko": "별 따러 가세 Ⅰ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 2 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (2-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 2 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x2",
+      "ru": "Убить офицеров 1-5 ранга 2 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 2x",
+      "ja": "[一星～五星将校]2回KILL",
+      "ko": "[1성~5성 장교] 2회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 4,
+     "points": 190,
+     "title": {
+      "en": "Shooting for the Stars II",
+      "de": "Auf Sternenjagd Ⅱ",
+      "fr": "À la conquête des étoiles Ⅱ",
+      "es": "A por las estrellas Ⅱ",
+      "ru": "За звездами Ⅱ",
+      "pt": "Vamos Colher Estrelas Ⅱ",
+      "ja": "星を取りに行こうII",
+      "ko": "별 따러 가세 Ⅱ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 4 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (4-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 4 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x4",
+      "ru": "Убить офицеров 1-5 ранга 4 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 4x",
+      "ja": "[一星～五星将校]4回KILL",
+      "ko": "[1성~5성 장교] 4회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 6,
+     "points": 190,
+     "title": {
+      "en": "Shooting for the Stars III",
+      "de": "Auf Sternenjagd Ⅲ",
+      "fr": "À la conquête des étoiles Ⅲ",
+      "es": "A por las estrellas Ⅲ",
+      "ru": "За звездами Ⅲ",
+      "pt": "Vamos Colher Estrelas Ⅲ",
+      "ja": "星を取りに行こうIII",
+      "ko": "별 따러 가세 Ⅲ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 6 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (6-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 6 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x6",
+      "ru": "Убить офицеров 1-5 ранга 6 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 6x",
+      "ja": "[一星～五星将校]6回KILL",
+      "ko": "[1성~5성 장교] 6회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 8,
+     "points": 200,
+     "title": {
+      "en": "Shooting for the Stars IV",
+      "de": "Auf Sternenjagd Ⅳ",
+      "fr": "À la conquête des étoiles Ⅳ",
+      "es": "A por las estrellas Ⅳ",
+      "ru": "За звездами Ⅳ",
+      "pt": "Vamos Colher Estrelas Ⅳ",
+      "ja": "星を取りに行こうIV",
+      "ko": "별 따러 가세 Ⅳ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 8 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (8-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 8 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x8",
+      "ru": "Убить офицеров 1-5 ранга 8 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 8x",
+      "ja": "[一星～五星将校]8回KILL",
+      "ko": "[1성~5성 장교] 8회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 10,
+     "points": 200,
+     "title": {
+      "en": "Shooting for the Stars V",
+      "de": "Auf Sternenjagd Ⅴ",
+      "fr": "À la conquête des étoiles Ⅴ",
+      "es": "A por las estrellas Ⅴ",
+      "ru": "За звездами Ⅴ",
+      "pt": "Vamos Colher Estrelas Ⅴ",
+      "ja": "星を取りに行こうV",
+      "ko": "별 따러 가세 Ⅴ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 10 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (10-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 10 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x10",
+      "ru": "Убить офицеров 1-5 ранга 10 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 10x",
+      "ja": "[一星～五星将校]10回KILL",
+      "ko": "[1성~5성 장교] 10회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 12,
+     "points": 210,
+     "title": {
+      "en": "Shooting for the Stars VI",
+      "de": "Auf Sternenjagd Ⅵ",
+      "fr": "À la conquête des étoiles Ⅵ",
+      "es": "A por las estrellas Ⅵ",
+      "ru": "За звездами Ⅵ",
+      "pt": "Vamos Colher Estrelas Ⅵ",
+      "ja": "星を取りに行こうVI",
+      "ko": "별 따러 가세 Ⅵ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 12 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (12-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 12 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x12",
+      "ru": "Убить офицеров 1-5 ранга 12 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 12x",
+      "ja": "[一星～五星将校]12回KILL",
+      "ko": "[1성~5성 장교] 12회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 14,
+     "points": 210,
+     "title": {
+      "en": "Shooting for the Stars VII",
+      "de": "Auf Sternenjagd Ⅶ",
+      "fr": "À la conquête des étoiles Ⅶ",
+      "es": "A por las estrellas Ⅶ",
+      "ru": "За звездами Ⅶ",
+      "pt": "Vamos Colher Estrelas Ⅶ",
+      "ja": "星を取りに行こうVII",
+      "ko": "별 따러 가세 Ⅶ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 14 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (14-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 14 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x14",
+      "ru": "Убить офицеров 1-5 ранга 14 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 14x",
+      "ja": "[一星～五星将校]14回KILL",
+      "ko": "[1성~5성 장교] 14회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 16,
+     "points": 220,
+     "title": {
+      "en": "Shooting for the Stars VIII",
+      "de": "Auf Sternenjagd Ⅷ",
+      "fr": "À la conquête des étoiles Ⅷ",
+      "es": "A por las estrellas Ⅷ",
+      "ru": "За звездами Ⅷ",
+      "pt": "Vamos Colher Estrelas Ⅷ",
+      "ja": "星を取りに行こうVIII",
+      "ko": "별 따러 가세 Ⅷ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 16 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (16-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 16 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x16",
+      "ru": "Убить офицеров 1-5 ранга 16 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 16x",
+      "ja": "[一星～五星将校]16回KILL",
+      "ko": "[1성~5성 장교] 16회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 18,
+     "points": 220,
+     "title": {
+      "en": "Shooting for the Stars IX",
+      "de": "Auf Sternenjagd Ⅸ",
+      "fr": "À la conquête des étoiles Ⅸ",
+      "es": "A por las estrellas Ⅸ",
+      "ru": "За звездами Ⅸ",
+      "pt": "Vamos Colher Estrelas Ⅸ",
+      "ja": "星を取りに行こうIX",
+      "ko": "별 따러 가세 Ⅸ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 18 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (18-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 18 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x18",
+      "ru": "Убить офицеров 1-5 ранга 18 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 18x",
+      "ja": "[一星～五星将校]18回KILL",
+      "ko": "[1성~5성 장교] 18회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 20,
+     "points": 230,
+     "title": {
+      "en": "Shooting for the Stars X",
+      "de": "Auf Sternenjagd Ⅹ",
+      "fr": "À la conquête des étoiles Ⅹ",
+      "es": "A por las estrellas Ⅹ",
+      "ru": "За звездами Ⅹ",
+      "pt": "Vamos Colher Estrelas Ⅹ",
+      "ja": "星を取りに行こうX",
+      "ko": "별 따러 가세 Ⅹ"
+     },
+     "text": {
+      "en": "Kill [1-5 Star Officer] 20 times",
+      "de": "Besiege [1- bis 5-Sterne-Offizier] (20-mal)",
+      "fr": "Tuez [Officier 1 à 5 étoiles] 20 fois",
+      "es": "Abate [Oficiales de 1 a 5 estrellas] x20",
+      "ru": "Убить офицеров 1-5 ранга 20 р.",
+      "pt": "Abater [Oficial de 1 a 5 Estrelas] 20x",
+      "ja": "[一星～五星将校]20回KILL",
+      "ko": "[1성~5성 장교] 20회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244211000,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "KillPCAbyssGrade",
+   "steps": [
+    {
+     "step": 1,
+     "count": 6,
+     "points": 140,
+     "title": {
+      "en": "Baptism of Fire I",
+      "de": "Begrüßung der jungen Sprösslinge Ⅰ",
+      "fr": "Accueil des jeunes pousses Ⅰ",
+      "es": "Recepción de los brotes verdes Ⅰ",
+      "ru": "Боевое крещение Ⅰ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅰ",
+      "ja": "みずみずしい新芽の到来I",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅰ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 6 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (6-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 6 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x6",
+      "ru": "Убить воинов 1-9-го ранга 6 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 6x",
+      "ja": "[一等～九等兵]6回KILL",
+      "ko": "[1급~9급병] 6회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 12,
+     "points": 140,
+     "title": {
+      "en": "Baptism of Fire II",
+      "de": "Begrüßung der jungen Sprösslinge Ⅱ",
+      "fr": "Accueil des jeunes pousses Ⅱ",
+      "es": "Recepción de los brotes verdes Ⅱ",
+      "ru": "Боевое крещение Ⅱ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅱ",
+      "ja": "みずみずしい新芽の到来II",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅱ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 12 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (12-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 12 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x12",
+      "ru": "Убить воинов 1-9-го ранга 12 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 12x",
+      "ja": "[一等～九等兵]12回KILL",
+      "ko": "[1급~9급병] 12회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 18,
+     "points": 150,
+     "title": {
+      "en": "Baptism of Fire III",
+      "de": "Begrüßung der jungen Sprösslinge Ⅲ",
+      "fr": "Accueil des jeunes pousses Ⅲ",
+      "es": "Recepción de los brotes verdes Ⅲ",
+      "ru": "Боевое крещение Ⅲ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅲ",
+      "ja": "みずみずしい新芽の到来III",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅲ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 18 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (18-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 18 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x18",
+      "ru": "Убить воинов 1-9-го ранга 18 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 18x",
+      "ja": "[一等～九等兵]18回KILL",
+      "ko": "[1급~9급병] 18회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 24,
+     "points": 150,
+     "title": {
+      "en": "Baptism of Fire IV",
+      "de": "Begrüßung der jungen Sprösslinge Ⅳ",
+      "fr": "Accueil des jeunes pousses Ⅳ",
+      "es": "Recepción de los brotes verdes Ⅳ",
+      "ru": "Боевое крещение Ⅳ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅳ",
+      "ja": "みずみずしい新芽の到来IV",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅳ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 24 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (24-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 24 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x24",
+      "ru": "Убить воинов 1-9-го ранга 24 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 24x",
+      "ja": "[一等～九等兵]24回KILL",
+      "ko": "[1급~9급병] 24회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 30,
+     "points": 160,
+     "title": {
+      "en": "Baptism of Fire V",
+      "de": "Begrüßung der jungen Sprösslinge Ⅴ",
+      "fr": "Accueil des jeunes pousses Ⅴ",
+      "es": "Recepción de los brotes verdes Ⅴ",
+      "ru": "Боевое крещение Ⅴ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅴ",
+      "ja": "みずみずしい新芽の到来V",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅴ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 30 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (30-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 30 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x30",
+      "ru": "Убить воинов 1-9-го ранга 30 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 30x",
+      "ja": "[一等～九等兵]30回KILL",
+      "ko": "[1급~9급병] 30회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 36,
+     "points": 160,
+     "title": {
+      "en": "Baptism of Fire VI",
+      "de": "Begrüßung der jungen Sprösslinge Ⅵ",
+      "fr": "Accueil des jeunes pousses Ⅵ",
+      "es": "Recepción de los brotes verdes Ⅵ",
+      "ru": "Боевое крещение Ⅵ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅵ",
+      "ja": "みずみずしい新芽の到来VI",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅵ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 36 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (36-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 36 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x36",
+      "ru": "Убить воинов 1-9-го ранга 36 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 36x",
+      "ja": "[一等～九等兵]36回KILL",
+      "ko": "[1급~9급병] 36회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 42,
+     "points": 170,
+     "title": {
+      "en": "Baptism of Fire VII",
+      "de": "Begrüßung der jungen Sprösslinge Ⅶ",
+      "fr": "Accueil des jeunes pousses Ⅶ",
+      "es": "Recepción de los brotes verdes Ⅶ",
+      "ru": "Боевое крещение Ⅶ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅶ",
+      "ja": "みずみずしい新芽の到来VII",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅶ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 42 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (42-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 42 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x42",
+      "ru": "Убить воинов 1-9-го ранга 42 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 42x",
+      "ja": "[一等～九等兵]42回KILL",
+      "ko": "[1급~9급병] 42회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 48,
+     "points": 170,
+     "title": {
+      "en": "Baptism of Fire VIII",
+      "de": "Begrüßung der jungen Sprösslinge Ⅷ",
+      "fr": "Accueil des jeunes pousses Ⅷ",
+      "es": "Recepción de los brotes verdes Ⅷ",
+      "ru": "Боевое крещение Ⅷ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅷ",
+      "ja": "みずみずしい新芽の到来VIII",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅷ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 48 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (48-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 48 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x48",
+      "ru": "Убить воинов 1-9-го ранга 48 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 48x",
+      "ja": "[一等～九等兵]48回KILL",
+      "ko": "[1급~9급병] 48회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 54,
+     "points": 180,
+     "title": {
+      "en": "Baptism of Fire IX",
+      "de": "Begrüßung der jungen Sprösslinge Ⅸ",
+      "fr": "Accueil des jeunes pousses Ⅸ",
+      "es": "Recepción de los brotes verdes Ⅸ",
+      "ru": "Боевое крещение Ⅸ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅸ",
+      "ja": "みずみずしい新芽の到来IX",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅸ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 54 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (54-mal)",
+      "fr": "Tuez [Soldat 1re à 9e classe] 54 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x54",
+      "ru": "Убить воинов 1-9-го ранга 54 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 54x",
+      "ja": "[一等～九等兵]54回KILL",
+      "ko": "[1급~9급병] 54회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 60,
+     "points": 180,
+     "title": {
+      "en": "Baptism of Fire X",
+      "de": "Begrüßung der jungen Sprösslinge Ⅹ",
+      "fr": "Accueil des jeunes pousses Ⅹ",
+      "es": "Recepción de los brotes verdes Ⅹ",
+      "ru": "Боевое крещение Ⅹ",
+      "pt": "Recepção dos Brotos Verdejantes Ⅹ",
+      "ja": "みずみずしい新芽の到来X",
+      "ko": "푸릇푸릇 새싹 맞이 Ⅹ"
+     },
+     "text": {
+      "en": "Kill [First-Class to Ninth-Class Soldier] 60 times",
+      "de": "Besiege [Rang-1- bis Rang-9-Soldat] (60-mal)",
+      "fr": "Tuez [Soldat 1re à la 9e classe] 60 fois",
+      "es": "Abate [Soldados de rango 1 a 9] x60",
+      "ru": "Убить воинов 1-9-го ранга 60 р.",
+      "pt": "Abater [Soldado de Classe 1 a 9] 60x",
+      "ja": "[一等～九等兵]60回KILL",
+      "ko": "[1급~9급병] 60회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244211100,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "KillPC",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 160,
+     "title": {
+      "en": "Pride of Asmodae I",
+      "de": "Stolz der Asmodae I",
+      "fr": "Fierté de l'armée Asmodienne Ⅰ",
+      "es": "Orgullo del Ejército Asmodiano Ⅰ",
+      "ru": "Гордость Асмодеи I",
+      "pt": "Orgulho do Exército Asmodiano Ⅰ",
+      "ja": "魔軍の自慢I",
+      "ko": "마군의 자랑 Ⅰ"
+     },
+     "text": {
+      "en": "Kill 5 Elyos players in Verteron",
+      "de": "Besiege 5 Elyos-Spieler in Verteron",
+      "fr": "Tuez 5 joueurs Élyséens à Verteron",
+      "es": "Elimina a 5 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 5 р.",
+      "pt": "Abater 5 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー5回KILL",
+      "ko": "베르테론에서 천족 플레이어 5회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 170,
+     "title": {
+      "en": "Pride of Asmodae II",
+      "de": "Stolz der Asmodae Ⅱ",
+      "fr": "Fierté de l'armée Asmodienne Ⅱ",
+      "es": "Orgullo del Ejército Asmodiano Ⅱ",
+      "ru": "Гордость Асмодеи Ⅱ",
+      "pt": "Orgulho do Exército Asmodiano Ⅱ",
+      "ja": "魔軍の自慢II",
+      "ko": "마군의 자랑 Ⅱ"
+     },
+     "text": {
+      "en": "Kill 10 Elyos players in Verteron",
+      "de": "Besiege 10 Elyos-Spieler in Verteron",
+      "fr": "Tuez 10 joueurs Élyséens à Verteron",
+      "es": "Elimina a 10 jugadores elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 10 р.",
+      "pt": "Abater 10 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー10回KILL",
+      "ko": "베르테론에서 천족 플레이어 10회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 15,
+     "points": 170,
+     "title": {
+      "en": "Pride of Asmodae III",
+      "de": "Stolz der Asmodae Ⅲ",
+      "fr": "Fierté de l'armée Asmodienne Ⅲ",
+      "es": "Orgullo del Ejército Asmodiano Ⅲ",
+      "ru": "Гордость Асмодеи Ⅲ",
+      "pt": "Orgulho do Exército Asmodiano Ⅲ",
+      "ja": "魔軍の自慢III",
+      "ko": "마군의 자랑 Ⅲ"
+     },
+     "text": {
+      "en": "Kill 15 Elyos players in Verteron",
+      "de": "Besiege 15 Elyos-Spieler in Verteron",
+      "fr": "Tuez 15 joueurs Élyséens à Verteron",
+      "es": "Elimina a 15 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 15 р.",
+      "pt": "Abater 15 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー15回KILL",
+      "ko": "베르테론에서 천족 플레이어 15회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 20,
+     "points": 180,
+     "title": {
+      "en": "Pride of Asmodae IV",
+      "de": "Stolz der Asmodae Ⅳ",
+      "fr": "Fierté de l'armée Asmodienne Ⅳ",
+      "es": "Orgullo del Ejército Asmodiano Ⅳ",
+      "ru": "Гордость Асмодеи Ⅳ",
+      "pt": "Orgulho do Exército Asmodiano Ⅳ",
+      "ja": "魔軍の自慢IV",
+      "ko": "마군의 자랑 Ⅳ"
+     },
+     "text": {
+      "en": "Kill 20 Elyos players in Verteron",
+      "de": "Besiege 20 Elyos-Spieler in Verteron",
+      "fr": "Tuez 20 joueurs Élyséens à Verteron",
+      "es": "Elimina a 20 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 20 р.",
+      "pt": "Abater 20 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー20回KILL",
+      "ko": "베르테론에서 천족 플레이어 20회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 25,
+     "points": 180,
+     "title": {
+      "en": "Pride of Asmodae V",
+      "de": "Stolz der Asmodae Ⅴ",
+      "fr": "Fierté de l'armée Asmodienne Ⅴ",
+      "es": "Orgullo del Ejército Asmodiano Ⅴ",
+      "ru": "Гордость Асмодеи Ⅴ",
+      "pt": "Orgulho do Exército Asmodiano Ⅴ",
+      "ja": "魔軍の自慢V",
+      "ko": "마군의 자랑 Ⅴ"
+     },
+     "text": {
+      "en": "Kill 25 Elyos players in Verteron",
+      "de": "Besiege 25 Elyos-Spieler in Verteron",
+      "fr": "Tuez 25 joueurs Élyséens à Verteron",
+      "es": "Elimina a 25 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 25 р.",
+      "pt": "Abater 25 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー25回KILL",
+      "ko": "베르테론에서 천족 플레이어 25회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 30,
+     "points": 180,
+     "title": {
+      "en": "Pride of Asmodae VI",
+      "de": "Stolz der Asmodae Ⅵ",
+      "fr": "Fierté de l'armée Asmodienne Ⅵ",
+      "es": "Orgullo del Ejército Asmodiano Ⅵ",
+      "ru": "Гордость Асмодеи Ⅵ",
+      "pt": "Orgulho do Exército Asmodiano Ⅵ",
+      "ja": "魔軍の自慢VI",
+      "ko": "마군의 자랑 Ⅵ"
+     },
+     "text": {
+      "en": "Kill 30 Elyos players in Verteron",
+      "de": "Besiege 30 Elyos-Spieler in Verteron",
+      "fr": "Tuez 30 joueurs Élyséens à Verteron",
+      "es": "Elimina a 30 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 30 р.",
+      "pt": "Abater 30 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー30回KILL",
+      "ko": "베르테론에서 천족 플레이어 30회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 35,
+     "points": 190,
+     "title": {
+      "en": "Pride of Asmodae VII",
+      "de": "Stolz der Asmodae Ⅶ",
+      "fr": "Fierté de l'armée Asmodienne Ⅶ",
+      "es": "Orgullo del Ejército Asmodiano Ⅶ",
+      "ru": "Гордость Асмодеи Ⅶ",
+      "pt": "Orgulho do Exército Asmodiano Ⅶ",
+      "ja": "魔軍の自慢VII",
+      "ko": "마군의 자랑 Ⅶ"
+     },
+     "text": {
+      "en": "Kill 35 Elyos players in Verteron",
+      "de": "Besiege 35 Elyos-Spieler in Verteron",
+      "fr": "Tuez 35 joueurs Élyséens à Verteron",
+      "es": "Elimina a 35 jugadores elyos en Verteron",
+      "ru": "Убейте 35 игроков-элийцев в Бертроне",
+      "pt": "Abater 35 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー35回KILL",
+      "ko": "베르테론에서 천족 플레이어 35회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 40,
+     "points": 190,
+     "title": {
+      "en": "Pride of Asmodae VIII",
+      "de": "Stolz der Asmodae Ⅷ",
+      "fr": "Fierté de l'armée Asmodienne Ⅷ",
+      "es": "Orgullo del Ejército Asmodiano Ⅷ",
+      "ru": "Гордость Асмодеи Ⅷ",
+      "pt": "Orgulho do Exército Asmodiano Ⅷ",
+      "ja": "魔軍の自慢VIII",
+      "ko": "마군의 자랑 Ⅷ"
+     },
+     "text": {
+      "en": "Kill 40 Elyos players in Verteron",
+      "de": "Besiege 40 Elyos-Spieler in Verteron",
+      "fr": "Tuez 40 joueurs Élyséens à Verteron",
+      "es": "Elimina a 40 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 40 р.",
+      "pt": "Abater 40 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー40回KILL",
+      "ko": "베르테론에서 천족 플레이어 40회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 45,
+     "points": 200,
+     "title": {
+      "en": "Pride of Asmodae IX",
+      "de": "Stolz der Asmodae Ⅸ",
+      "fr": "Fierté de l'armée Asmodienne Ⅸ",
+      "es": "Orgullo del Ejército Asmodiano Ⅸ",
+      "ru": "Гордость Асмодеи Ⅸ",
+      "pt": "Orgulho do Exército Asmodiano Ⅸ",
+      "ja": "魔軍の自慢IX",
+      "ko": "마군의 자랑 Ⅸ"
+     },
+     "text": {
+      "en": "Kill 45 Elyos players in Verteron",
+      "de": "Besiege 45 Elyos-Spieler in Verteron",
+      "fr": "Tuez 45 joueurs Élyséens à Verteron",
+      "es": "Elimina a 45 jugadores Elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 45 р.",
+      "pt": "Abater 45 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー45回KILL",
+      "ko": "베르테론에서 천족 플레이어 45회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 50,
+     "points": 210,
+     "title": {
+      "en": "Pride of Asmodae X",
+      "de": "Stolz der Asmodae Ⅹ",
+      "fr": "Fierté de l'armée Asmodienne Ⅹ",
+      "es": "Orgullo del Ejército Asmodiano Ⅹ",
+      "ru": "Гордость Асмодеи Ⅹ",
+      "pt": "Orgulho do Exército Asmodiano Ⅹ",
+      "ja": "魔軍の自慢X",
+      "ko": "마군의 자랑 Ⅹ"
+     },
+     "text": {
+      "en": "Kill 50 Elyos players in Verteron",
+      "de": "Besiege 50 Elyos-Spieler in Verteron",
+      "fr": "Tuez 50 joueurs Élyséens à Verteron",
+      "es": "Elimina a 50 jugadores elyos en Verteron",
+      "ru": "Убить игрока-элийца в Бертроне 50 р.",
+      "pt": "Abater 50 jogadores Elyseanos em Verteron",
+      "ja": "ベルテロンで天族プレイヤー50回KILL",
+      "ko": "베르테론에서 천족 플레이어 50회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244211200,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "KillPC",
+   "steps": [
+    {
+     "step": 1,
+     "count": 5,
+     "points": 160,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner I",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅰ",
+      "fr": "Sous la bannière asmodienne Ⅰ",
+      "es": "Bandera negra al viento Ⅰ",
+      "ru": "Под черным флагом Ⅰ",
+      "pt": "Bandeira Preta ao Vento Ⅰ",
+      "ja": "黒旗を掲げてI",
+      "ko": "흑색 깃발 휘날리며 Ⅰ"
+     },
+     "text": {
+      "en": "Kill 5 Elyos players in Altgard",
+      "de": "Besiege 5 Elyos-Spieler in Altgard",
+      "fr": "Tuez 5 joueurs Élyséens à Altgard",
+      "es": "Elimina a 5 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 5 р.",
+      "pt": "Abater 5 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー5回KILL",
+      "ko": "알트가르드에서 천족 플레이어 5회 KILL"
+     }
+    },
+    {
+     "step": 2,
+     "count": 10,
+     "points": 170,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner II",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅱ",
+      "fr": "Sous la bannière asmodienne Ⅱ",
+      "es": "Bandera negra al viento Ⅱ",
+      "ru": "Под черным флагом Ⅱ",
+      "pt": "Bandeira Preta ao Vento Ⅱ",
+      "ja": "黒旗を掲げてII",
+      "ko": "흑색 깃발 휘날리며 Ⅱ"
+     },
+     "text": {
+      "en": "Kill 10 Elyos players in Altgard",
+      "de": "Besiege 10 Elyos-Spieler in Altgard",
+      "fr": "Tuez 10 joueurs Élyséens à Altgard",
+      "es": "Elimina a 10 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 10 р.",
+      "pt": "Abater 10 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー10回KILL",
+      "ko": "알트가르드에서 천족 플레이어 10회 KILL"
+     }
+    },
+    {
+     "step": 3,
+     "count": 15,
+     "points": 170,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner III",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅲ",
+      "fr": "Sous la bannière asmodienne Ⅲ",
+      "es": "Bandera negra al viento Ⅲ",
+      "ru": "Под черным флагом Ⅲ",
+      "pt": "Bandeira Preta ao Vento Ⅲ",
+      "ja": "黒旗を掲げてIII",
+      "ko": "흑색 깃발 휘날리며 Ⅲ"
+     },
+     "text": {
+      "en": "Kill 15 Elyos players in Altgard",
+      "de": "Besiege 15 Elyos-Spieler in Altgard",
+      "fr": "Tuez 15 joueurs Élyséens à Altgard",
+      "es": "Elimina a 15 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 15 р.",
+      "pt": "Abater 15 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー15回KILL",
+      "ko": "알트가르드에서 천족 플레이어 15회 KILL"
+     }
+    },
+    {
+     "step": 4,
+     "count": 20,
+     "points": 180,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner IV",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅳ",
+      "fr": "Sous la bannière asmodienne Ⅳ",
+      "es": "Bandera negra al viento Ⅳ",
+      "ru": "Под черным флагом Ⅳ",
+      "pt": "Bandeira Preta ao Vento Ⅳ",
+      "ja": "黒旗を掲げてIV",
+      "ko": "흑색 깃발 휘날리며 Ⅳ"
+     },
+     "text": {
+      "en": "Kill 20 Elyos players in Altgard",
+      "de": "Besiege 20 Elyos-Spieler in Altgard",
+      "fr": "Tuez 20 joueurs Élyséens à Altgard",
+      "es": "Elimina a 20 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 20 р.",
+      "pt": "Abater 20 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー20回KILL",
+      "ko": "알트가르드에서 천족 플레이어 20회 KILL"
+     }
+    },
+    {
+     "step": 5,
+     "count": 25,
+     "points": 180,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner V",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅴ",
+      "fr": "Sous la bannière asmodienne Ⅴ",
+      "es": "Bandera negra al viento Ⅴ",
+      "ru": "Под черным флагом Ⅴ",
+      "pt": "Bandeira Preta ao Vento Ⅴ",
+      "ja": "黒旗を掲げてV",
+      "ko": "흑색 깃발 휘날리며 Ⅴ"
+     },
+     "text": {
+      "en": "Kill 25 Elyos players in Altgard",
+      "de": "Besiege 25 Elyos-Spieler in Altgard",
+      "fr": "Tuez 25 joueurs Élyséens à Altgard",
+      "es": "Elimina a 25 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 25 р.",
+      "pt": "Abater 25 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー25回KILL",
+      "ko": "알트가르드에서 천족 플레이어 25회 KILL"
+     }
+    },
+    {
+     "step": 6,
+     "count": 30,
+     "points": 180,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner VI",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅵ",
+      "fr": "Sous la bannière asmodienne Ⅵ",
+      "es": "Bandera negra al viento Ⅵ",
+      "ru": "Под черным флагом Ⅵ",
+      "pt": "Bandeira Preta ao Vento Ⅵ",
+      "ja": "黒旗を掲げてVI",
+      "ko": "흑색 깃발 휘날리며 Ⅵ"
+     },
+     "text": {
+      "en": "Kill 30 Elyos players in Altgard",
+      "de": "Besiege 30 Elyos-Spieler in Altgard",
+      "fr": "Tuez 30 joueurs Élyséens à Altgard",
+      "es": "Elimina a 30 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 30 р.",
+      "pt": "Abater 30 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー30回KILL",
+      "ko": "알트가르드에서 천족 플레이어 30회 KILL"
+     }
+    },
+    {
+     "step": 7,
+     "count": 35,
+     "points": 190,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner VII",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅶ",
+      "fr": "Sous la bannière asmodienne Ⅶ",
+      "es": "Bandera negra al viento Ⅶ",
+      "ru": "Под черным флагом Ⅶ",
+      "pt": "Bandeira Preta ao Vento Ⅶ",
+      "ja": "黒旗を掲げてVII",
+      "ko": "흑색 깃발 휘날리며 Ⅶ"
+     },
+     "text": {
+      "en": "Kill 35 Elyos players in Altgard",
+      "de": "Besiege 35 Elyos-Spieler in Altgard",
+      "fr": "Tuez 35 joueurs Élyséens à Altgard",
+      "es": "Elimina a 35 jugadores elyos en Altgard",
+      "ru": "Убить 35 игроков-элийцев в Альтгарде",
+      "pt": "Abater 35 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー35回KILL",
+      "ko": "알트가르드에서 천족 플레이어 35회 KILL"
+     }
+    },
+    {
+     "step": 8,
+     "count": 40,
+     "points": 190,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner VIII",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅷ",
+      "fr": "Sous la bannière asmodienne Ⅷ",
+      "es": "Bandera negra al viento Ⅷ",
+      "ru": "Под черным флагом Ⅷ",
+      "pt": "Bandeira Preta ao Vento Ⅷ",
+      "ja": "黒旗を掲げてVIII",
+      "ko": "흑색 깃발 휘날리며 Ⅷ"
+     },
+     "text": {
+      "en": "Kill 40 Elyos players in Altgard",
+      "de": "Besiege 40 Elyos-Spieler in Altgard",
+      "fr": "Tuez 40 joueurs Élyséens à Altgard",
+      "es": "Elimina a 40 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 40 р.",
+      "pt": "Abater 40 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー40回KILL",
+      "ko": "알트가르드에서 천족 플레이어 40회 KILL"
+     }
+    },
+    {
+     "step": 9,
+     "count": 45,
+     "points": 200,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner IX",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅸ",
+      "fr": "Sous la bannière asmodienne Ⅸ",
+      "es": "Bandera negra al viento Ⅸ",
+      "ru": "Под черным флагом Ⅸ",
+      "pt": "Bandeira Preta ao Vento Ⅸ",
+      "ja": "黒旗を掲げてIX",
+      "ko": "흑색 깃발 휘날리며 Ⅸ"
+     },
+     "text": {
+      "en": "Kill 45 Elyos players in Altgard",
+      "de": "Besiege 45 Elyos-Spieler in Altgard",
+      "fr": "Tuez 45 joueurs Élyséens à Altgard",
+      "es": "Elimina a 45 jugadores Elyos en Altgard",
+      "ru": "Убейте 45 игроков-элийцев в Альтгарде",
+      "pt": "Abater 45 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー45回KILL",
+      "ko": "알트가르드에서 천족 플레이어 45회 KILL"
+     }
+    },
+    {
+     "step": 10,
+     "count": 50,
+     "points": 210,
+     "title": {
+      "en": "Marching Beneath the Asmodian Banner X",
+      "de": "Marschieren unter dem Banner der Asmodier Ⅹ",
+      "fr": "Sous la bannière asmodienne Ⅹ",
+      "es": "Bandera negra al viento Ⅹ",
+      "ru": "Под черным флагом Ⅹ",
+      "pt": "Bandeira Preta ao Vento Ⅹ",
+      "ja": "黒旗を掲げてX",
+      "ko": "흑색 깃발 휘날리며 Ⅹ"
+     },
+     "text": {
+      "en": "Kill 50 Elyos players in Altgard",
+      "de": "Besiege 50 Elyos-Spieler in Altgard",
+      "fr": "Tuez 50 joueurs Élyséens à Altgard",
+      "es": "Elimina a 50 jugadores Elyos en Altgard",
+      "ru": "Убить игрока-элийца в Альтгарде 50 р.",
+      "pt": "Abater 50 jogadores Elyseanos em Altgard",
+      "ja": "アルトガルドで天族プレイヤー50回KILL",
+      "ko": "알트가르드에서 천족 플레이어 50회 KILL"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244211300,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "GatherCategorySuccess",
+   "steps": [
+    {
+     "step": 1,
+     "count": 10,
+     "points": 140,
+     "title": {
+      "en": "Daeva of Enduring Deeds I",
+      "de": "Daeva der beständigen Taten Ⅰ",
+      "fr": "Daeva aux exploits inébranlables Ⅰ",
+      "es": "Daeva de hazañas perdurables Ⅰ",
+      "ru": "Даэв великих свершений Ⅰ",
+      "pt": "Daeva da Proeza Inabalável Ⅰ",
+      "ja": "堅固な実績のディーヴァI",
+      "ko": "굳건한 업적의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Gather 10 Odyle in Abyss",
+      "de": "Sammle 10 Od im Abyss",
+      "fr": "Collectez 10 Od dans l'Abysse",
+      "es": "Recolecta 10 Od en el Abismo",
+      "ru": "Собрать эфир в Бездне 10 раз",
+      "pt": "Coletar 10 Ods do Abismo",
+      "ja": "アビスでオード10個採集",
+      "ko": "어비스에서 오드 10개 채집"
+     }
+    },
+    {
+     "step": 2,
+     "count": 20,
+     "points": 150,
+     "title": {
+      "en": "Daeva of Enduring Deeds II",
+      "de": "Daeva der beständigen Taten Ⅱ",
+      "fr": "Daeva aux exploits inébranlables Ⅱ",
+      "es": "Daeva de hazañas perdurables Ⅱ",
+      "ru": "Даэв великих свершений Ⅱ",
+      "pt": "Daeva da Proeza Inabalável Ⅱ",
+      "ja": "堅固な実績のディーヴァII",
+      "ko": "굳건한 업적의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Gather 20 Odyle in Abyss",
+      "de": "Sammle 20 Od im Abyss",
+      "fr": "Récupérez 20 Od dans l'Abysse",
+      "es": "Recolecta 20 Od en el Abismo",
+      "ru": "Собрать эфир в Бездне 20 раз",
+      "pt": "Coletar 20 Ods do Abismo",
+      "ja": "アビスでオード20個採集",
+      "ko": "어비스에서 오드 20개 채집"
+     }
+    },
+    {
+     "step": 3,
+     "count": 30,
+     "points": 160,
+     "title": {
+      "en": "Daeva of Enduring Deeds III",
+      "de": "Daeva der beständigen Taten Ⅲ",
+      "fr": "Daeva aux exploits inébranlables Ⅲ",
+      "es": "Daeva de hazañas perdurables Ⅲ",
+      "ru": "Даэв великих свершений Ⅲ",
+      "pt": "Daeva da Proeza Inabalável Ⅲ",
+      "ja": "堅固な実績のディーヴァIII",
+      "ko": "굳건한 업적의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Gather 30 Odyle in Abyss",
+      "de": "Sammle 30 Od im Abyss",
+      "fr": "Récupérez 30 Od dans l'Abysse",
+      "es": "Recolecta 30 Od en el Abismo",
+      "ru": "Соберите эфир в Бездне 30 раз",
+      "pt": "Coletar 30 Ods do Abismo",
+      "ja": "アビスでオード30個採集",
+      "ko": "어비스에서 오드 30개 채집"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244211400,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "ClearQuest",
+   "steps": [
+    {
+     "step": 1,
+     "count": 3,
+     "points": 140,
+     "title": {
+      "en": "Daeva of Glorious Deeds I",
+      "de": "Daeva der strahlenden Erfolge Ⅰ",
+      "fr": "Daeva aux exploits glorieux Ⅰ",
+      "es": "Daeva de hazañas gloriosas Ⅰ",
+      "ru": "Даэв славных поступков I",
+      "pt": "Daeva da Proeza Brilhante Ⅰ",
+      "ja": "光る実績のディーヴァI",
+      "ko": "빛나는 업적의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Complete 3 Abyss commands",
+      "de": "Schließe 3 Abyssrollen ab",
+      "fr": "Terminez 3 parchemins de consigne de l'Abysse",
+      "es": "Completa 3 órdenes del Abismo",
+      "ru": "Пройдите свиток приказа Бездны 3 раза",
+      "pt": "Concluir Pergaminho de Ordem do Abismo x3",
+      "ja": "アビス指令書3個クリア",
+      "ko": "어비스 지령서 3개 클리어"
+     }
+    },
+    {
+     "step": 2,
+     "count": 6,
+     "points": 150,
+     "title": {
+      "en": "Daeva of Glorious Deeds II",
+      "de": "Daeva der strahlenden Erfolge Ⅱ",
+      "fr": "Daeva aux exploits glorieux Ⅱ",
+      "es": "Daeva de hazañas gloriosas Ⅱ",
+      "ru": "Даэв славных поступков II",
+      "pt": "Daeva da Proeza Brilhante Ⅱ",
+      "ja": "光る実績のディーヴァII",
+      "ko": "빛나는 업적의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Complete 6 Abyss commands",
+      "de": "Schließe 6 Abyssrollen ab",
+      "fr": "Terminez 6 parchemins de consigne de l'Abysse",
+      "es": "Completa 6 órdenes del Abismo",
+      "ru": "Пройдите свиток приказа Бездны 6 раз",
+      "pt": "Concluir Pergaminho de Ordem do Abismo x6",
+      "ja": "アビス指令書6個クリア",
+      "ko": "어비스 지령서 6개 클리어"
+     }
+    },
+    {
+     "step": 3,
+     "count": 10,
+     "points": 160,
+     "title": {
+      "en": "Daeva of Glorious Deeds III",
+      "de": "Daeva der strahlenden Erfolge Ⅲ",
+      "fr": "Daeva aux exploits glorieux Ⅲ",
+      "es": "Daeva de hazañas gloriosas Ⅲ",
+      "ru": "Даэв славных поступков III",
+      "pt": "Daeva da Proeza Brilhante Ⅲ",
+      "ja": "光る実績のディーヴァIII",
+      "ko": "빛나는 업적의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Complete 10 Abyss commands",
+      "de": "Schließe 10 Abyssrollen ab",
+      "fr": "Terminez 10 parchemins de consigne de l'Abysse",
+      "es": "Completa 10 órdenes del Abismo",
+      "ru": "Выполнить задания свитка приказа 10 р.",
+      "pt": "Concluir Pergaminho de Ordem do Abismo x10",
+      "ja": "アビス指令書10個クリア",
+      "ko": "어비스 지령서 10개 클리어"
+     }
+    }
+   ]
+  },
+  {
+   "id": 244211500,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "KillNpc",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Daeva of Extraordinary Deeds I",
+      "de": "Daeva der außergewöhnlichen Taten Ⅰ",
+      "fr": "Daeva aux exploits extraordinaires Ⅰ",
+      "es": "Daeva de hazañas extraordinarias Ⅰ",
+      "ru": "Выдающийся даэв I",
+      "pt": "Daeva de Proezas Extraordinárias Ⅰ",
+      "ja": "卓越した実績のディーヴァI",
+      "ko": "탁월한 업적의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Defeat 1 Abyss boss monster",
+      "de": "Besiege 1 Abyss-Bossmonster",
+      "fr": "Éliminez 1 boss de l'Abysse",
+      "es": "Derrota a 1 Monstruo jefe del Abismo",
+      "ru": "Победить 1 босса Бездны",
+      "pt": "Derrotar 1 monstro chefe do Abismo",
+      "ja": "アビス ボス モンスター1体討伐",
+      "ko": "어비스 보스 몬스터 1마리 처치"
+     }
+    },
+    {
+     "step": 2,
+     "count": 3,
+     "points": 150,
+     "title": {
+      "en": "Daeva of Extraordinary Deeds II",
+      "de": "Daeva der außergewöhnlichen Taten Ⅱ",
+      "fr": "Daeva aux exploits extraordinaires Ⅱ",
+      "es": "Daeva de hazañas extraordinarias Ⅱ",
+      "ru": "Выдающийся даэв Ⅱ",
+      "pt": "Daeva de Proezas Extraordinárias Ⅱ",
+      "ja": "卓越した実績のディーヴァII",
+      "ko": "탁월한 업적의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Defeat 3 Abyss boss monsters",
+      "de": "Besiege 3 Abyss-Bossmonster",
+      "fr": "Éliminez 3 boss de l'Abysse",
+      "es": "Derrota a 3 monstruos jefe del Abismo",
+      "ru": "Победить босса Бездны 3 р.",
+      "pt": "Derrotar 3 monstros chefes do Abismo",
+      "ja": "アビス ボス モンスター3体討伐",
+      "ko": "어비스 보스 몬스터 3마리 처치"
+     }
+    },
+    {
+     "step": 3,
+     "count": 5,
+     "points": 160,
+     "title": {
+      "en": "Daeva of Extraordinary Deeds III",
+      "de": "Daeva der außergewöhnlichen Taten Ⅲ",
+      "fr": "Daeva aux exploits extraordinaires Ⅲ",
+      "es": "Daeva de hazañas extraordinarias Ⅲ",
+      "ru": "Выдающийся даэв Ⅲ",
+      "pt": "Daeva de Proezas Extraordinárias Ⅲ",
+      "ja": "卓越した実績のディーヴァIII",
+      "ko": "탁월한 업적의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Defeat 5 Abyss boss monsters",
+      "de": "Besiege 5 Abyss-Bossmonster",
+      "fr": "Éliminez 5 boss de l'Abysse",
+      "es": "Derrota a 5 monstruos jefe del Abismo",
+      "ru": "Уничтожить босса Бездны 5 р.",
+      "pt": "Derrotar 5 monstros chefes do Abismo",
+      "ja": "アビス ボス モンスター5体討伐",
+      "ko": "어비스 보스 몬스터 5마리 처치"
+     }
+    }
+   ],
+   "npcs": [
+    2600068,
+    2600084,
+    2600089,
+    2600093,
+    2600094,
+    2600096,
+    2600097,
+    2600098,
+    2600478,
+    2600479,
+    2600480,
+    2600520,
+    2600521,
+    2600522
+   ]
+  },
+  {
+   "id": 244211600,
+   "race": "D",
+   "tab": "Thema",
+   "kind": "ClearDungeon",
+   "steps": [
+    {
+     "step": 1,
+     "count": 1,
+     "points": 140,
+     "title": {
+      "en": "Daeva's Book I",
+      "de": "Daeva des Schlachtfelds I",
+      "fr": "Daeva du champ de bataille Ⅰ",
+      "es": "Daeva del Campo de batalla Ⅰ",
+      "ru": "Книга даэвов I",
+      "pt": "Daeva do Campo de Batalha I",
+      "ja": "戦場のディーヴァI",
+      "ko": "전장의 데바 Ⅰ"
+     },
+     "text": {
+      "en": "Participate in Battlefield 1 time",
+      "de": "Nimm am Schlachtfeld teil (1-mal)",
+      "fr": "Participez au champ de bataille 1 fois",
+      "es": "Participa en el Campo de batalla 1 vez",
+      "ru": "Участвуйте на арене 1 раз",
+      "pt": "Participe do Campo de Batalha 1x",
+      "ja": "戦場1回参加",
+      "ko": "전장 1회 참여"
+     }
+    },
+    {
+     "step": 2,
+     "count": 2,
+     "points": 150,
+     "title": {
+      "en": "Daeva's Book II",
+      "de": "Daeva des Schlachtfelds II",
+      "fr": "Daeva du champ de bataille Ⅱ",
+      "es": "Daeva del Campo de batalla Ⅱ",
+      "ru": "Книга даэвов II",
+      "pt": "Daeva do Campo de Batalha II",
+      "ja": "戦場のディーヴァII",
+      "ko": "전장의 데바 Ⅱ"
+     },
+     "text": {
+      "en": "Participate in Battlefield 2 times",
+      "de": "Nimm am Schlachtfeld teil (2-mal)",
+      "fr": "Participez au champ de bataille 2 fois",
+      "es": "Participa en el Campo de batalla 2 veces",
+      "ru": "Участвуйте на арене 2 раза",
+      "pt": "Participar do Campo de Batalha 2x",
+      "ja": "戦場2回参加",
+      "ko": "전장 2회 참여"
+     }
+    },
+    {
+     "step": 3,
+     "count": 3,
+     "points": 160,
+     "title": {
+      "en": "Daeva's Book III",
+      "de": "Daeva des Schlachtfelds III",
+      "fr": "Daeva du champ de bataille Ⅲ",
+      "es": "Daeva del Campo de batalla Ⅲ",
+      "ru": "Книга даэвов III",
+      "pt": "Daeva do Campo de Batalha III",
+      "ja": "戦場のディーヴァIII",
+      "ko": "전장의 데바 Ⅲ"
+     },
+     "text": {
+      "en": "Participate in Battlefield 3 times",
+      "de": "Nimm am Schlachtfeld teil (3-mal)",
+      "fr": "Participez au champ de bataille 3 fois",
+      "es": "Participa en el Campo de batalla 3 veces",
+      "ru": "Участвуйте на арене 3 раза",
+      "pt": "Participe do Campo de Batalha 3x",
+      "ja": "戦場3回参加",
+      "ko": "전장 3회 참여"
+     }
+    }
+   ]
+  }
+ ]
+}

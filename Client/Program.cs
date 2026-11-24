@@ -517,6 +517,43 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "aion2-weekplan")
+        {
+            // aion2-weekplan <recording.jsonl> [minutes] [--port=13328]: replays a recording and prints the week plan of every character it logged in, as of the end of the recording. No window.
+            int minutes = args.Skip(2).Where(a => !a.StartsWith("--", StringComparison.Ordinal)).Select(int.Parse).DefaultIfEmpty(150).First();
+            int weekPort = args.Where(a => a.StartsWith("--port=", StringComparison.Ordinal)).Select(a => int.Parse(a[7..])).DefaultIfEmpty(13328).First();
+            Aion2.Aion2Tickets.Reset();
+            var weekProtocol = Aion2.Protocol.Aion2Protocol.Load();
+            using var weekSource = new Aion2.Aion2PacketCombatSource(weekProtocol);
+            DateTime recordingEnd = DateTime.MinValue;
+            foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(args[1]))
+            {
+                bool fromServer = segment.Source.EndsWith(":" + weekPort, StringComparison.Ordinal);
+                if (!fromServer && !segment.Destination.EndsWith(":" + weekPort, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                recordingEnd = segment.Timestamp;
+                weekSource.Ingest(segment with { FromServer = fromServer });
+                weekSource.Poll(false);
+            }
+
+            string weekLanguage = "de";
+            foreach (Aion2.TicketCharacter c in Aion2.Aion2Tickets.Snapshot())
+            {
+                var weekPlan = Aion2.WeekPlanner.Build(c, recordingEnd, minutes, npc => Aion2.Aion2FieldBosses.ServerStatusOf(npc, recordingEnd));
+                Console.WriteLine($"{c.Name} (server {c.ServerId}) at {recordingEnd:ddd dd.MM. HH:mm}: data={weekPlan.HasData} collected={weekPlan.Claimed} waiting={weekPlan.Waiting} open={weekPlan.OpenPoints} reset={weekPlan.Reset:ddd dd.MM. HH:mm} planned={weekPlan.PlannedPoints} in {weekPlan.PlannedMinutes:0} min, final={weekPlan.Final}");
+                foreach (Aion2.PlanRow row in weekPlan.Rows)
+                {
+                    string when = row.When is { } at ? at.ToString(row.WhenIsDay ? "ddd" : "ddd HH:mm") : row.State == Aion2.PlanState.Blocked ? row.Why : "now";
+                    Console.WriteLine($"  {row.State,-8} {row.Step.TitleIn(weekLanguage),-34} {row.Count}/{row.Target} +{row.Points} {(row.Passive ? "along" : row.Minutes.ToString("0") + " min")} {when} -> {row.StandAfter}");
+                }
+            }
+
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-position-check")
         {
             if (args.Length < 2)

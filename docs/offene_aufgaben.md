@@ -64,7 +64,7 @@ Neue sichtbare Funktionen, Seiten und Tools.
 
 **Offene Fragen:** (a) Abgaben im Boss-Reiter sind nicht aufgenommen (der Projektleiter kann dort derzeit nichts abgeben; vermutlich dieselben Frames, beim Bau als "unbelegt" behandeln und sobald möglich nachprüfen); Herstellung ist belegt, der Frame nennt sogar die abgegebene Item-ID. (b) Namen und Symbole der Gegenstände: Texte vorhanden, Symbole nur für einen Teil extrahiert. (c) Asmodier: Gruppen-IDs `64xxxxx` und Rezepte je Fraktion doppelt.
 
-### 1.3 Saisonmissionen (Entscheidung offen)
+### 1.3 Saisonmissionen (umgesetzt 24.11.2026 als Seite "Wochenpunkte" unter Planung; nicht released)
 
 **Ist aufgenommen:** Frame `0x8356` (Erfolge) enthält die Zähler aller Saisonmissionen (Gruppen `Group_Season_G1_L_*`, wöchentlich oder Saison über `ResetCycleType`), dazu die Wochenpunkte (3.440, Schwellen 1.500/3.000/4.500/6.000/8.000 für die Wochenbelohnung). Belegt gegen alle Fenster.
 

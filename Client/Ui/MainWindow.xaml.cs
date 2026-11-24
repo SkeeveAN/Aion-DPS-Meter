@@ -6865,6 +6865,8 @@ public partial class MainWindow : Window
         {
             case "checklist":
                 return Hosted(new ChecklistWindow());
+            case "weekpoints":
+                return Hosted(new WeekPointsWindow());
             case "attributes":
             {
                 var attributesPage = new AttributesPage(() => _liveSource?.Entities as Aion2EntityDirectory);

@@ -49,6 +49,7 @@ public sealed class ToolsWindow : Window
     internal static double DefaultWidth(string id) => id switch
     {
         "checklist" => 660,
+        "weekpoints" => 1100,
         "attributes" => 1060,
         "statcalc" => 1180,
         "craft" => 980,
@@ -66,7 +67,7 @@ public sealed class ToolsWindow : Window
         var loc = LocalizationManager.Instance;
         var groups = new[]
         {
-            new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]) },
+            new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("weekpoints", loc["Main.MenuTools.WeekPoints"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]) },
             new[] { new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("craft", loc["Main.MenuTools.Craft"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
             new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
             new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },

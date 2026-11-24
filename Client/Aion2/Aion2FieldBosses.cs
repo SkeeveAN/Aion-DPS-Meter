@@ -255,7 +255,8 @@ public static class Aion2FieldBosses
 
         map = (int)BitConverter.ToUInt32(frame[4..8]);
         int count = frame[8];
-        if (map is < 1000 or > 99999 || count is 0 or > 64)
+        // the lists of the Abyss levels carry small map numbers (20 = the lower Abyss, places 2001-2008); the structure below must still read to the last byte
+        if (map is < 1 or > 99999 || count is 0 or > 64)
         {
             return false;
         }
@@ -467,6 +468,48 @@ public static class Aion2FieldBosses
         }
 
         return new BossStatus(BossPhase.Unknown, null, state is null ? null : DateTimeOffset.FromUnixTimeMilliseconds(state.SeenMs).LocalDateTime);
+    }
+
+    /// <summary>How long a "alive" list entry counts as current (the server repeats the list every 3 s while the map's list is up; an older one may long be out of date).</summary>
+    public static readonly TimeSpan AliveFresh = TimeSpan.FromMinutes(20);
+
+    /// <summary>
+    /// What the game's own list last said about a boss, and nothing else: the fixed times of <see cref="StatusOf"/> are no good for planning (the Abyss bosses do not come on a
+    /// fixed cycle: a recording shows the Lower Abyss bosses back after the artifact sieges, on a Thursday and a Sunday evening), so a boss without a list entry is
+    /// <see cref="BossPhase.Unknown"/>. A living boss counts only while the list is fresh; a dead one comes back at the time the server gave (also when it was listed days ago).
+    /// Returns null when the NPC is not a field boss of the list.
+    /// </summary>
+    public static BossStatus? ServerStatusOf(int npc, DateTime now)
+    {
+        if (!Maps.Any(m => m.Bosses.Any(b => b.Npc == npc)))
+        {
+            return null;
+        }
+
+        SavedState? state;
+        lock (Gate)
+        {
+            States.TryGetValue(npc, out state);
+        }
+
+        if (state is null)
+        {
+            return new BossStatus(BossPhase.Unknown, null, null);
+        }
+
+        DateTime seen = DateTimeOffset.FromUnixTimeMilliseconds(state.SeenMs).LocalDateTime;
+        if (state.Alive)
+        {
+            return now - seen <= AliveFresh ? new BossStatus(BossPhase.Now, null, seen) : new BossStatus(BossPhase.Unknown, null, seen);
+        }
+
+        if (state.TimeMs > 0)
+        {
+            DateTime back = DateTimeOffset.FromUnixTimeMilliseconds(state.TimeMs).LocalDateTime;
+            return back > now ? new BossStatus(BossPhase.Respawn, back, seen) : new BossStatus(BossPhase.Unknown, back, seen);
+        }
+
+        return new BossStatus(BossPhase.Unknown, null, seen);
     }
 
     /// <summary>The window that is open now, else the next one.</summary>

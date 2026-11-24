@@ -78,6 +78,9 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>The achievements and season missions of the login (the week's points are read from it).</summary>
     private const int AchievementsOpcode = 0x8356;
+
+    /// <summary>The live achievement counters (a counter or level changed while playing): the weekly season missions and the week's points.</summary>
+    private const int AchievementsLiveOpcode = 0x8456;
     /// <summary>The holders of the artifacts of one Abyss level, sent at every entry of the level (bytes 05 e3): <c>zone (23 bytes: flag, zone id u32 = 1001 for the lower Abyss, count, kind, start u64, end u64) | n | n x (artifact id u32, object u32, side u8, 8 bytes)</c>.</summary>
     private const int AbyssArtifactZoneOpcode = 0x05e3;
     private const int MissionListOpcode = 0x1c8d;
@@ -1016,9 +1019,22 @@ public sealed class Aion2FrameDecoder
 
         if (opcode == AchievementsOpcode)
         {
-            if (Aion2Tickets.TryParseAchievements(frame, out TicketReading points))
+            if (Aion2Missions.TryParseReadings(frame, out List<TicketReading> achievements))
             {
-                Aion2Tickets.ReceiveAchievements(points, timestamp);
+                Aion2Tickets.ReceiveAchievements(achievements, timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == AchievementsLiveOpcode)
+        {
+            if (Aion2Missions.TryParseReadings(frame, out List<TicketReading> changes))
+            {
+                foreach (TicketReading reading in changes)
+                {
+                    Aion2Tickets.ReceiveUpdate(reading, timestamp);
+                }
             }
 
             return Array.Empty<DamageEvent>();

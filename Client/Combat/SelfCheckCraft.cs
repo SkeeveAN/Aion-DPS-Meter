@@ -262,7 +262,7 @@ public static class SelfCheckCraft
         var declined = new Ui.MeterSettings { PrivacyDecision = Ui.PrivacyConsent.Declined };
         bool consent = !Ui.PrivacyConsent.IsAccepted(fresh) && Ui.PrivacyConsent.NeedsAsking(fresh) && Ui.PrivacyConsent.IsAccepted(accepted) && !Ui.PrivacyConsent.NeedsAsking(accepted)
             && !Ui.PrivacyConsent.IsAccepted(older) && Ui.PrivacyConsent.NeedsAsking(older) && !Ui.PrivacyConsent.IsAccepted(declined) && !Ui.PrivacyConsent.NeedsAsking(declined)
-            && Ui.PrivacyConsent.RestrictedTools.SetEquals(new[] { "checklist", "attributes", "statcalc", "loot", "craft", "timetable", "theme", "network" });
+            && Ui.PrivacyConsent.RestrictedTools.SetEquals(new[] { "checklist", "weekpoints", "attributes", "statcalc", "loot", "craft", "timetable", "theme", "network" });
         Console.WriteLine($"  -> the privacy answer: uploads only with the current version accepted, older or never asked is asked, declined is not asked again, eight tools stay: {consent}");
 
         Aion2Stock.Reset();

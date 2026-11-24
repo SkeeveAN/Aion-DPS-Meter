@@ -7,6 +7,7 @@ public static class ToolSwitch
     public static readonly (string Id, string NameKey, string DescKey)[] All =
     {
         ("checklist", "Main.MenuTools.Checklist", "Tool.Desc.checklist"),
+        ("weekpoints", "Main.MenuTools.WeekPoints", "Tool.Desc.weekpoints"),
         ("attributes", "Main.MenuTools.Attributes", "Tool.Desc.attributes"),
         ("statcalc", "Main.MenuTools.StatCalc", "Tool.Desc.statcalc"),
         ("loot", "Main.MenuTools.Loot", "Tool.Desc.loot"),

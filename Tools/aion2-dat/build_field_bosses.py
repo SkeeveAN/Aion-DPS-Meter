@@ -28,8 +28,8 @@ MAPS = [
     ("World/World_L/World_L_B", 0),
     ("World/World_D/World_D_A", 1110),
     ("World/World_D/World_D_B", 0),
-    ("Intersever/Abyss/Abyss_Reshanta_A", 0),
-    ("Intersever/Abyss/Abyss_Reshanta_C", 0),
+    ("Intersever/Abyss/Abyss_Reshanta_A", 20),  # 20: seen in a recording (8 bosses, the lower Abyss) and the map id of abyss_ar1_artifactwar
+    ("Intersever/Abyss/Abyss_Reshanta_C", 22),  # 22: the map id of abyss_ar2_artifactwar (AbyssArtifactEvent), not yet seen in a recording
 ]
 
 CYCLE = {"kind": "cycle", "base": "01:00", "everyMinutes": 180, "openMinutes": 20}

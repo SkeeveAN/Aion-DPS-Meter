@@ -264,7 +264,7 @@ public sealed class HubWindow : Window
             new Section("character", loc["Hub.Tab.Character"], new[]
             {
                 new Group(loc["Hub.Tab.Character"], character.ToArray()),
-                new Group(loc["Hub.Group.Planning"], Tools("checklist", "attributes", "statcalc")),
+                new Group(loc["Hub.Group.Planning"], Tools("checklist", "weekpoints", "attributes", "statcalc")),
             }),
             new Section("tools", loc["Main.MenuTools"], new[]
             {
@@ -865,7 +865,7 @@ public sealed class HubWindow : Window
         ["overview"] = "\u2302", ["fights"] = "\u2694", ["best"] = "\u2605", ["updates"] = "\u2B06", ["news"] = "\u2709",
         ["live"] = "\u26A1", ["sessions"] = "\u25A4", ["compare"] = "\u21C4", ["replay"] = "\u25B6", ["dummy"] = "\u25CE",
         ["profile"] = "\u263A", ["skills"] = "\u2737", ["arcana"] = "\u2740", ["board"] = "\u2B22", ["species"] = "\u273F", ["stats"] = "\u2211",
-        ["checklist"] = "\u2611", ["attributes"] = "\u2630", ["statcalc"] = "\u2295", ["designer"] = "\u25A3",
+        ["checklist"] = "\u2611", ["weekpoints"] = "\u25D4", ["attributes"] = "\u2630", ["statcalc"] = "\u2295", ["designer"] = "\u25A3",
     };
 
     private static object MenuContent(string sectionId, Entry entry, bool iconsOnly = false)
@@ -1126,7 +1126,7 @@ public sealed class HubWindow : Window
             return;
         }
 
-        SelectForRender(tool is "checklist" or "attributes" or "statcalc" ? "character" : "tools", tool);
+        SelectForRender(tool is "checklist" or "weekpoints" or "attributes" or "statcalc" ? "character" : "tools", tool);
     }
 
     private static UIElement Message(string title, string? text, (string Label, Action Click)? button)

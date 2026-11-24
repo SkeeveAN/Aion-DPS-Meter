@@ -940,7 +940,11 @@ public static class Aion2Tickets
             // the achievements frame of this login came a moment before the list: its points are this character's, not the one logged in before
             if (_early is { } early && (at - _earlyAt).Duration() < EarlyWindow)
             {
-                _pending[early.Id] = early.Value;
+                foreach (TicketReading r in early)
+                {
+                    _pending[r.Id] = r.Value;
+                }
+
                 _early = null;
             }
         }
@@ -949,17 +953,20 @@ public static class Aion2Tickets
     // The achievements frame of a login comes BEFORE the ticket list of that login (in the same bundle), when the meter still thinks the character
     // logged in before is the current one. It waits a moment for the list that follows; without one it counts for the current character as before.
     private static readonly TimeSpan EarlyWindow = TimeSpan.FromSeconds(3);
-    private static TicketReading? _early;
+    private static List<TicketReading>? _early;
     private static DateTime _earlyAt;
     private static DateTime _earlyWall;
 
     /// <summary>The week's points of the season missions from the login's achievements frame (see <see cref="TryParseAchievements"/>).</summary>
-    public static void ReceiveAchievements(TicketReading reading, DateTime at)
+    public static void ReceiveAchievements(TicketReading reading, DateTime at) => ReceiveAchievements(new[] { reading }, at);
+
+    /// <summary>The login's achievements frame: the week's points and the weekly season missions (see <see cref="Aion2Missions.TryParseReadings"/>).</summary>
+    public static void ReceiveAchievements(IReadOnlyList<TicketReading> readings, DateTime at)
     {
         FlushEarly(at, false);
         lock (Gate)
         {
-            _early = reading;
+            _early = readings.ToList();
             _earlyAt = at;
             _earlyWall = DateTime.UtcNow;
         }
@@ -968,7 +975,7 @@ public static class Aion2Tickets
     /// <summary>Hands a waiting achievements reading to the current character once no list came for it (a frame time or, with <paramref name="byClock"/>, the wall clock says so).</summary>
     private static void FlushEarly(DateTime at, bool byClock)
     {
-        TicketReading? due = null;
+        List<TicketReading>? due = null;
         DateTime dueAt = default;
         lock (Gate)
         {
@@ -980,9 +987,57 @@ public static class Aion2Tickets
             }
         }
 
-        if (due is { } reading)
+        if (due is not null)
         {
-            ReceiveUpdate(reading, dueAt);
+            ReceiveUpdates(due, dueAt);
+        }
+    }
+
+    /// <summary>Several readings of one frame at once (the achievements of a login): the same as one <see cref="ReceiveUpdate"/> each, with one change message.</summary>
+    public static void ReceiveUpdates(IReadOnlyList<TicketReading> readings, DateTime at)
+    {
+        if (readings.Count == 0)
+        {
+            return;
+        }
+
+        bool changed = false;
+        lock (Gate)
+        {
+            if (_awaitingName && _pending is not null)
+            {
+                foreach (TicketReading reading in readings)
+                {
+                    _pending[reading.Id] = reading.Value;
+                }
+            }
+            else if ((_current ?? _likely) is { } name)
+            {
+                bool known = Characters.TryGetValue(name, out TicketCharacter? before);
+                var tickets = known ? new Dictionary<int, TicketValue>(before!.Tickets) : new Dictionary<int, TicketValue>();
+                foreach (TicketReading reading in readings)
+                {
+                    tickets[reading.Id] = reading.Value;
+                }
+
+                if (known)
+                {
+                    Characters[name] = before! with { SavedAt = DateTime.UtcNow, Tickets = tickets };
+                }
+                else
+                {
+                    Characters[name] = new TicketCharacter(name, _likelyServerId, DateTime.UtcNow, tickets);
+                    Trim();
+                }
+
+                _dirty = true;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            Changed?.Invoke();
         }
     }
 

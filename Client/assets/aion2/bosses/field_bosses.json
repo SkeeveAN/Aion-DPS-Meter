@@ -1150,7 +1150,7 @@
   },
   {
    "key": "Abyss_Reshanta_A",
-   "id": 0,
+   "id": 20,
    "names": {
     "en": "Chaotic Lower Reshanta",
     "de": "Chaotische Untere Ebene von Reshanta",
@@ -1352,7 +1352,7 @@
   },
   {
    "key": "Abyss_Reshanta_C",
-   "id": 0,
+   "id": 22,
    "names": {
     "en": "Chaotic Middle Reshanta",
     "de": "Chaotische Mittlere Ebene von Reshanta",
