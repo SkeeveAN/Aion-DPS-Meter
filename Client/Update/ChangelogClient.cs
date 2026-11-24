@@ -9,13 +9,16 @@ public sealed record ChangelogVersion(string Version, string Date, IReadOnlyList
 
 /// <summary>
 /// The list of changes the update window shows: what changed in the client between the installed version and the offered one, asked from aiondps.com
-/// (<c>/api/changelog</c>, German or English, one short line per change). A plain GET with the two version numbers and the language, nothing that
+/// (<c>/api/changelog</c>, in the client's language or English, one short line per change). A plain GET with the two version numbers and the language, nothing that
 /// names the player; it belongs to the permission to update, so the restricted mode asks it as well. Never throws; a failure just means the
 /// window comes without the list.
 /// </summary>
 public static class ChangelogClient
 {
     private const string BaseUrl = "https://aiondps.com/api/changelog";
+
+    /// <summary>The languages the server has the short lines in; any other language asks for English.</summary>
+    private static readonly HashSet<string> Languages = new() { "de", "fr", "es", "ru", "zh", "zh-TW", "pt", "ja", "ko" };
     private static readonly Regex VersionPattern = new(@"^\d{1,4}\.\d{1,4}\.\d{1,4}$", RegexOptions.Compiled);
     private static readonly HttpClient Http = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(6) }; // no redirects: the host is fixed
 
@@ -29,7 +32,7 @@ public static class ChangelogClient
 
         try
         {
-            string url = $"{BaseUrl}?from={from}&to={to}&lang={(language == "de" ? "de" : "en")}";
+            string url = $"{BaseUrl}?from={from}&to={to}&lang={(Languages.Contains(language) ? language : "en")}";
             using HttpResponseMessage response = await Http.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {

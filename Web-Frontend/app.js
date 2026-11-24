@@ -1199,12 +1199,12 @@ function shaHelp(installerName) {
   return wrap;
 }
 
-// Latest client changes, one line each: from changelog.json (German texts from changelog.de.json when the site is German, otherwise English).
+// Latest client changes, one line each: from changelog.json (the texts of the site's language from changelog.<language>.json, English where one is missing).
 async function downloadReleaseRows() {
-  const german = getLocale() === "de";
+  const language = changelogLanguage();
   const [releases, texts] = await Promise.all([
     fetchJson("/changelog.json"),
-    german ? fetchJson("/changelog.de.json").catch(() => ({})) : Promise.resolve({}),
+    language !== "en" ? fetchJson(`/changelog.${language}.json`).catch(() => ({})) : Promise.resolve({}),
   ]);
   const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(intlTag());
   return releases
@@ -2191,8 +2191,8 @@ async function renderTwitchDrops() {
   );
 }
 
-// Changelog - English, plus German when the site language is German (texts in changelog.de.json,
-// keyed by the English text; anything missing there stays English). The data is changelog.json,
+// Changelog - English, plus the site's language (texts in changelog.<language>.json, keyed by the English text;
+// anything missing there stays English; German has every entry, the other languages the entries from 24 November 2026 on). The data is changelog.json,
 // built from the release commits by Tools/changelog/gen.mjs; releases are grouped by minor version
 // (0.10.x) so the long list stays scannable.
 const CHANGELOG_TEXT = {
@@ -2222,16 +2222,125 @@ const CHANGELOG_TEXT = {
     preNote: "Beginn der Versionsnummern",
     areas: { Client: "Client", Website: "Website", Backend: "Backend", Database: "Datenbank" },
   },
+  fr: {
+    loading: "Chargement du journal des modifications…",
+    title: "Journal des modifications",
+    intro: "Ce qui a changé, du plus récent au plus ancien : le client Windows, le site web, le backend et la base de données. ",
+    download: "Télécharger",
+    unreleased: "Non publié",
+    before: "Avant 0.4.0",
+    changes: (n) => `${n} modification${n === 1 ? "" : "s"} depuis la dernière version`,
+    releases: (n) => `${n} version${n === 1 ? "" : "s"}`,
+    days: (n) => `${n} jour${n === 1 ? "" : "s"}`,
+    preNote: "début des numéros de version",
+    areas: { Client: "Client", Website: "Site web", Backend: "Backend", Database: "Base de données" },
+  },
+  es: {
+    loading: "Cargando el registro de cambios…",
+    title: "Registro de cambios",
+    intro: "Lo que cambió, lo más reciente primero: el cliente de Windows, el sitio web, el backend y la base de datos. ",
+    download: "Descargar",
+    unreleased: "Sin publicar",
+    before: "Antes de 0.4.0",
+    changes: (n) => `${n} cambio${n === 1 ? "" : "s"} desde la última versión`,
+    releases: (n) => `${n} versi${n === 1 ? "ón" : "ones"}`,
+    days: (n) => `${n} día${n === 1 ? "" : "s"}`,
+    preNote: "inicio de los números de versión",
+    areas: { Client: "Cliente", Website: "Sitio web", Backend: "Backend", Database: "Base de datos" },
+  },
+  ru: {
+    loading: "Загрузка списка изменений…",
+    title: "Список изменений",
+    intro: "Что изменилось, сначала новое: клиент для Windows, сайт, бэкенд и база данных. ",
+    download: "Скачать",
+    unreleased: "Не выпущено",
+    before: "До 0.4.0",
+    changes: (n) => `Изменений с последней версии: ${n}`,
+    releases: (n) => `Версий: ${n}`,
+    days: (n) => `Дней: ${n}`,
+    preNote: "начало нумерации версий",
+    areas: { Client: "Клиент", Website: "Сайт", Backend: "Бэкенд", Database: "База данных" },
+  },
+  zh: {
+    loading: "正在加载更新日志…",
+    title: "更新日志",
+    intro: "更新内容,最新的在前:Windows 客户端、网站、后端和数据库。 ",
+    download: "下载",
+    unreleased: "未发布",
+    before: "0.4.0 之前",
+    changes: (n) => `自上次发布以来有 ${n} 项更改`,
+    releases: (n) => `${n} 个版本`,
+    days: (n) => `${n} 天`,
+    preNote: "版本号的起点",
+    areas: { Client: "客户端", Website: "网站", Backend: "后端", Database: "数据库" },
+  },
+  "zh-TW": {
+    loading: "正在載入更新日誌…",
+    title: "更新日誌",
+    intro: "更新內容,最新的在前:Windows 用戶端、網站、後端和資料庫。 ",
+    download: "下載",
+    unreleased: "未發佈",
+    before: "0.4.0 之前",
+    changes: (n) => `自上次發佈以來有 ${n} 項變更`,
+    releases: (n) => `${n} 個版本`,
+    days: (n) => `${n} 天`,
+    preNote: "版本號的起點",
+    areas: { Client: "用戶端", Website: "網站", Backend: "後端", Database: "資料庫" },
+  },
+  pt: {
+    loading: "Carregando o registro de alterações…",
+    title: "Registro de alterações",
+    intro: "O que mudou, do mais recente ao mais antigo: o cliente do Windows, o site, o backend e o banco de dados. ",
+    download: "Baixar",
+    unreleased: "Não lançado",
+    before: "Antes da 0.4.0",
+    changes: (n) => `${n} alteraç${n === 1 ? "ão" : "ões"} desde a última versão`,
+    releases: (n) => `${n} vers${n === 1 ? "ão" : "ões"}`,
+    days: (n) => `${n} dia${n === 1 ? "" : "s"}`,
+    preNote: "início da numeração de versões",
+    areas: { Client: "Cliente", Website: "Site", Backend: "Backend", Database: "Banco de dados" },
+  },
+  ja: {
+    loading: "変更履歴を読み込み中…",
+    title: "変更履歴",
+    intro: "変更内容(新しい順):Windows クライアント、ウェブサイト、バックエンド、データベース。 ",
+    download: "ダウンロード",
+    unreleased: "未リリース",
+    before: "0.4.0 以前",
+    changes: (n) => `前回のリリース以降 ${n} 件の変更`,
+    releases: (n) => `${n} リリース`,
+    days: (n) => `${n} 日`,
+    preNote: "バージョン番号の始まり",
+    areas: { Client: "クライアント", Website: "ウェブサイト", Backend: "バックエンド", Database: "データベース" },
+  },
+  ko: {
+    loading: "변경 내역을 불러오는 중…",
+    title: "변경 내역",
+    intro: "변경된 내용(최신순): Windows 클라이언트, 웹사이트, 백엔드, 데이터베이스. ",
+    download: "다운로드",
+    unreleased: "미출시",
+    before: "0.4.0 이전",
+    changes: (n) => `지난 릴리스 이후 ${n}개 변경`,
+    releases: (n) => `${n}개 릴리스`,
+    days: (n) => `${n}일`,
+    preNote: "버전 번호의 시작",
+    areas: { Client: "클라이언트", Website: "웹사이트", Backend: "백엔드", Database: "데이터베이스" },
+  },
 };
+// The language of the changelog texts: the site's own language when there is a set of texts for it, else English.
+function changelogLanguage() {
+  const code = getLocale();
+  return Object.prototype.hasOwnProperty.call(CHANGELOG_TEXT, code) ? code : "en";
+}
 const PRE_VERSION = "Before 0.4.0";
 async function renderChangelog() {
-  const lang = getLocale() === "de" ? "de" : "en";
+  const lang = changelogLanguage();
   const L = CHANGELOG_TEXT[lang];
   setBreadcrumb([link(t("breadcrumb.home"), "/"), L.title]);
   showLoading(L.loading);
   const [releases, german] = await Promise.all([
     fetchJson("/changelog.json"),
-    lang === "de" ? fetchJson("/changelog.de.json").catch(() => ({})) : Promise.resolve({}),
+    lang !== "en" ? fetchJson(`/changelog.${lang}.json`).catch(() => ({})) : Promise.resolve({}),
   ]);
   const groups = new Map();
   for (const r of releases) {
@@ -2241,7 +2350,7 @@ async function renderChangelog() {
     }
     groups.get(minor).push(r);
   }
-  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(lang === "de" ? "de-DE" : "en-GB", { year: "numeric", month: "short", day: "numeric" });
+  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(lang === "en" ? "en-GB" : intlTag(), { year: "numeric", month: "short", day: "numeric" });
   const sections = [...groups].map(([minor, list], i) => {
     const first = list[list.length - 1];
     const last = list[0];
