@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.2.0",
   "date": "2026-11-24",
   "items": [
    {
@@ -50,6 +50,13 @@
    },
    {
     "text": "The season mission names and texts of the week points page are in all ten languages (the game's client has eight, the Chinese ones are ours)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-24"
+   },
+   {
+    "text": "the week points page (a plan for the weekly season missions before the reset), the farm map for the pets you still lack and the Outer Abyss map",
     "areas": [
      "Client"
     ],
