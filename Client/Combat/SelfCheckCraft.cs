@@ -215,6 +215,24 @@ public static class SelfCheckCraft
             && week.Value.TimeMs == 1_791_499_543_290 && !Aion2Tickets.TryParseAchievements(ach.Take(10).ToArray(), out _);
         Console.WriteLine($"  -> the week's season points are read from the achievements frame: {points}");
 
+        // the achievements frame comes just before the ticket list of the same login: its points belong to the character that logs in, not to the one before
+        Aion2Tickets.Reset();
+        DateTime loginAt = new(2026, 11, 24, 10, 0, 0);
+        var oneTicket = new List<TicketReading> { new(Aion2Tickets.OdyleId, new TicketValue(10, 0, 0)) };
+        Aion2Tickets.ReceiveList(oneTicket, loginAt);
+        Aion2Tickets.NoteCharacter("Isidor", 1304, loginAt.AddSeconds(2));
+        Aion2Tickets.ReceiveAchievements(new TicketReading(Aion2Tickets.WeeklyPointsId, new TicketValue(8000, 0, 1_791_499_543_290)), loginAt.AddSeconds(60));
+        Aion2Tickets.ReceiveList(oneTicket, loginAt.AddSeconds(60));
+        Aion2Tickets.NoteCharacter("NullDMG", 1304, loginAt.AddSeconds(62));
+        var afterRelog = Aion2Tickets.Snapshot();
+        bool pointsOfNew = afterRelog.FirstOrDefault(c => c.Name == "NullDMG") is { } nul && nul.Tickets.TryGetValue(Aion2Tickets.WeeklyPointsId, out TicketValue got) && got.Count == 8000
+            && afterRelog.FirstOrDefault(c => c.Name == "Isidor") is { } isi && !isi.Tickets.ContainsKey(Aion2Tickets.WeeklyPointsId);
+        Aion2Tickets.ReceiveAchievements(new TicketReading(Aion2Tickets.WeeklyPointsId, new TicketValue(500, 0, 1_791_499_543_290)), loginAt.AddSeconds(120));
+        Aion2Tickets.ReceiveUpdate(new TicketReading(Aion2Tickets.OdyleId, new TicketValue(11, 0, 0)), loginAt.AddSeconds(130));
+        bool noListStays = Aion2Tickets.Snapshot().FirstOrDefault(c => c.Name == "NullDMG") is { } still && still.Tickets.TryGetValue(Aion2Tickets.WeeklyPointsId, out TicketValue kept) && kept.Count == 500;
+        Aion2Tickets.Reset();
+        Console.WriteLine($"  -> the season points of a login go to the character that logs in, and to the current one when no list follows: {pointsOfNew && noListStays}");
+
         // the own rank of the ranking window (a real frame: Abyss, overall, rank 1,764, 92,435 points, fell 16 places)
         byte[] rankFrame = Convert.FromHexString("578D00000100E4060000353B030000001805044161687A08416B617473756B6901002D00000000000000021369010000000000347B226B696C6C5F636F756E74223A31312C2264656174685F636F756E74223A34322C226173736973745F636F756E74223A36317DF0FFFFFF00000000120000000F0000003422000016C5282CA1010000");
         bool ranked = Aion2Rankings.TryParseOwnRank(rankFrame, t, out OwnRank own) && own is { Type: 1, Scope: 0, Entry: { Rank: 1764, ServerId: 1304, Name: "Aahz", Legion: "Akatsuki", ClassId: 2, Points: 92435, Change: -16, Grade: 18 } }

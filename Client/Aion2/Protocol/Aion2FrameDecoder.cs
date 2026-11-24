@@ -1018,7 +1018,7 @@ public sealed class Aion2FrameDecoder
         {
             if (Aion2Tickets.TryParseAchievements(frame, out TicketReading points))
             {
-                Aion2Tickets.ReceiveUpdate(points, timestamp);
+                Aion2Tickets.ReceiveAchievements(points, timestamp);
             }
 
             return Array.Empty<DamageEvent>();
