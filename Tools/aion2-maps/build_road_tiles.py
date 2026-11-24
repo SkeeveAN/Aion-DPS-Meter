@@ -1,4 +1,4 @@
-"""Builds the road layer of the world maps: python3 build_road_tiles.py <dump dir> <Client/assets/aion2/maps>
+"""Builds the road layer of the world maps: python3 build_road_tiles.py <dump dir> <Client/assets/aion2/maps> [map key ...]
 
 <dump dir> holds the road textures dumped with Tools/aion2-icons Extract (`dump <dir> <Map>_TransparentMapPath`). For every tile that has
 any road the script writes `<key>/<col>_<row>_p.png` (RGBA, the roads in yellow as the game lays them over the ground tiles); empty tiles
@@ -12,12 +12,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import path_tiles  # noqa: E402
 
 # map key -> (road texture family, tile size of the ground tiles: the client ships Altgard and the Abyss at 1024 px, so the roads get that size too)
-MAPS = {"verteron": ("World_L_A", 2048), "altgard": ("World_D_A", 1024), "abyss": ("Abyss_Reshanta_A", 1024)}
+MAPS = {"verteron": ("World_L_A", 2048), "altgard": ("World_D_A", 1024), "abyss": ("Abyss_Reshanta_A", 1024), "abyss_outer": ("Abyss_Reshanta_D", 1024)}
 
 
 def main():
     dump, assets = sys.argv[1:3]
     for key, (name, tile) in MAPS.items():
+        if len(sys.argv) > 3 and key not in sys.argv[3:]:
+            continue  # only the maps named after the folders (the dump of the others is not at hand)
         target = os.path.join(assets, key)
         n = size = 0
         for old in [f for f in os.listdir(target) if f.endswith("_p.png")]:

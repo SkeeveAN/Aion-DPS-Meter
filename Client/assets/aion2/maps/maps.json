@@ -29,14 +29,48 @@
    ]
   },
   "abyss": {
-   "title": "Abyss",
+   "title": "Lower Abyss",
    "table": "Intersever/Abyss/Abyss_Reshanta_A",
    "tile": 1024,
    "grid": 4,
    "scale": 0.010046217401763768,
    "offsetX": 2048.0,
    "offsetY": 2048.0,
-   "tiles": 4
+   "tiles": 4,
+   "names": {
+    "en": "Lower Abyss",
+    "de": "Unteres Abyss",
+    "fr": "Abysse inférieur",
+    "es": "Abismo inferior",
+    "ru": "Нижняя Бездна",
+    "zh": "下层深渊",
+    "zh-TW": "下層深淵",
+    "pt": "Abismo Inferior",
+    "ja": "下層アビス",
+    "ko": "하층 어비스"
+   }
+  },
+  "abyss_outer": {
+   "title": "Outer Abyss",
+   "table": "Intersever/Abyss/Abyss_Reshanta_D",
+   "tile": 1024,
+   "grid": 2,
+   "scale": 0.0100392,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "tiles": 4,
+   "names": {
+    "en": "Outer Abyss",
+    "de": "Äußeres Abyss",
+    "fr": "Abysse extérieur",
+    "es": "Abismo exterior",
+    "ru": "Внешняя Бездна",
+    "zh": "外层深渊",
+    "zh-TW": "外層深淵",
+    "pt": "Abismo Exterior",
+    "ja": "外郭アビス",
+    "ko": "표층 어비스"
+   }
   }
  }
 }

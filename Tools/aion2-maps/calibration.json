@@ -29,5 +29,13 @@
   "offset_x_1024": 511.7982611436246,
   "offset_y_1024": 514.2265286784826,
   "fit": "97 % of the 990 pet-monster spawn points of Reshanta_A on land; three places of a recording (SW island 17:56, north island 17:58, NW island 18:04) with their map screenshots all on the right island. Only checked by eye on the islands, not by an independent arrow match: accuracy not measured (expect a few hundred metres)."
+ },
+ "Abyss_D": {
+  "world": "Intersever/Abyss/Abyss_Reshanta_D",
+  "note": "Chaotic Outer Reshanta (Abyss Outland, 2x2 tiles of 1024 px = 2048 px native): the world box is -102000..102000 (WorldMap/Abyss_Reshanta_D), so image px = 1024 + world * 2048/204000 on the 2048 px map; on the 1024 px overview half of that, no flip or rotation (same layout as Abyss_Reshanta_A, which spans -204000..204000 over 4096 px)",
+  "scale_px_per_unit_1024": 0.0050196,
+  "offset_x_1024": 512.0,
+  "offset_y_1024": 512.0,
+  "fit": "not fitted, taken from the world box: 99.9 % of the 741 pet-monster spawn points of Reshanta_D lie on land (flipped or swapped: 57-72 %, a 50 px shift: 73 %)"
  }
 }

@@ -1,6 +1,6 @@
 """Exports the map tiles for the client: JPEG colour + a small PNG alpha mask per tile (WPF has no WebP decoder).
 
-Usage: python3 export_client_maps.py <dir with Verteron_tiles, Altgard_tiles, Abyss_tiles> <out dir> <calibration.json>
+Usage: python3 export_client_maps.py <dir with Verteron_tiles, Altgard_tiles, Abyss_tiles, Abyss_D_tiles> <out dir> <calibration.json> [map key ...]
 Writes <out>/<map>/<col>_<row>.jpg and <col>_<row>_a.png (half size mask) and <out>/maps.json with everything the client needs:
 the tile size, the grid, the world -> native pixel calibration and the key of the map's spawn table in pets/spawns.json.
 """
@@ -16,10 +16,14 @@ MAPS = {
     "verteron": dict(folder="Verteron_tiles", table="World/World_L/World_L_A", title="Verteron", faction="Elyos"),
     "altgard": dict(folder="Altgard_tiles", table="World/World_D/World_D_A", title="Altgard", faction="Asmodian"),
     "abyss": dict(folder="Abyss_tiles", table="Intersever/Abyss/Abyss_Reshanta_A", title="Abyss", faction=""),
+    "abyss_outer": dict(folder="Abyss_D_tiles", table="Intersever/Abyss/Abyss_Reshanta_D", title="Abyss_D", faction=""),
 }
+ONLY = sys.argv[4:]  # optional: only these map keys (the others stay as they are in <out>)
 info = {"maps": {}}
 total = 0
 for key, m in MAPS.items():
+    if ONLY and key not in ONLY:
+        continue
     d = os.path.join(src, m["folder"])
     meta = json.load(open(os.path.join(d, "info.json")))
     tile, grid = meta["tile"], meta["grid"]

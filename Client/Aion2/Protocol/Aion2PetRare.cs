@@ -50,8 +50,8 @@ public static class Aion2PetRare
         public Dictionary<string, Dictionary<string, string>> PlaceNames { get; } = new();
     }
 
-    /// <summary>Maps in the client's files that the EU game does not have yet (Chaotic Middle and Upper Reshanta): their spawn points are left out.</summary>
-    private static readonly string[] NotInEu = { "Intersever/Abyss/Abyss_Reshanta_C", "Intersever/Abyss/Abyss_Reshanta_D" };
+    /// <summary>Maps in the client's files that the EU game does not have yet (Chaotic Middle Reshanta, due in December 2026): their spawn points are left out. Chaotic Outer Reshanta (D, the Outer Abyss) is open since 24 November 2026.</summary>
+    private static readonly string[] NotInEu = { "Intersever/Abyss/Abyss_Reshanta_C" };
 
     private static readonly Regex Difficulty = new("_(Easy|Normal|Hard|Hell|Extreme|Despair)$", RegexOptions.Compiled);
     private static Catalog? _catalog;

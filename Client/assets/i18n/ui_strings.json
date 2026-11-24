@@ -3884,16 +3884,28 @@
     "ko": "알트가르드"
   },
   "Settings.PetRegion.Group.abyss": {
-    "en": "Abyss",
-    "de": "Abyss",
-    "fr": "Abysse",
-    "es": "Abismo",
-    "ru": "Бездна",
-    "zh": "深渊",
-    "zh-TW": "深淵",
-    "pt": "Abismo",
-    "ja": "アビス",
-    "ko": "어비스"
+    "en": "Lower Abyss",
+    "de": "Unteres Abyss",
+    "fr": "Abysse inférieur",
+    "es": "Abismo inferior",
+    "ru": "Нижняя Бездна",
+    "zh": "下层深渊",
+    "zh-TW": "下層深淵",
+    "pt": "Abismo Inferior",
+    "ja": "下層アビス",
+    "ko": "하층 어비스"
+  },
+  "Settings.PetRegion.Group.abyss_outer": {
+    "en": "Outer Abyss",
+    "de": "Äußeres Abyss",
+    "fr": "Abysse extérieur",
+    "es": "Abismo exterior",
+    "ru": "Внешняя Бездна",
+    "zh": "外层深渊",
+    "zh-TW": "外層深淵",
+    "pt": "Abismo Exterior",
+    "ja": "外郭アビス",
+    "ko": "표층 어비스"
   },
   "Character.Tab": {
     "en": "Character",

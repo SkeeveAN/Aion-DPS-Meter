@@ -27,7 +27,8 @@ LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-R
 MAPS = {
     "verteron": ["World/World_L/World_L_A"],
     "altgard": ["World/World_D/World_D_A"],
-    "abyss": ["Intersever/Abyss/Abyss_Reshanta_A", "Intersever/Abyss/Abyss_Reshanta_C", "Intersever/Abyss/Abyss_Reshanta_D"],
+    "abyss": ["Intersever/Abyss/Abyss_Reshanta_A"],  # Lower Abyss; Reshanta_C (Middle Abyss) comes in December 2026 and gets its group then
+    "abyss_outer": ["Intersever/Abyss/Abyss_Reshanta_D"],  # Outer Abyss (Abyss Outland): out since 24 November 2026, no client "Fundorte" yet, so only the spawn points count
 }
 
 
@@ -199,11 +200,11 @@ def main():
             for key, extra_ids in EXTRA.items():
                 found[key].update(extra_ids)
         # the client's own places win for every pet that has some
-        for pet in map(int, places):
+        for pet in map(int, places if gid != "abyss_outer" else ()):
             for ids in found.values():
                 ids.discard(pet)
             layer_pets.discard(pet)
-        for pet, entries in places.items():
+        for pet, entries in places.items() if gid != "abyss_outer" else ():
             for map_id, zone_id, key, npc in entries:
                 if map_group.get(map_id) != gid:
                     continue
