@@ -145,7 +145,7 @@ public static class ChecklistRows
         rows.Add(new ChecklistRow("weekly:shopodyle", ChecklistGroup.Weekly, loc["Checklist.ShopOdyle"], bought, Aion2.Aion2Tickets.ShopOdyleMax, false, true));
         if (character.Tickets.TryGetValue(Aion2.Aion2Tickets.WeeklyPointsId, out Aion2.TicketValue weekly))
         {
-            int points = nowMs - weekly.TimeMs < 7L * 24 * 3600 * 1000 ? Math.Min(weekly.Count, Aion2.Aion2Tickets.WeeklyPointsMax) : 0;
+            int points = weekly.TimeMs >= new DateTimeOffset(Aion2.ChecklistManual.LastWeeklyReset(now)).ToUnixTimeMilliseconds() ? Math.Min(weekly.Count, Aion2.Aion2Tickets.WeeklyPointsMax) : 0; // a stand from before the last weekly reset is last week's
             rows.Add(new ChecklistRow("weekly:points", ChecklistGroup.Weekly, loc["Checklist.WeeklyPoints"], points, Aion2.Aion2Tickets.WeeklyPointsMax, false, true));
         }
 
