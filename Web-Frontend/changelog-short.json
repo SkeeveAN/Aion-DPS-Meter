@@ -286,5 +286,9 @@
  "Species knowledge in the profile (client and website) shows only the nine analysis effects the game shows, no longer a second page of nine more rows the game sends but does not show": {
   "en": "Species knowledge shows only the nine effects of the game",
   "de": "Spezieskenntnis zeigt nur die neun Effekte des Spiels"
+ },
+ "The farm map: works out from your own pet progress where to farm the pets you still lack, with one picture per map (Verteron, Altgard, Lower and Outer Abyss, instances) kept away from guards and elite monsters, saved to a folder with its list or offered as an overlay and a widget (the map and its list as text, changing with the map you enter)": {
+  "en": "Farm map: where to farm the pets you still lack, as pictures, overlay and widget",
+  "de": "Farm-Karte: wo du fehlende Pets farmst, als Bilder, Overlay und Widget"
  }
 }
