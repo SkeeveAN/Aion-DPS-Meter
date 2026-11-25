@@ -310,5 +310,9 @@
  "Zone 600081 (Abyssal Forge: Ludra) was missing from the zone table and showed as a bare number in the session list and the plausibility check": {
   "en": "Ludra instance 600081 now shows its name in the session list",
   "de": "Ludra-Instanz 600081 zeigt ihren Namen in der Sitzungsliste"
+ },
+ "the target power overlay shows its name, class, power and percent in the middle of the box": {
+  "en": "Target power overlay: content centered",
+  "de": "Ziel-Kampfkraft-Overlay: Inhalt mittig"
  }
 }
