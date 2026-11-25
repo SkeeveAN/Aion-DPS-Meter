@@ -157,6 +157,13 @@
      "Client"
     ],
     "date": "2026-11-25"
+   },
+   {
+    "text": "Tool pages without data show a made-up sample with a note instead of an empty page: Loot (two sessions with real items), World boss (four bosses with times), Skill assist (a Gladiator's cooldowns and effects) and Network analysis (the values of a normal session); the real data replaces it as soon as there is some",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-25"
    }
   ]
  },

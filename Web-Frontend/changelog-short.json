@@ -406,5 +406,9 @@
  "DPS overlay look Own: the info text of DPS says what the meter's rule is (iDPS with a boss chosen, otherwise the damage over the player's own first-to-last-hit time)": {
   "en": "Look Own: DPS info text states the rule",
   "de": "Look Eigene: DPS-Infotext nennt die Regel"
+ },
+ "Tool pages without data show a made-up sample with a note instead of an empty page: Loot (two sessions with real items), World boss (four bosses with times), Skill assist (a Gladiator's cooldowns and effects) and Network analysis (the values of a normal session); the real data replaces it as soon as there is some": {
+  "en": "Tool pages show a sample while empty",
+  "de": "Tool-Seiten zeigen ein Beispiel, solange sie leer sind"
  }
 }
