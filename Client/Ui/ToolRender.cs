@@ -62,6 +62,18 @@ public static class ToolRender
                 break;
             }
 
+            case "targetpower":
+            {
+                // the target power widget as the overlay draws it: its window (380 x 64 by default) with the padding of the overlay, on a game-like ground
+                var line = TargetPowerView.Body(new TargetPowerData("Pencilgon", "Assassin", 196105, 0.98), loc);
+                var panel = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 8, 12, 8), Width = 380, Height = 64, Child = new Border { Child = line } };
+                panel.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+                shown = new Border { Padding = new Thickness(16), Background = new LinearGradientBrush(Color.FromRgb(0x3a, 0x4a, 0x3a), Color.FromRgb(0x24, 0x30, 0x40), 45), Child = panel };
+                width = 0;
+                height = 0;
+                break;
+            }
+
             case "placement":
             {
                 // the question when a saved window place was on a monitor that is not there

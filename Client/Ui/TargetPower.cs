@@ -67,10 +67,10 @@ public static class TargetPowerView
         return brush;
     }
 
-    /// <summary>The widget's body: one line, name - class - power - the gap in percent. Nothing marked: a hint on the dashboard.</summary>
+    /// <summary>The widget's body: one line, name - class - power - the gap in percent, in the middle of the widget (its window is wider than the line). Nothing marked: a hint on the dashboard.</summary>
     public static UIElement Body(TargetPowerData? data, LocalizationManager loc)
     {
-        var line = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        var line = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         TextBlock Text(string text, double size, FontWeight weight, Brush? brush, string? resource, double left)
         {
             var block = new TextBlock { Text = text, FontSize = size, FontWeight = weight, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(left, 0, 0, 0) };
