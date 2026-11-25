@@ -632,10 +632,14 @@
                         </Border>
 <Border x:Name="OwnLookCard" Style="{StaticResource SettingsCard}">
                             <StackPanel>
-                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayOwn}"/>
-                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.Hint}" Margin="0,0,0,10"/>
-                                <CheckBox x:Name="OwnLookOnBox" Content="{local:Loc Settings.Own.Use}" FontWeight="SemiBold"/>
-                                <StackPanel x:Name="OwnContent" Margin="0,12,0,0">
+                                <!-- the title row carries the switch: it folds the rest of the card in and out -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayOwn}" VerticalAlignment="Center" Margin="0"/>
+                                    <CheckBox x:Name="OwnLookOnBox" Grid.Column="1" VerticalAlignment="Center" Margin="0" ToolTip="{local:Loc Settings.Own.Use}"/>
+                                </Grid>
+                                <StackPanel x:Name="OwnContent" Margin="0,8,0,0">
+                                    <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.Hint}" Margin="0,0,0,10"/>
                                     <ContentControl x:Name="OwnEditorHost"/>
                                     <Border Height="1" Background="{DynamicResource Brush.Border}" Margin="0,14,0,10"/>
                                     <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.AllModes}"/>
