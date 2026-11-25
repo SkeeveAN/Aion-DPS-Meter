@@ -467,7 +467,7 @@ public sealed class ThemeEditorWindow : Window
             Filter = "Aion DPS design (*.aiondps-theme)|*.aiondps-theme|JSON (*.json)|*.json",
             FileName = name + ThemeFile.Extension,
         };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }
@@ -490,7 +490,7 @@ public sealed class ThemeEditorWindow : Window
     private void ImportTheme()
     {
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Aion DPS design (*.aiondps-theme;*.json)|*.aiondps-theme;*.json" };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }

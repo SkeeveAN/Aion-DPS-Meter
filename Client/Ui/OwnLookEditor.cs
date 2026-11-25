@@ -319,6 +319,7 @@ public sealed class OwnLookEditor : StackPanel
         Check("a change makes Save active", editor._saveButton.IsEnabled && editor._discardButton.IsEnabled);
         editor._discardButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Check("discard goes back to the saved state", editor._templateBox.Text == "%NAME%(16,b) %DPS%(short,r)" && !editor._saveButton.IsEnabled && MeterSettings.Load().OwnModes[0].Template == "%NAME%(16,b) %DPS%(short,r)");
+        Check("a window that was never shown is not taken as the owner of a dialog", DialogOwner.Of(new Window()) is null);
         Console.WriteLine("own-test: " + (ok ? "ALL GOOD" : "FAILED"));
     }
 

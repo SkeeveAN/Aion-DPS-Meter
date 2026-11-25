@@ -541,7 +541,7 @@ public partial class SessionManagerWindow : Window
             Filter = $"Aion DPS session (*{SessionFile.Extension})|*{SessionFile.Extension}",
             DefaultExt = SessionFile.Extension,
         };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }
@@ -574,7 +574,7 @@ public partial class SessionManagerWindow : Window
 
         Directory.CreateDirectory(SessionFile.DefaultDirectory);
         var dialog = new OpenFolderDialog { InitialDirectory = SessionFile.DefaultDirectory, Title = loc["Sessions.SaveAll.Folder"] };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }
@@ -676,7 +676,7 @@ public partial class SessionManagerWindow : Window
             Title = LocalizationManager.Instance["Sessions.AutoSave.Folder.Title"],
             InitialDirectory = Directory.Exists(current) ? current : SessionFile.DefaultDirectory,
         };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }
@@ -711,7 +711,7 @@ public partial class SessionManagerWindow : Window
             InitialDirectory = SessionFile.DefaultDirectory,
             Filter = $"Aion DPS session (*{SessionFile.Extension})|*{SessionFile.Extension}",
         };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }

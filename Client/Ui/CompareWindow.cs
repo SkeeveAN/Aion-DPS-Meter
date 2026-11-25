@@ -128,7 +128,7 @@ public sealed class CompareWindow : Window
         var panel = new StackPanel { Margin = new Thickness(14) };
         panel.Children.Add(list);
         panel.Children.Add(ok);
-        var dialog = new Window { Title = loc["Compare.PickSessions"], Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, SizeToContent = SizeToContent.WidthAndHeight, Content = panel };
+        var dialog = new Window { Title = loc["Compare.PickSessions"], Owner = DialogOwner.Of(this), WindowStartupLocation = WindowStartupLocation.CenterOwner, SizeToContent = SizeToContent.WidthAndHeight, Content = panel };
         dialog.SetResourceReference(BackgroundProperty, "Brush.Window");
         dialog.SetResourceReference(ForegroundProperty, "Brush.Text");
         ThemedChrome.Apply(dialog);
@@ -155,7 +155,7 @@ public sealed class CompareWindow : Window
             Filter = $"Aion DPS session (*{SessionFile.Extension})|*{SessionFile.Extension}",
             Multiselect = true,
         };
-        if (dialog.ShowDialog(this) != true)
+        if (DialogOwner.Show(dialog, this) != true)
         {
             return;
         }
@@ -184,7 +184,7 @@ public sealed class CompareWindow : Window
         panel.Children.Add(new TextBlock { Text = loc["Compare.OnlinePrompt"], TextWrapping = TextWrapping.Wrap, MaxWidth = 520 });
         panel.Children.Add(box);
         panel.Children.Add(ok);
-        var dialog = new Window { Title = loc["Compare.AddOnline"], Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, SizeToContent = SizeToContent.WidthAndHeight, Content = panel };
+        var dialog = new Window { Title = loc["Compare.AddOnline"], Owner = DialogOwner.Of(this), WindowStartupLocation = WindowStartupLocation.CenterOwner, SizeToContent = SizeToContent.WidthAndHeight, Content = panel };
         dialog.SetResourceReference(BackgroundProperty, "Brush.Window");
         dialog.SetResourceReference(ForegroundProperty, "Brush.Text");
         ThemedChrome.Apply(dialog);

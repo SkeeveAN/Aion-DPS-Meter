@@ -122,7 +122,7 @@ public partial class SettingsWindow
         }
 
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = LocalizationManager.Instance["Settings.FarmMap.Save"], InitialDirectory = MeterSettings.Load().FarmMapSaveDir, Multiselect = false };
-        if (dialog.ShowDialog(this) != true || string.IsNullOrEmpty(dialog.FolderName))
+        if (DialogOwner.Show(dialog, this) != true || string.IsNullOrEmpty(dialog.FolderName))
         {
             return;
         }
