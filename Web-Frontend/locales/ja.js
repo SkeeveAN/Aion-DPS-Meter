@@ -257,6 +257,7 @@ export default {
   "category.expedition": "遠征",
   "category.transcendence": "超越",
   "category.sanctuary": "聖域",
+  "category.event": "イベント",
   "category.hideout": "隠れ家",
   "category.stronghold": "駐屯地",
   "category.awakening": "覚醒戦",

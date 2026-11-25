@@ -257,6 +257,7 @@ export default {
   "category.expedition": "원정",
   "category.transcendence": "초월",
   "category.sanctuary": "성역",
+  "category.event": "이벤트",
   "category.hideout": "은신처",
   "category.stronghold": "주둔지",
   "category.awakening": "각성전",

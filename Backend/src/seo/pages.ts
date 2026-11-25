@@ -38,6 +38,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   transcendence: "Transcendence",
   sanctuary: "Sanctuary",
   hideout: "Hideout",
+  event: "Event",
   stronghold: "Stronghold",
   awakening: "Awakening",
   worldboss: "World Bosses",
@@ -552,13 +553,15 @@ export function instancesPage(game: Game): Page {
   };
 }
 
-export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence"] as const;
+export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence", "sanctuary", "event"] as const;
 
 const CATEGORY_INTRO: Record<string, string> = {
   expedition: "Expeditions in two difficulties: Exploration and Conquest, which has the steps Normal and Hard",
   nightmare: "Nightmare bosses, each with ten challenge levels that are ranked separately",
   ascension: "Ascension Rite instances with four difficulties: Easy, Medium, Hard and Extreme",
   transcendence: "Transcendence dungeons with four stages",
+  sanctuary: "Sanctuary raids for ten players: Abyssal Forge: Ludra in three difficulties",
+  event: "Event sanctuaries that are open for a limited time, like the Corroded Decontamination Facility (item level 2,100 or higher)",
   worldboss: "World bosses of Verteron, Altgard and the Abyss: field bosses that roam the open world, ranked like any other boss",
 };
 

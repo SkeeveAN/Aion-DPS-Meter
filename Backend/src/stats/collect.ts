@@ -86,7 +86,7 @@ function labelOf(category: string, mode: string, instance: string): string {
     const conquest = splitConquest(instance);
     return conquest ? `Conquest ${conquest.stars.length}${conquest.hard ? " Hard" : ""}` : "Explore";
   }
-  return { hideout: "Hideout", sanctuary: "Sanctuary", worldboss: "World Boss" }[category] ?? "";
+  return { hideout: "Hideout", sanctuary: "Sanctuary", event: "Event", worldboss: "World Boss" }[category] ?? "";
 }
 
 /** Totals that are safe to show to everybody: counts only, nothing that identifies a person. */

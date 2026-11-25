@@ -127,6 +127,7 @@ const STEP_COLORS: Record<string, string> = {
   ascension: "#ffab7a",
   hideout: "#5fe0cc",
   sanctuary: "#e6a2f5",
+  event: "#f5d36f",
   worldboss: "#ff9ad5",
 };
 
@@ -150,7 +151,7 @@ function stepText(category: string | null, mode: string, instanceName: string, l
     const conquest = splitConquest(instanceName);
     return conquest ? `${de ? "Eroberung" : "Conquest"} ${conquest.stars.length}${conquest.hard ? ` · ${de ? "Schwer" : "Hard"}` : ""}` : de ? "Erkundung" : "Exploration";
   }
-  const words: Record<string, [string, string]> = { hideout: ["Hideout", "Unterschlupf"], sanctuary: ["Sanctuary", "Heiligtum"], worldboss: ["World Boss", "Weltboss"] };
+  const words: Record<string, [string, string]> = { hideout: ["Hideout", "Unterschlupf"], sanctuary: ["Sanctuary", "Weihestätte"], event: ["Event", "Event"], worldboss: ["World Boss", "Weltboss"] };
   return words[category ?? ""]?.[de ? 1 : 0] ?? "";
 }
 

@@ -379,6 +379,7 @@ export default {
   "category.expedition": "Expedición",
   "category.transcendence": "Trascendencia",
   "category.sanctuary": "Santuario",
+  "category.event": "Evento",
   "category.hideout": "Escondite",
   "category.stronghold": "Fortaleza",
   "category.awakening": "Despertar",

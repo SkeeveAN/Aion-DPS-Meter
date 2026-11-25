@@ -2364,7 +2364,7 @@ function byMinLevelDescending(a, b) {
 // (hard) - separate instances with their own rankings; Nightmare is laid out like the in-game boss
 // tree; Ascension and Transcendence show their difficulty steps. Everything shown comes from the API;
 // nothing about a player's own progress is shown (the page is public).
-const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence"];
+const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence", "sanctuary", "event"];
 
 // World bosses (Verteron, Altgard, Abyss) are their own area (/worldbosses), not an instance category.
 const isWorldBossArea = (instance) => instance?.category === "worldboss";
@@ -2467,6 +2467,9 @@ function difficultyOf(category, mode, instanceName) {
   }
   if (category === "sanctuary") {
     return { text: t("category.sanctuary"), cls: "sa" };
+  }
+  if (category === "event") {
+    return { text: t("category.event"), cls: "sa" };
   }
   return category === "worldboss" ? { text: t("category.worldbossOne"), cls: "wb" } : null;
 }

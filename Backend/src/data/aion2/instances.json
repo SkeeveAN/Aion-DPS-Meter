@@ -344,9 +344,9 @@
         "pt": "Posto de Purificação da Erosão",
         "ru": "Чистилище скверны"
       },
-      "category": "sanctuary",
+      "category": "event",
       "sortOrder": 2,
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "UC",

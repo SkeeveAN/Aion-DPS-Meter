@@ -266,6 +266,7 @@ export default {
   "category.expedition": "Expedition",
   "category.transcendence": "Transcendence",
   "category.sanctuary": "Sanctuary",
+  "category.event": "Event",
   "category.hideout": "Hideout",
   "category.stronghold": "Stronghold",
   "category.awakening": "Awakening",

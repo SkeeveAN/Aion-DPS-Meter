@@ -374,6 +374,7 @@ export default {
   "category.expedition": "远征",
   "category.transcendence": "超越",
   "category.sanctuary": "圣所",
+  "category.event": "活动",
   "category.hideout": "藏身处",
   "category.stronghold": "要塞",
   "category.awakening": "觉醒",
