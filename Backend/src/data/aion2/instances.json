@@ -1144,7 +1144,8 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
-          "players": "2-5"
+          "players": "2-5",
+          "itemLevel": 2700
         }
       },
       "variant": "advanced",
@@ -1199,7 +1200,8 @@
       "modes": {
         "advanced": {
           "minLevel": 45,
-          "players": "2-5"
+          "players": "2-5",
+          "itemLevel": 2700
         }
       },
       "variant": "advanced",
