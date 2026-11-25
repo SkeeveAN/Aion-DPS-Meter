@@ -143,6 +143,13 @@
      "Client"
     ],
     "date": "2026-11-25"
+   },
+   {
+    "text": "DPS overlay look Own: the template is coloured while typing, the variables orange and each kind of option in its own colour (width green, bold and size violet, long or short blue, side teal, no-symbol pink, wrong ones red)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-25"
    }
   ]
  },
