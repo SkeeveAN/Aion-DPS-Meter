@@ -2771,11 +2771,8 @@ function instanceHero(instance, bossCount, stats) {
   const photo = INSTANCE_IMAGES[instance.name];
   const level = INSTANCE_MIN_LEVEL[instance.name];
   const pills = [];
-  const stage = difficultyOf(instance.category, null, instance.name);
-  if (stage && instance.category === "expedition") {
-    pills.push(el("span", { className: "instance-hero-pill", textContent: stage.text }));
-  }
-  if (level !== undefined) {
+  // The difficulty and the level differ per entry of a place with switches (the switches name the difficulty): the hero then shows the same pills as every other instance.
+  if (level !== undefined && !VARIANT_CATEGORIES.includes(instance.category)) {
     pills.push(el("span", { className: "instance-hero-pill", textContent: `Lv. ${level}` }));
   }
   pills.push(
@@ -2843,11 +2840,15 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(crumbInstanceName(instance.name, instance.nameEn), instanceDiffPill(instance.category, instance.name)), t("stats.tabStats")]);
+    setBreadcrumb([...areaCrumbs(instance), crumbInstanceName(instance.name, instance.nameEn), t("stats.tabStats")]);
   }
-  const hero = instance ? [variantSwitch(instance, instances, "/statistics"), instanceHero(instance, bosses.length, stats)].filter((x) => x != null) : [];
+  const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   hero.push(instanceViewButtons(instancePath, true));
+  const switchBar = instance ? variantSwitch(instance, instances, "/statistics") : null;
+  if (switchBar) {
+    hero.push(switchBar);
+  }
   const gearHref = (range) => {
     const next = new URLSearchParams(params);
     range ? next.set("gear", range) : next.delete("gear");
@@ -2895,10 +2896,10 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(crumbInstanceName(instance.name, instance.nameEn), instanceDiffPill(instance.category, instance.name))]);
+    setBreadcrumb([...areaCrumbs(instance), crumbInstanceName(instance.name, instance.nameEn)]);
   }
 
-  const hero = instance ? [variantSwitch(instance, instances), instanceHero(instance, bosses.length, stats)].filter((x) => x != null) : [];
+  const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const dungeonPath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   if (instance && stats.runCount > 0) {
     hero.push(instanceViewButtons(dungeonPath, false));
@@ -2907,6 +2908,11 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   // the boss cards open that step's ranking.
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   const modeQuery = stats.selectedMode ? `?mode=${encodeURIComponent(stats.selectedMode)}` : "";
+  // Places with several entries per difficulty (expeditions, sanctuaries): the switches sit where the difficulty chips of the stepped dungeons sit, below the picture.
+  const switchBar = instance ? variantSwitch(instance, instances) : null;
+  if (switchBar) {
+    hero.push(switchBar);
+  }
   if (stats.modes?.length) {
     hero.push(
       el("nav", { className: "mode-chips" }, [
