@@ -634,11 +634,14 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayOwn}"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.Hint}" Margin="0,0,0,10"/>
-                                <ContentControl x:Name="OwnEditorHost"/>
-                                <Border Height="1" Background="{DynamicResource Brush.Border}" Margin="0,14,0,10"/>
-                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.AllModes}"/>
-                                <CheckBox x:Name="OwnShareBarsBox" Content="{local:Loc Settings.Own.ShareBars}"/>
-                                <CheckBox x:Name="OwnClickThroughBox" Content="{local:Loc Settings.Own.ClickThrough}" Margin="0,6,0,0"/>
+                                <CheckBox x:Name="OwnLookOnBox" Content="{local:Loc Settings.Own.Use}" FontWeight="SemiBold"/>
+                                <StackPanel x:Name="OwnContent" Margin="0,12,0,0">
+                                    <ContentControl x:Name="OwnEditorHost"/>
+                                    <Border Height="1" Background="{DynamicResource Brush.Border}" Margin="0,14,0,10"/>
+                                    <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.AllModes}"/>
+                                    <CheckBox x:Name="OwnShareBarsBox" Content="{local:Loc Settings.Own.ShareBars}"/>
+                                    <CheckBox x:Name="OwnClickThroughBox" Content="{local:Loc Settings.Own.ClickThrough}" Margin="0,6,0,0"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 <Border x:Name="DisplayChipsCard" Style="{StaticResource SettingsCard}">

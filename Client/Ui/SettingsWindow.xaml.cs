@@ -27,6 +27,7 @@ public partial class SettingsWindow : Window
         InitNav(settings);
         OwnEditorHost.Content = new OwnLookEditor();
         OverlayStyleBox.SelectionChanged += (_, _) => UpdateLookCards();
+        OwnLookOnBox.Click += OnOwnLookSwitched;
         AddContentOpacityFields(settings);
         HideDesignerControls();
         ApplyView();
@@ -759,8 +760,21 @@ public partial class SettingsWindow : Window
             card.Opacity = own ? 0.4 : 1;
         }
 
-        OwnLookCard.IsEnabled = own;
-        OwnLookCard.Opacity = own ? 1 : 0.4;
+        // the card of the look "Own" is always there with its switch; its settings are folded away while the look is not in use
+        OwnLookOnBox.IsChecked = own;
+        OwnContent.Visibility = own ? Visibility.Visible : Visibility.Collapsed;
+        if (!own && OverlayStyleBox.SelectedItem is ComboBoxItem { Tag: string standard })
+        {
+            _lastStandardStyle = standard;
+        }
+    }
+
+    private string _lastStandardStyle = "Chips";
+
+    /// <summary>The switch of the look "Own": on takes the look, off goes back to the look that was in use before (Chips when there was none).</summary>
+    private void OnOwnLookSwitched(object sender, RoutedEventArgs e)
+    {
+        SelectComboItem(OverlayStyleBox, OwnLookOnBox.IsChecked == true ? "Own" : _lastStandardStyle);
     }
 
     private void OnSaveClicked(object sender, RoutedEventArgs e)

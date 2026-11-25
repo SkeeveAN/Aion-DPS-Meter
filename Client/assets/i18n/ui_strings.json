@@ -19487,5 +19487,17 @@
     "pt": "Dados de exemplo. Os seus próprios dados aparecem aqui assim que existirem.",
     "ja": "サンプルデータです。ご自身のデータができると、ここに表示されます。",
     "ko": "예시 데이터입니다. 내 데이터가 생기면 여기에 표시됩니다."
+  },
+  "Settings.Own.Use": {
+    "en": "Use the look \"Own\" in the game",
+    "de": "Den Look \"Eigene\" im Spiel verwenden",
+    "fr": "Utiliser le style « Perso » en jeu",
+    "es": "Usar el estilo «Propia» en el juego",
+    "ru": "Использовать стиль «Своё» в игре",
+    "zh": "在游戏中使用“自定义”样式",
+    "zh-TW": "在遊戲中使用「自訂」樣式",
+    "pt": "Usar o estilo \"Própria\" no jogo",
+    "ja": "ゲーム内でスタイル「カスタム」を使う",
+    "ko": "게임에서 \"사용자 지정\" 스타일 사용"
   }
 }
