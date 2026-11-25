@@ -34,6 +34,22 @@
      "Database"
     ],
     "date": "2026-11-25"
+   },
+   {
+    "text": "Wings: the four new wings of the patch of 25 November (White Lace Wings, Verglas Wings, Maid Ribbon Wings, Creepy Night Cat Wings) with their names in eight languages and their pictures",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-25"
+   },
+   {
+    "text": "Instances page: Ludra is shown once in the Sanctuary tab with its three difficulties as switches above the pages (Easy, Normal, Hard), the Corroded Decontamination Facility shows its item level 2,100",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-25"
    }
   ]
  },

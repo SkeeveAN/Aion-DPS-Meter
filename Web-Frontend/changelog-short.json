@@ -338,5 +338,13 @@
  "Instances page: the Sanctuary tab has its own address (it was a 404) and the German name Weihestätte, and a new Event tab holds the event sanctuary Corroded Decontamination Facility": {
   "en": "Instances: Sanctuary tab fixed, new Event tab",
   "de": "Instanzen: Weihestätte-Reiter repariert, neuer Reiter Event"
+ },
+ "Wings: the four new wings of the patch of 25 November (White Lace Wings, Verglas Wings, Maid Ribbon Wings, Creepy Night Cat Wings) with their names in eight languages and their pictures": {
+  "en": "Four new wings added",
+  "de": "Vier neue Flügel hinzugefügt"
+ },
+ "Instances page: Ludra is shown once in the Sanctuary tab with its three difficulties as switches above the pages (Easy, Normal, Hard), the Corroded Decontamination Facility shows its item level 2,100": {
+  "en": "Ludra shown once, difficulties as switches",
+  "de": "Ludra einmal angezeigt, Schwierigkeiten als Umschalter"
  }
 }
