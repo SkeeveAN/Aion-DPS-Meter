@@ -2102,7 +2102,7 @@ const TWITCH_DROPS_TEXT = {
 };
 const DROP_ITEM_LOCALES = ["en", "de", "es", "fr", "ja", "ko", "pt", "ru"];
 // "Skin Chest x10 (Bound)" -> "skin chest x10", "Cyber Glasses (Skin: Eyewear) (Bound)" -> "cyber glasses": the key of twitch-drops-items.json
-const dropKey = (name) => name.replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+const dropKey = (name) => name.replace(/\((?!Unique\)|Heroic\))[^)]*\)/gi, "").replace(/\s+/g, " ").trim().toLowerCase();
 function dropReward(items, reward) {
   const entry = items[dropKey(reward.name)];
   const code = getLocale();

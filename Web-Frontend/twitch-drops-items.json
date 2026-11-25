@@ -400,5 +400,18 @@
    "ru": "Сундук выбора контента"
   },
   "icon": "images/twitch-drops/content-usage-ticket-selection-chest.png"
+ },
+ "sync stone (unique)": {
+  "names": {
+   "en": "Sync Stone (Unique)",
+   "de": "Konsonanzstein (Einzigartig)",
+   "es": "Piedra de afinación (único)",
+   "fr": "Pierre d'harmonisation (unique)",
+   "ja": "調律石(唯一)",
+   "ko": "조율석 (유일)",
+   "pt": "Pedra de Sintonização (Única)",
+   "ru": "Камень гармонии (уникальный)"
+  },
+  "icon": "images/twitch-drops/sync-stone.png"
  }
 }
