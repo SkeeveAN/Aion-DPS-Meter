@@ -20,7 +20,7 @@ public sealed class OwnMode
 }
 
 /// <summary>The variables of a template (English).</summary>
-public enum TemplateVar { Rank, Name, Class, Level, Damage, Dps, Idps, Share, Taken, Heal, Power, Deaths }
+public enum TemplateVar { Rank, Name, Class, Level, Damage, Dps, Share, Taken, Heal, Power, Deaths }
 
 /// <summary>A variable of a template with its options, and where it stands in the text.</summary>
 public sealed class TemplateField
@@ -130,7 +130,6 @@ public static class OverlayTemplate
         ["LEVEL"] = TemplateVar.Level,
         ["DAMAGE"] = TemplateVar.Damage,
         ["DPS"] = TemplateVar.Dps,
-        ["IDPS"] = TemplateVar.Idps,
         ["SHARE"] = TemplateVar.Share,
         ["TAKEN"] = TemplateVar.Taken,
         ["HEAL"] = TemplateVar.Heal,
@@ -139,7 +138,7 @@ public static class OverlayTemplate
     };
 
     /// <summary>The variables as they are offered to the player (English in every language).</summary>
-    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "IDPS", "SHARE", "TAKEN", "HEAL", "POWER", "DEATHS" };
+    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "SHARE", "TAKEN", "HEAL", "POWER", "DEATHS" };
 
     /// <summary>The sort keys of a mode: the key as it is saved and the property of the row it means.</summary>
     public static readonly (string Key, string Property)[] SortKeys =
@@ -350,8 +349,7 @@ public static class OverlayTemplate
                 return row.Level > 0 ? row.Level.ToString(CultureInfo.CurrentCulture) : "";
             case TemplateVar.Damage:
                 return (row.IsEstimated ? "~" : "") + Number(row.Damage, f.Short);
-            case TemplateVar.Dps:
-            case TemplateVar.Idps: // the meter's rate is damage over the time from the first to the last hit, pauses included: the iDPS
+            case TemplateVar.Dps: // the meter's rate: damage over the time from the first to the last hit (on a chosen boss: over its fight)
                 return row.Dps is double d ? Number((long)Math.Round(d), f.Short) : "-";
             case TemplateVar.Share:
                 return row.SharePercent.ToString("0.0", CultureInfo.CurrentCulture) + " %";

@@ -109,7 +109,12 @@ public sealed class OwnLookEditor : StackPanel
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) });
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var left = new StackPanel();
-        left.Children.Add(Muted(_loc["Own.Template"]));
+        var templateHead = new DockPanel();
+        var info = InfoButton();
+        DockPanel.SetDock(info, Dock.Right);
+        templateHead.Children.Add(info);
+        templateHead.Children.Add(Muted(_loc["Own.Template"]));
+        left.Children.Add(templateHead);
         left.Children.Add(_templateBox);
         left.Children.Add(_errorText);
         left.Children.Add(_selectedText);
@@ -168,6 +173,71 @@ public sealed class OwnLookEditor : StackPanel
             Rebuild();
         };
         Rebuild();
+    }
+
+    /// <summary>The explanation that the "i" opens, drawn into a picture (a popup is a window of its own and is not part of a page's picture); for "render-tool".</summary>
+    internal static void SaveInfoPicture(DependencyObject root, string path)
+    {
+        OwnLookEditor? editor = FindEditor(root);
+        System.Windows.Controls.Primitives.Popup? popup = editor is null ? null : FindPopup(editor);
+        if (popup?.Child is not FrameworkElement content)
+        {
+            Console.WriteLine("own-info: no explanation found");
+            return;
+        }
+
+        var holder = new Border { Background = Res("Brush.Window"), Padding = new Thickness(12), Child = null };
+        popup.Child = null;
+        holder.Child = content;
+        holder.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        holder.Arrange(new Rect(holder.DesiredSize));
+        holder.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)Math.Ceiling(holder.ActualWidth), (int)Math.Ceiling(holder.ActualHeight), 96, 96, PixelFormats.Pbgra32);
+        bitmap.Render(holder);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = System.IO.File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("own-info: wrote " + path);
+    }
+
+    private static OwnLookEditor? FindEditor(DependencyObject root)
+    {
+        foreach (object child in LogicalTreeHelper.GetChildren(root))
+        {
+            if (child is OwnLookEditor editor)
+            {
+                return editor;
+            }
+
+            if (child is DependencyObject d && FindEditor(d) is { } deeper)
+            {
+                return deeper;
+            }
+        }
+
+        return null;
+    }
+
+    private static System.Windows.Controls.Primitives.Popup? FindPopup(DependencyObject parent)
+    {
+        foreach (object child in LogicalTreeHelper.GetChildren(parent))
+        {
+            if (child is System.Windows.Controls.Primitives.Popup popup)
+            {
+                return popup;
+            }
+
+            if (child is DependencyObject d && FindPopup(d) is { } deeper)
+            {
+                return deeper;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Drives the editor of a page like a player would (choosing, typing, clicking) and tells what came out; for "render-tool" with AIONDPS_OWN_TEST, nothing is shown.</summary>
@@ -236,6 +306,71 @@ public sealed class OwnLookEditor : StackPanel
         editor._discardButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Check("discard goes back to the saved state", editor._templateBox.Text == "%NAME%(16,b) %DPS%(short,r)" && !editor._saveButton.IsEnabled && MeterSettings.Load().OwnModes[0].Template == "%NAME%(16,b) %DPS%(short,r)");
         Console.WriteLine("own-test: " + (ok ? "ALL GOOD" : "FAILED"));
+    }
+
+    /// <summary>The round "i" at the template: a click opens the explanation of the variables and of the options.</summary>
+    private UIElement InfoButton()
+    {
+        var popup = new System.Windows.Controls.Primitives.Popup { StaysOpen = false, AllowsTransparency = true, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom, PopupAnimation = System.Windows.Controls.Primitives.PopupAnimation.Fade };
+        Brush text = Res("Brush.Text"), muted = Res("Brush.TextMuted");
+        var rows = new Grid();
+        rows.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        rows.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MaxWidth = 520 });
+        void Row(string left, string right)
+        {
+            rows.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var l = new TextBlock { Text = left, FontFamily = new FontFamily("Consolas"), FontSize = 12, Foreground = Res("Brush.Accent"), Margin = new Thickness(0, 2, 16, 2), VerticalAlignment = VerticalAlignment.Top };
+            var r = new TextBlock { Text = right, FontSize = 12, Foreground = text, TextWrapping = TextWrapping.Wrap, MaxWidth = 460, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 2, 0, 2) };
+            Grid.SetRow(l, rows.RowDefinitions.Count - 1);
+            Grid.SetRow(r, rows.RowDefinitions.Count - 1);
+            Grid.SetColumn(r, 1);
+            rows.Children.Add(l);
+            rows.Children.Add(r);
+        }
+
+        void Heading(string title)
+        {
+            rows.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var h = new TextBlock { Text = title, FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = muted, Margin = new Thickness(0, 10, 0, 4), TextWrapping = TextWrapping.Wrap, MaxWidth = 560, HorizontalAlignment = HorizontalAlignment.Left };
+            Grid.SetRow(h, rows.RowDefinitions.Count - 1);
+            Grid.SetColumnSpan(h, 2);
+            rows.Children.Add(h);
+        }
+
+        Heading(_loc["Own.Info.Variables"]);
+        foreach (string name in OverlayTemplate.Offered)
+        {
+            Row("%" + name + "%", _loc["Own.Info." + name]);
+        }
+
+        Heading(_loc["Own.Info.Options"]);
+        foreach (string key in new[] { "Width", "Bold", "Size", "Number", "Side", "NoSymbol" })
+        {
+            string line = _loc["Own.Info.Opt." + key];
+            int colon = line.IndexOf(':');
+            Row(colon > 0 ? line[..colon] : "", colon > 0 ? line[(colon + 1)..].TrimStart() : line);
+        }
+
+        Heading(_loc["Own.Info.Text"]);
+        popup.Child = new Border
+        {
+            Background = Res("Brush.Panel"), BorderBrush = Res("Brush.Border"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(14, 4, 14, 12), Margin = new Thickness(0, 0, 12, 12),
+            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 12, ShadowDepth = 2, Opacity = 0.5 }, Child = rows,
+        };
+
+        var circle = new Border
+        {
+            Width = 20, Height = 20, CornerRadius = new CornerRadius(10), BorderBrush = muted, BorderThickness = new Thickness(1), Background = Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand, ToolTip = _loc["Own.Info.Tip"], Margin = new Thickness(0, 0, 0, 3),
+            Child = new TextBlock { Text = "i", FontSize = 12, FontWeight = FontWeights.SemiBold, Foreground = text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+        };
+        popup.PlacementTarget = circle;
+        circle.MouseLeftButtonUp += (_, _) => popup.IsOpen = !popup.IsOpen;
+        circle.MouseEnter += (_, _) => circle.BorderBrush = Res("Brush.Accent");
+        circle.MouseLeave += (_, _) => circle.BorderBrush = muted;
+        var host = new Grid();
+        host.Children.Add(circle);
+        host.Children.Add(popup);
+        return host;
     }
 
     private static Brush Res(string key) => (Brush)Application.Current.FindResource(key);

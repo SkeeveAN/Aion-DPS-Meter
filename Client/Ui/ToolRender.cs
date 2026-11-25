@@ -139,6 +139,11 @@ public static class ToolRender
                 }
 
                 shown = (FrameworkElement)hubWindow.Content;
+                if (Environment.GetEnvironmentVariable("AIONDPS_OWN_INFO") is { Length: > 0 } infoPath)
+                {
+                    OwnLookEditor.SaveInfoPicture(shown, infoPath);
+                }
+
                 if (Environment.GetEnvironmentVariable("AIONDPS_OWN_TEST") is { Length: > 0 })
                 {
                     OwnLookEditor.RunInteractionTest(shown);

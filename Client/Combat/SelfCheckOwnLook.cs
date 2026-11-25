@@ -21,8 +21,8 @@ public static class SelfCheckOwnLook
                 && t.Items.Count(i => i.Tab) == 1 && t.Items.Count(i => i.NewLine) == 2;
             Console.WriteLine($"  -> fields with width, bold, size, short, side and no-symbol are read; tab and both line breaks too: {read}");
 
-            ParsedTemplate english = OverlayTemplate.Parse("%DAMAGE% %damage% %TAKEN% %POWER% %DEATHS% %RANK% %CLASS% %LEVEL% %SHARE% %HEAL% %IDPS%");
-            bool aliases = english.Errors.Count == 0 && english.Fields.Count() == 11 && english.Fields.Take(2).All(f => f.Var == TemplateVar.Damage);
+            ParsedTemplate english = OverlayTemplate.Parse("%DAMAGE% %damage% %TAKEN% %POWER% %DEATHS% %RANK% %CLASS% %LEVEL% %SHARE% %HEAL%");
+            bool aliases = english.Errors.Count == 0 && english.Fields.Count() == 10 && english.Fields.Take(2).All(f => f.Var == TemplateVar.Damage);
             Console.WriteLine($"  -> the variables are English, in either case: {aliases}");
 
             ParsedTemplate bad = OverlayTemplate.Parse("%DSP% %NAME%(16,zz) %DPS%(short");
@@ -37,7 +37,7 @@ public static class SelfCheckOwnLook
             ParsedTemplate symbols = OverlayTemplate.Parse("%POWER%(short) %TAKEN%(short) %HEAL% %DEATHS% %POWER%(n) %TAKEN%(n,short)");
             string[] values = symbols.Fields.Select(f => OverlayTemplate.ValueOf(f, row)).ToArray();
             var empty = new PlayerRow(2) { Name = "Nobody" };
-            bool idps = OverlayTemplate.ValueOf(OverlayTemplate.Parse("%IDPS%").Fields.First(), row) == "8.300" && OverlayTemplate.ValueOf(OverlayTemplate.Parse("%IDPS%(short)").Fields.First(), row) == "8,3 k";
+            bool idps = OverlayTemplate.ValueOf(OverlayTemplate.Parse("%DPS%").Fields.First(), row) == "8.300" && OverlayTemplate.ValueOf(OverlayTemplate.Parse("%DPS%(short)").Fields.First(), row) == "8,3 k" && OverlayTemplate.Parse("%IDPS%").Errors.Count == 1;
             bool symbolsOk = idps && values[0] == "⚔ 212,1 k" && values[1] == "↓ 412,0 k" && values[2] == "+1.384.500" && values[3] == "☠ 1" && values[4] == "212.145" && values[5] == "412,0 k"
                 && OverlayTemplate.ValueOf(OverlayTemplate.Parse("%POWER%").Fields.First(), empty) == "" && OverlayTemplate.ValueOf(OverlayTemplate.Parse("%TAKEN%").Fields.First(), empty) == "↓ –";
             Console.WriteLine($"  -> the swords, the arrow, the plus and the skull belong to their variables and go with the option n; nothing known gives nothing: {symbolsOk}");
