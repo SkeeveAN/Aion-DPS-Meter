@@ -326,5 +326,17 @@
  "Patch notes page: two-column tables (skill and change) have the same column split in every table": {
   "en": "Patch notes: tables with equal columns",
   "de": "Patchnotizen: Tabellen mit gleichen Spalten"
+ },
+ "Patch notes page: German class names follow the game client (Waldläufer, Beschwörer); class names of all 9 classes saved from the client": {
+  "en": "Patch notes: German class names as in the game",
+  "de": "Patchnotes: deutsche Klassennamen wie im Spiel"
+ },
+ "Patch notes page: two-column tables share one column split": {
+  "en": "Patch notes: tables share one column split",
+  "de": "Patchnotes: Tabellen mit gleicher Spaltenaufteilung"
+ },
+ "Instances page: the Sanctuary tab has its own address (it was a 404) and the German name Weihestätte, and a new Event tab holds the event sanctuary Corroded Decontamination Facility": {
+  "en": "Instances: Sanctuary tab fixed, new Event tab",
+  "de": "Instanzen: Weihestätte-Reiter repariert, neuer Reiter Event"
  }
 }

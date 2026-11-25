@@ -4,23 +4,34 @@
   "date": "2026-11-25",
   "items": [
    {
-    "text": "Patch notes page: two-column tables (skill and change) have the same column split in every table",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-11-25"
-   },
-   {
-    "text": "Patch notes page: in the German text the class names follow the game (Waldläufer instead of Schütze, Beschwörer instead of Elementarist)",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-11-25"
-   },
-   {
     "text": "Twitch Drops page: the Sync Stone (Unique) reward shows its picture and the game's own name in every language (Unique and Heroic grades of an item are kept apart)",
     "areas": [
      "Website"
+    ],
+    "date": "2026-11-25"
+   },
+   {
+    "text": "Patch notes page: German class names follow the game client (Waldläufer, Beschwörer); class names of all 9 classes saved from the client",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-25"
+   },
+   {
+    "text": "Patch notes page: two-column tables share one column split",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-25"
+   },
+   {
+    "text": "Instances page: the Sanctuary tab has its own address (it was a 404) and the German name Weihestätte, and a new Event tab holds the event sanctuary Corroded Decontamination Facility",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
     ],
     "date": "2026-11-25"
    }
