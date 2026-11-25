@@ -362,5 +362,9 @@
  "Instances page: a card with several difficulties or stages shows no level, players and item level, as they differ per entry and the card cannot switch between them": {
   "en": "Cards with several difficulties show no single level",
   "de": "Karten mit mehreren Stufen ohne Einzelwerte"
+ },
+ "Urugugu Canyon and Vakron Sky Island (Conquest, Hard): entry item level 2,700": {
+  "en": "Hard item level 2,700 for Urugugu and Vakron",
+  "de": "Schwer: Gegenstandsstufe 2.700 bei Urugugu und Vakron"
  }
 }
