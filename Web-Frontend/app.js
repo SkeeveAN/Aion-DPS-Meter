@@ -2530,6 +2530,62 @@ function expeditionPane(list, variant, step) {
   return el("div", {}, [...bar, body]);
 }
 
+/** Sanctuaries and events that exist in several difficulties ("X (Easy)", "X", "X (Hard)") count as one place: one card in the overview, three switches on its pages. */
+const VARIANT_CATEGORIES = ["sanctuary", "event"];
+const VARIANT_ORDER = ["easy", "normal", "hard"];
+
+function variantInfo(i) {
+  const m = /^(.*) \((Easy|Hard)\)$/.exec(i.name);
+  return { base: m ? m[1] : i.name, mode: m ? m[2].toLowerCase() : "normal" };
+}
+
+function variantLabel(mode) {
+  return mode === "normal" ? t("mode.normalSub") : t(`mode.${mode}`);
+}
+
+/** The instances of one place in the order Easy, Normal, Hard (just the one for a place with a single difficulty). */
+function variantSiblings(instance, all) {
+  const base = variantInfo(instance).base;
+  return all
+    .filter((x) => x.category === instance.category && variantInfo(x).base === base)
+    .sort((a, b) => VARIANT_ORDER.indexOf(variantInfo(a).mode) - VARIANT_ORDER.indexOf(variantInfo(b).mode));
+}
+
+/** The places of a category, each once (its Normal entry, else the first), with the difficulties it has. */
+function variantGroups(list) {
+  const seen = new Map();
+  for (const i of list) {
+    const base = variantInfo(i).base;
+    if (!seen.has(base)) {
+      seen.set(base, []);
+    }
+    seen.get(base).push(i);
+  }
+  return [...seen.values()].map((members) => {
+    const sorted = variantSiblings(members[0], members);
+    return { lead: sorted.find((x) => variantInfo(x).mode === "normal") ?? sorted[0], members: sorted };
+  });
+}
+
+/** The switches above a place's pages (null for a place with one difficulty). */
+function variantSwitch(instance, all, suffix = "") {
+  if (!instance || !VARIANT_CATEGORIES.includes(instance.category)) {
+    return null;
+  }
+  const siblings = variantSiblings(instance, all);
+  if (siblings.length < 2) {
+    return null;
+  }
+  return el("nav", { className: "mode-chips" }, [
+    el("span", { textContent: t("mode.heading") }),
+    ...siblings.map((s) => el("a", { className: `mode-chip${s.slug === instance.slug ? " active" : ""}`, href: gp(`/instances/${s.slug}${suffix}`), textContent: variantLabel(variantInfo(s).mode) })),
+  ]);
+}
+
+function variantCardsPane(list) {
+  return el("div", { className: "ip-grid" }, variantGroups(list).map((g) => instanceFactCard(g.lead, { chips: g.members.length > 1 ? g.members.map((m) => variantLabel(variantInfo(m).mode)) : [] })));
+}
+
 function modeCardsPane(list, category) {
   const chips = CATEGORY_MODE_LIST[category].map(modeLabel);
   return el("div", { className: "ip-grid" }, list.map((i) => instanceFactCard(i, { chips })));
@@ -2639,7 +2695,7 @@ async function renderInstances(categoryParam, variantParam, stepParam) {
   const categories = [...INSTANCE_TAB_ORDER.filter((c) => groups.has(c)), ...[...groups.keys()].filter((c) => !INSTANCE_TAB_ORDER.includes(c))];
   const countOf = (category) => {
     const list = groups.get(category);
-    return category === "expedition" ? list.filter((i) => (i.variant ?? "explore") === "explore").length : list.length;
+    return category === "expedition" ? list.filter((i) => (i.variant ?? "explore") === "explore").length : VARIANT_CATEGORIES.includes(category) ? variantGroups(list).length : list.length;
   };
   const current = categories.includes(categoryParam) ? categoryParam : categories[0];
 
@@ -2661,6 +2717,8 @@ async function renderInstances(categoryParam, variantParam, stepParam) {
     pane = expeditionPane(list, variantParam, stepParam);
   } else if (current === "nightmare") {
     pane = await nightmarePane(list);
+  } else if (VARIANT_CATEGORIES.includes(current)) {
+    pane = variantCardsPane(list);
   } else if (CATEGORY_MODE_LIST[current]) {
     pane = modeCardsPane(list, current);
   } else {
@@ -2815,7 +2873,7 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   if (instance) {
     setBreadcrumb([...areaCrumbs(instance), crumbWithPill(crumbInstanceName(instance.name, instance.nameEn), instanceDiffPill(instance.category, instance.name)), t("stats.tabStats")]);
   }
-  const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
+  const hero = instance ? [variantSwitch(instance, instances, "/statistics"), instanceHero(instance, bosses.length, stats)].filter((x) => x != null) : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   hero.push(instanceViewButtons(instancePath, true));
   const gearHref = (range) => {
@@ -2868,7 +2926,7 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
     setBreadcrumb([...areaCrumbs(instance), crumbWithPill(crumbInstanceName(instance.name, instance.nameEn), instanceDiffPill(instance.category, instance.name))]);
   }
 
-  const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
+  const hero = instance ? [variantSwitch(instance, instances), instanceHero(instance, bosses.length, stats)].filter((x) => x != null) : [];
   const dungeonPath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   if (instance && stats.runCount > 0) {
     hero.push(instanceViewButtons(dungeonPath, false));

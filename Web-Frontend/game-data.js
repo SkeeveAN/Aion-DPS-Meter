@@ -484,6 +484,7 @@ export const INSTANCE_FACTS = {
   "Abyssal Forge: Ludra": { players: "10", itemLevel: 2800 },
   "Abyssal Forge: Ludra (Hard)": { players: "10", itemLevel: 3000 },
   "Abyssal Forge: Ludra (Easy)": { players: "10", itemLevel: 2800 },
+  "Corroded Decontamination Facility": { players: "10", itemLevel: 2100 },
   "Vakron Sky Island (Conquest, Hard)": { players: "2-5", stars: 2 },
   "Ferocious Horn Den (Conquest, Hard)": { players: "1-5", itemLevel: 2800, stars: 3 },
   "Shattered Arkanis": { players: "2-5", itemLevel: 1600 },
