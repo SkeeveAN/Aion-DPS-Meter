@@ -382,5 +382,9 @@
  "Instances page: the difficulty switches of the expeditions and sanctuaries sit below the picture like the difficulty chips of the other dungeons, and the picture shows the same pills everywhere (bosses, best iDPS, runs) instead of a second Exploration label and a level": {
   "en": "Difficulty switches below the picture everywhere",
   "de": "Umschalter überall unter dem Bild"
+ },
+ "Instances page: the difficulty chips and the Bosses and Statistics buttons of a dungeon sit on one line, chips left and buttons right, on every dungeon page": {
+  "en": "Difficulty chips and view buttons on one line",
+  "de": "Schwierigkeit und Knöpfe auf einer Zeile"
  }
 }
