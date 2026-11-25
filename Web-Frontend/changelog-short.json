@@ -414,5 +414,9 @@
  "the new look \"Own\" of the DPS overlay (rows built from a coloured text template, as many modes as you make), sample data on the empty tool pages and the data of the patch of 25 November (event sanctuary, new wings, items, Abyss Corridor rooms)": {
   "en": "New look \"Own\" for the DPS overlay, sample data on empty tool pages, patch data",
   "de": "Neuer Look \"Eigene\" für das DPS-Overlay, Beispieldaten auf leeren Tool-Seiten, Patch-Daten"
+ },
+ "DPS overlay look Own: the card has its own switch (it was only reachable through the look box and greyed out otherwise), and its settings are folded away while the look is not in use": {
+  "en": "Look Own: own switch, folded away when off",
+  "de": "Look Eigene: eigener Schalter, eingeklappt wenn aus"
  }
 }
