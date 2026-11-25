@@ -19309,16 +19309,16 @@
     "ko": "가한 피해. 예: 2.514.236 또는 짧게 2,514 M"
   },
   "Own.Info.DPS": {
-    "en": "Damage per second: the damage over the time from the first to the last hit, pauses included (on a chosen boss over its fight)",
-    "de": "Schaden pro Sekunde: der Schaden über die Zeit vom ersten bis zum letzten Treffer, Pausen eingerechnet (bei einem gewählten Boss über dessen Kampf)",
-    "fr": "Dégâts par seconde : les dégâts sur la durée du premier au dernier coup, pauses comprises (sur un boss choisi, sur son combat)",
-    "es": "Daño por segundo: el daño durante el tiempo del primer al último golpe, pausas incluidas (con un jefe elegido, durante su combate)",
-    "ru": "Урон в секунду: урон за время от первого до последнего удара, включая паузы (для выбранного босса — за его бой)",
-    "zh": "每秒伤害：从第一次到最后一次命中的时间内的伤害，包含停顿（选定首领时为其战斗期间）",
-    "zh-TW": "每秒傷害：從第一次到最後一次命中的時間內的傷害，包含停頓（選定首領時為其戰鬥期間）",
-    "pt": "Dano por segundo: o dano no tempo do primeiro ao último golpe, pausas incluídas (num chefe escolhido, durante a luta dele)",
-    "ja": "毎秒ダメージ：最初から最後のヒットまでの時間でのダメージ（休止を含む。ボスを選択中はその戦闘中）",
-    "ko": "초당 피해: 첫 타격부터 마지막 타격까지의 시간 동안의 피해(휴지 포함, 선택한 보스는 그 전투 동안)"
+    "en": "Damage per second as the meter shows it: with a boss chosen the iDPS (damage over the fight on that boss, the same time for everyone), otherwise the damage over the time from the player's first to last hit",
+    "de": "Schaden pro Sekunde, wie ihn der Meter zeigt: bei einem gewählten Boss der iDPS (Schaden über den Kampf auf diesen Boss, für alle dieselbe Zeit), sonst der Schaden über die Zeit vom ersten bis zum letzten Treffer des Spielers",
+    "fr": "Dégâts par seconde comme les affiche le compteur : avec un boss choisi, l'iDPS (dégâts sur le combat contre ce boss, même durée pour tous), sinon les dégâts sur la durée du premier au dernier coup du joueur",
+    "es": "Daño por segundo tal como lo muestra el medidor: con un jefe elegido, el iDPS (daño durante el combate contra ese jefe, el mismo tiempo para todos); si no, el daño durante el tiempo del primer al último golpe del jugador",
+    "ru": "Урон в секунду, как его показывает счётчик: при выбранном боссе — iDPS (урон за бой с этим боссом, одно время для всех), иначе — урон за время от первого до последнего удара игрока",
+    "zh": "计数器显示的每秒伤害：选定首领时为 iDPS（对该首领战斗期间的伤害，所有人时间相同），否则为玩家从第一次到最后一次命中期间的伤害",
+    "zh-TW": "計數器顯示的每秒傷害：選定首領時為 iDPS（對該首領戰鬥期間的傷害，所有人時間相同），否則為玩家從第一次到最後一次命中期間的傷害",
+    "pt": "Dano por segundo como o medidor mostra: com um chefe escolhido, o iDPS (dano durante a luta contra esse chefe, o mesmo tempo para todos); caso contrário, o dano no tempo do primeiro ao último golpe do jogador",
+    "ja": "メーターが表示する毎秒ダメージ：ボスを選択中は iDPS（そのボスとの戦闘中のダメージ、全員同じ時間）、それ以外はプレイヤーの最初から最後のヒットまでの時間でのダメージ",
+    "ko": "미터가 표시하는 초당 피해: 보스를 선택하면 iDPS(그 보스와의 전투 동안의 피해, 모두 같은 시간), 아니면 플레이어의 첫 타격부터 마지막 타격까지의 피해"
   },
   "Own.Info.SHARE": {
     "en": "Share of the group's total damage in percent, the same number as the bar (for example 31,2 %)",

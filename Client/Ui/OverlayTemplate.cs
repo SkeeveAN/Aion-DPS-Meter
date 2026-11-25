@@ -349,7 +349,7 @@ public static class OverlayTemplate
                 return row.Level > 0 ? row.Level.ToString(CultureInfo.CurrentCulture) : "";
             case TemplateVar.Damage:
                 return (row.IsEstimated ? "~" : "") + Number(row.Damage, f.Short);
-            case TemplateVar.Dps: // the meter's rate: damage over the time from the first to the last hit (on a chosen boss: over its fight)
+            case TemplateVar.Dps: // the meter's own rate, by its rule: with a boss chosen the iDPS (the boss fight's time, the same for everyone), else the damage over the player's time from first to last hit
                 return row.Dps is double d ? Number((long)Math.Round(d), f.Short) : "-";
             case TemplateVar.Share:
                 return row.SharePercent.ToString("0.0", CultureInfo.CurrentCulture) + " %";
