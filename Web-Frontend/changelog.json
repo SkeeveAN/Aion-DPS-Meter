@@ -72,6 +72,13 @@
      "Backend"
     ],
     "date": "2026-11-25"
+   },
+   {
+    "text": "Instances page: a card with several difficulties or stages shows no level, players and item level, as they differ per entry and the card cannot switch between them",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-25"
    }
   ]
  },

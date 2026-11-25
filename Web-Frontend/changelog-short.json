@@ -358,5 +358,9 @@
  "Urugugu Canyon and Vakron Sky Island (Conquest, Hard) are listed: the Hard mode exists there too, and about 1,160 runs since 28 October were waiting in the hidden instances": {
   "en": "Conquest Hard shown for Urugugu and Vakron",
   "de": "Eroberung Schwer bei Urugugu und Vakron sichtbar"
+ },
+ "Instances page: a card with several difficulties or stages shows no level, players and item level, as they differ per entry and the card cannot switch between them": {
+  "en": "Cards with several difficulties show no single level",
+  "de": "Karten mit mehreren Stufen ohne Einzelwerte"
  }
 }
