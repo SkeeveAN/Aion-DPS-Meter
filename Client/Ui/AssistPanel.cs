@@ -64,6 +64,9 @@ public sealed class AssistPanel : StackPanel
     /// <summary>The window's box of a skill or effect was clicked: the id and whether the overlay shows it now.</summary>
     public Action<int, bool>? ShowInOverlayChanged { get; set; }
 
+    /// <summary>The window (not the overlay) shows a made-up list of a Gladiator while nothing is running, so the page is not empty without a game.</summary>
+    public bool SampleWhenEmpty { get; set; }
+
     /// <summary>Whether the last <see cref="Refresh"/> had a running cooldown or an effect to show.</summary>
     public bool HasContent { get; private set; }
 
@@ -106,9 +109,18 @@ public sealed class AssistPanel : StackPanel
             }
         }
 
+        bool sampleCooldowns = SampleWhenEmpty && !_overlay && running.Count == 0 && ready.Count == 0;
         var cooldowns = new StackPanel();
         cooldowns.Children.Add(Heading(loc["Assist.Cooldowns"]));
-        if (running.Count == 0 && (_overlay || ready.Count == 0))
+        if (sampleCooldowns)
+        {
+            cooldowns.Children.Add(Row(11170000, Aion2SkillNames.DisplayOf(11170000), "~" + Seconds(3.4), 0.8, false));
+            cooldowns.Children.Add(Row(11050000, Aion2SkillNames.DisplayOf(11050000), "~" + Seconds(8.2), 0.6, false));
+            cooldowns.Children.Add(Row(11110000, Aion2SkillNames.DisplayOf(11110000), "~" + Seconds(21), 0.35, false));
+            cooldowns.Children.Add(Row(11040000, Aion2SkillNames.DisplayOf(11040000), loc["Assist.Ready"], 0, true));
+            cooldowns.Children.Add(Row(11090000, Aion2SkillNames.DisplayOf(11090000), loc["Assist.Ready"], 0, true));
+        }
+        else if (running.Count == 0 && (_overlay || ready.Count == 0))
         {
             if (!_overlay)
             {
@@ -223,7 +235,14 @@ public sealed class AssistPanel : StackPanel
             }
         }
 
-        if (shown == 0 && !_overlay)
+        bool sampleBuffs = SampleWhenEmpty && !_overlay && shown == 0;
+        if (sampleBuffs)
+        {
+            buffs.Children.Add(Row(11130000, Aion2SkillNames.DisplayOf(11130000), Seconds(42), 0.7, false));
+            buffs.Children.Add(Row(11120000, Aion2SkillNames.DisplayOf(11120000), Seconds(12), 0.4, false));
+            buffs.Children.Add(Row(11140000, Aion2SkillNames.DisplayOf(11140000), "\u221E", 0, false));
+        }
+        else if (shown == 0 && !_overlay)
         {
             buffs.Children.Add(Label(loc["Assist.NoBuffs"], "Brush.TextMuted", 12));
         }
@@ -261,6 +280,13 @@ public sealed class AssistPanel : StackPanel
         var note = Label(loc["Assist.Note"], "Brush.TextSubtle", 11);
         note.TextWrapping = TextWrapping.Wrap;
         Children.Add(note);
+        if (sampleCooldowns || sampleBuffs)
+        {
+            var sampleNote = Label(loc["Hub.Sample.Generic"], "Brush.TextMuted", 11.5);
+            sampleNote.TextWrapping = TextWrapping.Wrap;
+            sampleNote.Margin = new Thickness(0, 6, 0, 0);
+            Children.Add(sampleNote);
+        }
     }
 
     private static string Seconds(double s) =>

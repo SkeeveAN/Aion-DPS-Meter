@@ -6996,7 +6996,7 @@ public partial class MainWindow : Window
 
             case "loot":
             {
-                var lootPage = new LootPage();
+                var lootPage = new LootPage(sampleWhenEmpty: true);
                 var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); lootPage.Stop(); } };
             }

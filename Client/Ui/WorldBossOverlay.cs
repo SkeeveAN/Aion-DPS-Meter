@@ -100,7 +100,7 @@ public sealed class WorldBossOverlayWindow : MovableOverlay
     }
 
     /// <summary>Rows: the boss, its state text, and whether it is there now.</summary>
-    public void Render(IReadOnlyList<(string Name, string Text, bool Now)> rows)
+    public void Render(IReadOnlyList<(string Name, string Text, bool Now)> rows, string? note = null)
     {
         _rows.Children.Clear();
         foreach (var (name, text, now) in rows)
@@ -119,6 +119,11 @@ public sealed class WorldBossOverlayWindow : MovableOverlay
             grid.Children.Add(n);
             grid.Children.Add(t);
             _rows.Children.Add(grid);
+        }
+
+        if (note is not null)
+        {
+            _rows.Children.Add(new TextBlock { Text = note, FontSize = 11, TextWrapping = TextWrapping.Wrap, MaxWidth = 420, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 0), Foreground = new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2)) });
         }
     }
 }
@@ -139,7 +144,8 @@ public sealed class WorldBossController : IDisposable
     {
         var view = new WorldBossOverlayWindow();
         _views.Add(view);
-        view.Render(Rows(MeterSettings.Load(), DateTime.Now));
+        var rows = Rows(MeterSettings.Load(), DateTime.Now, sampleForPage: true, out bool sample);
+        view.Render(rows, sample ? LocalizationManager.Instance["Hub.Sample.Generic"] : null);
         return view;
     }
 
@@ -150,8 +156,12 @@ public sealed class WorldBossController : IDisposable
     }
 
     /// <summary>The rows of the overlay: the bosses that are there first, then the next to come. With none chosen, a few bosses of the game as a sample - only while the overlay is positioned.</summary>
-    private static List<(string Name, string Text, bool Now)> Rows(MeterSettings settings, DateTime now)
+    private static List<(string Name, string Text, bool Now)> Rows(MeterSettings settings, DateTime now) => Rows(settings, now, false, out _);
+
+    /// <param name="sampleForPage">The page of the tool (not the overlay over the game) shows a made-up list when no boss is watched yet.</param>
+    private static List<(string Name, string Text, bool Now)> Rows(MeterSettings settings, DateTime now, bool sampleForPage, out bool sample)
     {
+        sample = false;
         string language = LocalizationManager.Instance.Language;
         var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossStatus Status)>();
         foreach (var map in Aion2FieldBosses.Maps)
@@ -163,6 +173,23 @@ public sealed class WorldBossController : IDisposable
                     watched.Add((map, boss, Aion2FieldBosses.StatusOf(boss, now)));
                 }
             }
+        }
+
+        if (watched.Count == 0 && sampleForPage)
+        {
+            // none watched: four bosses of the game with made-up times, for the page of the tool
+            sample = true;
+            string lang = LocalizationManager.Instance.Language;
+            var made = new List<(string, string, bool)>();
+            var chosen = Aion2FieldBosses.Maps.SelectMany(m => m.Bosses.Take(2).Select(b => (Map: m, Boss: b))).Take(4).ToList();
+            int[] minutes = { 0, 12, 47, 133 };
+            for (int i = 0; i < chosen.Count; i++)
+            {
+                BossStatus fake = minutes[i] == 0 ? new BossStatus(BossPhase.Now, null, now) : new BossStatus(BossPhase.Respawn, now.AddMinutes(minutes[i]), now);
+                made.Add((Aion2FieldBosses.DisplayName(chosen[i].Map, chosen[i].Boss, lang), WorldBossText.Of(fake, now), minutes[i] == 0));
+            }
+
+            return made;
         }
 
         if (watched.Count == 0 && !settings.BossOverlayLocked)
@@ -254,10 +281,10 @@ public sealed class WorldBossController : IDisposable
 
         if (_views.Count > 0)
         {
-            var viewRows = Rows(settings, now);
+            var viewRows = Rows(settings, now, sampleForPage: true, out bool viewSample);
             foreach (var view in _views)
             {
-                view.Render(viewRows);
+                view.Render(viewRows, viewSample ? LocalizationManager.Instance["Hub.Sample.Generic"] : null);
             }
         }
 

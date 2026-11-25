@@ -186,7 +186,7 @@ public sealed class NetworkOverlayWindow : MovableOverlay
         s.Save();
     }
 
-    public void Render(IReadOnlyList<(string Label, string Value, Color Color)> rows)
+    public void Render(IReadOnlyList<(string Label, string Value, Color Color)> rows, string? note = null)
     {
         _rows.Children.Clear();
         foreach (var (label, value, color) in rows)
@@ -204,6 +204,11 @@ public sealed class NetworkOverlayWindow : MovableOverlay
             grid.Children.Add(n);
             grid.Children.Add(t);
             _rows.Children.Add(grid);
+        }
+
+        if (note is not null)
+        {
+            _rows.Children.Add(new TextBlock { Text = note, FontSize = 11, TextWrapping = TextWrapping.Wrap, MaxWidth = 420, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 0), Foreground = new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2)) });
         }
     }
 }
@@ -223,7 +228,8 @@ public sealed class NetworkOverlayController : IDisposable
         _views.Add(view);
         var settings = MeterSettings.Load();
         var snapshot = NetworkStats.Snapshot();
-        view.Render(NetworkOverlayRows.Of(!snapshot.Connected && !settings.NetworkOverlayLocked ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden));
+        // the page of the tool shows sample values (and says so) while nothing is connected
+        view.Render(NetworkOverlayRows.Of(!snapshot.Connected ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden), !snapshot.Connected ? LocalizationManager.Instance["Hub.Sample.Generic"] : null);
         return view;
     }
 
@@ -271,10 +277,11 @@ public sealed class NetworkOverlayController : IDisposable
         if (_views.Count > 0)
         {
             NetworkProbe.Start();
-            var viewRows = NetworkOverlayRows.Of(!snapshot.Connected && !settings.NetworkOverlayLocked ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden);
+            var viewRows = NetworkOverlayRows.Of(!snapshot.Connected ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden);
+            string? viewNote = !snapshot.Connected ? LocalizationManager.Instance["Hub.Sample.Generic"] : null;
             foreach (var view in _views)
             {
-                view.Render(viewRows);
+                view.Render(viewRows, viewNote);
             }
         }
 

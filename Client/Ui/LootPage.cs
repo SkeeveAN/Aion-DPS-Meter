@@ -12,6 +12,8 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class LootPage : Grid
 {
+    private readonly bool _sampleWhenEmpty;
+    private bool _sample;
     private readonly StackPanel _sessions = new();
     private readonly StackPanel _items = new();
     private readonly TextBlock _summary = new() { FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6) };
@@ -21,8 +23,10 @@ public sealed class LootPage : Grid
     private DateTime? _selectedStart;
     private string _shown = "";
 
-    public LootPage()
+    /// <param name="sampleWhenEmpty">With nothing picked up yet the page shows a made-up session (and says so), so it is not empty before the first loot.</param>
+    public LootPage(bool sampleWhenEmpty = false)
     {
+        _sampleWhenEmpty = sampleWhenEmpty;
         var loc = LocalizationManager.Instance;
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(230) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -78,13 +82,43 @@ public sealed class LootPage : Grid
     private bool Ask(string text) =>
         ThemedMessageBox.Show(Window.GetWindow(this), text, LocalizationManager.Instance["Main.MenuTools.Loot"], MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
+    /// <summary>Two made-up sessions with items of the game (the picks of a Ludra run and of a walk through the Abyss), for the page without any real loot.</summary>
+    private static List<LootSession> SampleSessions()
+    {
+        DateTime today = DateTime.Today;
+        LootItem Item(int id, long count, int picks, int minutes) => new() { ItemId = id, Count = count, Picks = picks, First = today.AddHours(20).AddMinutes(minutes), Last = today.AddHours(20).AddMinutes(minutes + 5) };
+        return new List<LootSession>
+        {
+            new()
+            {
+                Start = today.AddHours(19).AddMinutes(48), End = today.AddHours(21).AddMinutes(12),
+                Maps = new List<LootMap>
+                {
+                    new() { Zone = 600081, Items = { Item(110120003, 1, 1, 52), Item(930100023, 14, 6, 40), Item(512000014, 2, 2, 31), Item(610900001, 1, 1, 22) } },
+                    new() { Zone = 20, Items = { Item(512000015, 3, 3, 8), Item(930100023, 9, 4, 4), Item(534000001, 1, 1, 2) } },
+                },
+            },
+            new()
+            {
+                Start = today.AddDays(-1).AddHours(21).AddMinutes(5), End = today.AddDays(-1).AddHours(22).AddMinutes(30),
+                Maps = new List<LootMap> { new() { Zone = 22, Items = { Item(930100023, 21, 9, 30), Item(512000014, 1, 1, 20), Item(210130039, 1, 1, 10) } } },
+            },
+        };
+    }
+
     private LootSession? Selected() => _list.FirstOrDefault(s => s.Start == _selectedStart);
 
     private void Refresh()
     {
         var loc = LocalizationManager.Instance;
         _list = Aion2Loot.Sessions.ToList();
-        string key = string.Join("|", _list.Select(s => $"{s.Start.Ticks}:{s.End.Ticks}:{s.Maps.Sum(m => m.Items.Sum(i => i.Picks))}")) + "/" + _selectedStart?.Ticks + "/" + loc.Language;
+        _sample = _sampleWhenEmpty && _list.Count == 0;
+        if (_sample)
+        {
+            _list = SampleSessions();
+        }
+
+        string key = string.Join("|", _list.Select(s => $"{s.Start.Ticks}:{s.End.Ticks}:{s.Maps.Sum(m => m.Items.Sum(i => i.Picks))}")) + "/" + _selectedStart?.Ticks + "/" + loc.Language + "/" + _sample;
         if (key == _shown)
         {
             return;
@@ -123,7 +157,7 @@ public sealed class LootPage : Grid
         }
 
         _items.Children.Clear();
-        _deleteOne.IsEnabled = Selected() is not null;
+        _deleteOne.IsEnabled = !_sample && Selected() is not null;
         if (Selected() is not { } session)
         {
             _summary.Text = "";
@@ -135,6 +169,12 @@ public sealed class LootPage : Grid
 
         long total = session.Maps.Sum(m => m.Items.Sum(i => i.Count));
         _summary.Text = string.Format(loc["Loot.Summary"], total, LootText.Merge(session.Maps).Count);
+        if (_sample)
+        {
+            var sampleNote = new TextBlock { Text = loc["Hub.Sample.Generic"], TextWrapping = TextWrapping.Wrap, FontSize = 11.5, Margin = new Thickness(0, 0, 0, 4) };
+            sampleNote.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+            _items.Children.Add(sampleNote);
+        }
         foreach (LootMap map in session.Maps.OrderByDescending(m => m.Items.Max(i => i.Last)))
         {
             var head = new TextBlock { Text = LootText.MapName(map.Zone), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 3) };

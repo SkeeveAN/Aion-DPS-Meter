@@ -74,6 +74,26 @@ public static class ToolRender
                 break;
             }
 
+            case var toolPage when toolPage.StartsWith("page:", StringComparison.Ordinal):
+            {
+                // a tool page of the hub as the main window builds it, with no game running: what it shows without data
+                MainWindow.Headless = true;
+                var mainWindow = new MainWindow();
+                const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                typeof(MainWindow).GetMethod("EnsureRestrictableControllers", flags)!.Invoke(mainWindow, null);
+                if (typeof(MainWindow).GetField("_network", flags) is { } networkField && networkField.GetValue(mainWindow) is null)
+                {
+                    networkField.SetValue(mainWindow, new NetworkOverlayController()); // the main window makes it when the capture starts
+                }
+
+                var built = (ToolPage?)typeof(MainWindow).GetMethod("BuildToolPage", flags)!.Invoke(mainWindow, new object[] { toolPage["page:".Length..], false });
+                shown = built?.Content as FrameworkElement ?? new TextBlock { Text = "(no page)", Foreground = Brushes.Gray };
+                width = 1100;
+                height = 760;
+                shown = new Border { Width = width, Height = height, Background = back, Padding = new Thickness(14), Child = shown };
+                break;
+            }
+
             case "placement":
             {
                 // the question when a saved window place was on a monitor that is not there

@@ -12,7 +12,7 @@ namespace AionDPS.Ui;
 public sealed class AssistWindow : Window
 {
     private readonly Func<Aion2EntityDirectory?> _directory;
-    private readonly AssistPanel _panel = new(false);
+    private readonly AssistPanel _panel = new(false) { SampleWhenEmpty = true };
     private readonly DispatcherTimer _tick = new() { Interval = TimeSpan.FromMilliseconds(250) };
 
     public AssistWindow(Func<Aion2EntityDirectory?> directory)
