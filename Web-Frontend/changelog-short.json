@@ -354,5 +354,9 @@
  "Corroded Decontamination Facility: the Surveillance Device is a turret, no boss, and leaves the boss list and the client's boss catalog": {
   "en": "Surveillance Device removed from the boss list",
   "de": "Überwachungsapparat aus der Bossliste entfernt"
+ },
+ "Urugugu Canyon and Vakron Sky Island (Conquest, Hard) are listed: the Hard mode exists there too, and about 1,160 runs since 28 October were waiting in the hidden instances": {
+  "en": "Conquest Hard shown for Urugugu and Vakron",
+  "de": "Eroberung Schwer bei Urugugu und Vakron sichtbar"
  }
 }
