@@ -150,6 +150,13 @@
      "Client"
     ],
     "date": "2026-11-25"
+   },
+   {
+    "text": "DPS overlay look Own: the info text of DPS says what the meter's rule is (iDPS with a boss chosen, otherwise the damage over the player's own first-to-last-hit time)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-25"
    }
   ]
  },

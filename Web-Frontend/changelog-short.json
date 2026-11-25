@@ -402,5 +402,9 @@
  "DPS overlay look Own: the template is coloured while typing, the variables orange and each kind of option in its own colour (width green, bold and size violet, long or short blue, side teal, no-symbol pink, wrong ones red)": {
   "en": "Look Own: coloured template text",
   "de": "Look Eigene: farbige Vorlage"
+ },
+ "DPS overlay look Own: the info text of DPS says what the meter's rule is (iDPS with a boss chosen, otherwise the damage over the player's own first-to-last-hit time)": {
+  "en": "Look Own: DPS info text states the rule",
+  "de": "Look Eigene: DPS-Infotext nennt die Regel"
  }
 }
