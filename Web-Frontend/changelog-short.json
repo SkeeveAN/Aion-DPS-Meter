@@ -394,5 +394,9 @@
  "DPS overlay look Own: the variables are English (RANK, NAME, CLASS, LEVEL, DAMAGE, DPS, IDPS, SHARE, TAKEN, HEAL, POWER, DEATHS), %CLASS% shows the class icon and %IDPS% the iDPS of the row": {
   "en": "Look Own: English variables, class icon, iDPS",
   "de": "Look Eigene: englische Variablen, Klassen-Symbol, iDPS"
+ },
+ "DPS overlay look Own: only DPS (no separate IDPS variable, the rate is the same), an info button at the template explains every variable and option in all ten languages": {
+  "en": "Look Own: only DPS, info button explains the variables",
+  "de": "Look Eigene: nur DPS, Info-Knopf erklärt die Variablen"
  }
 }

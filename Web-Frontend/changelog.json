@@ -136,6 +136,13 @@
      "Client"
     ],
     "date": "2026-11-25"
+   },
+   {
+    "text": "DPS overlay look Own: only DPS (no separate IDPS variable, the rate is the same), an info button at the template explains every variable and option in all ten languages",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-25"
    }
   ]
  },
