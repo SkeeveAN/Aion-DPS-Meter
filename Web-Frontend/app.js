@@ -2403,13 +2403,14 @@ function instanceFactCard(i, { chips = [], label, noStage = false } = {}) {
   const facts = INSTANCE_FACTS[i.name] ?? {};
   const photo = INSTANCE_IMAGES[i.name];
   const pills = [];
-  if (level !== undefined) {
+  // A card with several difficulties or stages (chips) names no level, players or item level: those differ per entry and the card cannot switch between them.
+  if (level !== undefined && chips.length === 0) {
     pills.push(t("instances.levelFrom", { n: level }));
   }
-  if (facts.players) {
+  if (facts.players && chips.length === 0) {
     pills.push(t("instances.playersRange", { n: facts.players.replace("-", "–") }));
   }
-  if (facts.itemLevel) {
+  if (facts.itemLevel && chips.length === 0) {
     pills.push(t("instances.itemLevelPill", { n: formatNumber(facts.itemLevel) }));
   }
   const title = [document.createTextNode(label ?? displayName(i))];
