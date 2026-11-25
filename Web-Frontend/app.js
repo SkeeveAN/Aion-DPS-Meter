@@ -2398,7 +2398,7 @@ function baseInstanceName(i) {
 }
 
 /** Card with photo, name and facts (level, players are only shown where the data has them). */
-function instanceFactCard(i, { chips = [], label } = {}) {
+function instanceFactCard(i, { chips = [], label, noStage = false } = {}) {
   const level = INSTANCE_MIN_LEVEL[i.name];
   const facts = INSTANCE_FACTS[i.name] ?? {};
   const photo = INSTANCE_IMAGES[i.name];
@@ -2413,7 +2413,7 @@ function instanceFactCard(i, { chips = [], label } = {}) {
     pills.push(t("instances.itemLevelPill", { n: formatNumber(facts.itemLevel) }));
   }
   const title = [document.createTextNode(label ?? displayName(i))];
-  const stage = instanceDiffPill(i.category, i.name);
+  const stage = noStage ? null : instanceDiffPill(i.category, i.name);
   if (stage) {
     title.push(" ", stage);
   }
@@ -2497,49 +2497,22 @@ const CATEGORY_MODE_LIST = {
   transcendence: ["1", "2", "3", "4"],
 };
 
-/** The two difficulty tabs of the expeditions as the game's dungeon window has them; Conquest has the two steps Normal and Hard below. */
-const EXPEDITION_TABS = [
-  ["explore", "/instances/expedition", "mode.explore"],
-  ["conquest", "/instances/expedition/conquest", "mode.conquest"],
-];
-
-function expeditionPane(list, variant, step) {
-  const tab = variant === "conquest" ? "conquest" : "explore";
-  const hard = tab === "conquest" && step === "hard";
-  const wanted = tab === "explore" ? "explore" : hard ? "advanced" : "conquest";
-  const items = list.filter((i) => (i.variant ?? "explore") === wanted);
-  const seg = el("div", { className: "ip-seg", role: "group" }, EXPEDITION_TABS.map(([v, href, label]) => {
-    const a = el("a", { href: gp(href), textContent: t(label) });
-    a.setAttribute("aria-pressed", String(v === tab));
-    return a;
-  }));
-  const bar = [seg];
-  if (tab === "conquest") {
-    bar.push(
-      el("div", { className: "ip-seg ip-seg-step", role: "group" }, [
-        ["/instances/expedition/conquest", "mode.normalSub", false],
-        ["/instances/expedition/conquest/hard", "mode.hardSub", true],
-      ].map(([href, label, isHard]) => {
-        const a = el("a", { href: gp(href), textContent: t(label) });
-        a.setAttribute("aria-pressed", String(isHard === hard));
-        return a;
-      })),
-    );
-  }
-  const body = el("div", { className: "ip-grid" }, items.map((i) => instanceFactCard(i, { label: displayName({ name: baseInstanceName(i), nameEn: baseInstanceName(i) }) })));
-  return el("div", {}, [...bar, body]);
-}
-
 /** Sanctuaries and events that exist in several difficulties ("X (Easy)", "X", "X (Hard)") count as one place: one card in the overview, three switches on its pages. */
-const VARIANT_CATEGORIES = ["sanctuary", "event"];
-const VARIANT_ORDER = ["easy", "normal", "hard"];
+const VARIANT_CATEGORIES = ["expedition", "sanctuary", "event"];
+const VARIANT_ORDER = ["easy", "normal", "hard", "explore", "conquest", "advanced"];
 
 function variantInfo(i) {
+  if (i.category === "expedition") {
+    return { base: baseInstanceName(i), mode: i.variant ?? "explore" };
+  }
   const m = /^(.*) \((Easy|Hard)\)$/.exec(i.name);
   return { base: m ? m[1] : i.name, mode: m ? m[2].toLowerCase() : "normal" };
 }
 
 function variantLabel(mode) {
+  if (mode === "advanced") {
+    return `${t("mode.conquest")} · ${t("mode.hardSub")}`;
+  }
   return mode === "normal" ? t("mode.normalSub") : t(`mode.${mode}`);
 }
 
@@ -2583,7 +2556,7 @@ function variantSwitch(instance, all, suffix = "") {
 }
 
 function variantCardsPane(list) {
-  return el("div", { className: "ip-grid" }, variantGroups(list).map((g) => instanceFactCard(g.lead, { chips: g.members.length > 1 ? g.members.map((m) => variantLabel(variantInfo(m).mode)) : [] })));
+  return el("div", { className: "ip-grid" }, variantGroups(list).map((g) => instanceFactCard(g.lead, { chips: g.members.length > 1 ? g.members.map((m) => variantLabel(variantInfo(m).mode)) : [], label: g.lead.category === "expedition" ? displayName({ name: baseInstanceName(g.lead), nameEn: baseInstanceName(g.lead) }) : undefined, noStage: true })));
 }
 
 function modeCardsPane(list, category) {
@@ -2695,7 +2668,7 @@ async function renderInstances(categoryParam, variantParam, stepParam) {
   const categories = [...INSTANCE_TAB_ORDER.filter((c) => groups.has(c)), ...[...groups.keys()].filter((c) => !INSTANCE_TAB_ORDER.includes(c))];
   const countOf = (category) => {
     const list = groups.get(category);
-    return category === "expedition" ? list.filter((i) => (i.variant ?? "explore") === "explore").length : VARIANT_CATEGORIES.includes(category) ? variantGroups(list).length : list.length;
+    return VARIANT_CATEGORIES.includes(category) ? variantGroups(list).length : list.length;
   };
   const current = categories.includes(categoryParam) ? categoryParam : categories[0];
 
@@ -2713,9 +2686,7 @@ async function renderInstances(categoryParam, variantParam, stepParam) {
 
   const list = [...groups.get(current)].sort((a, b) => a.sortOrder - b.sortOrder);
   let pane;
-  if (current === "expedition") {
-    pane = expeditionPane(list, variantParam, stepParam);
-  } else if (current === "nightmare") {
+  if (current === "nightmare") {
     pane = await nightmarePane(list);
   } else if (VARIANT_CATEGORIES.includes(current)) {
     pane = variantCardsPane(list);
