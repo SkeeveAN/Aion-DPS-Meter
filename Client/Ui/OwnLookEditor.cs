@@ -26,8 +26,9 @@ public sealed class OwnLookEditor : StackPanel
     private readonly Button _deleteButton = new() { Height = 30, Padding = new Thickness(16, 0, 16, 0), HorizontalAlignment = HorizontalAlignment.Left };
     private readonly TextBox _templateBox = new()
     {
-        AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Consolas"), FontSize = 13, MinHeight = 76, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(6, 5, 6, 5),
+        AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Consolas"), FontSize = 13, MinHeight = 76, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, Padding = new Thickness(6, 5, 6, 5),
     };
+    private readonly TextBlock _colors = new() { FontFamily = new FontFamily("Consolas"), FontSize = 13, TextWrapping = TextWrapping.Wrap, IsHitTestVisible = false, Margin = new Thickness(7, 6, 7, 6), VerticalAlignment = VerticalAlignment.Top };
     private readonly TextBlock _errorText = new() { Foreground = new SolidColorBrush(Color.FromRgb(0xe5, 0x73, 0x73)), FontSize = 11.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) };
     private readonly TextBlock _selectedText = new() { Margin = new Thickness(0, 10, 0, 4), FontSize = 11.5 };
     private readonly WrapPanel _inspector = new();
@@ -115,7 +116,16 @@ public sealed class OwnLookEditor : StackPanel
         templateHead.Children.Add(info);
         templateHead.Children.Add(Muted(_loc["Own.Template"]));
         left.Children.Add(templateHead);
-        left.Children.Add(_templateBox);
+        // the box types in a colour that is not there (see through); the text is drawn behind it in colours: variables orange, every kind of option in its own
+        _templateBox.Foreground = Brushes.Transparent;
+        _templateBox.SelectionTextBrush = Brushes.Transparent;
+        _templateBox.SelectionBrush = new SolidColorBrush(Color.FromArgb(90, 120, 160, 220));
+        _templateBox.VerticalContentAlignment = VerticalAlignment.Top; // the text begins at the top, where the colours behind it begin
+        _templateBox.Background = Brushes.Transparent; // the ground is the host's, so the colours behind the box show
+        var templateHost = new Grid { Background = Res("Brush.Window") };
+        templateHost.Children.Add(_colors);
+        templateHost.Children.Add(_templateBox);
+        left.Children.Add(templateHost);
         left.Children.Add(_errorText);
         left.Children.Add(_selectedText);
         left.Children.Add(BuildInspector());
@@ -156,7 +166,11 @@ public sealed class OwnLookEditor : StackPanel
                 Edit(m => m.SortBy = key);
             }
         };
-        _templateBox.TextChanged += (_, _) => Edit(m => m.Template = _templateBox.Text);
+        _templateBox.TextChanged += (_, _) =>
+        {
+            Colorize();
+            Edit(m => m.Template = _templateBox.Text);
+        };
         _templateBox.SelectionChanged += (_, _) => ShowSelectedField();
         _templateBox.GotKeyboardFocus += (_, _) => _hadFocus = true;
         _nameBox.LostFocus += (_, _) => RefreshNames();
@@ -645,6 +659,132 @@ public sealed class OwnLookEditor : StackPanel
 
     private static bool SameModes(List<OwnMode> a, List<OwnMode> b) =>
         a.Count == b.Count && a.Zip(b).All(p => p.First.Id == p.Second.Id && p.First.Name == p.Second.Name && p.First.Template == p.Second.Template && p.First.SortBy == p.Second.SortBy);
+
+    private static bool Dark => Application.Current.FindResource("Brush.Window") is SolidColorBrush { Color: var c } && (0.299 * c.R + 0.587 * c.G + 0.114 * c.B) < 140;
+
+    private static Brush Tone(string dark, string light) => new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dark ? dark : light));
+
+    /// <summary>The colour of an option by what it does: width green, bold and size violet, long/short blue, side teal, no-symbol pink; what is no option is red.</summary>
+    private static Brush OptionBrush(string option)
+    {
+        string o = option.Trim().ToLowerInvariant();
+        if (o.Length == 0)
+        {
+            return Brushes.Transparent;
+        }
+
+        if (o is "b" || (o.Length > 1 && o[0] is '+' or '-' && int.TryParse(o, out _)))
+        {
+            return Tone("#c792ea", "#7b3fb0");
+        }
+
+        if (o is "long" or "short")
+        {
+            return Tone("#6fb7ff", "#0b66c3");
+        }
+
+        if (o is "l" or "r" || (o.Length > 1 && o[0] is 'l' or 'r' && int.TryParse(o[1..], out _)))
+        {
+            return Tone("#4dd0c4", "#00796b");
+        }
+
+        if (o is "n")
+        {
+            return Tone("#ff8aa8", "#c2185b");
+        }
+
+        return int.TryParse(o, out int width) && width is >= 1 and <= 100 ? Tone("#7fd47f", "#2e7d32") : Tone("#e57373", "#c62828");
+    }
+
+    /// <summary>Draws the text of the template behind the box in colours.</summary>
+    private void Colorize()
+    {
+        string text = _templateBox.Text;
+        ParsedTemplate parsed = OverlayTemplate.Parse(text);
+        Brush plain = Res("Brush.Text"), dim = Res("Brush.TextMuted"), accent = Res("Brush.Accent"), error = Tone("#e57373", "#c62828");
+        _colors.Inlines.Clear();
+        void Add(string chunk, Brush color, bool bold = false, bool underline = false)
+        {
+            if (chunk.Length == 0)
+            {
+                return;
+            }
+
+            var run = new System.Windows.Documents.Run(chunk) { Foreground = color, FontWeight = bold ? FontWeights.Bold : FontWeights.Normal };
+            if (underline)
+            {
+                run.TextDecorations = TextDecorations.Underline;
+            }
+
+            _colors.Inlines.Add(run);
+        }
+
+        void Literal(string chunk)
+        {
+            // \n and \t are marks, not text: grey
+            int i = 0;
+            while (i < chunk.Length)
+            {
+                int mark = chunk.IndexOf('\\', i);
+                if (mark < 0 || mark + 1 >= chunk.Length || chunk[mark + 1] is not ('n' or 't' or '\\'))
+                {
+                    Add(chunk[i..], plain);
+                    return;
+                }
+
+                Add(chunk[i..mark], plain);
+                Add(chunk.Substring(mark, 2), dim);
+                i = mark + 2;
+            }
+        }
+
+        var spans = parsed.Fields.Select(f => (f.Start, f.Length, IsField: true)).Concat(parsed.Errors.Where(e => e.Kind != "Bracket").Select(e => (e.Start, e.Length, IsField: false))).OrderBy(x => x.Start).ToList();
+        int at = 0;
+        foreach (var span in spans)
+        {
+            if (span.Start < at)
+            {
+                continue; // an error that covers a field already drawn
+            }
+
+            Literal(text[at..span.Start]);
+            string piece = text.Substring(span.Start, span.Length);
+            int close = piece.IndexOf('%', 1);
+            if (close < 0)
+            {
+                Add(piece, error, false, true);
+            }
+            else
+            {
+                bool known = span.IsField;
+                Add(piece[..(close + 1)], known ? accent : error, known, !known);
+                string rest = piece[(close + 1)..];
+                if (rest.StartsWith('('))
+                {
+                    Add("(", dim);
+                    string inner = rest.EndsWith(')') ? rest[1..^1] : rest[1..];
+                    string[] options = inner.Split(',');
+                    for (int i = 0; i < options.Length; i++)
+                    {
+                        Add(options[i], known ? OptionBrush(options[i]) : error, false, !known);
+                        if (i < options.Length - 1)
+                        {
+                            Add(",", dim);
+                        }
+                    }
+
+                    if (rest.EndsWith(')'))
+                    {
+                        Add(")", dim);
+                    }
+                }
+            }
+
+            at = span.Start + span.Length;
+        }
+
+        Literal(text[at..]);
+    }
 
     private void ShowErrors()
     {
