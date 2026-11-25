@@ -342,10 +342,13 @@ public static class SelfCheckTickets
 
         // the conversion counters 0x8f8d (login: 1 + 1 entries here) and 0x8b8d (after a conversion)
         byte[] conv = Convert.FromHexString("8f8d0000" + "0000" + "02" + "3117da0104000000" + "3217da0100000000" + "01" + "3217da0102000000");
-        byte[] convChange = Convert.FromHexString("8b8d0000" + "01" + "3217da01" + new string('0', 52) + "0600000003000000");
+        // after a conversion the game sends the entry of the recipe converted: 31070001 brings the count per server, 31070002 the one per character (each frame one reading)
+        byte[] convChange = Convert.FromHexString("8b8d0000" + "01" + "3117da01" + new string('0', 52) + "0600000003000000");
+        byte[] convChangeCharacter = Convert.FromHexString("8b8d0000" + "01" + "3217da01" + new string('0', 52) + "0600000003000000");
         bool convRead = Aion2Tickets.TryParseConversionCounters(conv, new DateTime(2026, 11, 18, 17, 0, 0), out var convTickets)
             && convTickets.Count == 2 && convTickets[0].Id == Aion2Tickets.ConvertServerId && convTickets[0].Value.Count == 4 && convTickets[1].Id == Aion2Tickets.ConvertCharacterId && convTickets[1].Value.Count == 2
-            && Aion2Tickets.TryParseConversionCounters(convChange, new DateTime(2026, 11, 18, 17, 0, 0), out var convNew) && convNew.Count == 2 && convNew[0].Value.Count == 6 && convNew[1].Value.Count == 3
+            && Aion2Tickets.TryParseConversionCounters(convChange, new DateTime(2026, 11, 18, 17, 0, 0), out var convNew) && convNew.Count == 1 && convNew[0].Id == Aion2Tickets.ConvertServerId && convNew[0].Value.Count == 6
+            && Aion2Tickets.TryParseConversionCounters(convChangeCharacter, new DateTime(2026, 11, 18, 17, 0, 0), out var convNewCharacter) && convNewCharacter.Count == 1 && convNewCharacter[0].Id == Aion2Tickets.ConvertCharacterId && convNewCharacter[0].Value.Count == 3
             && !Aion2Tickets.TryParseConversionCounters(conv.AsSpan(0, conv.Length - 1), new DateTime(2026, 11, 18, 17, 0, 0), out _);
         Console.WriteLine($"  -> conversion counters 0x8f8d / 0x8b8d: {convRead}");
 
@@ -425,7 +428,7 @@ public static class SelfCheckTickets
             && AionDPS.Upload.RemoteCharacterClient.Parse(nothing.RootElement) is null;
         Console.WriteLine($"  -> the server's answer for another character read (equipment with stones and god stone, attributes, wings, pet, titles; a character without a profile; no player)={remoteRead}");
         Aion2Tickets.Reset();
-        bool ok = missionsReset && missionsStale && stamped && firstLogin && sameDay && newcomer && maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && rateNotYet && rateOk && jumpOk && restartOk && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = missionsReset && missionsStale && stamped && firstLogin && sameDay && newcomer && maskBit2 && startedInGame && relogKeeps && remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && convRead && targetSide && goodsRead && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && rateNotYet && rateOk && jumpOk && restartOk && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;
