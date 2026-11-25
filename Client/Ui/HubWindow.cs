@@ -149,6 +149,9 @@ public sealed class HubWindow : Window
     /// <summary>The live meter's list as it is known from the meter overlay (class colour bars, DPS ...), bound to the meter's rows; set by the main window.</summary>
     public Func<UIElement?>? MeterView { get; set; }
 
+    /// <summary>The same list for the page of the meter in the hub: with a made-up sample while no fight is running (the widget over the game stays empty then).</summary>
+    public Func<UIElement?>? MeterSampleView { get; set; }
+
     /// <summary>The sources a widget needs, for the widgets that stand over the game.</summary>
     public DashboardSources OverlaySources() => Sources();
 
@@ -1005,7 +1008,7 @@ public sealed class HubWindow : Window
         var dock = new DockPanel { Margin = new Thickness(14, 10, 14, 14) };
         DockPanel.SetDock(head, Dock.Top);
         dock.Children.Add(head);
-        dock.Children.Add(MeterView?.Invoke() ?? new TextBlock { Text = "–" });
+        dock.Children.Add((MeterSampleView ?? MeterView)?.Invoke() ?? new TextBlock { Text = "–" });
         return dock;
     }
 

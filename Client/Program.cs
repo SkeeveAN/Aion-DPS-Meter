@@ -1509,7 +1509,7 @@ internal static class Program
             }
 
             Ui.OverlayDesigner.ShowAsActiveForPicture(Environment.GetEnvironmentVariable("AIONDPS_DESIGNER") is { Length: > 0 }); // the designer's buttons on the widget
-            var meterView = (System.Windows.UIElement)type.GetMethod("BuildMeterView", flags)!.Invoke(window, null)!;
+            var meterView = (System.Windows.UIElement)type.GetMethod("BuildMeterView", flags)!.Invoke(window, new object[] { false })!;
             panel = new System.Windows.Controls.Border
             {
                 Width = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_WIDTH"), out int widgetWidth) ? widgetWidth : 390, Padding = new System.Windows.Thickness(6, 4, 6, 4), CornerRadius = new System.Windows.CornerRadius(Environment.GetEnvironmentVariable("AIONDPS_WIDGET_PANEL") is { Length: > 0 } ? 0 : 6),

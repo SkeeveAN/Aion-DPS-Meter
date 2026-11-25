@@ -116,6 +116,15 @@ public static class ToolRender
                 }
 
                 hubWindow.MeterView = () => new TextBlock { Text = "(the list of the meter as it is shown)", Foreground = Brushes.Gray, Margin = new Thickness(0, 6, 0, 0) };
+                if (Environment.GetEnvironmentVariable("AIONDPS_REAL_METER") is { Length: > 0 })
+                {
+                    // the meter's own view as the main window builds it (empty rows: the sample), for the picture of the Display tab
+                    MainWindow.Headless = true;
+                    var meterWindow = new MainWindow();
+                    var build = typeof(MainWindow).GetMethod("BuildMeterView", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+                    hubWindow.MeterSampleView = () => (UIElement)build.Invoke(meterWindow, new object[] { true })!;
+                }
+
                 if (parts.Length >= 3)
                 {
                     hubWindow.SelectForRender(parts[1], parts[2]);
@@ -130,6 +139,11 @@ public static class ToolRender
                 }
 
                 shown = (FrameworkElement)hubWindow.Content;
+                if (Environment.GetEnvironmentVariable("AIONDPS_OWN_TEST") is { Length: > 0 })
+                {
+                    OwnLookEditor.RunInteractionTest(shown);
+                }
+
                 hubWindow.Content = null;
                 width = (int)hubWindow.Width;
                 height = (int)hubWindow.Height;

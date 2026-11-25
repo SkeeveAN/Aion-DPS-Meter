@@ -1010,8 +1010,8 @@ internal sealed class OpacityPanel : Window
         var host = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
         host.Children.Add(new TextBlock { Text = loc["Settings.OverlayStyle"], Foreground = OverlayDesigner.Muted, FontSize = 11, Margin = new Thickness(0, 0, 0, 4) });
         var chips = new WrapPanel();
-        string[] tags = { "Compact", "Chips" };
-        string[] names = { loc["Settings.OverlayStyle.Compact"], loc["Settings.OverlayStyle.Chips"] };
+        string[] tags = { "Compact", "Chips", "Own" };
+        string[] names = { loc["Settings.OverlayStyle.Compact"], loc["Settings.OverlayStyle.Chips"], loc["Settings.OverlayStyle.Own"] };
         var buttons = new List<Button>();
         void Mark()
         {
@@ -1035,6 +1035,7 @@ internal sealed class OpacityPanel : Window
                 s.OverlayStyle = tag;
                 s.Save();
                 Mark();
+                OwnRowView.RaiseModesSaved(); // the overlay takes the look at once
                 WidgetKind.RaiseMeterModeChanged();
             };
             buttons.Add(chip);

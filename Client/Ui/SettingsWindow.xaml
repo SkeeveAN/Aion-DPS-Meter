@@ -564,6 +564,7 @@
                                     <ComboBox Grid.Column="1" x:Name="OverlayStyleBox" Margin="0,2" HorizontalAlignment="Stretch">
                                         <ComboBoxItem Content="{local:Loc Settings.OverlayStyle.Chips}" Tag="Chips"/>
                                         <ComboBoxItem Content="{local:Loc Settings.OverlayStyle.Compact}" Tag="Compact"/>
+                                        <ComboBoxItem Content="{local:Loc Settings.OverlayStyle.Own}" Tag="Own"/>
                                     </ComboBox>
                                 </Grid>
                                 <Grid Margin="0,2">
@@ -629,7 +630,18 @@
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.OverlayDocking.Hint}" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
-<Border Style="{StaticResource SettingsCard}">
+<Border x:Name="OwnLookCard" Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayOwn}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.Hint}" Margin="0,0,0,10"/>
+                                <ContentControl x:Name="OwnEditorHost"/>
+                                <Border Height="1" Background="{DynamicResource Brush.Border}" Margin="0,14,0,10"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Own.AllModes}"/>
+                                <CheckBox x:Name="OwnShareBarsBox" Content="{local:Loc Settings.Own.ShareBars}"/>
+                                <CheckBox x:Name="OwnClickThroughBox" Content="{local:Loc Settings.Own.ClickThrough}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+<Border x:Name="DisplayChipsCard" Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayChips}"/>
                                 <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}"/>
@@ -637,7 +649,7 @@
                                 <CheckBox x:Name="ShowCombatPowerBox" Content="{local:Loc Settings.ShowCombatPower}"/>
                             </StackPanel>
                         </Border>
-<Border Style="{StaticResource SettingsCard}">
+<Border x:Name="DisplayCompactCard" Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayCompact}"/>
                                 <CheckBox x:Name="CompactClickThroughBox" Content="{local:Loc Settings.CompactClickThrough}"/>

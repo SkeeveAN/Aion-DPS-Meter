@@ -25,6 +25,8 @@ public partial class SettingsWindow : Window
         }
 
         InitNav(settings);
+        OwnEditorHost.Content = new OwnLookEditor();
+        OverlayStyleBox.SelectionChanged += (_, _) => UpdateLookCards();
         AddContentOpacityFields(settings);
         HideDesignerControls();
         ApplyView();
@@ -132,6 +134,9 @@ public partial class SettingsWindow : Window
         PopulateThemes(settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         SelectComboItem(OverlayStyleBox, settings.OverlayStyle);
+        OwnShareBarsBox.IsChecked = settings.OwnShareBars;
+        OwnClickThroughBox.IsChecked = settings.OwnClickThrough;
+        UpdateLookCards();
         // The nearest of the offered steps (a hand-edited file may hold any number).
         var nearest = OverlayOpacityBox.Items.OfType<ComboBoxItem>()
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - settings.OverlayOpacity)).First();
@@ -744,6 +749,20 @@ public partial class SettingsWindow : Window
         }
     }
 
+    /// <summary>The cards of the looks: the one of the look in use is on, the others are greyed out (the look "Own" takes the place of both, it has its own bars and click-through).</summary>
+    private void UpdateLookCards()
+    {
+        bool own = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string == "Own";
+        foreach (Border card in new[] { DisplayChipsCard, DisplayCompactCard })
+        {
+            card.IsEnabled = !own;
+            card.Opacity = own ? 0.4 : 1;
+        }
+
+        OwnLookCard.IsEnabled = own;
+        OwnLookCard.Opacity = own ? 1 : 0.4;
+    }
+
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
         CollectControls();
@@ -756,6 +775,8 @@ public partial class SettingsWindow : Window
         // The overlays save where they were put straight to disk while this window is open; this working copy is older and
         // would write the old places back.
         MeterSettings onDisk = MeterSettings.Load();
+        _settings.OwnModes = onDisk.OwnModes; // the modes of the look "Own" are saved by their own page, straight to the file
+        _settings.OwnModeId = onDisk.OwnModeId;
         _settings.PetFarmLeft = onDisk.PetFarmLeft;
         _settings.PetFarmTop = onDisk.PetFarmTop;
         _settings.PetFarmScale = onDisk.PetFarmScale;
@@ -954,6 +975,8 @@ public partial class SettingsWindow : Window
         _settings.AutoBossView = AutoBossViewBox.IsChecked ?? false;
         _settings.AutoBossSeconds = int.TryParse(AutoBossSecondsBox.Text, out int bossSeconds) ? Math.Clamp(bossSeconds, 0, 600) : 10;
         _settings.CompactClickThrough = CompactClickThroughBox.IsChecked ?? false;
+        _settings.OwnShareBars = OwnShareBarsBox.IsChecked ?? true;
+        _settings.OwnClickThrough = OwnClickThroughBox.IsChecked ?? true;
         _settings.HideDuringMenus = HideDuringMenusBox.IsChecked ?? false;
         _settings.StreamOverlayOn = StreamOverlayOnBox.IsChecked ?? false;
         _settings.StreamShowNames = StreamShowNamesBox.IsChecked ?? false;

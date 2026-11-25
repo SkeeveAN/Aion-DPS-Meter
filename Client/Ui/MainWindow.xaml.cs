@@ -171,9 +171,16 @@ public partial class MainWindow : Window
 
     private MeterMode _mode;
 
-    private bool _healMode => _mode == MeterMode.Heal;
+    // The look "Own" shows every figure on one row and sorts by what its mode says: the three modes of the other looks do not apply to it.
+    private bool _ownLook;
+    private bool _ownClickThrough = true;
+    private string _ownSort = "Damage";
+    private string _ownModeName = "";
+    private DataTemplate? _chipTemplate;
 
-    private bool _takenMode => _mode == MeterMode.Taken;
+    private bool _healMode => _mode == MeterMode.Heal && !_ownLook;
+
+    private bool _takenMode => _mode == MeterMode.Taken && !_ownLook;
 
     /// <summary>All in One: damage, healing and damage taken side by side on the damage rows.</summary>
     private bool _allMode => _mode == MeterMode.All && !_pvpOnly;
@@ -182,7 +189,7 @@ public partial class MainWindow : Window
     private bool _allCompactMode => _mode == MeterMode.AllCompact && !_pvpOnly;
 
     /// <summary>Either All in One mode: the rows then carry healing and the damage taken from monsters.</summary>
-    private bool _allData => _allMode || _allCompactMode;
+    private bool _allData => _allMode || _allCompactMode || _ownLook;
 
     // The deaths of the rows shown in taken mode.
     private readonly Dictionary<int, List<Death>> _deathsById = new();
@@ -298,6 +305,11 @@ public partial class MainWindow : Window
         PlayersGrid.ItemsSource = _rows;
         OverlayContent.ItemsSource = _rows;
         CompactOverlayRows.ItemsSource = _rows;
+        OwnRowView.ModesSaved += () => Dispatcher.BeginInvoke(new Action(() =>
+        {
+            RefreshCharacterSettings(MeterSettings.Load()); // the look and the modes as saved
+            RefreshRows();
+        }));
 
         // Per the user: the list must sort itself by damage, highest first, not just show rows in
         // whatever order they were first discovered in. IsLiveSorting (not just SortDescriptions
@@ -617,6 +629,9 @@ public partial class MainWindow : Window
         _scope = Enum.TryParse(settings.ViewScope, true, out MeterScope scope) ? scope : MeterScope.Group;
         UpdateScopeControls();
         _compactOverlay = string.Equals(settings.OverlayStyle, "Compact", StringComparison.OrdinalIgnoreCase);
+        _ownLook = string.Equals(settings.OverlayStyle, "Own", StringComparison.OrdinalIgnoreCase);
+        _ownClickThrough = settings.OwnClickThrough;
+        ApplyOwnLook(settings);
         _compactClickThrough = settings.CompactClickThrough;
         SetCompactOverlayScale(settings.OverlayScale);
         // Both overlay looks paint their dark backgrounds with this brush (DynamicResource); the
@@ -2006,6 +2021,63 @@ public partial class MainWindow : Window
         OverlayTeamBlueText.FontWeight = ownTeam == "Blue" ? FontWeights.Bold : FontWeights.Normal;
     }
 
+    /// <summary>What the rows are ranked by: the damage, in the look "Own" what the mode in use says.</summary>
+    private double RankValue(PlayerRow r) => !_ownLook ? r.Damage : _ownSort switch
+    {
+        "Dps" => r.Dps ?? 0,
+        "Healing" => r.Healing,
+        "Taken" => r.DamageTaken,
+        "Power" => r.CombatPower ?? 0,
+        _ => r.Damage,
+    };
+
+    /// <summary>The mode of the look "Own" in use: the one the settings name, else the first, null while none is made.</summary>
+    private static OwnMode? OwnModeIn(MeterSettings settings) => settings.OwnModes.FirstOrDefault(m => m.Id == settings.OwnModeId) ?? settings.OwnModes.FirstOrDefault();
+
+    /// <summary>Puts the look "Own" (its row template, template text, sorting) in use or takes it out again.</summary>
+    private void ApplyOwnLook(MeterSettings settings)
+    {
+        _chipTemplate ??= OverlayContent.ItemTemplate;
+        OwnMode? mode = _ownLook ? OwnModeIn(settings) : null;
+        _ownSort = mode?.SortBy ?? "Damage";
+        _ownModeName = mode?.Name ?? "";
+        OwnRowView.Use(mode?.Template, settings.OwnShareBars);
+        if (OverlayContent.ItemTemplate != (_ownLook ? OwnRowView.RowTemplate : _chipTemplate))
+        {
+            OverlayContent.ItemTemplate = _ownLook ? OwnRowView.RowTemplate : _chipTemplate;
+        }
+
+        if (_playersView is not null)
+        {
+            string property = _ownLook ? OverlayTemplate.SortProperty(_ownSort) : nameof(PlayerRow.Damage);
+            _playersView.SortDescriptions.Clear();
+            _playersView.SortDescriptions.Add(new SortDescription(property, ListSortDirection.Descending));
+            _playersView.LiveSortingProperties.Clear();
+            _playersView.LiveSortingProperties.Add(property);
+        }
+    }
+
+    /// <summary>The look "Own": the next mode of the player, round and round (the mode hotkey and the mode button of the overlay).</summary>
+    private void NextOwnMode()
+    {
+        MeterSettings settings = MeterSettings.Load();
+        if (settings.OwnModes.Count < 2)
+        {
+            return;
+        }
+
+        int at = settings.OwnModes.FindIndex(m => m.Id == (OwnModeIn(settings)?.Id ?? ""));
+        settings.OwnModeId = settings.OwnModes[(at + 1) % settings.OwnModes.Count].Id;
+        if (!Headless)
+        {
+            settings.Save();
+        }
+
+        ApplyOwnLook(settings);
+        RefreshRows();
+        WidgetKind.RaiseMeterModeChanged();
+    }
+
     private void RankRows()
     {
         // Live sorting alone left the list in the previous mode's order after a switch (PVE -> PVP kept the
@@ -2016,7 +2088,7 @@ public partial class MainWindow : Window
         // damage on top; both scale to the biggest of the two together.
         long shownMax = _rows.Count > 0 ? _rows.Max(r => r.Damage + (_takenMode ? r.Absorbed : 0)) : 0;
         int rank = 0;
-        foreach (PlayerRow row in _rows.OrderByDescending(r => r.Damage))
+        foreach (PlayerRow row in _rows.OrderByDescending(RankValue))
         {
             row.Rank = ++rank;
             row.SharePercent = shownTotal > 0 ? 100.0 * row.Damage / shownTotal : 0;
@@ -6326,7 +6398,8 @@ public partial class MainWindow : Window
             });
         // before the dashboard is built again with the sources: a widget that finds no list of the meter then would show a dash for good
         _hubWindow.ConfirmClose = HubMayClose;
-        _hubWindow.MeterView = BuildMeterView;
+        _hubWindow.MeterView = () => BuildMeterView();
+        _hubWindow.MeterSampleView = () => BuildMeterView(true); // the page of the meter in the hub: a sample while nothing is fought, the widget in front stays as it is
         _hubWindow.ToggleDesigner = StartDesignerFromHub;
         FarmMapLinks.OpenDesigner = StartDesignerFromHub;
         FarmMapLinks.ShowDashboard = () => _hubWindow?.GoTo("dashboard", "overview");
@@ -6363,7 +6436,26 @@ public partial class MainWindow : Window
     private WidgetOverlayController? _widgetOverlays;
 
     /// <summary>The meter's list as the compact overlay draws it (class icon, name, the bar in the class colour, DPS), for the widget of the live meter: the same rows, the same look.</summary>
-    private UIElement BuildMeterView()
+    /// <summary>The list of the meter with five made-up players, shown on the meter's page while no fight is running (the real rows replace it as soon as there are any).</summary>
+    private static System.Collections.ObjectModel.ObservableCollection<PlayerRow> MeterSampleRows()
+    {
+        var rows = new System.Collections.ObjectModel.ObservableCollection<PlayerRow>();
+        (string Name, string Cls, long Dmg, double Dps)[] sample =
+        {
+            ("Jinwoo", "Gladiator", 2_514_236, 8300), ("Goku", "Ranger", 2_168_400, 7100), ("Ichigo", "Sorcerer", 1_904_100, 6800), ("Naruto", "Cleric", 934_200, 3900), ("Tsubasa", "Spiritmaster", 540_800, 2100),
+        };
+        long total = sample.Sum(x => x.Dmg);
+        int rank = 0;
+        foreach (var x in sample)
+        {
+            rows.Add(new PlayerRow(++rank) { Name = x.Name, ClassName = x.Cls, Damage = x.Dmg, Dps = x.Dps, SharePercent = 100.0 * x.Dmg / total, FillPercent = 100.0 * x.Dmg / sample[0].Dmg, Rank = rank,
+                Faction = "Elyos", ShowCombatPower = true, CombatPower = 212_145 - rank * 9_300 });
+        }
+
+        return rows;
+    }
+
+    private UIElement BuildMeterView(bool sampleWhenEmpty = false)
     {
         // the header of the meter overlay as it was: what is fought, how long it ran, the mode; below it the legend of the three numbers (the texts are the overlay's own, kept up to date by UpdateCompactOverlay)
         TextBlock Bound(TextBlock source, double size, string brush, FontWeight? weight = null, HorizontalAlignment align = HorizontalAlignment.Left)
@@ -6414,6 +6506,7 @@ public partial class MainWindow : Window
         Grid.SetColumn(total, 4);
         legend.Children.Add(total);
 
+        System.Collections.ObjectModel.ObservableCollection<PlayerRow>? sampleRows = sampleWhenEmpty ? MeterSampleRows() : null;
         var list = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = CompactOverlayRows.ItemTemplate };
         Grid.SetIsSharedSizeScope(list, true);
         var compact = new StackPanel();
@@ -6422,6 +6515,20 @@ public partial class MainWindow : Window
         compact.Children.Add(list);
         // the other look of the DPS overlay: one chip per player
         var chipList = new QuietItemsControl { ItemsSource = _rows, ItemTemplate = OverlayContent.ItemTemplate };
+        var sampleNote = new TextBlock { Text = LocalizationManager.Instance["Hub.Meter.SampleNote"], FontSize = 11.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(4, 8, 4, 0), Visibility = Visibility.Collapsed };
+        sampleNote.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        void ChooseRows()
+        {
+            // with no real rows the sample stands in (only on the page of the meter, not on the widget over the game)
+            bool useSample = sampleRows is not null && _rows.Count == 0;
+            System.Collections.IEnumerable source = useSample ? sampleRows! : _rows;
+            list.ItemsSource = source;
+            chipList.ItemsSource = source;
+            sampleNote.Visibility = useSample ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        System.Collections.Specialized.NotifyCollectionChangedEventHandler rowsChanged = (_, _) => ChooseRows();
+        ChooseRows();
         // the header of the chips: what is fought, how long, the mode, and the legend over the columns the chips share (rank and symbol, name, DPS, total)
         var chipLegend = new Grid { Margin = new Thickness(8, 0, 8, 1) };
         chipLegend.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
@@ -6459,7 +6566,9 @@ public partial class MainWindow : Window
             }
 
             shown = style;
-            body.Content = style == "Chips" ? chips : compact;
+            bool ownStyle = string.Equals(style, "Own", StringComparison.OrdinalIgnoreCase);
+            chipList.ItemTemplate = ownStyle ? OwnRowView.RowTemplate : _chipTemplate ?? OverlayContent.ItemTemplate;
+            body.Content = style == "Chips" || ownStyle ? chips : compact;
         }
 
         ApplyStyle();
@@ -6482,6 +6591,8 @@ public partial class MainWindow : Window
         {
             OverlayDesigner.ActiveChanged += showMode;
             WidgetKind.MeterModeChanged += follow;
+            _rows.CollectionChanged += rowsChanged;
+            ChooseRows();
             showMode();
             ApplyStyle();
             styleTimer.Start();
@@ -6490,12 +6601,14 @@ public partial class MainWindow : Window
         {
             OverlayDesigner.ActiveChanged -= showMode;
             WidgetKind.MeterModeChanged -= follow;
+            _rows.CollectionChanged -= rowsChanged;
             styleTimer.Stop();
         };
         // the part of a row that is not the damage bar is see-through: the widget's own background (the design editor's colour) shows, not the dark overlay colour that suits the game
         stack.Resources["Brush.OverlayBg"] = Brushes.Transparent;
 
         stack.Children.Add(body);
+        stack.Children.Add(sampleNote);
         stack.Children.Add(modeHost); // below the list, so the data always begins at the same place, with the designer on or off
         return stack;
     }
@@ -7227,7 +7340,18 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Damage, then heal, taken, all in one, all in one compact, then damage again.</summary>
-    private void NextMode() => SetMode(_mode switch
+    private void NextMode()
+    {
+        if (_ownLook)
+        {
+            NextOwnMode();
+            return;
+        }
+
+        NextStandardMode();
+    }
+
+    private void NextStandardMode() => SetMode(_mode switch
     {
         MeterMode.Damage => MeterMode.Heal,
         MeterMode.Heal => MeterMode.Taken,
@@ -7821,7 +7945,7 @@ public partial class MainWindow : Window
         // The chips let every click through to the game. The compact panel takes clicks (a player's
         // skills, dragging it into place) unless "click-through" is chosen in Settings; the window is
         // truly transparent around it, so the rest of the screen still reaches the game.
-        _overlay?.SetClickThrough(_hideUiActive && (!_compactOverlay || _compactClickThrough));
+        _overlay?.SetClickThrough(_hideUiActive && (_ownLook ? _ownClickThrough : !_compactOverlay || _compactClickThrough));
         RefreshUpdateBadge();
     }
 
@@ -7937,7 +8061,7 @@ public partial class MainWindow : Window
             : _selectedTargetId is int targetId ? ResolveDisplayName(targetId)
             : LocalizationManager.Instance["Main.FilterAllTargets"];
         var strings = LocalizationManager.Instance;
-        OverlayModeText.Text = strings[_healMode ? "Main.Overlay.ModeHeal" : _takenMode ? "Main.Overlay.ModeTaken" : _allMode ? "Main.Overlay.ModeAll" : _allCompactMode ? "Main.Overlay.ModeAllCompact" : "Main.Overlay.ModeDamage"];
+        OverlayModeText.Text = _ownLook ? _ownModeName : strings[_healMode ? "Main.Overlay.ModeHeal" : _takenMode ? "Main.Overlay.ModeTaken" : _allMode ? "Main.Overlay.ModeAll" : _allCompactMode ? "Main.Overlay.ModeAllCompact" : "Main.Overlay.ModeDamage"];
         // with a target chosen (a boss fight) the rate is the damage over the target's fight, the same window for everyone: the iDPS
         OverlayRateHeader.Text = _allMode ? strings["Main.Overlay.ColDamage"] : _healMode ? "HPS" : _takenMode ? "DTPS" : _selectedTargetId is not null && !_pvpOnly ? "iDPS" : "DPS";
         OverlayShareHeader.Text = _allMode ? strings["Main.Overlay.ColHeal"] : "%";

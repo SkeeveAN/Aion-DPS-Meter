@@ -140,7 +140,7 @@ public sealed class MeterSettings
     /// <summary>The version of the policy that was accepted (0 = none).</summary>
     public int PrivacyVersion { get; set; }
 
-    /// <summary>The look of Hide UI: "Chips" (a click-through chip per player) or "Compact" (one
+    /// <summary>The look of Hide UI: "Chips" (a click-through chip per player), "Own" (the rows the player builds with a template) or "Compact" (one
     /// transparent panel with a header, the fought boss and a dense line per player; it takes
     /// clicks, so it can be dragged, scaled and a player opened).</summary>
     public string OverlayStyle { get; set; } = "Chips";
@@ -148,6 +148,18 @@ public sealed class MeterSettings
     /// <summary>Compact look only: the panel lets every click through to the game, like the chips do.
     /// Off by default - then it takes clicks (drag, scale, open a player).</summary>
     public bool CompactClickThrough { get; set; }
+
+    /// <summary>The modes of the look "Own" (OverlayStyle "Own"): each a name, the template of a row and the sort key, as many as the player made.</summary>
+    public List<OwnMode> OwnModes { get; set; } = new();
+
+    /// <summary>The id of the mode of the look "Own" that is shown (empty: the first).</summary>
+    public string OwnModeId { get; set; } = "";
+
+    /// <summary>Look "Own": the share bar behind each row.</summary>
+    public bool OwnShareBars { get; set; } = true;
+
+    /// <summary>Look "Own": the overlay lets every click through to the game (like the chips).</summary>
+    public bool OwnClickThrough { get; set; } = true;
 
     /// <summary>How opaque the overlay's dark backgrounds are, 0.2 to 1 (both looks).</summary>
     public double OverlayOpacity { get; set; } = 0.6;
