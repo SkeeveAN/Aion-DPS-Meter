@@ -4,13 +4,6 @@
   "date": "2026-11-25",
   "items": [
    {
-    "text": "DPS overlay look Own: the card has its own switch (it was only reachable through the look box and greyed out otherwise), and its settings are folded away while the look is not in use",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-25"
-   },
-   {
     "text": "the look Own has its own switch in the title row of its card, which folds the card in and out",
     "areas": [
      "Client"
