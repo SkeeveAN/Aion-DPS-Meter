@@ -1148,7 +1148,7 @@
         }
       },
       "variant": "advanced",
-      "hidden": true,
+      "hidden": false,
       "legacyNames": [
         "Urugugu Canyon (Conquest [Hard])"
       ]
@@ -1203,7 +1203,7 @@
         }
       },
       "variant": "advanced",
-      "hidden": true,
+      "hidden": false,
       "legacyNames": [
         "Vakron Sky Island (Conquest [Hard])"
       ]
