@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-25",
+  "items": [
+   {
+    "text": "Twitch Drops page: the Sync Stone (Unique) reward shows its picture and the game's own name in every language (Unique and Heroic grades of an item are kept apart)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-25"
+   }
+  ]
+ },
+ {
   "version": "2.2.1",
   "date": "2026-11-25",
   "items": [

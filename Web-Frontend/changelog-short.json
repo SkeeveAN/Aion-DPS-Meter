@@ -314,5 +314,9 @@
  "the target power overlay shows its name, class, power and percent in the middle of the box": {
   "en": "Target power overlay: content centered",
   "de": "Ziel-Kampfkraft-Overlay: Inhalt mittig"
+ },
+ "Twitch Drops page: the Sync Stone (Unique) reward shows its picture and the game's own name in every language (Unique and Heroic grades of an item are kept apart)": {
+  "en": "Twitch Drops: Sync Stone (Unique) with picture and names",
+  "de": "Twitch Drops: Konsonanzstein (Einzigartig) mit Bild und Namen"
  }
 }
