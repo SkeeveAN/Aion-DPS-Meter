@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.3.0",
   "date": "2026-11-25",
   "items": [
    {
@@ -131,35 +131,14 @@
     "date": "2026-11-25"
    },
    {
-    "text": "DPS overlay look Own: the variables are English (RANK, NAME, CLASS, LEVEL, DAMAGE, DPS, IDPS, SHARE, TAKEN, HEAL, POWER, DEATHS), %CLASS% shows the class icon and %IDPS% the iDPS of the row",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-25"
-   },
-   {
-    "text": "DPS overlay look Own: only DPS (no separate IDPS variable, the rate is the same), an info button at the template explains every variable and option in all ten languages",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-25"
-   },
-   {
-    "text": "DPS overlay look Own: the template is coloured while typing, the variables orange and each kind of option in its own colour (width green, bold and size violet, long or short blue, side teal, no-symbol pink, wrong ones red)",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-25"
-   },
-   {
-    "text": "DPS overlay look Own: the info text of DPS says what the meter's rule is (iDPS with a boss chosen, otherwise the damage over the player's own first-to-last-hit time)",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-25"
-   },
-   {
     "text": "Tool pages without data show a made-up sample with a note instead of an empty page: Loot (two sessions with real items), World boss (four bosses with times), Skill assist (a Gladiator's cooldowns and effects) and Network analysis (the values of a normal session); the real data replaces it as soon as there is some",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-25"
+   },
+   {
+    "text": "the new look \"Own\" of the DPS overlay (rows built from a coloured text template, as many modes as you make), sample data on the empty tool pages and the data of the patch of 25 November (event sanctuary, new wings, items, Abyss Corridor rooms)",
     "areas": [
      "Client"
     ],

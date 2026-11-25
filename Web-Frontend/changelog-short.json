@@ -410,5 +410,9 @@
  "Tool pages without data show a made-up sample with a note instead of an empty page: Loot (two sessions with real items), World boss (four bosses with times), Skill assist (a Gladiator's cooldowns and effects) and Network analysis (the values of a normal session); the real data replaces it as soon as there is some": {
   "en": "Tool pages show a sample while empty",
   "de": "Tool-Seiten zeigen ein Beispiel, solange sie leer sind"
+ },
+ "the new look \"Own\" of the DPS overlay (rows built from a coloured text template, as many modes as you make), sample data on the empty tool pages and the data of the patch of 25 November (event sanctuary, new wings, items, Abyss Corridor rooms)": {
+  "en": "New look \"Own\" for the DPS overlay, sample data on empty tool pages, patch data",
+  "de": "Neuer Look \"Eigene\" für das DPS-Overlay, Beispieldaten auf leeren Tool-Seiten, Patch-Daten"
  }
 }
