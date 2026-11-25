@@ -378,5 +378,9 @@
  "Week points page: the Russian name and text of the Guardian Lord Nahma mission follow the game's change (data delivery, no new client needed)": {
   "en": "Russian Nahma mission text updated",
   "de": "Russischer Nahma-Missionstext aktualisiert"
+ },
+ "Instances page: the difficulty switches of the expeditions and sanctuaries sit below the picture like the difficulty chips of the other dungeons, and the picture shows the same pills everywhere (bosses, best iDPS, runs) instead of a second Exploration label and a level": {
+  "en": "Difficulty switches below the picture everywhere",
+  "de": "Umschalter überall unter dem Bild"
  }
 }
