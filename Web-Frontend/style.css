@@ -3293,6 +3293,9 @@ button.cmp-mem { cursor: pointer; }
 .pn-body h4 { margin: 12px 0 4px; }
 .pn-table { margin: 8px 0 12px; overflow-x: auto; }
 .pn-body table { border-collapse: collapse; width: 100%; }
+/* two-column tables (skill | change) all get the same split, however long the texts are */
+.pn-body table:not(:has(tr > :nth-child(3))) { table-layout: fixed; }
+.pn-body table:not(:has(tr > :nth-child(3))) tr:first-child > :first-child { width: 28%; }
 .pn-body th, .pn-body td { border: 1px solid var(--color-border); padding: 8px 12px; text-align: left; vertical-align: middle; }
 .pn-body th { background: var(--color-surface2); font-weight: 700; text-align: center; }
 .pn-body td > p, .pn-body th > p { margin: 0; }

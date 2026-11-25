@@ -322,5 +322,9 @@
  "Patch notes page: in the German text the class names follow the game (Waldläufer instead of Schütze, Beschwörer instead of Elementarist)": {
   "en": "Patch notes: class names as in the game",
   "de": "Patchnotizen: Klassennamen wie im Spiel"
+ },
+ "Patch notes page: two-column tables (skill and change) have the same column split in every table": {
+  "en": "Patch notes: tables with equal columns",
+  "de": "Patchnotizen: Tabellen mit gleichen Spalten"
  }
 }
