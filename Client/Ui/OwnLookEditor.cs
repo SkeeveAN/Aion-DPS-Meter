@@ -30,7 +30,7 @@ public sealed class OwnLookEditor : StackPanel
     };
     private readonly TextBlock _errorText = new() { Foreground = new SolidColorBrush(Color.FromRgb(0xe5, 0x73, 0x73)), FontSize = 11.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) };
     private readonly TextBlock _selectedText = new() { Margin = new Thickness(0, 10, 0, 4), FontSize = 11.5 };
-    private readonly Grid _inspector = new();
+    private readonly WrapPanel _inspector = new();
     private readonly TextBox _widthBox = new() { Width = 52, MaxLength = 3, HorizontalContentAlignment = HorizontalAlignment.Right };
     private readonly TextBox _sizeBox = new() { Width = 52, MaxLength = 3, HorizontalContentAlignment = HorizontalAlignment.Right };
     private readonly CheckBox _boldBox = new();
@@ -220,7 +220,7 @@ public sealed class OwnLookEditor : StackPanel
         editor._boldBox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Check("bold writes into the template", editor._templateBox.Text == "%NAME%(20,b) %DPS%");
         editor._templateBox.CaretIndex = editor._templateBox.Text.Length;
-        Button share = Descend<Button>(editor).First(b => Equals(b.Content, "%ANTEIL%") || Equals(b.Content, "%SHARE%"));
+        Button share = Descend<Button>(editor).First(b => Equals(b.Content, "%SHARE%"));
         share.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Check("a variable button puts the variable at the cursor, behind a space", editor._templateBox.Text.StartsWith("%NAME%(20,b) %DPS% %") && editor._selectedText.Text.Contains("%"));
         editor._templateBox.Text = "%NAME% %DSP%";
@@ -256,11 +256,6 @@ public sealed class OwnLookEditor : StackPanel
 
     private UIElement BuildInspector()
     {
-        for (int i = 0; i < 6; i++)
-        {
-            _inspector.ColumnDefinitions.Add(new ColumnDefinition { Width = i == 5 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto });
-        }
-
         _longBox.Content = _loc["Own.NumLong"];
         _shortBox.Content = _loc["Own.NumShort"];
         _leftBox.Content = _loc["Own.AlignLeft"];
@@ -276,8 +271,7 @@ public sealed class OwnLookEditor : StackPanel
         UIElement[] parts = { Labeled(_loc["Own.Width"], _widthBox), Labeled(_loc["Own.Size"], _sizeBox), Labeled(_loc["Own.Bold"], _boldBox), Labeled(_loc["Own.Number"], number), Labeled(_loc["Own.Align"], side), Labeled(" ", _symbolBox) };
         for (int i = 0; i < parts.Length; i++)
         {
-            ((FrameworkElement)parts[i]).Margin = new Thickness(0, 0, 12, 0);
-            Grid.SetColumn(parts[i], i);
+            ((FrameworkElement)parts[i]).Margin = new Thickness(0, 0, 14, 4);
             _inspector.Children.Add(parts[i]);
         }
 
@@ -306,10 +300,8 @@ public sealed class OwnLookEditor : StackPanel
     private UIElement BuildInsertButtons()
     {
         var wrap = new WrapPanel();
-        foreach (string german in OverlayTemplate.Offered)
+        foreach (string name in OverlayTemplate.Offered)
         {
-            // the German spelling for German, the English one for every other language (both mean the same in a template)
-            string name = _loc.Language == "de" ? german : OverlayTemplate.EnglishOf(german);
             wrap.Children.Add(InsertButton("%" + name + "%", () => InsertVariable(name)));
         }
 
@@ -558,6 +550,7 @@ public sealed class OwnLookEditor : StackPanel
                 _leftBox.IsChecked = !field.Right;
                 _rightBox.IsChecked = field.Right;
                 bool hasSymbol = field.Var is TemplateVar.Taken or TemplateVar.Heal or TemplateVar.Power or TemplateVar.Deaths;
+                _widthBox.IsEnabled = field.Var != TemplateVar.Class; // the class is a picture: its size is the Size box
                 _symbolBox.IsEnabled = hasSymbol;
                 _symbolBox.IsChecked = field.NoSymbol;
             }

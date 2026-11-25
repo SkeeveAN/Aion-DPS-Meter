@@ -19,8 +19,8 @@ public sealed class OwnMode
     public OwnMode Copy() => new() { Id = Id, Name = Name, Template = Template, SortBy = SortBy };
 }
 
-/// <summary>The variables of a template (the German and the English spelling mean the same).</summary>
-public enum TemplateVar { Rank, Name, Class, Level, Damage, Dps, Share, Taken, Heal, Power, Deaths }
+/// <summary>The variables of a template (English).</summary>
+public enum TemplateVar { Rank, Name, Class, Level, Damage, Dps, Idps, Share, Taken, Heal, Power, Deaths }
 
 /// <summary>A variable of a template with its options, and where it stands in the text.</summary>
 public sealed class TemplateField
@@ -118,33 +118,28 @@ public sealed class ParsedTemplate
 /// The template of the look "Own" of the DPS overlay, read like a printf format: %NAME%(16,b)  %DPS%(short,r8) \t \n.
 /// Options go in brackets behind the variable, separated by commas: a number is the width in characters, b bold, +2 / -1 the font size
 /// in steps, long / short the number format (2.514.236 or 2,514 M; combat power 212.145 or 212,1 k), l / r the side the text stands on,
-/// n no symbol. A variable that has a symbol brings it along (the swords of %KAMPFKRAFT%, the arrow of %ERLITTEN%, the skull of %TOTE%).
+/// n no symbol. A variable that has a symbol brings it along (the swords of %POWER%, the arrow of %TAKEN%, the skull of %DEATHS%).
 /// </summary>
 public static class OverlayTemplate
 {
     private static readonly Dictionary<string, TemplateVar> Names = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["RANG"] = TemplateVar.Rank, ["RANK"] = TemplateVar.Rank,
+        ["RANK"] = TemplateVar.Rank,
         ["NAME"] = TemplateVar.Name,
-        ["KLASSE"] = TemplateVar.Class, ["CLASS"] = TemplateVar.Class,
-        ["STUFE"] = TemplateVar.Level, ["LEVEL"] = TemplateVar.Level,
-        ["SCHADEN"] = TemplateVar.Damage, ["DAMAGE"] = TemplateVar.Damage,
+        ["CLASS"] = TemplateVar.Class,
+        ["LEVEL"] = TemplateVar.Level,
+        ["DAMAGE"] = TemplateVar.Damage,
         ["DPS"] = TemplateVar.Dps,
-        ["ANTEIL"] = TemplateVar.Share, ["SHARE"] = TemplateVar.Share,
-        ["ERLITTEN"] = TemplateVar.Taken, ["TAKEN"] = TemplateVar.Taken,
-        ["HEILUNG"] = TemplateVar.Heal, ["HEAL"] = TemplateVar.Heal,
-        ["KAMPFKRAFT"] = TemplateVar.Power, ["POWER"] = TemplateVar.Power,
-        ["TOTE"] = TemplateVar.Deaths, ["DEATHS"] = TemplateVar.Deaths,
+        ["IDPS"] = TemplateVar.Idps,
+        ["SHARE"] = TemplateVar.Share,
+        ["TAKEN"] = TemplateVar.Taken,
+        ["HEAL"] = TemplateVar.Heal,
+        ["POWER"] = TemplateVar.Power,
+        ["DEATHS"] = TemplateVar.Deaths,
     };
 
-    /// <summary>The variables as they are offered to the player (German spelling).</summary>
-    public static readonly string[] Offered = { "RANG", "NAME", "KLASSE", "STUFE", "SCHADEN", "DPS", "ANTEIL", "ERLITTEN", "HEILUNG", "KAMPFKRAFT", "TOTE" };
-
-    /// <summary>The English spelling of an offered variable (shown in every language but German).</summary>
-    public static string EnglishOf(string german) => german switch
-    {
-        "RANG" => "RANK", "KLASSE" => "CLASS", "STUFE" => "LEVEL", "SCHADEN" => "DAMAGE", "ANTEIL" => "SHARE", "ERLITTEN" => "TAKEN", "HEILUNG" => "HEAL", "KAMPFKRAFT" => "POWER", "TOTE" => "DEATHS", _ => german,
-    };
+    /// <summary>The variables as they are offered to the player (English in every language).</summary>
+    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "IDPS", "SHARE", "TAKEN", "HEAL", "POWER", "DEATHS" };
 
     /// <summary>The sort keys of a mode: the key as it is saved and the property of the row it means.</summary>
     public static readonly (string Key, string Property)[] SortKeys =
@@ -156,7 +151,7 @@ public static class OverlayTemplate
     public static string SortProperty(string key) => SortKeys.FirstOrDefault(k => k.Key == key).Property ?? nameof(PlayerRow.Damage);
 
     /// <summary>What a row without a mode (none made yet) shows: rank, name, DPS.</summary>
-    public const string DefaultText = "%RANG%  %NAME%(16,b)  %DPS%(short,r8)";
+    public const string DefaultText = "%RANK%  %NAME%(16,b)  %DPS%(short,r8)";
 
     public static ParsedTemplate Parse(string? text)
     {
@@ -350,12 +345,13 @@ public static class OverlayTemplate
             case TemplateVar.Name:
                 return row.Name;
             case TemplateVar.Class:
-                return row.ClassName == "?" ? "" : row.ClassName;
+                return ""; // the class is a picture, drawn by the row (the class icon)
             case TemplateVar.Level:
                 return row.Level > 0 ? row.Level.ToString(CultureInfo.CurrentCulture) : "";
             case TemplateVar.Damage:
                 return (row.IsEstimated ? "~" : "") + Number(row.Damage, f.Short);
             case TemplateVar.Dps:
+            case TemplateVar.Idps: // the meter's rate is damage over the time from the first to the last hit, pauses included: the iDPS
                 return row.Dps is double d ? Number((long)Math.Round(d), f.Short) : "-";
             case TemplateVar.Share:
                 return row.SharePercent.ToString("0.0", CultureInfo.CurrentCulture) + " %";

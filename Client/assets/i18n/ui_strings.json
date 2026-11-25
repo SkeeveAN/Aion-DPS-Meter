@@ -18710,7 +18710,7 @@
   },
   "Settings.Own.Hint": {
     "en": "The look \"Own\" has as many modes as you create. The mode hotkey goes through them. Damage taken and combat power are %TAKEN% and %POWER% in the template.",
-    "de": "Der Look \"Eigene\" hat so viele Modi, wie du anlegst. Das Tastenkürzel für den Modus schaltet durch sie. Erlittener Schaden und Kampfkraft stehen als %ERLITTEN% und %KAMPFKRAFT% in der Vorlage.",
+    "de": "Der Look \"Eigene\" hat so viele Modi, wie du anlegst. Das Tastenkürzel für den Modus schaltet durch sie. Erlittener Schaden und Kampfkraft stehen als %TAKEN% und %POWER% in der Vorlage.",
     "fr": "Le style « Perso » a autant de modes que vous en créez. Le raccourci de mode les parcourt. Les dégâts subis et la puissance de combat sont %TAKEN% et %POWER% dans le modèle.",
     "es": "El estilo «Propia» tiene tantos modos como crees. El atajo de modo los recorre. El daño recibido y el poder de combate son %TAKEN% y %POWER% en la plantilla.",
     "ru": "У стиля «Своё» столько режимов, сколько вы создадите. Горячая клавиша режима переключает их по кругу. Полученный урон и боевая мощь в шаблоне — %TAKEN% и %POWER%.",

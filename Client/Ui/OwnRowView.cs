@@ -155,6 +155,18 @@ public sealed class OwnRowView : Border
             {
                 line.Children.Add(Text(text, 12, false, false, 0, false));
             }
+            else if (item.Field is { Var: TemplateVar.Class } classField)
+            {
+                // the class is its icon (the size option sets the picture's size)
+                double side = Math.Clamp(16 + classField.Size, 6, 40);
+                UIElement icon = new Image { Source = row.ClassIcon, Width = side, Height = side, Margin = new Thickness(0, 0, 3, 0), VerticalAlignment = VerticalAlignment.Center };
+                if (Marked is not null && classField.Start == Marked.Start && classField.Length == Marked.Length)
+                {
+                    icon = new Border { BorderBrush = (Brush)(Application.Current?.TryFindResource("Brush.Accent") ?? Brushes.Gold), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(3), Child = icon };
+                }
+
+                line.Children.Add(icon);
+            }
             else if (item.Field is { } field)
             {
                 double size = Math.Clamp(12 + field.Size, 6, 30);
