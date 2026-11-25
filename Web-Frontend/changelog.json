@@ -1,10 +1,10 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.3.2",
   "date": "2026-11-25",
   "items": [
    {
-    "text": "Fix: Save locally of the farm map pictures (and saving or loading sessions, themes and comparisons from the new interface) crashed with \"Operation is not valid due to the current state of the object\": a file dialog was put over a settings page's window that was never shown, now over the window that is there",
+    "text": "file dialogs (Save locally of the farm map pictures, sessions, themes, comparisons) no longer crash from the new interface",
     "areas": [
      "Client"
     ],

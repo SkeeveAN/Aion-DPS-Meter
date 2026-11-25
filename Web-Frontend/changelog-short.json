@@ -426,5 +426,9 @@
  "Save locally of the farm map pictures (and saving or loading sessions, themes and comparisons from the new interface) crashed with \"Operation is not valid due to the current state of the object\": a file dialog was put over a settings page's window that was never shown, now over the window that is there": {
   "en": "Fixed crash on Save locally and other file dialogs",
   "de": "Absturz bei Lokal speichern und anderen Datei-Dialogen behoben"
+ },
+ "file dialogs (Save locally of the farm map pictures, sessions, themes, comparisons) no longer crash from the new interface": {
+  "en": "Fixed crash in file dialogs",
+  "de": "Absturz in Datei-Dialogen behoben"
  }
 }
