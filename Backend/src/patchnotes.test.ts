@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { htmlToTree, patchnoteList, putPatchnote, resetPatchnotes } from "./patchnotes.js";
+import { fixClassNames, htmlToTree, patchnoteList, putPatchnote, resetPatchnotes } from "./patchnotes.js";
 
 test("NC's editor HTML becomes a small safe tree", () => {
   const html = '<div data-contents-type="image"><img src="https://x.playnccdn.com/a.jpg" alt="b"></div><div data-contents-type="text"><strong>Hello, this is AION 2.</strong></div>'
@@ -59,4 +59,9 @@ test("centered text and black header cells are kept", () => {
   assert.deepEqual(tree, [{ tag: "table", children: [{ tag: "tr", children: [
     { tag: "th", children: [{ tag: "p", align: "center", children: ["Head"] }] }, { tag: "td", children: [{ tag: "p", children: ["Body"] }] },
   ] }] }]);
+});
+
+test("German class names follow the game client, not NC's wording", () => {
+  assert.equal(fixClassNames("Templer, Schütze, Kantor, Elementarist"), "Templer, Waldläufer, Kantor, Beschwörer");
+  assert.equal(fixClassNames("Ludras Schützer"), "Ludras Schützer");
 });

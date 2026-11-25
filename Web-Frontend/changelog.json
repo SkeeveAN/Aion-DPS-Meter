@@ -4,6 +4,13 @@
   "date": "2026-11-25",
   "items": [
    {
+    "text": "Patch notes page: in the German text the class names follow the game (Waldläufer instead of Schütze, Beschwörer instead of Elementarist)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-25"
+   },
+   {
     "text": "Twitch Drops page: the Sync Stone (Unique) reward shows its picture and the game's own name in every language (Unique and Heroic grades of an item are kept apart)",
     "areas": [
      "Website"

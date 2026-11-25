@@ -318,5 +318,9 @@
  "Twitch Drops page: the Sync Stone (Unique) reward shows its picture and the game's own name in every language (Unique and Heroic grades of an item are kept apart)": {
   "en": "Twitch Drops: Sync Stone (Unique) with picture and names",
   "de": "Twitch Drops: Konsonanzstein (Einzigartig) mit Bild und Namen"
+ },
+ "Patch notes page: in the German text the class names follow the game (Waldläufer instead of Schütze, Beschwörer instead of Elementarist)": {
+  "en": "Patch notes: class names as in the game",
+  "de": "Patchnotizen: Klassennamen wie im Spiel"
  }
 }

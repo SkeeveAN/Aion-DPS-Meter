@@ -1,0 +1,122 @@
+{
+ "_source": "AION2 client L10NString.dat, keys String_STR_CLASS_<X>_body, client state 2026-11-25 (AppVersion 2.0.x); internal name = Backend class name; client key in 'clientKey'; Brawler (client key FIGHTER) unreleased in EU/NA",
+ "classes": {
+  "Gladiator": {
+   "clientKey": "GLADIATOR",
+   "names": {
+    "de-DE": "Gladiator",
+    "en-US": "Gladiator",
+    "es-ES": "Gladiador",
+    "fr-FR": "Gladiateur",
+    "ja-JP": "グラディエーター",
+    "ko-KR": "검성",
+    "pt-BR": "Gladiador",
+    "ru-RU": "Гладиатор"
+   }
+  },
+  "Templar": {
+   "clientKey": "TEMPLAR",
+   "names": {
+    "de-DE": "Templer",
+    "en-US": "Templar",
+    "es-ES": "Templario",
+    "fr-FR": "Templier",
+    "ja-JP": "テンプラー",
+    "ko-KR": "수호성",
+    "pt-BR": "Templário",
+    "ru-RU": "Страж"
+   }
+  },
+  "Ranger": {
+   "clientKey": "RANGER",
+   "names": {
+    "de-DE": "Waldläufer",
+    "en-US": "Ranger",
+    "es-ES": "Arquero",
+    "fr-FR": "Rôdeur",
+    "ja-JP": "レンジャー",
+    "ko-KR": "궁성",
+    "pt-BR": "Arqueiro",
+    "ru-RU": "Стрелок"
+   }
+  },
+  "Assassin": {
+   "clientKey": "ASSASSIN",
+   "names": {
+    "de-DE": "Assassine",
+    "en-US": "Assassin",
+    "es-ES": "Asesino",
+    "fr-FR": "Assassin",
+    "ja-JP": "アサシン",
+    "ko-KR": "살성",
+    "pt-BR": "Assassino",
+    "ru-RU": "Убийца"
+   }
+  },
+  "Spiritmaster": {
+   "clientKey": "ELEMENTALIST",
+   "names": {
+    "de-DE": "Beschwörer",
+    "en-US": "Spiritmaster",
+    "es-ES": "Espiritualista",
+    "fr-FR": "Spiritualiste",
+    "ja-JP": "スピリットマスター",
+    "ko-KR": "정령성",
+    "pt-BR": "Espiritualista",
+    "ru-RU": "Заклинатель"
+   }
+  },
+  "Sorcerer": {
+   "clientKey": "SORCERER",
+   "names": {
+    "de-DE": "Magier",
+    "en-US": "Sorcerer",
+    "es-ES": "Hechicero",
+    "fr-FR": "Sorcier",
+    "ja-JP": "ソーサラー",
+    "ko-KR": "마도성",
+    "pt-BR": "Mago",
+    "ru-RU": "Волшебник"
+   }
+  },
+  "Cleric": {
+   "clientKey": "CLERIC",
+   "names": {
+    "de-DE": "Kleriker",
+    "en-US": "Cleric",
+    "es-ES": "Clérigo",
+    "fr-FR": "Clerc",
+    "ja-JP": "クレリック",
+    "ko-KR": "치유성",
+    "pt-BR": "Clérigo",
+    "ru-RU": "Целитель"
+   }
+  },
+  "Chanter": {
+   "clientKey": "CHANTER",
+   "names": {
+    "de-DE": "Kantor",
+    "en-US": "Chanter",
+    "es-ES": "Cantor",
+    "fr-FR": "Aède",
+    "ja-JP": "チャンター",
+    "ko-KR": "호법성",
+    "pt-BR": "Encantador",
+    "ru-RU": "Чародей"
+   }
+  },
+  "Brawler": {
+   "clientKey": "FIGHTER",
+   "names": {
+    "de-DE": "Faustkämpfer",
+    "en-US": "Brawler",
+    "es-ES": "Luchador",
+    "fr-FR": "Pugiliste",
+    "ja-JP": "ファイター",
+    "ko-KR": "권성",
+    "pt-BR": "Lutador",
+    "ru-RU": "Мастер кулака"
+   }
+  }
+ }
+}

@@ -228,9 +228,14 @@ export function putPatchnote(x: Patchnote): void {
   store.set(keyOf(x), x);
 }
 
-/** The zone abbreviations of the German text, in every text node of the tree (see localizeZones). */
+/** NC's German notes sometimes use other names than the game client; the client's names are the right ones (Ranger = Waldläufer, Spiritmaster = Beschwörer). */
+export function fixClassNames(text: string): string {
+  return text.replace(/(?<![\p{L}])Schütze(?![\p{L}])/gu, "Waldläufer").replace(/(?<![\p{L}])Elementarist(?![\p{L}])/gu, "Beschwörer");
+}
+
+/** The zone abbreviations of the German text and the class names, in every text node of the tree (see localizeZones). */
 function localizeTree(nodes: BodyNode[], lang: NcLang): BodyNode[] {
-  return lang !== "de" ? nodes : nodes.map((n): BodyNode => (typeof n === "string" ? localizeZones(n, lang) : { ...n, children: localizeTree(n.children, lang) }));
+  return lang !== "de" ? nodes : nodes.map((n): BodyNode => (typeof n === "string" ? fixClassNames(localizeZones(n, lang)) : { ...n, children: localizeTree(n.children, lang) }));
 }
 
 export type PatchnoteView = { id: string; title: string; postedAt: string; body: BodyNode[]; url: string };
