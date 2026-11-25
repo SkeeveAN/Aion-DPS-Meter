@@ -2556,6 +2556,14 @@ function variantSwitch(instance, all, suffix = "") {
   ]);
 }
 
+/** The difficulty chips and the Bosses / Statistics buttons of a dungeon on one line: chips left, buttons right. */
+function toolbarRow(chips, buttons) {
+  if (!chips) {
+    return buttons ? [buttons] : [];
+  }
+  return [el("div", { className: "instance-toolbar" }, [chips, buttons].filter((x) => x != null))];
+}
+
 function variantCardsPane(list) {
   return el("div", { className: "ip-grid" }, variantGroups(list).map((g) => instanceFactCard(g.lead, { chips: g.members.length > 1 ? g.members.map((m) => variantLabel(variantInfo(m).mode)) : [], label: g.lead.category === "expedition" ? displayName({ name: baseInstanceName(g.lead), nameEn: baseInstanceName(g.lead) }) : undefined, noStage: true })));
 }
@@ -2844,11 +2852,7 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   }
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
-  hero.push(instanceViewButtons(instancePath, true));
-  const switchBar = instance ? variantSwitch(instance, instances, "/statistics") : null;
-  if (switchBar) {
-    hero.push(switchBar);
-  }
+  hero.push(...toolbarRow(instance ? variantSwitch(instance, instances, "/statistics") : null, instanceViewButtons(instancePath, true)));
   const gearHref = (range) => {
     const next = new URLSearchParams(params);
     range ? next.set("gear", range) : next.delete("gear");
@@ -2901,27 +2905,23 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
 
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const dungeonPath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
-  if (instance && stats.runCount > 0) {
-    hero.push(instanceViewButtons(dungeonPath, false));
-  }
+  const viewButtons = instance && stats.runCount > 0 ? instanceViewButtons(dungeonPath, false) : null;
   // Difficulty steps of Transcendence / Ascension / Nightmare instances: the chosen one narrows the figures above and
   // the boss cards open that step's ranking.
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   const modeQuery = stats.selectedMode ? `?mode=${encodeURIComponent(stats.selectedMode)}` : "";
   // Places with several entries per difficulty (expeditions, sanctuaries): the switches sit where the difficulty chips of the stepped dungeons sit, below the picture.
-  const switchBar = instance ? variantSwitch(instance, instances) : null;
-  if (switchBar) {
-    hero.push(switchBar);
-  }
+  let chipBar = instance ? variantSwitch(instance, instances) : null;
   if (stats.modes?.length) {
-    hero.push(
+    chipBar = (
       el("nav", { className: "mode-chips" }, [
         el("span", { textContent: t("mode.heading") }),
         el("a", { className: `mode-chip${stats.selectedMode ? "" : " active"}`, href: instancePath, textContent: t("mode.all") }),
         ...stats.modes.map((m) => el("a", { className: `mode-chip${m.mode === stats.selectedMode ? " active" : ""}`, href: `${instancePath}?mode=${encodeURIComponent(m.mode)}` }, [modeLabel(m.mode), el("small", { textContent: String(m.runs) })])),
-      ]),
+      ])
     );
   }
+  hero.push(...toolbarRow(chipBar, viewButtons));
   if (bosses.length === 0) {
     app.replaceChildren(...hero, el("p", { className: "empty", textContent: t("bosses.emptyNoBosses") }));
     return;
