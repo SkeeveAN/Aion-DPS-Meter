@@ -932,28 +932,6 @@
       "hasMechanics": false
     },
     {
-      "key": "ErosionPurifier/surveillance-device",
-      "instanceKey": "ErosionPurifier",
-      "slug": "surveillance-device",
-      "name": {
-        "en": "Surveillance Device",
-        "ko": "감시 장치",
-        "zh": "監視裝置",
-        "de": "Überwachungsapparat",
-        "es": "Dispositivo de vigilancia",
-        "fr": "Dispositif de surveillance",
-        "ja": "監視装置",
-        "pt": "Dispositivo de Vigilância",
-        "ru": "Устройство наблюдения"
-      },
-      "npcIds": [
-        2301216
-      ],
-      "level": 80,
-      "internalName": "M_PD_ErosionPurifier_DracoTurret_L_01_V01_001",
-      "hasMechanics": false
-    },
-    {
       "key": "ErosionPurifier/terminator-bargott",
       "instanceKey": "ErosionPurifier",
       "slug": "terminator-bargott",
