@@ -346,5 +346,9 @@
  "Instances page: Ludra is shown once in the Sanctuary tab with its three difficulties as switches above the pages (Easy, Normal, Hard), the Corroded Decontamination Facility shows its item level 2,100": {
   "en": "Ludra shown once, difficulties as switches",
   "de": "Ludra einmal angezeigt, Schwierigkeiten als Umschalter"
+ },
+ "Instances page: the expeditions are shown like Ludra, one card per dungeon with Exploration, Conquest and Conquest Hard as labels, and the three switches above its pages instead of the two tab rows": {
+  "en": "Expeditions with switches like Ludra",
+  "de": "Expeditionen mit Umschaltern wie Ludra"
  }
 }
