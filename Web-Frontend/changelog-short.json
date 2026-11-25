@@ -350,5 +350,9 @@
  "Instances page: the expeditions are shown like Ludra, one card per dungeon with Exploration, Conquest and Conquest Hard as labels, and the three switches above its pages instead of the two tab rows": {
   "en": "Expeditions with switches like Ludra",
   "de": "Expeditionen mit Umschaltern wie Ludra"
+ },
+ "Corroded Decontamination Facility: the Surveillance Device is a turret, no boss, and leaves the boss list and the client's boss catalog": {
+  "en": "Surveillance Device removed from the boss list",
+  "de": "Überwachungsapparat aus der Bossliste entfernt"
  }
 }
