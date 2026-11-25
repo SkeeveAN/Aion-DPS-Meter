@@ -390,5 +390,9 @@
  "DPS overlay: a third look \"Own\" with modes the player builds from a text template (%NAME%(16,b) %DPS%(short) ... with width, bold, size and long or short numbers), each mode sorted as chosen, saved or discarded with buttons; the Display tab of the DPS meter page shows a sample list while no fight is running": {
   "en": "New overlay look \"Own\": build your own rows with a template",
   "de": "Neuer Overlay-Look \"Eigene\": Zeilen aus einer Vorlage bauen"
+ },
+ "DPS overlay look Own: the variables are English (RANK, NAME, CLASS, LEVEL, DAMAGE, DPS, IDPS, SHARE, TAKEN, HEAL, POWER, DEATHS), %CLASS% shows the class icon and %IDPS% the iDPS of the row": {
+  "en": "Look Own: English variables, class icon, iDPS",
+  "de": "Look Eigene: englische Variablen, Klassen-Symbol, iDPS"
  }
 }
