@@ -366,5 +366,17 @@
  "Urugugu Canyon and Vakron Sky Island (Conquest, Hard): entry item level 2,700": {
   "en": "Hard item level 2,700 for Urugugu and Vakron",
   "de": "Schwer: Gegenstandsstufe 2.700 bei Urugugu und Vakron"
+ },
+ "Item names: the 68 new items of the patch of 25 November (event Odyle Energy, the Corroded Decontamination Facility Coin, Black Friday skins and tickets) and the texts the client changed in Russian, Spanish, Portuguese and Japanese (data delivery, no new client needed)": {
+  "en": "68 new item names from the patch",
+  "de": "68 neue Item-Namen vom Patch"
+ },
+ "Abyss Corridor: the four new artifact rooms (503007, 503010, 504007, 504010) show their name in the session list instead of a number (data delivery, no new client needed)": {
+  "en": "Four new Abyss Corridor rooms named",
+  "de": "Vier neue Abysskorridor-Räume benannt"
+ },
+ "Week points page: the Russian name and text of the Guardian Lord Nahma mission follow the game's change (data delivery, no new client needed)": {
+  "en": "Russian Nahma mission text updated",
+  "de": "Russischer Nahma-Missionstext aktualisiert"
  }
 }
