@@ -422,5 +422,9 @@
  "the look Own has its own switch in the title row of its card, which folds the card in and out": {
   "en": "Look Own: switch in the title row",
   "de": "Look Eigene: Schalter in der Titelzeile"
+ },
+ "Save locally of the farm map pictures (and saving or loading sessions, themes and comparisons from the new interface) crashed with \"Operation is not valid due to the current state of the object\": a file dialog was put over a settings page's window that was never shown, now over the window that is there": {
+  "en": "Fixed crash on Save locally and other file dialogs",
+  "de": "Absturz bei Lokal speichern und anderen Datei-Dialogen behoben"
  }
 }
