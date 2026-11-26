@@ -434,5 +434,9 @@
  "Skill Assist reworked (icons with clock ring, three lists, drag and drop, rows or columns), the look Own is usable on an empty page": {
   "en": "Skill Assist reworked, look Own usable at once",
   "de": "Skill Assist überarbeitet, Look Eigene sofort benutzbar"
+ },
+ "Pet map: the player's arrow is drawn over the cube marks (it was hidden under them), and a pale arrow with a dashed ring shows when the place is only a guess from the entities around": {
+  "en": "Pet map: player arrow no longer hidden, estimated position marked",
+  "de": "Pet-Karte: Spielerpfeil nicht mehr verdeckt, geschätzte Position markiert"
  }
 }

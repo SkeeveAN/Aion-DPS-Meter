@@ -16,6 +16,13 @@
      "Client"
     ],
     "date": "2026-11-27"
+   },
+   {
+    "text": "Pet map: the player's arrow is drawn over the cube marks (it was hidden under them), and a pale arrow with a dashed ring shows when the place is only a guess from the entities around",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
    }
   ]
  },
