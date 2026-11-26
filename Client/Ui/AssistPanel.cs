@@ -66,6 +66,9 @@ public sealed class AssistPanel : WrapPanel
     /// <summary>Keys the player does not want shown (see <see cref="MeterSettings.AssistOverlayHidden"/>).</summary>
     public HashSet<int> Hidden { get; set; } = new();
 
+    /// <summary>The font colour the player chose in the overlay designer (as "#RRGGBB"); null: the theme's text colour.</summary>
+    public string? FontColor { get; set; }
+
     /// <summary>The player's order (see <see cref="MeterSettings.AssistOrder"/>).</summary>
     public IReadOnlyList<int> Order { get; set; } = Array.Empty<int>();
 
@@ -312,7 +315,7 @@ public sealed class AssistPanel : WrapPanel
         }
 
         // the number: the theme's text colour with an outline that stands out from it (dark round a light colour, light round a dark one)
-        Color text = ThemeColor("Brush.Text", FallbackText);
+        Color text = FontColor is { Length: > 0 } hex && ColorConverter.ConvertFromString(hex) is Color chosen ? chosen : ThemeColor("Brush.Text", FallbackText);
         bool lightText = (0.299 * text.R + 0.587 * text.G + 0.114 * text.B) > 140;
         Color outline = lightText ? Color.FromRgb(0x05, 0x0A, 0x0F) : Color.FromRgb(0xF4, 0xEC, 0xDA);
         UIElement number = OutlinedText(Number(item), 20, text, outline);

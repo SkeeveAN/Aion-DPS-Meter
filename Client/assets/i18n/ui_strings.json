@@ -19643,5 +19643,29 @@
     "pt": "Repor a ordem",
     "ja": "順序をリセット",
     "ko": "순서 초기화"
+  },
+  "Designer.FontColor": {
+    "en": "Font colour",
+    "de": "Schriftfarbe",
+    "fr": "Couleur du texte",
+    "es": "Color del texto",
+    "ru": "Цвет текста",
+    "zh": "文字颜色",
+    "zh-TW": "文字顏色",
+    "pt": "Cor do texto",
+    "ja": "文字色",
+    "ko": "글자 색"
+  },
+  "Designer.FontColorDefault": {
+    "en": "Standard (the overlay's own colours)",
+    "de": "Standard (die eigenen Farben des Overlays)",
+    "fr": "Standard (les couleurs propres de l'overlay)",
+    "es": "Estándar (los colores propios del overlay)",
+    "ru": "По умолчанию (собственные цвета оверлея)",
+    "zh": "默认（覆盖层自带的颜色）",
+    "zh-TW": "預設（覆蓋層自帶的顏色）",
+    "pt": "Padrão (as cores próprias do overlay)",
+    "ja": "標準（オーバーレイ本来の色）",
+    "ko": "기본값 (오버레이 고유 색)"
   }
 }

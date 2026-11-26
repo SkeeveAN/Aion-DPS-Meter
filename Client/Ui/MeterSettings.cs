@@ -559,6 +559,9 @@ public sealed class MeterSettings
     /// <summary>The colour of an overlay's background as "#RRGGBB", by the overlay's title (the overlay designer's colour row); missing: the overlay's own dark colour. The opacity is <see cref="OverlayOpacities"/>.</summary>
     public Dictionary<string, string> OverlayBackColors { get; set; } = new();
 
+    /// <summary>The colour of the text of an overlay as "#RRGGBB", by the overlay's title (the overlay designer's font colour row, for every overlay); missing: the overlay's own colours.</summary>
+    public Dictionary<string, string> OverlayFontColors { get; set; } = new();
+
     /// <summary>The overlays (by title) whose eye in the overlay designer is closed: they keep their place and stay among the added overlays, but are not drawn over the game (the designer still shows them, dimmed, to place them).</summary>
     public List<string> OverlayEyeOff { get; set; } = new();
 

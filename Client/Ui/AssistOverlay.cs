@@ -97,6 +97,7 @@ public sealed class AssistController : IDisposable
         _overlay.Panel.Hidden = _hidden;
         _overlay.Panel.SortByTime = _settings.AssistSortByTime;
         _overlay.Panel.Vertical = _settings.AssistVertical;
+        _overlay.Panel.FontColor = _settings.OverlayFontColors.GetValueOrDefault(OverlayPlaces.Assist);
         _overlay.Panel.Order = _settings.AssistOrder;
         _overlay.Panel.Seen = AssistKeys.Remember;
         bool inGame = GameWindow.ForegroundClientArea() is not null;

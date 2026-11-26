@@ -148,6 +148,96 @@ public abstract class MovableOverlay : Window
     private readonly double _defaultLeft, _defaultTop;
     private DateTime _opacityAt = DateTime.MinValue;
 
+    // ---- the font colour of the overlay designer (every overlay) -----------------------------------------------------------
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<TextBlock, Brush> OriginalText = new();
+    private string? _fontHex;
+    private SolidColorBrush? _fontBrush;
+    private bool _fontLayoutHooked;
+    private bool _recolouring;
+
+    /// <summary>The chosen font colour of this overlay (see <see cref="MeterSettings.OverlayFontColors"/>), null: its own colours.</summary>
+    public Color? FontColor => _fontBrush?.Color;
+
+    /// <summary>Reads the font colour from the settings; a change is drawn at once. The text is recoloured again after every layout, because overlays rebuild their rows all the time.</summary>
+    private void ApplyFontColor(MeterSettings settings)
+    {
+        settings.OverlayFontColors.TryGetValue(Title, out string? hex);
+        if (!string.Equals(hex, _fontHex, StringComparison.OrdinalIgnoreCase))
+        {
+            _fontHex = hex;
+            _fontBrush = null;
+            if (!string.IsNullOrEmpty(hex) && ColorConverter.ConvertFromString(hex) is Color color)
+            {
+                _fontBrush = new SolidColorBrush(color);
+                _fontBrush.Freeze();
+            }
+        }
+
+        if (!_fontLayoutHooked)
+        {
+            _fontLayoutHooked = true;
+            _bodyHost.LayoutUpdated += (_, _) =>
+            {
+                if (_fontBrush is not null)
+                {
+                    Recolour(_bodyHost);
+                }
+            };
+        }
+
+        Recolour(_bodyHost);
+    }
+
+    private void Recolour(DependencyObject parent)
+    {
+        if (_recolouring)
+        {
+            return;
+        }
+
+        _recolouring = true;
+        try
+        {
+            RecolourTree(parent);
+        }
+        finally
+        {
+            _recolouring = false;
+        }
+    }
+
+    private void RecolourTree(DependencyObject parent)
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+            if (child is TextBlock text)
+            {
+                if (_fontBrush is { } brush)
+                {
+                    if (!ReferenceEquals(text.Foreground, brush))
+                    {
+                        if (!OriginalText.TryGetValue(text, out _))
+                        {
+                            OriginalText.Add(text, text.Foreground ?? Brushes.White);
+                        }
+
+                        text.Foreground = brush;
+                    }
+                }
+                else if (OriginalText.TryGetValue(text, out Brush? original))
+                {
+                    text.Foreground = original;
+                    OriginalText.Remove(text);
+                }
+            }
+
+            RecolourTree(child);
+        }
+    }
+
     /// <summary>The place, size and scale are read from the settings again (after "reset size and position").</summary>
     private void ReloadPlace()
     {
@@ -353,6 +443,7 @@ public abstract class MovableOverlay : Window
     /// <summary>The overlay's own opacity (0 to 1, set per overlay in its module; the key is its title) replaces the alpha of the body's dark background; <see cref="OpacityFloor"/> raises it.</summary>
     public void ApplyStoredOpacity()
     {
+        ApplyFontColor(MeterSettings.Load());
         if (ApplyLook(MeterSettings.Load()))
         {
             return; // an overlay that draws its background in several places does it itself

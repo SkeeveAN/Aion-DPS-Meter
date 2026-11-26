@@ -1831,9 +1831,10 @@ internal static class Program
         }
 
         // the overlay: the circles on a made-up game background, in a row that wraps and in a column
-        var panelRows = new Ui.AssistPanel { Width = 300 };
+        var fontColor = settings.OverlayFontColors.GetValueOrDefault(Ui.OverlayPlaces.Assist);
+        var panelRows = new Ui.AssistPanel { Width = 300, FontColor = fontColor };
         panelRows.Refresh(dir);
-        var panelCols = new Ui.AssistPanel { Vertical = true, Height = 230 };
+        var panelCols = new Ui.AssistPanel { Vertical = true, Height = 230, FontColor = fontColor };
         panelCols.Refresh(dir);
         var stage = new System.Windows.Controls.Grid { Width = 800, Height = 300 };
         stage.Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3A, 0x5A, 0x70), System.Windows.Media.Color.FromRgb(0x2C, 0x3A, 0x2A), 90);

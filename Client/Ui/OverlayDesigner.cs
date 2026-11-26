@@ -926,6 +926,9 @@ internal sealed class OpacityPanel : Window
             stack.Children.Add(ColorRow(title, loc["Designer.BackColor"], refresh));
         }
 
+        // every overlay: the colour of its text (the swatch with the slash takes the overlay's own colours back)
+        stack.Children.Add(ColorRow(title, loc["Designer.FontColor"], refresh, m => m.OverlayFontColors, FontColors, clearTip: loc["Designer.FontColorDefault"]));
+
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
         var reset = OverlayDesigner.Chip(loc["Designer.Reset"]);
         reset.Click += (_, _) =>
@@ -934,6 +937,7 @@ internal sealed class OpacityPanel : Window
             var s = MeterSettings.Load();
             s.OverlayForegrounds.Remove(title);
             s.OverlayBackColors.Remove(title);
+            s.OverlayFontColors.Remove(title);
             s.Save();
             refresh();
             Close();
@@ -1059,14 +1063,18 @@ internal sealed class OpacityPanel : Window
     private static readonly string[] BackColors = { "#000000", "#0E1820", "#1B3142", "#2B1B3D", "#3D1B1B", "#1B3D26", "#3D361B", "#FFFFFF" };
 
     /// <summary>The colour of the background: a row of swatches (black is the usual one); the opacity above says how clear it is.</summary>
-    private static UIElement ColorRow(string title, string label, Action refresh)
+    private static readonly string[] FontColors = { "#FFFFFF", "#FFD27A", "#9DB3C2", "#6EE7A8", "#5CC8FF", "#FF8A80", "#C9A6FF", "#000000" };
+
+    private static UIElement ColorRow(string title, string label, Action refresh, Func<MeterSettings, Dictionary<string, string>>? store = null, string[]? palette = null, string? clearTip = null)
     {
+        store ??= m => m.OverlayBackColors;
+        palette ??= BackColors;
         var grid = new Grid { Margin = new Thickness(0, 4, 0, 2) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.Children.Add(new TextBlock { Text = label, Foreground = OverlayDesigner.Text, VerticalAlignment = VerticalAlignment.Center });
         var swatches = new StackPanel { Orientation = Orientation.Horizontal };
-        string current = MeterSettings.Load().OverlayBackColors.GetValueOrDefault(title, "");
+        string current = store(MeterSettings.Load()).GetValueOrDefault(title, "");
         var rings = new List<(Border Ring, string Hex)>();
         void Mark()
         {
@@ -1076,7 +1084,29 @@ internal sealed class OpacityPanel : Window
             }
         }
 
-        foreach (string hex in BackColors)
+        if (clearTip is not null)
+        {
+            // "Standard": no colour of its own - a ring with a slash through it
+            var none = new Border
+            {
+                Width = 20, Height = 20, CornerRadius = new CornerRadius(10), Margin = new Thickness(0, 0, 6, 0), Cursor = Cursors.Hand, Background = Brushes.Transparent,
+                BorderThickness = new Thickness(2), BorderBrush = OverlayDesigner.Line, ToolTip = clearTip,
+                Child = new System.Windows.Shapes.Line { X1 = 3, Y1 = 13, X2 = 13, Y2 = 3, Stroke = OverlayDesigner.Muted, StrokeThickness = 1.5, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+            };
+            rings.Add((none, ""));
+            none.MouseLeftButtonUp += (_, _) =>
+            {
+                current = "";
+                var s = MeterSettings.Load();
+                store(s).Remove(title);
+                s.Save();
+                Mark();
+                refresh();
+            };
+            swatches.Children.Add(none);
+        }
+
+        foreach (string hex in palette)
         {
             var color = (Color)ColorConverter.ConvertFromString(hex);
             var swatch = new Border
@@ -1089,7 +1119,7 @@ internal sealed class OpacityPanel : Window
             {
                 current = hex;
                 var s = MeterSettings.Load();
-                s.OverlayBackColors[title] = hex;
+                store(s)[title] = hex;
                 s.Save();
                 Mark();
                 refresh();

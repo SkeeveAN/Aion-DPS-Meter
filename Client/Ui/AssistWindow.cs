@@ -153,6 +153,7 @@ public sealed class AssistWindow : Window
         _preview.Hidden = _settings.AssistOverlayHidden.ToHashSet();
         _preview.Order = _settings.AssistOrder;
         _preview.Vertical = _settings.AssistVertical;
+        _preview.FontColor = _settings.OverlayFontColors.GetValueOrDefault(OverlayPlaces.Assist);
         _preview.SortByTime = _settings.AssistSortByTime;
         _preview.Seen = AssistKeys.Remember;
         _items = _preview.Collect(_directory());
