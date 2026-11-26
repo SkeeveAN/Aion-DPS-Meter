@@ -23,6 +23,13 @@
      "Client"
     ],
     "date": "2026-11-27"
+   },
+   {
+    "text": "Aion 2 G13 plugin: first version as a separate program (not part of the client), switches the G13 profile by the class of the own character",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
    }
   ]
  },
