@@ -186,6 +186,16 @@ public sealed class OwnLookEditor : StackPanel
 
             Rebuild();
         };
+
+        // Nothing to set up on an empty page: the first mode is made and saved at once (the standard row), so the row can be built and the damage and DPS shown straight away
+        if (_work.Count == 0)
+        {
+            var first = new OwnMode { Name = string.Format(_loc["Own.NewName"], 1), Template = OverlayTemplate.DefaultText };
+            _work.Add(first);
+            _selectedId = first.Id;
+            Save();
+        }
+
         Rebuild();
     }
 
@@ -292,9 +302,7 @@ public sealed class OwnLookEditor : StackPanel
             Console.WriteLine($"own-test: {what}: {good}");
         }
 
-        ComboBoxItem create = editor._modeBox.Items.OfType<ComboBoxItem>().First(i => (string)i.Tag == NewEntry);
-        editor._modeBox.SelectedItem = create;
-        Check("a mode is made by choosing \"create\"", editor._work.Count == 1 && editor._selectedId == editor._work[0].Id && editor._saveButton.IsEnabled);
+        Check("an empty page has its first mode from the start, saved, and the row can be built at once", editor._work.Count == 1 && editor._selectedId == editor._work[0].Id && !editor._saveButton.IsEnabled && editor._body.IsEnabled && MeterSettings.Load().OwnModes.Count == 1);
         editor._templateBox.Text = "%NAME%(16) %DPS%";
         editor._templateBox.CaretIndex = 3;
         Check("the cursor in a field selects it", editor._selectedText.Text.Contains("%NAME%") && editor._inspector.IsEnabled);
@@ -619,6 +627,14 @@ public sealed class OwnLookEditor : StackPanel
             _sortBox.SelectedItem = _sortBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string?)i.Tag == (mode?.SortBy ?? "Damage"));
             _templateBox.Text = mode?.Template ?? "";
             _parsed = OverlayTemplate.Parse(mode?.Template);
+
+            // the cursor stands in the DPS field (else the first one) so its settings - width, size, bold, short or long, left or right - are live at once, not greyed
+            int dps = _templateBox.Text.IndexOf("%DPS%", StringComparison.Ordinal);
+            int first = _templateBox.Text.IndexOf('%');
+            if (dps >= 0 || first >= 0)
+            {
+                _templateBox.CaretIndex = (dps >= 0 ? dps : first) + 1;
+            }
         }
         finally
         {
