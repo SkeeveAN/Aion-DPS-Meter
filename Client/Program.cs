@@ -1782,26 +1782,17 @@ internal static class Program
         Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var table = Aion2.Protocol.Aion2SkillNames.Load();
-        var skills = table.Where(kv => kv.Key >= 10_000_000 && !Aion2.Protocol.Aion2Artwork.IsPassive(kv.Key) && !Aion2.Protocol.Aion2SkillNames.IsNonDamageEffect(kv.Key)
-                && Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null && kv.Value is not ("Dodge" or "Basic Attack"))
-            .GroupBy(kv => kv.Value).Select(g => g.First().Key).Take(8).ToList();
-        var effects = table.Where(kv => kv.Value.Contains("Armor") || kv.Value.Contains("Shield") || kv.Value.Contains("Boost") || kv.Value.Contains("Stance"))
-            .Where(kv => Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null).GroupBy(kv => kv.Value).Select(g => g.First().Key).Take(3).ToList();
-        int[] remaining = { 94_000, 61_000, 28_000, 9_000, 0, 0, 0, 0 };
         var now = DateTime.Now;
-        Aion2.Aion2Cooldowns.Receive(skills.Select((id, i) => new Aion2.CooldownEntry(id, remaining[i % remaining.Length])).ToList(), now);
         var dir = new Aion2.Aion2EntityDirectory { LocalPlayerId = 8956 };
-        int[] lasts = { 18_000, 42_000, -1 };
-        for (int i = 0; i < effects.Count; i++)
+        // real buffs of the game's data: a Gladiator's own (Armor of Balance, Zikel's Blessing, Survival Stance, Lunge Stance) and the group's (a Chanter's mantras, a Cleric's prayers)
+        (int Skill, int Ms, int Caster)[] demo =
         {
-            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, effects[i] * 10, effects[i], lasts[i], i == 1 ? 9001 : 8956)); // the middle one comes from another player
-        }
-
-        var groupEffects = table.Where(kv => kv.Key >= 10_000_000 && Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null && !skills.Contains(kv.Key) && !effects.Contains(kv.Key))
-            .GroupBy(kv => kv.Value).Select(g => g.First().Key).Skip(60).Take(3).ToList();
-        for (int i = 0; i < groupEffects.Count; i++)
+            (11130050, 54_000, 8956), (11250000, 31_000, 8956), (11270000, -1, 8956), (11400050, 14_000, 8956),
+            (18160050, 40_000, 9002), (18190050, 27_000, 9002), (17430010, 18_000, 9003), (17410050, 9_000, 9003),
+        };
+        for (int i = 0; i < demo.Length; i++)
         {
-            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 200 + i, groupEffects[i] * 10, groupEffects[i], new[] { 54_000, 31_000, 14_000 }[i], 9002 + i));
+            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, demo[i].Skill * 10, demo[i].Skill, demo[i].Ms, demo[i].Caster));
         }
 
         int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) && sc is >= 1 and <= 4 ? sc : 1; // 2 = a sharp picture for the website
@@ -1834,22 +1825,32 @@ internal static class Program
         var fontColor = settings.OverlayFontColors.GetValueOrDefault(Ui.OverlayPlaces.Assist);
         var panelRows = new Ui.AssistPanel { Width = 300, FontColor = fontColor };
         panelRows.Refresh(dir);
-        var panelCols = new Ui.AssistPanel { Vertical = true, Height = 230, FontColor = fontColor };
+        var panelCols = new Ui.AssistPanel { Vertical = true, Height = 420, FontColor = fontColor };
         panelCols.Refresh(dir);
-        var stage = new System.Windows.Controls.Grid { Width = 800, Height = 300 };
+        var stage = new System.Windows.Controls.Grid { Width = 620, Height = 520 };
         stage.Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3A, 0x5A, 0x70), System.Windows.Media.Color.FromRgb(0x2C, 0x3A, 0x2A), 90);
         panelRows.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
         panelRows.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-        panelRows.Margin = new System.Windows.Thickness(24, 24, 0, 0);
-        panelCols.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+        panelRows.Margin = new System.Windows.Thickness(24, 50, 0, 0);
+        panelCols.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
         panelCols.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-        panelCols.Margin = new System.Windows.Thickness(0, 24, 30, 0);
+        panelCols.Margin = new System.Windows.Thickness(370, 50, 0, 0);
         stage.Children.Add(panelRows);
         stage.Children.Add(panelCols);
-        stage.Measure(new System.Windows.Size(800, 300));
-        stage.Arrange(new System.Windows.Rect(0, 0, 800, 300));
+        foreach ((string text, System.Windows.HorizontalAlignment side, double margin) in new[] { (Ui.LocalizationManager.Instance["Assist.Horizontal"], System.Windows.HorizontalAlignment.Left, 28.0), (Ui.LocalizationManager.Instance["Assist.Vertical"], System.Windows.HorizontalAlignment.Left, 374.0) })
+        {
+            stage.Children.Add(new System.Windows.Controls.TextBlock
+            {
+                Text = text, Foreground = System.Windows.Media.Brushes.White, FontSize = 14, FontWeight = System.Windows.FontWeights.SemiBold,
+                HorizontalAlignment = side, VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Margin = new System.Windows.Thickness(margin, 16, 0, 0),
+            });
+        }
+
+        stage.Measure(new System.Windows.Size(620, 520));
+        stage.Arrange(new System.Windows.Rect(0, 0, 620, 520));
         stage.UpdateLayout();
-        var stageBitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(800 * scale, 300 * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
+        var stageBitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(620 * scale, 520 * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
         stageBitmap.Render(stage);
         var stageEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
         stageEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(stageBitmap));

@@ -217,21 +217,21 @@ public sealed class AssistPanel : WrapPanel
         return result;
     }
 
-    /// <summary>Made-up circles of a Gladiator for the preview while nothing is running: three of the player's own cooldowns and effects, two of the group's.</summary>
+    /// <summary>Circles for the preview while nothing is running, all real buffs of the game's data: a Gladiator's own (Armor of Balance, Zikel's Blessing, Survival Stance) and the group's (a Chanter's mantras, a Cleric's prayer).</summary>
     public static IReadOnlyList<AssistItem> Sample() => new[]
     {
-        new AssistItem(AssistKeys.Make(11170000, false), 4, 0.8),
-        new AssistItem(AssistKeys.Make(11050000, false), 8, 0.6),
-        new AssistItem(AssistKeys.Make(11110000, false), 21, 0.35),
-        new AssistItem(AssistKeys.Make(11130000, true), 42, 0.7),
-        new AssistItem(AssistKeys.Make(11120000, true), 12, 0.4),
-        new AssistItem(AssistKeys.Make(11140000, false), 0, 0, true),
+        new AssistItem(AssistKeys.Make(11130050, false), 39, 0.7),
+        new AssistItem(AssistKeys.Make(11250000, false), 21, 0.45),
+        new AssistItem(AssistKeys.Make(11270000, false), 0, 0, true),
+        new AssistItem(AssistKeys.Make(18160050, true), 33, 0.8),
+        new AssistItem(AssistKeys.Make(18190050, true), 12, 0.35),
+        new AssistItem(AssistKeys.Make(17430010, true), 6, 0.2),
     };
 
     /// <summary>What the lists of the assist window offer while the game never ran: the preview's circles and a few more.</summary>
     public static IReadOnlyList<int> SampleCatalog() => Sample().Select(i => i.Key).Concat(new[]
     {
-        AssistKeys.Make(11040000, false), AssistKeys.Make(11090000, false), AssistKeys.Make(11040000, true),
+        AssistKeys.Make(11400050, false), AssistKeys.Make(11410050, false), AssistKeys.Make(17410050, true), AssistKeys.Make(18420050, true),
     }).Distinct().ToList();
 
     /// <summary>"4" (3.4 s rounds up), "99", "2m" from 100 s on, "∞" for an endless effect.</summary>
@@ -283,13 +283,13 @@ public sealed class AssistPanel : WrapPanel
             fig.Segments.Add(new ArcSegment(OnCircle(c, c, iconR, 360), new Size(iconR, iconR), 0, fraction > 0.5, SweepDirection.Clockwise, false));
             grid.Children.Add(new System.Windows.Shapes.Path
             {
-                Data = new PathGeometry(new[] { fig }), Fill = new SolidColorBrush(Color.FromArgb(0xA8, 0, 0, 0)), IsHitTestVisible = false,
+                Data = new PathGeometry(new[] { fig }), Fill = new SolidColorBrush(Color.FromArgb(0x60, 0, 0, 0)), IsHitTestVisible = false,
                 Width = s, Height = s, Stretch = Stretch.None,
             });
         }
         else if (!item.Endless && fraction >= 0.999)
         {
-            grid.Children.Add(new System.Windows.Shapes.Ellipse { Width = iconR * 2, Height = iconR * 2, Fill = new SolidColorBrush(Color.FromArgb(0xA8, 0, 0, 0)) });
+            grid.Children.Add(new System.Windows.Shapes.Ellipse { Width = iconR * 2, Height = iconR * 2, Fill = new SolidColorBrush(Color.FromArgb(0x60, 0, 0, 0)) });
         }
 
         // the ring: dim track, and the time left in the accent colour

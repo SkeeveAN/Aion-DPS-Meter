@@ -71,6 +71,23 @@ public static class ToolRender
                 break;
             }
 
+            case "designeroverlay":
+            {
+                // an overlay in the designer: its frame, the eye and the gear (the Skill Assist overlay with real buffs, on a game-like ground)
+                var overlay = new AssistOverlayWindow();
+                overlay.Panel.Width = 300;
+                overlay.Panel.Show(AssistPanel.Sample());
+                var content = overlay.PictureContent();
+                shown = new Border
+                {
+                    Padding = new Thickness(24), Background = new LinearGradientBrush(Color.FromRgb(0x3a, 0x4a, 0x3a), Color.FromRgb(0x24, 0x30, 0x40), 45),
+                    Child = new Border { Child = content, HorizontalAlignment = HorizontalAlignment.Left },
+                };
+                width = 0;
+                height = 0;
+                break;
+            }
+
             case "designerplus":
             {
                 // the plus of the overlay designer with its list opened (what can still be added: overlays, widgets, pages)

@@ -27,6 +27,9 @@ public abstract class MovableOverlay : Window
     private readonly Border _frame;
     private readonly Border _gear;
     private readonly Border _eye;
+    private readonly Border _tools;
+    private static readonly SolidColorBrush ToolGold = new(Color.FromRgb(0xFF, 0xBA, 0x42));
+    private static readonly SolidColorBrush ToolInk = new(Color.FromRgb(0x1A, 0x12, 0x05));
     private readonly TextBlock _eyeGlyph;
     private readonly Border _bodyHost = new();
     private readonly Border _shiftHost = new();
@@ -67,10 +70,10 @@ public abstract class MovableOverlay : Window
         // the overlay designer's gear: a click opens the panel (opacity, colour, reset, hide), the same as the right-click
         _gear = new Border
         {
-            Width = 22, Height = 22, CornerRadius = new CornerRadius(11), Margin = new Thickness(0, 0, 3, 0), Cursor = Cursors.Hand, Visibility = Visibility.Collapsed,
-            HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42)),
+            Width = 30, Height = 30, CornerRadius = new CornerRadius(15), Margin = new Thickness(2), Cursor = Cursors.Hand,
+            Background = ToolGold, BorderBrush = ToolInk, BorderThickness = new Thickness(1.5),
             ToolTip = LocalizationManager.Instance["Designer.Settings"],
-            Child = new TextBlock { Text = "\u2699", FontSize = 15, Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x05)), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, -2, 0, 0) },
+            Child = new TextBlock { Text = "\u2699", FontSize = 21, FontWeight = FontWeights.Bold, Foreground = ToolInk, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, -3, 0, 0) },
         };
         _gear.MouseLeftButtonDown += (_, e) => e.Handled = true; // not a drag of the overlay
         _gear.MouseLeftButtonUp += (_, e) =>
@@ -79,11 +82,11 @@ public abstract class MovableOverlay : Window
             e.Handled = true;
         };
         // the eye: whether the overlay is drawn over the game at all; closed, it keeps its place (to be shown by something else, like the map for a hidden cube)
-        _eyeGlyph = new TextBlock { FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x05)), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        _eyeGlyph = new TextBlock { FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 18, Foreground = ToolInk, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         _eye = new Border
         {
-            Width = 22, Height = 22, CornerRadius = new CornerRadius(11), Margin = new Thickness(0, 0, 28, 0), Cursor = Cursors.Hand, Visibility = Visibility.Collapsed,
-            HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42)),
+            Width = 30, Height = 30, CornerRadius = new CornerRadius(15), Margin = new Thickness(2), Cursor = Cursors.Hand,
+            Background = ToolGold, BorderBrush = ToolInk, BorderThickness = new Thickness(1.5),
             ToolTip = LocalizationManager.Instance["Designer.EyeTip"], Child = _eyeGlyph,
         };
         _eye.MouseLeftButtonDown += (_, e) => e.Handled = true;
@@ -101,8 +104,18 @@ public abstract class MovableOverlay : Window
         };
         var layer = new Grid();
         layer.Children.Add(stack);
-        layer.Children.Add(_gear);
-        layer.Children.Add(_eye);
+        // the two buttons sit on a dark pill with a gold rim: they stand out from every ground (the game's bright or dark, the overlay's own colours)
+        var toolRow = new StackPanel { Orientation = Orientation.Horizontal };
+        toolRow.Children.Add(_eye);
+        toolRow.Children.Add(_gear);
+        _tools = new Border
+        {
+            Child = toolRow, CornerRadius = new CornerRadius(19), Padding = new Thickness(3), Margin = new Thickness(0, 3, 3, 0), Visibility = Visibility.Collapsed,
+            HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top,
+            Background = new SolidColorBrush(Color.FromArgb(0xEE, 0x0E, 0x18, 0x20)), BorderBrush = ToolGold, BorderThickness = new Thickness(1.5),
+            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 8, ShadowDepth = 1, Opacity = 0.8 },
+        };
+        layer.Children.Add(_tools);
         _frame = new Border { Child = layer, LayoutTransform = _scale, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(2), Background = Brushes.Transparent };
         _frame.MouseLeftButtonDown += (_, e) =>
         {
@@ -327,6 +340,7 @@ public abstract class MovableOverlay : Window
         {
             _gear.Visibility = !locked && OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed; // the designer may have come on with the overlay unlocked already
             _eye.Visibility = _gear.Visibility;
+            _tools.Visibility = _gear.Visibility;
             ShowEyeState();
         }
     }
@@ -371,6 +385,7 @@ public abstract class MovableOverlay : Window
         _edges.Show(!locked);
         _gear.Visibility = !locked && OverlayDesigner.Active ? Visibility.Visible : Visibility.Collapsed;
         _eye.Visibility = _gear.Visibility;
+        _tools.Visibility = _gear.Visibility;
         ShowEyeState();
         _frame.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _frame.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
@@ -395,10 +410,28 @@ public abstract class MovableOverlay : Window
     /// <summary>Something else shows this overlay although its eye is closed (the map for a hidden cube).</summary>
     public bool IgnoreEyeOff { get; set; }
 
+    /// <summary>For the pictures of the overlay designer: the window's content with the designer's eye and gear showing, taken out of the (never shown) window.</summary>
+    internal FrameworkElement PictureContent()
+    {
+        _tools.Visibility = Visibility.Visible;
+        _gear.Visibility = Visibility.Visible;
+        _eye.Visibility = Visibility.Visible;
+        _frame.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
+        _frame.Background = new SolidColorBrush(Color.FromArgb(0x30, 0, 0, 0));
+        ShowEyeState();
+        var content = (FrameworkElement)Content;
+        Content = null;
+        return content;
+    }
+
     private void ShowEyeState()
     {
         bool off = EyeOff;
         _eyeGlyph.Text = off ? "\uED1A" : "\uE7B3"; // closed / open eye
+        // closed: the button is dark with a gold eye (it looks switched off), open: gold with a dark eye
+        _eye.Background = off ? new SolidColorBrush(Color.FromRgb(0x2A, 0x33, 0x3C)) : ToolGold;
+        _eye.BorderBrush = off ? ToolGold : ToolInk;
+        _eyeGlyph.Foreground = off ? ToolGold : ToolInk;
         _frame.Opacity = off && OverlayDesigner.Active ? 0.45 : 1.0;
     }
 
