@@ -180,8 +180,27 @@ public static class FarmMapRenderer
         }
 
         legendY += 120;
-        int height = withLegend ? Math.Max(Math.Max(mapH, (int)legendY), 520) : mapH;
-        int width = mapW + (withLegend ? LegendWidth : 0);
+        // the list lies IN the picture, on a card in the corner of the map where the fewest points and badges are (the list of the overlay and the widget is a part of its own)
+        int panelH = (int)legendY - 20;
+        int height = withLegend ? Math.Max(mapH, panelH + 48) : mapH;
+        int width = withLegend ? Math.Max(mapW, LegendWidth + 48) : mapW;
+        double panelX = 24, panelY = 24;
+        if (withLegend)
+        {
+            var marks = plan.Points.Select(pt => At(pt.X, pt.Y)).ToList();
+            double best = double.MaxValue;
+            foreach ((double cx, double cy) in new[] { (width - LegendWidth - 24.0, 24.0), (24.0, 24.0), (width - LegendWidth - 24.0, height - panelH - 24.0), (24.0, height - panelH - 24.0) })
+            {
+                var card = new Rect(cx, cy, LegendWidth, panelH);
+                double score = marks.Count(m => card.Contains(m)) + badges.Count(b => card.Contains(b)) * 60 + places.Count(b => card.Contains(b)) * 60;
+                if (score < best)
+                {
+                    best = score;
+                    panelX = cx;
+                    panelY = cy;
+                }
+            }
+        }
 
         var visual = new DrawingVisual();
         using (var dc = visual.RenderOpen())
@@ -262,9 +281,9 @@ public static class FarmMapRenderer
 
             if (withLegend)
             {
-                // the list beside the map
-                dc.DrawRectangle(new SolidColorBrush(PanelBack), null, new Rect(mapW, 0, LegendWidth, height));
-                double lx = mapW + 28, y = 22;
+                // the list on a card in the map
+                dc.DrawRoundedRectangle(new SolidColorBrush(Color.FromArgb(0xEC, PanelBack.R, PanelBack.G, PanelBack.B)), new Pen(new SolidColorBrush(Color.FromRgb(0x2E, 0x3C, 0x4A)), 2), new Rect(panelX, panelY, LegendWidth, panelH), 14, 14);
+                double lx = panelX + 28, y = panelY + 22;
                 dc.DrawText(Text(title, 34, goldBrush, faceBold, LegendWidth - 56), new Point(lx, y));
                 y += 48;
                 dc.DrawText(Text(subtitle, 17, new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2)), face, LegendWidth - 56), new Point(lx, y));
@@ -280,7 +299,7 @@ public static class FarmMapRenderer
                         string status = line.Missing ? loc["PetShop.Missing"] : string.Format(loc["PetFarm.Level"], line.Level) + $" · {line.Progress}/{Aion2Pets.ProgressNeeded(line.Level)}";
                         var right = Text(status, 17, line.Missing ? red : grey);
                         dc.DrawText(Text(string.Equals(line.Mob, line.Pet, StringComparison.OrdinalIgnoreCase) ? $"{line.Mob}  ×{line.Count}" : $"{line.Mob}  ({line.Pet})  ×{line.Count}", 19, white, faceBold, LegendWidth - 56 - 44 - right.Width - 12), new Point(lx + 44, ty));
-                        dc.DrawText(right, new Point(mapW + LegendWidth - 28 - right.Width, ty + 2));
+                        dc.DrawText(right, new Point(panelX + LegendWidth - 28 - right.Width, ty + 2));
                         ty += LineH;
                     }
 
@@ -294,8 +313,8 @@ public static class FarmMapRenderer
                 }
 
                 // what the signs mean
-                y = Math.Max(y + 6, height - 92);
-                dc.DrawLine(new Pen(new SolidColorBrush(Color.FromRgb(0x2E, 0x3C, 0x4A)), 1), new Point(lx, y), new Point(mapW + LegendWidth - 28, y));
+                y = Math.Max(y + 6, panelY + panelH - 92);
+                dc.DrawLine(new Pen(new SolidColorBrush(Color.FromRgb(0x2E, 0x3C, 0x4A)), 1), new Point(lx, y), new Point(panelX + LegendWidth - 28, y));
                 y += 12;
                 dc.DrawEllipse(dot, dotPen, new Point(lx + 8, y + 12), 5, 5);
                 dc.DrawText(Text(loc["Settings.FarmMap.Img.Pets"], 16, grey), new Point(lx + 26, y));
