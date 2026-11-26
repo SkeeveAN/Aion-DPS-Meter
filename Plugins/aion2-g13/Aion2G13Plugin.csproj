@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Aion2G13Plugin</AssemblyName>
+    <RootNamespace>Aion2G13Plugin</RootNamespace>
+    <Version>0.1.0</Version>
+    <Product>Aion 2 G13 Plugin</Product>
+  </PropertyGroup>
+</Project>
