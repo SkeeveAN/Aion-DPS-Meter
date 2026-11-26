@@ -1,5 +1,25 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-27",
+  "items": [
+   {
+    "text": "Overlay designer: a font colour row in the gear window of every overlay (eight colours and \"standard\"), the numbers of the Skill Assist follow it",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
+   },
+   {
+    "text": "Overlay designer: the eye and the gear on a dark pill with a gold rim, bigger and bolder (the closed eye looks switched off); Skill Assist: the clock no longer darkens the icons so much, the preview shows real buffs; pictures of the designer and of the assist for the render tool",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
+   }
+  ]
+ },
+ {
   "version": "2.3.3",
   "date": "2026-11-26",
   "items": [
