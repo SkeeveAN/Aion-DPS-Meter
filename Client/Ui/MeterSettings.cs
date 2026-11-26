@@ -236,6 +236,15 @@ public sealed class MeterSettings
     /// <summary>Assist window and overlay: list the effects with the least time left first (renewed auras, which never run out, come last). Off: in the order they first appeared.</summary>
     public bool AssistSortByTime { get; set; }
 
+    /// <summary>Assist window and overlay: the circles run in columns (top to bottom, then the next column) instead of in rows (left to right, then the next row).</summary>
+    public bool AssistVertical { get; set; }
+
+    /// <summary>The order of the circles (see AssistKeys: skill id, plus a flag for a group effect). What is not in the list follows, mine before the group's.</summary>
+    public List<int> AssistOrder { get; set; } = new();
+
+    /// <summary>Every skill and effect the assist has seen (keys as in <see cref="AssistOrder"/>): what the lists in the assist window offer.</summary>
+    public List<int> AssistKnown { get; set; } = new();
+
     /// <summary>Not stored (2.0): the designer is on or off, an overlay is unlocked only while it runs (<see cref="OverlayDesigner.Override"/>). What an old file holds is ignored.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
     public bool NetworkOverlayLocked { get; set; } = true;

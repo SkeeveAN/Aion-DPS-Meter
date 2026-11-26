@@ -1794,7 +1794,14 @@ internal static class Program
         int[] lasts = { 18_000, 42_000, -1 };
         for (int i = 0; i < effects.Count; i++)
         {
-            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, effects[i] * 10, effects[i], lasts[i], 8956));
+            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, effects[i] * 10, effects[i], lasts[i], i == 1 ? 9001 : 8956)); // the middle one comes from another player
+        }
+
+        var groupEffects = table.Where(kv => kv.Key >= 10_000_000 && Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null && !skills.Contains(kv.Key) && !effects.Contains(kv.Key))
+            .GroupBy(kv => kv.Value).Select(g => g.First().Key).Skip(60).Take(3).ToList();
+        for (int i = 0; i < groupEffects.Count; i++)
+        {
+            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 200 + i, groupEffects[i] * 10, groupEffects[i], new[] { 54_000, 31_000, 14_000 }[i], 9002 + i));
         }
 
         int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) && sc is >= 1 and <= 4 ? sc : 1; // 2 = a sharp picture for the website
@@ -1821,6 +1828,33 @@ internal static class Program
         using (var file = File.Create(path))
         {
             encoder.Save(file);
+        }
+
+        // the overlay: the circles on a made-up game background, in a row that wraps and in a column
+        var panelRows = new Ui.AssistPanel { Width = 300 };
+        panelRows.Refresh(dir);
+        var panelCols = new Ui.AssistPanel { Vertical = true, Height = 230 };
+        panelCols.Refresh(dir);
+        var stage = new System.Windows.Controls.Grid { Width = 800, Height = 300 };
+        stage.Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3A, 0x5A, 0x70), System.Windows.Media.Color.FromRgb(0x2C, 0x3A, 0x2A), 90);
+        panelRows.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+        panelRows.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+        panelRows.Margin = new System.Windows.Thickness(24, 24, 0, 0);
+        panelCols.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+        panelCols.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+        panelCols.Margin = new System.Windows.Thickness(0, 24, 30, 0);
+        stage.Children.Add(panelRows);
+        stage.Children.Add(panelCols);
+        stage.Measure(new System.Windows.Size(800, 300));
+        stage.Arrange(new System.Windows.Rect(0, 0, 800, 300));
+        stage.UpdateLayout();
+        var stageBitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(800 * scale, 300 * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
+        stageBitmap.Render(stage);
+        var stageEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        stageEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(stageBitmap));
+        using (var stageFile = File.Create(Path.ChangeExtension(path, null) + "-overlay.png"))
+        {
+            stageEncoder.Save(stageFile);
         }
 
         Console.WriteLine("render-assist: wrote " + path);

@@ -9,27 +9,41 @@ using AionDPS.Aion2.Protocol;
 
 namespace AionDPS.Ui;
 
+/// <summary>One circle of the assist: a skill on cooldown, a follow-up skill the game has opened, or an effect on the character.</summary>
+/// <param name="Key">See <see cref="AssistKeys"/>.</param>
+/// <param name="Seconds">Time left; whole seconds are shown. Not used for an endless effect.</param>
+/// <param name="Fraction">How much of the full time is left (1 = just started), for the ring.</param>
+/// <param name="Endless">An effect without an end, or a renewed aura.</param>
+public sealed record AssistItem(int Key, double Seconds, double Fraction, bool Endless = false)
+{
+    public int SkillId => AssistKeys.SkillOf(Key);
+
+    public bool Group => AssistKeys.IsGroup(Key);
+}
+
 /// <summary>
 /// The content of the assist: the local player's skill cooldowns (frame 0x4738, see <see cref="Aion2Cooldowns"/>) and the effects running on the
-/// character (frames 0x2a38 / 0x2b38 / 0x2c38, see <see cref="Aion2CombatState.BuffsOn"/>). Shown in the assist window (theme colours, cards, ready skills too)
-/// and in the assist overlay (fixed light-on-dark colours, running cooldowns and effects only).
+/// character (frames 0x2a38 / 0x2b38 / 0x2c38, see <see cref="Aion2CombatState.BuffsOn"/>) as a field of circles - the skill's icon, a ring that runs down like a
+/// clock and the seconds left at its lower right corner, no names. An effect that another player put on you has a blue ring, your own a ring in the theme's accent.
+/// The circles run in rows or columns (<see cref="Vertical"/>) and go on in the next row or column when the room is used up. Used by the overlay, the dashboard
+/// widget and the preview in the assist window.
 /// </summary>
-public sealed class AssistPanel : StackPanel
+public sealed class AssistPanel : WrapPanel
 {
     /// <summary>Skill ids from here are real skills; the small ids are shared cooldown groups.</summary>
     private const int FirstSkillId = 10_000_000;
 
-    private static readonly Brush OverlayText = Brushes.White;
-    private static readonly Brush OverlayMuted = new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2));
-    private static readonly Brush OverlayAccent = new SolidColorBrush(Color.FromRgb(0xFF, 0xD2, 0x7A));
+    private const double Size = 56;
+    private static readonly Color GroupColor = Color.FromRgb(0x5C, 0xC8, 0xFF);
+    private static readonly Color FallbackText = Colors.White;
+    private static readonly Color FallbackAccent = Color.FromRgb(0xFF, 0xD2, 0x7A);
 
-    private readonly bool _overlay;
     private readonly Dictionary<string, BitmapImage?> _images = new();
 
-    /// <summary>The highest number seen per skill since it last was ready: what the bar of a running cooldown is measured against.</summary>
+    /// <summary>The highest number seen per skill since it last was ready: what the ring of a running cooldown is measured against.</summary>
     private readonly Dictionary<int, int> _peak = new();
 
-    /// <summary>How long an effect that is gone stays in the list (so a renewed one does not make its row jump away and back).</summary>
+    /// <summary>How long an effect that is gone stays (so a renewed one does not make its circle jump away and back).</summary>
     private static readonly TimeSpan Linger = TimeSpan.FromSeconds(2.5);
 
     private sealed class EffectRow(int order)
@@ -45,41 +59,73 @@ public sealed class AssistPanel : StackPanel
         public bool Aura { get; set; }
     }
 
-    /// <summary>The effects are listed by time left (renewed auras last) instead of by first appearance.</summary>
-    public bool SortByTime { get; set; }
-
-
-
     private readonly Dictionary<int, EffectRow> _effects = new();
     private int _order;
+    private Point _dragStart;
 
-    public AssistPanel(bool overlay)
-    {
-        _overlay = overlay;
-    }
-
-    /// <summary>Skill ids the player does not want in the overlay (see <see cref="MeterSettings.AssistOverlayHidden"/>). The overlay leaves them out; the window lists them with an unticked box.</summary>
+    /// <summary>Keys the player does not want shown (see <see cref="MeterSettings.AssistOverlayHidden"/>).</summary>
     public HashSet<int> Hidden { get; set; } = new();
 
-    /// <summary>The window's box of a skill or effect was clicked: the id and whether the overlay shows it now.</summary>
-    public Action<int, bool>? ShowInOverlayChanged { get; set; }
+    /// <summary>The player's order (see <see cref="MeterSettings.AssistOrder"/>).</summary>
+    public IReadOnlyList<int> Order { get; set; } = Array.Empty<int>();
 
-    /// <summary>The window (not the overlay) shows a made-up list of a Gladiator while nothing is running, so the page is not empty without a game.</summary>
-    public bool SampleWhenEmpty { get; set; }
+    /// <summary>The circles with the least time left first (renewed auras, which never run out, last), instead of the player's order.</summary>
+    public bool SortByTime { get; set; }
 
-    /// <summary>Whether the last <see cref="Refresh"/> had a running cooldown or an effect to show.</summary>
+    /// <summary>Columns instead of rows.</summary>
+    public bool Vertical
+    {
+        get => Orientation == Orientation.Vertical;
+        set => Orientation = value ? Orientation.Vertical : Orientation.Horizontal;
+    }
+
+    /// <summary>Set: the circles can be dragged by hand; called with the dragged key, the key it was dropped at and whether it went behind that one.</summary>
+    public Action<int, int, bool>? Reorder { get; set; }
+
+    /// <summary>Called with the keys of everything running, to keep the lists of the assist window complete.</summary>
+    public Action<IReadOnlyList<int>>? Seen { get; set; }
+
+    /// <summary>Whether the last <see cref="Refresh"/> had a circle to show.</summary>
     public bool HasContent { get; private set; }
 
-    public void Refresh(Aion2EntityDirectory? dir)
+    public AssistPanel()
     {
-        LocalizationManager loc = LocalizationManager.Instance;
-        Children.Clear();
-        DateTime now = DateTime.Now; // the capture stamps its frames with the local clock
+        Orientation = Orientation.Horizontal;
+        ItemHeight = double.NaN;
+    }
 
-        // cooldowns: running ones first (the least left on top), then the ready skills
+    public void Refresh(Aion2EntityDirectory? dir) => Show(Collect(dir));
+
+    /// <summary>Shows the circles in the player's order (or by time left), without the hidden ones.</summary>
+    public void Show(IReadOnlyList<AssistItem> items)
+    {
+        Children.Clear();
+        IEnumerable<AssistItem> shown = items.Where(i => !Hidden.Contains(i.Key)).GroupBy(i => i.Key).Select(g => g.First());
+        if (SortByTime)
+        {
+            shown = shown.OrderBy(i => i.Endless ? 1 : 0).ThenBy(i => i.Endless ? 0 : i.Seconds);
+        }
+        else
+        {
+            var order = AssistKeys.Ordered(shown.Select(i => i.Key), Order);
+            shown = shown.OrderBy(i => order.IndexOf(i.Key));
+        }
+
+        HasContent = false;
+        foreach (AssistItem item in shown)
+        {
+            Children.Add(Slot(item));
+            HasContent = true;
+        }
+    }
+
+    /// <summary>Everything that is running now: cooldowns, follow-up skills, effects.</summary>
+    public IReadOnlyList<AssistItem> Collect(Aion2EntityDirectory? dir)
+    {
+        DateTime now = DateTime.Now; // the capture stamps its frames with the local clock
+        var result = new List<AssistItem>();
+
         (IReadOnlyList<CooldownEntry> entries, DateTime at) = Aion2Cooldowns.Last;
-        var running = new List<(int Id, double Seconds, double Fraction)>();
-        var ready = new List<int>();
         foreach (CooldownEntry e in entries)
         {
             if (e.Id < FirstSkillId || Aion2Artwork.IsPassive(e.Id))
@@ -87,104 +133,45 @@ public sealed class AssistPanel : StackPanel
                 continue;
             }
 
-            // the time left from the speed this skill's own numbers fall at (a stone, a stat or a Daevanion node may change it); still an estimate (~): the speed varies a little during a cooldown
+            // the time left from the speed this skill's own numbers fall at (a stone, a stat or a Daevanion node may change it); still an estimate: the speed varies a little during a cooldown
             (double left, double rate, _) = Aion2Cooldowns.Left(e.Id, e.Remaining, at, now);
             if (e.Remaining > 0 && left > 0)
             {
                 _peak[e.Id] = Math.Max(_peak.GetValueOrDefault(e.Id), e.Remaining);
-                if (_overlay && Hidden.Contains(e.Id))
-                {
-                    continue;
-                }
-
-                running.Add((e.Id, left, Math.Clamp(left * rate / _peak[e.Id], 0, 1)));
+                result.Add(new AssistItem(AssistKeys.Make(e.Id, false), left, Math.Clamp(left * rate / _peak[e.Id], 0, 1)));
             }
             else
             {
                 _peak.Remove(e.Id);
-                if (Aion2SkillNames.NameOf(e.Id) is { Length: > 0 } n && !long.TryParse(n, out _))
-                {
-                    ready.Add(e.Id);
-                }
-            }
-        }
-
-        bool sampleCooldowns = SampleWhenEmpty && !_overlay && running.Count == 0 && ready.Count == 0;
-        var cooldowns = new StackPanel();
-        cooldowns.Children.Add(Heading(loc["Assist.Cooldowns"]));
-        if (sampleCooldowns)
-        {
-            cooldowns.Children.Add(Row(11170000, Aion2SkillNames.DisplayOf(11170000), "~" + Seconds(3.4), 0.8, false));
-            cooldowns.Children.Add(Row(11050000, Aion2SkillNames.DisplayOf(11050000), "~" + Seconds(8.2), 0.6, false));
-            cooldowns.Children.Add(Row(11110000, Aion2SkillNames.DisplayOf(11110000), "~" + Seconds(21), 0.35, false));
-            cooldowns.Children.Add(Row(11040000, Aion2SkillNames.DisplayOf(11040000), loc["Assist.Ready"], 0, true));
-            cooldowns.Children.Add(Row(11090000, Aion2SkillNames.DisplayOf(11090000), loc["Assist.Ready"], 0, true));
-        }
-        else if (running.Count == 0 && (_overlay || ready.Count == 0))
-        {
-            if (!_overlay)
-            {
-                var empty = Label(loc["Assist.NoCooldowns"], "Brush.TextMuted", 12);
-                empty.TextWrapping = TextWrapping.Wrap;
-                cooldowns.Children.Add(empty);
-            }
-        }
-
-        foreach (var r in running.OrderBy(r => r.Seconds))
-        {
-            cooldowns.Children.Add(Row(r.Id, Aion2SkillNames.DisplayOf(r.Id), "~" + Seconds(r.Seconds), r.Fraction, false));
-        }
-
-        if (!_overlay)
-        {
-            foreach (int id in ready.OrderBy(i => i))
-            {
-                cooldowns.Children.Add(Row(id, Aion2SkillNames.DisplayOf(id), loc["Assist.Ready"], 0, true));
             }
         }
 
         // follow-up skills the game has just opened (chain skills, 3 s): the best moment to press them
-        var chains = new StackPanel();
-        chains.Children.Add(Heading(loc["Assist.Chain"]));
-        int chained = 0;
         foreach ((int skill, double left) in Aion2Chains.Available(now))
         {
-            if (_overlay && Hidden.Contains(skill))
-            {
-                continue;
-            }
-
-            chains.Children.Add(Row(skill, Aion2SkillNames.DisplayOf(skill), Seconds(left), Math.Clamp(left / Aion2Chains.Window.TotalSeconds, 0, 1), false));
-            chained++;
+            result.Add(new AssistItem(AssistKeys.Make(skill, false), left, Math.Clamp(left / Aion2Chains.Window.TotalSeconds, 0, 1)));
         }
 
-        // effects on the local player
-        var buffs = new StackPanel();
-        buffs.Children.Add(Heading(loc["Assist.Buffs"]));
-        int shown = 0;
+        // effects on the local player; one that another player put on you is the group's
         if (dir is not null && dir.LocalPlayerId is >= 0 and int self)
         {
-            // one row per effect: a short effect that is renewed all the time (the Chanter's mantras) gets a new instance or a new end every few
-            // seconds, so rows are kept in the order they first appeared and stay a moment after their end instead of vanishing and coming back
-            foreach (var group in dir.Combat.BuffsOn(self, now).GroupBy(b => b.SkillId))
+            // one circle per effect: a short effect that is renewed all the time (the Chanter's mantras) gets a new instance or a new end every few
+            // seconds, so circles are kept in the order they first appeared and stay a moment after their end instead of vanishing and coming back
+            foreach (var group in dir.Combat.BuffsOn(self, now).GroupBy(b => AssistKeys.Make(b.SkillId, b.Caster > 0 && b.Caster != self)))
             {
-                if (_overlay && Hidden.Contains(group.Key))
-                {
-                    continue; // unticked in the assist window
-                }
-
-                if (Aion2Artwork.IsPassiveEffect(group.Key))
+                int skill = AssistKeys.SkillOf(group.Key);
+                if (Aion2Artwork.IsPassiveEffect(skill))
                 {
                     continue; // a passive skill's standing effect (Identify Weakness, weapon training ...) is not something put on you
                 }
 
-                string english = Aion2SkillNames.NameOf(group.Key);
+                string english = Aion2SkillNames.NameOf(skill);
                 if (System.Text.RegularExpressions.Regex.IsMatch(english, @"^Test\d*_"))
                 {
                     continue; // an internal test state of the game's data (Test1_Greatsword_Maintarget_MaxLv1), not an effect the player knows
                 }
 
-                if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(group.Key) is null && Aion2Artwork.EffectIconPath(group.Key) is null)
+                if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(skill) is null && Aion2Artwork.EffectIconPath(skill) is null)
                 {
                     continue; // a nameless state (rest, speed ...) says nothing to the player
                 }
@@ -198,26 +185,15 @@ public sealed class AssistPanel : StackPanel
 
                 // a renewal: the end moved forward while the effect was still running. Renewed twice, a short effect is an aura.
                 (known.Renewals, known.Aura) = EffectAura.Next(known.Buff?.Ends, best.Ends, now, best.DurationMs, known.Renewals, known.Aura);
-
                 known.LastActive = now;
                 known.Buff = best;
             }
 
-            // by first appearance - or by time left: the running ones with the least left first, auras and effects without an end after them
-            IEnumerable<KeyValuePair<int, EffectRow>> ordered = _effects.OrderBy(kv => kv.Value.Order);
-            if (SortByTime)
-            {
-                ordered = _effects
-                    .OrderBy(kv => kv.Value.Aura || kv.Value.Buff is not { Ends: not null } ? 1 : 0)
-                    .ThenBy(kv => kv.Value.Aura || kv.Value.Buff is not { Ends: { } end } ? 0 : (end - now).TotalSeconds)
-                    .ThenBy(kv => kv.Value.Order);
-            }
-
-            foreach (var (skill, row) in ordered.ToList())
+            foreach (var (key, row) in _effects.OrderBy(kv => kv.Value.Order).ToList())
             {
                 if (now - row.LastActive > TimeSpan.FromSeconds(30))
                 {
-                    _effects.Remove(skill);
+                    _effects.Remove(key);
                     continue;
                 }
 
@@ -228,162 +204,185 @@ public sealed class AssistPanel : StackPanel
 
                 bool active = row.LastActive == now;
                 bool endless = row.Aura || b.Ends is null;
-                string time = !active ? Seconds(0) : endless ? "\u221E" : Seconds(Math.Max(0, (b.Ends!.Value - now).TotalSeconds));
+                double seconds = !active ? 0 : endless ? 0 : Math.Max(0, (b.Ends!.Value - now).TotalSeconds);
                 double fraction = active && !endless && b.Ends is { } e2 && b.DurationMs > 0 ? Math.Clamp((e2 - now).TotalMilliseconds / b.DurationMs, 0, 1) : 0;
-                buffs.Children.Add(Row(skill, Aion2SkillNames.DisplayOf(skill), time, fraction, false));
-                shown++;
+                result.Add(new AssistItem(key, seconds, fraction, active && endless));
             }
         }
 
-        bool sampleBuffs = SampleWhenEmpty && !_overlay && shown == 0;
-        if (sampleBuffs)
-        {
-            buffs.Children.Add(Row(11130000, Aion2SkillNames.DisplayOf(11130000), Seconds(42), 0.7, false));
-            buffs.Children.Add(Row(11120000, Aion2SkillNames.DisplayOf(11120000), Seconds(12), 0.4, false));
-            buffs.Children.Add(Row(11140000, Aion2SkillNames.DisplayOf(11140000), "\u221E", 0, false));
-        }
-        else if (shown == 0 && !_overlay)
-        {
-            buffs.Children.Add(Label(loc["Assist.NoBuffs"], "Brush.TextMuted", 12));
-        }
-
-        HasContent = running.Count > 0 || shown > 0 || chained > 0;
-        if (_overlay)
-        {
-            if (chained > 0)
-            {
-                chains.Margin = new Thickness(0, 0, 0, running.Count > 0 || shown > 0 ? 6 : 0);
-                Children.Add(chains);
-            }
-
-            if (running.Count > 0)
-            {
-                Children.Add(cooldowns);
-            }
-
-            if (shown > 0)
-            {
-                buffs.Margin = new Thickness(0, running.Count > 0 ? 6 : 0, 0, 0);
-                Children.Add(buffs);
-            }
-
-            return;
-        }
-
-        if (chained > 0)
-        {
-            Children.Add(Card(chains));
-        }
-
-        Children.Add(Card(cooldowns));
-        Children.Add(Card(buffs));
-        var note = Label(loc["Assist.Note"], "Brush.TextSubtle", 11);
-        note.TextWrapping = TextWrapping.Wrap;
-        Children.Add(note);
-        if (sampleCooldowns || sampleBuffs)
-        {
-            var sampleNote = Label(loc["Hub.Sample.Generic"], "Brush.TextMuted", 11.5);
-            sampleNote.TextWrapping = TextWrapping.Wrap;
-            sampleNote.Margin = new Thickness(0, 6, 0, 0);
-            Children.Add(sampleNote);
-        }
-    }
-
-    private static string Seconds(double s) =>
-        s >= 60 ? $"{(int)(s / 60)}:{(int)(s % 60):00}" : s >= 10 ? ((int)Math.Ceiling(s)).ToString(CultureInfo.CurrentCulture) + " s" : s.ToString("0.0", CultureInfo.CurrentCulture) + " s";
-
-    private TextBlock Heading(string text)
-    {
-        TextBlock block = Label(text, "Brush.Text", _overlay ? 11 : 14, bold: true);
-        block.Margin = new Thickness(0, 0, 0, _overlay ? 2 : 4);
-        return block;
-    }
-
-    private UIElement Row(int skillId, string name, string time, double fraction, bool ready)
-    {
-        var outer = new Grid { Margin = new Thickness(0, 2, 0, 2) };
-        UIElement result = outer;
-        var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        grid.RowDefinitions.Add(new RowDefinition());
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        outer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        outer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        Grid.SetColumn(grid, 1);
-        outer.Children.Add(grid);
-        if (!_overlay)
-        {
-            // the window: a box per row, ticked = the overlay shows it
-            var pick = new CheckBox
-            {
-                IsChecked = !Hidden.Contains(skillId), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0),
-                ToolTip = LocalizationManager.Instance["Assist.ShowInOverlay"],
-            };
-            pick.Click += (_, _) =>
-            {
-                bool shown = pick.IsChecked == true;
-                if (shown)
-                {
-                    Hidden.Remove(skillId);
-                }
-                else
-                {
-                    Hidden.Add(skillId);
-                }
-
-                grid.Opacity = shown ? 1 : 0.55;
-                ShowInOverlayChanged?.Invoke(skillId, shown);
-            };
-            grid.Opacity = pick.IsChecked == true ? 1 : 0.55;
-            outer.Children.Add(pick);
-        }
-
-        double size = _overlay ? 24 : 28;
-        var icon = new Image { Width = size, Height = size, Margin = new Thickness(0, 0, 8, 0), Source = Picture(Aion2SkillIcons.PathFor(skillId) ?? Aion2Artwork.EffectIconPath(skillId)) };
-        Grid.SetRowSpan(icon, 2);
-        grid.Children.Add(icon);
-
-        TextBlock label = Label(name, ready ? "Brush.TextSubtle" : "Brush.Text", _overlay ? 12.5 : 13);
-        label.TextTrimming = TextTrimming.CharacterEllipsis;
-        if (!_overlay)
-        {
-            // the window (not the overlay) names the skill or effect id next to the name: what the game reports, for nameless or doubled names ("Attack")
-            var id = new System.Windows.Documents.Run("  #" + skillId) { FontSize = 11 };
-            id.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Brush.TextMuted");
-            label.Inlines.Add(id);
-        }
-
-        Grid.SetColumn(label, 1);
-        grid.Children.Add(label);
-
-        TextBlock value = Label(time, ready ? "Brush.TextSubtle" : "Brush.Accent", _overlay ? 12.5 : 13, bold: !ready);
-        value.Margin = new Thickness(12, 0, 0, 0);
-        Grid.SetColumn(value, 2);
-        grid.Children.Add(value);
-
-        if (fraction > 0)
-        {
-            var bar = new ProgressBar { Minimum = 0, Maximum = 1, Value = fraction, Height = 4, Margin = new Thickness(0, 2, 0, 0), BorderThickness = new Thickness(0) };
-            if (_overlay)
-            {
-                bar.Foreground = OverlayAccent;
-                bar.Background = new SolidColorBrush(Color.FromArgb(0x60, 0x29, 0x45, 0x57));
-            }
-            else
-            {
-                bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
-                bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
-            }
-
-            Grid.SetRow(bar, 1);
-            Grid.SetColumn(bar, 1);
-            Grid.SetColumnSpan(bar, 2);
-            grid.Children.Add(bar);
-        }
-
+        Seen?.Invoke(result.Select(r => r.Key).ToList());
         return result;
+    }
+
+    /// <summary>Made-up circles of a Gladiator for the preview while nothing is running: three of the player's own cooldowns and effects, two of the group's.</summary>
+    public static IReadOnlyList<AssistItem> Sample() => new[]
+    {
+        new AssistItem(AssistKeys.Make(11170000, false), 4, 0.8),
+        new AssistItem(AssistKeys.Make(11050000, false), 8, 0.6),
+        new AssistItem(AssistKeys.Make(11110000, false), 21, 0.35),
+        new AssistItem(AssistKeys.Make(11130000, true), 42, 0.7),
+        new AssistItem(AssistKeys.Make(11120000, true), 12, 0.4),
+        new AssistItem(AssistKeys.Make(11140000, false), 0, 0, true),
+    };
+
+    /// <summary>What the lists of the assist window offer while the game never ran: the preview's circles and a few more.</summary>
+    public static IReadOnlyList<int> SampleCatalog() => Sample().Select(i => i.Key).Concat(new[]
+    {
+        AssistKeys.Make(11040000, false), AssistKeys.Make(11090000, false), AssistKeys.Make(11040000, true),
+    }).Distinct().ToList();
+
+    /// <summary>"4" (3.4 s rounds up), "99", "2m" from 100 s on, "∞" for an endless effect.</summary>
+    internal static string Number(AssistItem item)
+    {
+        if (item.Endless)
+        {
+            return "∞";
+        }
+
+        int s = (int)Math.Ceiling(item.Seconds);
+        return s >= 100 ? ((int)Math.Ceiling(s / 60.0)).ToString(CultureInfo.InvariantCulture) + "m" : s.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static Color ThemeColor(string resource, Color fallback) =>
+        Application.Current?.TryFindResource(resource) is SolidColorBrush brush ? brush.Color : fallback;
+
+    private static Point OnCircle(double cx, double cy, double r, double degrees)
+    {
+        double rad = degrees * Math.PI / 180;
+        return new Point(cx + r * Math.Sin(rad), cy - r * Math.Cos(rad));
+    }
+
+    private UIElement Slot(AssistItem item)
+    {
+        double s = Size;
+        double c = s / 2;
+        double ring = 3.5;
+        double iconR = c - ring - 1.5;
+        Color accent = item.Group ? GroupColor : ThemeColor("Brush.Accent", FallbackAccent);
+        var grid = new Grid { Width = s, Height = s, Margin = new Thickness(4), Background = Brushes.Transparent, Tag = item.Key };
+
+        // the icon, round
+        BitmapImage? picture = Picture(Aion2SkillIcons.PathFor(item.SkillId) ?? Aion2Artwork.EffectIconPath(item.SkillId));
+        grid.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Width = iconR * 2, Height = iconR * 2,
+            Fill = picture is null ? new SolidColorBrush(Color.FromRgb(0x20, 0x30, 0x3C)) : new ImageBrush(picture) { Stretch = Stretch.UniformToFill },
+        });
+
+        double fraction = item.Endless ? 1 : Math.Clamp(item.Fraction, 0, 1);
+
+        // the clock: what is left is dark over the icon, shrinking clockwise
+        if (!item.Endless && fraction > 0 && fraction < 0.999)
+        {
+            double start = (1 - fraction) * 360;
+            var fig = new PathFigure { StartPoint = new Point(c, c), IsClosed = true };
+            fig.Segments.Add(new LineSegment(OnCircle(c, c, iconR, start), false));
+            fig.Segments.Add(new ArcSegment(OnCircle(c, c, iconR, 360), new Size(iconR, iconR), 0, fraction > 0.5, SweepDirection.Clockwise, false));
+            grid.Children.Add(new System.Windows.Shapes.Path
+            {
+                Data = new PathGeometry(new[] { fig }), Fill = new SolidColorBrush(Color.FromArgb(0xA8, 0, 0, 0)), IsHitTestVisible = false,
+                Width = s, Height = s, Stretch = Stretch.None,
+            });
+        }
+        else if (!item.Endless && fraction >= 0.999)
+        {
+            grid.Children.Add(new System.Windows.Shapes.Ellipse { Width = iconR * 2, Height = iconR * 2, Fill = new SolidColorBrush(Color.FromArgb(0xA8, 0, 0, 0)) });
+        }
+
+        // the ring: dim track, and the time left in the accent colour
+        grid.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Width = s - ring, Height = s - ring, StrokeThickness = ring, Stroke = new SolidColorBrush(Color.FromArgb(0x38, 0xFF, 0xFF, 0xFF)),
+        });
+        double ringR = (s - ring) / 2;
+        if (item.Endless || fraction >= 0.999)
+        {
+            grid.Children.Add(new System.Windows.Shapes.Ellipse { Width = s - ring, Height = s - ring, StrokeThickness = ring, Stroke = new SolidColorBrush(accent) });
+        }
+        else if (fraction > 0)
+        {
+            double start = (1 - fraction) * 360;
+            var fig = new PathFigure { StartPoint = OnCircle(c, c, ringR, start), IsClosed = false };
+            fig.Segments.Add(new ArcSegment(OnCircle(c, c, ringR, 359.99), new Size(ringR, ringR), 0, fraction > 0.5, SweepDirection.Clockwise, true));
+            grid.Children.Add(new System.Windows.Shapes.Path
+            {
+                Data = new PathGeometry(new[] { fig }), Stroke = new SolidColorBrush(accent), StrokeThickness = ring,
+                StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, Width = s, Height = s, Stretch = Stretch.None,
+            });
+        }
+
+        // the number: the theme's text colour with an outline that stands out from it (dark round a light colour, light round a dark one)
+        Color text = ThemeColor("Brush.Text", FallbackText);
+        bool lightText = (0.299 * text.R + 0.587 * text.G + 0.114 * text.B) > 140;
+        Color outline = lightText ? Color.FromRgb(0x05, 0x0A, 0x0F) : Color.FromRgb(0xF4, 0xEC, 0xDA);
+        UIElement number = OutlinedText(Number(item), 20, text, outline);
+        if (number is FrameworkElement fe)
+        {
+            fe.HorizontalAlignment = HorizontalAlignment.Right;
+            fe.VerticalAlignment = VerticalAlignment.Bottom;
+            fe.Margin = new Thickness(0, 0, -6, -6);
+        }
+
+        grid.Children.Add(number);
+        if (Reorder is not null)
+        {
+            Interactive(grid, item.Key);
+        }
+
+        return grid;
+    }
+
+    /// <summary>Text drawn as an outlined shape: readable on every background without a frame behind it.</summary>
+    private static UIElement OutlinedText(string text, double size, Color fill, Color outline)
+    {
+        var typeface = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.ExtraBold, FontStretches.Normal);
+        var formatted = new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, size, Brushes.White, 1.0);
+        Geometry geometry = formatted.BuildGeometry(new Point(0, 0));
+        double w = formatted.Width + 6, h = formatted.Height + 6;
+        var box = new Grid { Width = w, Height = h, IsHitTestVisible = false };
+        var under = new System.Windows.Shapes.Path
+        {
+            Data = geometry, Stroke = new SolidColorBrush(outline), StrokeThickness = 4, StrokeLineJoin = PenLineJoin.Round, Width = w, Height = h, Stretch = Stretch.None,
+            RenderTransform = new TranslateTransform(3, 3),
+        };
+        var over = new System.Windows.Shapes.Path
+        {
+            Data = geometry, Fill = new SolidColorBrush(fill), Width = w, Height = h, Stretch = Stretch.None, RenderTransform = new TranslateTransform(3, 3),
+        };
+        box.Children.Add(under);
+        box.Children.Add(over);
+        return box;
+    }
+
+    /// <summary>The circle can be picked up and dropped before or behind another one.</summary>
+    private void Interactive(Grid slot, int key)
+    {
+        slot.Cursor = System.Windows.Input.Cursors.Hand;
+        slot.AllowDrop = true;
+        slot.PreviewMouseLeftButtonDown += (_, e) => _dragStart = e.GetPosition(this);
+        slot.MouseMove += (_, e) =>
+        {
+            if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed)
+            {
+                return;
+            }
+
+            Vector moved = e.GetPosition(this) - _dragStart;
+            if (Math.Abs(moved.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(moved.Y) > SystemParameters.MinimumVerticalDragDistance)
+            {
+                DragDrop.DoDragDrop(slot, new DataObject("aiondps-assist-key", key), DragDropEffects.Move);
+            }
+        };
+        slot.DragOver += (_, e) => e.Effects = e.Data.GetDataPresent("aiondps-assist-key") ? DragDropEffects.Move : DragDropEffects.None;
+        slot.Drop += (_, e) =>
+        {
+            if (e.Data.GetData("aiondps-assist-key") is int moved && moved != key)
+            {
+                Point at = e.GetPosition(slot);
+                bool after = Vertical ? at.Y > slot.ActualHeight / 2 : at.X > slot.ActualWidth / 2;
+                Reorder?.Invoke(moved, key, after);
+            }
+        };
     }
 
     private BitmapImage? Picture(string? path)
@@ -402,7 +401,7 @@ public sealed class AssistPanel : StackPanel
                 image.BeginInit();
                 image.CacheOption = BitmapCacheOption.OnLoad;
                 image.UriSource = new Uri(path, UriKind.Absolute);
-                image.DecodePixelWidth = 56;
+                image.DecodePixelWidth = 96;
                 image.EndInit();
                 image.Freeze();
             }
@@ -411,28 +410,5 @@ public sealed class AssistPanel : StackPanel
         }
 
         return image;
-    }
-
-    private TextBlock Label(string text, string brush, double size, bool bold = false)
-    {
-        var block = new TextBlock { Text = text, FontSize = size, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, VerticalAlignment = VerticalAlignment.Center };
-        if (_overlay)
-        {
-            block.Foreground = brush switch { "Brush.Accent" => OverlayAccent, "Brush.Text" => OverlayText, _ => OverlayMuted };
-        }
-        else
-        {
-            block.SetResourceReference(TextBlock.ForegroundProperty, brush);
-        }
-
-        return block;
-    }
-
-    private static Border Card(UIElement child)
-    {
-        var border = new Border { BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Padding = new Thickness(14, 8, 14, 8), Margin = new Thickness(0, 0, 0, 6), Child = child };
-        border.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
-        border.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-        return border;
     }
 }
