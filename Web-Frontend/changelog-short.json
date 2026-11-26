@@ -430,5 +430,9 @@
  "file dialogs (Save locally of the farm map pictures, sessions, themes, comparisons) no longer crash from the new interface": {
   "en": "Fixed crash in file dialogs",
   "de": "Absturz in Datei-Dialogen behoben"
+ },
+ "Skill Assist reworked (icons with clock ring, three lists, drag and drop, rows or columns), the look Own is usable on an empty page": {
+  "en": "Skill Assist reworked, look Own usable at once",
+  "de": "Skill Assist überarbeitet, Look Eigene sofort benutzbar"
  }
 }

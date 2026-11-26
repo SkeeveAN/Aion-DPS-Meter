@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.3.3",
   "date": "2026-11-26",
   "items": [
    {
@@ -19,6 +19,13 @@
    },
    {
     "text": "Picture modes for the features page: render-tool draws the hub pages, the overlay designer's bar, panel and plus, sample sessions and a made-up account with mock names",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-26"
+   },
+   {
+    "text": "Skill Assist reworked (icons with clock ring, three lists, drag and drop, rows or columns), the look Own is usable on an empty page",
     "areas": [
      "Client"
     ],
