@@ -530,6 +530,8 @@ public sealed class PetMapController : IDisposable
             }
         }
 
+        bool estimated = known && directory is not null && !directory.PositionIsExact;
+        _map.MeEstimated = estimated;
         _map.MeHeading = _heading;
         _map.ShowRoads = settings.PetMapRoads;
         _map.CubeHeights = cubeHeights;
@@ -540,6 +542,7 @@ public sealed class PetMapController : IDisposable
             _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _pointsShown, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows, guards);
             foreach (var view in _mapViews)
             {
+                view.MeEstimated = estimated;
                 view.MeHeading = _heading;
                 view.ShowRoads = settings.PetMapRoads;
                 view.CubeHeights = cubeHeights;

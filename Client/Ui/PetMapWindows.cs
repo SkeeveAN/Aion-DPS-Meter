@@ -658,6 +658,10 @@ public sealed class PetMapWindow : MovableOverlay
     /// <summary>The way the player's arrow points, in degrees clockwise from straight up (the direction he moves in).</summary>
     public double MeHeading { get; set; }
     private readonly TextBlock _meUnknown;
+    private readonly Ellipse _meRing = new() { Width = 34, Height = 34, Stroke = Brushes.White, StrokeThickness = 1.6, StrokeDashArray = new DoubleCollection { 2, 2 }, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+
+    /// <summary>The place is only a guess (no fresh exact report from the game): the arrow is drawn pale with a dashed ring round it.</summary>
+    public bool MeEstimated { get; set; }
 
     public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize, OverlayEdgeMode.CropAnchored)
     {
@@ -668,6 +672,9 @@ public sealed class PetMapWindow : MovableOverlay
         };
         Canvas.SetLeft(_me, ViewSize / 2);
         Canvas.SetTop(_me, ViewSize / 2);
+        Panel.SetZIndex(_me, 20); // over the cube marks (5) and the guards (6)
+        Panel.SetZIndex(_meRing, 19);
+        _canvas.Children.Add(_meRing);
         _canvas.Children.Add(_me);
         _meUnknown = new TextBlock
         {
@@ -677,6 +684,7 @@ public sealed class PetMapWindow : MovableOverlay
         };
         Canvas.SetLeft(_meUnknown, ViewSize / 2 - 14);
         Canvas.SetTop(_meUnknown, ViewSize / 2 - 20);
+        Panel.SetZIndex(_meUnknown, 20);
         _canvas.Children.Add(_meUnknown);
         Body = new Grid { Children = { _tileLayer, _canvas } };
     }
@@ -1194,6 +1202,10 @@ public sealed class PetMapWindow : MovableOverlay
         Canvas.SetTop(_meUnknown, cy - 20);
         // the player on top; a "?" instead of the arrow when the position is not known (the view then shows the last one)
         _me.Visibility = positionKnown ? Visibility.Visible : Visibility.Collapsed;
+        _me.Opacity = MeEstimated ? 0.6 : 1.0;
+        _meRing.Visibility = positionKnown && MeEstimated ? Visibility.Visible : Visibility.Collapsed;
+        Canvas.SetLeft(_meRing, cx - 17);
+        Canvas.SetTop(_meRing, cy - 17);
         _meUnknown.Visibility = positionKnown ? Visibility.Collapsed : Visibility.Visible;
         _canvas.Children.Remove(_me);
         _canvas.Children.Add(_me);

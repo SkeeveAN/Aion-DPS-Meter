@@ -759,6 +759,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private readonly Queue<(DateTime At, float X, float Y)> _recentSpawns = new();
 
+    /// <summary>True while <see cref="BestPosition"/> is a fresh exact report of the game; false when it is only the guess from the entities around.</summary>
+    public bool PositionIsExact
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _position is { } fix && Now - fix.At <= FixTrust;
+            }
+        }
+    }
+
     /// <summary>
     /// The best guess of where the player is: the server reports the player's own position only at skills, hits and corrections, but it announces every
     /// monster and player that comes into range (a radius of roughly 65 m) with its place and moves them with the movement frames. A fresh exact report
