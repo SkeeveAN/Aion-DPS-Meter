@@ -1058,23 +1058,11 @@ internal static class Program
         Environment.Exit(0);
     }
 
-    /// <summary>Draws the session manager with a day of invented stays into a picture; no window is shown.</summary>
-    private static void RunRenderSessionsMode(string path, int args_selected = 1, string? analyzerTab = null)
+    /// <summary>A day of invented stays (two instances with a boss) for the pictures of the session manager.</summary>
+    internal static History.SessionRecorder BuildSampleSessionRecorder()
     {
-        var app = new System.Windows.Application();
-        var settings = Ui.MeterSettings.Load();
-        if (settings.Language.Length > 0)
-        {
-            Ui.LocalizationManager.Instance.Language = settings.Language;
-        }
-
-        Ui.ThemeManager.Apply(app, settings);
-        Ui.MainWindow.Headless = true;
-        app.Resources.MergedDictionaries.Add(
-            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
-
         var recorder = new History.SessionRecorder(zone => Aion2.Protocol.Aion2Zones.IsInstance(zone) ? History.SessionKind.Instance : History.SessionKind.Map);
-        var names = new Dictionary<int, (string Name, string Class)> { [1] = ("Skeeve", "Sorcerer"), [2] = ("Aahz", "Gladiator"), [3] = ("Chumley", "Cleric"), [4] = ("Nunzio", "Assassin") };
+        var names = new Dictionary<int, (string Name, string Class)> { [1] = ("Kaelith", "Sorcerer"), [2] = ("Veyra", "Gladiator"), [3] = ("Brannoc", "Cleric"), [4] = ("Mirune", "Assassin") };
         recorder.Identify = id => names.TryGetValue(id, out var n) ? (n.Name, n.Class) : (id == 100 ? "Ruthilis of Pain" : null, null);
         var random = new Random(3);
         DateTime day = DateTime.Today.AddHours(7);
@@ -1122,6 +1110,25 @@ internal static class Program
             at = at.AddMinutes(minutes);
         }
 
+        return recorder;
+    }
+
+    /// <summary>Draws the session manager with a day of invented stays into a picture; no window is shown.</summary>
+    private static void RunRenderSessionsMode(string path, int args_selected = 1, string? analyzerTab = null)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+
+        var recorder = BuildSampleSessionRecorder();
         recorder.Sessions[1].IsSaved = true;
         var window = new Ui.SessionManagerWindow(recorder);
         window.AnalyzerFactory = (session, row, mode, boss) => analyzerTab is not null ? CreateSampleDetails(analyzerTab, row.Name, row.ClassName) : new Ui.PlayerDetailsView(row.Name, row.ClassName, "",
@@ -1177,7 +1184,7 @@ internal static class Program
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
 
         var recorder = new History.SessionRecorder(zone => Aion2.Protocol.Aion2Zones.IsInstance(zone) ? History.SessionKind.Instance : History.SessionKind.Map);
-        recorder.Identify = id => id switch { 1 => ("Skeeve", "Sorcerer"), 2 => ("Aahz", "Sorcerer"), 100 => ("Ruthilis of Pain", null), _ => (null, null) };
+        recorder.Identify = id => id switch { 1 => ("Kaelith", "Sorcerer"), 2 => ("Veyra", "Sorcerer"), 100 => ("Ruthilis of Pain", null), _ => (null, null) };
         recorder.IdentifyPlayer = id => id == 1 ? new History.PlayerMeta(24_900_123, 1303, 169_620) : id == 2 ? new History.PlayerMeta(24_900_456, 1303, 151_300) : null;
         var random = new Random(5);
         DateTime start = DateTime.Today.AddHours(20);
@@ -1267,7 +1274,7 @@ internal static class Program
     }
 
     /// <summary>A player's details with made-up fights (five real Sorcerer skills with their icons), for the pictures of the details window and of the session manager.</summary>
-    private static Ui.PlayerDetailsView CreateSampleDetails(string tab, string name, string className)
+    internal static Ui.PlayerDetailsView CreateSampleDetails(string tab, string name, string className)
     {
         var random = new Random(7);
         var events = new List<Combat.DamageEvent>();
@@ -1715,7 +1722,7 @@ internal static class Program
             Aion2.Aion2Tickets.TryParseList(Convert.FromHexString(Combat.SelfCheckTickets.SampleLogin), out var entries);
             var t0 = DateTime.Now;
             Aion2.Aion2Tickets.ReceiveList(entries, t0);
-            Aion2.Aion2Tickets.NoteCharacter("Chumley", 1304, t0.AddSeconds(4));
+            Aion2.Aion2Tickets.NoteCharacter("Brannoc", 1304, t0.AddSeconds(4));
             // a second character that has used a lot: the Odyle energy is down and the bonus is in use, some counters are used up
             Aion2.Aion2Tickets.ReceiveList(entries, t0.AddSeconds(10));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.OdyleId, new Aion2.TicketValue(75, 520, 0)), t0.AddSeconds(11));
@@ -1723,9 +1730,9 @@ internal static class Program
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(102, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.MissionsId, new Aion2.TicketValue(5, 5, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.PremiumId, new Aion2.TicketValue(0, 0, DateTimeOffset.UtcNow.AddHours(16 * 24 + 20).ToUnixTimeMilliseconds())), t0.AddSeconds(11));
-            Aion2.ChecklistManual.NoteCorridorEntry("Aahz", 503001, DateTime.Now);
-            Aion2.ChecklistManual.NoteCorridorEntry("Aahz", 503002, DateTime.Now);
-            Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14), level: 28); // a level 28 character: the daily dungeon (30) and the level 45 contents are still locked
+            Aion2.ChecklistManual.NoteCorridorEntry("Veyra", 503001, DateTime.Now);
+            Aion2.ChecklistManual.NoteCorridorEntry("Veyra", 503002, DateTime.Now);
+            Aion2.Aion2Tickets.NoteCharacter("Veyra", 1304, t0.AddSeconds(14), level: 28); // a level 28 character: the daily dungeon (30) and the level 45 contents are still locked
         }
 
         int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) && sc is >= 1 and <= 4 ? sc : 1; // 2 = a sharp picture for the website
@@ -3067,14 +3074,22 @@ internal static class Program
         Ui.MainWindow.Headless = true;
         var map = Aion2.Protocol.Aion2Maps.All.Concat(Aion2.Protocol.Aion2Maps.Instances).First(m => m.Key == mapKey);
         var chosen = settings.PetMapPets.Count > 0 ? settings.PetMapPets.ToHashSet() : new HashSet<int> { 1170, 1162, 1171, 1219 };
-        var points = Aion2.Protocol.Aion2Maps.PointsOf(map, chosen);
+        var points = Aion2.Protocol.Aion2Maps.PointsOf(map, chosen).ToList();
+        if (Environment.GetEnvironmentVariable("AIONDPS_AUTO_CENTER") is { Length: > 0 } && points.Count > 0)
+        {
+            // the picture is centred where the most spawn points lie close together
+            var best = points.OrderByDescending(a => points.Count(b => Math.Abs(a.X - b.X) < 12000 && Math.Abs(a.Y - b.Y) < 12000)).First();
+            x = best.X;
+            y = best.Y;
+        }
+
         var pets = points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
         var colors = pets.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => Ui.PetMapPalette.Of(t.i));
         var window = new Ui.PetMapWindow();
         // AIONDPS_CUBES="dx,dy,dz;..." (metres from the player): sample Hidden Cubes with their heights, for the test picture
         var sampleCubes = (Environment.GetEnvironmentVariable("AIONDPS_CUBES") ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries)
             .Select(t => t.Split(',').Select(v => double.Parse(v, System.Globalization.CultureInfo.InvariantCulture)).ToArray()).Where(a => a.Length == 3).ToList();
-        if ((guards || sampleCubes.Count > 0) && window.Content is System.Windows.UIElement root)
+        if ((guards || sampleCubes.Count > 0 || Environment.GetEnvironmentVariable("AIONDPS_AUTO_CENTER") is { Length: > 0 }) && window.Content is System.Windows.UIElement root)
         {
             // never shown: lay the frame out once so that the map knows how much of itself is visible
             root.Measure(new System.Windows.Size(Ui.PetMapWindow.ViewSize, Ui.PetMapWindow.ViewSize));
@@ -3084,6 +3099,12 @@ internal static class Program
 
         // sample "live" monsters: every 7th spawn point within 120 m stands there right now
         var live = points.Where(p => Math.Abs(p.X - x) < 12000 && Math.Abs(p.Y - y) < 12000).Where((p, i) => i % 7 == 0).ToList();
+        if (Environment.GetEnvironmentVariable("AIONDPS_LIVE_ONLY") is { Length: > 0 })
+        {
+            // around the player the game sends what stands there right now: there the map shows only those monsters, the unfilled spawn points are only outside that radius
+            points = points.Where(p => Math.Abs(p.X - x) >= 12000 || Math.Abs(p.Y - y) >= 12000 || live.Contains(p)).ToList();
+        }
+
         window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors,
             Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.Items().Where(i => i.Count > 0).Select(i => i.Key).ToHashSet()),
             guards: guards ? new List<(float X, float Y)> { ((float)x + 1500, (float)y + 700), ((float)x - 1200, (float)y - 400), ((float)x - 30000, (float)y + 5000), ((float)x + 9000, (float)y - 21000) } : null);

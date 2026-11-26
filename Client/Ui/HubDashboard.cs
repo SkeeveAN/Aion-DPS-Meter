@@ -728,7 +728,7 @@ public static class HubDashboard
         if (lines.Count == 0)
         {
             timeline.Children.Add(MockTag());
-            lines.Add(new TimelineChart.Series(_statCharacter.Length > 0 ? _statCharacter : "Aahz", TimelineChart.Palette[0], TimelineChart.Sample()));
+            lines.Add(new TimelineChart.Series(_statCharacter.Length > 0 ? _statCharacter : "Veyra", TimelineChart.Palette[0], TimelineChart.Sample()));
         }
 
         timeline.Children.Add(TimelineChart.Build(lines, withPower: lines.Count == 1));
@@ -741,9 +741,9 @@ public static class HubDashboard
             DateTime t = DateTime.Now;
             shown = new List<StayRecord>
             {
-                new(t.AddHours(-3), t.AddHours(-3).AddMinutes(12), 600093, SessionKind.Instance, 5000, new List<AttemptRecord> { new("Predator Saraswati", t.AddHours(-3), t.AddHours(-3).AddMinutes(2), 18_591_030, true), new("Transcendent Bakarma", t.AddHours(-3).AddMinutes(4), t.AddHours(-3).AddMinutes(6), 28_000_755, true) }, "Aahz"),
-                new(t.AddDays(-1), t.AddDays(-1).AddMinutes(15), 600093, SessionKind.Instance, 6000, new List<AttemptRecord> { new("Phantasmal Lakshmi", t.AddDays(-1), t.AddDays(-1).AddMinutes(2), 18_583_016, true) }, "Aahz"),
-                new(t.AddDays(-2), t.AddDays(-2).AddMinutes(9), 600033, SessionKind.Instance, 3000, new List<AttemptRecord>(), "Nunzio"),
+                new(t.AddHours(-3), t.AddHours(-3).AddMinutes(12), 600093, SessionKind.Instance, 5000, new List<AttemptRecord> { new("Predator Saraswati", t.AddHours(-3), t.AddHours(-3).AddMinutes(2), 18_591_030, true), new("Transcendent Bakarma", t.AddHours(-3).AddMinutes(4), t.AddHours(-3).AddMinutes(6), 28_000_755, true) }, "Veyra"),
+                new(t.AddDays(-1), t.AddDays(-1).AddMinutes(15), 600093, SessionKind.Instance, 6000, new List<AttemptRecord> { new("Phantasmal Lakshmi", t.AddDays(-1), t.AddDays(-1).AddMinutes(2), 18_583_016, true) }, "Veyra"),
+                new(t.AddDays(-2), t.AddDays(-2).AddMinutes(9), 600033, SessionKind.Instance, 3000, new List<AttemptRecord>(), "Mirune"),
             };
         }
 
@@ -792,7 +792,7 @@ public static class HubDashboard
         if (progress.Children.Count == 0)
         {
             progress.Children.Add(MockTag());
-            progress.Children.Add(Line("Aahz", string.Format(loc["Hub.Stats.Since"], DateTime.Now.AddDays(-20).ToString("dd.MM.yyyy")), true));
+            progress.Children.Add(Line("Veyra", string.Format(loc["Hub.Stats.Since"], DateTime.Now.AddDays(-20).ToString("dd.MM.yyyy")), true));
             progress.Children.Add(Line("      " + loc["Hub.Stats.Level"], "43 → 45"));
             progress.Children.Add(Line("      " + loc["Hub.Stats.ItemLevel"], "2780 → 3011"));
         }

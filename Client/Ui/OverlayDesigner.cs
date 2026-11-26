@@ -825,6 +825,9 @@ internal sealed class DesignerPlus : Window
         Top = _anchor.Y - ActualHeight;
     }
 
+    /// <summary>For the picture of the designer: the palette of the plus opened.</summary>
+    internal void OpenForPicture() => TogglePalette();
+
     private void TogglePalette()
     {
         bool open = _palette.Visibility != Visibility.Visible;

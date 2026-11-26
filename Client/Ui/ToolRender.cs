@@ -14,6 +14,15 @@ public static class ToolRender
 {
     public static void Run(string path, string what)
     {
+        if (Environment.GetEnvironmentVariable("AIONDPS_CULTURE") is { Length: > 0 } cultureName)
+        {
+            // numbers and dates of a language's country (en-US: 2,160), not the ones of this computer
+            var culture = new System.Globalization.CultureInfo(cultureName);
+            System.Globalization.CultureInfo.CurrentCulture = culture;
+            System.Globalization.CultureInfo.CurrentUICulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+        }
+
         var app = new Application();
         app.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         MeterSettings settings = MeterSettings.Load();
@@ -57,6 +66,30 @@ public static class ToolRender
                     Padding = new Thickness(24), Background = new LinearGradientBrush(Color.FromRgb(0x3a, 0x4a, 0x3a), Color.FromRgb(0x24, 0x30, 0x40), 45),
                     Child = new Border { Child = body, HorizontalAlignment = HorizontalAlignment.Left },
                 };
+                width = 0;
+                height = 0;
+                break;
+            }
+
+            case "designerplus":
+            {
+                // the plus of the overlay designer with its list opened (what can still be added: overlays, widgets, pages)
+                var plus = new DesignerPlus(() => { });
+                plus.OpenForPicture();
+                shown = (FrameworkElement)plus.Content;
+                plus.Content = null;
+                width = 0;
+                height = 0;
+                break;
+            }
+
+            case "designerbar":
+            case "designerpanel":
+            {
+                // the two parts of the overlay designer that are windows of their own: its bar and the panel of an overlay (its gear), drawn see-through for the pictures
+                Window part = what == "designerbar" ? new DesignerBar(() => { }) : new OpacityPanel(OverlayPlaces.WorldBoss, () => { });
+                shown = (FrameworkElement)part.Content;
+                part.Content = null;
                 width = 0;
                 height = 0;
                 break;
@@ -114,7 +147,7 @@ public static class ToolRender
                 if (parts.Length >= 4 && parts[3] == "warm")
                 {
                     // the picture of the statistics with what the website says: ask first, wait for the answer
-                    foreach (string name in new[] { "Aahz", "Nunzio", "Chumley", "Skeeve", "Massha" })
+                    foreach (string name in new[] { "Veyra", "Mirune", "Brannoc", "Kaelith", "Torvald" })
                     {
                         Upload.RunStatsClient.Get(name, "Europe - Kaisinel", null);
                     }
@@ -122,8 +155,8 @@ public static class ToolRender
                     System.Threading.Thread.Sleep(7000);
                 }
 
-                var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "weekpoints" ? WeekPointsPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, PanelOfSettings, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : null, _ => { }, none, none,
-                    () => new HubStatus(parts.Length < 4 || parts[3] != "off", "Aahz", "Gladiator", "Kaisinel (EU)"));
+                var hubWindow = new HubWindow(id => id == "petmap" ? new ToolPage { Content = new TextBlock { Text = "(the map as it is shown)", Margin = new Thickness(20), Foreground = Brushes.Gray } } : id == "checklist" ? ChecklistPage() : id == "weekpoints" ? WeekPointsPage() : id == "timetable" ? TimetablePage(loc, none, applied) : id == "stream" ? StreamPage(loc, none, applied) : id == "dummy" ? DummyPage(false, false) : id == "hub.client.NavHotkeys" ? new ToolPage { Content = ClientHotkeysPage.Build(applied) } : id.StartsWith("hub.client.", StringComparison.Ordinal) ? SettingsPage(id["hub.client.".Length..]) : id == "hub.settings" ? SettingsPage(null) : id.StartsWith("hub.cfg.", StringComparison.Ordinal) ? ToolSettingsPage.Build(id["hub.cfg.".Length..], applied, PanelOfSettings, () => null, null) : id == "hub.live" ? LivePage() : id == "hub.sessions" ? SessionsPage() : id == "hub.compare" ? MainWindow.TakeWithStyles(new CompareWindow(new History.SessionRecorder(_ => History.SessionKind.Map), x => null, f => throw new InvalidOperationException(), null)) : FallbackPage(id), _ => { }, none, none,
+                    () => new HubStatus(parts.Length < 4 || parts[3] != "off", "Veyra", "Gladiator", "Kaisinel (EU)"));
                 if (Environment.GetEnvironmentVariable("AIONDPS_HUB_SIZE") is { Length: > 0 } size && size.Split('x') is { Length: 2 } wh)
                 {
                     hubWindow.Width = double.Parse(wh[0]);
@@ -143,6 +176,7 @@ public static class ToolRender
                     var meterWindow = new MainWindow();
                     var build = typeof(MainWindow).GetMethod("BuildMeterView", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
                     hubWindow.MeterSampleView = () => (UIElement)build.Invoke(meterWindow, new object[] { true })!;
+                    hubWindow.MeterView = () => (UIElement)build.Invoke(meterWindow, new object[] { true })!; // the dashboard's meter widget shows the same list
                 }
 
                 if (parts.Length >= 3)
@@ -234,31 +268,55 @@ public static class ToolRender
         Environment.Exit(0);
     }
 
-    private static ToolPage SessionsPage() => MainWindow.TakeWithStyles(new SessionManagerWindow(new History.SessionRecorder(_ => History.SessionKind.Map)));
+    private static ToolPage SessionsPage()
+    {
+        if (Environment.GetEnvironmentVariable("AIONDPS_SESSIONS_DEMO") is not { Length: > 0 })
+        {
+            return MainWindow.TakeWithStyles(new SessionManagerWindow(new History.SessionRecorder(_ => History.SessionKind.Map)));
+        }
+
+        // a day of invented stays with the second instance chosen, for the picture of the combat analyzer
+        var recorder = Program.BuildSampleSessionRecorder();
+        recorder.Sessions[1].IsSaved = true;
+        var window = new SessionManagerWindow(recorder);
+        window.AnalyzerFactory = (session, row, mode, boss) => Program.CreateSampleDetails("skills", row.Name, row.ClassName); // the sample skills of a Sorcerer, as the analyzer picture has them
+        if (window.FindName("SessionList") is ListBox list && list.Items.Count > 1)
+        {
+            list.SelectedIndex = 1;
+        }
+
+        if (window.FindName("PlayersGrid") is DataGrid players && players.Items.Count > 1)
+        {
+            players.SelectedIndex = 1; // the Sorcerer: the sample skills are a Sorcerer's
+        }
+
+        return MainWindow.TakeWithStyles(window);
+    }
 
     private static ToolPage LivePage()
     {
         var rows = new System.Collections.ObjectModel.ObservableCollection<PlayerRow>();
         (string Name, string Class, long Damage, double Dps, double Fill, double Share)[] sample =
         {
-            ("Aahz", "Gladiator", 2_310_000, 48210, 100, 31.2), ("Skeeve", "Sorcerer", 1_910_000, 39874, 83, 25.8), ("Chumley", "Assassin", 1_460_000, 30502, 63, 19.7), ("Nunzio", "Cleric", 860_000, 17940, 37, 11.6),
+            ("Veyra", "Gladiator", 2_310_000, 48210, 100, 31.2), ("Kaelith", "Sorcerer", 1_910_000, 39874, 83, 25.8), ("Brannoc", "Assassin", 1_460_000, 30502, 63, 19.7), ("Mirune", "Cleric", 860_000, 17940, 37, 11.6),
         };
         int rank = 1;
         foreach (var p in sample)
         {
-            rows.Add(new PlayerRow(rank) { Name = p.Name, ClassName = p.Class, Damage = p.Damage, Dps = p.Dps, FillPercent = p.Fill, SharePercent = p.Share, Rank = rank++ });
+            // healing and damage taken for the pictures of the other views (only the cleric heals much)
+            rows.Add(new PlayerRow(rank) { Name = p.Name, ClassName = p.Class, Damage = p.Damage, Dps = p.Dps, FillPercent = p.Fill, SharePercent = p.Share, Healing = p.Class == "Cleric" ? 1_820_000 : 120_000 * (5 - rank), DamageTaken = 900_000 + 310_000 * ((rank * 7) % 4), Rank = rank++ });
         }
 
-        int mode = 0;
+        int mode = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_METER_MODE"), out int pictureMode) ? pictureMode : 0; // 0 damage, 1 heal, 2 damage taken, 3 all in one, 4 all in one compact
         // the right list with the bosses of a last instance, as a sample
         var last = new LastInstanceStore();
         PlayerRow Row(int n, string name, string cls, string faction, long damage, double dps, double fill, double share) => new(-n) { Name = name, ClassName = cls, Faction = faction, Damage = damage, Dps = dps, FillPercent = fill, SharePercent = share, Rank = n };
         last.Replace("Draupnir-Nest", new List<BossSnapshot>
         {
             new() { TargetId = 2, Name = "Draupnir", Start = DateTime.Today.AddHours(10).AddMinutes(53), End = DateTime.Today.AddHours(10).AddMinutes(58), Seconds = 292, Killed = true, Total = 18_583_817, EncounterId = 48219, Rows = new[]
-                { Row(1, "Aahz", "Gladiator", "Elyos", 5_929_089, 20_304, 100, 31.9), Row(2, "Skeeve", "Sorcerer", "Elyos", 5_082_239, 17_405, 86, 27.3), Row(3, "Chumley", "Assassin", "Elyos", 3_411_084, 11_682, 58, 18.4), Row(4, "Nunzio", "Cleric", "Elyos", 1_762_211, 6_035, 30, 9.5) } },
+                { Row(1, "Veyra", "Gladiator", "Elyos", 5_929_089, 20_304, 100, 31.9), Row(2, "Kaelith", "Sorcerer", "Elyos", 5_082_239, 17_405, 86, 27.3), Row(3, "Brannoc", "Assassin", "Elyos", 3_411_084, 11_682, 58, 18.4), Row(4, "Mirune", "Cleric", "Elyos", 1_762_211, 6_035, 30, 9.5) } },
             new() { TargetId = 1, Name = "Torwächter Kuri", Start = DateTime.Today.AddHours(10).AddMinutes(42), End = DateTime.Today.AddHours(10).AddMinutes(46), Seconds = 201, Killed = true, Total = 9_120_400, Rows = new[]
-                { Row(1, "Skeeve", "Sorcerer", "Elyos", 3_100_000, 15_422, 100, 34.0), Row(2, "Aahz", "Gladiator", "Elyos", 2_900_000, 14_428, 93, 31.8), Row(3, "Nunzio", "Cleric", "Elyos", 900_000, 4_478, 29, 9.9) } },
+                { Row(1, "Kaelith", "Sorcerer", "Elyos", 3_100_000, 15_422, 100, 34.0), Row(2, "Veyra", "Gladiator", "Elyos", 2_900_000, 14_428, 93, 31.8), Row(3, "Mirune", "Cleric", "Elyos", 900_000, 4_478, 29, 9.9) } },
         });
         return LiveMeterPage.Build(rows, () => { }, () => mode, m => mode = m, last: last);
     }
@@ -296,9 +354,43 @@ public static class ToolRender
         Aion2.Aion2Tickets.Reset();
         Aion2.Aion2Tickets.TryParseList(Convert.FromHexString(Combat.SelfCheckTickets.SampleLogin), out var entries);
         var t0 = DateTime.Now;
+        AddAccountCharacters(entries, t0);
         Aion2.Aion2Tickets.ReceiveList(entries, t0);
-        Aion2.Aion2Tickets.NoteCharacter("Chumley", 1304, t0.AddSeconds(4));
+        Aion2.Aion2Tickets.NoteCharacter("Veyra", 1304, t0.AddSeconds(4), level: 45); // the character shown: level 45, the others of the account have their tabs too
         return new ToolPage { Content = ThemedChrome.TakeContent(new ChecklistWindow()) ?? new Grid() };
+    }
+
+    /// <summary>The other characters of the made-up account (mock names), logged in before the one that is shown, so their tabs stand next to it in the pictures.</summary>
+    private static void AddAccountCharacters(List<Aion2.TicketReading> entries, DateTime t0)
+    {
+        int minutes = 40;
+        foreach ((string name, int level) in new[] { ("Brannoc", 42), ("Mirune", 38), ("Torvald", 33) })
+        {
+            DateTime at = t0.AddMinutes(-minutes);
+            Aion2.Aion2Tickets.ReceiveList(entries, at);
+            Aion2.Aion2Tickets.NoteCharacter(name, 1304, at.AddSeconds(4), level: level);
+            minutes -= 10;
+        }
+    }
+
+    private static MainWindow? _pageHost;
+
+    /// <summary>A page the way the running program builds it (no game running): for the tool pages and the character pages that render-tool has no sample of its own for.</summary>
+    private static ToolPage? FallbackPage(string id)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        if (_pageHost is null)
+        {
+            MainWindow.Headless = true;
+            _pageHost = new MainWindow();
+            typeof(MainWindow).GetMethod("EnsureRestrictableControllers", flags)!.Invoke(_pageHost, null);
+            if (typeof(MainWindow).GetField("_network", flags) is { } networkField && networkField.GetValue(_pageHost) is null)
+            {
+                networkField.SetValue(_pageHost, new NetworkOverlayController());
+            }
+        }
+
+        return (ToolPage?)typeof(MainWindow).GetMethod("BuildToolPage", flags)!.Invoke(_pageHost, new object[] { id, false });
     }
 
     /// <summary>
@@ -310,8 +402,9 @@ public static class ToolRender
         Aion2.Aion2Tickets.Reset();
         Aion2.Aion2Tickets.TryParseList(Convert.FromHexString(Combat.SelfCheckTickets.SampleLogin), out var entries);
         var t0 = DateTime.Now;
+        AddAccountCharacters(entries, t0);
         Aion2.Aion2Tickets.ReceiveList(entries, t0);
-        Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(4));
+        Aion2.Aion2Tickets.NoteCharacter("Veyra", 1304, t0.AddSeconds(4), level: 45);
         long fresh = new DateTimeOffset(t0.AddHours(-3)).ToUnixTimeMilliseconds();
         var counters = new Dictionary<int, (int Count, int Level)> { [230211100] = (38, 0), [231210800] = (3, 0) };
         var readings = new List<Aion2.TicketReading>();
