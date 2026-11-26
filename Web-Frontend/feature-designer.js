@@ -80,7 +80,7 @@ export function startDesigner(scenes) {
         const next = names[(cur + 1) % names.length];
         const o = (layout[id] ??= {});
         if (next) o.bg = next; else delete o.bg;
-        scene.querySelector(".fx-bg").style.background = `url(/images/features/${next ? `alt/${next}` : `scene-${id}`}.webp?v=${window.fxVersion}) center / cover no-repeat`;
+        scene.querySelector(".fx-bgimg").src = `/images/features/${next ? `alt/${next}` : `scene-${id}`}.webp?v=${window.fxVersion}`;
         btn.textContent = label();
         dirty = true;
         try { localStorage.setItem(KEY, JSON.stringify(layout)); } catch { /* ignore */ }

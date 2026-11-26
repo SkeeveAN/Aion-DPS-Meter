@@ -920,45 +920,55 @@ function renderGuide() {
 // Feature tour: one scene per feature - a generated backdrop, the text on one side and the real client windows (rendered from the client itself,
 // images/features/, see the client's render-* modes) on the other. [file, width, height] of each @2x picture; the shown height is set in style.css.
 const FEATURE_BLOCKS = [
-  { id: "meter", images: [["meter", 1040, 840]] },
-  { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
-  { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
-  { id: "bossfight", images: [["bossfight", 956, 700, { flat: true }]] },
-  { id: "assist", images: [["assist", 840, 1236]] },
-  { id: "details", images: [["analyzer", 1760, 820]] },
-  { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
-  { id: "checklist", images: [["checklist", 960, 1274]] },
+  { id: "newui", images: [["settings", 1760, 1238]] },
+  { id: "dashboard", images: [["hub-dashboard", 1760, 1238]] },
+  { id: "designer", images: [["overlay-designer", 1760, 990]] },
+  { id: "creative", images: [["own-look", 1760, 1238], ["theme", 1760, 1100, { h: 300 }]] },
+  { id: "modes", images: [["mode-all", 780, 426, { h: 250 }], ["mode-all-compact", 780, 426, { h: 250 }], ["mode-own", 780, 368, { h: 210 }]] },
+  { id: "meter", images: [["meter", 1760, 1128]] },
+  { id: "details", images: [["analyzer", 2000, 1012]] },
+  { id: "assist", images: [["assist", 1760, 1045]] },
+  { id: "bossfight", images: [["bossfight", 956, 326, { flat: true }]] },
+  { id: "character", images: [["character-gear", 1760, 1375], ["character-skills", 1760, 852]] },
+  { id: "checklist", images: [["checklist", 1760, 970]] },
   // the sides of the scenes are tuned one by one in style.css, so they are fixed here and not alternated by position
-  { id: "map", images: [["map", 1448, 892], ["gathering", 1240, 1480]] },
+  { id: "map", images: [["map", 1480, 892, { flat: true }], ["gathering", 1760, 1100]] },
+  { id: "farmmap", images: [["farm-outer", 1500, 1253], ["farm-verteron", 1240, 1017, { h: 330 }]] },
+  { id: "weekpoints", images: [["weekpoints", 1760, 1045]] },
   { id: "petlevel", images: [["petlevel", 382, 122, { h: 150 }]] },
-  { id: "timetable", images: [["timetable", 1240, 1480]] },
-  { id: "worldboss", images: [["worldboss", 1240, 1480]] },
-  { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
-  { id: "hotkeys", images: [["hotkeys", 1240, 1480], ["settings", 1240, 1480]] },
+  { id: "timetable", images: [["timetable", 1760, 770]] },
+  { id: "worldboss", images: [["worldboss", 1760, 1100]] },
+  { id: "network", images: [["network", 1760, 962, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
+  { id: "hotkeys", images: [["hotkeys", 1760, 770]] },
   // the second picture of these two is the head of the client window with the two buttons that lead here (no frame, fading out at the bottom)
   { id: "announcements", images: [["announcements", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
   { id: "twitchdrops", images: [["twitchdrops", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
-  // the last scene keeps the alternation of the sides (the one before it is flipped); the window and the overlay are rendered by the client (render-craft)
-  { id: "craft", images: [["craft", 1960, 1280, { h: 400 }], ["craft-overlay", 544, 284, { h: 170 }]] },
+  // the last scene keeps the alternation of the sides (the one before it is flipped); the window and the overlay are rendered by the client
+  { id: "craft", images: [["craft", 1500, 1152, { h: 400 }], ["craft-overlay", 544, 284, { h: 170 }]] },
 ];
 // pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
 const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
-const FEATURE_FLIPPED = new Set(["modes", "bossfight", "details", "checklist", "petlevel", "worldboss", "hotkeys", "twitchdrops"]);
-const FEATURE_VERSION = "20261120a";
+const FEATURE_FLIPPED = new Set(["newui", "designer", "farmmap", "modes", "bossfight", "details", "checklist", "petlevel", "worldboss", "hotkeys", "twitchdrops"]);
+const FEATURE_VERSION = "20261126x";
 // scenes whose generated backdrop is not made yet: no request for a picture that is not there
 const FEATURE_NO_BACKDROP = new Set();
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
-  ["meter", '<path d="M5 20V10M12 20V4M19 20v-7"/>'],
+  ["newui", '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/>'],
+  ["dashboard", '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/>'],
+  ["designer", '<rect x="3" y="4" width="18" height="12" rx="2" stroke-dasharray="3 2"/><path d="M9 20h6M12 16v4M7 9h4v3H7z"/>'],
+  ["creative", '<path d="M4 7h16M4 12h10M4 17h13"/><path d="m17 13 3 3-3 3"/>'],
   ["modes", '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'],
-  ["overlay", '<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>'],
-  ["bossfight", '<path d="M12 3 4 7v5c0 4.500 3.200 7.500 8 9 4.800-1.500 8-4.500 8-9V7z"/><path d="M12 8v4M12 15h.01"/>'],
-  ["assist", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.500 2"/><path d="M12 3v2M3 12h2"/>'],
+  ["meter", '<path d="M5 20V10M12 20V4M19 20v-7"/>'],
   ["details", '<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>'],
+  ["assist", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.500 2"/><path d="M12 3v2M3 12h2"/>'],
+  ["bossfight", '<path d="M12 3 4 7v5c0 4.500 3.200 7.500 8 9 4.800-1.500 8-4.500 8-9V7z"/><path d="M12 8v4M12 15h.01"/>'],
   ["character", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'],
   ["checklist", '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 9 1.500 1.500L12 8M8 15l1.500 1.500L12 14M14 9h3M14 15h3"/>'],
   ["map", '<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>'],
+  ["farmmap", '<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><circle cx="12" cy="11" r="2.500"/><path d="M12 13.500V16"/>'],
+  ["weekpoints", '<circle cx="12" cy="12" r="9"/><path d="M12 12V3.500M12 12l6 3.500"/>'],
   ["petlevel", '<circle cx="7" cy="9" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="9" r="2"/><path d="M12 21c-3 0-5-2-5-4.500 0-2 2-4 5-4s5 2 5 4c0 2.500-2 4.500-5 4.500z"/>'],
   ["timetable", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>'],
   ["worldboss", '<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>'],
@@ -968,7 +978,7 @@ const FEATURE_CARDS = [
   ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
   ["craft", '<path d="m14 4 6 6-3 3-6-6zM11.500 7.500 4 15l-1 5 5-1 7.500-7.500"/>'],
 ];
-const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff", bossfight: "#ff5a4f", assist: "#6fb8ff", checklist: "#ffc55a", petlevel: "#7bd88f", craft: "#ff9a55" };
+const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff", bossfight: "#ff5a4f", assist: "#6fb8ff", checklist: "#ffc55a", petlevel: "#7bd88f", craft: "#ff9a55", newui: "#ffb347", creative: "#ff8a3d", dashboard: "#4fb4ff", designer: "#ffba42", weekpoints: "#ffc55a", farmmap: "#7bd88f" };
 // Icons of the nine "And more" cards (shield, upload, clock, refresh, globe, code, target, broadcast, lock).
 const FEATURE_MORE_ICONS = [
   '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
@@ -989,6 +999,9 @@ const FEATURE_MORE_ICONS = [
   '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9h5v4H7zM15 8h2M15 12h2M9 21h6"/>',
   '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/>',
   '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  '<rect x="3" y="7" width="12" height="11" rx="2"/><path d="M9 4h12v11M18 4v0"/>',
+  '<rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 2"/><path d="M8 15l3-4 3 2 3-5"/>',
+  '<path d="M12 4v10M9 11l3 3 3-3"/><circle cx="12" cy="18" r="1.500"/><path d="M4 20h16"/>'
 ];
 
 // Lead sentence big, the remaining sentences as a check list (no extra translations needed).
@@ -1012,10 +1025,12 @@ function renderFeatures() {
     el("section", {
       id: `feature-${block.id}`,
       className: `fx-scene${FEATURE_FLIPPED.has(block.id) ? " flip" : ""}`,
-      // The backdrop (--bg, read by .fx-bg) is set once the scene comes near the viewport, see below: all of them together are 1.6 MB.
+      // The backdrop is a real picture in .fx-bg (not a CSS variable set by script: browser add-ons such as Dark Reader rewrite those and drop the picture); the browser loads it lazily, all of them together are 1.6 MB.
       style: `--tint:${FEATURE_TINTS[block.id]}`,
     }, [
-      el("div", { className: "fx-bg" }),
+      el("div", { className: "fx-bg" }, FEATURE_NO_BACKDROP.has(block.id) ? [] : [
+        el("img", { className: "fx-bgimg", src: `/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION}`, width: 1792, height: 576, alt: "", loading: index < 2 ? "eager" : "lazy", decoding: "async" }),
+      ]),
       el("div", { className: "fx-inner" }, [
         featureText(block),
         el("div", { className: "fx-stage" }, block.images.map(([name, width, height, opt], n) =>
@@ -1059,27 +1074,11 @@ function renderFeatures() {
   window.addEventListener("scroll", spyLater, { passive: true });
   window.addEventListener("resize", spyLater);
   // Backdrops load when a scene is within a few screens of the viewport; without IntersectionObserver all load at once, as before.
-  const loadBackdrop = (scene) => !FEATURE_NO_BACKDROP.has(scene.id.slice("feature-".length)) && scene.style.setProperty("--bg", `url(/images/features/scene-${scene.id.slice("feature-".length)}.webp?v=${FEATURE_VERSION})`);
-  let backdrops = null;
-  if ("IntersectionObserver" in window) {
-    backdrops = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          loadBackdrop(entry.target);
-          backdrops.unobserve(entry.target);
-        }
-      }
-    }, { rootMargin: "1500px 0px" });
-    scenes.forEach((s) => backdrops.observe(s));
-  } else {
-    scenes.forEach(loadBackdrop);
-  }
   // The next route() calls this: the page's window listeners must not outlive it (each visit would add a pair).
   featuresCleanup = () => {
     window.removeEventListener("scroll", spyLater);
     window.removeEventListener("resize", spyLater);
     if (spyFrame) cancelAnimationFrame(spyFrame);
-    backdrops?.disconnect();
   };
   jump.addEventListener("click", (e) => {
     const a = e.target.closest("a");
@@ -1088,7 +1087,7 @@ function renderFeatures() {
     document.getElementById(`feature-${a.dataset.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${a.dataset.id}`);
   });
-  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18].map((n) => // 7 (boss fight overlay) and 10 (checklist) have scenes of their own now
+  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 8, 9, 12, 13, 14, 15, 18, 19, 20, 21].map((n) => // 7 (boss fight overlay), 10 (checklist), 11 (design editor) and 16 (overlay designer) have scenes of their own or are part of one now
     el("div", { className: "fx-more-card" }, [
       el("span", { className: "fx-more-ico", innerHTML: SVG(FEATURE_MORE_ICONS[n - 1]) }),
       el("div", {}, [el("h3", { textContent: t(`features.more${n}.title`) }), el("p", { textContent: t(`features.more${n}.text`) })]),
@@ -1128,7 +1127,7 @@ async function applyFeatureLayout(scenes) {
   for (const scene of scenes) {
     const saved = layout[scene.id.replace("feature-", "")];
     if (!saved) continue;
-    if (saved.bg && FEATURE_BG_ALTERNATIVES[scene.id.replace("feature-", "")]?.includes(saved.bg)) scene.querySelector(".fx-bg").style.background = `url(/images/features/alt/${saved.bg}.webp?v=${FEATURE_VERSION}) center / cover no-repeat`;
+    if (saved.bg && FEATURE_BG_ALTERNATIVES[scene.id.replace("feature-", "")]?.includes(saved.bg)) scene.querySelector(".fx-bgimg").src = `/images/features/alt/${saved.bg}.webp?v=${FEATURE_VERSION}`;
     const copy = scene.querySelector(".fx-copy");
     if (copy && saved.copy) setFeatureOffset(copy, saved.copy);
     scene.querySelectorAll(".fx-win").forEach((win, n) => { if (saved[`win${n}`]) setFeatureOffset(win, saved[`win${n}`]); });
