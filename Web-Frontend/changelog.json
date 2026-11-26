@@ -1,5 +1,32 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-26",
+  "items": [
+   {
+    "text": "Features page: new scenes for the new interface, dashboard widgets, overlay designer, be creative, farm map and week points; live meter, five views, combat analyzer and boss information rewritten; all client pictures new, backdrops as real pictures (Dark Reader no longer hides them)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-11-26"
+   },
+   {
+    "text": "Farm map pictures: the list lies in the picture, on a card in the emptiest corner of the map, no longer beside it",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-26"
+   },
+   {
+    "text": "Picture modes for the features page: render-tool draws the hub pages, the overlay designer's bar, panel and plus, sample sessions and a made-up account with mock names",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-26"
+   }
+  ]
+ },
+ {
   "version": "2.3.2",
   "date": "2026-11-25",
   "items": [
