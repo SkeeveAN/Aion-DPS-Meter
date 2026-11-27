@@ -252,11 +252,11 @@ public static class OverlayDesigner
 
     /// <summary>What the "+" lists: the overlays that are off, then the widgets of the dashboard and the pages of the app that are not yet over the game. Group 0 = overlays, 1 = widgets, 2 = pages.
     /// A name that an overlay already has is not listed again as a widget or page (the world boss overlay and the world boss widget, the update widget and the update page).</summary>
-    internal static List<(string Name, Action SwitchOn, int Group)> Off()
+    internal static List<(string Name, Action SwitchOn, int Group, string? Info)> Off()
     {
         var s = MeterSettings.Load();
         var loc = LocalizationManager.Instance;
-        var list = new List<(string, Action, int)>();
+        var list = new List<(string, Action, int, string?)>();
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (Entry e in Entries)
         {
@@ -267,6 +267,8 @@ public static class OverlayDesigner
             }
 
             Entry entry = e;
+            string? info = e.NameKey == "Settings.Nav.Timetable" ? loc["Designer.Info.Timetable"]
+                : ToolOfName.TryGetValue(e.NameKey, out string? tool) ? loc["Tool.Desc." + tool] : null;
             list.Add((loc[e.NameKey], () =>
             {
                 var fresh = MeterSettings.Load();
@@ -274,12 +276,13 @@ public static class OverlayDesigner
                 fresh.Save();
                 _refresh?.Invoke();
                 BringToFront();
-            }, 0));
+            }, 0, info));
         }
 
         void AddWidget(string id, string name, int group)
         {
-            if (WidgetOverlayWindow.IsOn(s, id) || !names.Add(name))
+            // "Now and soon" is the timetable (the same list of events): the "+" offers it once, as the timetable
+            if (id == "soon" || WidgetOverlayWindow.IsOn(s, id) || !names.Add(name))
             {
                 return;
             }
@@ -298,7 +301,7 @@ public static class OverlayDesigner
                         ShowOpacityPanel(added);
                     }
                 }
-            }, group));
+            }, group, null));
         }
 
         // the dashboard's own widgets first, then the pages (not the settings pages of the tools: those tools have their overlay above)
@@ -852,7 +855,7 @@ internal sealed class DesignerPlus : Window
 
         string[] headings = { loc["Designer.GroupOverlays"], loc["Designer.GroupWidgets"], loc["Designer.GroupPages"] };
         int lastGroup = -1;
-        foreach (var (name, switchOn, group) in off)
+        foreach (var (name, switchOn, group, info) in off)
         {
             if (group != lastGroup)
             {
@@ -865,6 +868,24 @@ internal sealed class DesignerPlus : Window
             DockPanel.SetDock(add, Dock.Right);
             row.Children.Add(add);
             row.Children.Add(new TextBlock { Text = name, Foreground = OverlayDesigner.Text });
+            if (info is not null)
+            {
+                // the little "i": what this overlay is (a tip on hover; a click on it does not add the overlay)
+                var i = new Border
+                {
+                    Width = 18, Height = 18, CornerRadius = new CornerRadius(9), Margin = new Thickness(8, 0, 0, 0),
+                    BorderBrush = OverlayDesigner.Muted, BorderThickness = new Thickness(1), Cursor = Cursors.Help,
+                    VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left,
+                    Background = Brushes.Transparent,
+                    Child = new TextBlock { Text = "i", Foreground = OverlayDesigner.Muted, FontSize = 11, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+                    ToolTip = new ToolTip { Content = new TextBlock { Text = info, TextWrapping = TextWrapping.Wrap, MaxWidth = 300 } },
+                };
+                ToolTipService.SetInitialShowDelay(i, 0);
+                ToolTipService.SetShowDuration(i, 60000);
+                i.MouseLeftButtonUp += (_, e) => e.Handled = true;
+                row.Children.Add(i);
+            }
+
             var item = new Border { Child = row, Background = OverlayDesigner.Panel, CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 8, 12, 8), Margin = new Thickness(0, 0, 0, 6), Cursor = Cursors.Hand };
             item.MouseLeftButtonUp += (_, _) =>
             {

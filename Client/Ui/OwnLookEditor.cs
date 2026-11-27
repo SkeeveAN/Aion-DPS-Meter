@@ -312,7 +312,7 @@ public sealed class OwnLookEditor : StackPanel
         editor._boldBox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Check("bold writes into the template", editor._templateBox.Text == "%NAME%(20,b) %DPS%");
         editor._templateBox.CaretIndex = editor._templateBox.Text.Length;
-        Button share = Descend<Button>(editor).First(b => Equals(b.Content, "%SHARE%"));
+        Button share = Descend<Button>(editor).First(b => Equals(b.Content, "%PERCENT%"));
         share.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Check("a variable button puts the variable at the cursor, behind a space", editor._templateBox.Text.StartsWith("%NAME%(20,b) %DPS% %") && editor._selectedText.Text.Contains("%"));
         editor._templateBox.Text = "%NAME% %DSP%";

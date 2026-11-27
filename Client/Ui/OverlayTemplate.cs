@@ -140,7 +140,8 @@ public static class OverlayTemplate
         ["LEVEL"] = TemplateVar.Level,
         ["DAMAGE"] = TemplateVar.Damage,
         ["DPS"] = TemplateVar.Dps,
-        ["SHARE"] = TemplateVar.Share,
+        ["PERCENT"] = TemplateVar.Share,
+        ["SHARE"] = TemplateVar.Share, // the older name, templates that already use it keep working
         ["TAKEN"] = TemplateVar.Taken,
         ["HEAL"] = TemplateVar.Heal,
         ["POWER"] = TemplateVar.Power,
@@ -151,7 +152,7 @@ public static class OverlayTemplate
     public static bool IsNumber(TemplateVar v) => v is not (TemplateVar.Name or TemplateVar.Class);
 
     /// <summary>The variables as they are offered to the player (English in every language).</summary>
-    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "SHARE", "TAKEN", "HEAL", "POWER", "DEATHS" };
+    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "PERCENT", "TAKEN", "HEAL", "POWER", "DEATHS" };
 
     /// <summary>The sort keys of a mode: the key as it is saved and the property of the row it means.</summary>
     public static readonly (string Key, string Property)[] SortKeys =
