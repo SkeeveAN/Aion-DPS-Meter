@@ -7,7 +7,7 @@ using AionDPS.Combat;
 namespace AionDPS.Ui;
 
 /// <summary>What the combat overlay shows at one moment: the casts (soonest first) and the target of the target. Each is null/empty when there is nothing to show.</summary>
-public sealed record CombatFrame(IReadOnlyList<CastRowData> Casts, TargetOfTargetData? TargetOfTarget, BossHpData? Boss = null);
+public sealed record CombatFrame(IReadOnlyList<CastRowData> Casts, TargetOfTargetData? TargetOfTarget, BossHpData? Boss = null, IReadOnlyList<ForecastRowData>? Forecast = null);
 
 /// <summary>The fought boss's health: what it has now and the most it was seen with.</summary>
 public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = "", DateTime? Since = null, int RageSeconds = AionDPS.Aion2.Protocol.Aion2BossRage.DefaultSeconds);
@@ -48,7 +48,8 @@ public static class CombatOverlayData
     {
         IReadOnlyList<CastRowData> casts = settings.CombatShowBossCast ? Casts(dir, settings, now, language) : Array.Empty<CastRowData>();
         TargetOfTargetData? tot = settings.CombatShowTargetOfTarget ? TargetOfTarget(dir, settings, now, language) : null;
-        return new CombatFrame(casts, tot, settings.ShowBossHp ? BossHp(dir, now) : null);
+        IReadOnlyList<ForecastRowData> forecast = settings.CombatShowBossCast && settings.CombatLudraGuide ? BossForecast.Build(dir, now) : Array.Empty<ForecastRowData>();
+        return new CombatFrame(casts, tot, settings.ShowBossHp ? BossHp(dir, now) : null, forecast);
     }
 
     /// <summary>The boss being fought: the own target when it is a boss, else the one that cast most recently.</summary>
@@ -143,6 +144,14 @@ public static class CombatOverlayData
             string skill = generic && CombatOverlayData.MechanicKey(cast.SkillId) is { } mechanic ? loc[mechanic]
                 : generic && Aion2SkillShapes.KindOf(cast.SkillId) is { } shape ? loc["Combat.Shape." + shape] : Aion2SkillNames.DisplayOf(cast.SkillId);
             string caster = Name(dir, cast.Actor, language);
+            // a boss with a guide (Eternal Ludra): the attack gets its mechanic's name and what to do instead of "Attack" and the boss's name
+            if (settings.CombatLudraGuide && !dir.IsKnownPlayer(cast.Actor) && BossGuides.For(dir.NpcIdOf(cast.Actor)) is { } guide && BossGuides.MechanicOf(guide, cast.SkillId) is { } known)
+            {
+                skill = BossGuides.Title(guide, known.Id);
+                caster = BossGuides.Action(guide, known.Id);
+                generic = false;
+            }
+
             var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), generic,
                 $"{cast.Actor}:{cast.SkillId}:{cast.Start.Ticks}", !atYou && (view.IsArea || cast.Target <= 0 || cast.Target == cast.Actor));
             double score = (atYou ? 200 : 0) + (lethal ? 100 : 0) + (view.IsArea ? 50 : 0) + (boss ? 40 : 0);
@@ -599,9 +608,15 @@ public sealed class CombatOverlayWindow : MovableOverlay
     {
         bool any = false;
         bool castOn = settings.CombatShowBossCast || Preview;
+        IReadOnlyList<ForecastRowData> forecast = castOn && settings.CombatLudraGuide && frame.Forecast is { } f ? f : Array.Empty<ForecastRowData>();
+        _bossCast.ShowForecast(forecast);
         if (castOn && frame.Casts.Count > 0)
         {
             _bossCast.Show(frame.Casts);
+        }
+        else if (castOn && forecast.Count > 0)
+        {
+            _bossCast.Show(Array.Empty<CastRowData>());
         }
         else if (castOn && (_editing || SampleWhenIdle || Preview))
         {
@@ -610,7 +625,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
                 .Select(i => new CastRowData(loc["Combat.Sample.Skill"], loc["Combat.Sample.Boss"], loc["Combat.You"], true, true, false, 700 + i * 200, 1500, 400, null, Generic: true)).ToList());
         }
 
-        bool castShown = castOn && (frame.Casts.Count > 0 || _editing || SampleWhenIdle || Preview);
+        bool castShown = castOn && (frame.Casts.Count > 0 || forecast.Count > 0 || _editing || SampleWhenIdle || Preview);
         _hosts[BossCastId].Visibility = castShown ? Visibility.Visible : Visibility.Collapsed;
         any |= castShown;
         return any;

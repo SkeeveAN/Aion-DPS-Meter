@@ -411,6 +411,9 @@ public sealed class MeterSettings
     public Dictionary<string, CombatElementLayout> CombatElements { get; set; } = new();
 
     public bool CombatShowBossCast { get; set; }
+
+    /// <summary>The boss cast bar names the attacks of a boss with a guide (Eternal Ludra), says what to do and shows what comes next.</summary>
+    public bool CombatLudraGuide { get; set; } = true;
     public bool CombatShowTargetOfTarget { get; set; }
 
     /// <summary>The healer's target: its name, hit points and effects. Off until switched on.</summary>

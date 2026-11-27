@@ -1,0 +1,78 @@
+"""Writes the texts of the Ludra guide (boss cast bar) into Client/assets/i18n/ui_strings.json.
+Keys: Guide.Ludra.<mechanic>.T (title), .A (what to do). Languages: en de fr es ru zh zh-TW pt ja ko."""
+import json, sys
+L = ["en", "de", "fr", "es", "ru", "zh", "zh-TW", "pt", "ja", "ko"]
+M = {
+"tail": (["Tail", "Schwanz", "Queue", "Cola", "Хвост", "尾巴", "尾巴", "Cauda", "尻尾", "꼬리"],
+         ["Tank: block the tail", "Tank: den Schwanz blocken", "Tank : bloquer la queue", "Tanque: bloquea la cola", "Танк: заблокируйте хвост", "坦克：格挡尾巴", "坦克：格擋尾巴", "Tanque: bloqueie a cauda", "タンク：尻尾をブロック", "탱커: 꼬리를 막으세요"]),
+"breath": (["Breath", "Atem", "Souffle", "Aliento", "Дыхание", "吐息", "吐息", "Sopro", "ブレス", "브레스"],
+         ["Get out of the cone in front of the boss", "Raus aus dem Kegel vor dem Boss", "Sortez du cône devant le boss", "Sal del cono frente al jefe", "Выйдите из конуса перед боссом", "离开首领前方的扇形区域", "離開首領前方的扇形區域", "Saia do cone na frente do chefe", "ボスの前方の扇形から出る", "보스 앞 부채꼴에서 벗어나세요"]),
+"sides": (["Side AoE", "Flächenschaden an den Seiten", "Zone sur les côtés", "Área a los lados", "Урон по бокам", "两侧范围攻击", "兩側範圍攻擊", "Área nos lados", "両側の範囲攻撃", "양옆 범위 공격"],
+         ["AoE on both sides: move from left to right", "Schaden auf beiden Seiten: von links nach rechts laufen", "Zone des deux côtés : passez de la gauche vers la droite", "Área a ambos lados: muévete de izquierda a derecha", "Урон с обеих сторон: перебегите слева направо", "两侧都有范围伤害：从左向右移动", "兩側都有範圍傷害：從左向右移動", "Área nos dois lados: mova-se da esquerda para a direita", "両側に範囲攻撃：左から右へ移動", "양쪽 범위 공격: 왼쪽에서 오른쪽으로 이동하세요"]),
+"double-hit": (["Double hit", "Doppelschlag", "Double coup", "Golpe doble", "Двойной удар", "双重打击", "雙重打擊", "Golpe duplo", "二連撃", "이중 타격"],
+         ["Dodge or block", "Ausweichen oder blocken", "Esquivez ou bloquez", "Esquiva o bloquea", "Уклонитесь или заблокируйте", "闪避或格挡", "閃避或格擋", "Desvie ou bloqueie", "回避またはブロック", "회피하거나 막으세요"]),
+"orbs": (["Orbs", "Kugeln", "Orbes", "Orbes", "Сферы", "光球", "光球", "Orbes", "オーブ", "구체"],
+         ["Soak the orbs before they land: the tank takes the RED one with block", "Kugeln vor dem Einschlag aufnehmen: der Tank nimmt die ROTE mit Block", "Absorbez les orbes avant l'impact : le tank prend la ROUGE avec blocage", "Absorbe los orbes antes de que caigan: el tanque toma el ROJO con bloqueo", "Примите сферы до падения: танк берёт КРАСНУЮ с блоком", "在光球落地前吸收：坦克格挡承受红色光球", "在光球落地前吸收：坦克格擋承受紅色光球", "Absorva os orbes antes de caírem: o tanque pega o VERMELHO com bloqueio", "着弾前にオーブを受ける：タンクは赤をブロックで受ける", "구체가 떨어지기 전에 받으세요: 탱커가 빨간 구체를 막기로 받습니다"]),
+"eye": (["Eye", "Auge", "Œil", "Ojo", "Глаз", "眼", "眼", "Olho", "目", "눈"],
+         ["Marked player: take the AoE away from the group", "Markierter Spieler: den Flächenschaden von der Gruppe wegführen", "Joueur marqué : éloignez la zone du groupe", "Jugador marcado: lleva el área lejos del grupo", "Помеченный игрок: уведите область от группы", "被标记的玩家：把范围伤害带离队伍", "被標記的玩家：把範圍傷害帶離隊伍", "Jogador marcado: leve a área para longe do grupo", "マークされた人：範囲攻撃をグループから離す", "표시된 플레이어: 범위 공격을 파티에서 멀리 빼세요"]),
+"jump": (["Jump", "Sprung", "Saut", "Salto", "Прыжок", "跳跃", "跳躍", "Pulo", "ジャンプ", "점프"],
+         ["Boss jumps on a player: small AoE that stuns", "Der Boss springt auf einen Spieler: kleiner Flächenschaden, betäubt", "Le boss saute sur un joueur : petite zone qui étourdit", "El jefe salta sobre un jugador: área pequeña que aturde", "Босс прыгает на игрока: небольшая область, оглушает", "首领跳向一名玩家：小范围伤害并眩晕", "首領跳向一名玩家：小範圍傷害並暈眩", "O chefe pula num jogador: área pequena que atordoa", "ボスがプレイヤーに飛びかかる：小範囲、スタンあり", "보스가 플레이어에게 뛰어듭니다: 작은 범위, 기절"]),
+"tornados": (["Tornados", "Tornados", "Tornades", "Tornados", "Торнадо", "龙卷风", "龍捲風", "Tornados", "竜巻", "토네이도"],
+         ["Ranged: kite them away. Melee: stay on Ludra", "Fernkämpfer: wegkiten. Nahkämpfer: bei Ludra bleiben", "Distance : éloignez-les. Mêlée : restez sur Ludra", "A distancia: aléjalos. Cuerpo a cuerpo: quédate en Ludra", "Дальники: уводите их. Ближники: оставайтесь на Лудре", "远程：把龙卷风引开。近战：留在鲁德拉身上", "遠程：把龍捲風引開。近戰：留在魯德拉身上", "À distância: afaste-os. Corpo a corpo: fique em Ludra", "遠距離：竜巻を引き離す。近接：ルドラに張り付く", "원거리: 멀리 끌고 가세요. 근접: 루드라에 붙어 있으세요"]),
+"plus": (["Plus AoE", "Kreuz-Fläche", "Zone en croix", "Área en cruz", "Крест", "十字范围", "十字範圍", "Área em cruz", "十字範囲", "십자 범위"],
+         ["Dodge the plus-shaped AoE while you move", "Der kreuzförmigen Fläche in der Bewegung ausweichen", "Esquivez la zone en croix en vous déplaçant", "Esquiva el área en cruz mientras te mueves", "Уклоняйтесь от крестообразной области в движении", "移动中躲开十字形范围", "移動中躲開十字形範圍", "Desvie da área em cruz enquanto se move", "動きながら十字の範囲を避ける", "움직이며 십자 범위를 피하세요"]),
+"shrink": (["Arena shrinks", "Arena schrumpft", "L'arène rétrécit", "La arena se reduce", "Арена сужается", "场地缩小", "場地縮小", "A arena encolhe", "アリーナ縮小", "경기장 축소"],
+         ["The outer arena is cut off: stay close to the boss", "Der Außenbereich fällt weg: nah beim Boss bleiben", "L'extérieur est coupé : restez près du boss", "Se corta la parte exterior: quédate cerca del jefe", "Внешняя часть арены отрезана: держитесь ближе к боссу", "外围区域被切断：靠近首领", "外圍區域被切斷：靠近首領", "A parte externa é cortada: fique perto do chefe", "外側が消える：ボスの近くにいる", "바깥쪽이 사라집니다: 보스 가까이에 있으세요"]),
+"run-out": (["RUN OUT", "RAUSLAUFEN", "SORTEZ", "SAL FUERA", "БЕГИТЕ ПРОЧЬ", "跑出去", "跑出去", "SAIA", "外へ走れ", "밖으로 달리세요"],
+         ["The whole arena is hit: run all the way out", "Die ganze Arena wird getroffen: ganz nach außen laufen", "Toute l'arène est touchée : courez tout au bord", "Toda la arena es golpeada: corre hasta el borde", "Удар по всей арене: бегите к самому краю", "整个场地都会受到攻击：一直跑到最外面", "整個場地都會受到攻擊：一直跑到最外面", "A arena inteira é atingida: corra até a borda", "アリーナ全体が攻撃される：一番外まで走る", "경기장 전체가 공격받습니다: 끝까지 밖으로 달리세요"]),
+"bingo": (["BINGO", "BINGO", "BINGO", "BINGO", "БИНГО", "宾果", "賓果", "BINGO", "ビンゴ", "빙고"],
+         ["Go to your numbers, soak the orbs, then hide in the safe tile", "Zu deinen Zahlen gehen, Kugeln aufnehmen, dann in das sichere Feld", "Allez à vos numéros, absorbez les orbes, puis cachez-vous sur la case sûre", "Ve a tus números, absorbe los orbes y escóndete en la casilla segura", "Идите к своим числам, примите сферы, затем в безопасную клетку", "前往你的数字，吸收光球，然后躲进安全格", "前往你的數字，吸收光球，然後躲進安全格", "Vá aos seus números, absorva os orbes e esconda-se no quadrado seguro", "自分の数字へ行き、オーブを受け、安全マスへ隠れる", "자기 숫자로 가서 구체를 받고 안전한 칸에 숨으세요"]),
+"zikel": (["Zikel + lasers", "Zikel + Laser", "Zikel + lasers", "Zikel + láseres", "Зикель + лазеры", "齐克尔 + 激光", "齊克爾 + 雷射", "Zikel + lasers", "ジケル＋レーザー", "지켈 + 레이저"],
+         ["Zikel's apparition; lasers come from south, west, east, then north", "Zikels Erscheinung; Laser aus Süd, West, Ost, dann Nord", "Apparition de Zikel ; lasers du sud, de l'ouest, de l'est, puis du nord", "Aparición de Zikel; láseres desde el sur, oeste, este y luego norte", "Явление Зикеля; лазеры с юга, запада, востока, затем севера", "齐克尔现身；激光依次来自南、西、东、北", "齊克爾現身；雷射依序來自南、西、東、北", "Aparição de Zikel; lasers do sul, oeste, leste e depois norte", "ジケルが現れる；レーザーは南、西、東、北の順", "지켈이 나타납니다; 레이저는 남, 서, 동, 북 순서"]),
+"pizza": (["Pizza", "Pizza", "Pizza", "Pizza", "Пицца", "披萨", "披薩", "Pizza", "ピザ", "피자"],
+         ["Stand in the safe slice, then the opposite one (or block both)", "In das sichere Stück stellen, danach ins gegenüberliegende (oder beide blocken)", "Placez-vous dans la part sûre, puis dans l'opposée (ou bloquez les deux)", "Ponte en la porción segura y luego en la opuesta (o bloquea ambas)", "Встаньте в безопасный сектор, затем в противоположный (или заблокируйте оба)", "站在安全扇区，然后换到对面（或两次都格挡）", "站在安全扇區，然後換到對面（或兩次都格擋）", "Fique na fatia segura e depois na oposta (ou bloqueie as duas)", "安全な区画に立ち、次に反対側へ（または両方ブロック）", "안전한 조각에 서고 이어서 반대쪽으로 (또는 둘 다 막기)"]),
+"colors": (["COLORS", "FARBEN", "COULEURS", "COLORES", "ЦВЕТА", "颜色", "顏色", "CORES", "カラー", "색상"],
+         ["Spread, check your color: RED goes RIGHT, BLUE goes LEFT. Stay on your side", "Verteilen, Farbe prüfen: ROT nach RECHTS, BLAU nach LINKS. Auf der Seite bleiben", "Dispersez-vous, vérifiez votre couleur : ROUGE à DROITE, BLEU à GAUCHE. Restez de votre côté", "Dispérsense, mira tu color: ROJO a la DERECHA, AZUL a la IZQUIERDA. Quédate en tu lado", "Рассредоточьтесь, проверьте цвет: КРАСНЫЕ вправо, СИНИЕ влево. Оставайтесь на своей стороне", "分散开，查看你的颜色：红色去右边，蓝色去左边。留在自己这一侧", "分散開，查看你的顏色：紅色去右邊，藍色去左邊。留在自己這一側", "Espalhem-se, veja sua cor: VERMELHO vai para a DIREITA, AZUL para a ESQUERDA. Fique do seu lado", "散開して色を確認：赤は右、青は左。自分の側にとどまる", "흩어져서 색을 확인하세요: 빨강은 오른쪽, 파랑은 왼쪽. 자기 쪽에 머무르세요"]),
+"line": (["Line in front", "Linie vor dem Boss", "Ligne devant le boss", "Línea frente al jefe", "Линия перед боссом", "前方直线", "前方直線", "Linha à frente", "前方の直線", "정면 직선"],
+         ["Five hits in a long line in front of the boss (in Bingo: across the middle tiles): stay out of it", "Fünf Treffer in einer langen Linie vor dem Boss (bei Bingo: über die mittleren Felder): nicht hineinstellen", "Cinq coups en longue ligne devant le boss (au Bingo : sur les cases du milieu) : restez dehors", "Cinco golpes en una línea larga frente al jefe (en Bingo: por las casillas centrales): no entres", "Пять ударов по длинной линии перед боссом (в Бинго: по средним клеткам): не стойте в ней", "首领前方一条长直线上连续五次攻击（宾果时：横穿中间格子）：不要站在里面", "首領前方一條長直線上連續五次攻擊（賓果時：橫穿中間格子）：不要站在裡面", "Cinco golpes em linha longa à frente do chefe (no Bingo: pelos quadrados do meio): fique fora", "ボスの前方に長い直線で5回攻撃（ビンゴ中は中央のマスを横切る）：中に入らない", "보스 앞 긴 직선에 5회 공격 (빙고에서는 가운데 칸을 가로질러): 들어가지 마세요"]),
+"slam": (["AoE around the boss", "Fläche um den Boss", "Zone autour du boss", "Área alrededor del jefe", "Область вокруг босса", "首领周围范围", "首領周圍範圍", "Área ao redor do chefe", "ボス周囲の範囲", "보스 주변 범위"],
+         ["A 16 m AoE around the boss and small ones on players: get out, it stuns", "16 m Fläche um den Boss und kleine auf Spielern: raus, betäubt", "Zone de 16 m autour du boss et petites sur les joueurs : sortez, ça étourdit", "Área de 16 m alrededor del jefe y pequeñas en jugadores: sal, aturde", "Область 16 м вокруг босса и малые на игроках: выйдите, оглушает", "首领周围16米范围及玩家脚下小范围：离开，会眩晕", "首領周圍16米範圍及玩家腳下小範圍：離開，會暈眩", "Área de 16 m ao redor do chefe e pequenas nos jogadores: saia, atordoa", "ボス周囲16mと各プレイヤーに小範囲：離れる、スタンあり", "보스 주변 16m와 플레이어에게 작은 범위: 벗어나세요, 기절합니다"]),
+"leap": (["Leap", "Satz", "Bond", "Salto", "Рывок", "跃击", "躍擊", "Salto", "跳びかかり", "도약"],
+         ["The boss leaps onto a player: small AoE that stuns", "Der Boss springt auf einen Spieler: kleiner Flächenschaden, betäubt", "Le boss bondit sur un joueur : petite zone qui étourdit", "El jefe salta sobre un jugador: área pequeña que aturde", "Босс прыгает на игрока: небольшая область, оглушает", "首领跃向一名玩家：小范围伤害并眩晕", "首領躍向一名玩家：小範圍傷害並暈眩", "O chefe salta num jogador: área pequena que atordoa", "ボスがプレイヤーに飛びかかる：小範囲、スタンあり", "보스가 플레이어에게 도약합니다: 작은 범위, 기절"]),
+"double-jump": (["Double jump", "Doppelsprung", "Double saut", "Doble salto", "Двойной прыжок", "二段跳", "二段跳", "Pulo duplo", "二段ジャンプ", "이중 점프"],
+         ["Two rings come out from the boss: jump over both", "Zwei Ringe gehen vom Boss aus: über beide springen", "Deux anneaux partent du boss : sautez par-dessus les deux", "Dos anillos salen del jefe: salta ambos", "От босса идут два кольца: перепрыгните оба", "首领扩散出两道环：跳过两次", "首領擴散出兩道環：跳過兩次", "Dois anéis saem do chefe: pule os dois", "ボスから2つのリング：両方とも飛び越える", "보스에게서 고리 두 개가 퍼집니다: 둘 다 뛰어넘으세요"]),
+"sweep": (["BREATH ACROSS", "ATEM QUER", "SOUFFLE EN BALAYAGE", "ALIENTO BARRIDO", "ДЫХАНИЕ ПОПЕРЁК", "横扫吐息", "橫掃吐息", "SOPRO EM VARREDURA", "薙ぎ払いブレス", "휩쓰는 브레스"],
+         ["The breath sweeps from one side to the other: run to the opposite side", "Der Atem fegt von einer Seite zur anderen: auf die Gegenseite laufen", "Le souffle balaie d'un côté à l'autre : courez du côté opposé", "El aliento barre de un lado a otro: corre al lado opuesto", "Дыхание проходит с одной стороны на другую: бегите на противоположную", "吐息从一侧扫向另一侧：跑到对面", "吐息從一側掃向另一側：跑到對面", "O sopro varre de um lado ao outro: corra para o lado oposto", "ブレスが片側から反対側へ薙ぎ払う：反対側へ走る", "브레스가 한쪽에서 반대쪽으로 휩쓸어요: 반대편으로 달리세요"]),
+"feet": (["AoEs under your feet", "Flächen unter den Füßen", "Zones sous vos pieds", "Áreas bajo tus pies", "Области под ногами", "脚下范围", "腳下範圍", "Áreas sob seus pés", "足元の範囲", "발밑 범위"],
+         ["AoEs under every player, they hit twice: spread out and dodge both", "Flächen unter jedem Spieler, sie treffen zweimal: verteilen und beiden ausweichen", "Zones sous chaque joueur, elles frappent deux fois : dispersez-vous et esquivez les deux", "Áreas bajo cada jugador, golpean dos veces: dispérsense y esquiva ambas", "Области под каждым игроком, бьют дважды: рассредоточьтесь и уклонитесь от обеих", "每位玩家脚下都有范围，会打两次：分散并躲开两次", "每位玩家腳下都有範圍，會打兩次：分散並躲開兩次", "Áreas sob cada jogador, atingem duas vezes: espalhem-se e desvie das duas", "全員の足元に範囲、2回当たる：散開して両方避ける", "모든 플레이어 발밑에 범위, 두 번 맞습니다: 흩어져서 둘 다 피하세요"]),
+}
+X = {
+"Settings.Combat.LudraGuide": (["Ludra guide", "Ludra-Führer", "Guide de Ludra", "Guía de Ludra", "Гид по Лудре", "鲁德拉指南", "魯德拉指南", "Guia da Ludra", "ルドラガイド", "루드라 가이드"]),
+"Settings.Combat.LudraGuideHint": (["At Eternal Ludra the bar names each attack and says what to do. It also shows what comes next, from the boss's own pattern: the next attacks with a countdown, and the next one tied to its hit points.",
+  "Bei der Ewigen Ludra benennt der Balken jeden Angriff und sagt, was zu tun ist. Außerdem zeigt er, was als Nächstes kommt, nach dem festen Muster des Bosses: die nächsten Angriffe mit Countdown und den nächsten, der an seine Lebenspunkte gebunden ist.",
+  "Chez Ludra l'Éternelle, la barre nomme chaque attaque et dit quoi faire. Elle montre aussi la suite d'après le schéma fixe du boss : les prochaines attaques avec un compte à rebours et la prochaine liée à ses points de vie.",
+  "Con Ludra la Eterna, la barra nombra cada ataque y dice qué hacer. También muestra lo que viene según el patrón fijo del jefe: los próximos ataques con cuenta atrás y el próximo ligado a sus puntos de vida.",
+  "У Вечной Лудры полоса называет каждую атаку и подсказывает, что делать. Она также показывает, что будет дальше, по постоянному шаблону босса: ближайшие атаки с обратным отсчётом и следующую, привязанную к его здоровью.",
+  "对永恒鲁德拉，技能条会标出每个攻击并提示应对方式，还会按首领的固定节奏显示接下来的攻击（带倒计时）以及与其生命值挂钩的下一个技能。",
+  "對永恆魯德拉，技能條會標出每個攻擊並提示應對方式，還會按首領的固定節奏顯示接下來的攻擊（附倒數）以及與其生命值掛鉤的下一個技能。",
+  "Na Ludra Eterna, a barra nomeia cada ataque e diz o que fazer. Também mostra o que vem a seguir, pelo padrão fixo do chefe: os próximos ataques com contagem regressiva e o próximo ligado aos pontos de vida.",
+  "永遠のルドラでは、バーが各攻撃の名前と対処法を表示します。ボスの決まったパターンから、次の攻撃（カウントダウン付き）と、HPに結びついた次の攻撃も表示します。",
+  "영원한 루드라에서는 막대가 각 공격의 이름과 대처법을 알려 줍니다. 보스의 고정 패턴에 따라 다음 공격(카운트다운)과 체력에 묶인 다음 공격도 보여 줍니다."]),
+"Combat.Forecast.Next": (["Next", "Als Nächstes", "Ensuite", "Siguiente", "Далее", "接下来", "接下來", "A seguir", "次", "다음"]),
+"Combat.Forecast.AtHp": (["at {0} % HP", "bei {0} % LP", "à {0} % PV", "a {0} % de vida", "при {0} % ЗДР", "{0} % 生命时", "{0} % 生命時", "com {0} % de vida", "HP {0} %で", "체력 {0} %에서"]),
+}
+def block(key, vals):
+    return {l: v for l, v in zip(L, vals)}
+p = "Client/assets/i18n/ui_strings.json"
+data = json.load(open(p, encoding="utf-8"))
+for k in [k for k in data if k.startswith("Guide.Ludra.")]: del data[k]
+for mid, (t, a) in M.items():
+    assert len(t) == 10 and len(a) == 10, mid
+    data[f"Guide.Ludra.{mid}.T"] = block("", t)
+    data[f"Guide.Ludra.{mid}.A"] = block("", a)
+for k, v in X.items():
+    assert len(v) == 10, k
+    data[k] = block(k, v)
+json.dump(data, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+open(p, "a", encoding="utf-8").write("\n")
+print("ok", len(M))

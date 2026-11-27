@@ -108,12 +108,47 @@ public sealed class BossCastView : Border
     private readonly StackPanel _rows = new();
     private readonly List<CastRow> _views = new();
 
+    private readonly StackPanel _forecast = new();
+    private int _forecastCount;
+
     public BossCastView()
     {
-        Child = _rows;
+        var all = new StackPanel();
+        all.Children.Add(_rows);
+        all.Children.Add(_forecast);
+        Child = all;
     }
 
-    public bool HasRows => _views.Any(v => v.Visibility == Visibility.Visible);
+    public bool HasRows => _views.Any(v => v.Visibility == Visibility.Visible) || _forecastCount > 0;
+
+    /// <summary>The lines of what comes next (Eternal Ludra's guide), under the casts: the attack, what to do, and a countdown or the hit points it is tied to.</summary>
+    public void ShowForecast(IReadOnlyList<ForecastRowData> rows)
+    {
+        _forecastCount = rows.Count;
+        _forecast.Children.Clear();
+        var loc = LocalizationManager.Instance;
+        foreach (ForecastRowData row in rows)
+        {
+            var name = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis }, 12);
+            name.Text = loc["Combat.Forecast.Next"] + ": " + row.Title;
+            var action = OverlayPictures.Scaled(new() { Foreground = OverlayPictures.Muted, TextTrimming = TextTrimming.CharacterEllipsis }, 10);
+            action.Text = row.Action;
+            var when = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0), Foreground = row.Wipe ? OverlayPictures.Red : OverlayPictures.Amber }, 12);
+            when.Text = row.SecondsLeft is double secs ? secs.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) : row.Badge;
+            var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            text.Children.Add(name);
+            text.Children.Add(action);
+            var line = new DockPanel();
+            DockPanel.SetDock(when, Dock.Right);
+            line.Children.Add(when);
+            line.Children.Add(text);
+            _forecast.Children.Add(new Border
+            {
+                Child = line, Margin = new Thickness(0, 0, 0, 3), Padding = new Thickness(6, 3, 6, 3), CornerRadius = new CornerRadius(5),
+                Background = OverlayPictures.Panel, BorderThickness = new Thickness(1), BorderBrush = row.Wipe ? OverlayPictures.Red : OverlayPictures.PanelBorder, Opacity = 0.9,
+            });
+        }
+    }
 
     public void Show(IReadOnlyList<CastRowData> rows)
     {

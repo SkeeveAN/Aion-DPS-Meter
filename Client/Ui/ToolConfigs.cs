@@ -164,7 +164,9 @@ public static class ToolConfigs
             c.Choice(loc["Settings.Combat.CastFilter"], null, new[] { ("all", loc["Settings.Combat.Filter.All"]), ("area", loc["Settings.Combat.Filter.Area"]), ("you", loc["Settings.Combat.Filter.You"]) }, s => s.CombatCastFilter, (s, v) => s.CombatCastFilter = v, 260),
             c.Choice(loc["Settings.Combat.MaxCasts"], null, new[] { ("1", "1"), ("2", "2"), ("3", "3") }, s => s.CombatMaxCasts.ToString(), (s, v) => s.CombatMaxCasts = int.Parse(v), 80),
             c.Switch(loc["Settings.Combat.AllMonsters"], null, s => s.CombatCastsOfAllMonsters, (s, v) => s.CombatCastsOfAllMonsters = v),
-            ConfigControls.Note(loc["Settings.Combat.CastHint"]));
+            ConfigControls.Note(loc["Settings.Combat.CastHint"]),
+            c.Switch(loc["Settings.Combat.LudraGuide"], null, s => s.CombatLudraGuide, (s, v) => s.CombatLudraGuide = v),
+            ConfigControls.Note(loc["Settings.Combat.LudraGuideHint"]));
         var target = ConfigControls.Card(loc["Settings.Combat.Elements"],
             ConfigControls.Note(loc["Settings.Combat.TargetAlways"], 0),
             c.Switch(loc["Settings.Combat.TargetHpBar"], null, s => s.CombatHealerHpBar, (s, v) => s.CombatHealerHpBar = v),

@@ -1,0 +1,48 @@
+{
+  "_comment": "What the boss cast bar knows about a boss fight: which skill id is which mechanic, the fixed chains that follow a skill (offset in ms from the windup of the trigger) and the mechanics tied to hit points. Texts are in ui_strings.json (Guide.<boss>.<mechanic>.T / .A). Ids and offsets are the facts published by the AionFlex meter (data/boss_guides.json, measured there on dev captures, 2026-11); not yet confirmed on a recording of ours.",
+  "version": 1,
+  "bosses": [
+    {
+      "id": "Ludra",
+      "npcIds": [2301014, 2301038],
+      "mechanics": [
+        { "id": "tail", "codes": [1803080], "severity": "dodge" },
+        { "id": "breath", "codes": [1803120], "severity": "dodge" },
+        { "id": "sides", "codes": [1803140], "severity": "dodge" },
+        { "id": "double-hit", "codes": [1803090, 1803100], "severity": "dodge" },
+        { "id": "orbs", "codes": [1803200, 1803360], "severity": "wipe" },
+        { "id": "eye", "codes": [1803210], "severity": "dodge" },
+        { "id": "jump", "codes": [1803250], "severity": "dodge" },
+        { "id": "tornados", "codes": [1803170, 1803350], "severity": "dodge" },
+        { "id": "plus", "codes": [1803160], "severity": "dodge" },
+        { "id": "shrink", "codes": [1803240], "severity": "dodge" },
+        { "id": "run-out", "codes": [1803230], "severity": "wipe" },
+        { "id": "bingo", "codes": [1803010], "severity": "wipe" },
+        { "id": "zikel", "codes": [1803390], "severity": "wipe" },
+        { "id": "pizza", "codes": [1803370], "severity": "dodge" },
+        { "id": "colors", "codes": [1803400], "severity": "wipe" },
+        { "id": "line", "codes": [1803110], "severity": "dodge" },
+        { "id": "slam", "codes": [1803130], "severity": "dodge" },
+        { "id": "leap", "codes": [1803220], "severity": "dodge" },
+        { "id": "double-jump", "codes": [1803310], "severity": "dodge" },
+        { "id": "sweep", "codes": [1803280, 1803290], "severity": "wipe" },
+        { "id": "feet", "codes": [1803380], "severity": "dodge" }
+      ],
+      "hpGates": [
+        { "hpPercent": 90, "mechanic": "orbs" },
+        { "hpPercent": 85, "mechanic": "shrink" },
+        { "hpPercent": 60, "mechanic": "bingo" },
+        { "hpPercent": 45, "mechanic": "zikel" },
+        { "hpPercent": 33, "mechanic": "colors" }
+      ],
+      "chains": [
+        { "trigger": [1803240], "steps": [
+          { "mechanic": "eye", "offsetMs": 6900 }, { "mechanic": "breath", "offsetMs": 12500 }, { "mechanic": "jump", "offsetMs": 17900 },
+          { "mechanic": "eye", "offsetMs": 21750 }, { "mechanic": "breath", "offsetMs": 27350 }, { "mechanic": "run-out", "offsetMs": 32750 } ] },
+        { "trigger": [1803225], "minHpPercent": 60, "steps": [ { "mechanic": "orbs", "offsetMs": 5450 } ] },
+        { "trigger": [1803225], "maxHpPercent": 60, "steps": [ { "mechanic": "bingo", "offsetMs": 5450 } ] },
+        { "trigger": [1803390], "steps": [ { "mechanic": "orbs", "offsetMs": 16450 } ] }
+      ]
+    }
+  ]
+}
