@@ -15,6 +15,7 @@ public sealed class OwnRowView : Border
     private const double CharWidth = 0.62;
     private static ParsedTemplate _current = OverlayTemplate.Parse(OverlayTemplate.DefaultText);
     private static bool _shareBars = true;
+    private static bool _rightBlock;
     private static DataTemplate? _rowTemplate;
     private readonly ProgressBar _bar = new() { Margin = new Thickness(-8, 0, -8, 0), IsHitTestVisible = false };
     private readonly StackPanel _lines = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -34,8 +35,9 @@ public sealed class OwnRowView : Border
     public static event Action? Changed;
 
     /// <summary>The template of the row the overlay draws (the text of the mode in use; empty text: the simple default row).</summary>
-    public static void Use(string? templateText, bool shareBars)
+    public static void Use(string? templateText, bool shareBars, bool rightBlock = false)
     {
+        _rightBlock = rightBlock;
         _current = OverlayTemplate.Parse(string.IsNullOrWhiteSpace(templateText) ? OverlayTemplate.DefaultText : templateText);
         _shareBars = shareBars;
         Changed?.Invoke();
@@ -49,6 +51,9 @@ public sealed class OwnRowView : Border
 
     /// <summary>A field of that template to draw a frame around (the field the cursor stands in), null for none.</summary>
     public TemplateField? Marked { get; set; }
+
+    /// <summary>The option "block at the right edge" of its own (the preview); null: the one in use.</summary>
+    public bool? RightBlock { get; set; }
 
     /// <summary>The bars switch of its own (the preview); null: the one in use.</summary>
     public bool? ShareBars { get; set; }
@@ -136,12 +141,34 @@ public sealed class OwnRowView : Border
 
         ParsedTemplate template = Template ?? _current;
         StackPanel? line = null;
+        StackPanel? rightPart = null; // the block behind the tab, flush at the right edge (option); null: the line has none (yet)
+        bool rightBlock = RightBlock ?? _rightBlock;
         StackPanel Line()
         {
             line = new StackPanel { Orientation = Orientation.Horizontal, MinHeight = 16 };
-            _lines.Children.Add(line);
+            rightPart = null;
+            if (rightBlock)
+            {
+                var holder = new Grid();
+                holder.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                holder.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                holder.Children.Add(line);
+                var right = new StackPanel { Orientation = Orientation.Horizontal, MinHeight = 16, HorizontalAlignment = HorizontalAlignment.Right };
+                Grid.SetColumn(right, 1);
+                holder.Children.Add(right);
+                _lines.Children.Add(holder);
+                rightPart = right;
+            }
+            else
+            {
+                _lines.Children.Add(line);
+            }
+
             return line;
         }
+
+        // the first tab of a line with the option on: from there on the items go into the right block
+        StackPanel? leftPart = null;
 
         double[] columns = Columns.GetValue(template, t => new double[t.Items.Count]);
         bool grew = false;
@@ -150,12 +177,18 @@ public sealed class OwnRowView : Border
             int index = template.Items.IndexOf(item);
             if (item.NewLine)
             {
+                leftPart = null;
                 Line();
                 continue;
             }
 
             line ??= Line();
-            if (item.Tab)
+            if (item.Tab && rightPart is not null && leftPart is null)
+            {
+                leftPart = line;
+                line = rightPart;
+            }
+            else if (item.Tab)
             {
                 line.Children.Add(new Border { Width = 4 * CharWidth * 12 });
             }
@@ -174,6 +207,21 @@ public sealed class OwnRowView : Border
                 }
 
                 line.Children.Add(icon);
+            }
+            else if (item.Field is { Var: TemplateVar.Faction } factionField)
+            {
+                // the faction is its emblem (the size option sets the picture's size); nothing while the faction is not known
+                if (row.FactionIcon is { } emblem)
+                {
+                    double side = Math.Clamp(16 + factionField.Size, 6, 40);
+                    UIElement icon = new Image { Source = emblem, Width = side, Height = side, Margin = new Thickness(0, 0, 3, 0), VerticalAlignment = VerticalAlignment.Center };
+                    if (Marked is not null && factionField.Start == Marked.Start && factionField.Length == Marked.Length)
+                    {
+                        icon = new Border { BorderBrush = (Brush)(Application.Current?.TryFindResource("Brush.Accent") ?? Brushes.Gold), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(3), Child = icon };
+                    }
+
+                    line.Children.Add(icon);
+                }
             }
             else if (item.Field is { } field)
             {

@@ -74,7 +74,7 @@ public static class ToolRender
             case "ownrows":
             {
                 // the rows of the look Own with a template (AIONDPS_OWN_TEMPLATE), one without combat power, to see whether the columns end under each other
-                string text = Environment.GetEnvironmentVariable("AIONDPS_OWN_TEMPLATE") is { Length: > 0 } t ? t.Replace("\\t", "\t") : "%CLASS%  %NAME%(16,b) %POWER%\t %DAMAGE% (%DPS%(short,r8))";
+                string text = Environment.GetEnvironmentVariable("AIONDPS_OWN_TEMPLATE") is { Length: > 0 } t ? t : "%CLASS%  %NAME%(16,b) %POWER%\t %DAMAGE% (%DPS%(short,r8))";
                 var parsed = OverlayTemplate.Parse(text);
                 (string Name, string Class, long Damage, double Dps, int? Power)[] sample =
                 {
@@ -86,8 +86,8 @@ public static class ToolRender
                 int place = 1;
                 foreach (var r in sample)
                 {
-                    var data = new PlayerRow(place) { Name = r.Name, ClassName = r.Class, Damage = r.Damage, Dps = r.Dps, CombatPower = r.Power, FillPercent = 100.0 * r.Damage / 2_514_236, SharePercent = 20, Rank = place++ };
-                    var view = new OwnRowView { DataContext = data, Template = parsed, ShareBars = true };
+                    var data = new PlayerRow(place) { Name = r.Name, ClassName = r.Class, Damage = r.Damage, Dps = r.Dps, CombatPower = r.Power, FillPercent = 100.0 * r.Damage / 2_514_236, SharePercent = 20, Faction = place % 2 == 1 ? "Elyos" : "Asmodian", Rank = place++ };
+                    var view = new OwnRowView { DataContext = data, Template = parsed, ShareBars = true, RightBlock = Environment.GetEnvironmentVariable("AIONDPS_OWN_RIGHT") == "1" };
                     views.Add(view);
                     rowsPanel.Children.Add(view);
                 }

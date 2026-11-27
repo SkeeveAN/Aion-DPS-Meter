@@ -20243,5 +20243,41 @@
     "pt": "com {0} % de vida",
     "ja": "HP {0} %で",
     "ko": "체력 {0} %에서"
+  },
+  "Own.Info.FACTION": {
+    "en": "Faction emblem of the player (Elyos or Asmodian); the size option sets the picture's size",
+    "de": "Fraktions-Symbol des Spielers (Elyos oder Asmodier); die Größe stellt das Symbol ein",
+    "fr": "Emblème de faction du joueur (Élyséen ou Asmodien) ; l'option de taille règle l'image",
+    "es": "Emblema de facción del jugador (Elyos o Asmodianos); la opción de tamaño ajusta la imagen",
+    "ru": "Эмблема фракции игрока (элийцы или асмодиане); размер задаётся параметром размера",
+    "zh": "玩家的阵营标志（天族或魔族）；大小选项可调整图标大小",
+    "zh-TW": "玩家的陣營標誌（天族或魔族）；大小選項可調整圖示大小",
+    "pt": "Emblema da facção do jogador (Elyos ou Asmodianos); a opção de tamanho ajusta a imagem",
+    "ja": "プレイヤーの陣営エンブレム（エリュオンまたはアスモディアン）。サイズ設定で大きさを変更",
+    "ko": "플레이어의 진영 문장(엘리온 또는 아스모디안); 크기 옵션으로 그림 크기 조절"
+  },
+  "Own.RightBlock": {
+    "en": "Block behind the tab flush at the right edge",
+    "de": "Block hinter dem Tab bündig am rechten Rand",
+    "fr": "Bloc après la tabulation collé au bord droit",
+    "es": "Bloque tras el tabulador pegado al borde derecho",
+    "ru": "Блок после табуляции вплотную к правому краю",
+    "zh": "制表符后的内容靠右边缘对齐",
+    "zh-TW": "定位字元後的內容靠右邊緣對齊",
+    "pt": "Bloco após o tab rente à margem direita",
+    "ja": "タブ以降のブロックを右端に揃える",
+    "ko": "탭 뒤의 블록을 오른쪽 가장자리에 붙이기"
+  },
+  "Own.RightBlock.Tip": {
+    "en": "Everything behind the first tab (\\t) of a line stands at the right edge of the row; the part before it stays at the left. Off: the tab is a plain gap.",
+    "de": "Alles hinter dem ersten Tab (\\t) einer Zeile steht am rechten Rand der Reihe; der Teil davor bleibt links. Aus: Der Tab ist nur eine Lücke.",
+    "fr": "Tout ce qui suit la première tabulation (\\t) d'une ligne se place au bord droit de la ligne ; la partie avant reste à gauche. Désactivé : la tabulation n'est qu'un espace.",
+    "es": "Todo lo que sigue al primer tabulador (\\t) de una línea queda en el borde derecho de la fila; lo anterior queda a la izquierda. Desactivado: el tabulador es solo un hueco.",
+    "ru": "Всё после первой табуляции (\\t) строки стоит у правого края; часть до неё остаётся слева. Выключено: табуляция — просто промежуток.",
+    "zh": "一行中第一个制表符（\\t）之后的内容靠行的右边缘；之前的部分留在左边。关闭时：制表符只是一段空隙。",
+    "zh-TW": "一行中第一個定位字元（\\t）之後的內容靠列的右邊緣；之前的部分留在左邊。關閉時：定位字元只是一段空隙。",
+    "pt": "Tudo depois do primeiro tab (\\t) de uma linha fica na margem direita da linha; a parte anterior fica à esquerda. Desligado: o tab é só um espaço.",
+    "ja": "行の最初のタブ（\\t）以降は行の右端に寄せ、前の部分は左に残ります。オフ：タブは単なる間隔です。",
+    "ko": "한 줄의 첫 탭(\\t) 뒤는 줄의 오른쪽 끝에 붙고 앞부분은 왼쪽에 남습니다. 끄면 탭은 단순한 간격입니다."
   }
 }

@@ -6,6 +6,9 @@ namespace AionDPS.Ui;
 /// <summary>One mode of the look "Own" of the DPS overlay: a name, the template of a row and what the list is sorted by.</summary>
 public sealed class OwnMode
 {
+    /// <summary>Everything behind the tab of a line stands flush at the right edge of the row (a block of its own), the rest stays at the left.</summary>
+    public bool RightBlock { get; set; }
+
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
 
     public string Name { get; set; } = "";
@@ -16,11 +19,11 @@ public sealed class OwnMode
     /// <summary>"Damage", "Dps", "Healing", "Taken" or "Power": the key the list is sorted by, highest first.</summary>
     public string SortBy { get; set; } = "Damage";
 
-    public OwnMode Copy() => new() { Id = Id, Name = Name, Template = Template, SortBy = SortBy };
+    public OwnMode Copy() => new() { Id = Id, Name = Name, Template = Template, SortBy = SortBy, RightBlock = RightBlock };
 }
 
 /// <summary>The variables of a template (English).</summary>
-public enum TemplateVar { Rank, Name, Class, Level, Damage, Dps, Share, Taken, Heal, Power, Deaths }
+public enum TemplateVar { Rank, Name, Class, Faction, Level, Damage, Dps, Share, Taken, Heal, Power, Deaths }
 
 /// <summary>A variable of a template with its options, and where it stands in the text.</summary>
 public sealed class TemplateField
@@ -137,6 +140,7 @@ public static class OverlayTemplate
         ["RANK"] = TemplateVar.Rank,
         ["NAME"] = TemplateVar.Name,
         ["CLASS"] = TemplateVar.Class,
+        ["FACTION"] = TemplateVar.Faction,
         ["LEVEL"] = TemplateVar.Level,
         ["DAMAGE"] = TemplateVar.Damage,
         ["DPS"] = TemplateVar.Dps,
@@ -149,10 +153,10 @@ public static class OverlayTemplate
     };
 
     /// <summary>Variables that show a number (they stand on the right, so the numbers of all rows end under each other).</summary>
-    public static bool IsNumber(TemplateVar v) => v is not (TemplateVar.Name or TemplateVar.Class);
+    public static bool IsNumber(TemplateVar v) => v is not (TemplateVar.Name or TemplateVar.Class or TemplateVar.Faction);
 
     /// <summary>The variables as they are offered to the player (English in every language).</summary>
-    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "PERCENT", "TAKEN", "HEAL", "POWER", "DEATHS" };
+    public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "FACTION", "LEVEL", "DAMAGE", "DPS", "PERCENT", "TAKEN", "HEAL", "POWER", "DEATHS" };
 
     /// <summary>The sort keys of a mode: the key as it is saved and the property of the row it means.</summary>
     public static readonly (string Key, string Property)[] SortKeys =
@@ -387,6 +391,8 @@ public static class OverlayTemplate
                 return row.Name;
             case TemplateVar.Class:
                 return ""; // the class is a picture, drawn by the row (the class icon)
+            case TemplateVar.Faction:
+                return ""; // the faction is a picture too (the emblem of Elyos or Asmodian), drawn by the row
             case TemplateVar.Level:
                 return row.Level > 0 ? row.Level.ToString(CultureInfo.CurrentCulture) : "";
             case TemplateVar.Damage:

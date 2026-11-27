@@ -40,6 +40,7 @@ public sealed class OwnLookEditor : StackPanel
     private readonly RadioButton _leftBox = new() { GroupName = "OwnSide", Margin = new Thickness(0, 0, 10, 0) };
     private readonly RadioButton _rightBox = new() { GroupName = "OwnSide" };
     private readonly CheckBox _symbolBox = new();
+    private readonly CheckBox _rightBlockBox = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _preview = new();
     private readonly Button _saveButton = new() { Padding = new Thickness(16, 5, 16, 5), Margin = new Thickness(0, 0, 8, 0), IsDefault = false };
     private readonly Button _discardButton = new() { Padding = new Thickness(16, 5, 16, 5), Margin = new Thickness(0, 0, 10, 0) };
@@ -126,6 +127,10 @@ public sealed class OwnLookEditor : StackPanel
         templateHost.Children.Add(_colors);
         templateHost.Children.Add(_templateBox);
         left.Children.Add(templateHost);
+        var rightBlockRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0), ToolTip = _loc["Own.RightBlock.Tip"] };
+        rightBlockRow.Children.Add(_rightBlockBox);
+        rightBlockRow.Children.Add(new TextBlock { Text = _loc["Own.RightBlock"], Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, FontSize = 12 });
+        left.Children.Add(rightBlockRow);
         left.Children.Add(_errorText);
         left.Children.Add(_selectedText);
         left.Children.Add(BuildInspector());
@@ -165,6 +170,10 @@ public sealed class OwnLookEditor : StackPanel
             {
                 Edit(m => m.SortBy = key);
             }
+        };
+        _rightBlockBox.Click += (_, _) =>
+        {
+            Edit(m => m.RightBlock = _rightBlockBox.IsChecked == true);
         };
         _templateBox.TextChanged += (_, _) =>
         {
@@ -626,6 +635,7 @@ public sealed class OwnLookEditor : StackPanel
             _nameBox.Text = mode?.Name ?? "";
             _sortBox.SelectedItem = _sortBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string?)i.Tag == (mode?.SortBy ?? "Damage"));
             _templateBox.Text = mode?.Template ?? "";
+            _rightBlockBox.IsChecked = mode?.RightBlock == true;
             _parsed = OverlayTemplate.Parse(mode?.Template);
 
             // the cursor stands in the DPS field (else the first one) so its settings - width, size, bold, short or long, left or right - are live at once, not greyed
@@ -675,7 +685,7 @@ public sealed class OwnLookEditor : StackPanel
     }
 
     private static bool SameModes(List<OwnMode> a, List<OwnMode> b) =>
-        a.Count == b.Count && a.Zip(b).All(p => p.First.Id == p.Second.Id && p.First.Name == p.Second.Name && p.First.Template == p.Second.Template && p.First.SortBy == p.Second.SortBy);
+        a.Count == b.Count && a.Zip(b).All(p => p.First.Id == p.Second.Id && p.First.Name == p.Second.Name && p.First.Template == p.Second.Template && p.First.SortBy == p.Second.SortBy && p.First.RightBlock == p.Second.RightBlock);
 
     private static bool Dark => Application.Current.FindResource("Brush.Window") is SolidColorBrush { Color: var c } && (0.299 * c.R + 0.587 * c.G + 0.114 * c.B) < 140;
 
@@ -842,7 +852,7 @@ public sealed class OwnLookEditor : StackPanel
                 _leftBox.IsChecked = !field.Right;
                 _rightBox.IsChecked = field.Right;
                 bool hasSymbol = field.Var is TemplateVar.Taken or TemplateVar.Heal or TemplateVar.Power or TemplateVar.Deaths;
-                _widthBox.IsEnabled = field.Var != TemplateVar.Class; // the class is a picture: its size is the Size box
+                _widthBox.IsEnabled = field.Var is not (TemplateVar.Class or TemplateVar.Faction); // the class is a picture: its size is the Size box
                 _symbolBox.IsEnabled = hasSymbol;
                 _symbolBox.IsChecked = field.NoSymbol;
             }
@@ -875,9 +885,9 @@ public sealed class OwnLookEditor : StackPanel
             var row = new PlayerRow(++rank)
             {
                 Name = s.Name, ClassName = s.Class, Level = 55, Damage = s.Damage, Dps = s.Dps, SharePercent = 100.0 * s.Damage / total, FillPercent = 100.0 * s.Damage / Sample[0].Damage, Rank = rank,
-                DamageTaken = s.Taken, Healing = s.Heal, ShowCombatPower = true, CombatPower = s.Power, Deaths = s.Deaths,
+                DamageTaken = s.Taken, Healing = s.Heal, ShowCombatPower = true, CombatPower = s.Power, Deaths = s.Deaths, Faction = rank % 2 == 1 ? "Elyos" : "Asmodian",
             };
-            _preview.Children.Add(new OwnRowView { DataContext = row, Template = _parsed.Items.Count == 0 ? OverlayTemplate.Parse(OverlayTemplate.DefaultText) : _parsed, Marked = marked, ShareBars = true });
+            _preview.Children.Add(new OwnRowView { DataContext = row, Template = _parsed.Items.Count == 0 ? OverlayTemplate.Parse(OverlayTemplate.DefaultText) : _parsed, Marked = marked, ShareBars = true, RightBlock = Current?.RightBlock == true });
         }
     }
 }

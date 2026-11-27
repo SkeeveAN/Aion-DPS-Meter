@@ -2041,7 +2041,7 @@ public partial class MainWindow : Window
         OwnMode? mode = _ownLook ? OwnModeIn(settings) : null;
         _ownSort = mode?.SortBy ?? "Damage";
         _ownModeName = mode?.Name ?? "";
-        OwnRowView.Use(mode?.Template, settings.OwnShareBars);
+        OwnRowView.Use(mode?.Template, settings.OwnShareBars, mode?.RightBlock == true);
         if (OverlayContent.ItemTemplate != (_ownLook ? OwnRowView.RowTemplate : _chipTemplate))
         {
             OverlayContent.ItemTemplate = _ownLook ? OwnRowView.RowTemplate : _chipTemplate;
