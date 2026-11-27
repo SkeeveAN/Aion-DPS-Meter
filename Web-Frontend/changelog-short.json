@@ -458,5 +458,17 @@
  "Fix: a double click on the tray icon and a second start open the dashboard instead of the old meter window; going from the fight analyser back to the live meter no longer fails with an error about the window place": {
   "en": "Tray icon opens the dashboard; no error leaving the fight analyser",
   "de": "Tray-Symbol öffnet das Dashboard; kein Fehler beim Verlassen des Analysators"
+ },
+ "%FACTION% and a right-edge block option in the look Own, no made-up Gladiator skills in the Skill Assist window once the character is known": {
+  "en": "%FACTION% and right-edge block in look Own, Skill Assist fix",
+  "de": "%FACTION% und Block am rechten Rand im Look Eigene, Skill-Assist-Fix"
+ },
+ "Fix: the Skill Assist window shows no made-up Gladiator list any more once the own character is known (a Chanter saw Gladiator skills under \"My skills and buffs\")": {
+  "en": "Skill Assist no longer shows made-up Gladiator skills",
+  "de": "Skill Assist zeigt keine erfundenen Gladiator-Skills mehr"
+ },
+ "The look Own: the variable %FACTION% (emblem of Elyos or Asmodian) and an option per mode that puts everything behind the first tab flush at the right edge of the row": {
+  "en": "Look Own: %FACTION% and block at the right edge",
+  "de": "Look Eigene: %FACTION% und Block am rechten Rand"
  }
 }

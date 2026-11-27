@@ -1,5 +1,32 @@
 [
  {
+  "version": "2.4.1",
+  "date": "2026-11-28",
+  "items": [
+   {
+    "text": "Fix: the Skill Assist window shows no made-up Gladiator list any more once the own character is known (a Chanter saw Gladiator skills under \"My skills and buffs\")",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "The look Own: the variable %FACTION% (emblem of Elyos or Asmodian) and an option per mode that puts everything behind the first tab flush at the right edge of the row",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "%FACTION% and a right-edge block option in the look Own, no made-up Gladiator skills in the Skill Assist window once the character is known",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   }
+  ]
+ },
+ {
   "version": "2.4.0",
   "date": "2026-11-28",
   "items": [
