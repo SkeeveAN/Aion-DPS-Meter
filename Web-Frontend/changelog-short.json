@@ -442,5 +442,21 @@
  "font colour in the gear window of every overlay, eye and gear easier to see, Skill Assist icons easier to recognise with real buffs and own skills": {
   "en": "Overlay font colour, clearer eye and gear, Skill Assist icons easier to see",
   "de": "Schriftfarbe der Overlays, Auge und Zahnrad deutlicher, Skill-Assist-Symbole besser erkennbar"
+ },
+ "Ludra guide in the boss cast bar, Now and soon merged into the timetable in the overlay designer with info buttons, %PERCENT% in the look Own, tray icon opens the dashboard, fix when leaving the fight analyser": {
+  "en": "Ludra guide, %PERCENT% in look Own, tray opens dashboard, fixes",
+  "de": "Ludra-Führer, %PERCENT% im Look Eigene, Tray öffnet Dashboard, Fixes"
+ },
+ "Boss cast bar: a guide for Eternal Ludra, switchable in the settings: the bar names each attack and says what to do, and shows what comes next with a countdown, from the boss's fixed pattern and its hit points": {
+  "en": "Boss cast bar: Ludra guide names attacks and shows what comes next",
+  "de": "Boss-Cast-Leiste: Ludra-Führer benennt Angriffe und zeigt, was kommt"
+ },
+ "Overlay designer: Now and soon is the timetable and is listed once, and the \"+\" shows a small i with a description of each overlay; the look Own has the variable %PERCENT% (share of the total damage in percent)": {
+  "en": "Designer: timetable listed once, info i; look Own: %PERCENT%",
+  "de": "Designer: Timetable nur einmal, Info-i; Look Eigene: %PERCENT%"
+ },
+ "Fix: a double click on the tray icon and a second start open the dashboard instead of the old meter window; going from the fight analyser back to the live meter no longer fails with an error about the window place": {
+  "en": "Tray icon opens the dashboard; no error leaving the fight analyser",
+  "de": "Tray-Symbol öffnet das Dashboard; kein Fehler beim Verlassen des Analysators"
  }
 }

@@ -1,7 +1,7 @@
 [
  {
-  "version": "Unreleased",
-  "date": "2026-11-27",
+  "version": "2.4.0",
+  "date": "2026-11-28",
   "items": [
    {
     "text": "Aion 2 G13 plugin 0.2.0: works as a Logitech applet (shows the class on the G13 display, starts in the tray), download included",
@@ -16,6 +16,34 @@
      "Client"
     ],
     "date": "2026-11-27"
+   },
+   {
+    "text": "Boss cast bar: a guide for Eternal Ludra, switchable in the settings: the bar names each attack and says what to do, and shows what comes next with a countdown, from the boss's fixed pattern and its hit points",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "Overlay designer: Now and soon is the timetable and is listed once, and the \"+\" shows a small i with a description of each overlay; the look Own has the variable %PERCENT% (share of the total damage in percent)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "Fix: a double click on the tray icon and a second start open the dashboard instead of the old meter window; going from the fight analyser back to the live meter no longer fails with an error about the window place",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "Ludra guide in the boss cast bar, Now and soon merged into the timetable in the overlay designer with info buttons, %PERCENT% in the look Own, tray icon opens the dashboard, fix when leaving the fight analyser",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
    }
   ]
  },
