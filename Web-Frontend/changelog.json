@@ -9,6 +9,13 @@
      "Client"
     ],
     "date": "2026-11-27"
+   },
+   {
+    "text": "Fix: the look Own: numbers stand on the right and every field is as wide as its widest row, so the columns end under each other even when a value is missing; a bracket written directly at a field belongs to it (no gap between the bracket and the number)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
    }
   ]
  },
