@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace AionDPS.Ui;
@@ -19,6 +20,10 @@ public sealed class OwnRowView : Border
     private readonly StackPanel _lines = new() { VerticalAlignment = VerticalAlignment.Center };
     private PlayerRow? _row;
     private bool _pending;
+
+    // The widest text each field of a template showed so far (in all rows): a field without a width is as wide as the widest of the rows, so the numbers of the rows end under each other.
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ParsedTemplate, double[]> Columns = new();
+    private static bool _growPending;
 
     /// <summary>Raised by the settings page when the player saved his modes: the overlay reads them again.</summary>
     public static event Action? ModesSaved;
@@ -138,8 +143,11 @@ public sealed class OwnRowView : Border
             return line;
         }
 
+        double[] columns = Columns.GetValue(template, t => new double[t.Items.Count]);
+        bool grew = false;
         foreach (TemplateItem item in template.Items)
         {
+            int index = template.Items.IndexOf(item);
             if (item.NewLine)
             {
                 Line();
@@ -170,7 +178,30 @@ public sealed class OwnRowView : Border
             else if (item.Field is { } field)
             {
                 double size = Math.Clamp(12 + field.Size, 6, 30);
-                UIElement shown = Text(OverlayTemplate.ValueOf(field, row), size, field.Bold, field.Right, field.Width, true);
+                string value = OverlayTemplate.ValueOf(field, row);
+                if (value.Length > 0)
+                {
+                    value = field.Prefix + value + field.Suffix;
+                }
+
+                // a name with a width is cut to it; every other field is at least as wide as its text in the widest row (a given width is the least)
+                bool cut = field.Width > 0 && !OverlayTemplate.IsNumber(field.Var);
+                var shownText = Text(value, size, field.Bold, field.Right, cut ? field.Width : 0, true);
+                if (!cut)
+                {
+                    shownText.FontFamily = TextElement.GetFontFamily(this);
+                    shownText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    double wanted = Math.Max(shownText.DesiredSize.Width + 1, field.Width * CharWidth * size);
+                    if (wanted > columns[index] + 0.5)
+                    {
+                        columns[index] = wanted;
+                        grew = true;
+                    }
+
+                    shownText.Width = columns[index];
+                }
+
+                UIElement shown = shownText;
                 if (ReferenceEquals(field, Marked) || (Marked is not null && field.Start == Marked.Start && field.Length == Marked.Length))
                 {
                     shown = new Border { BorderBrush = (Brush)(Application.Current?.TryFindResource("Brush.Accent") ?? Brushes.Gold), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(3), Margin = new Thickness(-2, 0, -2, 0), Padding = new Thickness(1, 0, 1, 0), Child = shown };
@@ -178,6 +209,17 @@ public sealed class OwnRowView : Border
 
                 line.Children.Add(shown);
             }
+        }
+
+        if (grew && !_growPending)
+        {
+            // a row showed a wider text than the others had room for: all rows draw again with the new width
+            _growPending = true;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _growPending = false;
+                Changed?.Invoke();
+            }), System.Windows.Threading.DispatcherPriority.Background);
         }
     }
 

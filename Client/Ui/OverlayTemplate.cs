@@ -40,7 +40,17 @@ public sealed class TemplateField
 
     public bool Short { get; set; }
 
+    /// <summary>The side the text stands on. Numbers stand on the right unless "l" says otherwise, so the numbers of all rows end under each other.</summary>
     public bool Right { get; set; }
+
+    /// <summary>Whether the template said l or r itself (else numbers stand on the right).</summary>
+    public bool SideSet { get; set; }
+
+    /// <summary>An opening bracket written directly in front of the field, "(%DPS%)": it belongs to the field, so the width and the side count it in and the brackets stay at the number.</summary>
+    public string Prefix { get; set; } = "";
+
+    /// <summary>The closing bracket written directly behind the field.</summary>
+    public string Suffix { get; set; } = "";
 
     /// <summary>Leaves out the symbol that belongs to the variable (the swords of the combat power, the arrow of the damage taken ...).</summary>
     public bool NoSymbol { get; set; }
@@ -73,9 +83,9 @@ public sealed class TemplateField
             options.Add("short");
         }
 
-        if (Right)
+        if (OverlayTemplate.IsNumber(Var) ? !Right : Right)
         {
-            options.Add("r");
+            options.Add(Right ? "r" : "l");
         }
 
         if (NoSymbol)
@@ -136,6 +146,9 @@ public static class OverlayTemplate
         ["POWER"] = TemplateVar.Power,
         ["DEATHS"] = TemplateVar.Deaths,
     };
+
+    /// <summary>Variables that show a number (they stand on the right, so the numbers of all rows end under each other).</summary>
+    public static bool IsNumber(TemplateVar v) => v is not (TemplateVar.Name or TemplateVar.Class);
 
     /// <summary>The variables as they are offered to the player (English in every language).</summary>
     public static readonly string[] Offered = { "RANK", "NAME", "CLASS", "LEVEL", "DAMAGE", "DPS", "SHARE", "TAKEN", "HEAL", "POWER", "DEATHS" };
@@ -219,10 +232,18 @@ public static class OverlayTemplate
 
                 if (end < text.Length && text[end] == '%' && end > i + 1)
                 {
+                    string prefix = "";
+                    if (literal.Length > 0 && literal[^1] is '(' or '[')
+                    {
+                        prefix = literal[^1].ToString();
+                        literal.Length--;
+                    }
+
                     Flush();
                     string name = text[(i + 1)..end];
                     int fieldEnd = end + 1;
                     string? options = null;
+                    int skip = 0;
                     if (fieldEnd < text.Length && text[fieldEnd] == '(')
                     {
                         int close = text.IndexOf(')', fieldEnd);
@@ -250,10 +271,27 @@ public static class OverlayTemplate
                             ReadOptions(field, options, i, fieldEnd - i, result.Errors);
                         }
 
+                        if (!field.SideSet && IsNumber(variable))
+                        {
+                            field.Right = true;
+                        }
+
+                        field.Prefix = prefix;
+                        if (prefix.Length > 0 && fieldEnd < text.Length && text[fieldEnd] == (prefix == "(" ? ')' : ']'))
+                        {
+                            field.Suffix = text[fieldEnd].ToString();
+                            skip = 1;
+                        }
+
                         result.Items.Add(new TemplateItem { Field = field });
                     }
 
-                    i = fieldEnd - 1;
+                    if (!Names.ContainsKey(name))
+                    {
+                        literal.Append(prefix); // the bracket stays text when the variable is not known
+                    }
+
+                    i = fieldEnd - 1 + skip;
                     continue;
                 }
             }
@@ -294,15 +332,18 @@ public static class OverlayTemplate
             {
                 // "r8": the side and the width in one
                 field.Right = o[0] == 'r';
+                field.SideSet = true;
                 field.Width = sideWidth;
             }
             else if (o is "l")
             {
                 field.Right = false;
+                field.SideSet = true;
             }
             else if (o is "r")
             {
                 field.Right = true;
+                field.SideSet = true;
             }
             else if (o is "n")
             {

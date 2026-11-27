@@ -71,6 +71,41 @@ public static class ToolRender
                 break;
             }
 
+            case "ownrows":
+            {
+                // the rows of the look Own with a template (AIONDPS_OWN_TEMPLATE), one without combat power, to see whether the columns end under each other
+                string text = Environment.GetEnvironmentVariable("AIONDPS_OWN_TEMPLATE") is { Length: > 0 } t ? t.Replace("\\t", "\t") : "%CLASS%  %NAME%(16,b) %POWER%\t %DAMAGE% (%DPS%(short,r8))";
+                var parsed = OverlayTemplate.Parse(text);
+                (string Name, string Class, long Damage, double Dps, int? Power)[] sample =
+                {
+                    ("Jinwoo", "Gladiator", 2_514_236, 8300, 212_145), ("Goku", "Templar", 2_168_400, 7100, 203_900), ("Player #10268", "Cleric", 10_616, 15_200, null),
+                    ("Naruto", "Sorcerer", 934_200, 3900, 188_700), ("Tsubasa", "Assassin", 540_800, 2100, 172_500),
+                };
+                var rowsPanel = new StackPanel { Width = 520 };
+                var views = new List<OwnRowView>();
+                int place = 1;
+                foreach (var r in sample)
+                {
+                    var data = new PlayerRow(place) { Name = r.Name, ClassName = r.Class, Damage = r.Damage, Dps = r.Dps, CombatPower = r.Power, FillPercent = 100.0 * r.Damage / 2_514_236, SharePercent = 20, Rank = place++ };
+                    var view = new OwnRowView { DataContext = data, Template = parsed, ShareBars = true };
+                    views.Add(view);
+                    rowsPanel.Children.Add(view);
+                }
+
+                for (int pass = 0; pass < 3; pass++)
+                {
+                    foreach (var view in views)
+                    {
+                        view.Redraw(); // the second pass sees the widest text of the first
+                    }
+                }
+
+                shown = new Border { Padding = new Thickness(12), Background = back, Child = rowsPanel };
+                width = 0;
+                height = 0;
+                break;
+            }
+
             case "designeroverlay":
             {
                 // an overlay in the designer: its frame, the eye and the gear (the Skill Assist overlay with real buffs, on a game-like ground)
