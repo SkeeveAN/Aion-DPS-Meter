@@ -1,5 +1,33 @@
 [
  {
+  "version": "2.4.2",
+  "date": "2026-11-28",
+  "items": [
+   {
+    "text": "Fix: the Twitch drops window was empty when a live stream title had been cut in the middle of an emoji; the window reads such a title as empty and the server no longer cuts titles inside a character",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "World boss: a lead time (0 to 15 minutes) at the top of the settings: the sound plays that many minutes before a watched boss is back, once per return",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "Twitch drops window shows its content again, lead time for the world boss sounds",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   }
+  ]
+ },
+ {
   "version": "2.4.1",
   "date": "2026-11-28",
   "items": [

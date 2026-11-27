@@ -470,5 +470,17 @@
  "The look Own: the variable %FACTION% (emblem of Elyos or Asmodian) and an option per mode that puts everything behind the first tab flush at the right edge of the row": {
   "en": "Look Own: %FACTION% and block at the right edge",
   "de": "Look Eigene: %FACTION% und Block am rechten Rand"
+ },
+ "Twitch drops window shows its content again, lead time for the world boss sounds": {
+  "en": "Twitch drops window fixed, world boss lead time",
+  "de": "Twitch-Drops-Fenster repariert, Vorlaufzeit für World-Bosse"
+ },
+ "Fix: the Twitch drops window was empty when a live stream title had been cut in the middle of an emoji; the window reads such a title as empty and the server no longer cuts titles inside a character": {
+  "en": "Twitch drops window no longer empty",
+  "de": "Twitch-Drops-Fenster nicht mehr leer"
+ },
+ "World boss: a lead time (0 to 15 minutes) at the top of the settings: the sound plays that many minutes before a watched boss is back, once per return": {
+  "en": "World boss: lead time for the sound (0-15 min)",
+  "de": "World-Boss: Vorlaufzeit für den Ton (0-15 Min.)"
  }
 }
