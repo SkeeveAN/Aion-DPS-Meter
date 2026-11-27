@@ -147,6 +147,31 @@ public static class ToolRender
                 break;
             }
 
+            case "newsdrops":
+            {
+                // the Twitch drops window's content, filled from the live site (never shown as a window): what it draws, or the exception that left it empty
+                const System.Reflection.BindingFlags nf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var news = (NewsWindow)Activator.CreateInstance(typeof(NewsWindow), nf, null, new object[] { loc["Hub.Dash.Drops"] }, null)!;
+                SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext());
+                var fill = (Task)typeof(NewsWindow).GetMethod("FillDrops", nf)!.Invoke(news, null)!;
+                var frame = new System.Windows.Threading.DispatcherFrame();
+                _ = fill.ContinueWith(_ => frame.Continue = false);
+                System.Windows.Threading.Dispatcher.PushFrame(frame);
+                if (fill.Exception is { } ex)
+                {
+                    Console.WriteLine("FillDrops failed: " + ex.GetBaseException());
+                }
+
+                var list = (StackPanel)typeof(NewsWindow).GetField("_list", nf)!.GetValue(news)!;
+                Console.WriteLine("children: " + list.Children.Count);
+                ((ScrollViewer)typeof(NewsWindow).GetField("_scroll", nf)!.GetValue(news)!).Content = null;
+                list.Width = 900;
+                shown = new Border { Padding = new Thickness(12), Background = back, Child = list };
+                width = 0;
+                height = 0;
+                break;
+            }
+
             case "targetpower":
             {
                 // the target power widget as the overlay draws it: its window (380 x 64 by default) with the padding of the overlay, on a game-like ground

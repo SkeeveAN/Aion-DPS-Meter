@@ -210,6 +210,19 @@ public sealed class NewsWindow : Window
     }
 
     /// <summary>The channels that stream AION 2 with drops on right now (the server asks Twitch): their names, viewers, language and title, and "open on Twitch".</summary>
+    /// <summary>A text of the site's JSON; a text the server cut in the middle of a character (an emoji) cannot be read and counts as empty instead of emptying the whole window.</summary>
+    private static string SafeString(JsonElement element)
+    {
+        try
+        {
+            return element.GetString() ?? "";
+        }
+        catch (InvalidOperationException)
+        {
+            return "";
+        }
+    }
+
     private Border LiveCard(JsonElement live, LocalizationManager loc)
     {
         int streams = live.GetProperty("streams").GetInt32();
@@ -219,11 +232,11 @@ public sealed class NewsWindow : Window
         {
             foreach (JsonElement ch in channels.EnumerateArray())
             {
-                string name = ch.TryGetProperty("name", out JsonElement n) ? n.GetString() ?? "" : "";
-                string login = ch.TryGetProperty("login", out JsonElement l) ? l.GetString() ?? "" : "";
+                string name = ch.TryGetProperty("name", out JsonElement n) ? SafeString(n) : "";
+                string login = ch.TryGetProperty("login", out JsonElement l) ? SafeString(l) : "";
                 int count = ch.TryGetProperty("viewers", out JsonElement cv) ? cv.GetInt32() : 0;
-                string language = ch.TryGetProperty("language", out JsonElement lg) ? (lg.GetString() ?? "").ToUpperInvariant() : "";
-                string title = ch.TryGetProperty("title", out JsonElement t) ? t.GetString() ?? "" : "";
+                string language = ch.TryGetProperty("language", out JsonElement lg) ? SafeString(lg).ToUpperInvariant() : "";
+                string title = ch.TryGetProperty("title", out JsonElement t) ? SafeString(t) : "";
                 rows.Add(Text($"{name}   ·   {count:N0}   ·   {language}", 12.5, true, "Brush.Text", 10));
                 if (title.Length > 0)
                 {
@@ -268,7 +281,14 @@ public sealed class NewsWindow : Window
         DateTime now = DateTime.UtcNow;
         if (doc.RootElement.TryGetProperty("live", out JsonElement live) && live.ValueKind == JsonValueKind.Object && live.TryGetProperty("streams", out JsonElement streams) && streams.GetInt32() > 0)
         {
-            _list.Children.Add(LiveCard(live, loc));
+            try
+            {
+                _list.Children.Add(LiveCard(live, loc));
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or FormatException)
+            {
+                // a broken live list does not hide the campaigns below it
+            }
         }
 
         if (doc.RootElement.TryGetProperty("claimBy", out JsonElement claim) && DateTime.TryParse(claim.GetString(), null, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime claimBy) && claimBy > now)

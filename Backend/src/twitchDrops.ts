@@ -311,7 +311,7 @@ async function fetchLiveDrops(fetchFn: FetchFn, now: number): Promise<LiveDrops 
         checkedAt: new Date(now).toISOString(),
         streams: drops.length,
         viewers: drops.reduce((n, s) => n + s.viewer_count, 0),
-        channels: drops.slice(0, 8).map((s) => ({ login: s.user_login, name: s.user_name, viewers: s.viewer_count, title: s.title.slice(0, 120), language: s.language })),
+        channels: drops.slice(0, 8).map((s) => ({ login: s.user_login, name: s.user_name, viewers: s.viewer_count, title: Array.from(s.title).slice(0, 120).join(""), language: s.language })),
       };
       liveCache = { at: now, data };
       liveFailedAt = null;
