@@ -157,13 +157,15 @@ public sealed class AssistWindow : Window
         _preview.SortByTime = _settings.AssistSortByTime;
         _preview.Seen = AssistKeys.Remember;
         _items = _preview.Collect(_directory());
-        var shown = _items.Count > 0 ? _items : AssistPanel.Sample();
+        // the made-up Gladiator is only for a meter that has seen no character yet; once the own character is known, nothing is shown that is not his
+        bool known = _directory()?.LocalCharacter is not null;
+        var shown = _items.Count > 0 ? _items : known ? Array.Empty<AssistItem>() : AssistPanel.Sample();
         _preview.Show(shown);
         Mark(_horizontalTile, !_settings.AssistVertical);
         Mark(_verticalTile, _settings.AssistVertical);
 
-        // what the lists offer: everything seen so far (or a made-up Gladiator while the game never ran)
-        var keys = _settings.AssistKnown.Concat(_items.Select(i => i.Key)).Concat(_settings.AssistKnown.Count == 0 && _items.Count == 0 ? AssistPanel.SampleCatalog() : Array.Empty<int>()).Distinct().ToList();
+        // what the lists offer: everything seen so far (or a made-up Gladiator while no character is known)
+        var keys = _settings.AssistKnown.Concat(_items.Select(i => i.Key)).Concat(_settings.AssistKnown.Count == 0 && _items.Count == 0 && !known ? AssistPanel.SampleCatalog() : Array.Empty<int>()).Distinct().ToList();
         _catalog = keys;
         string key = string.Join(',', keys) + "|" + string.Join(',', _settings.AssistOrder) + "|" + string.Join(',', _settings.AssistOverlayHidden);
         if (key == _listsKey)
