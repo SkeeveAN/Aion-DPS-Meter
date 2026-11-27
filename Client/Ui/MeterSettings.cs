@@ -457,6 +457,9 @@ public sealed class MeterSettings
     /// <summary>Master switch of the world boss sounds: off = no boss plays its sound. Off until switched on.</summary>
     public bool BossNotify { get; set; }
 
+    /// <summary>How many minutes before a watched boss is back its sound plays, 0 to 15 (0 = only when it is back; the same for every boss).</summary>
+    public int BossLeadMinutes { get; set; }
+
     /// <summary>Per boss (NPC id as text): watched or not, and the sound with its volume that plays when it is back. A boss without an entry is not watched.</summary>
     public Dictionary<string, BossAlertSetting> BossAlerts { get; set; } = new();
 

@@ -109,6 +109,7 @@ public static class ToolConfigs
         string language = loc.Language;
         var top = ConfigControls.Card(loc["Settings.Nav.Boss"],
             c.Switch(loc["Settings.Boss.Notify"], null, s => s.BossNotify, (s, v) => s.BossNotify = v),
+            c.Slider(loc["Settings.Boss.Lead"], null, 0, 15, 1, s => Math.Clamp(s.BossLeadMinutes, 0, 15), (s, v) => s.BossLeadMinutes = v, v => v == 0 ? loc["Settings.Boss.LeadNone"] : string.Format(loc["Settings.Timetable.LookaheadValue"], v)),
             ConfigControls.Note(loc["Settings.Boss.Hint"]));
 
         var cards = new List<UIElement> { top };

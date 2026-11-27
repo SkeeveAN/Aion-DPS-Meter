@@ -20279,5 +20279,29 @@
     "pt": "Tudo depois do primeiro tab (\\t) de uma linha fica na margem direita da linha; a parte anterior fica à esquerda. Desligado: o tab é só um espaço.",
     "ja": "行の最初のタブ（\\t）以降は行の右端に寄せ、前の部分は左に残ります。オフ：タブは単なる間隔です。",
     "ko": "한 줄의 첫 탭(\\t) 뒤는 줄의 오른쪽 끝에 붙고 앞부분은 왼쪽에 남습니다. 끄면 탭은 단순한 간격입니다."
+  },
+  "Settings.Boss.Lead": {
+    "en": "Minutes before the boss is back",
+    "de": "Minuten bevor der Boss wieder da ist",
+    "fr": "Minutes avant le retour du boss",
+    "es": "Minutos antes de que vuelva el jefe",
+    "ru": "Минут до возвращения босса",
+    "zh": "首领回归前的分钟数",
+    "zh-TW": "首領回歸前的分鐘數",
+    "pt": "Minutos antes de o chefe voltar",
+    "ja": "ボス復活の何分前か",
+    "ko": "보스 복귀 몇 분 전"
+  },
+  "Settings.Boss.LeadNone": {
+    "en": "when it is back",
+    "de": "wenn er da ist",
+    "fr": "à son retour",
+    "es": "cuando vuelva",
+    "ru": "при появлении",
+    "zh": "出现时",
+    "zh-TW": "出現時",
+    "pt": "quando voltar",
+    "ja": "出現時",
+    "ko": "나타날 때"
   }
 }

@@ -136,6 +136,7 @@ public sealed class WorldBossController : IDisposable
 {
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly Dictionary<int, BossPhase> _phases = new();
+    private readonly Dictionary<int, long> _announcedFor = new(); // per boss: the return time (ticks) the early sound already played for
     private WorldBossOverlayWindow? _overlay;
     private readonly List<WorldBossOverlayWindow> _views = new();
 
@@ -273,9 +274,24 @@ public sealed class WorldBossController : IDisposable
         {
             bool wasAway = _phases.TryGetValue(boss.Npc, out var before) && before is BossPhase.Respawn or BossPhase.Fixed;
             _phases[boss.Npc] = status.Phase;
-            if (wasAway && status.Phase == BossPhase.Now && settings.BossNotify && alert.Sound.Length > 0 && alert.Volume > 0)
+            bool sound = settings.BossNotify && alert.Sound.Length > 0 && alert.Volume > 0;
+            TimeSpan lead = TimeSpan.FromMinutes(Math.Clamp(settings.BossLeadMinutes, 0, 15));
+            // the early sound: the boss is away, its return is known and within the lead time (once per return time)
+            if (sound && lead > TimeSpan.Zero && status.Phase is BossPhase.Respawn or BossPhase.Fixed && status.At is { } due && due > now && due - now <= lead
+                && (!_announcedFor.TryGetValue(boss.Npc, out long done) || done != due.Ticks))
             {
+                _announcedFor[boss.Npc] = due.Ticks;
                 NotifySounds.Play(alert.Sound, alert.Volume);
+            }
+            else if (wasAway && status.Phase == BossPhase.Now && sound)
+            {
+                // back now: the sound plays unless the early one already did for this return
+                bool early = lead > TimeSpan.Zero && _announcedFor.ContainsKey(boss.Npc);
+                _announcedFor.Remove(boss.Npc);
+                if (!early)
+                {
+                    NotifySounds.Play(alert.Sound, alert.Volume);
+                }
             }
         }
 
