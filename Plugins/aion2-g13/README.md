@@ -14,3 +14,7 @@ Eigenstaendiges Programm, unabhaengig vom DPS-Tool-Projekt.
   so weiss man bei Rueckmeldungen, welche Fassung gemeint ist.
 - `MainForm.cs` Oberflaeche, `Watcher.cs` Klassenerkennung, `Keys.cs` Tastenkuerzel, `Settings.cs` Speicherung
   (`%APPDATA%\Aion2G13Plugin\settings.json`).
+
+## Download
+`download/Aion2G13Plugin-0.2.0-full.zip` (runs without an installed .NET runtime, not signed).
+SHA-256: `6521cb6ebc2ca43fbf6d2e07cd451826d3059babff4e51b731179a01cd3552c4`

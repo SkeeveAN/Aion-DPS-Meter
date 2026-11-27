@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Aion2G13Plugin</AssemblyName>
     <RootNamespace>Aion2G13Plugin</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Product>Aion 2 G13 Plugin</Product>
   </PropertyGroup>
 </Project>

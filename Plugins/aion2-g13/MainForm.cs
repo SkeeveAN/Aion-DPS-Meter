@@ -13,6 +13,8 @@ public sealed class MainForm : Form
     private readonly Dictionary<string, (ComboBox Kind, TextBox Value)> _rows = new();
     private readonly NotifyIcon _tray = new();
     private string _applied = "";
+    private readonly System.Windows.Forms.Timer _lcdTimer = new() { Interval = 100 };
+    private bool _startHidden;
 
     private static readonly string[] Kinds = { "Nichts tun", "Tastenkürzel senden", "Programm starten" };
     private static readonly string[] KindIds = { "none", "hotkey", "program" };
@@ -90,12 +92,44 @@ public sealed class MainForm : Form
         _tray.ContextMenuStrip.Items.Add("Öffnen", null, (_, _) => { Show(); WindowState = FormWindowState.Normal; });
         _tray.ContextMenuStrip.Items.Add("Beenden", null, (_, _) => { _tray.Visible = false; Application.Exit(); });
 
+        _startHidden = _settings.Link.Length > 0;
+        Lcd.Start();
+        _lcdTimer.Tick += (_, _) => Lcd.Tick();
+        _lcdTimer.Start();
+        ShowLcd("wartet auf Kampf");
+        if (Lcd.Problem.Length > 0)
+        {
+            _status.Text = Lcd.Problem;
+        }
+
         _watcher.StatusChanged += s => BeginInvoke(() => _status.Text = s);
         _watcher.ClassSeen += cls => BeginInvoke(() => ClassSeen(cls));
         Load += (_, _) => Connect();
         Resize += (_, _) => { if (WindowState == FormWindowState.Minimized) { Hide(); } };
-        FormClosing += (_, e) => { _watcher.Stop(); _tray.Visible = false; };
+        FormClosing += (_, e) => { _watcher.Stop(); _lcdTimer.Stop(); Lcd.Stop(); _tray.Visible = false; };
     }
+
+    /// <summary>With a link saved the program starts in the tray (the Logitech software starts it with the PC); without one the window opens for the set-up.</summary>
+    protected override void SetVisibleCore(bool value)
+    {
+        if (_startHidden)
+        {
+            _startHidden = false;
+            if (!IsHandleCreated)
+            {
+                CreateHandle();
+            }
+
+            Connect();
+            base.SetVisibleCore(false);
+            return;
+        }
+
+        base.SetVisibleCore(value);
+    }
+
+    private void ShowLcd(string line2, string line3 = "") =>
+        Lcd.Show("Aion 2", _applied.Length > 0 ? _applied : "Klasse: ?", line2, line3);
 
     private void Connect()
     {
@@ -159,6 +193,10 @@ public sealed class MainForm : Form
         }
 
         _status.Text = (manual ? "Test " : "Wechsel ") + cls + ": " + done;
+        if (!manual)
+        {
+            ShowLcd(rule.Kind == "none" ? "kein Wechsel" : "Profil gewechselt", rule.Kind == "hotkey" ? rule.Value : "");
+        }
     }
 
     private Label Heading(string text) => new() { Text = text, AutoSize = true, ForeColor = Gold, Font = new Font(Font.FontFamily, 11f, FontStyle.Bold), Margin = new Padding(0, 10, 0, 4) };
