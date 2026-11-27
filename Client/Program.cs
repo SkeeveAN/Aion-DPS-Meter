@@ -1790,6 +1790,8 @@ internal static class Program
             (11130050, 54_000, 8956), (11250000, 31_000, 8956), (11270000, -1, 8956), (11400050, 14_000, 8956),
             (18160050, 40_000, 9002), (18190050, 27_000, 9002), (17430010, 18_000, 9003), (17410050, 9_000, 9003),
         };
+        // the player's own skills on cooldown (real skills of the Gladiator: Wrath Strike and two more)
+        Aion2.Aion2Cooldowns.Receive(new List<Aion2.CooldownEntry> { new(11170000, 38_000), new(11050000, 17_000), new(11110000, 6_000) }, now);
         for (int i = 0; i < demo.Length; i++)
         {
             dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, demo[i].Skill * 10, demo[i].Skill, demo[i].Ms, demo[i].Caster));

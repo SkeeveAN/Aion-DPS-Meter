@@ -19561,16 +19561,16 @@
     "ko": "목록 - 순서"
   },
   "Assist.MyBuffs": {
-    "en": "My buffs",
-    "de": "Meine Buffs",
-    "fr": "Mes buffs",
-    "es": "Mis buffs",
-    "ru": "Мои баффы",
-    "zh": "我的增益",
-    "zh-TW": "我的增益",
-    "pt": "Meus buffs",
-    "ja": "自分のバフ",
-    "ko": "내 버프"
+    "en": "My skills and buffs",
+    "de": "Meine Skills und Buffs",
+    "fr": "Mes skills et buffs",
+    "es": "Mis skills y buffs",
+    "ru": "Мои навыки и баффы",
+    "zh": "我的技能与增益",
+    "zh-TW": "我的技能與增益",
+    "pt": "Meus skills e buffs",
+    "ja": "自分のスキルとバフ",
+    "ko": "내 스킬과 버프"
   },
   "Assist.GroupBuffs": {
     "en": "Group buffs",
