@@ -5155,6 +5155,7 @@ public partial class MainWindow : Window
     /// the headless test modes, which must not put anything on the user's screen).</summary>
     private void CreateTrayIcon()
     {
+        SingleInstance.ShowRequested = ShowFromTray; // a second start of the program asks for the same as the tray icon: the dashboard
         if (Headless)
         {
             return;
@@ -5168,29 +5169,34 @@ public partial class MainWindow : Window
                 "Aion DPS Meter " + AppVersion.Text,
                 new (string?, Action?)[]
                 {
-                    (loc["Main.Tray.Show"], () =>
-                    {
-                        if (_hubWindow is { IsLoaded: true } hubShown)
-                        {
-                            hubShown.Show();
-                            hubShown.WindowState = WindowState.Normal;
-                            hubShown.Activate();
-                        }
-                        else
-                        {
-                            _trayIcon?.Restore();
-                        }
-                    }),
+                    (loc["Main.Tray.Show"], ShowFromTray),
                     (loc["Main.Tray.ToggleUi"], SetHideUi),
                     (loc["Main.Tray.StreamLink"], CopyStreamLink),
                     (loc["Main.MenuApp.CheckForUpdates"], () => _ = RunUpdateCheck(announceResult: true)),
                     (null, null),
                     (loc["Main.Tray.Exit"], Close),
-                });
+                },
+                ShowFromTray);
         }
         catch (Exception ex) when (ex is IOException or ArgumentException)
         {
             // No icon file: the meter works without a tray icon.
+        }
+    }
+
+    /// <summary>A double click on the tray icon (and "Show" of its menu) brings the dashboard back, and opens it when it is not open; the small meter window stays where it is.</summary>
+    private void ShowFromTray()
+    {
+
+        if (_hubWindow is { IsLoaded: true } hub)
+        {
+            hub.Show();
+            hub.WindowState = WindowState.Normal;
+            hub.Activate();
+        }
+        else
+        {
+            OnOpenHubClicked(this, new RoutedEventArgs());
         }
     }
 

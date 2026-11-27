@@ -15,7 +15,7 @@ internal sealed class TrayIcon : IDisposable
     private readonly NotifyIcon _icon;
     private readonly Window _window;
 
-    public TrayIcon(Window window, string iconPath, string tooltip, IEnumerable<(string? Text, Action? Action)> menuItems)
+    public TrayIcon(Window window, string iconPath, string tooltip, IEnumerable<(string? Text, Action? Action)> menuItems, Action? onDoubleClick = null)
     {
         _window = window;
         _icon = new NotifyIcon
@@ -24,7 +24,7 @@ internal sealed class TrayIcon : IDisposable
             Text = tooltip,
             Visible = true,
         };
-        _icon.DoubleClick += (_, _) => Restore();
+        _icon.DoubleClick += (_, _) => (onDoubleClick ?? Restore)();
 
         var menu = new ContextMenuStrip();
         foreach (var (text, action) in menuItems)

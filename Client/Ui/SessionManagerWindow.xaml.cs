@@ -504,7 +504,9 @@ public partial class SessionManagerWindow : Window
 
     private void SavePlacement()
     {
-        if (WindowState != WindowState.Normal)
+        // the manager also lives as a page of the dashboard, a window that was never shown: its place is NaN and its size 0 (NaN cannot be written to the settings file)
+        if (WindowState != WindowState.Normal || !double.IsFinite(Left) || !double.IsFinite(Top) || !double.IsFinite(ActualWidth) || !double.IsFinite(ActualHeight)
+            || ActualWidth <= 0 || ActualHeight <= 0 || !double.IsFinite(ManagerColumn.ActualWidth))
         {
             return;
         }

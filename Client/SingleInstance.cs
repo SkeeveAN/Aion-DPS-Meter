@@ -78,7 +78,28 @@ internal static class SingleInstance
         }) { IsBackground = true, Name = "single-instance" }.Start();
     }
 
+    /// <summary>What a second start asks for: the dashboard (set by the main window). Without it, or while no dashboard can be shown, the small meter window comes to the front.</summary>
+    public static Action? ShowRequested { get; set; }
+
     private static void BringToFront(Window window)
+    {
+        try
+        {
+            if (ShowRequested is { } show)
+            {
+                show();
+                return;
+            }
+
+            BringWindowToFront(window);
+        }
+        catch (InvalidOperationException)
+        {
+            // the window was closed in the meantime (Show on a closed window throws): nothing to bring, and no error box for a second start
+        }
+    }
+
+    private static void BringWindowToFront(Window window)
     {
         if (window.WindowState == WindowState.Minimized)
         {
