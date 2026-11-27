@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-27",
+  "items": [
+   {
+    "text": "Aion 2 G13 plugin 0.2.0: works as a Logitech applet (shows the class on the G13 display, starts in the tray), download included",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
+   }
+  ]
+ },
+ {
   "version": "2.3.4",
   "date": "2026-11-27",
   "items": [
