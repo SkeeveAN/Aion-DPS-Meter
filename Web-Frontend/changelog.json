@@ -1,22 +1,8 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.3.4",
   "date": "2026-11-27",
   "items": [
-   {
-    "text": "Overlay designer: a font colour row in the gear window of every overlay (eight colours and \"standard\"), the numbers of the Skill Assist follow it",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-27"
-   },
-   {
-    "text": "Overlay designer: the eye and the gear on a dark pill with a gold rim, bigger and bolder (the closed eye looks switched off); Skill Assist: the clock no longer darkens the icons so much, the preview shows real buffs; pictures of the designer and of the assist for the render tool",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-11-27"
-   },
    {
     "text": "Pet map: the player's arrow is drawn over the cube marks (it was hidden under them), and a pale arrow with a dashed ring shows when the place is only a guess from the entities around",
     "areas": [
@@ -26,6 +12,13 @@
    },
    {
     "text": "Aion 2 G13 plugin: first version as a separate program (not part of the client), switches the G13 profile by the class of the own character",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-27"
+   },
+   {
+    "text": "font colour in the gear window of every overlay, eye and gear easier to see, Skill Assist icons easier to recognise with real buffs and own skills",
     "areas": [
      "Client"
     ],

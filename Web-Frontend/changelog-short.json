@@ -438,5 +438,9 @@
  "Pet map: the player's arrow is drawn over the cube marks (it was hidden under them), and a pale arrow with a dashed ring shows when the place is only a guess from the entities around": {
   "en": "Pet map: player arrow no longer hidden, estimated position marked",
   "de": "Pet-Karte: Spielerpfeil nicht mehr verdeckt, geschätzte Position markiert"
+ },
+ "font colour in the gear window of every overlay, eye and gear easier to see, Skill Assist icons easier to recognise with real buffs and own skills": {
+  "en": "Overlay font colour, clearer eye and gear, Skill Assist icons easier to see",
+  "de": "Schriftfarbe der Overlays, Auge und Zahnrad deutlicher, Skill-Assist-Symbole besser erkennbar"
  }
 }
