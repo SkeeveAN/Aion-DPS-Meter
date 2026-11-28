@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.4.3",
   "date": "2026-11-28",
   "items": [
    {
@@ -27,6 +27,13 @@
    },
    {
     "text": "Chips overlay: the share of the group's damage stands larger to the right of damage and DPS, over both lines",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "chips overlay shows the share of the group's damage",
     "areas": [
      "Client"
     ],

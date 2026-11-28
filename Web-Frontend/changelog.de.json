@@ -1646,5 +1646,6 @@
   "Farm map: the arrows to change the picture stand at the middle of the left and the right edge of the map": "Farm-Karte: Die Pfeile zum Wechseln des Bildes stehen in der Mitte des linken und des rechten Rands der Karte",
   "Farm map: the list of the spots stands next to the map, on a card of its own, and no longer lies over the map": "Farm-Karte: Die Liste der Plätze steht neben der Karte, auf einer eigenen Karte, und liegt nicht mehr über der Karte",
   "Player page: the arcana tab shows the skill levels, god stats and set effects of other players too, read from NC's item pages (no experience)": "Spielerseite: Der Arcana-Tab zeigt jetzt auch bei anderen Spielern Skill-Stufen, Götterwerte und Set-Effekte, gelesen von den Item-Seiten von NC (ohne Erfahrung)",
-  "Chips overlay: the share of the group's damage stands larger to the right of damage and DPS, over both lines": "Chip-Ansicht: Der Anteil am Gruppenschaden steht größer rechts neben Schaden und DPS, über beide Zeilen"
+  "Chips overlay: the share of the group's damage stands larger to the right of damage and DPS, over both lines": "Chip-Ansicht: Der Anteil am Gruppenschaden steht größer rechts neben Schaden und DPS, über beide Zeilen",
+  "Release 2.4.3: chips overlay shows the share of the group's damage": "Release 2.4.3: Die Chip-Ansicht zeigt den Anteil am Gruppenschaden"
 }

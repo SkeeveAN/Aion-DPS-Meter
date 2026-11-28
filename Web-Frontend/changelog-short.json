@@ -498,5 +498,9 @@
  "Chips overlay: the share of the group's damage stands larger to the right of damage and DPS, over both lines": {
   "en": "Chips overlay: damage share shown large next to damage and DPS",
   "de": "Chip-Ansicht: Schadensanteil groß neben Schaden und DPS"
+ },
+ "Release 2.4.3: chips overlay shows the share of the group's damage": {
+  "en": "Release 2.4.3: damage share in the chips overlay",
+  "de": "Release 2.4.3: Schadensanteil in der Chip-Ansicht"
  }
 }
