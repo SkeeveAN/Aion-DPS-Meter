@@ -494,5 +494,9 @@
  "Player page: the arcana tab shows the skill levels, god stats and set effects of other players too, read from NC's item pages (no experience)": {
   "en": "Player page: arcana skills and god stats for other players too",
   "de": "Spielerseite: Arcana-Skills und Götterwerte auch bei anderen Spielern"
+ },
+ "Chips overlay: the share of the group's damage stands larger to the right of damage and DPS, over both lines": {
+  "en": "Chips overlay: damage share shown large next to damage and DPS",
+  "de": "Chip-Ansicht: Schadensanteil groß neben Schaden und DPS"
  }
 }

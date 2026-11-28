@@ -24,6 +24,13 @@
      "Backend"
     ],
     "date": "2026-11-28"
+   },
+   {
+    "text": "Chips overlay: the share of the group's damage stands larger to the right of damage and DPS, over both lines",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
    }
   ]
  },
