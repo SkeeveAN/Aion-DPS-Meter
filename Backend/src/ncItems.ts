@@ -3,6 +3,7 @@ import { db } from "./db/client.js";
 import { playerNcCharacter, playerNcMatch, playerProfiles } from "./db/schema.js";
 import { getNc, ncFetch, withinBudget, DAY, HOUR } from "./portraitService.js";
 import { PRIORITY } from "./refreshPolicy.js";
+import { skillInfoById } from "./profile.js";
 
 // The item tooltip of the player page, filled from NC's own item pages: what a worn piece really is (base stats with the enchant
 // bonus, rolled stats with their range, stone values, the god stone's text, where the piece drops). Asked for only when somebody
@@ -256,9 +257,98 @@ export async function itemTipOf(playerId: number, slot: number, lang: string, fe
   }
 }
 
+/** The ten lords of the god stat as the game numbers them (the stat's English name in NC's text "Time [Siel]" is the key). */
+const GOD_IDS: Record<string, number> = { justice: 7, freedom: 8, illusion: 9, life: 10, time: 11, destruction: 13, death: 14, wisdom: 15, destiny: 16, space: 17 };
+const ARCANA_SLOTS = [41, 42, 43, 44, 45];
+
+export type ArcanaPiece = {
+  slot: number;
+  /** The god stat (7-11, 13-17), its value (base plus the piece's extra) and the four skill levels, in the shape the client uploads for its own character. */
+  arcana: { exp: null; god: number; godValue: number; skillBonuses: { skill: number; name: string; names?: Record<string, string>; level: number }[] };
+};
+
+/** One arcana piece of NC's item answer in the client's own shape; null when the answer lacks the god stat or any skill. */
+export function mapNcArcana(slot: number, equipped: unknown): ArcanaPiece | null {
+  const e = obj(equipped);
+  const stat = list(e?.mainStats)[0];
+  const god = GOD_IDS[text(stat?.name, 60).split("[")[0]?.trim().toLowerCase() ?? ""];
+  const value = (num(stat?.value) ?? 0) + (num(stat?.extra) ?? 0);
+  const skills = list(e?.subSkills)
+    .map((s) => ({ id: num(s.id), level: num(s.level) }))
+    .filter((s): s is { id: number; level: number } => s.id !== null && s.level !== null && s.level > 0);
+  if (!god || value <= 0 || skills.length === 0) {
+    return null;
+  }
+  return {
+    slot,
+    arcana: {
+      exp: null,
+      god,
+      godValue: value,
+      skillBonuses: skills.map((s) => {
+        const info = skillInfoById(s.id);
+        return { skill: s.id, name: info?.name ?? String(s.id), names: info?.names, level: s.level };
+      }),
+    },
+  };
+}
+
+const arcanaCache = new Map<string, Cached<ArcanaPiece[]>>();
+
+/**
+ * The skills, god stats and levels of the five arcana worn by a player NC knows (five requests, cached six hours), so a stranger's page
+ * shows what the own client reads for its owner. Experience is not in NC's answer. Only pieces the stored profile lists are asked for.
+ */
+export async function arcanaOf(playerId: number, fetchFn: FetchFn = ncFetch, now = Date.now()): Promise<{ status: "ok"; pieces: ArcanaPiece[] } | { status: "none" } | { status: "busy" }> {
+  const profile = db.select({ gearJson: playerProfiles.gearJson }).from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
+  const worn = profile ? ARCANA_SLOTS.map((slot) => gearOfSlot(profile.gearJson, slot)).filter((g): g is GearEntry => g !== null) : [];
+  if (worn.length === 0) {
+    return { status: "none" };
+  }
+  const own = db.select({ characterId: playerNcCharacter.characterId, serverId: playerNcCharacter.ncServerId }).from(playerNcCharacter).where(eq(playerNcCharacter.playerId, playerId)).get();
+  const matched = db.select({ characterId: playerNcMatch.ncCharacterId, serverId: playerNcMatch.ncServerId }).from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
+  const known = own?.characterId && own.serverId ? { characterId: own.characterId, serverId: own.serverId } : matched?.characterId && matched.serverId ? { characterId: matched.characterId, serverId: matched.serverId } : null;
+  if (!known) {
+    return { status: "none" };
+  }
+  const key = `${known.characterId}:${worn.map((g) => `${g.slot}.${g.itemId}.${g.enchant}`).join(",")}`;
+  const hit = arcanaCache.get(key);
+  if (hit && now - hit.at < TIP_TTL) {
+    return hit.value.length > 0 ? { status: "ok", pieces: hit.value } : { status: "none" };
+  }
+  if (!withinBudget(PRIORITY.view, now)) {
+    return { status: "busy" };
+  }
+  try {
+    const pieces = await once(`arc:${key}`, async () => {
+      const found: ArcanaPiece[] = [];
+      for (const gear of worn) {
+        const url = new URL(EQUIPPED_URL);
+        url.searchParams.set("region", "eu");
+        url.searchParams.set("lang", "en-US");
+        url.searchParams.set("characterId", known.characterId);
+        url.searchParams.set("serverId", String(known.serverId));
+        url.searchParams.set("id", String(gear.itemId));
+        url.searchParams.set("enchantLevel", String(gear.enchant));
+        url.searchParams.set("slotPos", String(gear.slot));
+        const piece = mapNcArcana(gear.slot, await getJson(fetchFn, url));
+        if (piece) {
+          found.push(piece);
+        }
+      }
+      put(arcanaCache, key, found, now);
+      return found;
+    });
+    return pieces.length > 0 ? { status: "ok", pieces } : { status: "none" };
+  } catch {
+    return { status: "busy" };
+  }
+}
+
 /** Test hook: forget everything cached. */
 export function clearItemCaches(): void {
   tipCache.clear();
+  arcanaCache.clear();
   definitionCache.clear();
   inFlight.clear();
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { gearOfSlot, levelBonusOf, mapNcItem, ncLangOf } from "./ncItems.js";
+import { gearOfSlot, levelBonusOf, mapNcArcana, mapNcItem, ncLangOf } from "./ncItems.js";
 
 // Aahz's main hand as NC answers (equipment/item) and the item's definition (gameconst/item), shortened.
 const equipped = {
@@ -64,4 +64,17 @@ test("the item level bonus is the enchant, the stones by rarity, a god stone and
   assert.equal(levelBonusOf(9, 0, [], []), 9, "a belt has no stones");
   assert.equal(levelBonusOf(10, 0, ["Unique"], []), null, "a rarity whose worth is not known shows no bonus");
   assert.equal(levelBonusOf(10, 0, [], ["Legend"]), null);
+});
+
+test("an arcana piece of NC's answer comes out in the shape the client uploads: god stat, value with the extra, four skill levels", () => {
+  const piece = mapNcArcana(41, {
+    id: 810130001, name: "Chalice of Vigor",
+    mainStats: [{ id: "Time", name: "Time [Siel]", value: "20", extra: "5" }],
+    subSkills: [{ id: 11170000, level: 4, name: "Downward Strike" }, { id: 11100000, level: 2 }, { id: 11020000, level: 1 }, { id: 11280000, level: 2 }],
+  });
+  assert.equal(piece?.slot, 41);
+  assert.equal(piece?.arcana.god, 11);
+  assert.equal(piece?.arcana.godValue, 25);
+  assert.deepEqual(piece?.arcana.skillBonuses.map((s) => [s.skill, s.level]), [[11170000, 4], [11100000, 2], [11020000, 1], [11280000, 2]]);
+  assert.equal(mapNcArcana(41, { id: 1, name: "x", mainStats: [], subSkills: [] }), null);
 });

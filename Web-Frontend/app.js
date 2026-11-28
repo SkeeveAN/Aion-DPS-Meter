@@ -4506,13 +4506,25 @@ const LORD_KEYS = { 7: "justice", 8: "freedom", 9: "illusion", 10: "life", 11: "
 
 function renderArcanaTab(profile) {
   const list = profile.gear.filter((g) => g.slotName === "Arcana").sort((a, b) => a.slot - b.slot);
-  // Details (experience, god stat, skill bonuses) only exist for a character whose own client uploaded them; otherwise the plain tiles.
-  if (!list.some((g) => g.arcana)) {
-    return el("div", { className: "pf-arcana" }, list.map(gearSlot));
-  }
+  // Experience, god stat and skill bonuses come from the character's own client; for everybody else NC's item pages give them (no experience).
+  // Until they are there (or when NC has none) the plain tiles show.
   const body = el("div", { className: "pf-arc" });
-  const draw = () => body.replaceChildren(...arcanaBlocks(profile, list));
+  const draw = () => body.replaceChildren(...(list.some((g) => g.arcana) ? arcanaBlocks(profile, list) : [el("div", { className: "pf-arcana" }, list.map(gearSlot))]));
   draw();
+  if (!list.some((g) => g.arcana) && list.length > 0 && gearPlayerId) {
+    fetch(`/api/players/${gearPlayerId}/arcana`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        for (const p of data?.pieces ?? []) {
+          const g = list.find((x) => x.slot === p.slot);
+          if (g) {
+            g.arcana = p.arcana;
+          }
+        }
+        draw();
+      })
+      .catch(() => {});
+  }
   if (!arcanaTables.data) {
     loadArcanaTables().then(() => arcanaTables.data && draw());
   }
@@ -4591,13 +4603,13 @@ function arcanaBlocks(profile, list) {
     const card = el("div", { className: "pf-slot pf-arc-card", style: `--ico-color:${color}` }, [head]);
     if (a) {
       const { limit, maxed } = expLimit(g);
-      card.append(
+      if (a.exp !== null || maxed) card.append(
         el("div", { className: "pf-arc-exp" }, [
           el("span", { textContent: t("arcana.reinforcement") }),
           el("strong", { textContent: maxed ? t("arcana.max") : limit ? `${formatNumber(a.exp)} / ${formatNumber(limit)}` : formatNumber(a.exp) }),
         ]),
       );
-      if (limit) {
+      if (limit && a.exp !== null) {
         card.append(el("div", { className: "pf-arc-bar" }, [el("i", { style: `width:${Math.min(100, (a.exp / limit) * 100)}%` })]));
       }
       const lord = LORD_KEYS[a.god];

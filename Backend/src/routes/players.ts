@@ -12,7 +12,7 @@ import { buildCharacterView, buildProfileView, factionFromFights } from "../prof
 import { serverOfName } from "../content/aion2Servers.js";
 import { shardOf } from "../ncMatch.js";
 import { portraitFile, portraitUrlFor } from "../portraitService.js";
-import { itemTipOf, ncLangOf } from "../ncItems.js";
+import { arcanaOf, itemTipOf, ncLangOf } from "../ncItems.js";
 import { readFile } from "node:fs/promises";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { cached } from "../seo/cache.js";
@@ -245,6 +245,19 @@ export async function playerRoutes(app: FastifyInstance) {
       return reply.header("Cache-Control", "public, max-age=3600").send(outcome.tip);
     }
     return outcome.status === "busy" ? reply.status(503).header("Retry-After", "60").send({ error: "busy" }) : reply.status(404).send({ error: "no_item" });
+  });
+
+  // The skills, god stats and levels of the five arcana of a player NC knows, in the shape the own client uploads for its owner (no experience).
+  app.get<{ Params: { id: string } }>("/api/players/:id/arcana", async (request, reply) => {
+    const id = Number(request.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return reply.status(404).send({ error: "no_arcana" });
+    }
+    const outcome = await arcanaOf(id);
+    if (outcome.status === "ok") {
+      return reply.header("Cache-Control", "public, max-age=3600").send({ pieces: outcome.pieces });
+    }
+    return outcome.status === "busy" ? reply.status(503).header("Retry-After", "60").send({ error: "busy" }) : reply.status(404).send({ error: "no_arcana" });
   });
 
   // The cut-out portrait file; 404 while there is none. The page asks with ?v=<fetched_at>, so a day of caching is safe.
