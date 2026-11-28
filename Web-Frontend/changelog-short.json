@@ -514,5 +514,9 @@
  "the damage share counts against the boss's whole hit points": {
   "en": "Damage share counts against the boss's total HP",
   "de": "Schadensanteil bezogen auf die Boss-Gesamt-HP"
+ },
+ "Chips overlay: without a boss fight the damage and DPS move to the right edge, where the share stood": {
+  "en": "Chips overlay: without a boss, damage and DPS move right",
+  "de": "Chip-Ansicht: ohne Boss rücken Schaden und DPS nach rechts"
  }
 }

@@ -1650,5 +1650,6 @@
   "chips overlay shows the share of the group's damage": "Release 2.4.3: Die Chip-Ansicht zeigt den Anteil am Gruppenschaden",
   "Damage share is shown only in a boss fight": "Der Schadensanteil wird nur im Bosskampf angezeigt",
   "Damage share is taken of the boss's whole hit points when a boss is chosen": "Der Schadensanteil wird von den gesamten Lebenspunkten des Bosses berechnet, wenn ein Boss gewählt ist",
-  "the damage share counts against the boss's whole hit points": "Der Schadensanteil zählt gegen die gesamten Lebenspunkte des Bosses"
+  "the damage share counts against the boss's whole hit points": "Der Schadensanteil zählt gegen die gesamten Lebenspunkte des Bosses",
+  "Chips overlay: without a boss fight the damage and DPS move to the right edge, where the share stood": "Chip-Ansicht: Ohne Bosskampf rücken Schaden und DPS an den rechten Rand, wo der Anteil stand"
 }
