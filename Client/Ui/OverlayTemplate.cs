@@ -400,7 +400,7 @@ public static class OverlayTemplate
             case TemplateVar.Dps: // the meter's own rate, by its rule: with a boss chosen the iDPS (the boss fight's time, the same for everyone), else the damage over the player's time from first to last hit
                 return row.Dps is double d ? Number((long)Math.Round(d), f.Short) : "-";
             case TemplateVar.Share:
-                return row.SharePercent.ToString("0.0", CultureInfo.CurrentCulture) + " %";
+                return row.ShareVisible ? row.SharePercent.ToString("0.0", CultureInfo.CurrentCulture) + " %" : "";
             case TemplateVar.Taken:
                 return symbol("↓ ") + (row.DamageTaken > 0 ? Number(row.DamageTaken, f.Short) : "–");
             case TemplateVar.Heal:

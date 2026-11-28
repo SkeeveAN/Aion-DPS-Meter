@@ -302,7 +302,16 @@ public sealed class PlayerRow : INotifyPropertyChanged
         set { if (_sharePercent == value) { return; } _sharePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); OnPropertyChanged(nameof(ShareOrHealCompact)); }
     }
 
-    public string ShareDisplay => SharePercent.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "%";
+    private bool _shareVisible = true;
+
+    /// <summary>The share is shown only in a boss fight (it is taken of the boss's hit points then); else the row has none to show.</summary>
+    public bool ShareVisible
+    {
+        get => _shareVisible;
+        set { if (_shareVisible == value) { return; } _shareVisible = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); OnPropertyChanged(nameof(ShareOrHealCompact)); }
+    }
+
+    public string ShareDisplay => ShareVisible ? SharePercent.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "%" : "";
 
     /// <summary>Damage this player RECEIVED inside the shown window (from the selected target
     /// only when one is picked) - the tank/aggro question the dealt-damage columns cannot answer.</summary>
