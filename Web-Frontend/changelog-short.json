@@ -518,5 +518,9 @@
  "Chips overlay: without a boss fight the damage and DPS move to the right edge, where the share stood": {
   "en": "Chips overlay: without a boss, damage and DPS move right",
   "de": "Chip-Ansicht: ohne Boss rücken Schaden und DPS nach rechts"
+ },
+ "in the chips overlay the damage and DPS stand at the right edge when no boss is fought": {
+  "en": "Chips overlay: damage and DPS at the right edge without a boss",
+  "de": "Chip-Ansicht: Schaden und DPS rechts, wenn kein Boss"
  }
 }

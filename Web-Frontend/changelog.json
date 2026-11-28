@@ -1,10 +1,17 @@
 [
  {
-  "version": "Unreleased",
+  "version": "2.4.6",
   "date": "2026-11-28",
   "items": [
    {
     "text": "Chips overlay: without a boss fight the damage and DPS move to the right edge, where the share stood",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "in the chips overlay the damage and DPS stand at the right edge when no boss is fought",
     "areas": [
      "Client"
     ],
