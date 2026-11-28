@@ -180,27 +180,11 @@ public static class FarmMapRenderer
         }
 
         legendY += 120;
-        // the list lies IN the picture, on a card in the corner of the map where the fewest points and badges are (the list of the overlay and the widget is a part of its own)
+        // the list stands NEXT TO the map (to its right), on a card of its own, so it covers nothing of the map (the list of the overlay and the widget is a part of its own)
         int panelH = (int)legendY - 20;
         int height = withLegend ? Math.Max(mapH, panelH + 48) : mapH;
-        int width = withLegend ? Math.Max(mapW, LegendWidth + 48) : mapW;
-        double panelX = 24, panelY = 24;
-        if (withLegend)
-        {
-            var marks = plan.Points.Select(pt => At(pt.X, pt.Y)).ToList();
-            double best = double.MaxValue;
-            foreach ((double cx, double cy) in new[] { (width - LegendWidth - 24.0, 24.0), (24.0, 24.0), (width - LegendWidth - 24.0, height - panelH - 24.0), (24.0, height - panelH - 24.0) })
-            {
-                var card = new Rect(cx, cy, LegendWidth, panelH);
-                double score = marks.Count(m => card.Contains(m)) + badges.Count(b => card.Contains(b)) * 60 + places.Count(b => card.Contains(b)) * 60;
-                if (score < best)
-                {
-                    best = score;
-                    panelX = cx;
-                    panelY = cy;
-                }
-            }
-        }
+        int width = withLegend ? mapW + 24 + LegendWidth + 24 : mapW;
+        double panelX = mapW + 24, panelY = 24;
 
         var visual = new DrawingVisual();
         using (var dc = visual.RenderOpen())
@@ -281,8 +265,8 @@ public static class FarmMapRenderer
 
             if (withLegend)
             {
-                // the list on a card in the map
-                dc.DrawRoundedRectangle(new SolidColorBrush(Color.FromArgb(0xEC, PanelBack.R, PanelBack.G, PanelBack.B)), new Pen(new SolidColorBrush(Color.FromRgb(0x2E, 0x3C, 0x4A)), 2), new Rect(panelX, panelY, LegendWidth, panelH), 14, 14);
+                // the list on a card next to the map
+                dc.DrawRoundedRectangle(new SolidColorBrush(PanelBack), new Pen(new SolidColorBrush(Color.FromRgb(0x2E, 0x3C, 0x4A)), 2), new Rect(panelX, panelY, LegendWidth, panelH), 14, 14);
                 double lx = panelX + 28, y = panelY + 22;
                 dc.DrawText(Text(title, 34, goldBrush, faceBold, LegendWidth - 56), new Point(lx, y));
                 y += 48;
