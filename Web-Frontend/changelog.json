@@ -1,5 +1,38 @@
 [
  {
+  "version": "2.4.5",
+  "date": "2026-11-28",
+  "items": [
+   {
+    "text": "Damage share is shown only in a boss fight",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   }
+  ]
+ },
+ {
+  "version": "2.4.4",
+  "date": "2026-11-28",
+  "items": [
+   {
+    "text": "Damage share is taken of the boss's whole hit points when a boss is chosen",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "the damage share counts against the boss's whole hit points",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   }
+  ]
+ },
+ {
   "version": "2.4.3",
   "date": "2026-11-28",
   "items": [

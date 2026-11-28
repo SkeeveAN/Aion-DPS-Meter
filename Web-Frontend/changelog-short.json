@@ -502,5 +502,17 @@
  "chips overlay shows the share of the group's damage": {
   "en": "Release 2.4.3: damage share in the chips overlay",
   "de": "Release 2.4.3: Schadensanteil in der Chip-Ansicht"
+ },
+ "Damage share is shown only in a boss fight": {
+  "en": "Damage share shown only in a boss fight",
+  "de": "Schadensanteil nur im Bosskampf"
+ },
+ "Damage share is taken of the boss's whole hit points when a boss is chosen": {
+  "en": "Damage share counts against the boss's total HP",
+  "de": "Schadensanteil bezogen auf die Boss-Gesamt-HP"
+ },
+ "the damage share counts against the boss's whole hit points": {
+  "en": "Damage share counts against the boss's total HP",
+  "de": "Schadensanteil bezogen auf die Boss-Gesamt-HP"
  }
 }
