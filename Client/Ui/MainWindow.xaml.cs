@@ -2087,11 +2087,14 @@ public partial class MainWindow : Window
         // In Taken mode the bar is drawn to the damage that got through, behind it a blue one to the absorbed
         // damage on top; both scale to the biggest of the two together.
         long shownMax = _rows.Count > 0 ? _rows.Max(r => r.Damage + (_takenMode ? r.Absorbed : 0)) : 0;
+        // The share is taken of the boss's whole hit points when a boss is chosen (a minimum share of it is needed to
+        // be allowed to loot), else of what the group dealt together.
+        long shareBase = !_pvpOnly && !_takenMode && !_healMode && _selectedTargetId is int shareTarget && BossMaxHpOf(shareTarget) is long bossHp ? bossHp : shownTotal;
         int rank = 0;
         foreach (PlayerRow row in _rows.OrderByDescending(RankValue))
         {
             row.Rank = ++rank;
-            row.SharePercent = shownTotal > 0 ? 100.0 * row.Damage / shownTotal : 0;
+            row.SharePercent = shareBase > 0 ? 100.0 * row.Damage / shareBase : 0;
             row.FillPercent = shownMax > 0 ? 100.0 * row.Damage / shownMax : 0;
             row.AbsorbedFillPercent = _takenMode && shownMax > 0 && row.Absorbed > 0 ? 100.0 * (row.Damage + row.Absorbed) / shownMax : 0;
         }
