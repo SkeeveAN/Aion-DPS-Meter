@@ -1475,6 +1475,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDamage"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ChipShare"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}" Width="14" Height="14"/>
@@ -1506,6 +1507,9 @@
                                     <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                     <TextBlock Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealSubtle}" FontSize="10" HorizontalAlignment="Right"/>
                                 </StackPanel>
+                                <!-- the share of the group's damage, larger, to the right of damage and DPS, over both lines -->
+                                <TextBlock Grid.Column="4" Text="{Binding ShareDisplay}" Foreground="{DynamicResource Brush.OverlayText}" FontSize="15" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" ToolTip="Share of the group's damage"/>
                             </Grid>
                             <StackPanel Orientation="Horizontal" Margin="40,0,0,0"
                                         Visibility="{Binding HasExtraInfo, Converter={StaticResource BoolToVis}}">
