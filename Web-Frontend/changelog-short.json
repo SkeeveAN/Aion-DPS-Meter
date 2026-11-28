@@ -482,5 +482,13 @@
  "World boss: a lead time (0 to 15 minutes) at the top of the settings: the sound plays that many minutes before a watched boss is back, once per return": {
   "en": "World boss: lead time for the sound (0-15 min)",
   "de": "World-Boss: Vorlaufzeit für den Ton (0-15 Min.)"
+ },
+ "Farm map: the arrows to change the picture stand at the middle of the left and the right edge of the map": {
+  "en": "Farm map: arrows at the middle of the edges",
+  "de": "Farm-Karte: Pfeile in der Mitte der Ränder"
+ },
+ "Farm map: the list of the spots stands next to the map, on a card of its own, and no longer lies over the map": {
+  "en": "Farm map: the list stands next to the map",
+  "de": "Farm-Karte: Liste steht neben der Karte"
  }
 }

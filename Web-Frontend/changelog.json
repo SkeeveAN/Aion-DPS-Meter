@@ -1,5 +1,25 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-11-28",
+  "items": [
+   {
+    "text": "Farm map: the arrows to change the picture stand at the middle of the left and the right edge of the map",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   },
+   {
+    "text": "Farm map: the list of the spots stands next to the map, on a card of its own, and no longer lies over the map",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-11-28"
+   }
+  ]
+ },
+ {
   "version": "2.4.2",
   "date": "2026-11-28",
   "items": [
