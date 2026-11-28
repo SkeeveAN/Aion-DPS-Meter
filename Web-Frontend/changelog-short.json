@@ -490,5 +490,9 @@
  "Farm map: the list of the spots stands next to the map, on a card of its own, and no longer lies over the map": {
   "en": "Farm map: the list stands next to the map",
   "de": "Farm-Karte: Liste steht neben der Karte"
+ },
+ "Player page: the arcana tab shows the skill levels, god stats and set effects of other players too, read from NC's item pages (no experience)": {
+  "en": "Player page: arcana skills and god stats for other players too",
+  "de": "Spielerseite: Arcana-Skills und Götterwerte auch bei anderen Spielern"
  }
 }

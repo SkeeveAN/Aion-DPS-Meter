@@ -16,6 +16,14 @@
      "Client"
     ],
     "date": "2026-11-28"
+   },
+   {
+    "text": "Player page: the arcana tab shows the skill levels, god stats and set effects of other players too, read from NC's item pages (no experience)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-11-28"
    }
   ]
  },

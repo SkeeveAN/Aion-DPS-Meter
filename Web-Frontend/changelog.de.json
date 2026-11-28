@@ -1644,5 +1644,6 @@
   "World boss: a lead time (0 to 15 minutes) at the top of the settings: the sound plays that many minutes before a watched boss is back, once per return": "World-Boss: Oben in den Einstellungen gibt es eine Vorlaufzeit (0 bis 15 Minuten): Der Ton spielt so viele Minuten, bevor ein beobachteter Boss wieder da ist, einmal je Rückkehr",
   "Twitch drops window shows its content again, lead time for the world boss sounds": "Das Twitch-Drops-Fenster zeigt wieder seinen Inhalt, Vorlaufzeit für die World-Boss-Töne",
   "Farm map: the arrows to change the picture stand at the middle of the left and the right edge of the map": "Farm-Karte: Die Pfeile zum Wechseln des Bildes stehen in der Mitte des linken und des rechten Rands der Karte",
-  "Farm map: the list of the spots stands next to the map, on a card of its own, and no longer lies over the map": "Farm-Karte: Die Liste der Plätze steht neben der Karte, auf einer eigenen Karte, und liegt nicht mehr über der Karte"
+  "Farm map: the list of the spots stands next to the map, on a card of its own, and no longer lies over the map": "Farm-Karte: Die Liste der Plätze steht neben der Karte, auf einer eigenen Karte, und liegt nicht mehr über der Karte",
+  "Player page: the arcana tab shows the skill levels, god stats and set effects of other players too, read from NC's item pages (no experience)": "Spielerseite: Der Arcana-Tab zeigt jetzt auch bei anderen Spielern Skill-Stufen, Götterwerte und Set-Effekte, gelesen von den Item-Seiten von NC (ohne Erfahrung)"
 }
