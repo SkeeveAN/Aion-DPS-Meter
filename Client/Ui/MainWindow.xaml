@@ -1509,7 +1509,8 @@
                                 </StackPanel>
                                 <!-- the share of the group's damage, larger, to the right of damage and DPS, over both lines -->
                                 <TextBlock Grid.Column="4" Text="{Binding ShareDisplay}" Foreground="{DynamicResource Brush.OverlayText}" FontSize="15" FontWeight="SemiBold"
-                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" ToolTip="Share of the group's damage"/>
+                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" ToolTip="Share of the boss's hit points"
+                                           Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
                             <StackPanel Orientation="Horizontal" Margin="40,0,0,0"
                                         Visibility="{Binding HasExtraInfo, Converter={StaticResource BoolToVis}}">

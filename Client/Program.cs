@@ -1463,6 +1463,7 @@ internal static class Program
                 row.CombatPower = rank == 3 ? null : 172_000 - rank * 9_300; // one player the game told nothing of
             }
 
+            row.ShareVisible = Environment.GetEnvironmentVariable("AIONDPS_RENDER_NOSHARE") is not { Length: > 0 }; // a picture without a boss fight has no share
             if (Environment.GetEnvironmentVariable("AIONDPS_RENDER_TEAMS") is { Length: > 0 })
             {
                 row.TeamSide = rank % 2 == 1 ? "Red" : "Blue"; // the 10 against 10 arena's two teams, for the picture
