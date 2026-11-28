@@ -103,16 +103,23 @@ public static class FarmMapView
             var name = new TextBlock { Text = images.Count > 1 ? $"{current.Name}  ·  {_index + 1}/{images.Count}" : current.Name, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
             name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
             Grid.SetColumn(name, 1);
-            bar.Children.Add(Arrow("‹", -1, 0));
             bar.Children.Add(name);
-            bar.Children.Add(Arrow("›", 1, 2));
             grid.Children.Add(bar);
         }
 
         var image = new Image { Source = Load(current.Path), Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
-        Grid.SetRow(image, 1);
-        grid.Children.Add(image);
+        // the picture with the arrows over it, at the middle of its left and its right edge
+        var stage = new Grid();
+        Grid.SetRow(stage, 1);
+        stage.Children.Add(image);
+        if (header)
+        {
+            stage.Children.Add(Arrow("‹", -1, HorizontalAlignment.Left));
+            stage.Children.Add(Arrow("›", 1, HorizontalAlignment.Right));
+        }
+
+        grid.Children.Add(stage);
         return grid;
     }
 
@@ -191,12 +198,16 @@ public static class FarmMapView
         return new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Content = stack };
     }
 
-    private static UIElement Arrow(string glyph, int direction, int column)
+    private static UIElement Arrow(string glyph, int direction, HorizontalAlignment side)
     {
-        var text = new TextBlock { Text = glyph, FontSize = 22, FontWeight = FontWeights.Bold, Margin = new Thickness(8, -4, 8, -2), VerticalAlignment = VerticalAlignment.Center };
+        var text = new TextBlock { Text = glyph, FontSize = 26, FontWeight = FontWeights.Bold, Margin = new Thickness(0, -6, 0, -3), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         text.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-        var button = new Border { Child = text, Background = Brushes.Transparent, Cursor = Cursors.Hand, MinWidth = 28 };
-        Grid.SetColumn(button, column);
+        // a dark, half see-through tab so the arrow reads over the map
+        var button = new Border
+        {
+            Child = text, Background = new SolidColorBrush(Color.FromArgb(150, 0, 0, 0)), Cursor = Cursors.Hand, Width = 30, Height = 56, CornerRadius = new CornerRadius(8),
+            HorizontalAlignment = side, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 4, 0),
+        };
         button.MouseLeftButtonDown += (_, e) => e.Handled = true; // the overlay is not dragged by the click
         button.MouseLeftButtonUp += (_, e) =>
         {
